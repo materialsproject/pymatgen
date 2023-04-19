@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.lammps.inputs module &mdash; pymatgen 2023.1.30 documentation</title>
+  <title>pymatgen.io.lammps.inputs module &mdash; pymatgen 2023.3.23 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,13 +14,15 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.lammps.outputs module" href="pymatgen.io.lammps.outputs.html" />
-    <link rel="prev" title="pymatgen.io.lammps.data module" href="pymatgen.io.lammps.data.html" />
+    <link rel="prev" title="pymatgen.io.lammps.generators module" href="pymatgen.io.lammps.generators.html" />
  
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
@@ -39,7 +41,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.1.30
+                2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -116,10 +118,374 @@
              
   <section id="module-pymatgen.io.lammps.inputs">
 <span id="pymatgen-io-lammps-inputs-module"></span><h1>pymatgen.io.lammps.inputs module<a class="headerlink" href="#module-pymatgen.io.lammps.inputs" title="Permalink to this heading"></a></h1>
-<p>This module implements methods for writing LAMMPS input files.</p>
+<p>This module implements methods for reading/manupilating/writing LAMMPS input files.
+It does not implement methods for automatically creating inputs based on a structure
+and computation type. For this, see the InputSet and InputGenerator in sets.py, or
+<a class="reference external" href="https://github.com/Matgenix/atomate2-lammps">https://github.com/Matgenix/atomate2-lammps</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsInputFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L35-L841"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.io.core.html#pymatgen.io.core.InputFile" title="pymatgen.io.core.InputFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">InputFile</span></code></a></p>
+<p>Class representing a LAMMPS input settings file, e.g. in.lammps.
+Allows for LAMMPS input generation in line/stage wise manner. A stage
+here is defined as a block of LAMMPS input commands usually performing a
+specific task during the simulation such as energy minimization or
+NPT/NVT runs. But more broadly, a stage can also be a block of LAMMPS
+input where the simulation box is set up, a set of variables are declared or
+quantities are computed.</p>
+<p>The LammpsInputFile is defined by the attribute <cite>stages</cite>,
+i.e. a list of dicts each with keys <cite>stage_name</cite> and <cite>commands</cite>,
+defining the stage names and the corresponding LAMMPS input settings (list of tuples of two strings each).
+The structure is the following:
+<a href="#id1"><span class="problematic" id="id2">``</span></a>`
+stages = [</p>
+<blockquote>
+<div><p>{“stage_name”: “Stage 1”, “commands”: [(cmd1, args1), (cmd2, args2)]},
+{“stage_name”: “Stage 2”, “commands”: [(cmd3, args3)]}</p>
+</div></blockquote>
+<p>where cmd’s are the LAMMPS command names (e.g., “units”, or “pair_coeff”)
+and the args are the corresponding arguments.
+“Stage 1” and “Stage 2” are examples of stage names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stages</strong> – list of LAMMPS input settings.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.add_commands">
+<span class="sig-name descname"><span class="pre">add_commands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L351-L404"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.add_commands" title="Permalink to this definition"></a></dt>
+<dd><p>Method to add a LAMMPS commands and their arguments to a stage of
+the LammpsInputFile. The stage name should be provided: a default behavior
+is avoided here to avoid mistakes (e.g., the commands are added to the wrong stage).</p>
+<p class="rubric">Example</p>
+<p>In order to add the command <code class="docutils literal notranslate"><span class="pre">pair_coeff</span> <span class="pre">1</span> <span class="pre">1</span> <span class="pre">morse</span> <span class="pre">0.0580</span> <span class="pre">3.987</span> <span class="pre">3.404</span></code>
+to the stage “Definition of the potential”, simply use
+<a href="#id3"><span class="problematic" id="id4">``</span></a>`
+your_input_file.add_commands(</p>
+<blockquote>
+<div><p>stage_name=”Definition of the potential”,
+commands=”pair_coeff 1 1 morse 0.0580 3.987 3.404”</p>
+</div></blockquote>
+<p>To add multiple commands, use a dict or a list, e.g.,
+<a href="#id5"><span class="problematic" id="id6">``</span></a>`
+your_input_file.add_commands(</p>
+<blockquote>
+<div><p>stage_name=”Definition of the potential”,
+commands=[“pair_coeff 1 1 morse 0.0580 3.987 3.404”, “units atomic”]</p>
+</div></blockquote>
+<p>)
+your_input_file.add_commands(</p>
+<blockquote>
+<div><p>stage_name=”Definition of the potential”,
+commands={“pair_coeff”: “1 1 morse 0.0580 3.987 3.404”, “units”: “atomic”}</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stage_name</strong> (<em>str</em>) – name of the stage to which the command should be added.</p></li>
+<li><p><strong>commands</strong> (<em>str</em><em> or </em><em>list</em><em> or </em><em>dict</em>) – LAMMPS command, with or without the arguments.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.add_stage">
+<span class="sig-name descname"><span class="pre">add_stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after_stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L184-L281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.add_stage" title="Permalink to this definition"></a></dt>
+<dd><p>Adds a new stage to the LammpsInputFile, either from a whole stage (dict) or
+from a stage_name and commands. Both ways are mutually exclusive.</p>
+<p class="rubric">Examples</p>
+<p>1) In order to add a stage defining the force field to be used, you can use:
+<a href="#id7"><span class="problematic" id="id8">``</span></a>`
+your_input_file.add_stage(</p>
+<blockquote>
+<div><p>commands=[“pair_coeff 1 1 morse 0.0580 3.987 3.404”, “pair_coeff 1 4 morse 0.0408 1.399 3.204”],
+stage_name=”Definition of the force field”</p>
+</div></blockquote>
+<dl>
+<dt>your_input_file.add_stage(</dt><dd><dl>
+<dt>{</dt><dd><p>“stage_name”: “Definition of the force field”,
+“commands”: [</p>
+<blockquote>
+<div><p>(“pair_coeff”, “1 1 morse 0.0580 3.987 3.404”),
+(“pair_coeff”, “1 4 morse 0.0408 1.399 3.204”)</p>
+</div></blockquote>
+<p>],</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>2) Another stage could consist in an energy minimization. In that case, the commands could look like
+<a href="#id9"><span class="problematic" id="id10">``</span></a>`
+commands = [</p>
+<blockquote>
+<div><p>“thermo 1”,
+“thermo_style custom step lx ly lz press pxx pyy pzz pe”,
+“dump dmp all atom 5 run.dump”,
+“min_style cg”,
+“fix 1 all box/relax iso 0.0 vmax 0.001”,
+“minimize 1.0e-16 1.0e-16 5000 10000”,
+“write_data run.data”</p>
+</div></blockquote>
+<p>or a dictionary such as <cite>{“thermo”: 1, …}</cite>, or a string with a single command (e.g., “units atomic”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stage</strong> (<em>dict</em>) – if provided, this is the stage that will be added to the LammpsInputFile.stages</p></li>
+<li><p><strong>commands</strong> (<em>str</em><em> or </em><em>list</em><em> or </em><em>dict</em>) – if provided, these are the LAMMPS command(s)
+that will be included in the stage to add.
+Can pass a list of LAMMPS commands with their arguments.
+Also accepts a dictionary of LAMMPS commands and
+corresponding arguments as key, value pairs.
+A single string can also be passed (single command together with its arguments).
+Not used in case a whole stage is given.</p></li>
+<li><p><strong>stage_name</strong> (<em>str</em>) – If a stage name is mentioned, the commands are added
+under that stage block, else the new stage is named from numbering.
+If given, stage_name cannot be one of the already present stage names.
+Not used in case a whole stage is given.</p></li>
+<li><p><strong>after_stage</strong> (<em>str</em>) – Name of the stage after which this stage should be added.
+If None, the stage is added at the end of the LammpsInputFile.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lmp_input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.io.lammps.inputs.LammpsInputFile" title="pymatgen.io.lammps.inputs.LammpsInputFile"><span class="pre">LammpsInputFile</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L446-L472"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.append" title="Permalink to this definition"></a></dt>
+<dd><p>Appends a LammpsInputFile to another. The <cite>stages</cite> are merged,
+and the numbering of stages/comments is either kept the same or updated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lmp_input_file</strong> (<a class="reference internal" href="#pymatgen.io.lammps.inputs.LammpsInputFile" title="pymatgen.io.lammps.inputs.LammpsInputFile"><em>LammpsInputFile</em></a>) – LammpsInputFile to append.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.contains_command">
+<span class="sig-name descname"><span class="pre">contains_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L128-L140"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.contains_command" title="Permalink to this definition"></a></dt>
+<dd><p>Returns whether a given command is present in the LammpsInputFile.
+A stage name can be given; in this case the search will happen only for this stage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>command</strong> (<em>str</em>) – String with the command to find in the input file (e.g., “units”).</p></li>
+<li><p><strong>stage_name</strong> (<em>str</em>) – String giving the stage name where the change should take place.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the command is present, False if not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_comments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_stages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.io.lammps.inputs.LammpsInputFile" title="pymatgen.io.lammps.inputs.LammpsInputFile"><span class="pre">LammpsInputFile</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L605-L621"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.from_file" title="Permalink to this definition"></a></dt>
+<dd><p>Creates an InputFile object from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em><em> or </em><em>path</em>) – Filename to read, including path.</p></li>
+<li><p><strong>ignore_comments</strong> (<em>bool</em>) – True if only the commands should be kept from the input file.</p></li>
+<li><p><strong>keep_stages</strong> (<em>bool</em>) – True if the block structure from the input file should be kept.
+If False, a single block is assumed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>LammpsInputFile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.from_string">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_comments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_stages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.io.lammps.inputs.LammpsInputFile" title="pymatgen.io.lammps.inputs.LammpsInputFile"><span class="pre">LammpsInputFile</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L525-L603"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.from_string" title="Permalink to this definition"></a></dt>
+<dd><p>Helper method to parse string representation of LammpsInputFile.
+If you created the input file by hand, there is no guarantee that the representation
+will be perfect as it is difficult to account for all the cosmetic changes you
+could have done on your input script. Always check that you have what you want !
+By default, a single stage containing all the input settings is created.
+If the block structure of your input file should be kept and stored as
+different stages, set keep_stages to True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contents</strong> (<em>str</em>) – String representation of LammpsInputFile.</p></li>
+<li><p><strong>ignore_comments</strong> (<em>bool</em>) – True if only the commands should be kept from the input file.</p></li>
+<li><p><strong>keep_stages</strong> (<em>bool</em>) – True if the block structure from the input file should be kept.
+If False, a single block is assumed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>LammpsInputFile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.get_args">
+<span class="sig-name descname"><span class="pre">get_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L102-L126"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.get_args" title="Permalink to this definition"></a></dt>
+<dd><p>Given a command, returns the corresponding arguments (or list of arguments) in the LammpsInputFile.
+A stage name can be given; in this case the search will happen only for this stage.
+If a stage name is not given, the command will be searched for through all of them.
+If the command is not found, an empty list is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>command</strong> (<em>str</em>) – String with the command to find in the input file (e.g., “units”).</p></li>
+<li><p><strong>stage_name</strong> (<em>str</em>) – String giving the stage name where the change should take place.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Value of the argument corresponding to the command.
+List if the same command is used multiple times.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.get_string">
+<span class="sig-name descname"><span class="pre">get_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ignore_comments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_stages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L474-L509"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.get_string" title="Permalink to this definition"></a></dt>
+<dd><p>Generates and ² the string representation of the LammpsInputFile.
+Stages are separated by empty lines.
+The headers of the stages will be put in comments preceding each stage.
+Other comments will be put inline within stages, where they have been added.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ignore_comments</strong> (<em>bool</em>) – True if only the commands should be kept from the InputFile.</p></li>
+<li><p><strong>keep_stages</strong> (<em>bool</em>) – If True, the string is formatted in a block structure with stage names
+and newlines that differentiate commands in the respective stages of the InputFile.
+If False, stage names are not printed and all commands appear in a single block.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: String representation of the LammpsInputFile.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.merge_stages">
+<span class="sig-name descname"><span class="pre">merge_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L315-L349"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.merge_stages" title="Permalink to this definition"></a></dt>
+<dd><p>Merges multiple stages of a LammpsInputFile together.
+The merged stage will be at the same index as the first of the stages to be merged.
+The others will appear in the same order as provided in the list. Other non-merged stages will follow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stage_names</strong> (<em>list</em>) – list of strings giving the names of the stages to be merged.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.ncomments">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ncomments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/io/lammps/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.ncomments" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the number of comments in the current LammpsInputFile. Includes the blocks of comments as well
+as inline comments (comment lines within blocks of LAMMPS commands).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.nstages">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nstages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/io/lammps/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.nstages" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the number of stages in the current LammpsInputFile.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.remove_command">
+<span class="sig-name descname"><span class="pre">remove_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_empty_stages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L406-L444"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.remove_command" title="Permalink to this definition"></a></dt>
+<dd><p>Removes a given command from a given stage. If no stage is given, removes all occurrences of the command.
+In case removing a command completely empties a stage, the choice whether to keep this stage in the
+LammpsInputFile is given by remove_empty_stages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>command</strong> (<em>str</em>) – command to be removed.</p></li>
+<li><p><strong>stage_name</strong> (<em>str</em><em> or </em><em>list</em>) – names of the stages where the command should be removed.</p></li>
+<li><p><strong>remove_empty_stages</strong> (<em>bool</em>) – whether to remove the stages emptied by removing the command or not.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.remove_stage">
+<span class="sig-name descname"><span class="pre">remove_stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L283-L294"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.remove_stage" title="Permalink to this definition"></a></dt>
+<dd><p>Removes a whole stage from the LammpsInputFile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stage_name</strong> (<em>str</em>) – name of the stage to remove.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.rename_stage">
+<span class="sig-name descname"><span class="pre">rename_stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L296-L313"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.rename_stage" title="Permalink to this definition"></a></dt>
+<dd><p>Renames a stage <cite>stage_name</cite> from LammpsInputFile into <cite>new_name</cite>.
+First checks that the stage to rename is present, and that
+the new name is not already a stage name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stage_name</strong> (<em>str</em>) – name of the stage to rename.</p></li>
+<li><p><strong>new_name</strong> (<em>str</em>) – new name of the stage.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.set_args">
+<span class="sig-name descname"><span class="pre">set_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argument</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L142-L182"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.set_args" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the arguments for the given command to the given string.
+If the command is not found, nothing is done. Use LammpsInputFile.add_commands instead.
+If a stage name is specified, it will be replaced or set only for this stage.
+If no stage name is given, it will apply the change in all of them that contain the given command.
+If the command is set multiple times in the file/stage, it will be replaced based on “how”:
+either the first occurrence, all of them, or the index of the occurrence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>command</strong> (<em>str</em>) – String representing the command to change, e.g., “units”.</p></li>
+<li><p><strong>argument</strong> (<em>str</em>) – String with the new value for the command, e.g., “atomic”.</p></li>
+<li><p><strong>stage_name</strong> (<em>str</em>) – String giving the stage name where the change should take place.</p></li>
+<li><p><strong>how</strong> (<em>str</em><em> or </em><em>int</em><em> or </em><em>list</em>) – “all” for changing all occurrences of the command within the stage_name
+or the whole InputFile, “first” for the first occurrence, int i for the i-th time the command
+is present in the stage_name or the whole InputFile, starting at 0. Can be a list of indexes as well.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.stages_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stages_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/io/lammps/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.stages_names" title="Permalink to this definition"></a></dt>
+<dd><p>List of names for all the stages present in <cite>stages</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsInputFile.write_file">
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_comments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_stages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L511-L523"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsInputFile.write_file" title="Permalink to this definition"></a></dt>
+<dd><p>Writes the input file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em><em> or </em><em>path</em>) – The filename to output to, including path.</p></li>
+<li><p><strong>ignore_comments</strong> (<em>bool</em>) – True if only the commands should be kept from the InputFile.</p></li>
+<li><p><strong>keep_stages</strong> (<em>bool</em>) – True if the block structure from the InputFile should be kept.
+If False, a single block is assumed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsRun">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsRun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script_filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../io/lammps/inputs.py#L31-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsRun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script_filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L844-L920"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Examples for various simple LAMMPS runs with given simulation box,
 force field and a few more settings. Experienced LAMMPS users should
@@ -144,8 +510,8 @@ read_data cmd is in the script.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsRun.md">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">md</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../io/lammps/inputs.py#L81-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.md" title="Permalink to this definition"></a></dt>
-<dd><p>Example for a simple MD run based on template md.txt.</p>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">md</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L894-L920"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.md" title="Permalink to this definition"></a></dt>
+<dd><p>Example for a simple MD run based on template md.template.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -164,12 +530,12 @@ placeholders.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsRun.template_dir">
-<span class="sig-name descname"><span class="pre">template_dir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/shyue/repos/pymatgen/pymatgen/io/lammps/templates'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/io/lammps/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.template_dir" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">template_dir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/shyue/repos/pymatgen/pymatgen/io/lammps/templates'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/io/lammps/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.template_dir" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsRun.write_inputs">
-<span class="sig-name descname"><span class="pre">write_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../io/lammps/inputs.py#L63-L79"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.write_inputs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L876-L892"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.write_inputs" title="Permalink to this definition"></a></dt>
 <dd><p>Writes all input files (input script, and data if needed).
 Other supporting files are not handled at this moment.</p>
 <dl class="field-list simple">
@@ -186,7 +552,7 @@ Other supporting files are not handled at this moment.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsTemplateGen">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsTemplateGen</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../io/lammps/inputs.py#L110-L150"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsTemplateGen" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsTemplateGen</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L923-L963"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsTemplateGen" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.io.template.html#pymatgen.io.template.TemplateInputGen" title="pymatgen.io.template.TemplateInputGen"><code class="xref py py-class docutils literal notranslate"><span class="pre">TemplateInputGen</span></code></a></p>
 <p>Creates an InputSet object for a LAMMPS run based on a template file.
 The input script is constructed by substituting variables into placeholders
@@ -199,7 +565,7 @@ Other supporting files are not handled at the moment.</p>
 See pymatgen.io.template.py for additional documentation of this method.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsTemplateGen.get_input_set">
-<span class="sig-name descname"><span class="pre">get_input_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'in.lammps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><span class="pre">LammpsData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData" title="pymatgen.io.lammps.data.CombinedData"><span class="pre">CombinedData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'system.data'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.1.30/pymatgen/core/../io/lammps/inputs.py#L124-L150"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsTemplateGen.get_input_set" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_input_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'in.lammps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><span class="pre">LammpsData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.CombinedData" title="pymatgen.io.lammps.data.CombinedData"><span class="pre">CombinedData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'system.data'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/lammps/inputs.py#L937-L963"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsTemplateGen.get_input_set" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

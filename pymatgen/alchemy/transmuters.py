@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements various transmuter classes.
 Transmuters are essentially classes that generate TransformedStructures from
@@ -121,10 +118,7 @@ class StandardTransmuter:
         if self.ncores and transformation.use_multiprocessing:
             with Pool(self.ncores) as p:
                 # need to condense arguments into single tuple to use map
-                z = map(
-                    lambda x: (x, transformation, extend_collection, clear_redo),
-                    self.transformed_structures,
-                )
+                z = ((x, transformation, extend_collection, clear_redo) for x in self.transformed_structures)
                 new_tstructs = p.map(_apply_transformation, z, 1)
                 self.transformed_structures = []
                 for ts in new_tstructs:

@@ -1,8 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """This module provides classes used to enumerate surface sites and to find
-adsorption sites on slabs."""
+adsorption sites on slabs.
+"""
 
 from __future__ import annotations
 
@@ -209,11 +207,11 @@ class AdsorbateSiteFinder:
 
     @property
     def surface_sites(self):
-        """convenience method to return a list of surface sites."""
+        """Convenience method to return a list of surface sites."""
         return [site for site in self.slab.sites if site.properties["surface_properties"] == "surface"]
 
     def subsurface_sites(self):
-        """convenience method to return list of subsurface sites."""
+        """Convenience method to return list of subsurface sites."""
         return [site for site in self.slab.sites if site.properties["surface_properties"] == "subsurface"]
 
     def find_adsorption_sites(
@@ -578,11 +576,10 @@ class AdsorbateSiteFinder:
             d = sorted_sites[-1].frac_coords[2] - dist_from_surf
 
         for i, site in enumerate(sym_slab):
-            if d - range_tol < site.frac_coords[2] < d + range_tol:
-                if target_species and site.species_string in target_species:
-                    substituted_slabs.append(substitute(site, i))
-                elif not target_species:
-                    substituted_slabs.append(substitute(site, i))
+            if d - range_tol < site.frac_coords[2] < d + range_tol and (
+                target_species and site.species_string in target_species or not target_species
+            ):
+                substituted_slabs.append(substitute(site, i))
 
         matcher = StructureMatcher()
         return [s[0] for s in matcher.group_structures(substituted_slabs)]
@@ -590,7 +587,8 @@ class AdsorbateSiteFinder:
 
 def get_mi_vec(slab):
     """Convenience function which returns the unit vector aligned with the
-    miller index."""
+    miller index.
+    """
     mvec = np.cross(slab.lattice.matrix[0], slab.lattice.matrix[1])
     return mvec / np.linalg.norm(mvec)
 
@@ -609,14 +607,15 @@ def get_rot(slab):
 
 
 def put_coord_inside(lattice, cart_coordinate):
-    """converts a Cartesian coordinate such that it is inside the unit cell."""
+    """Converts a Cartesian coordinate such that it is inside the unit cell."""
     fc = lattice.get_fractional_coords(cart_coordinate)
     return lattice.get_cartesian_coords([c - np.floor(c) for c in fc])
 
 
 def reorient_z(structure):
-    """reorients a structure such that the z axis is concurrent with the normal
-    to the A-B plane."""
+    """Reorients a structure such that the z axis is concurrent with the normal
+    to the A-B plane.
+    """
     struct = structure.copy()
     sop = get_rot(struct)
     struct.apply_operation(sop)
@@ -702,7 +701,7 @@ def plot_slab(
     if draw_unit_cell:
         verts = np.insert(verts, 1, lattsum, axis=0).tolist()
         verts += [[0.0, 0.0]]
-        verts = [[0.0, 0.0]] + verts
+        verts = [[0.0, 0.0], *verts]
         codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
         verts = [(np.array(vert) + corner).tolist() for vert in verts]
         path = Path(verts, codes)

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Tests for the Materials Project DFT mixing scheme
 
@@ -101,9 +98,14 @@ Implementation Notes
 
 from __future__ import annotations
 
+import copy
+import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
+from monty.json import MontyDecoder
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -116,6 +118,7 @@ from pymatgen.entries.computed_entries import (
     ComputedStructureEntry,
 )
 from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Ryan Kingsbury"
 __copyright__ = "Copyright 2019-2021, The Materials Project"
@@ -214,7 +217,6 @@ def ms_complete():
     """
     Mixing state where we have R2SCAN for all GGA
     """
-
     gga_entries = [
         ComputedStructureEntry(
             Structure(lattice1, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga-1"
@@ -1095,7 +1097,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
         # process_entries should discard all GGA entries and return all R2SCAN
         entries = mixing_scheme_no_compat.process_entries(
-            ms_complete.all_entries + [foreign_entry], mixing_state_data=ms_complete.state_data
+            [*ms_complete.all_entries, foreign_entry], mixing_state_data=ms_complete.state_data
         )
         assert len(entries) == 7
         for e in entries:
@@ -1287,6 +1289,16 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         entries = compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 8
 
+    def test_processing_entries_inplace(self):
+        # load two entries in GGA_GGA_U_R2SCAN thermo type
+        entriesJson = Path(PymatgenTest.TEST_FILES_DIR / "entries_thermo_type_GGA_GGA_U_R2SCAN.json")
+        with open(entriesJson) as file:
+            entries = json.load(file, cls=MontyDecoder)
+        # check whether the compatibility scheme can keep input entries unchanged
+        entries_copy = copy.deepcopy(entries)
+        MaterialsProjectDFTMixingScheme().process_entries(entries, inplace=False)
+        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
+
 
 class TestMaterialsProjectDFTMixingSchemeStates:
     """
@@ -1344,7 +1356,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         In this case, the mixing scheme should not do anything
         """
-        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_only.all_entries, verbose=True)
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_only.all_entries)
         pd.testing.assert_frame_equal(state_data, ms_scan_only.state_data)
 
         for e in ms_scan_only.all_entries:
@@ -1423,12 +1435,10 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         pd.testing.assert_frame_equal(state_data, ms_gga_2_scan_same.state_data)
 
         for e in ms_gga_2_scan_same.scan_entries:
-            if e.entry_id == "r2scan-6":
+            if e.entry_id in ["r2scan-6", "r2scan-4"]:
                 # gga-4 energy is -18 eV or -6 eV/atom. r2scan-6 is 1 eV/atom above r2scan-4 (ground state),
                 # so r2scan-6 should be adjusted to -5 eV/atom or -15 eV, which is 3 eV higher than its
                 # original energy of -18 eV.
-                assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data)[0].value == 3
-            elif e.entry_id == "r2scan-4":
                 # r2scan-4 energy is -7 eV/atom. Needs to be adjusted to -6 eV/atom (3 atoms)
                 assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data)[0].value == 3
             else:

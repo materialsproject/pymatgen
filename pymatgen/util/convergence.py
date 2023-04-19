@@ -1,4 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.import string
 
 """
@@ -571,13 +570,7 @@ def determine_convergence(xs, ys, name, tol: float = 0.0001, extra="", verbose=F
             if verbose:
                 print(n, ys[n])
                 print(ys)
-            if tol < 0:
-                if popt[0] is not None:
-                    test = abs(popt[0] - ys[n])
-                else:
-                    test = float("inf")
-            else:
-                test = abs(ds[n])
+            test = (abs(popt[0] - ys[n]) if popt[0] is not None else float("inf")) if tol < 0 else abs(ds[n])
             if verbose:
                 print(test)
             if test < abs(tol):

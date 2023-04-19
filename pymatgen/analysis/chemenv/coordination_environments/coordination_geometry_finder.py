@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains the main object used to identify the coordination environments in a given structure.
 If you use this module, please cite the following:
@@ -292,11 +289,8 @@ def symmetry_measure(points_distorted, points_perfect):
     """
     # When there is only one point, the symmetry measure is 0.0 by definition
     if len(points_distorted) == 1:
-        return {
-            "symmetry_measure": 0.0,
-            "scaling_factor": None,
-            "rotation_matrix": None,
-        }
+        return {"symmetry_measure": 0.0, "scaling_factor": None, "rotation_matrix": None}
+
     # Find the rotation matrix that aligns the distorted points to the perfect points in a least-square sense.
     rot = find_rotation(points_distorted=points_distorted, points_perfect=points_perfect)
     # Find the scaling factor between the distorted points and the perfect points in a least-square sense.
@@ -325,7 +319,7 @@ def find_rotation(points_distorted, points_perfect):
     :return: The rotation matrix
     """
     H = np.matmul(points_distorted.T, points_perfect)
-    [U, S, Vt] = svd(H)
+    U, S, Vt = svd(H)
     rot = np.matmul(Vt.T, U.T)
     return rot
 
@@ -730,7 +724,7 @@ class LocalGeometryFinder:
 
         # Variables used for checking timelimit
         max_time_one_site = 0.0
-        breakit = False
+        break_it = False
 
         if optimization > 0:
             self.detailed_voronoi.local_planes = [None] * len(self.structure)
@@ -741,7 +735,7 @@ class LocalGeometryFinder:
             if isite not in sites_indices:
                 logging.debug(f" ... in site #{isite:d}/{len(self.structure):d} ({site.species_string}) : skipped")
                 continue
-            if breakit:
+            if break_it:
                 logging.debug(
                     f" ... in site #{isite}/{len(self.structure)} ({site.species_string}) : skipped (timelimit)"
                 )
@@ -765,7 +759,7 @@ class LocalGeometryFinder:
                     continue
                 for inb_set, nb_set in enumerate(nb_sets):
                     logging.debug(f"    ... getting environments for nb_set ({cn:d}, {inb_set:d})")
-                    tnbset1 = time.process_time()
+                    t_nbset1 = time.process_time()
                     ce = self.update_nb_set_environments(
                         se=se,
                         isite=isite,
@@ -775,10 +769,10 @@ class LocalGeometryFinder:
                         recompute=do_recompute,
                         optimization=optimization,
                     )
-                    tnbset2 = time.process_time()
+                    t_nbset2 = time.process_time()
                     if cn not in nb_sets_info:
                         nb_sets_info[cn] = {}
-                    nb_sets_info[cn][inb_set] = {"time": tnbset2 - tnbset1}
+                    nb_sets_info[cn][inb_set] = {"time": t_nbset2 - t_nbset1}
                     if get_from_hints:
                         for cg_symbol, cg_dict in ce:
                             cg = self.allcg[cg_symbol]
@@ -793,8 +787,8 @@ class LocalGeometryFinder:
                             }
                             for nb_sets_hints in cg.neighbors_sets_hints:
                                 suggested_nb_set_voronoi_indices = nb_sets_hints.hints(hints_info)
-                                for inew, new_nb_set_voronoi_indices in enumerate(suggested_nb_set_voronoi_indices):
-                                    logging.debug(f"           hint # {inew:d}")
+                                for idx_new, new_nb_set_voronoi_indices in enumerate(suggested_nb_set_voronoi_indices):
+                                    logging.debug(f"           hint # {idx_new:d}")
                                     new_nb_set = se.NeighborsSet(
                                         structure=se.structure,
                                         isite=isite,
@@ -803,7 +797,7 @@ class LocalGeometryFinder:
                                         sources={
                                             "origin": "nb_set_hints",
                                             "hints_type": nb_sets_hints.hints_type,
-                                            "suggestion_index": inew,
+                                            "suggestion_index": idx_new,
                                             "cn_map_source": [cn, inb_set],
                                             "cg_source_symbol": cg_symbol,
                                         },
@@ -839,7 +833,7 @@ class LocalGeometryFinder:
                 new_nb_set = missing_nb_set_to_add["new_nb_set"]
                 inew_nb_set = se.neighbors_sets[isite_new_nb_set][cn_new_nb_set].index(new_nb_set)
                 logging.debug(f"    ... getting environments for nb_set ({cn_new_nb_set}, {inew_nb_set}) - from hints")
-                tnbset1 = time.process_time()
+                t_nbset1 = time.process_time()
                 self.update_nb_set_environments(
                     se=se,
                     isite=isite_new_nb_set,
@@ -848,17 +842,17 @@ class LocalGeometryFinder:
                     nb_set=new_nb_set,
                     optimization=optimization,
                 )
-                tnbset2 = time.process_time()
+                t_nbset2 = time.process_time()
                 if cn not in nb_sets_info:
                     nb_sets_info[cn] = {}
-                nb_sets_info[cn][inew_nb_set] = {"time": tnbset2 - tnbset1}
+                nb_sets_info[cn][inew_nb_set] = {"time": t_nbset2 - t_nbset1}
             t2 = time.process_time()
             se.update_site_info(isite=isite, info_dict={"time": t2 - t1, "nb_sets_info": nb_sets_info})
             if timelimit is not None:
                 time_elapsed = t2 - time_init
                 time_left = timelimit - time_elapsed
                 if time_left < 2.0 * max_time_one_site:
-                    breakit = True
+                    break_it = True
             max_time_one_site = max(max_time_one_site, t2 - t1)
             logging.debug(f"    ... computed in {t2 - t1:.2f} seconds")
         time_end = time.process_time()
@@ -880,10 +874,7 @@ class LocalGeometryFinder:
         if ce is not None and not recompute:
             return ce
         ce = ChemicalEnvironments()
-        if optimization == 2:
-            neighb_coords = nb_set.neighb_coordsOpt
-        else:
-            neighb_coords = nb_set.neighb_coords
+        neighb_coords = nb_set.neighb_coordsOpt if optimization == 2 else nb_set.neighb_coords
         self.setup_local_geometry(isite, coords=neighb_coords, optimization=optimization)
         if optimization > 0:
             logging.debug("Getting StructureEnvironments with optimized algorithm")
@@ -982,10 +973,7 @@ class LocalGeometryFinder:
         else:
             raise ValueError("Wrong mp_symbol to setup coordination geometry")
         neighb_coords = []
-        if points is not None:
-            mypoints = points
-        else:
-            mypoints = cg.points
+        mypoints = points if points is not None else cg.points
         if randomness:
             rv = np.random.random_sample(3)
             while norm(rv) > 1.0:
@@ -1190,10 +1178,7 @@ class LocalGeometryFinder:
             if only_minimum:
                 if len(result) > 0:
                     imin = np.argmin([rr["symmetry_measure"] for rr in result])
-                    if geometry.algorithms is not None:
-                        algo = algos[imin]
-                    else:
-                        algo = algos
+                    algo = algos[imin] if geometry.algorithms is not None else algos
                     result_dict[geometry.mp_symbol] = {
                         "csm": result[imin]["symmetry_measure"],
                         "indices": permutations[imin],
@@ -1305,25 +1290,21 @@ class LocalGeometryFinder:
                 optimization=optimization,
             )
             result, permutations, algos, local2perfect_maps, perfect2local_maps = cgsm
-            if only_minimum:
-                if len(result) > 0:
-                    imin = np.argmin([rr["symmetry_measure"] for rr in result])
-                    if geometry.algorithms is not None:
-                        algo = algos[imin]
-                    else:
-                        algo = algos
-                    result_dict[geometry.mp_symbol] = {
-                        "csm": result[imin]["symmetry_measure"],
-                        "indices": permutations[imin],
-                        "algo": algo,
-                        "local2perfect_map": local2perfect_maps[imin],
-                        "perfect2local_map": perfect2local_maps[imin],
-                        "scaling_factor": 1.0 / result[imin]["scaling_factor"],
-                        "rotation_matrix": np.linalg.inv(result[imin]["rotation_matrix"]),
-                        "translation_vector": result[imin]["translation_vector"],
-                    }
-                    if all_csms:
-                        self._update_results_all_csms(result_dict, permutations, imin, geometry)
+            if only_minimum and len(result) > 0:
+                imin = np.argmin([rr["symmetry_measure"] for rr in result])
+                algo = algos[imin] if geometry.algorithms is not None else algos
+                result_dict[geometry.mp_symbol] = {
+                    "csm": result[imin]["symmetry_measure"],
+                    "indices": permutations[imin],
+                    "algo": algo,
+                    "local2perfect_map": local2perfect_maps[imin],
+                    "perfect2local_map": perfect2local_maps[imin],
+                    "scaling_factor": 1.0 / result[imin]["scaling_factor"],
+                    "rotation_matrix": np.linalg.inv(result[imin]["rotation_matrix"]),
+                    "translation_vector": result[imin]["translation_vector"],
+                }
+                if all_csms:
+                    self._update_results_all_csms(result_dict, permutations, imin, geometry)
         return result_dict
 
     def coordination_geometry_symmetry_measures(

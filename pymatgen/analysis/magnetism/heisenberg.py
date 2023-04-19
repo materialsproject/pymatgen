@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements a simple algorithm for extracting nearest neighbor
 exchange parameters by mapping low energy magnetic orderings to a Heisenberg
@@ -11,7 +8,6 @@ from __future__ import annotations
 
 import copy
 import logging
-import sys
 from ast import literal_eval
 
 import numpy as np
@@ -98,8 +94,7 @@ class HeisenbergMapper:
 
         # Check how many commensurate graphs we found
         if len(self.sgraphs) < 2:
-            print("We need at least 2 unique orderings.")
-            sys.exit(1)
+            raise SystemExit("We need at least 2 unique orderings.")
         else:  # Set attributes
             self._get_nn_dict()
             self._get_exchange_df()
@@ -118,10 +113,7 @@ class HeisenbergMapper:
             sgraphs (list): StructureGraph objects.
         """
         # Strategy for finding neighbors
-        if cutoff:
-            strategy = MinimumDistanceNN(cutoff=cutoff, get_all_sites=True)
-        else:
-            strategy = MinimumDistanceNN()  # only NN
+        strategy = MinimumDistanceNN(cutoff=cutoff, get_all_sites=True) if cutoff else MinimumDistanceNN()  # only NN
 
         # Generate structure graphs
         sgraphs = [StructureGraph.with_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
@@ -193,13 +185,13 @@ class HeisenbergMapper:
             i_key = unique_site_ids[k]
             connected_sites = sgraph.get_connected_sites(i)
             dists = [round(cs[-1], 2) for cs in connected_sites]  # i<->j distances
-            dists = sorted(list(set(dists)))  # NN, NNN, NNNN, etc.
+            dists = sorted(set(dists))  # NN, NNN, NNNN, etc.
 
             dists = dists[:3]  # keep up to NNNN
             all_dists += dists
 
         # Keep only up to NNNN and call dists equal if they are within tol
-        all_dists = sorted(list(set(all_dists)))
+        all_dists = sorted(set(all_dists))
         rm_list = []
         for idx, d in enumerate(all_dists[:-1]):
             if abs(d - all_dists[idx + 1]) < tol:
@@ -249,7 +241,7 @@ class HeisenbergMapper:
         Returns:
             None: (sets self.ex_mat instance variable)
 
-        TODO:
+        Todo:
             * Deal with large variance in |S| across configs
         """
         sgraphs = self.sgraphs
@@ -335,13 +327,13 @@ class HeisenbergMapper:
                             ex_row.at[sgraph_index, j_ji] -= s_i * s_j
 
                 # Ignore the row if it is a duplicate to avoid singular matrix
-                if ex_mat.append(ex_row)[j_columns].equals(
-                    ex_mat.append(ex_row)[j_columns].drop_duplicates(keep="first")
-                ):
+                # Create a temporary DataFrame with the new row
+                temp_df = pd.concat([ex_mat, ex_row], ignore_index=True)
+                if temp_df[j_columns].equals(temp_df[j_columns].drop_duplicates(keep="first")):
                     e_index = self.ordered_structures.index(sgraph.structure)
                     ex_row.at[sgraph_index, "E"] = self.energies[e_index]
                     sgraph_index += 1
-                    ex_mat = ex_mat.append(ex_row)
+                    ex_mat = pd.concat([ex_mat, ex_row], ignore_index=True)
                     # if sgraph_index == num_nn_j:  # check for zero columns
                     #     zeros = [b for b in (ex_mat[j_columns] == 0).all(axis=0)]
                     #     if True in zeros:
@@ -449,11 +441,10 @@ class HeisenbergMapper:
                     afm_e = e
                     mag_min = abs(sum(magmoms))
                     afm_e_min = e
-                elif abs(sum(magmoms)) == 0 and mag_min == 0:
-                    if e < afm_e_min:
-                        afm_struct = s
-                        afm_e = e
-                        afm_e_min = e
+                elif abs(sum(magmoms)) == 0 and mag_min == 0 and e < afm_e_min:
+                    afm_struct = s
+                    afm_e = e
+                    afm_e_min = e
 
         # Convert to magnetic structures with 'magmom' site property
         fm_struct = CollinearMagneticStructureAnalyzer(
@@ -557,6 +548,7 @@ class HeisenbergMapper:
 
         Args:
             filename (str): if not None, save interaction graph to filename.
+
         Returns:
             igraph (StructureGraph): Exchange interaction graph.
         """
@@ -816,7 +808,7 @@ class HeisenbergScreener:
         # Prioritize structures with fewer magmoms < 1 uB
         df_high_energy = df_high_energy.sort_values(by="n_below_1ub")
 
-        index = [0, 1] + list(df_high_energy.index)
+        index = [0, 1, *df_high_energy.index]
 
         # sort
         df = df.reindex(index)
@@ -915,7 +907,6 @@ class HeisenbergModel(MSONable):
     @classmethod
     def from_dict(cls, d):
         """Create a HeisenbergModel from a dict."""
-
         # Reconstitute the site ids
         usids = {}
         wids = {}
@@ -931,7 +922,7 @@ class HeisenbergModel(MSONable):
         for k, v in d["unique_site_ids"].items():
             key = literal_eval(k)
             if isinstance(key, int):
-                usids[tuple([key])] = v
+                usids[(key,)] = v
             elif isinstance(key, tuple):
                 usids[key] = v
 

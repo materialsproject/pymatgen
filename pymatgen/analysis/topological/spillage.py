@@ -22,6 +22,7 @@ class SOCSpillage:
     def __init__(self, wf_noso="", wf_so=""):
         """
         Requires path to WAVECAR files with and without LSORBIT = .TRUE.
+
         Args:
             wf_noso : WAVECAR without spin-orbit coupling
             wf_so : WAVECAR with spin-orbit coupling
@@ -163,7 +164,7 @@ class SOCSpillage:
                     if np.array(noso.coeffs[1][nk1 - 1]).shape[1] == vs // 2:
                         # if nk1==10 and nk2==10:
                         # print (np.array(noso.coeffs[1][nk1-1]).shape[1], )
-                        # prepare matricies
+                        # prepare matrices
                         for n1 in range(1, nelec_up + 1):
                             Vnoso[0 : vs // 2, n1 - 1] = np.array(noso.coeffs[0][nk1 - 1][n1 - 1])[0 : vs // 2]
                         for n1 in range(1, nelec_dn + 1):

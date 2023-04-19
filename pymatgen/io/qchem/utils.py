@@ -119,10 +119,7 @@ def read_table_pattern(
                 processed_line = [postprocess(v) for v in ml.groups()]
             table_contents.append(processed_line)
         tables.append(table_contents)
-    if last_one_only:
-        retained_data = tables[-1]
-    else:
-        retained_data = tables
+    retained_data = tables[-1] if last_one_only else tables
     if attribute_name is not None:
         data[attribute_name] = retained_data
         return data
@@ -154,7 +151,7 @@ def lower_and_check_unique(dict_to_check):
 
         if isinstance(val, str):
             val = val.lower()
-        elif isinstance(val, int) or isinstance(val, float):
+        elif isinstance(val, (int, float)):
             # convert all numeric keys to str
             val = str(val)
         else:

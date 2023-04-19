@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This class implements definitions for various kinds of bonds. Typically used in
 Molecule analysis.
@@ -49,9 +46,7 @@ class CovalentBond:
 
     @property
     def length(self) -> float:
-        """
-        Length of the bond.
-        """
+        """Length of the bond."""
         return self.site1.distance(self.site2)
 
     def get_bond_order(self, tol: float = 0.2, default_bl: float | None = None) -> float:
@@ -67,6 +62,7 @@ class CovalentBond:
             default_bl: If a particular type of bond does not exist,
                 use this bond length as a default value
                 (bond order = 1). If None, a ValueError will be thrown.
+
         Returns:
             Float value of bond order. For example, for C-C bond in
             benzene, return 1.7.
@@ -80,6 +76,7 @@ class CovalentBond:
     def is_bonded(site1, site2, tol: float = 0.2, bond_order: float | None = None, default_bl: float | None = None):
         """
         Test if two sites are bonded, up to a certain limit.
+
         Args:
             site1 (Site): First site
             site2 (Site): Second site
@@ -91,6 +88,7 @@ class CovalentBond:
                 against all possible bond data. Defaults to None.
             default_bl: If a particular type of bond does not exist, use this
                 bond length. If None, a ValueError will be thrown.
+
         Returns:
             Boolean indicating whether two sites are bonded.
         """
@@ -102,19 +100,13 @@ class CovalentBond:
             all_lengths = bond_lengths[syms]
             if bond_order:
                 return dist < (1 + tol) * all_lengths[bond_order]
-            for v in all_lengths.values():
-                if dist < (1 + tol) * v:
-                    return True
-            return False
+            return any(dist < (1 + tol) * v for v in all_lengths.values())
         if default_bl:
             return dist < (1 + tol) * default_bl
         raise ValueError(f"No bond data for elements {syms[0]} - {syms[1]}")
 
     def __repr__(self):
         return f"Covalent bond between {self.site1} and {self.site2}"
-
-    def __str__(self):
-        return self.__repr__()
 
 
 def obtain_all_bond_lengths(sp1, sp2, default_bl: float | None = None):

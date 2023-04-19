@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 from __future__ import annotations
 
 import os
@@ -36,6 +34,7 @@ from pymatgen.analysis.local_env import (
     get_neighbors_of_site_with_index,
     metal_edge_extender,
     on_disorder_options,
+    oxygen_edge_extender,
     site_is_of_motif_type,
     solid_angle,
 )
@@ -126,11 +125,11 @@ class VoronoiNNTest(PymatgenTest):
         # Get the 1NN shell
         self.nn.targets = None
         nns = self.nn.get_nn_shell_info(s, 0, 1)
-        assert 6 == len(nns)
+        assert len(nns) == 6
 
         # Test the 2nd NN shell
         nns = self.nn.get_nn_shell_info(s, 0, 2)
-        assert 18 == len(nns)
+        assert len(nns) == 18
         self.assertArrayAlmostEqual([1] * 6, [x["weight"] for x in nns if max(np.abs(x["image"])) == 2])
         self.assertArrayAlmostEqual([2] * 12, [x["weight"] for x in nns if max(np.abs(x["image"])) == 1])
 
@@ -152,30 +151,30 @@ class VoronoiNNTest(PymatgenTest):
         )
         self.nn.weight = "area"
         nns = self.nn.get_nn_shell_info(cscl, 0, 1)
-        assert 14 == len(nns)
-        assert 6 == np.isclose([x["weight"] for x in nns], 0.125 / 0.32476).sum()  # Square faces
-        assert 8 == np.isclose([x["weight"] for x in nns], 1).sum()
+        assert len(nns) == 14
+        assert np.isclose([x["weight"] for x in nns], 0.125 / 0.32476).sum() == 6  # Square faces
+        assert np.isclose([x["weight"] for x in nns], 1).sum() == 8
 
         nns = self.nn.get_nn_shell_info(cscl, 0, 2)
         # Weight of getting back on to own site
         #  Square-square hop: 6*5 options times (0.125/0.32476)^2 weight each
         #  Hex-hex hop: 8*7 options times 1 weight each
-        assert 60.4444 == approx(np.sum([x["weight"] for x in nns if x["site_index"] == 0]), abs=1e-3)
+        assert approx(np.sum([x["weight"] for x in nns if x["site_index"] == 0]), abs=1e-3) == 60.4444
 
     def test_adj_neighbors(self):
         # Make a simple cubic structure
-        s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
+        struct = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
 
         # Compute the NNs with adjacency
         self.nn.targets = None
-        neighbors = self.nn.get_voronoi_polyhedra(s, 0)
+        neighbors = self.nn.get_voronoi_polyhedra(struct, 0)
 
         # Each neighbor has 4 adjacent neighbors, all orthogonal
         for nn_info in neighbors.values():
-            assert 4 == len(nn_info["adj_neighbors"])
+            assert len(nn_info["adj_neighbors"]) == 4
 
             for adj_key in nn_info["adj_neighbors"]:
-                assert 0 == np.dot(nn_info["normal"], neighbors[adj_key]["normal"])
+                assert np.dot(nn_info["normal"], neighbors[adj_key]["normal"]) == 0
 
     def test_all_at_once(self):
         # Get all of the sites for LiFePO4
@@ -219,7 +218,7 @@ class VoronoiNNTest(PymatgenTest):
 
         # Compute the voronoi tessellation
         result = VoronoiNN().get_all_voronoi_polyhedra(strc)
-        assert 3 == len(result)
+        assert len(result) == 3
 
     def test_filtered(self):
         nn = VoronoiNN(weight="area")
@@ -240,12 +239,12 @@ class VoronoiNNTest(PymatgenTest):
         # Run one test where you get the small neighbors
         nn.tol = little_weight * 0.99
         nns = nn.get_nn_info(bcc, 0)
-        assert 14 == len(nns)
+        assert len(nns) == 14
 
         # Run a second test where we screen out little faces
         nn.tol = little_weight * 1.01
         nns = nn.get_nn_info(bcc, 0)
-        assert 8 == len(nns)
+        assert len(nns) == 8
 
         # Make sure it works for the `get_all` operation
         all_nns = nn.get_all_nn_info(bcc * [2, 2, 2])
@@ -1199,12 +1198,12 @@ class LocalStructOrderParamsTest(PymatgenTest):
         assert int(op_vals[22] * 1000 + 0.5) == approx(1000)
 
         # Cuboctahedral motif.
-        op_vals = ops_101.get_order_parameters(self.cuboctahedron, 0, indices_neighs=[i for i in range(1, 13)])
+        op_vals = ops_101.get_order_parameters(self.cuboctahedron, 0, indices_neighs=list(range(1, 13)))
         assert int(op_vals[24] * 1000 + 0.5) == approx(1000)
         assert int(op_vals[32] * 1000 + 0.5) == approx(1000)
 
         # See-saw motif.
-        op_vals = ops_101.get_order_parameters(self.see_saw_rect, 0, indices_neighs=[i for i in range(1, 5)])
+        op_vals = ops_101.get_order_parameters(self.see_saw_rect, 0, indices_neighs=list(range(1, 5)))
         assert int(op_vals[25] * 1000 + 0.5) == approx(1000)
 
         # Hexagonal planar motif.
@@ -1212,9 +1211,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
         assert int(op_vals[26] * 1000 + 0.5) == approx(1000)
 
         # Square face capped trigonal prism.
-        op_vals = ops_101.get_order_parameters(
-            self.sq_face_capped_trig_pris, 0, indices_neighs=[i for i in range(1, 8)]
-        )
+        op_vals = ops_101.get_order_parameters(self.sq_face_capped_trig_pris, 0, indices_neighs=list(range(1, 8)))
         assert int(op_vals[34] * 1000 + 0.5) == approx(1000)
 
         # Test providing explicit neighbor lists.
@@ -1320,9 +1317,9 @@ class CrystalNNTest(PymatgenTest):
 
     def test_fixed_length(self):
         cnn = CrystalNN(fingerprint_length=30)
-        nndata = cnn.get_nn_data(self.lifepo4, 0)
-        assert len(nndata.cn_weights) == 30
-        assert len(nndata.cn_nninfo) == 30
+        nn_data = cnn.get_nn_data(self.lifepo4, 0)
+        assert len(nn_data.cn_weights) == 30
+        assert len(nn_data.cn_nninfo) == 30
 
     def test_cation_anion(self):
         cnn = CrystalNN(weighted_cn=True, cation_anion=True)
@@ -1445,6 +1442,37 @@ class Critic2NNTest(PymatgenTest):
 class MetalEdgeExtenderTest(PymatgenTest):
     def setUp(self):
         self.LiEC = Molecule.from_file(os.path.join(test_dir, "LiEC.xyz"))
+        self.phsh = Molecule.from_file(os.path.join(test_dir, "phsh.xyz"))
+        self.phsh_graph = MoleculeGraph.with_edges(
+            molecule=self.phsh,
+            edges={
+                (0, 1): None,
+                (0, 2): None,
+                (0, 3): None,
+                (0, 4): None,
+                (4, 5): None,
+                (4, 6): None,
+                (4, 18): None,
+                (6, 7): None,
+                (6, 16): None,
+                (7, 8): None,
+                (7, 9): None,
+                (9, 10): None,
+                (9, 11): None,
+                (11, 14): None,
+                (12, 13): None,
+                (12, 25): None,
+                (14, 15): None,
+                (14, 16): None,
+                (16, 17): None,
+                (18, 19): None,
+                (18, 20): None,
+                (18, 21): None,
+                (21, 22): None,
+                (21, 23): None,
+                (21, 24): None,
+            },
+        )
         self.LiEC_graph = MoleculeGraph.with_edges(
             molecule=self.LiEC,
             edges={
@@ -1481,6 +1509,11 @@ class MetalEdgeExtenderTest(PymatgenTest):
         assert len(self.LiEC_graph.graph.edges) == 11
         extended_mol_graph = metal_edge_extender(self.LiEC_graph)
         assert len(extended_mol_graph.graph.edges) == 12
+
+    def test_oxygen_edge_extender(self):
+        assert len(self.phsh_graph.graph.edges) == 25
+        phsh_fixed_graph = oxygen_edge_extender(self.phsh_graph)
+        assert len(phsh_fixed_graph.graph.edges) == 26
 
     def test_custom_metals(self):
         extended_mol_graph = metal_edge_extender(self.LiEC_graph, metals={"K"})

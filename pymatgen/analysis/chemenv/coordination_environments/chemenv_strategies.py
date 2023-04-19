@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides so-called "strategies" to determine the coordination environments of an atom in a structure.
 Some strategies can favour larger or smaller environments. Some strategies uniquely identifies the environments while
@@ -91,7 +88,8 @@ class DistanceCutoffFloat(float, StrategyOption):
     def from_dict(cls, d):
         """Initialize distance cutoff from dict.
 
-        :param d: Dict representation of the distance cutoff."""
+        :param d: Dict representation of the distance cutoff.
+        """
         return cls(d["value"])
 
 
@@ -103,7 +101,8 @@ class AngleCutoffFloat(float, StrategyOption):
     def __new__(cls, myfloat):
         """Special float that should be between 0.0 and 1.0.
 
-        :param myfloat: Angle cutoff."""
+        :param myfloat: Angle cutoff.
+        """
         flt = float.__new__(cls, myfloat)
         if flt < 0.0 or flt > 1.0:
             raise ValueError("Angle cutoff should be between 0.0 and 1.0")
@@ -134,7 +133,8 @@ class CSMFloat(float, StrategyOption):
     def __new__(cls, myfloat):
         """Special float that should be between 0.0 and 100.0.
 
-        :param myfloat: CSM."""
+        :param myfloat: CSM.
+        """
         flt = float.__new__(cls, myfloat)
         if flt < 0.0 or flt > 100.0:
             raise ValueError("Continuous symmetry measure limits should be between 0.0 and 100.0")
@@ -2722,10 +2722,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                             dict_fractions["Fraction"] = nb_set_fraction * fraction
                             ce_dict_fractions.append(dict_fractions)
                             ce_maps.append(cn_map)
-        if ordered:
-            indices = np.argsort(ce_fractions)[::-1]
-        else:
-            indices = list(range(len(ce_fractions)))
+        indices = np.argsort(ce_fractions)[::-1] if ordered else list(range(len(ce_fractions)))
 
         fractions_info_list = [
             {

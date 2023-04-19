@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import os
@@ -400,30 +396,30 @@ class TestQCOutput(PymatgenTest):
         data = QCOutput(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_simple.qout")
         ).data
-        self.assertEqual(data["cdft_becke_excess_electrons"][0][0], 0.432641)
-        self.assertEqual(len(data["cdft_becke_population"][0]), 12)
-        self.assertEqual(data["cdft_becke_net_spin"][0][6], -0.000316)
+        assert data["cdft_becke_excess_electrons"][0][0] == 0.432641
+        assert len(data["cdft_becke_population"][0]) == 12
+        assert data["cdft_becke_net_spin"][0][6] == -0.000316
 
     def test_cdft_dc_parsing(self):
         data = QCOutput.multiple_outputs_from_file(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_dc.qout"),
             keep_sub_files=False,
         )[-1].data
-        self.assertEqual(data["direct_coupling_eV"], 0.0103038246)
+        assert data["direct_coupling_eV"] == 0.0103038246
 
     def test_almo_msdft2_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "almo.out")).data
         self.assertListEqual(data["almo_coupling_states"], [[[1, 2], [0, 1]], [[0, 1], [1, 2]]])
-        self.assertEqual(data["almo_hamiltonian"][0][0], -156.62929)
+        assert data["almo_hamiltonian"][0][0] == -156.62929
         self.assertAlmostEqual(data["almo_coupling_eV"], 0.26895)
 
     def test_pod_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "pod2_gs.out")).data
-        self.assertEqual(data["pod_coupling_eV"], 0.247818)
+        assert data["pod_coupling_eV"] == 0.247818
 
     def test_fodft_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "fodft.out")).data
-        self.assertEqual(data["fodft_coupling_eV"], 0.268383)
+        assert data["fodft_coupling_eV"] == 0.268383
 
     def test_isosvp_water(self):
         data = QCOutput(

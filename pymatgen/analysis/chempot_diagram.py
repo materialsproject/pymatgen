@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 This module implements the construction and plotting of chemical potential diagrams
 from a list of entries within a chemical system containing 2 or more elements. The
@@ -67,28 +65,46 @@ class ChemicalPotentialDiagram(MSONable):
     def __init__(
         self,
         entries: list[PDEntry],
-        limits: dict[Element, float] | None = None,
+        limits: dict[Element, tuple[float, float]] | None = None,
         default_min_limit: float = -50.0,
-    ):
+        formal_chempots: bool = True,
+    ) -> None:
         """
         Args:
-            entries: List of PDEntry-like objects containing a composition and
+            entries (list[PDEntry]): PDEntry-like objects containing a composition and
                 energy. Must contain elemental references and be suitable for typical
                 phase diagram construction. Entries must be within a chemical system
                 of with 2+ elements.
-            limits: Bounds of elemental chemical potentials (min, max), which are
-                used to construct the border hyperplanes used in the
-                HalfSpaceIntersection algorithm; these constrain the space over which the
-                domains are calculated and also determine the size of the plotted
-                diagram. Any elemental limits not specified are covered in the
-                default_min_limit argument. e.g., {Element("Li"): [-12.0, 0.0], ...}
+            limits (dict[Element, float] | None): Bounds of elemental chemical potentials (min, max),
+                which are used to construct the border hyperplanes used in the HalfSpaceIntersection
+                algorithm; these constrain the space over which the domains are calculated and also
+                determine the size of the plotted diagram. Any elemental limits not specified are
+                covered in the default_min_limit argument. e.g., {Element("Li"): [-12.0, 0.0], ...}
             default_min_limit (float): Default minimum chemical potential limit (i.e.,
                 lower bound) for unspecified elements within the "limits" argument.
+            formal_chempots (bool): Whether to plot the formal ('reference') chemical potentials
+                (i.e. μ_X - μ_X^0) or the absolute DFT reference energies (i.e. μ_X(DFT)).
+                Default is True (i.e. plot formal chemical potentials).
         """
-        self.entries = list(sorted(entries, key=lambda e: e.composition.reduced_composition))
+        entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
+        _min_entries, _el_refs = self._get_min_entries_and_el_refs(entries)
+
+        if formal_chempots:
+            # renormalize entry energies to be relative to the elemental references
+            renormalized_entries = []
+            for entry in entries:
+                comp_dict = entry.composition.as_dict()
+                renormalization_energy = sum(
+                    [comp_dict[el] * _el_refs[Element(el)].energy_per_atom for el in comp_dict]
+                )
+                renormalized_entries.append(_renormalize_entry(entry, renormalization_energy / sum(comp_dict.values())))
+
+            entries = renormalized_entries
+
+        self.entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
         self.limits = limits
         self.default_min_limit = default_min_limit
-        self.elements = list(sorted({els for e in self.entries for els in e.composition.elements}))
+        self.elements = sorted({els for e in self.entries for els in e.composition.elements})
         self.dim = len(self.elements)
         self._min_entries, self._el_refs = self._get_min_entries_and_el_refs(self.entries)
         self._entry_dict = {e.composition.reduced_formula: e for e in self._min_entries}
@@ -293,7 +309,6 @@ class ChemicalPotentialDiagram(MSONable):
         element_padding: float | None,
     ) -> Figure:
         """Returns a Plotly figure for a 3-dimensional chemical potential diagram."""
-
         if not formulas_to_draw:
             formulas_to_draw = []
 
@@ -319,15 +334,14 @@ class ChemicalPotentialDiagram(MSONable):
 
             contains_target_elems = set(entry.composition.elements).issubset(elements)
 
-            if formulas_to_draw:
-                if entry.composition.reduced_composition in draw_comps:
-                    domain_simplexes[formula] = None
-                    draw_domains[formula] = pts_3d
+            if formulas_to_draw and entry.composition.reduced_composition in draw_comps:
+                domain_simplexes[formula] = None
+                draw_domains[formula] = pts_3d
 
-                    if contains_target_elems:
-                        domains[formula] = pts_3d
-                    else:
-                        continue
+                if contains_target_elems:
+                    domains[formula] = pts_3d
+                else:
+                    continue
 
             if not contains_target_elems:
                 domain_simplexes[formula] = None
@@ -350,11 +364,11 @@ class ChemicalPotentialDiagram(MSONable):
 
         if label_stable:
             layout["scene"].update({"annotations": annotations})
-        layout["scene_camera"] = dict(
-            eye=dict(x=5, y=5, z=5),  # zoomed out
-            projection=dict(type="orthographic"),
-            center=dict(x=0, y=0, z=0),
-        )
+        layout["scene_camera"] = {
+            "eye": {"x": 5, "y": 5, "z": 5},  # zoomed out
+            "projection": {"type": "orthographic"},
+            "center": {"x": 0, "y": 0, "z": 0},
+        }
 
         data = self._get_3d_domain_lines(domain_simplexes)
 
@@ -402,15 +416,15 @@ class ChemicalPotentialDiagram(MSONable):
         x, y = [], []
 
         for pts in draw_domains.values():
-            x.extend(pts[:, 0].tolist() + [None])
-            y.extend(pts[:, 1].tolist() + [None])
+            x.extend([*pts[:, 0].tolist(), None])
+            y.extend([*pts[:, 1].tolist(), None])
 
         lines = [
             Scatter(
                 x=x,
                 y=y,
                 mode="lines+markers",
-                line=dict(color="black", width=3),
+                line={"color": "black", "width": 3},
                 showlegend=False,
             )
         ]
@@ -426,9 +440,9 @@ class ChemicalPotentialDiagram(MSONable):
         for simplexes in domains.values():
             if simplexes:
                 for s in simplexes:
-                    x.extend(s.coords[:, 0].tolist() + [None])
-                    y.extend(s.coords[:, 1].tolist() + [None])
-                    z.extend(s.coords[:, 2].tolist() + [None])
+                    x.extend([*s.coords[:, 0].tolist(), None])
+                    y.extend([*s.coords[:, 1].tolist(), None])
+                    z.extend([*s.coords[:, 2].tolist(), None])
 
         lines = [
             Scatter3d(
@@ -436,7 +450,7 @@ class ChemicalPotentialDiagram(MSONable):
                 y=y,
                 z=z,
                 mode="lines",
-                line=dict(color="black", width=4.5),
+                line={"color": "black", "width": 4.5},
                 showlegend=False,
             )
         ]
@@ -482,7 +496,7 @@ class ChemicalPotentialDiagram(MSONable):
                 z=points_3d[:, 2],
                 alphahull=0,
                 showlegend=True,
-                lighting=dict(fresnel=1.0),
+                lighting={"fresnel": 1.0},
                 color=formula_colors[idx],
                 name=f"{formula} (mesh)",
                 opacity=0.13,
@@ -507,9 +521,9 @@ class ChemicalPotentialDiagram(MSONable):
 
             x, y, z = [], [], []
             for s in simplexes:
-                x.extend(s.coords[:, 0].tolist() + [None])
-                y.extend(s.coords[:, 1].tolist() + [None])
-                z.extend(s.coords[:, 2].tolist() + [None])
+                x.extend([*s.coords[:, 0].tolist(), None])
+                y.extend([*s.coords[:, 1].tolist(), None])
+                z.extend([*s.coords[:, 2].tolist(), None])
 
             line = Scatter3d(
                 x=x,
@@ -626,7 +640,7 @@ class ChemicalPotentialDiagram(MSONable):
 
 def simple_pca(data: np.ndarray, k: int = 2) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    A barebones implementation of principal component analysis (PCA) used in the
+    A bare-bones implementation of principal component analysis (PCA) used in the
     ChemicalPotentialDiagram class for plotting.
 
     Args:
@@ -649,15 +663,15 @@ def simple_pca(data: np.ndarray, k: int = 2) -> tuple[np.ndarray, np.ndarray, np
 
 def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
     """
-    A barebones implementation of the formula for calculating the centroid of a 2D
+    A bare-bones implementation of the formula for calculating the centroid of a 2D
     polygon. Useful for calculating the location of an annotation on a chemical
     potential domain within a 3D chemical potential diagram.
 
-    **NOTE**: vertices must be ordered circumfrentially!
+    **NOTE**: vertices must be ordered circumferentially!
 
     Args:
         vertices: array of 2-d coordinates corresponding to a polygon, ordered
-            circumfrentially
+            circumferentially
 
     Returns:
         Array giving 2-d centroid coordinates
@@ -694,7 +708,7 @@ def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
             coordinates of a line
 
     Returns:
-
+        np.ndarray: A length-2 vector that is orthonormal to the line.
     """
     x = line_pts[:, 0]
     y = line_pts[:, 1]
@@ -702,11 +716,20 @@ def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
     x_diff = abs(x[1] - x[0])
     y_diff = abs(y[1] - y[0])
 
-    if np.isclose(x_diff, 0):
-        theta = np.pi / 2
-    else:
-        theta = np.arctan(y_diff / x_diff)
+    theta = np.pi / 2 if np.isclose(x_diff, 0) else np.arctan(y_diff / x_diff)
 
     vec = np.array([np.sin(theta), np.cos(theta)])
 
     return vec
+
+
+def _renormalize_entry(entry: PDEntry, renormalization_energy_per_atom: float) -> PDEntry:
+    """
+    Regenerate the input entry with an energy per atom decreased by renormalization_energy_per_atom
+    """
+    renormalized_entry_dict = entry.as_dict()
+    renormalized_entry_dict["energy"] = entry.energy - renormalization_energy_per_atom * sum(
+        entry.composition.values()
+    )  # entry.energy includes MP corrections as desired
+    renormalized_entry = PDEntry.from_dict(renormalized_entry_dict)
+    return renormalized_entry

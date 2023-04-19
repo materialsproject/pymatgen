@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to define a phonon band structure.
 """
@@ -262,12 +259,12 @@ class PhononBandStructure(MSONable):
             d["labels_dict"][kpoint_letter] = kpoint_object.as_dict()["fcoords"]
 
         # split the eigendisplacements to real and imaginary part for serialization
-        d["eigendisplacements"] = dict(
-            real=np.real(self.eigendisplacements).tolist(),
-            imag=np.imag(self.eigendisplacements).tolist(),
-        )
+        d["eigendisplacements"] = {
+            "real": np.real(self.eigendisplacements).tolist(),
+            "imag": np.imag(self.eigendisplacements).tolist(),
+        }
         d["nac_eigendisplacements"] = [
-            (direction, dict(real=np.real(e).tolist(), imag=np.imag(e).tolist()))
+            (direction, {"real": np.real(e).tolist(), "imag": np.imag(e).tolist()})
             for direction, e in self.nac_eigendisplacements
         ]
         d["nac_frequencies"] = [(direction, f.tolist()) for direction, f in self.nac_frequencies]
@@ -330,8 +327,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient
             has_nac: specify if the band structure has been produced taking into account
-                non-analytical corrections at Gamma. If True frequenciens at Gamma from
-                diffent directions will be stored in naf. Default False.
+                non-analytical corrections at Gamma. If True frequencies at Gamma from
+                different directions will be stored in naf. Default False.
             eigendisplacements: the phonon eigendisplacements associated to the
                 frequencies in Cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
@@ -377,11 +374,10 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 )
             previous_qpoint = self.qpoints[i]
             previous_distance = self.distance[i]
-            if label:
-                if previous_label:
-                    if len(one_group) != 0:
-                        branches_tmp.append(one_group)
-                    one_group = []
+            if label and previous_label:
+                if len(one_group) != 0:
+                    branches_tmp.append(one_group)
+                one_group = []
             previous_label = label
             one_group.append(i)
         if len(one_group) != 0:

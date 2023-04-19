@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import unittest
@@ -131,7 +127,7 @@ class MagmomTest(unittest.TestCase):
 
     def test_equality(self):
         assert Magmom([1, 1, 1]) == Magmom([1, 1, 1])
-        assert not Magmom([1, 1, 2]) == Magmom([1, 1, 1])
+        assert Magmom([1, 1, 2]) != Magmom([1, 1, 1])
         assert Magmom([0, 0, 10]) == 10
 
     def test_negative(self):

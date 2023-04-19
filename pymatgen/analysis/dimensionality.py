@@ -350,10 +350,7 @@ def get_dimensionality_cheon(
         connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
         max3, min3, clusters3 = find_clusters(structure, connected_list3)
         if min3 == min1:
-            if max3 == max1:
-                dim = "0D"
-            else:
-                dim = "intercalated molecule"
+            dim = "0D" if max3 == max1 else "intercalated molecule"
         else:
             dim = np.log2(float(max3) / max1) / np.log2(3)
             if dim == int(dim):
@@ -367,10 +364,7 @@ def get_dimensionality_cheon(
         if min2 == 1:
             dim = "intercalated ion"
         elif min2 == min1:
-            if max2 == max1:
-                dim = "0D"
-            else:
-                dim = "intercalated molecule"
+            dim = "0D" if max2 == max1 else "intercalated molecule"
         else:
             dim = np.log2(float(max2) / max1)
             if dim == int(dim):
@@ -381,10 +375,7 @@ def get_dimensionality_cheon(
                 connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
                 max3, min3, clusters3 = find_clusters(structure, connected_list3)
                 if min3 == min2:
-                    if max3 == max2:
-                        dim = "0D"
-                    else:
-                        dim = "intercalated molecule"
+                    dim = "0D" if max3 == max2 else "intercalated molecule"
                 else:
                     dim = np.log2(float(max3) / max1) / np.log2(3)
                     if dim == int(dim):
@@ -549,13 +540,13 @@ def get_dimensionality_gorai(
         bonds = get_max_bond_lengths(structure, el_radius_updates)
 
     num_surfaces = 0
-    for h in range(max_hkl):
-        for k in range(max_hkl):
-            for l in range(max_hkl):
-                if max([h, k, l]) > 0 and num_surfaces < 2:
+    for hh in range(max_hkl):
+        for kk in range(max_hkl):
+            for ll in range(max_hkl):
+                if max([hh, kk, ll]) > 0 and num_surfaces < 2:
                     sg = SlabGenerator(
                         structure,
-                        (h, k, l),
+                        (hh, kk, ll),
                         min_slab_size=min_slab_size,
                         min_vacuum_size=min_vacuum_size,
                     )

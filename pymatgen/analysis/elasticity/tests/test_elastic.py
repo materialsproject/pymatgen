@@ -157,7 +157,7 @@ class ElasticTensorTest(PymatgenTest):
         test_et[0][0][0][0] = -100000
         prop_dict = test_et.property_dict
         for attr_name in sprop_dict:
-            if attr_name not in (list(prop_dict) + ["structure"]):
+            if attr_name not in ([*prop_dict, "structure"]):
                 with pytest.raises(ValueError):
                     getattr(test_et, attr_name)(self.structure)
         with pytest.raises(ValueError):
@@ -181,7 +181,7 @@ class ElasticTensorTest(PymatgenTest):
 
     def test_from_pseudoinverse(self):
         strain_list = [Strain.from_deformation(def_matrix) for def_matrix in self.def_stress_dict["deformations"]]
-        stress_list = [stress for stress in self.def_stress_dict["stresses"]]
+        stress_list = list(self.def_stress_dict["stresses"])
         with warnings.catch_warnings(record=True):
             et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stress_list).voigt
             self.assertArrayAlmostEqual(

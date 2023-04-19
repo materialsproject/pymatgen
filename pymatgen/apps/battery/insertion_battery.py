@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module is used for analysis of materials with potential application as
 intercalation batteries.
@@ -298,8 +295,8 @@ class InsertionElectrode(AbstractElectrode):
             entry_discharge = pair.entry_discharge if adjacent_only else pair[1].entry_discharge
 
             def in_range(entry):
-                chg_frac = entry_charge.composition.get_atomic_fraction(ion)  # noqa: B023
-                dischg_frac = entry_discharge.composition.get_atomic_fraction(ion)  # noqa: B023
+                chg_frac = entry_charge.composition.get_atomic_fraction(ion)
+                dischg_frac = entry_discharge.composition.get_atomic_fraction(ion)
                 frac = entry.composition.get_atomic_fraction(ion)
                 return chg_frac <= frac <= dischg_frac
 
@@ -362,9 +359,6 @@ class InsertionElectrode(AbstractElectrode):
             d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
 
         return d
-
-    def __str__(self):
-        return self.__repr__()
 
     def __repr__(self):
         output = []
@@ -519,11 +513,11 @@ class InsertionVoltagePair(AbstractVoltagePair):
         )
 
         # Step 4: add (optional) hull and muO2 data
-        vpair.decomp_e_charge = entry_charge.data.get("decomposition_energy", None)
-        vpair.decomp_e_discharge = entry_discharge.data.get("decomposition_energy", None)
+        vpair.decomp_e_charge = entry_charge.data.get("decomposition_energy")
+        vpair.decomp_e_discharge = entry_discharge.data.get("decomposition_energy")
 
-        vpair.muO2_charge = entry_charge.data.get("muO2", None)
-        vpair.muO2_discharge = entry_discharge.data.get("muO2", None)
+        vpair.muO2_charge = entry_charge.data.get("muO2")
+        vpair.muO2_discharge = entry_discharge.data.get("muO2")
 
         return vpair
 
@@ -536,6 +530,3 @@ class InsertionVoltagePair(AbstractVoltagePair):
             f"frac_charge = {self.frac_charge}, frac_discharge = {self.frac_discharge}",
         ]
         return "\n".join(output)
-
-    def __str__(self):
-        return self.__repr__()

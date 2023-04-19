@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 from __future__ import annotations
 
 import os
@@ -43,7 +41,7 @@ if PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
     msg = f"Invalid legacy PMG_MAPI_KEY, should be 15-20 characters, got {len(PMG_MAPI_KEY)}"
     if len(PMG_MAPI_KEY) == 32:
         msg += " (this looks like a new API key)"
-    if os.environ.get("CI"):
+    if os.getenv("CI"):
         raise ValueError(msg)
 
 
@@ -71,7 +69,7 @@ class MPResterOldTest(PymatgenTest):
     def test_get_xas_data(self):
         # Test getting XAS data
         data = self.rester.get_xas_data("mp-19017", "Li")
-        assert "mp-19017,Li" == data["mid_and_el"]
+        assert data["mid_and_el"] == "mp-19017,Li"
         assert data["spectrum"]["x"][0] == pytest.approx(55.178)
         assert data["spectrum"]["y"][0] == pytest.approx(0.0164634)
 
@@ -139,19 +137,17 @@ class MPResterOldTest(PymatgenTest):
         assert self.rester.get_materials_id_from_task_id("mp-540081") == "mp-19017"
 
     def test_get_materials_id_references(self):
-        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterOldTest.test_get_materials_id_references
-        m = _MPResterLegacy()
-        data = m.get_materials_id_references("mp-123")
+        mpr = _MPResterLegacy()
+        data = mpr.get_materials_id_references("mp-123")
         assert len(data) > 1000
 
     def test_find_structure(self):
-        # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterOldTest.test_find_structure
-        m = _MPResterLegacy()
+        mpr = _MPResterLegacy()
         ciffile = self.TEST_FILES_DIR / "Fe3O4.cif"
-        data = m.find_structure(str(ciffile))
+        data = mpr.find_structure(str(ciffile))
         assert len(data) > 1
         s = CifParser(ciffile).get_structures()[0]
-        data = m.find_structure(s)
+        data = mpr.find_structure(s)
         assert len(data) > 1
 
     def test_get_entries_in_chemsys(self):
@@ -526,7 +522,7 @@ class MPResterOldTest(PymatgenTest):
         # Test against ion sets with multiple equivalent ions (Bi-V regression)
         entries = self.rester.get_pourbaix_entries(["Bi", "V"])
         pbx = PourbaixDiagram(entries, filter_solids=True, conc_dict={"Bi": 1e-8, "V": 1e-8})
-        assert all(["Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries])
+        assert all("Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries)
 
 
 if __name__ == "__main__":

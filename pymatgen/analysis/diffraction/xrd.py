@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements an XRD pattern calculator.
 """
@@ -104,7 +101,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
        .. math::
 
-           P( \theta) =  \frac{1 +  \cos^2(2 \theta)}
+           P( \theta) = \frac{1 +  \cos^2(2 \theta)}
            { \sin^2( \theta) \cos( \theta)}
     """
 

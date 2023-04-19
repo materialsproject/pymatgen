@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements more advanced transformations.
 """
@@ -234,10 +231,7 @@ class MultipleSubstitutionTransformation:
             )
         outputs = []
         for charge, el_list in self.substitution_dict.items():
-            if charge > 0:
-                sign = "+"
-            else:
-                sign = "-"
+            sign = "+" if charge > 0 else "-"
             dummy_sp = f"X{charge}{sign}"
             mapping = {
                 self.sp_to_replace: {
@@ -255,10 +249,7 @@ class MultipleSubstitutionTransformation:
                 dummy_structure = trans.apply_transformation(dummy_structure)
 
             for el in el_list:
-                if charge > 0:
-                    sign = "+"
-                else:
-                    sign = "-"
+                sign = "+" if charge > 0 else "-"
                 st = SubstitutionTransformation({f"X{charge}+": f"{el}{charge}{sign}"})
                 new_structure = st.apply_transformation(dummy_structure)
                 outputs.append({"structure": new_structure})
@@ -811,7 +802,7 @@ class MagOrderingTransformation(AbstractTransformation):
         for idx, site in enumerate(structure):
             if isinstance(site.specie, DummySpecies):
                 sites_to_remove.append(idx)
-                spin = site.specie._properties.get("spin", None)
+                spin = site.specie._properties.get("spin")
                 neighbors = structure.get_neighbors(
                     site,
                     0.05,  # arbitrary threshold, needs to be << any bond length
@@ -845,7 +836,7 @@ class MagOrderingTransformation(AbstractTransformation):
         """
         for idx, site in enumerate(structure):
             if getattr(site.specie, "_properties", None):
-                spin = site.specie._properties.get("spin", None)
+                spin = site.specie._properties.get("spin")
                 sign = int(spin) if spin else 0
                 if spin:
                     new_properties = site.specie._properties.copy()
@@ -895,7 +886,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
         enum_kwargs["min_cell_size"] = max(int(self.determine_min_cell(structure)), enum_kwargs.get("min_cell_size", 1))
 
-        if enum_kwargs.get("max_cell_size", None):
+        if enum_kwargs.get("max_cell_size"):
             if enum_kwargs["min_cell_size"] > enum_kwargs["max_cell_size"]:
                 warnings.warn(
                     f"Specified max cell size ({enum_kwargs['max_cell_size']}) is "
@@ -987,12 +978,12 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 sp = Species(sym, oxidation_state)
-                r = sp.ionic_radius
-                if r is not None:
-                    candidates.append((r, sp))
+                radius = sp.ionic_radius
+                if radius is not None:
+                    candidates.append((radius, sp))
         except Exception:
             pass
-    return min(candidates, key=lambda l: abs(l[0] / ref_radius - 1))[1]
+    return min(candidates, key=lambda tup: abs(tup[0] / ref_radius - 1))[1]
 
 
 class DopingTransformation(AbstractTransformation):
@@ -1098,7 +1089,7 @@ class DopingTransformation(AbstractTransformation):
         logger.info(f"Scaling = {str(scaling)}")
 
         all_structures = []
-        t = EnumerateStructureTransformation(**self.kwargs)
+        trafo = EnumerateStructureTransformation(**self.kwargs)
 
         for sp in compatible_species:
             supercell = structure * scaling
@@ -1125,23 +1116,25 @@ class DopingTransformation(AbstractTransformation):
 
                 if sp_to_remove == sp:
                     common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))  # type: ignore
-                    ndopant = common_charge / abs(ox)
+                    n_dopant = common_charge / abs(ox)
                     nsp_to_remove = common_charge / abs(sp.oxi_state)  # type: ignore
-                    logger.info(f"Doping {nsp_to_remove} {sp} with {ndopant} {self.dopant}.")
+                    logger.info(f"Doping {nsp_to_remove} {sp} with {n_dopant} {self.dopant}.")
                     supercell.replace_species(
-                        {sp: {sp: (nsp - nsp_to_remove) / nsp, self.dopant: ndopant / nsp}}  # type: ignore
+                        {sp: {sp: (nsp - nsp_to_remove) / nsp, self.dopant: n_dopant / nsp}}  # type: ignore
                     )
                 else:
                     ox_diff = int(abs(round(sp.oxi_state - ox)))
                     vac_ox = int(abs(sp_to_remove.oxi_state)) * ox_diff  # type: ignore
                     common_charge = lcm(vac_ox, ox_diff)
-                    ndopant = common_charge / ox_diff
+                    n_dopant = common_charge / ox_diff
                     nx_to_remove = common_charge / vac_ox
                     nx = supercell.composition[sp_to_remove]
-                    logger.info(f"Doping {ndopant} {sp} with {self.dopant} and removing {nx_to_remove} {sp_to_remove}.")
+                    logger.info(
+                        f"Doping {n_dopant} {sp} with {self.dopant} and removing {nx_to_remove} {sp_to_remove}."
+                    )
                     supercell.replace_species(
                         {
-                            sp: {sp: (nsp - ndopant) / nsp, self.dopant: ndopant / nsp},  # type: ignore
+                            sp: {sp: (nsp - n_dopant) / nsp, self.dopant: n_dopant / nsp},  # type: ignore
                             sp_to_remove: {sp_to_remove: (nx - nx_to_remove) / nx},  # type: ignore
                         }
                     )
@@ -1159,17 +1152,17 @@ class DopingTransformation(AbstractTransformation):
                 anion_ox = int(abs(sp_to_remove.oxi_state))  # type: ignore
                 nx = supercell.composition[sp_to_remove]
                 common_charge = lcm(anion_ox, ox_diff)
-                ndopant = common_charge / ox_diff
+                n_dopant = common_charge / ox_diff
                 nx_to_remove = common_charge / anion_ox
-                logger.info(f"Doping {ndopant} {sp} with {self.dopant} and removing {nx_to_remove} {sp_to_remove}.")
+                logger.info(f"Doping {n_dopant} {sp} with {self.dopant} and removing {nx_to_remove} {sp_to_remove}.")
                 supercell.replace_species(
                     {
-                        sp: {sp: (nsp - ndopant) / nsp, self.dopant: ndopant / nsp},  # type: ignore
+                        sp: {sp: (nsp - n_dopant) / nsp, self.dopant: n_dopant / nsp},  # type: ignore
                         sp_to_remove: {sp_to_remove: (nx - nx_to_remove) / nx},  # type: ignore
                     }
                 )
 
-            ss = t.apply_transformation(supercell, return_ranked_list=self.max_structures_per_enum)
+            ss = trafo.apply_transformation(supercell, return_ranked_list=self.max_structures_per_enum)
             logger.info(f"{len(ss)} distinct structures")
             all_structures.extend(ss)
 
@@ -1345,9 +1338,9 @@ class DisorderOrderedTransformation(AbstractTransformation):
             for smaller in _partition(collection[1:]):
                 # insert `first` in each of the subpartition's subsets
                 for n, subset in enumerate(smaller):
-                    yield smaller[:n] + [[first] + subset] + smaller[n + 1 :]
+                    yield smaller[:n] + [[first, *subset]] + smaller[n + 1 :]
                 # put `first` in its own subset
-                yield [[first]] + smaller
+                yield [[first], *smaller]
 
         def _sort_partitions(partitions_to_sort):
             """
@@ -1642,15 +1635,11 @@ class CubicSupercellTransformation(AbstractTransformation):
             if (
                 np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
                 and self.min_atoms <= num_at <= self.max_atoms
+            ) and (
+                not self.force_90_degrees
+                or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
             ):
-                if not self.force_90_degrees:
-                    return superstructure
-                else:
-                    if np.all(
-                        np.absolute(np.array(superstructure.lattice.angles) - np.array([90.0, 90.0, 90.0]))
-                        < self.angle_tolerance
-                    ):
-                        return superstructure
+                return superstructure
 
             # Increase threshold until proposed supercell meets requirements
             target_sc_size += 0.1

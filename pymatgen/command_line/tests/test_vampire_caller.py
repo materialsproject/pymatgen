@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -59,7 +56,7 @@ class VampireCallerTest(unittest.TestCase):
 
             voutput = vc.output
             critical_temp = voutput.critical_temp
-            assert 400 == approx(critical_temp)
+            assert approx(critical_temp) == 400
 
         if os.path.exists("Mn3Al.mat"):
             os.remove("Mn3Al.mat")

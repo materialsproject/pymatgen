@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to identify optimal substrates for film growth
 """
@@ -44,7 +41,6 @@ class SubstrateMatch(ZSLMatch):
         ground_state_energy=0,
     ):
         """Generate a substrate match from a ZSL match plus metadata"""
-
         # Get the appropriate surface structure
         struct = SlabGenerator(film, film_miller, 20, 15, primitive=False).get_slab().oriented_unit_cell
 

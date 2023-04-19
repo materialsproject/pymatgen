@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements symmetry-related structure forms.
 """
@@ -128,7 +125,7 @@ class SymmetrizedStructure(Structure):
         outs.append(
             tabulate(
                 data,
-                headers=["#", "SP", "a", "b", "c", "Wyckoff"] + keys,
+                headers=["#", "SP", "a", "b", "c", "Wyckoff", *keys],
             )
         )
         return "\n".join(outs)

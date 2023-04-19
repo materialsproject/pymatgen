@@ -642,14 +642,14 @@ class SlabGeneratorTest(PymatgenTest):
 
 class ReconstructionGeneratorTests(PymatgenTest):
     def setUp(self):
-        l = Lattice.cubic(3.51)
+        latt = Lattice.cubic(3.51)
         species = ["Ni"]
         coords = [[0, 0, 0]]
-        self.Ni = Structure.from_spacegroup("Fm-3m", l, species, coords)
-        l = Lattice.cubic(2.819000)
+        self.Ni = Structure.from_spacegroup("Fm-3m", latt, species, coords)
+        latt = Lattice.cubic(2.819000)
         species = ["Fe"]
         coords = [[0, 0, 0]]
-        self.Fe = Structure.from_spacegroup("Im-3m", l, species, coords)
+        self.Fe = Structure.from_spacegroup("Im-3m", latt, species, coords)
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)])
 
         with open(
@@ -734,7 +734,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
 
             slabs = rec.build_slabs()
             s = Structure.from_file(get_path(os.path.join("reconstructions", el + "_" + n + ".cif")))
-            assert any([len(m.group_structures([s, slab])) == 1 for slab in slabs])
+            assert any(len(m.group_structures([s, slab])) == 1 for slab in slabs)
 
 
 class MillerIndexFinderTests(PymatgenTest):
@@ -792,7 +792,7 @@ class MillerIndexFinderTests(PymatgenTest):
         # Now try a trigonal system.
         indices = get_symmetrically_distinct_miller_indices(self.trigBi, 2, return_hkil=True)
         assert len(indices) == 17
-        assert all([len(hkl) == 4 for hkl in indices])
+        assert all(len(hkl) == 4 for hkl in indices)
 
     def test_get_symmetrically_equivalent_miller_indices(self):
         # Tests to see if the function obtains all equivalent hkl for cubic (100)
@@ -805,14 +805,14 @@ class MillerIndexFinderTests(PymatgenTest):
             (-1, 0, 0),
         ]
         indices = get_symmetrically_equivalent_miller_indices(self.cscl, (1, 0, 0))
-        assert all([hkl in indices for hkl in indices001])
+        assert all(hkl in indices for hkl in indices001)
 
         # Tests to see if it captures expanded Miller indices in the family e.g. (001) == (002)
         hcp_indices_100 = get_symmetrically_equivalent_miller_indices(self.Mg, (1, 0, 0))
         hcp_indices_200 = get_symmetrically_equivalent_miller_indices(self.Mg, (2, 0, 0))
         assert len(hcp_indices_100) * 2 == len(hcp_indices_200)
         assert len(hcp_indices_100) == 6
-        assert all([len(hkl) == 4 for hkl in hcp_indices_100])
+        assert all(len(hkl) == 4 for hkl in hcp_indices_100)
 
     def test_generate_all_slabs(self):
         slabs = generate_all_slabs(self.cscl, 1, 10, 10)
@@ -873,7 +873,6 @@ class MillerIndexFinderTests(PymatgenTest):
 
     def test_miller_index_from_sites(self):
         """Test surface miller index convenience function"""
-
         # test on a cubic system
         m = Lattice.cubic(1)
         s1 = np.array([0.5, -1.5, 3])

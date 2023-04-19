@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import functools
@@ -367,11 +364,11 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         sp.append({"Si4+": 0.5})
         c.append([0.75, 0.25, 0.25])
         sp.append({"Si4+": 0.5})
-        l = Lattice.cubic(5)
-        s = Structure(l, sp, c)
-        test_site = PeriodicSite("Si4+", c[2], l)
-        s = SymmetrizedStructure(s, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
-        output = t.apply_transformation(s)
+        latt = Lattice.cubic(5)
+        struct = Structure(latt, sp, c)
+        test_site = PeriodicSite("Si4+", c[2], latt)
+        struct = SymmetrizedStructure(struct, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
+        output = t.apply_transformation(struct)
         assert test_site in output.sites
 
     def test_too_small_cell(self):
@@ -537,9 +534,9 @@ class DeformStructureTransformationTest(unittest.TestCase):
 
 class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        l = Lattice.cubic(4)
+        latt = Lattice.cubic(4)
         s_orig = Structure(
-            l,
+            latt,
             [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
@@ -552,7 +549,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
             dot.apply_transformation(s_orig)
 
         s_orig_2 = Structure(
-            l,
+            latt,
             [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
@@ -573,9 +570,9 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
 
 class ChargedCellTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        l = Lattice.cubic(4)
+        lattice = Lattice.cubic(4)
         s_orig = Structure(
-            l,
+            lattice,
             [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
@@ -602,7 +599,7 @@ class ScaleToRelaxedTransformationTest(unittest.TestCase):
         Zn_init = Structure.from_file(os.path.join(f, "Zn_gb_init.cif"))
         gb_scaling = ScaleToRelaxedTransformation(Be_init, Be_fin)
         Zn_fin = gb_scaling.apply_transformation(Zn_init)
-        assert all([site.species_string == "Zn" for site in Zn_fin])
+        assert all(site.species_string == "Zn" for site in Zn_fin)
         assert (Be_init.lattice.a < Be_fin.lattice.a) == (Zn_init.lattice.a < Zn_fin.lattice.a)
         assert (Be_init.lattice.b < Be_fin.lattice.b) == (Zn_init.lattice.b < Zn_fin.lattice.b)
         assert (Be_init.lattice.c < Be_fin.lattice.c) == (Zn_init.lattice.c < Zn_fin.lattice.c)
@@ -611,7 +608,7 @@ class ScaleToRelaxedTransformationTest(unittest.TestCase):
         Mo_init = Structure.from_file(os.path.join(f, "Mo_gb_init.cif"))
         gb_scaling = ScaleToRelaxedTransformation(Fe_init, Fe_fin)
         Mo_fin = gb_scaling.apply_transformation(Mo_init)
-        assert all([site.species_string == "Mo" for site in Mo_fin])
+        assert all(site.species_string == "Mo" for site in Mo_fin)
         assert (Fe_init.lattice.a < Fe_fin.lattice.a) == (Mo_init.lattice.a < Mo_fin.lattice.a)
         assert (Fe_init.lattice.b < Fe_fin.lattice.b) == (Mo_init.lattice.b < Mo_fin.lattice.b)
         assert (Fe_init.lattice.c < Fe_fin.lattice.c) == (Mo_init.lattice.c < Mo_fin.lattice.c)

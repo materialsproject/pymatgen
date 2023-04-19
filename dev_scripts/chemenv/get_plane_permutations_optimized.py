@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Development script of the ChemEnv utility to get the optimized explicit permutations for coordination environments
 identified with the separation plane algorithms (typically with coordination numbers >= 6)
@@ -293,7 +290,7 @@ if __name__ == "__main__":
                 exit()
         # 2. Optimization of the permutations
         print(f"Getting explicit optimized permutations for geometry {cg.name!r} (symbol : {cg_symbol!r})\n")
-        perms_used_algos = [dict() for algo in cg.algorithms]
+        perms_used_algos = [{} for algo in cg.algorithms]
 
         # Loop on algorithms
         for ialgo, algo in enumerate(cg.algorithms):
@@ -357,7 +354,7 @@ if __name__ == "__main__":
                 points_perfect = lgf.perfect_geometry.points_wcs_ctwcc()
 
                 # Loop on the facets
-                separation_permutations = list()
+                separation_permutations = []
                 for iplane, plane_point_indices in enumerate(all_planes_point_indices):
                     prt2(
                         string=f"In plane {iplane:d} ({'-'.join(str(pp) for pp in plane_point_indices)})",
@@ -434,8 +431,8 @@ if __name__ == "__main__":
             'permutations ? ("y" to confirm)'
         )
         if test == "y":
-            newgeom_dir = "new_geometry_files"
-            if not os.path.exists(newgeom_dir):
-                os.makedirs(newgeom_dir)
-            with open(f"{newgeom_dir}/{cg_symbol}.json", "w") as f:
-                json.dump(cg.as_dict(), f)
+            new_geom_dir = "new_geometry_files"
+            if not os.path.exists(new_geom_dir):
+                os.makedirs(new_geom_dir)
+            with open(f"{new_geom_dir}/{cg_symbol}.json", "w") as file:
+                json.dump(cg.as_dict(), file)

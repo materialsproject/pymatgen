@@ -86,8 +86,8 @@ class ConnectedComponentTest(PymatgenTest):
         assert isinstance(mygraph, nx.MultiGraph)  # Check that it is indeed the same type of graph
 
         cc2 = ConnectedComponent(graph=mygraph)
-        assert set(list(mygraph.nodes())) == set(list(cc2.graph.nodes()))
-        assert set(list(mygraph.edges())) == set(list(cc2.graph.edges()))
+        assert set(mygraph.nodes()) == set(cc2.graph.nodes())
+        assert set(mygraph.edges()) == set(cc2.graph.edges())
         assert len(cc2.graph) == 6
 
     def test_serialization(self):
@@ -143,7 +143,7 @@ class ConnectedComponentTest(PymatgenTest):
         for loaded_cc in loaded_cc_list:
             assert loaded_cc.graph.number_of_nodes() == 3
             assert loaded_cc.graph.number_of_edges() == 2
-            assert set(list(cc.graph.nodes())) == set(list(loaded_cc.graph.nodes()))
+            assert set(cc.graph.nodes()) == set(loaded_cc.graph.nodes())
             assert sorted_edges == sorted(sorted(e) for e in loaded_cc.graph.edges())
 
             for e in sorted_edges:

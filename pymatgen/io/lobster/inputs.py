@@ -1,4 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
 
 """
@@ -202,10 +201,7 @@ class Lobsterin(dict, MSONable):
         for k2, v2 in other.items():
             if k2.upper() not in similar_param and k2.upper() not in different_param:
                 for key_here in self:
-                    if k2.lower() == key_here.lower():
-                        new_key = key_here
-                    else:
-                        new_key = k2
+                    new_key = key_here if k2.lower() == key_here.lower() else k2
                 if new_key not in self:
                     different_param[k2.upper()] = {"lobsterin1": None, "lobsterin2": v2}
         return {"Same": similar_param, "Different": different_param}
@@ -476,13 +472,13 @@ class Lobsterin(dict, MSONable):
         zs = []
         magmoms = []
 
-        for species, g in itertools.groupby(structure, key=lambda s: s.species):
+        for species, group in itertools.groupby(structure, key=lambda s: s.species):
             if species in unique_species:
                 ind = unique_species.index(species)
-                zs.extend([ind + 1] * len(tuple(g)))
+                zs.extend([ind + 1] * len(tuple(group)))
             else:
                 unique_species.append(species)
-                zs.extend([len(unique_species)] * len(tuple(g)))
+                zs.extend([len(unique_species)] * len(tuple(group)))
 
         for site in structure:
             if hasattr(site, "magmom"):
@@ -871,7 +867,7 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
                     if not isinstance(elbasis, list):
                         new_start_basis.append([elbasis, elbasis2])
                     else:
-                        new_start_basis.append(elbasis.copy() + [elbasis2])
+                        new_start_basis.append([*elbasis.copy(), elbasis2])
             start_basis = new_start_basis
         return start_basis
     return [[basis] for basis in start_basis]

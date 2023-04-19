@@ -9,9 +9,12 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
+from __future__ import annotations
 
 import os
 import sys
+
+from pymatgen.core import __author__, __file__, __version__
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -21,7 +24,6 @@ sys.path.insert(0, os.path.dirname(".."))
 sys.path.insert(0, os.path.dirname("../pymatgen"))
 sys.path.insert(0, os.path.dirname("../.."))
 
-from pymatgen.core import __author__, __file__, __version__
 
 # -- General configuration -----------------------------------------------------
 
@@ -346,5 +348,4 @@ def linkcode_resolve(domain, info):
         # no need to be relative to core here as module includes full path.
         filename = info["module"].replace(".", "/") + ".py"
 
-    tag = "v" + __version__
-    return f"https://github.com/materialsproject/pymatgen/blob/{tag}/{filename}"
+    return f"https://github.com/materialsproject/pymatgen/blob/v{__version__}/{filename}"

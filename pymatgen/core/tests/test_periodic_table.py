@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import math
@@ -26,7 +22,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class ElementTestCase(PymatgenTest):
     def test_init(self):
-        assert "Fe" == Element("Fe").symbol, "Fe test failed"
+        assert Element("Fe").symbol == "Fe", "Fe test failed"
 
         fictional_symbols = ["D", "T", "Zebra"]
 
@@ -382,8 +378,8 @@ class SpecieTestCase(PymatgenTest):
         assert self.specie1 == self.specie3, "Static and actual constructor gives unequal result!"
         assert self.specie1 != self.specie2, "Fe2+ should not be equal to Fe3+"
         assert self.specie4 != self.specie3
-        assert not self.specie1 == Element("Fe")
-        assert not Element("Fe") == self.specie1
+        assert self.specie1 != Element("Fe")
+        assert Element("Fe") != self.specie1
 
     def test_cmp(self):
         assert self.specie1 < self.specie2, "Fe2+ should be < Fe3+"
@@ -509,8 +505,8 @@ class DummySpecieTestCase(unittest.TestCase):
         assert self.specie2.spin == 3
 
     def test_eq(self):
-        assert not DummySpecies("Xg") == DummySpecies("Xh")
-        assert not DummySpecies("Xg") == DummySpecies("Xg", 3)
+        assert DummySpecies("Xg") != DummySpecies("Xh")
+        assert DummySpecies("Xg") != DummySpecies("Xg", 3)
         assert DummySpecies("Xg", 3) == DummySpecies("Xg", 3)
 
     def test_from_string(self):

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements a EnergyModel abstract class and some basic
 implementations. Basically, an EnergyModel is any model that returns an

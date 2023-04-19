@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements input and output processing from PWSCF.
 """
@@ -141,10 +138,7 @@ class PWInput:
         out.append("ATOMIC_SPECIES")
         for k, v in sorted(site_descriptions.items(), key=lambda i: i[0]):
             e = re.match(r"[A-Z][a-z]?", k).group(0)
-            if self.pseudo is not None:
-                p = v
-            else:
-                p = v["pseudo"]
+            p = v if self.pseudo is not None else v["pseudo"]
             out.append(f"  {k}  {Element(e).atomic_mass:.4f} {p}")
 
         out.append("ATOMIC_POSITIONS crystal")
@@ -297,7 +291,7 @@ class PWInput:
                     key_ = m.group(2).strip()
                     val = m.group(3).strip()
                     if key_ != "":
-                        if sections[section].get(key, None) is None:
+                        if sections[section].get(key) is None:
                             val_ = [0.0] * 20  # MAX NTYP DEFINITION
                             val_[int(key_) - 1] = PWInput.proc_val(key, val)
                             sections[section][key] = val_

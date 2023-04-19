@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the abstract base classes for battery-related classes.
 Regardless of the kind of electrode, conversion or insertion, there are many
@@ -249,6 +246,7 @@ class AbstractElectrode(Sequence, MSONable):
         If this electrode contains multiple voltage steps, then it is possible
         to use only a subset of the voltage steps to define other electrodes.
         Must be implemented for each electrode object.
+
         Args:
             adjacent_only: Only return electrodes from compounds that are
                 adjacent on the convex hull, i.e. no electrodes returned

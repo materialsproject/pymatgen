@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes for predicting new structures from existing ones.
 """
@@ -223,7 +220,7 @@ class Substitutor(MSONable):
                 for sp in self._sp.species:
                     i = len(output_prob)
                     prob = self._sp.cond_prob(sp, species_list[i])
-                    _recurse(output_prob + [prob], output_species + [sp])
+                    _recurse([*output_prob, prob], [*output_species, sp])
 
         _recurse([], [])
         logging.info(f"{len(output)} substitutions found")

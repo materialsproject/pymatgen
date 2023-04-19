@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines classes for parsing the FEFF output files.
 
@@ -228,7 +225,7 @@ class LDos(MSONable):
         return cht
 
     def charge_transfer_to_string(self):
-        """returns shrage transfer as string"""
+        """Returns charge transfer as string"""
         ch = self.charge_transfer
         chts = ["\nCharge Transfer\n\nabsorbing atom"]
         for i in range(len(ch)):
@@ -262,13 +259,13 @@ class Xmu(MSONable):
     Parser for data in 'xmu.dat' file.
     The file 'xmu.dat' contains XANES, EXAFS or NRIXS data depending on the
     situation; \\mu, \\mu_0, and \\chi = \\chi * \\mu_0/ \\mu_0/(edge+50eV) as
-    functions of absolute energy E, relative energy E − E_f and wave number k.
+    functions of absolute energy E, relative energy E - E_f and wave number k.
 
     Default attributes:
         xmu: Photon absorption cross section of absorbing atom in material
         Energies: Energies of data point
         relative_energies: E - E_fermi
-        wavenumber: k=\\sqrt(E −E_fermi)
+        wavenumber: k=\\sqrt(E -E_fermi)
         mu: The total absorption cross-section.
         mu0: The embedded atomic background absorption.
         chi: fine structure.
@@ -308,12 +305,10 @@ class Xmu(MSONable):
         header = Header.from_file(feff_inp_file)
         parameters = Tags.from_file(feff_inp_file)
         pots = Potential.pot_string_from_file(feff_inp_file)
+
         # site index (Note: in feff it starts from 1)
-        if "RECIPROCAL" in parameters:
-            absorbing_atom = parameters["TARGET"]
-        # species symbol
-        else:
-            absorbing_atom = pots.splitlines()[3].split()[2]
+        # else case is species symbol
+        absorbing_atom = parameters["TARGET"] if "RECIPROCAL" in parameters else pots.splitlines()[3].split()[2]
         return Xmu(header, parameters, absorbing_atom, data)
 
     @property

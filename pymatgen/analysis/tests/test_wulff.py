@@ -117,7 +117,7 @@ class WulffShapeTest(PymatgenTest):
         # is the most dominant facet on the Wulff shape
 
         fractional_areas = self.wulff_Ir.area_fraction_dict
-        miller_list = [hkl for hkl in fractional_areas]
+        miller_list = list(fractional_areas)
         area_list = [fractional_areas[hkl] for hkl in fractional_areas]
         assert miller_list[area_list.index(max(area_list))] == (1, 1, 1)
 

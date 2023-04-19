@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Some reimplementation of Henkelman's Transition State Analysis utilities,
 which are originally in Perl. Additional features beyond those offered by
