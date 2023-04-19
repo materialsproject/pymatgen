@@ -125,11 +125,22 @@ class TestSpin:
         contents = "".join(lines)
         provider = AirssProvider.from_str(contents)
 
-        for site in provider.structure.sites:
+        for site in provider.structure:
             if site.properties["magmom"] is not None:
                 assert site.properties.get("magmom") == pytest.approx(-1.4)
                 return
         pytest.fail("valid 'magmom' not found in any site properties")
+
+    def test_gh_2938_example(self):
+        res_spin_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "res", "spins-in-last-col.res")
+        with open(res_spin_file) as res_file:
+            contents = res_file.read()
+
+        provider = AirssProvider.from_str(contents)
+
+        for site in provider.structure:
+            if site.properties["magmom"] is not None:
+                assert site.properties.get("magmom") in (3.31, 4.12, -0.01, -0.04, -0.17)
 
 
 class TestStructureModule:
