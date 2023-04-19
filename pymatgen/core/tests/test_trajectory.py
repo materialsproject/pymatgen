@@ -6,12 +6,11 @@ import os
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure, Molecule
-from pymatgen.core.trajectory import Trajectory, MoleculeOptimizeTrajectory
+from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.trajectory import MoleculeOptimizeTrajectory, Trajectory
+from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.io.qchem.outputs import QCOutput
-
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -332,7 +331,7 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
         species = last_mol.species
         coords = out.data["geometries"]
 
-        self.molecules = list()
+        self.molecules = []
         for c in coords:
             mol = Molecule(species, c, charge=last_mol.charge, spin_multiplicity=last_mol.spin_multiplicity)
             self.molecules.append(mol)
@@ -348,9 +347,11 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
     def _get_species_and_coords(self):
         species = ["C", "O"]
         coords = np.asarray(
-            [[[1.5709474478, -0.16099953, 0.0], [1.9291378639, -1.2161950538, 0.0]],
-             [[1.5688628148, -0.1548583957, 0.0], [1.9312224969, -1.2223361881, 0.0]],
-             [[1.5690858055, -0.1555153055, 0.0], [1.9309995062, -1.2216792783, 0.0]]]
+            [
+                [[1.5709474478, -0.16099953, 0.0], [1.9291378639, -1.2161950538, 0.0]],
+                [[1.5688628148, -0.1548583957, 0.0], [1.9312224969, -1.2223361881, 0.0]],
+                [[1.5690858055, -0.1555153055, 0.0], [1.9309995062, -1.2216792783, 0.0]],
+            ]
         )
         return species, coords, 0, 1
 
@@ -433,22 +434,26 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
         # Case of compatible trajectories
         compatible_traj = MoleculeOptimizeTrajectory(
             traj.species,
-            [[[-1.46958173, -0.47370158, -0.03391061],
-              [-0.79757102,  0.48588802,  0.94508206],
-              [0.50256405,  0.8947604,  0.47698504],
-              [1.56101382,  0.13356272,  0.79931048],
-              [1.43897567, -0.8642765,  1.56363034],
-              [2.66882238,  0.48431336,  0.30635727],
-              [-2.72606146, -0.81552889,  0.39696593],
-              [3.307822, -1.01132269,  1.26654957],
-              [-0.81092724, -1.35590014, -0.1458541],
-              [-1.48634516,  0.02121279, -1.02465009],
-              [-0.71212347,  0.03008471,  1.93272477],
-              [-1.37888759,  1.40819443,  1.02143913],
-              [-4.79241099,  0.80275103, -0.39852432],
-              [-4.28509927, -1.03484764,  0.86348452]]],
+            [
+                [
+                    [-1.46958173, -0.47370158, -0.03391061],
+                    [-0.79757102, 0.48588802, 0.94508206],
+                    [0.50256405, 0.8947604, 0.47698504],
+                    [1.56101382, 0.13356272, 0.79931048],
+                    [1.43897567, -0.8642765, 1.56363034],
+                    [2.66882238, 0.48431336, 0.30635727],
+                    [-2.72606146, -0.81552889, 0.39696593],
+                    [3.307822, -1.01132269, 1.26654957],
+                    [-0.81092724, -1.35590014, -0.1458541],
+                    [-1.48634516, 0.02121279, -1.02465009],
+                    [-0.71212347, 0.03008471, 1.93272477],
+                    [-1.37888759, 1.40819443, 1.02143913],
+                    [-4.79241099, 0.80275103, -0.39852432],
+                    [-4.28509927, -1.03484764, 0.86348452],
+                ]
+            ],
             0,
-            2
+            2,
         )
         traj.extend(compatible_traj)
 
@@ -473,11 +478,11 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
         num_frames = len(coords)
 
         props_1 = {
-                "test": [[True, True, True], [False, False, False]],
-            }
+            "test": [[True, True, True], [False, False, False]],
+        }
         props_2 = {
-                "test": [[False, False, False], [False, False, False]],
-            }
+            "test": [[False, False, False], [False, False, False]],
+        }
         props_3 = [
             {
                 "test": [[True, True, True], [False, False, False]],
