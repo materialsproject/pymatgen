@@ -599,8 +599,8 @@ class MoleculeOptimizeTrajectory(MSONable):
         self,
         species: list[str | Element | Species | DummySpecies | Composition],
         coords: list[list[Vector3D]] | np.ndarray | list[np.ndarray],
-        charge: int,
-        spin_multiplicity: int,
+        charge: int | float,
+        spin_multiplicity: int | float,
         *,
         site_properties: SitePropsType | None = None,
         frame_properties: list[dict] | None = None,
@@ -663,8 +663,8 @@ class MoleculeOptimizeTrajectory(MSONable):
 
         self.species = species
         self.coords = np.asarray(coords)
-        self.charge = charge
-        self.spin_multiplicity = spin_multiplicity
+        self.charge = int(charge)
+        self.spin_multiplicity = int(spin_multiplicity)
         self.time_step = time_step
 
         self._check_site_props(site_properties)
