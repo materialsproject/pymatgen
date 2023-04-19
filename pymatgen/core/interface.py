@@ -300,7 +300,7 @@ class Interface(Structure):
 
     def as_dict(self):
         """
-        :return: MSONAble dict
+        :return: MSONable dict
         """
         d = super().as_dict()
         d["in_plane_offset"] = self.in_plane_offset.tolist()

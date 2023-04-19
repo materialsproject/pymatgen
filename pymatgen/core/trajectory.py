@@ -380,7 +380,7 @@ class Trajectory(MSONable):
 
     def as_dict(self) -> dict:
         """
-        Return the trajectory as a MSONAble dict.
+        Return the trajectory as a MSONable dict.
         """
         return {
             "@module": type(self).__module__,
@@ -649,7 +649,6 @@ class MoleculeOptimizeTrajectory(MSONable):
                 `coords_are_displacement=True`. Defaults to the first index of
                 `coords` when `coords_are_displacement=False`.
         """
-
         if coords_are_displacement:
             if base_positions is None:
                 warnings.warn(
@@ -836,7 +835,7 @@ class MoleculeOptimizeTrajectory(MSONable):
 
     def as_dict(self) -> dict:
         """
-        Return the trajectory as a MSONAble dict.
+        Return the trajectory as a MSONable dict.
         """
         return {
             "@module": type(self).__module__,
