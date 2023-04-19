@@ -331,7 +331,7 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
         last_mol = out.data["molecule_from_last_geometry"]
         species = last_mol.species
         coords = out.data["geometries"]
-        
+
         self.molecules = list()
         for c in coords:
             mol = Molecule(species, c, charge=last_mol.charge, spin_multiplicity=last_mol.spin_multiplicity)
@@ -435,12 +435,12 @@ class MoleculeOptimizeTrajectoryTest(PymatgenTest):
             traj.species,
             [[[-1.46958173, -0.47370158, -0.03391061],
               [-0.79757102,  0.48588802,  0.94508206],
-              [0.50256405,  0.8947604 ,  0.47698504],
+              [0.50256405,  0.8947604,  0.47698504],
               [1.56101382,  0.13356272,  0.79931048],
-              [1.43897567, -0.8642765 ,  1.56363034],
+              [1.43897567, -0.8642765,  1.56363034],
               [2.66882238,  0.48431336,  0.30635727],
               [-2.72606146, -0.81552889,  0.39696593],
-              [3.307822  , -1.01132269,  1.26654957],
+              [3.307822, -1.01132269,  1.26654957],
               [-0.81092724, -1.35590014, -0.1458541],
               [-1.48634516,  0.02121279, -1.02465009],
               [-0.71212347,  0.03008471,  1.93272477],
