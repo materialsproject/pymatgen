@@ -25,7 +25,7 @@ class TrajectoryTest(PymatgenTest):
         species = last_mol.species
         coords = out.data["geometries"]
 
-        self.molecules = list()
+        self.molecules = []
         for c in coords:
             mol = Molecule(species, c, charge=int(last_mol.charge), spin_multiplicity=int(last_mol.spin_multiplicity))
             self.molecules.append(mol)
@@ -35,13 +35,12 @@ class TrajectoryTest(PymatgenTest):
             species=species,
             coords=coords,
             charge=int(last_mol.charge),
-            spin_multiplicity=int(last_mol.spin_multiplicity)
+            spin_multiplicity=int(last_mol.spin_multiplicity),
         )
 
     def _check_traj_equality(self, traj_1, traj_2):
-        if not traj_1.use_molecule:
-            if not np.allclose(traj_1.lattice, traj_2.lattice):
-                return False
+        if not traj_1.use_molecule and not np.allclose(traj_1.lattice, traj_2.lattice):
+            return False
 
         if traj_1.species != traj_2.species:
             return False
@@ -182,7 +181,7 @@ class TrajectoryTest(PymatgenTest):
             coords=coords,
             charge=charge,
             spin_multiplicity=spin,
-            site_properties=props
+            site_properties=props,
         )
 
         # compare the overall site properties list
@@ -216,7 +215,7 @@ class TrajectoryTest(PymatgenTest):
             coords=coords,
             charge=charge,
             spin_multiplicity=spin,
-            frame_properties=props
+            frame_properties=props,
         )
 
         # compare the overall site properties
@@ -286,11 +285,7 @@ class TrajectoryTest(PymatgenTest):
 
         traj = copy.deepcopy(self.traj)
         incompatible_traj = Trajectory(
-            use_molecule=True,
-            species=species,
-            coords=coords,
-            charge=charge,
-            spin_multiplicity=spin
+            use_molecule=True, species=species, coords=coords, charge=charge, spin_multiplicity=spin
         )
         incompatible_test_success = False
         try:
@@ -328,36 +323,18 @@ class TrajectoryTest(PymatgenTest):
         ]
 
         traj_1 = Trajectory(
-            use_molecule=False,
-            lattice=lattice,
-            species=species,
-            coords=coords,
-            site_properties=props_1
+            use_molecule=False, lattice=lattice, species=species, coords=coords, site_properties=props_1
         )
 
         traj_2 = Trajectory(
-            use_molecule=False,
-            lattice=lattice,
-            species=species,
-            coords=coords,
-            site_properties=props_2
+            use_molecule=False, lattice=lattice, species=species, coords=coords, site_properties=props_2
         )
 
         traj_3 = Trajectory(
-            use_molecule=False,
-            lattice=lattice,
-            species=species,
-            coords=coords,
-            site_properties=props_3
+            use_molecule=False, lattice=lattice, species=species, coords=coords, site_properties=props_3
         )
 
-        traj_4 = Trajectory(
-            use_molecule=False,
-            lattice=lattice,
-            species=species,
-            coords=coords,
-            site_properties=None
-        )
+        traj_4 = Trajectory(use_molecule=False, lattice=lattice, species=species, coords=coords, site_properties=None)
 
         # const & const (both constant and the same site properties)
         traj_combined = copy.deepcopy(traj_1)
@@ -429,31 +406,17 @@ class TrajectoryTest(PymatgenTest):
         # energy only properties
         props_1 = [{"energy": e} for e in energy_1]
         traj_1 = Trajectory(
-            use_molecule=False,
-            lattice=lattice,
-            species=species,
-            coords=coords,
-            frame_properties=props_1
+            use_molecule=False, lattice=lattice, species=species, coords=coords, frame_properties=props_1
         )
 
         # energy and pressure properties
         props_2 = [{"energy": e, "pressure": p} for e, p in zip(energy_2, pressure_2)]
         traj_2 = Trajectory(
-            use_molecule=False,
-            lattice=lattice,
-            species=species,
-            coords=coords,
-            frame_properties=props_2
+            use_molecule=False, lattice=lattice, species=species, coords=coords, frame_properties=props_2
         )
 
         # no properties
-        traj_3 = Trajectory(
-            use_molecule=False,
-            lattice=lattice,
-            species=species,
-            coords=coords,
-            frame_properties=None
-        )
+        traj_3 = Trajectory(use_molecule=False, lattice=lattice, species=species, coords=coords, frame_properties=None)
 
         # test combining two with different properties
         traj_combined = copy.deepcopy(traj_1)

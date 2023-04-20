@@ -9,7 +9,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Sequence, Tuple, Union
 
 import numpy as np
 from monty.io import zopen
@@ -40,9 +40,9 @@ class Trajectory(MSONable):
         species: list[str | Element | Species | DummySpecies | Composition],
         coords: list[list[Vector3D]] | np.ndarray | list[np.ndarray],
         use_molecule: bool = True,
-        charge: Optional[int | float] = None,
-        spin_multiplicity: Optional[int | float] = None,
-        lattice: Optional[Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray] = None,
+        charge: int | float | None = None,
+        spin_multiplicity: int | float | None = None,
+        lattice: Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray | None = None,
         *,
         site_properties: SitePropsType | None = None,
         frame_properties: list[dict] | None = None,
@@ -180,8 +180,9 @@ class Trajectory(MSONable):
             A pymatgen Structure object.
         """
         if self.use_molecule:
-            raise TypeError("Cannot return `Structure` for `Molecule`-based" 
-                            "`Trajectory`! Use `get_molecule` instead!")
+            raise TypeError(
+                "Cannot return `Structure` for `Molecule`-based" "`Trajectory`! Use `get_molecule` instead!"
+            )
 
         return self[i]
 
@@ -196,8 +197,9 @@ class Trajectory(MSONable):
             A pymatgen Molecule object.
         """
         if not self.use_molecule:
-            raise TypeError("Cannot return `Molecule` for `Structure`-based" 
-                            "`Trajectory`! Use `get_structure` instead!")
+            raise TypeError(
+                "Cannot return `Molecule` for `Structure`-based" "`Trajectory`! Use `get_structure` instead!"
+            )
 
         return self[i]
 
@@ -257,10 +259,7 @@ class Trajectory(MSONable):
 
         # Cannot combine Molecule-based and Structure-based Trajectories
         if self.use_molecule != trajectory.use_molecule:
-            raise ValueError(
-                "Cannot combine `Molecule`- and `Structure`-based `Trajectory`. "
-                "objects."
-            )
+            raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. " "objects.")
 
         if self.time_step != trajectory.time_step:
             raise ValueError(
@@ -405,7 +404,7 @@ class Trajectory(MSONable):
                     constant_lattice=self.constant_lattice,
                     time_step=self.time_step,
                     coords_are_displacement=False,
-                    base_positions=self.base_positions
+                    base_positions=self.base_positions,
                 )
 
         supported = [int, slice, list or np.ndarray]
@@ -476,10 +475,7 @@ class Trajectory(MSONable):
         Return the trajectory as a MSONable dict.
         """
 
-        if self.lattice is not None:
-            lat = self.lattice.tolist()
-        else:
-            lat = None
+        lat = self.lattice.tolist() if self.lattice is not None else None
 
         return {
             "@module": type(self).__module__,
