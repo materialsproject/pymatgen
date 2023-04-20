@@ -2668,7 +2668,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Chgcar, Vasprun
 
         fname = os.path.basename(filename)
-        with zopen(filename, "rt") as f:
+        with zopen(filename, "rt", errors="replace") as f:
             contents = f.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
