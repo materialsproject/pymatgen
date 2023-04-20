@@ -46,7 +46,7 @@ class Trajectory(MSONable):
         *,
         site_properties: SitePropsType | None = None,
         frame_properties: list[dict] | None = None,
-        constant_lattice: bool = True,
+        constant_lattice: Optional[bool] = True,
         time_step: int | float | None = None,
         coords_are_displacement: bool = False,
         base_positions: list[list[Vector3D]] | np.ndarray | None = None,
@@ -111,6 +111,11 @@ class Trajectory(MSONable):
 
         self.use_molecule = use_molecule
 
+        self.charge = None
+        self.spin_multiplicity = None
+        self.lattice = None
+        self.constant_lattice = None
+
         # First, sanity check that the necessary inputs have been provided
         if self.use_molecule:
             if charge is None:
@@ -121,9 +126,6 @@ class Trajectory(MSONable):
                 self.spin_multiplicity = None
             else:
                 self.spin_multiplicity = spin_multiplicity
-
-            self.lattice = None
-            self.constant_lattice = None
         else:
             if lattice is None:
                 raise ValueError("`lattice` must be provided for a Structure-based Trajectory!")
@@ -144,9 +146,6 @@ class Trajectory(MSONable):
                 self.lattice = lattice
 
             self.constant_lattice = constant_lattice
-
-            self.charge = None
-            self.spin_multiplicity = None
 
         if coords_are_displacement:
             if base_positions is None:
@@ -291,7 +290,7 @@ class Trajectory(MSONable):
             len(trajectory),
         )
 
-        if not self.use_molecule:
+        if not self.use_molecule and self.lattice is not None and trajectory.lattice is not None:
             self.lattice, self.constant_lattice = self._combine_lattice(
                 self.lattice,
                 trajectory.lattice,
@@ -339,11 +338,15 @@ class Trajectory(MSONable):
                 raise IndexError(f"Frame index {frames} out of range.")
 
             if self.use_molecule:
+                if self.charge is not None:
+                    charge = int(self.charge)
+                if self.spin_multiplicity is not None:
+                    spin = int(self.spin_multiplicity)
                 return Molecule(
                     self.species,
                     self.coords[frames],
-                    charge=self.charge,
-                    spin_multiplicity=self.spin_multiplicity,
+                    charge=charge,
+                    spin_multiplicity=spin,
                     site_properties=self._get_site_props(frames),  # type: ignore
                 )
 
