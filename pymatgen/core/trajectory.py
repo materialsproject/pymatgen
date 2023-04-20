@@ -331,7 +331,7 @@ class Trajectory(MSONable):
         Return:
             Subset of trajectory
         """
-        # Convert to position mode if not ready
+        # Convert to position mode if not already
         self.to_positions()
 
         # For integer input, return the structure at that frame
@@ -473,7 +473,7 @@ class Trajectory(MSONable):
 
     def as_dict(self) -> dict:
         """
-        Return the trajectory as a MSONAble dict.
+        Return the trajectory as a MSONable dict.
         """
 
         if self.lattice is not None:

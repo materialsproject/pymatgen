@@ -1510,7 +1510,7 @@ class DummySpecies(Species):
 
     def as_dict(self) -> dict:
         """
-        :return: MSONAble dict representation.
+        :return: MSONable dict representation.
         """
         d = {
             "@module": type(self).__module__,

@@ -77,7 +77,7 @@ class DistanceCutoffFloat(float, StrategyOption):
         return flt
 
     def as_dict(self):
-        """MSONAble dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -109,7 +109,7 @@ class AngleCutoffFloat(float, StrategyOption):
         return flt
 
     def as_dict(self):
-        """MSONAble dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1300,7 +1300,7 @@ class AngleNbSetWeight(NbSetWeight):
         return self.aa == other.aa  # type: ignore
 
     def as_dict(self):
-        """MSONAble dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

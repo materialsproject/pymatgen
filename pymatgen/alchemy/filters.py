@@ -96,7 +96,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
 
     def as_dict(self):
         """
-        Returns: MSONAble dict
+        Returns: MSONable dict
         """
         return {
             "@module": type(self).__module__,

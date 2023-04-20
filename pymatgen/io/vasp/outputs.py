@@ -3318,7 +3318,7 @@ class Outcar:
 
     def as_dict(self):
         """
-        :return: MSONAble dict.
+        :return: MSONable dict.
         """
         d = {
             "@module": type(self).__module__,
