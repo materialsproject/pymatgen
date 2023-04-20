@@ -9,7 +9,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Sequence, Tuple, Union
 
 import numpy as np
 from monty.io import zopen
@@ -46,7 +46,7 @@ class Trajectory(MSONable):
         *,
         site_properties: SitePropsType | None = None,
         frame_properties: list[dict] | None = None,
-        constant_lattice: Optional[bool] = True,
+        constant_lattice: bool | None = True,
         time_step: int | float | None = None,
         coords_are_displacement: bool = False,
         base_positions: list[list[Vector3D]] | np.ndarray | None = None,
