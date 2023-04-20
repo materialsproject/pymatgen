@@ -337,7 +337,7 @@ class Trajectory(MSONable):
             if frames >= len(self):
                 raise IndexError(f"Frame index {frames} out of range.")
 
-            if self.use_molecule:
+            if self.use_molecule or self.lattice is None:
                 if self.charge is not None:
                     charge = int(self.charge)
                 if self.spin_multiplicity is not None:
@@ -351,7 +351,7 @@ class Trajectory(MSONable):
                 )
 
             else:
-                lattice = self.lattice if self.constant_lattice else self.lattice[frames]
+                lattice = self.lattice if self.constant_lattice else self.lattice[frames]  # type: ignore
 
                 return Structure(
                     Lattice(lattice),
@@ -380,7 +380,7 @@ class Trajectory(MSONable):
             else:
                 frame_properties = None
 
-            if self.use_molecule:
+            if self.use_molecule or self.lattice is None:
                 return Trajectory(
                     species=self.species,
                     coords=coords,
@@ -395,7 +395,7 @@ class Trajectory(MSONable):
                 )
 
             else:
-                lattice = self.lattice if self.constant_lattice else self.lattice[selected]
+                lattice = self.lattice if self.constant_lattice else self.lattice[selected]  # type: ignore
 
                 return Trajectory(
                     species=self.species,
@@ -453,7 +453,7 @@ class Trajectory(MSONable):
             if si == 0 or not self.constant_lattice:
                 lines.extend([system, "1.0"])
 
-                _lattice = self.lattice if self.constant_lattice else self.lattice[si]
+                _lattice = self.lattice if self.constant_lattice else self.lattice[si]  # type: ignore
 
                 for latt_vec in _lattice:
                     lines.append(f'{" ".join(map(str, latt_vec))}')
