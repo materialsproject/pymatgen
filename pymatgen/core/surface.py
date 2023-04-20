@@ -1672,6 +1672,10 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
     # First we get a list of all hkls for conventional (including equivalent)
     conv_hkl_list = [miller for miller in itertools.product(r, r, r) if any(i != 0 for i in miller)]
 
+    # Sort by the maximum of the absolute values of individual Miller indices so that
+    # low-index planes are first. This is important for trigonal systems.
+    conv_hkl_list = sorted(conv_hkl_list, key=lambda x: max(np.abs(x)))
+
     sg = SpacegroupAnalyzer(structure)
     # Get distinct hkl planes from the rhombohedral setting if trigonal
     if sg.get_crystal_system() == "trigonal":
