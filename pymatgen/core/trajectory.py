@@ -39,7 +39,6 @@ class Trajectory(MSONable):
         self,
         species: list[str | Element | Species | DummySpecies | Composition],
         coords: list[list[Vector3D]] | np.ndarray | list[np.ndarray],
-        use_molecule: bool = True,
         charge: int | float | None = None,
         spin_multiplicity: int | float | None = None,
         lattice: Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray | None = None,
@@ -65,12 +64,10 @@ class Trajectory(MSONable):
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
             coords: shape (M, N, 3). fractional coordinates of the sites.
-            use_molecule: bool (default True). Is this trajectory based on Molecules
-                or based on Structures?
             charge: int or float. Charge of the system. This is only used for Molecule-based
-                trajectories (use_molecule = True).
+                trajectories.
             spin_multiplicity: int or float. Spin multiplicity of the system. This is only
-                used for Molecule-based trajectories (use_molecule = True).
+                used for Molecule-based trajectories.
             lattice: shape (3, 3) or (M, 3, 3). Lattice of the structures in the
                 trajectory; should be used together with `constant_lattice`.
                 If `constant_lattice=True`, this should be a single lattice that is
@@ -78,7 +75,7 @@ class Trajectory(MSONable):
                 If `constant_lattice=False`, this should be a list of lattices,
                 each for one structure in the trajectory (e.g. in an NPT run or a
                 relaxation that allows changing the cell size). This is only used for
-                Structure-based trajectories (use_molecule=False).
+                Structure-based trajectories.
             site_properties: Properties associated with the sites. This should be a
                 list of `M` dicts for a single dict. If a list of dicts, each provides
                 the site properties for a frame. Each value in a dict should be a
@@ -95,7 +92,7 @@ class Trajectory(MSONable):
                 `M=2`, the `frame_properties` can be [{'energy':1.0}, {'energy':2.0}].
             constant_lattice: Whether the lattice changes during the simulation.
                 Should be used together with `lattice`. See usage there. This is only
-                used for Structure-based trajectories (use_molecule=False).
+                used for Structure-based trajectories.
             time_step: Time step of MD simulation in femto-seconds. Should be `None`
                 for a trajectory representing a geometry optimization.
             coords_are_displacement: Whether `coords` are given in displacements
@@ -108,15 +105,13 @@ class Trajectory(MSONable):
                 `coords_are_displacement=True`. Defaults to the first index of
                 `coords` when `coords_are_displacement=False`.
         """
-        self.use_molecule = use_molecule
-
         self.charge = None
         self.spin_multiplicity = None
         self.lattice = None
         self.constant_lattice = None
 
         # First, sanity check that the necessary inputs have been provided
-        if self.use_molecule:
+        if lattice is None:
             if charge is None:
                 raise ValueError("`charge` must be provided for a Molecule-based Trajectory!")
 
@@ -126,9 +121,6 @@ class Trajectory(MSONable):
             else:
                 self.spin_multiplicity = spin_multiplicity
         else:
-            if lattice is None:
-                raise ValueError("`lattice` must be provided for a Structure-based Trajectory!")
-
             if isinstance(lattice, Lattice):
                 lattice = lattice.matrix
             elif isinstance(lattice, list) and isinstance(lattice[0], Lattice):
@@ -177,12 +169,13 @@ class Trajectory(MSONable):
         Returns:
             A pymatgen Structure object.
         """
-        if self.use_molecule:
+        struct = self[idx]
+        if isinstance(struct, Molecule):
             raise TypeError(
                 "Cannot return `Structure` for `Molecule`-based" "`Trajectory`! Use `get_molecule` instead!"
             )
 
-        return self[idx]
+        return struct
 
     def get_molecule(self, idx: int) -> Molecule:
         """
@@ -194,12 +187,13 @@ class Trajectory(MSONable):
         Returns:
             A pymatgen Molecule object.
         """
-        if not self.use_molecule:
+        mol = self[idx]
+        if isinstance(mol, Structure):
             raise TypeError(
                 "Cannot return `Molecule` for `Structure`-based" "`Trajectory`! Use `get_structure` instead!"
             )
 
-        return self[idx]
+        return mol
 
     def to_positions(self) -> None:
         """
@@ -233,7 +227,8 @@ class Trajectory(MSONable):
             )
             displacements[0] = np.zeros(np.shape(self.coords[0]))
 
-            if not self.use_molecule:
+            # check if the trajectory is periodic
+            if self.lattice is not None:
                 # Deal with PBC.
                 # For example - If in one frame an atom has fractional coordinates of
                 # [0, 0, 0.98] and in the next its coordinates are [0, 0, 0.01], this atom
@@ -254,8 +249,13 @@ class Trajectory(MSONable):
         Args:
             trajectory: Trajectory to append.
         """
-        # Cannot combine Molecule-based and Structure-based Trajectories
-        if self.use_molecule != trajectory.use_molecule:
+        # Cannot combine Molecule and Structure Trajectories
+        if (
+            self.lattice is None  # is molecules
+            and trajectory.lattice is not None  # is structures
+            or self.lattice is not None  # is structures
+            and trajectory.lattice is None  # is molecules
+        ):
             raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. " "objects.")
 
         if self.time_step != trajectory.time_step:
@@ -288,7 +288,7 @@ class Trajectory(MSONable):
             len(trajectory),
         )
 
-        if not self.use_molecule and self.lattice is not None and trajectory.lattice is not None:
+        if self.lattice is not None and trajectory.lattice is not None:
             self.lattice, self.constant_lattice = self._combine_lattice(
                 self.lattice,
                 trajectory.lattice,
@@ -335,7 +335,7 @@ class Trajectory(MSONable):
             if frames >= len(self):
                 raise IndexError(f"Frame index {frames} out of range.")
 
-            if self.use_molecule or self.lattice is None:
+            if self.lattice is None:
                 if self.charge is not None:
                     charge = int(self.charge)
                 if self.spin_multiplicity is not None:
@@ -378,11 +378,10 @@ class Trajectory(MSONable):
             else:
                 frame_properties = None
 
-            if self.use_molecule or self.lattice is None:
+            if self.lattice is None:
                 return Trajectory(
                     species=self.species,
                     coords=coords,
-                    use_molecule=True,
                     charge=self.charge,
                     spin_multiplicity=self.spin_multiplicity,
                     site_properties=self._get_site_props(selected),
@@ -398,7 +397,6 @@ class Trajectory(MSONable):
                 return Trajectory(
                     species=self.species,
                     coords=coords,
-                    use_molecule=False,
                     lattice=lattice,
                     site_properties=self._get_site_props(selected),
                     frame_properties=frame_properties,
@@ -430,7 +428,7 @@ class Trajectory(MSONable):
             system: Description of system (e.g. 2D MoS2).
             significant_figures: Significant figures in the output file.
         """
-        if self.use_molecule:
+        if self.lattice is None:
             raise TypeError("`write_Xdatcar` can only be used with `Structure`-based `Trajectory` objects!")
 
         # Ensure trajectory is in position form
@@ -481,7 +479,6 @@ class Trajectory(MSONable):
             "@class": type(self).__name__,
             "species": self.species,
             "coords": self.coords.tolist(),
-            "use_molecule": self.use_molecule,
             "charge": self.charge,
             "spin_multiplicity": self.spin_multiplicity,
             "lattice": lat,
@@ -525,7 +522,6 @@ class Trajectory(MSONable):
         return cls(
             species=species,  # type: ignore
             coords=coords,
-            use_molecule=False,
             lattice=lattice,
             site_properties=site_properties,  # type: ignore
             constant_lattice=constant_lattice,
@@ -556,7 +552,6 @@ class Trajectory(MSONable):
         return cls(
             species=species,  # type: ignore
             coords=coords,
-            use_molecule=True,
             charge=int(molecules[0].charge),
             spin_multiplicity=int(molecules[0].spin_multiplicity),
             site_properties=site_properties,  # type: ignore

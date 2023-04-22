@@ -31,7 +31,6 @@ class TrajectoryTest(PymatgenTest):
             self.molecules.append(mol)
 
         self.traj_mols = Trajectory(
-            use_molecule=True,
             species=species,
             coords=coords,
             charge=int(last_mol.charge),
@@ -39,7 +38,7 @@ class TrajectoryTest(PymatgenTest):
         )
 
     def _check_traj_equality(self, traj_1, traj_2):
-        if not traj_1.use_molecule and not np.allclose(traj_1.lattice, traj_2.lattice):
+        if traj_1.lattice is not None and not np.allclose(traj_1.lattice, traj_2.lattice):
             return False
 
         if traj_1.species != traj_2.species:
@@ -153,7 +152,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             },
         ]
-        traj = Trajectory(use_molecule=False, lattice=lattice, species=species, coords=coords, site_properties=props)
+        traj = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props)
 
         # compare the overall site properties list
         assert traj.site_properties == props
@@ -176,7 +175,6 @@ class TrajectoryTest(PymatgenTest):
             },
         ]
         traj = Trajectory(
-            use_molecule=True,
             species=species,
             coords=coords,
             charge=charge,
@@ -196,7 +194,7 @@ class TrajectoryTest(PymatgenTest):
 
         props = [{"energy_per_atom": e} for e in [-3.0001, -3.0971, -3.0465]]
 
-        traj = Trajectory(use_molecule=False, lattice=lattice, species=species, coords=coords, frame_properties=props)
+        traj = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props)
 
         # compare the overall site properties
         assert traj.frame_properties == props
@@ -210,7 +208,6 @@ class TrajectoryTest(PymatgenTest):
         props = [{"SCF_energy_in_the_final_basis_set": e} for e in [-113.3256885788, -113.3260019471, -113.326006415]]
 
         traj = Trajectory(
-            use_molecule=True,
             species=species,
             coords=coords,
             charge=charge,
@@ -252,7 +249,6 @@ class TrajectoryTest(PymatgenTest):
 
         # Case of compatible trajectories
         compatible_traj = Trajectory(
-            use_molecule=True,
             species=traj.species,
             coords=[
                 [
@@ -284,9 +280,7 @@ class TrajectoryTest(PymatgenTest):
         species, coords, charge, spin = self._get_species_and_coords()
 
         traj = copy.deepcopy(self.traj)
-        incompatible_traj = Trajectory(
-            use_molecule=True, species=species, coords=coords, charge=charge, spin_multiplicity=spin
-        )
+        incompatible_traj = Trajectory(species=species, coords=coords, charge=charge, spin_multiplicity=spin)
         incompatible_test_success = False
         try:
             traj.extend(incompatible_traj)
@@ -322,19 +316,13 @@ class TrajectoryTest(PymatgenTest):
             },
         ]
 
-        traj_1 = Trajectory(
-            use_molecule=False, lattice=lattice, species=species, coords=coords, site_properties=props_1
-        )
+        traj_1 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props_1)
 
-        traj_2 = Trajectory(
-            use_molecule=False, lattice=lattice, species=species, coords=coords, site_properties=props_2
-        )
+        traj_2 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props_2)
 
-        traj_3 = Trajectory(
-            use_molecule=False, lattice=lattice, species=species, coords=coords, site_properties=props_3
-        )
+        traj_3 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props_3)
 
-        traj_4 = Trajectory(use_molecule=False, lattice=lattice, species=species, coords=coords, site_properties=None)
+        traj_4 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=None)
 
         # const & const (both constant and the same site properties)
         traj_combined = copy.deepcopy(traj_1)
@@ -405,18 +393,14 @@ class TrajectoryTest(PymatgenTest):
 
         # energy only properties
         props_1 = [{"energy": e} for e in energy_1]
-        traj_1 = Trajectory(
-            use_molecule=False, lattice=lattice, species=species, coords=coords, frame_properties=props_1
-        )
+        traj_1 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props_1)
 
         # energy and pressure properties
         props_2 = [{"energy": e, "pressure": p} for e, p in zip(energy_2, pressure_2)]
-        traj_2 = Trajectory(
-            use_molecule=False, lattice=lattice, species=species, coords=coords, frame_properties=props_2
-        )
+        traj_2 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props_2)
 
         # no properties
-        traj_3 = Trajectory(use_molecule=False, lattice=lattice, species=species, coords=coords, frame_properties=None)
+        traj_3 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=None)
 
         # test combining two with different properties
         traj_combined = copy.deepcopy(traj_1)
