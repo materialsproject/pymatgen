@@ -9,7 +9,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Dict, List, Sequence, Tuple, Union
+from typing import Any, Dict, Iterator, List, Sequence, Tuple, Union
 
 import numpy as np
 from monty.io import zopen
@@ -108,7 +108,6 @@ class Trajectory(MSONable):
                 `coords_are_displacement=True`. Defaults to the first index of
                 `coords` when `coords_are_displacement=False`.
         """
-
         self.use_molecule = use_molecule
 
         self.charge = None
@@ -168,12 +167,12 @@ class Trajectory(MSONable):
         self._check_frame_props(frame_properties)
         self.frame_properties = frame_properties
 
-    def get_structure(self, i: int) -> Structure:
+    def get_structure(self, idx: int) -> Structure:
         """
         Get structure at specified index.
 
         Args:
-            i: Index of structure.
+            idx: Index of structure.
 
         Returns:
             A pymatgen Structure object.
@@ -183,14 +182,14 @@ class Trajectory(MSONable):
                 "Cannot return `Structure` for `Molecule`-based" "`Trajectory`! Use `get_molecule` instead!"
             )
 
-        return self[i]
+        return self[idx]
 
-    def get_molecule(self, i: int) -> Molecule:
+    def get_molecule(self, idx: int) -> Molecule:
         """
         Get molecule at specified index.
 
         Args:
-            i: Index of structure.
+            idx: Index of molecule.
 
         Returns:
             A pymatgen Molecule object.
@@ -200,9 +199,9 @@ class Trajectory(MSONable):
                 "Cannot return `Molecule` for `Structure`-based" "`Trajectory`! Use `get_structure` instead!"
             )
 
-        return self[i]
+        return self[idx]
 
-    def to_positions(self):
+    def to_positions(self) -> None:
         """
         Convert displacements between consecutive frames into positions.
 
@@ -217,7 +216,7 @@ class Trajectory(MSONable):
             self.coords = positions
             self.coords_are_displacement = False
 
-    def to_displacements(self):
+    def to_displacements(self) -> None:
         """
         Converts positions of trajectory into displacements between consecutive frames.
 
@@ -246,7 +245,7 @@ class Trajectory(MSONable):
             self.coords = displacements
             self.coords_are_displacement = True
 
-    def extend(self, trajectory: Trajectory):
+    def extend(self, trajectory: Trajectory) -> None:
         """
         Append a trajectory to the current one.
 
@@ -255,7 +254,6 @@ class Trajectory(MSONable):
         Args:
             trajectory: Trajectory to append.
         """
-
         # Cannot combine Molecule-based and Structure-based Trajectories
         if self.use_molecule != trajectory.use_molecule:
             raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. " "objects.")
@@ -302,14 +300,14 @@ class Trajectory(MSONable):
         # len(self) is used there.
         self.coords = np.concatenate((self.coords, trajectory.coords))
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Structure | Molecule]:
         """
-        Iterator of the trajectory, yielding a pymatgen structure for each frame.
+        Iterator of the trajectory, yielding a pymatgen Structure or Molecule for each frame.
         """
-        for i in range(len(self)):
-            yield self[i]
+        for idx in range(len(self)):
+            yield self[idx]
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Number of frames in the trajectory.
         """
@@ -464,8 +462,7 @@ class Trajectory(MSONable):
             lines.append(f"Direct configuration=     {si + 1}")
 
             for coord, specie in zip(coords, self.species):
-                coords = coord
-                line = f'{" ".join(format_str.format(c) for c in coords)} {specie}'
+                line = f'{" ".join(format_str.format(c) for c in coord)} {specie}'
                 lines.append(line)
 
         xdatcar_string = "\n".join(lines) + "\n"
@@ -477,7 +474,6 @@ class Trajectory(MSONable):
         """
         Return the trajectory as a MSONable dict.
         """
-
         lat = self.lattice.tolist() if self.lattice is not None else None
 
         return {
@@ -553,7 +549,6 @@ class Trajectory(MSONable):
         Returns:
             A trajectory from the structures.
         """
-
         species = molecules[0].species
         coords = [mol.cart_coords for mol in molecules]
         site_properties = [mol.site_properties for mol in molecules]
@@ -671,9 +666,16 @@ class Trajectory(MSONable):
             return list(prop1) + [None] * len2  # type: ignore
         return list(prop1) + list(prop2)  # type:ignore
 
-    def _check_site_props(self, site_props: SitePropsType | None):
+    def _check_site_props(self, site_props: SitePropsType | None) -> None:
         """
         Check data shape of site properties.
+
+        Args:
+            site_props (dict | list[dict] | None): Returns immediately if None.
+
+        Raises:
+            AssertionError: If the size of the site properties does not match
+                the number of sites in the structure.
         """
         if site_props is None:
             return
@@ -685,15 +687,15 @@ class Trajectory(MSONable):
                 self
             ), f"Size of the site properties {len(site_props)} does not equal to the number of frames {len(self)}."
 
-        num_sites = len(self.coords[0])
-        for d in site_props:
-            for k, v in d.items():
-                assert len(v) == num_sites, (
-                    f"Size of site property {k} {len(v)}) does not equal to the "
-                    f"number of sites in the structure {num_sites}."
+        n_sites = len(self.coords[0])
+        for dct in site_props:
+            for key, val in dct.items():
+                assert len(val) == n_sites, (
+                    f"Size of site property {key} {len(val)}) does not equal to the "
+                    f"number of sites in the structure {n_sites}."
                 )
 
-    def _check_frame_props(self, frame_props: list[dict] | None):
+    def _check_frame_props(self, frame_props: list[dict] | None) -> None:
         """
         Check data shape of site properties.
         """
