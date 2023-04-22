@@ -204,11 +204,12 @@ class Trajectory(MSONable):
 
         This is the opposite operation of `to_displacements()`.
         """
-        if self.coords_are_displacement:
-            cumulative_displacements = np.cumsum(self.coords, axis=0)
-            positions = self.base_positions + cumulative_displacements
-            self.coords = positions
-            self.coords_are_displacement = False
+        if not self.coords_are_displacement:
+            return
+        cumulative_displacements = np.cumsum(self.coords, axis=0)
+        positions = self.base_positions + cumulative_displacements
+        self.coords = positions
+        self.coords_are_displacement = False
 
     def to_displacements(self) -> None:
         """
@@ -220,25 +221,23 @@ class Trajectory(MSONable):
 
         This is the opposite operation of `to_positions()`.
         """
-        if not self.coords_are_displacement:
-            displacements = np.subtract(
-                self.coords,
-                np.roll(self.coords, 1, axis=0),
-            )
-            displacements[0] = np.zeros(np.shape(self.coords[0]))
+        if self.coords_are_displacement:
+            return
+        displacements = np.subtract(self.coords, np.roll(self.coords, 1, axis=0))
+        displacements[0] = np.zeros(np.shape(self.coords[0]))
 
-            # check if the trajectory is periodic
-            if self.lattice is not None:
-                # Deal with PBC.
-                # For example - If in one frame an atom has fractional coordinates of
-                # [0, 0, 0.98] and in the next its coordinates are [0, 0, 0.01], this atom
-                # will have moved 0.03*c, but if we only subtract the positions, we would
-                # get a displacement vector of [0, 0, -0.97]. Therefore, we can correct for
-                # this by adding or subtracting 1 from the value.
-                displacements = [np.subtract(d, np.around(d)) for d in displacements]
+        # check if the trajectory is periodic
+        if self.lattice is not None:
+            # Deal with PBC.
+            # For example - If in one frame an atom has fractional coordinates of
+            # [0, 0, 0.98] and in the next its coordinates are [0, 0, 0.01], this atom
+            # will have moved 0.03*c, but if we only subtract the positions, we would
+            # get a displacement vector of [0, 0, -0.97]. Therefore, we can correct for
+            # this by adding or subtracting 1 from the value.
+            displacements = np.subtract(displacements, np.around(displacements))
 
-            self.coords = displacements
-            self.coords_are_displacement = True
+        self.coords = displacements
+        self.coords_are_displacement = True
 
     def extend(self, trajectory: Trajectory) -> None:
         """
