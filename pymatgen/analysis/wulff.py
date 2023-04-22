@@ -439,7 +439,8 @@ class WulffShape:
         wulff_pt_list = self.wulff_pt_list
 
         ax = mpl3.Axes3D(fig, azim=azim, elev=elev)
-
+        fig.add_axes(ax)
+        
         for plane in self.facets:
             # check whether [pts] is empty
             if len(plane.points) < 1:
