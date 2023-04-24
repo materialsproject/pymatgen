@@ -122,11 +122,11 @@ class Poscar(MSONable):
         """
         if structure.is_ordered:
             site_properties = {}
-            if selective_dynamics:
+            if selective_dynamics is not None and not selective_dynamics.all():
                 site_properties["selective_dynamics"] = selective_dynamics
-            if velocities:
+            if velocities is not None and velocities.any():
                 site_properties["velocities"] = velocities
-            if predictor_corrector:
+            if predictor_corrector is not None and predictor_corrector.any():
                 site_properties["predictor_corrector"] = predictor_corrector
             structure = Structure.from_sites(structure)
             self.structure = structure.copy(site_properties=site_properties)
