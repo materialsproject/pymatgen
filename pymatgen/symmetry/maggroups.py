@@ -498,12 +498,12 @@ class MagneticSpaceGroup(SymmetryGroup):
         )
 
         description += (
-            "BNS: {d[bns_number]} {d[bns_label]}{d[og_id]}\n"
-            "{d[og_bns_transformation]}"
-            "{d[bns_operators]}\n"
-            "{bns_wyckoff_prefix}{d[bns_lattice]}\n"
-            "{d[bns_wyckoff]}"
-        ).format(d=desc, bns_wyckoff_prefix=bns_wyckoff_prefix)
+            f"BNS: {desc['bns_number']} {desc['bns_label']}{desc['og_id']}\n"
+            f"{desc['og_bns_transformation']}"
+            f"{desc['bns_operators']}\n"
+            f"{bns_wyckoff_prefix}{desc['bns_lattice']}\n"
+            f"{desc['bns_wyckoff']}"
+        )
 
         if desc["magtype"] == 4 and include_og:
             desc["og_operators"] = " ".join(op_data["str"] for op_data in self._data["og_operators"])
@@ -536,8 +536,8 @@ class MagneticSpaceGroup(SymmetryGroup):
                 break_on_hyphens=False,
             )
 
-            description += "\n{d[og_operators]}\nWyckoff Positions (OG): {d[og_lattice]}\n{d[og_wyckoff]}".format(
-                d=desc
+            description += (
+                f"\n{desc['og_operators']}\nWyckoff Positions (OG): {desc['og_lattice']}\n{desc['og_wyckoff']}"
             )
         elif desc["magtype"] == 4:
             description += "\nAlternative OG setting exists for this space group."
