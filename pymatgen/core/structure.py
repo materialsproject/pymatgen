@@ -1034,7 +1034,7 @@ class IStructure(SiteCollection, MSONable):
     @property
     def density(self) -> float:
         """
-        Returns the density in units of g/cc
+        Returns the density in units of g/cm^3.
         """
         m = Mass(self.composition.weight, "amu")
         return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)

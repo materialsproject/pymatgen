@@ -686,7 +686,7 @@ class Tensor(np.ndarray, MSONable):
 
     @classmethod
     def from_dict(cls, d) -> Tensor:
-        """Instantiate Tensors from dicts (using MSONAble API).
+        """Instantiate Tensors from dicts (using MSONable API).
 
         Returns:
             Tensor: hydrated tensor object
