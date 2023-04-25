@@ -200,9 +200,7 @@ class Cp2kOutput:
     def spin_polarized(self) -> bool:
         """Was the calculation spin polarized"""
         keys = ("UKS", "UNRESTRICTED_KOHN_SHAM", "LSD", "SPIN_POLARIZED")
-        if any(key in self.data["dft"].values() for key in keys):
-            return True
-        return False
+        return any(key in self.data["dft"].values() for key in keys)
 
     @property
     def charge(self) -> float:
