@@ -281,7 +281,7 @@ class EnumlibAdaptor:
                 min_conc = int(math.floor(conc * base))
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
         output.append("")
-        logger.debug("Generated input file:\n{}".format("\n".join(output)))
+        logger.debug("Generated input file:\n" + "\n".join(output))
         with open("struct_enum.in", "w") as f:
             f.write("\n".join(output))
 

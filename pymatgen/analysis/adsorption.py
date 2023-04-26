@@ -348,9 +348,9 @@ class AdsorbateSiteFinder:
                 Cartesian coordinate
         """
         if cartesian:
-            return np.average([site_list[i].coords for i in indices], axis=0)
+            return np.average([site_list[idx].coords for idx in indices], axis=0)
 
-        return np.average([site_list[i].frac_coords for i in indices], axis=0)
+        return np.average([site_list[idx].frac_coords for idx in indices], axis=0)
 
     def add_adsorbate(self, molecule, ads_coord, repeat=None, translate=True, reorient=True):
         """Adds an adsorbate at a particular coordinate. Adsorbate represented

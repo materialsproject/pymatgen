@@ -19,7 +19,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import bson  # type: ignore  # Ignore bson import for mypy
+    import bson
 except ModuleNotFoundError:
     bson = None  # type: ignore
 

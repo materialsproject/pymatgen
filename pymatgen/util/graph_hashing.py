@@ -74,7 +74,7 @@ def _neighborhood_aggregate(G, node, node_labels, edge_attr=None):
 def weisfeiler_lehman_graph_hash(G, edge_attr=None, node_attr=None, iterations=3, digest_size=16):
     """Return Weisfeiler Lehman (WL) graph hash.
 
-    The function iteratively aggregates and hashes neighbourhoods of each node.
+    The function iteratively aggregates and hashes neighborhoods of each node.
     After each node's neighbors are hashed to obtain updated node labels,
     a hashed histogram of resulting labels is returned as the final hash.
 
@@ -85,45 +85,40 @@ def weisfeiler_lehman_graph_hash(G, edge_attr=None, node_attr=None, iterations=3
     is used as its initial label.
     Otherwise, node and/or edge labels are used to compute the hash.
 
-    Parameters
-    ----------
-    G: graph
-        The graph to be hashed.
-        Can have node and/or edge attributes. Can also have no attributes.
-    edge_attr: string, default=None
-        The key in edge attribute dictionary to be used for hashing.
-        If None, edge labels are ignored.
-    node_attr: string, default=None
-        The key in node attribute dictionary to be used for hashing.
-        If None, and no edge_attr given, use the degrees of the nodes as labels.
-    iterations: int, default=3
-        Number of neighbor aggregations to perform.
-        Should be larger for larger graphs.
-    digest_size: int, default=16
-        Size (in bits) of blake2b hash digest to use for hashing node labels.
+    Args:
+        G: graph
+            The graph to be hashed.
+            Can have node and/or edge attributes. Can also have no attributes.
+        edge_attr: string, default=None
+            The key in edge attribute dictionary to be used for hashing.
+            If None, edge labels are ignored.
+        node_attr: string, default=None
+            The key in node attribute dictionary to be used for hashing.
+            If None, and no edge_attr given, use the degrees of the nodes as labels.
+        iterations: int, default=3
+            Number of neighbor aggregations to perform.
+            Should be larger for larger graphs.
+        digest_size: int, default=16
+            Size (in bits) of blake2b hash digest to use for hashing node labels.
 
-    Returns
-    -------
-    h : string
-        Hexadecimal string corresponding to hash of the input graph.
+    Returns:
+        h : string
+            Hexadecimal string corresponding to hash of the input graph.
 
-    Notes
-    -----
-    To return the WL hashes of each subgraph of a graph, use
-    `weisfeiler_lehman_subgraph_hashes`
+    Notes:
+        To return the WL hashes of each subgraph of a graph, use
+        `weisfeiler_lehman_subgraph_hashes`
 
-    Similarity between hashes does not imply similarity between graphs.
+        Similarity between hashes does not imply similarity between graphs.
 
-    References
-    ----------
-    .. [1] Shervashidze, Nino, Pascal Schweitzer, Erik Jan Van Leeuwen,
-       Kurt Mehlhorn, and Karsten M. Borgwardt. Weisfeiler Lehman
-       Graph Kernels. Journal of Machine Learning Research. 2011.
-       http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf
+    References:
+        .. [1] Shervashidze, Nino, Pascal Schweitzer, Erik Jan Van Leeuwen,
+        Kurt Mehlhorn, and Karsten M. Borgwardt. Weisfeiler Lehman
+        Graph Kernels. Journal of Machine Learning Research. 2011.
+        http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf
 
-    See also
-    --------
-    weisfeiler_lehman_subgraph_hashes
+    See Also:
+        weisfeiler_lehman_subgraph_hashes
     """
 
     def weisfeiler_lehman_step(G, labels, edge_attr=None):
@@ -160,7 +155,7 @@ def weisfeiler_lehman_subgraph_hashes(G, edge_attr=None, node_attr=None, iterati
     sized induced subgraphs containing the nodes within 2*k edges
     of the key node for increasing integer k until all nodes are included.
 
-    The function iteratively aggregates and hashes neighbourhoods of each node.
+    The function iteratively aggregates and hashes neighborhoods of each node.
     This is achieved for each step by replacing for each node its label from
     the previous iteration with its hashed 1-hop neighborhood aggregate.
     The new node label is then appended to a list of node labels for each
@@ -189,51 +184,46 @@ def weisfeiler_lehman_subgraph_hashes(G, edge_attr=None, node_attr=None, iterati
     is used as its initial label.
     Otherwise, node and/or edge labels are used to compute the hash.
 
-    Parameters
-    ----------
-    G: graph
-        The graph to be hashed.
-        Can have node and/or edge attributes. Can also have no attributes.
-    edge_attr: string, default=None
-        The key in edge attribute dictionary to be used for hashing.
-        If None, edge labels are ignored.
-    node_attr: string, default=None
-        The key in node attribute dictionary to be used for hashing.
-        If None, and no edge_attr given, use the degrees of the nodes as labels.
-    iterations: int, default=3
-        Number of neighbor aggregations to perform.
-        Should be larger for larger graphs.
-    digest_size: int, default=16
-        Size (in bits) of blake2b hash digest to use for hashing node labels.
-        The default size is 16 bits
+    Args:
+        G: graph
+            The graph to be hashed.
+            Can have node and/or edge attributes. Can also have no attributes.
+        edge_attr: string, default=None
+            The key in edge attribute dictionary to be used for hashing.
+            If None, edge labels are ignored.
+        node_attr: string, default=None
+            The key in node attribute dictionary to be used for hashing.
+            If None, and no edge_attr given, use the degrees of the nodes as labels.
+        iterations: int, default=3
+            Number of neighbor aggregations to perform.
+            Should be larger for larger graphs.
+        digest_size: int, default=16
+            Size (in bits) of blake2b hash digest to use for hashing node labels.
+            The default size is 16 bits
 
-    Returns
-    -------
-    node_subgraph_hashes : dict
-        A dictionary with each key given by a node in G, and each value given
-        by the subgraph hashes in order of depth from the key node.
+    Returns:
+        node_subgraph_hashes : dict
+            A dictionary with each key given by a node in G, and each value given
+            by the subgraph hashes in order of depth from the key node.
 
-    Notes
-    -----
-    To hash the full graph when subgraph hashes are not needed, use
-    `weisfeiler_lehman_graph_hash` for efficiency.
+    Notes:
+        To hash the full graph when subgraph hashes are not needed, use
+        `weisfeiler_lehman_graph_hash` for efficiency.
 
-    Similarity between hashes does not imply similarity between graphs.
+        Similarity between hashes does not imply similarity between graphs.
 
-    References
-    ----------
-    .. [1] Shervashidze, Nino, Pascal Schweitzer, Erik Jan Van Leeuwen,
-       Kurt Mehlhorn, and Karsten M. Borgwardt. Weisfeiler Lehman
-       Graph Kernels. Journal of Machine Learning Research. 2011.
-       http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf
-    .. [2] Annamalai Narayanan, Mahinthan Chandramohan, Rajasekar Venkatesan,
-       Lihui Chen, Yang Liu and Shantanu Jaiswa. graph2vec: Learning
-       Distributed Representations of Graphs. arXiv. 2017
-       https://arxiv.org/pdf/1707.05005.pdf
+    References:
+        .. [1] Shervashidze, Nino, Pascal Schweitzer, Erik Jan Van Leeuwen,
+        Kurt Mehlhorn, and Karsten M. Borgwardt. Weisfeiler Lehman
+        Graph Kernels. Journal of Machine Learning Research. 2011.
+        http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf
+        .. [2] Annamalai Narayanan, Mahinthan Chandramohan, Rajasekar Venkatesan,
+        Lihui Chen, Yang Liu and Shantanu Jaiswa. graph2vec: Learning
+        Distributed Representations of Graphs. arXiv. 2017
+        https://arxiv.org/pdf/1707.05005.pdf
 
-    See also
-    --------
-    weisfeiler_lehman_graph_hash
+    See Also:
+        weisfeiler_lehman_graph_hash
     """
 
     def weisfeiler_lehman_step(G, labels, node_subgraph_hashes, edge_attr=None):

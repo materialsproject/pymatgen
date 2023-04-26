@@ -468,9 +468,7 @@ class Trajectory(MSONable):
             f.write(xdatcar_string)
 
     def as_dict(self) -> dict:
-        """
-        Return the trajectory as a MSONable dict.
-        """
+        """Return the trajectory as a MSONable dict."""
         lat = self.lattice.tolist() if self.lattice is not None else None
 
         return {
