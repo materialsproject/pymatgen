@@ -418,21 +418,21 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
     fc_diff = fc_copy - neighbors
     species = list(map(str, struct.species))
     # in case of charged species
-    for i, item in enumerate(species):
+    for ii, item in enumerate(species):
         if item not in ldict:
-            species[i] = str(Species.from_string(item).element)
+            species[ii] = str(Species.from_string(item).element)
     latmat = struct.lattice.matrix
     connected_matrix = np.zeros((n_atoms, n_atoms))
 
-    for i in range(n_atoms):
-        for j in range(i + 1, n_atoms):
-            max_bond_length = ldict[species[i]] + ldict[species[j]] + tolerance
-            frac_diff = fc_diff[j] - fc_copy[i]
+    for ii in range(n_atoms):
+        for jj in range(ii + 1, n_atoms):
+            max_bond_length = ldict[species[ii]] + ldict[species[jj]] + tolerance
+            frac_diff = fc_diff[jj] - fc_copy[ii]
             distance_ij = np.dot(latmat.T, frac_diff)
             # print(np.linalg.norm(distance_ij,axis=0))
             if sum(np.linalg.norm(distance_ij, axis=0) < max_bond_length) > 0:
-                connected_matrix[i, j] = 1
-                connected_matrix[j, i] = 1
+                connected_matrix[ii, jj] = 1
+                connected_matrix[jj, ii] = 1
     return connected_matrix
 
 
