@@ -65,7 +65,7 @@ class TEMCalculatorTest(PymatgenTest):
                 [1, 1, 1],
             ]
         )
-        self.assertArrayEqual(expected, actual)
+        assert expected == actual
 
     def test_zone_axis_filter(self):
         # Tests that the appropriate Laue-Zoned points are returned
@@ -231,7 +231,7 @@ class TEMCalculatorTest(PymatgenTest):
         points = c.generate_points(-2, 2)
         structure = self.get_structure("Si")
         positions = c.get_positions(structure, points)
-        self.assertArrayEqual([0, 0], positions[(0, 0, 0)])
+        assert [0, 0] == positions[(0, 0, 0)]
         # Test silicon diffraction data spot rough positions:
         # see https://www.doitpoms.ac.uk/tlplib/diffraction-patterns/printall.php
         self.assertArrayAlmostEqual([1, 0], positions[(-1, 0, 0)], 0)
