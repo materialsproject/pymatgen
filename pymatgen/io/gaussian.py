@@ -839,8 +839,7 @@ class GaussianOutput:
                             self.dieze_tag = params[3]
                             parse_stage = 1
                         else:
-                            line = line.replace(" ", "", 1)
-                            line = line.rstrip("\n")
+                            line = line.replace(" ", "", 1).rstrip("\n")
                             routeline += line
                 elif parse_stage == 1:
                     if set(line.strip()) == {"-"} and self.title is None:
