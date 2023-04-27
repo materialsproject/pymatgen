@@ -460,7 +460,7 @@ class GaussianOutputTest(unittest.TestCase):
         This test makes sure that input files with multi-parameter keywords
         and route cards with multiple completed lines which are split by line break can be parsed accurately.
         """
-        filepath = os.path.join(test_dir, "EC.log")
+        filepath = os.path.join(test_dir, "EC.log.gz")
         route = {
             "opt": {"loose": None, "maxcyc": "400"},
             "freq": None,

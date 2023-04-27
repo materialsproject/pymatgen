@@ -821,7 +821,7 @@ class GaussianOutput:
         geom_orientation = None
         opt_structures = []
 
-        with zopen(filename) as f:
+        with zopen(filename, mode="rt") as f:
             for line in f:
                 if parse_stage == 0:
                     if start_patt.search(line):
