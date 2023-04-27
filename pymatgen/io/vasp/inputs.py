@@ -126,7 +126,7 @@ class Poscar(MSONable):
             if selective_dynamics is not None:
                 # Handle nested boolean list by numpy array
                 if not isinstance(selective_dynamics, np.ndarray):
-                    selective_dynamics = np.array(selective_dynamics) 
+                    selective_dynamics = np.array(selective_dynamics)
                 if not selective_dynamics.all():
                     site_properties["selective_dynamics"] = selective_dynamics.tolist()
 
