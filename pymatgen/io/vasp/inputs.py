@@ -94,7 +94,7 @@ class Poscar(MSONable):
         self,
         structure: Structure,
         comment: str | None = None,
-        selective_dynamics=None,
+        selective_dynamics: ArrayLike | None = None,
         true_names: bool = True,
         velocities: ArrayLike | None = None,
         predictor_corrector: ArrayLike | None = None,
@@ -122,12 +122,21 @@ class Poscar(MSONable):
         """
         if structure.is_ordered:
             site_properties = {}
+
+            # Handle nested boolean list by numpy array
+            if isinstance(selective_dynamics, list):
+                selective_dynamics = np.array(selective_dynamics)
+            if isinstance(velocities, list):
+                velocities = np.array(velocities)
+            if isinstance(predictor_corrector, list):
+                predictor_corrector = np.array(predictor_corrector)
+
             if selective_dynamics is not None and not selective_dynamics.all():
-                site_properties["selective_dynamics"] = selective_dynamics
+                site_properties["selective_dynamics"] = selective_dynamics.tolist()
             if velocities is not None and velocities.any():
-                site_properties["velocities"] = velocities
+                site_properties["velocities"] = velocities.tolist()
             if predictor_corrector is not None and predictor_corrector.any():
-                site_properties["predictor_corrector"] = predictor_corrector
+                site_properties["predictor_corrector"] = predictor_corrector.tolist()
             structure = Structure.from_sites(structure)
             self.structure = structure.copy(site_properties=site_properties)
             if sort_structure:
