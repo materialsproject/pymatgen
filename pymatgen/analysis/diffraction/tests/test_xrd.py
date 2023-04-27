@@ -32,7 +32,7 @@ class XRDCalculatorTest(PymatgenTest):
         struct = self.get_structure("CsCl")
         c = XRDCalculator()
         xrd = c.get_pattern(struct, two_theta_range=(0, 90))
-        assert xrd.to_json()  # Test MSONAble property
+        assert xrd.to_json()  # Test MSONable property
         # Check the first two peaks
         assert xrd.x[0] == pytest.approx(21.107738329639844)
         assert xrd.y[0] == pytest.approx(36.483184003748946)

@@ -291,7 +291,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
     def as_dict(self):
         """
-        Returns: MSONAble dict
+        Returns: MSONable dict
         """
         return {
             "init_args": {"inc_structure": self._inc_structure},

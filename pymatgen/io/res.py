@@ -89,17 +89,14 @@ class ResSFAC:
     ions: list[Ion]
 
     def __str__(self) -> str:
-        sfac_fmt = "SFAC {species}\n" "{ions}\n" "END"
-        return sfac_fmt.format(
-            species=" ".join(f"{specie:<2s}" for specie in self.species), ions="\n".join(map(str, self.ions))
-        )
+        species = " ".join(f"{specie:<2s}" for specie in self.species)
+        ions = "\n".join(map(str, self.ions))
+        return f"SFAC {species}\n{ions}\nEND"
 
 
 @dataclass(frozen=True)
 class Res:
-    """
-    Representation for the data in a res file.
-    """
+    """Representation for the data in a res file."""
 
     TITL: AirssTITL | None
     REMS: list[str]

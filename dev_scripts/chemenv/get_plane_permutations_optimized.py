@@ -417,7 +417,7 @@ if __name__ == "__main__":
                 f"Optimized perturbations {len(perms_used)}/{len(algo.permutations)} (old : "
                 f"{original_nexplicit_optimized_perms[ialgo]}/{original_nexplicit_perms[ialgo]}) are :"
             )
-            # print('Optimized permutations ({:d}/{:d}) : '.format(len(perms_used), len(algo.permutations)))
+            # print(f"Optimized permutations ({len(perms_used):d}/{len(algo.permutations):d}) : ")
             explicit_optimized_permutations = [list(perm) for perm in perms_used]
             explicit_optimized_permutations.sort()
             print(explicit_optimized_permutations)
