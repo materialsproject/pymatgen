@@ -376,12 +376,9 @@ direct
         structure = poscar.structure
 
         # Fix bottom half
-        fixed_indices = structure.frac_coords[:,2] >= 0.5
+        fixed_indices = structure.frac_coords[:, 2] >= 0.5
 
-        poscar = Poscar(
-            structure,
-            selective_dynamics=np.tile(fixed_indices.reshape(-1, 1), [1,3])
-        )
+        poscar = Poscar(structure, selective_dynamics=np.tile(fixed_indices.reshape(-1, 1), [1, 3]))
 
         assert poscar.selective_dynamics == [
             [True, True, True],
@@ -399,6 +396,7 @@ direct
             [True, True, True],
             [False, False, False],
         ]
+
 
 class IncarTest(PymatgenTest):
     def setUp(self):
