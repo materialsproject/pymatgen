@@ -123,20 +123,27 @@ class Poscar(MSONable):
         if structure.is_ordered:
             site_properties = {}
 
-            # Handle nested boolean list by numpy array
-            if isinstance(selective_dynamics, list):
-                selective_dynamics = np.array(selective_dynamics)
-            if isinstance(velocities, list):
-                velocities = np.array(velocities)
-            if isinstance(predictor_corrector, list):
-                predictor_corrector = np.array(predictor_corrector)
+            if selective_dynamics is not None:
+                # Handle nested boolean list by numpy array
+                if not isinstance(selective_dynamics, np.ndarray):
+                    selective_dynamics = np.array(selective_dynamics) 
+                if not selective_dynamics.all():
+                    site_properties["selective_dynamics"] = selective_dynamics.tolist()
 
-            if selective_dynamics is not None and not selective_dynamics.all():
-                site_properties["selective_dynamics"] = selective_dynamics.tolist()
-            if velocities is not None and velocities.any():
-                site_properties["velocities"] = velocities.tolist()
-            if predictor_corrector is not None and predictor_corrector.any():
-                site_properties["predictor_corrector"] = predictor_corrector.tolist()
+            if velocities is not None:
+                # Check any non-zero values by numpy array
+                if not isinstance(velocities, np.ndarray):
+                    velocities = np.array(velocities)
+                if velocities.any():
+                    site_properties["velocities"] = velocities.tolist()
+
+            if predictor_corrector is not None:
+                # Check any non-zero values by numpy array
+                if not isinstance(predictor_corrector, np.ndarray):
+                    predictor_corrector = np.array(predictor_corrector)
+                if predictor_corrector.any():
+                    site_properties["predictor_corrector"] = predictor_corrector.tolist()
+
             structure = Structure.from_sites(structure)
             self.structure = structure.copy(site_properties=site_properties)
             if sort_structure:
