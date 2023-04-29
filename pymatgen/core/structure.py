@@ -3993,6 +3993,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         steps: int = 500,
         fmax: float = 0.1,
         return_trajectory: bool = False,
+        cell_filter_kwargs: dict = None,
         verbose: bool = False,
     ) -> Structure | tuple[Structure, TrajectoryObserver]:
         """
@@ -4008,6 +4009,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             return_trajectory (bool): Whether to return the trajectory of relaxation.
                 Defaults to False.
             verbose (bool): whether to print out relaxation steps. Defaults to False.
+            cell_filter_kwargs (dict): passed to ExpCellFilter as keyword args.
 
         Returns:
             Structure: IAP-relaxed structure
@@ -4037,8 +4039,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         atoms.set_calculator(calculator)
         stream = sys.stdout if verbose else io.StringIO()
         with contextlib.redirect_stdout(stream):
+            cell_filter_kwargs = cell_filter_kwargs or {}
             if relax_cell:
-                atoms = ExpCellFilter(atoms)
+                atoms = ExpCellFilter(atoms, **cell_filter_kwargs)
             optimizer = FIRE(atoms)
             optimizer.run(fmax=fmax, steps=steps)
         if isinstance(atoms, ExpCellFilter):
