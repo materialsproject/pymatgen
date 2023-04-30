@@ -102,23 +102,24 @@ class Poscar(MSONable):
         sort_structure: bool = False,
     ):
         """
-        :param structure: Structure object.
-        :param comment: Optional comment line for POSCAR. Defaults to unit
-            cell formula of structure. Defaults to None.
-        :param selective_dynamics: bool values for selective dynamics,
-            where N is number of sites. Defaults to None.
-        :param true_names: Set to False if the names in the POSCAR are not
-            well-defined and ambiguous. This situation arises commonly in
-            vasp < 5 where the POSCAR sometimes does not contain element
-            symbols. Defaults to True.
-        :param velocities: Velocities for the POSCAR. Typically parsed
-            in MD runs or can be used to initialize velocities.
-        :param predictor_corrector: Predictor corrector for the POSCAR.
-            Typically parsed in MD runs.
-        :param predictor_corrector_preamble: Preamble to the predictor
-            corrector.
-        :param sort_structure: Whether to sort structure. Useful if species
-            are not grouped properly together.
+        Args:
+            structure (Structure): Structure object.
+            comment (str | None, optional): Optional comment line for POSCAR. Defaults to unit
+                cell formula of structure. Defaults to None.
+            selective_dynamics (ArrayLike | None, optional): Bool values for selective dynamics,
+                where N is the number of sites. Defaults to None.
+            true_names (bool, optional): Set to False if the names in the POSCAR are not
+                well-defined and ambiguous. This situation arises commonly in
+                VASP < 5 where the POSCAR sometimes does not contain element
+                symbols. Defaults to True.
+            velocities (ArrayLike | None, optional): Velocities for the POSCAR. Typically parsed
+                in MD runs or can be used to initialize velocities. Defaults to None.
+            predictor_corrector (ArrayLike | None, optional): Predictor corrector for the POSCAR.
+                Typically parsed in MD runs. Defaults to None.
+            predictor_corrector_preamble (str | None, optional): Preamble to the predictor
+                corrector. Defaults to None.
+            sort_structure (bool, optional): Whether to sort the structure. Useful if species
+                are not grouped properly together. Defaults to False.
         """
         if structure.is_ordered:
             site_properties = {}
