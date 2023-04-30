@@ -84,7 +84,9 @@ direct
 0.750000 0.500000 0.750000 F F F O
 """
         poscar = Poscar.from_string(poscar_string)
-        assert poscar.selective_dynamics == [[True, True, True], [False, False, False]]
+        selective_dynamics = [list(x) for x in poscar.selective_dynamics]
+
+        assert selective_dynamics == [[True, True, True], [False, False, False]]
         self.selective_poscar = poscar
 
     def test_from_file(self):
@@ -369,6 +371,34 @@ direct
         p = Poscar.from_file(tempfname)
         self.assertArrayAlmostEqual(poscar.structure.lattice.abc, p.structure.lattice.abc, 5)
         tempfname.unlink()
+
+    def test_selective_dynamics(self):
+        filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR.Fe3O4"
+        poscar = Poscar.from_file(filepath)
+        structure = poscar.structure
+
+        # Fix bottom half
+        fixed_indices = structure.frac_coords[:, 2] >= 0.5
+
+        poscar = Poscar(structure, selective_dynamics=np.tile(fixed_indices.reshape(-1, 1), [1, 3]))
+        selective_dynamics = [list(x) for x in poscar.selective_dynamics]
+
+        assert selective_dynamics == [
+            [True, True, True],
+            [False, False, False],
+            [False, False, False],
+            [True, True, True],
+            [False, False, False],
+            [True, True, True],
+            [True, True, True],
+            [False, False, False],
+            [False, False, False],
+            [True, True, True],
+            [True, True, True],
+            [False, False, False],
+            [True, True, True],
+            [False, False, False],
+        ]
 
 
 class IncarTest(PymatgenTest):

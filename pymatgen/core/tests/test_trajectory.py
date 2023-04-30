@@ -164,15 +164,9 @@ class TrajectoryTest(PymatgenTest):
         species, coords, charge, spin = self._get_species_and_coords()
 
         props = [
-            {
-                "test": [[True, True, True], [False, False, False]],
-            },
-            {
-                "test": [[False, False, False], [False, False, False]],
-            },
-            {
-                "test": [[True, True, True], [False, False, False]],
-            },
+            {"test": [[True, True, True], [False, False, False]]},
+            {"test": [[False, False, False], [False, False, False]]},
+            {"test": [[True, True, True], [False, False, False]]},
         ]
         traj = Trajectory(
             species=species,
