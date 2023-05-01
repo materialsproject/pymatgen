@@ -12,7 +12,7 @@ pandas==1.4.4
 networkx==2.8.8
 plotly==5.11.0
 beautifulsoup4==4.12.2
-uncertainties==3.1.6
+uncertainties==3.1.7
 Cython==0.29.32
 pybtex==0.24.0
 mp-api==0.27.3
