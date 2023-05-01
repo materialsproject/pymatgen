@@ -30,11 +30,11 @@ Add-ons for Input/Output
 
 * `pymatgen-io-fleur <http://pypi.org/project/pymatgen-io-fleur>`_: Provides modules for reading and writing
   files used by the `fleur <https://www.flapw.de/rel>`_ DFT code. This package is maintained by the juDFT team.
-  
-Add-ons for Externals Services
+
+Add-ons for External Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* None at present.
+* None at present
 
 External Tools
 --------------
@@ -59,4 +59,6 @@ look at `pymatgen dependents <https://github.com/materialsproject/pymatgen/netwo
 * `rxn-network <https://github.com/GENESIS-EFRC/reaction-network>`_: Reaction Network is a Python package for predicting likely
   inorganic chemical reaction pathways using graph theory.
 
-* `Matbench <https://github.com/materialsproject/matbench>`_: Benchmarks for materials science property prediction.
+* `Matbench <https://github.com/materialsproject/matbench>`_: Benchmarks for machine learning property prediction.
+
+* `Matbench Discovery <https://github.com/janosh/matbench-discovery>`_: Benchmark for machine learning crystal stability prediction.
