@@ -1034,7 +1034,7 @@ class IStructure(SiteCollection, MSONable):
     @property
     def density(self) -> float:
         """
-        Returns the density in units of g/cc
+        Returns the density in units of g/cm^3.
         """
         m = Mass(self.composition.weight, "amu")
         return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
@@ -2668,7 +2668,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Chgcar, Vasprun
 
         fname = os.path.basename(filename)
-        with zopen(filename, "rt") as f:
+        with zopen(filename, "rt", errors="replace") as f:
             contents = f.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)

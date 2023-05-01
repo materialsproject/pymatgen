@@ -686,7 +686,7 @@ v2020.7.16
 
 v2020.7.14
 ----------
-* EwaldSummation is now MSONAble (@lbluque).
+* EwaldSummation is now MSONable (@lbluque).
 * Fix for QChem freq parsing (@samblau)
 * Much improved linting and workflows.
 

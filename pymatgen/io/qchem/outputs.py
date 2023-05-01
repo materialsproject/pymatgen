@@ -2138,7 +2138,7 @@ class QCOutput(MSONable):
     def as_dict(self):
         """
         Returns:
-            MSONAble dict.
+            MSONable dict.
         """
         d = {}
         d["data"] = self.data

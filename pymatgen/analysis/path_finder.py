@@ -192,7 +192,7 @@ class NEBPathfinder:
         # (http://www.cims.nyu.edu/~eve2/main.htm)
         #
 
-        # logger.debug("Getting path from {} to {} (coords wrt V grid)".format(start, end))
+        # logger.debug(f"Getting path from {start} to {end} (coords wrt V grid)")
 
         # Set parameters
         dr = np.array([1.0 / V.shape[0], 1.0 / V.shape[1], 1.0 / V.shape[2]]) if not dr else np.array(dr, dtype=float)

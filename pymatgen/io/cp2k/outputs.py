@@ -190,28 +190,25 @@ class Cp2kOutput:
         return rt
 
     @property
-    def project_name(self):
+    def project_name(self) -> str:
         """
         What project name was used for this calculation
         """
         return self.data.get("global").get("project_name")
 
     @property
-    def spin_polarized(self):
-        """
-        Was the calculation spin polarized
-        """
-        if ("UKS" or "UNRESTRICTED_KOHN_SHAM" or "LSD" or "SPIN_POLARIZED") in self.data["dft"].values():
-            return True
-        return False
+    def spin_polarized(self) -> bool:
+        """Was the calculation spin polarized"""
+        keys = ("UKS", "UNRESTRICTED_KOHN_SHAM", "LSD", "SPIN_POLARIZED")
+        return any(key in self.data["dft"].values() for key in keys)
 
     @property
-    def charge(self):
+    def charge(self) -> float:
         """Get charge from the input file"""
         return self.input["FORCE_EVAL"]["DFT"].get("CHARGE", Keyword("", 0)).values[0]
 
     @property
-    def multiplicity(self):
+    def multiplicity(self) -> int:
         """Get the spin multiplicity from input file"""
         return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("")).values[0]
 

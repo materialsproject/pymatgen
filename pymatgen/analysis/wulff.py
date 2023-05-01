@@ -422,7 +422,7 @@ class WulffShape:
         """
         import matplotlib as mpl
         import matplotlib.pyplot as plt
-        import mpl_toolkits.mplot3d as mpl3
+        from mpl_toolkits.mplot3d import Axes3D, art3d
 
         colors = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})
         color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = colors
@@ -438,7 +438,8 @@ class WulffShape:
 
         wulff_pt_list = self.wulff_pt_list
 
-        ax = mpl3.Axes3D(fig, azim=azim, elev=elev)
+        ax = Axes3D(fig, azim=azim, elev=elev)
+        fig.add_axes(ax)
 
         for plane in self.facets:
             # check whether [pts] is empty
@@ -450,7 +451,7 @@ class WulffShape:
             plane_color = color_list[plane.index]
             pt = self.get_line_in_facet(plane)
             # plot from the sorted pts from [simpx]
-            tri = mpl3.art3d.Poly3DCollection([pt])
+            tri = art3d.Poly3DCollection([pt])
             tri.set_color(plane_color)
             tri.set_edgecolor("#808080")
             ax.add_collection3d(tri)

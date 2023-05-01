@@ -457,6 +457,27 @@ class GaussianOutputTest(unittest.TestCase):
         assert gout.charge == 0
         assert gout.spin_multiplicity == 1
 
+    def test_multiple_parameters_with_multiple_completed_lines(self):
+        """
+        This test makes sure that input files with multi-parameter keywords
+        and route cards with multiple completed lines which are split by line break parse correctly.
+        """
+        filepath = os.path.join(test_dir, "EC.log.gz")
+        route_params = {
+            "opt": {"loose": None, "maxcyc": "400"},
+            "freq": None,
+            "SCRF": "(SMD,READ)",
+            "EmpiricalDispersion": "GD3BJ",
+        }
+        gout = GaussianOutput(filepath)
+        assert gout.dieze_tag == "#N"
+        assert gout.functional == "B3LYP"
+        assert gout.basis_set == "6-311++G(2d,p)"
+        assert gout.route_parameters == route_params
+        assert gout.title == "H4 C3 O3"
+        assert gout.charge == 0
+        assert gout.spin_multiplicity == 1
+
 
 if __name__ == "__main__":
     unittest.main()

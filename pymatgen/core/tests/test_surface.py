@@ -794,6 +794,12 @@ class MillerIndexFinderTests(PymatgenTest):
         assert len(indices) == 17
         assert all(len(hkl) == 4 for hkl in indices)
 
+        # Test to see if the output with max_index i is a subset of the output with max_index i+1
+        for i in range(1, 4):
+            assert set(get_symmetrically_distinct_miller_indices(self.trigBi, i)) <= set(
+                get_symmetrically_distinct_miller_indices(self.trigBi, i + 1)
+            )
+
     def test_get_symmetrically_equivalent_miller_indices(self):
         # Tests to see if the function obtains all equivalent hkl for cubic (100)
         indices001 = [

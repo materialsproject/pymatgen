@@ -256,11 +256,11 @@ def convert_strain_to_deformation(strain, shape: Literal["upper", "lower", "symm
             'symmetric' produces a symmetric defo
     """
     strain = SquareTensor(strain)
-    ftdotf = 2 * strain + np.eye(3)
+    ft_dot_f = 2 * strain + np.eye(3)
     if shape == "upper":
-        result = scipy.linalg.cholesky(ftdotf)
+        result = scipy.linalg.cholesky(ft_dot_f)
     elif shape == "symmetric":
-        result = scipy.linalg.sqrtm(ftdotf)
+        result = scipy.linalg.sqrtm(ft_dot_f)
     else:
         raise ValueError('shape must be "upper" or "symmetric"')
     return Deformation(result)

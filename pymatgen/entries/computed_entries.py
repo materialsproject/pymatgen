@@ -645,7 +645,7 @@ class ComputedStructureEntry(ComputedEntry):
 
     def as_dict(self) -> dict:
         """
-        :return: MSONAble dict.
+        :return: MSONable dict.
         """
         d = super().as_dict()
         d["structure"] = self.structure.as_dict()
@@ -986,7 +986,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     def as_dict(self) -> dict:
         """
-        :return: MSONAble dict.
+        :return: MSONable dict.
         """
         d = super().as_dict()
         d["formation_enthalpy_per_atom"] = self.formation_enthalpy_per_atom

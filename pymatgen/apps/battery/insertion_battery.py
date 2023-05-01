@@ -389,7 +389,7 @@ class InsertionElectrode(AbstractElectrode):
 
     def as_dict_legacy(self):
         """
-        Returns: MSONAble dict
+        Returns: MSONable dict
         """
         return {
             "@module": type(self).__module__,

@@ -1115,7 +1115,7 @@ class PourbaixPlotter:
 
         # Set ticklabels
         # ticklabels = [t.get_text() for t in cbar.ax.get_yticklabels()]
-        # ticklabels[-1] = '>={}'.format(ticklabels[-1])
+        # ticklabels[-1] = f">={ticklabels[-1]}"
         # cbar.ax.set_yticklabels(ticklabels)
 
         return plt

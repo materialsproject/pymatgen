@@ -154,7 +154,7 @@ class SubstitutionProbability:
 
     def as_dict(self):
         """
-        Returns: MSONAble dict
+        Returns: MSONable dict
         """
         return {
             "name": type(self).__name__,
