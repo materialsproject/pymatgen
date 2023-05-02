@@ -15,9 +15,9 @@ INCAR:
   LASPH: True
   LREAL: Auto
   LMIXTAU: True
-  LCHARG: True  # Output CHGCAR
-  LAECHG: True  # Output AECCAR
-  LELF: True  # Output ELFCAR
+  LCHARG: True # Output CHGCAR
+  LAECHG: True # Output AECCAR
+  LELF: True # Output ELFCAR
   LWAVE: False # Don't output WAVECAR
   LVTOT: True # Output LOCPOT
   METAGGA: R2SCAN
@@ -120,6 +120,6 @@ POTCAR:
   W: W_sv
   Xe: Xe
   Y: Y_sv
-  Yb: Yb_2
+  Yb: Yb_3
   Zn: Zn
   Zr: Zr_sv
