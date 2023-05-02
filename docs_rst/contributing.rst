@@ -41,9 +41,9 @@ Direct contributions to pymatgen main distribution
       pip install -e '.[dev,optional]'
 
 6. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your code up to date. You need to add the main
-   repository to the list of your remotes. Let's name the upstream repo as mpmaster (materialsproject master)::
+   repository to the list of your remotes. Let's name the upstream repo as upstream (materialsproject master)::
 
-       git remote add mpmaster git://github.com/materialsproject/pymatgen.git
+       git remote add upstream git://github.com/materialsproject/pymatgen.git
 
    Make sure your repository is clean (no uncommitted changes) and is currently on the master branch. If not, commit or
    stash any changes and switch to the master::
@@ -52,7 +52,7 @@ Direct contributions to pymatgen main distribution
 
    Then you can pull all the new commits from the main line::
 
-      git pull mpmaster master
+      git pull upstream master
 
    Remember, pull is a combination of the commands fetch and merge, so there may be merge conflicts that may need to be
    manually resolved.
