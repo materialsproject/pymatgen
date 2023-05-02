@@ -94,13 +94,11 @@ under the pymatgen.analysis, pymatgen.ext and and pymatgen.io namespaces and not
 pymatgen root namespace is meant for development of broad classes of functionality. If in doubt, please consult with
 the pymatgen maintainers. The benefits of writing an add-on for pymatgen are:
 
-* You control the development and distribution of the add-on. You also get full recognition of your work.
+* You control the development and distribution of the add-on. You also get full recognition for your work.
 * The add-on does not affect the main pymatgen distribution and end users have a choice of whether to install the
   add-on or not via `pip install pymatgen-analysis-addon`.
 * Once installed, the add-on functions exactly like a part of pymatgen in that the imports are still via
   `from pymatgen.analysis.addon import *`.
-* We will help your add-on gain recognition via our `listing of pymatgen add-ons </addons>`_. We have plans to develop
-  this into a full-fledged searchable database of add-ons.
 
 The namespaces provide an important clue what kind of contributions are suitable for add-ons.
 
@@ -120,6 +118,11 @@ no guarantees whatsoever on the quality or reliability of any code that is not p
 The add-on architecture therefore provides flexibility for broad expansion of scope in pymatgen functionality by the
 community by loosening up the tight control in the main repository, which is bottlenecked by the small team maintaining
 it.
+
+Existing add-ons and ecosystem tools
+------------------------------------
+
+We help add-ons gain visibility and recognition on our `add-ons page </addons>`_. Feel free to suggest additions to this list via `GitHub PR <https://github.com/materialsproject/pymatgen/edit/master/docs_rst/addons.rst>`_.
 
 Coding Guidelines
 -----------------
