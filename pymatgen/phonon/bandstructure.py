@@ -327,8 +327,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient
             has_nac: specify if the band structure has been produced taking into account
-                non-analytical corrections at Gamma. If True frequenciens at Gamma from
-                diffent directions will be stored in naf. Default False.
+                non-analytical corrections at Gamma. If True frequencies at Gamma from
+                different directions will be stored in naf. Default False.
             eigendisplacements: the phonon eigendisplacements associated to the
                 frequencies in Cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).

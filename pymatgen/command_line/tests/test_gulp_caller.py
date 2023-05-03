@@ -35,7 +35,7 @@ gulp_present = False
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpCallerTest(unittest.TestCase):
     def test_run(self):
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_lattice = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -47,7 +47,7 @@ class GulpCallerTest(unittest.TestCase):
             [0, 0, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        mgo_uc = Structure(mgo_lattice, mgo_specie, mgo_frac_cord, True, True)
         gio = GulpIO()
         gin = gio.keyword_line("optimise", "conp")
         gin += gio.structure_lines(mgo_uc, symm_flg=False)
@@ -60,7 +60,7 @@ class GulpCallerTest(unittest.TestCase):
         gc = GulpCaller()
 
         """Some inherent checks are in the run_gulp function itself.
-        They should be suffcient for raising errors."""
+        They should be sufficient for raising errors."""
         gc.run(gin)
 
     def test_decimal(self):

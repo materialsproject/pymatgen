@@ -691,9 +691,9 @@ Direct
     def test_to_from_file_string(self):
         with ScratchDir("."):
             for fmt in ["cif", "json", "poscar", "cssr"]:
-                s = self.struct.to(fmt=fmt)
-                assert s is not None
-                ss = IStructure.from_str(s, fmt=fmt)
+                struct = self.struct.to(fmt=fmt)
+                assert struct is not None
+                ss = IStructure.from_str(struct, fmt=fmt)
                 self.assertArrayAlmostEqual(ss.lattice.parameters, self.struct.lattice.parameters, decimal=5)
                 self.assertArrayAlmostEqual(ss.frac_coords, self.struct.frac_coords)
                 assert isinstance(ss, IStructure)
@@ -705,16 +705,16 @@ Direct
 
             self.struct.to(filename="Si_testing.yaml")
             assert os.path.exists("Si_testing.yaml")
-            s = Structure.from_file("Si_testing.yaml")
-            assert s == self.struct
-            # Test Path support.
-            s = Structure.from_file(Path("Si_testing.yaml"))
-            assert s == self.struct
+            struct = Structure.from_file("Si_testing.yaml")
+            assert struct == self.struct
+            # Test Path support
+            struct = Structure.from_file(Path("Si_testing.yaml"))
+            assert struct == self.struct
 
             # Test .yml extension works too.
             os.replace("Si_testing.yaml", "Si_testing.yml")
-            s = Structure.from_file("Si_testing.yml")
-            assert s == self.struct
+            struct = Structure.from_file("Si_testing.yml")
+            assert struct == self.struct
 
             with pytest.raises(ValueError):
                 self.struct.to(filename="whatever")
@@ -722,8 +722,13 @@ Direct
                 self.struct.to(fmt="badformat")
 
             self.struct.to(filename="POSCAR.testing.gz")
-            s = Structure.from_file("POSCAR.testing.gz")
-            assert s == self.struct
+            struct = Structure.from_file("POSCAR.testing.gz")
+            assert struct == self.struct
+
+            # test CIF file with unicode error
+            # https://github.com/materialsproject/pymatgen/issues/2947
+            struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "bad-unicode-gh-2947.mcif"))
+            assert struct.formula == "Ni32 O32"
 
     def test_pbc(self):
         self.assertArrayEqual(self.struct.pbc, (True, True, True))
@@ -774,7 +779,7 @@ class StructureTest(PymatgenTest):
         s[0:2] = "S"
         assert s.formula == "Li1 S2"
 
-    def test_non_hash(self):
+    def test_not_hashable(self):
         with pytest.raises(TypeError):
             {self.structure: 1}
 

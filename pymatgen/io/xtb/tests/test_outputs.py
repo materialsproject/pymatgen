@@ -11,9 +11,8 @@ from pymatgen.io.xtb.outputs import CRESTOutput
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    from openbabel import openbabel
+    from openbabel import openbabel as openbabel
 
-    openbabel  # reference openbabel so it's not unused import
     have_babel = True
 except ImportError:
     have_babel = False

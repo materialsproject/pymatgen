@@ -476,9 +476,6 @@ class ComputedEntry(Entry):
             output.append(f"  {k:<22} = {v}")
         return "\n".join(output)
 
-    def __str__(self):
-        return self.__repr__()
-
     def __eq__(self, other: object) -> bool:
         # NOTE: Scaled duplicates i.e. physically equivalent materials
         # are not equal unless normalized separately.
@@ -648,7 +645,7 @@ class ComputedStructureEntry(ComputedEntry):
 
     def as_dict(self) -> dict:
         """
-        :return: MSONAble dict.
+        :return: MSONable dict.
         """
         d = super().as_dict()
         d["structure"] = self.structure.as_dict()
@@ -756,7 +753,10 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             gibbs_model ('SISSO'): Model for Gibbs Free energy. "SISSO", the descriptor
                 created by Bartel et al. (2018) -- see reference in documentation, is
                 currently the only supported) option.
-            correction (float): A correction to be applied to the energy. Defaults to 0
+            composition (Composition): The composition of the entry. Defaults to None.
+            correction (float): A correction to be applied to the energy. Defaults to 0.
+            energy_adjustments (list): A list of energy adjustments to be applied to
+                the energy. Defaults to None.
             parameters (dict): An optional dict of parameters associated with
                 the entry. Defaults to None.
             data (dict): An optional dict of any additional data associated
@@ -913,9 +913,9 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
         Args:
             vol_per_atom (float): volume per atom [Å^3/atom]
-            reduced_mass (float) - reduced mass as calculated with pair-wise sum formula
+            reduced_mass (float): as calculated with pair-wise sum formula
                 [amu]
-            temp (float) - Temperature [K]
+            temp (float): Temperature [K]
 
         Returns:
             float: G^delta [eV/atom]
@@ -986,7 +986,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     def as_dict(self) -> dict:
         """
-        :return: MSONAble dict.
+        :return: MSONable dict.
         """
         d = super().as_dict()
         d["formation_enthalpy_per_atom"] = self.formation_enthalpy_per_atom

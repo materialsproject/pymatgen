@@ -417,7 +417,7 @@ if __name__ == "__main__":
                 f"Optimized perturbations {len(perms_used)}/{len(algo.permutations)} (old : "
                 f"{original_nexplicit_optimized_perms[ialgo]}/{original_nexplicit_perms[ialgo]}) are :"
             )
-            # print('Optimized permutations ({:d}/{:d}) : '.format(len(perms_used), len(algo.permutations)))
+            # print(f"Optimized permutations ({len(perms_used):d}/{len(algo.permutations):d}) : ")
             explicit_optimized_permutations = [list(perm) for perm in perms_used]
             explicit_optimized_permutations.sort()
             print(explicit_optimized_permutations)
@@ -431,8 +431,8 @@ if __name__ == "__main__":
             'permutations ? ("y" to confirm)'
         )
         if test == "y":
-            newgeom_dir = "new_geometry_files"
-            if not os.path.exists(newgeom_dir):
-                os.makedirs(newgeom_dir)
-            with open(f"{newgeom_dir}/{cg_symbol}.json", "w") as f:
-                json.dump(cg.as_dict(), f)
+            new_geom_dir = "new_geometry_files"
+            if not os.path.exists(new_geom_dir):
+                os.makedirs(new_geom_dir)
+            with open(f"{new_geom_dir}/{cg_symbol}.json", "w") as file:
+                json.dump(cg.as_dict(), file)

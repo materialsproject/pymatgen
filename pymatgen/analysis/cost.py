@@ -156,8 +156,8 @@ class CostAnalyzer:
         """
         entries_list = []
         elements = [e.symbol for e in composition.elements]
-        for i in range(len(elements)):
-            for combi in itertools.combinations(elements, i + 1):
+        for idx in range(len(elements)):
+            for combi in itertools.combinations(elements, idx + 1):
                 chemsys = [Element(e) for e in combi]
                 x = self.costdb.get_entries(chemsys)
                 entries_list.extend(x)

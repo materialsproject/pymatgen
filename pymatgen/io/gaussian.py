@@ -313,6 +313,9 @@ class GaussianInput:
             # This condition allows for route cards spanning multiple lines
             elif (line == "" or line.isspace()) and route_index:
                 break
+            if route_index:
+                route += f" {line}"
+                route_index = idx
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
         ind = 2
         title = []
@@ -409,33 +412,27 @@ class GaussianInput:
                 outputvar.append(f"D{i}={dih:.6f}")
         return "\n".join(output) + "\n\n" + "\n".join(outputvar)
 
-    def get_cart_coords(self):
-        """
-        Return the Cartesian coordinates of the molecule
-        """
-
-        def to_s(x):
-            return f"{x:0.6f}"
-
+    def get_cart_coords(self) -> str:
+        """Return the Cartesian coordinates of the molecule"""
         outs = []
         for site in self._mol:
-            outs.append(" ".join([site.species_string, " ".join(map(to_s, site.coords))]))
+            outs.append(f"{site.species_string} {' '.join(f'{x:0.6f}' for x in site.coords)}")
         return "\n".join(outs)
 
     def __str__(self):
         return self.to_string()
 
     def to_string(self, cart_coords=False):
-        """
-        Return GaussianInput string
+        """Return GaussianInput string.
 
-        Option: when cart_coords is set to True return the Cartesian coordinates
-                instead of the z-matrix
+        Args:
+            cart_coords (bool): If True, return Cartesian coordinates instead of z-matrix.
+                Defaults to False.
         """
 
         def para_dict_to_string(para, joiner=" "):
             para_str = []
-            # sorted is only done to make unittests work reliably
+            # sorted is only done to make unit tests work reliably
             for par, val in sorted(para.items()):
                 if val is None or val == "":
                     para_str.append(par)
@@ -489,8 +486,8 @@ class GaussianInput:
 
         Option: see __str__ method
         """
-        with zopen(filename, "w") as f:
-            f.write(self.to_string(cart_coords))
+        with zopen(filename, "w") as file:
+            file.write(self.to_string(cart_coords))
 
     def as_dict(self):
         """
@@ -827,7 +824,7 @@ class GaussianOutput:
         geom_orientation = None
         opt_structures = []
 
-        with zopen(filename) as f:
+        with zopen(filename, mode="rt") as f:
             for line in f:
                 if parse_stage == 0:
                     if start_patt.search(line):
@@ -845,7 +842,8 @@ class GaussianOutput:
                             self.dieze_tag = params[3]
                             parse_stage = 1
                         else:
-                            routeline += line.strip()
+                            line = line.replace(" ", "", 1).rstrip("\n")
+                            routeline += line
                 elif parse_stage == 1:
                     if set(line.strip()) == {"-"} and self.title is None:
                         self.title = ""
@@ -1252,7 +1250,7 @@ class GaussianOutput:
         """
 
         def floatList(lst):
-            """return a list of float from a list of string"""
+            """Return a list of float from a list of string"""
             return [float(val) for val in lst]
 
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")

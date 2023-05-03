@@ -296,7 +296,7 @@ class SimpleGraphCycle(MSONable):
 
     def as_dict(self):
         """
-        :return: MSONAble dict
+        :return: MSONable dict
         """
         d = MSONable.as_dict(self)
         # Transforming tuple object to a list to allow BSON and MongoDB

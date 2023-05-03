@@ -973,13 +973,13 @@ class KPathSeek(KPathBase):
         unique_species: list[SpeciesLike] = []
         numbers = []
 
-        for species, g in itertools.groupby(site_data):
+        for species, group in itertools.groupby(site_data):
             if species in unique_species:
                 ind = unique_species.index(species)
-                numbers.extend([ind + 1] * len(tuple(g)))
+                numbers.extend([ind + 1] * len(tuple(group)))
             else:
                 unique_species.append(species)
-                numbers.extend([len(unique_species)] * len(tuple(g)))
+                numbers.extend([len(unique_species)] * len(tuple(group)))
 
         cell = (self._latt.matrix, positions, numbers)
 

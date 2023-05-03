@@ -10,7 +10,6 @@ import glob
 import os
 import shutil
 import subprocess
-import sys
 from argparse import Namespace
 from typing import Literal
 from urllib.request import urlretrieve
@@ -243,8 +242,7 @@ def install_software(install: Literal["enumlib", "bader"]):
             fortran_command = "gfortran"
         except Exception as ex:
             print(str(ex))
-            print("No fortran compiler found.")
-            sys.exit(-1)
+            raise SystemExit("No fortran compiler found.")
 
     enum = None
     bader = None

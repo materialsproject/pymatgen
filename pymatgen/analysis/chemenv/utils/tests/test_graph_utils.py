@@ -638,7 +638,7 @@ class GraphUtilsTest(PymatgenTest):
         # Testing all cases for a length-4 cycle
         nodes_ref = tuple(FakeNodeWithEqLtMethods(inode) for inode in range(4))
         edges_ref = (3, 6, 9, 12)
-        for inodes, iedges in [
+        for i_nodes, i_edges in [
             ((0, 1, 2, 3), (3, 6, 9, 12)),
             ((1, 2, 3, 0), (6, 9, 12, 3)),
             ((2, 3, 0, 1), (9, 12, 3, 6)),
@@ -649,12 +649,12 @@ class GraphUtilsTest(PymatgenTest):
             ((0, 3, 2, 1), (12, 9, 6, 3)),
         ]:
             mgc = MultiGraphCycle(
-                [FakeNodeWithEqLtMethods(inode) for inode in inodes],
-                edge_indices=list(iedges),
+                [FakeNodeWithEqLtMethods(inode) for inode in i_nodes],
+                edge_indices=list(i_edges),
             )
-            strnodes = ", ".join(str(i) for i in inodes)
-            assert mgc.nodes == nodes_ref, f"Nodes not equal for inodes = ({', '.join([str(i) for i in inodes])})"
-            assert mgc.edge_indices == edges_ref, f"Edges not equal for inodes = ({strnodes})"
+            str_nodes = ", ".join(str(i) for i in i_nodes)
+            assert mgc.nodes == nodes_ref, f"Nodes not equal for inodes = ({', '.join([str(i) for i in i_nodes])})"
+            assert mgc.edge_indices == edges_ref, f"Edges not equal for inodes = ({str_nodes})"
 
 
 class EnvironmentNodesGraphUtilsTest(PymatgenTest):

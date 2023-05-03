@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import argparse
 import itertools
-import sys
 
 from tabulate import tabulate, tabulate_formats
 
@@ -453,7 +452,7 @@ def main():
         args.func
     except AttributeError:
         parser.print_help()
-        sys.exit(-1)
+        raise SystemExit()
     return args.func(args)
 
 

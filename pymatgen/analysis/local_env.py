@@ -2670,108 +2670,108 @@ class LocalStructOrderParams:
         # Y_6_-6
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_6[i] * self._cos_n_p[6][i]  # cos(x) =  cos(-x)
-            imag -= pre_y_6_6[i] * self._sin_n_p[6][i]  # sin(x) = -sin(-x)
+        for idx in nnn_range:
+            real += pre_y_6_6[idx] * self._cos_n_p[6][idx]  # cos(x) =  cos(-x)
+            imag -= pre_y_6_6[idx] * self._sin_n_p[6][idx]  # sin(x) = -sin(-x)
         acc += real * real + imag * imag
 
         # Y_6_-5
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_5[i] * self._cos_n_p[5][i]
-            imag -= pre_y_6_5[i] * self._sin_n_p[5][i]
+        for idx in nnn_range:
+            real += pre_y_6_5[idx] * self._cos_n_p[5][idx]
+            imag -= pre_y_6_5[idx] * self._sin_n_p[5][idx]
         acc += real * real + imag * imag
 
         # Y_6_-4
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_4[i] * self._cos_n_p[4][i]
-            imag -= pre_y_6_4[i] * self._sin_n_p[4][i]
+        for idx in nnn_range:
+            real += pre_y_6_4[idx] * self._cos_n_p[4][idx]
+            imag -= pre_y_6_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
         # Y_6_-3
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_3[i] * self._cos_n_p[3][i]
-            imag -= pre_y_6_3[i] * self._sin_n_p[3][i]
+        for idx in nnn_range:
+            real += pre_y_6_3[idx] * self._cos_n_p[3][idx]
+            imag -= pre_y_6_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_6_-2
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_2[i] * self._cos_n_p[2][i]
-            imag -= pre_y_6_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_6_2[idx] * self._cos_n_p[2][idx]
+            imag -= pre_y_6_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_6_-1
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_6_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real += pre_y_6_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_6_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_6_0
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
+        for idx in nnn_range:
             real += (
                 i32
                 * sqrt_13_pi
-                * (231 * self._pow_cos_t[6][i] - 315 * self._pow_cos_t[4][i] + 105 * self._pow_cos_t[2][i] - 5.0)
+                * (231 * self._pow_cos_t[6][idx] - 315 * self._pow_cos_t[4][idx] + 105 * self._pow_cos_t[2][idx] - 5.0)
             )
         acc += real * real
 
         # Y_6_1
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_6_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_6_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real -= pre_y_6_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_6_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_6_2
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_2[i] * self._cos_n_p[2][i]
-            imag += pre_y_6_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_6_2[idx] * self._cos_n_p[2][idx]
+            imag += pre_y_6_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_6_3
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_6_3[i] * self._cos_n_p[3][i]
-            imag -= pre_y_6_3[i] * self._sin_n_p[3][i]
+        for idx in nnn_range:
+            real -= pre_y_6_3[idx] * self._cos_n_p[3][idx]
+            imag -= pre_y_6_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_6_4
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_4[i] * self._cos_n_p[4][i]
-            imag += pre_y_6_4[i] * self._sin_n_p[4][i]
+        for idx in nnn_range:
+            real += pre_y_6_4[idx] * self._cos_n_p[4][idx]
+            imag += pre_y_6_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
         # Y_6_5
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_6_5[i] * self._cos_n_p[5][i]
-            imag -= pre_y_6_5[i] * self._sin_n_p[5][i]
+        for idx in nnn_range:
+            real -= pre_y_6_5[idx] * self._cos_n_p[5][idx]
+            imag -= pre_y_6_5[idx] * self._sin_n_p[5][idx]
         acc += real * real + imag * imag
 
         # Y_6_6
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_6[i] * self._cos_n_p[6][i]
-            imag += pre_y_6_6[i] * self._sin_n_p[6][i]
+        for idx in nnn_range:
+            real += pre_y_6_6[idx] * self._cos_n_p[6][idx]
+            imag += pre_y_6_6[idx] * self._sin_n_p[6][idx]
         acc += real * real + imag * imag
 
         q6 = sqrt(4 * pi * acc / (13 * float(nnn * nnn)))
@@ -3856,25 +3856,25 @@ class CrystalNN(NearNeighbors):
                 to the coordination number (1 or smaller), 'site_index' gives index of
                 the corresponding site in the original structure.
         """
-        nndata = self.get_nn_data(structure, n)
+        nn_data = self.get_nn_data(structure, n)
 
         if not self.weighted_cn:
-            max_key = max(nndata.cn_weights, key=lambda k: nndata.cn_weights[k])
-            nn = nndata.cn_nninfo[max_key]
+            max_key = max(nn_data.cn_weights, key=lambda k: nn_data.cn_weights[k])
+            nn = nn_data.cn_nninfo[max_key]
             for entry in nn:
                 entry["weight"] = 1
             return nn
 
-        for entry in nndata.all_nninfo:
+        for entry in nn_data.all_nninfo:
             weight = 0
-            for cn in nndata.cn_nninfo:
-                for cn_entry in nndata.cn_nninfo[cn]:
+            for cn in nn_data.cn_nninfo:
+                for cn_entry in nn_data.cn_nninfo[cn]:
                     if entry["site"] == cn_entry["site"]:
-                        weight += nndata.cn_weights[cn]
+                        weight += nn_data.cn_weights[cn]
 
             entry["weight"] = weight
 
-        return nndata.all_nninfo
+        return nn_data.all_nninfo
 
     def get_nn_data(self, structure: Structure, n: int, length=None):
         """
@@ -3887,9 +3887,9 @@ class CrystalNN(NearNeighbors):
 
         Returns:
             a namedtuple (NNData) object that contains:
-                - all near neighbor sites with weights
-                - a dict of CN -> weight
-                - a dict of CN -> associated near neighbor sites
+            - all near neighbor sites with weights
+            - a dict of CN -> weight
+            - a dict of CN -> associated near neighbor sites
         """
         length = length or self.fingerprint_length
 
@@ -4082,23 +4082,23 @@ class CrystalNN(NearNeighbors):
         return (area1 - area2) / (0.25 * math.pi * r**2)
 
     @staticmethod
-    def transform_to_length(nndata, length):
+    def transform_to_length(nn_data, length):
         """
         Given NNData, transforms data to the specified fingerprint length
         Args:
-            nndata: (NNData)
+            nn_data: (NNData)
             length: (int) desired length of NNData
         """
         if length is None:
-            return nndata
+            return nn_data
 
         if length:
             for cn in range(length):
-                if cn not in nndata.cn_weights:
-                    nndata.cn_weights[cn] = 0
-                    nndata.cn_nninfo[cn] = []
+                if cn not in nn_data.cn_weights:
+                    nn_data.cn_weights[cn] = 0
+                    nn_data.cn_nninfo[cn] = []
 
-        return nndata
+        return nn_data
 
 
 def _get_default_radius(site):

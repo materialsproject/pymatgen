@@ -541,6 +541,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         Args:
             entry: A ComputedEntry object.
+            **kwargs: Will be passed to process_entries().
 
         Returns:
             An adjusted entry if entry is compatible, else None.
@@ -564,15 +565,14 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         restored by setting entry.energy_adjustments = [].
 
         Args:
-            entries list[ComputedEntry | ComputedStructureEntry]: A sequence of
+            entries (AnyComputedEntry | list[AnyComputedEntry]): A sequence of
                 Computed(Structure)Entry objects.
             clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
-                Default is True.
+                Defaults to True.
             verbose (bool): Whether to display progress bar for processing multiple entries.
-                Default is False.
-            inplace (bool): Whether to adjust input entries in place.
-                Default is True.
+                Defaults to False.
+            inplace (bool): Whether to adjust input entries in place. Defaults to True.
 
         Returns:
             list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
@@ -1407,6 +1407,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 Default is False.
             verbose (bool): Whether to display progress bar for processing multiple entries.
                 Default is False.
+            inplace (bool): Whether to modify the entries in place. If False, a copy of the
+                entries is made and processed. Default is True.
 
         Returns:
             list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with

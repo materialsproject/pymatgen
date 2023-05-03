@@ -31,8 +31,7 @@ if __name__ == "__main__":
             equiv_plane = list(edge)
             equiv_plane.extend(opposite_edge)
             equiv_plane.sort()
-            equiv_plane = tuple(equiv_plane)
-            all_plane_points.append(equiv_plane)
+            all_plane_points.append(tuple(equiv_plane))
         all_plane_points = list(set(all_plane_points))
         all_plane_points = [list(equiv_plane) for equiv_plane in all_plane_points]
 

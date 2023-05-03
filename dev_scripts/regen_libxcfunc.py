@@ -84,16 +84,16 @@ def main():
         print("Usage: regen_libxcfunc.py path_to_libxc_docs.txt")
         return 1
 
-    xcfuncs = parse_libxc_docs(path)
+    xc_funcs = parse_libxc_docs(path)
 
     # Generate new json file in pycore
     pycore = os.path.abspath("../pymatgen/core/")
     jpath = os.path.join(pycore, "libxc_docs.json")
-    write_libxc_docs_json(xcfuncs, jpath)
+    write_libxc_docs_json(xc_funcs, jpath)
 
     # Build new enum list.
     enum_list = []
-    for num, d in xcfuncs.items():
+    for num, d in xc_funcs.items():
         # Remove XC_ from codename
         codename = d["Codename"][3:]
         enum_list.append(f"    {codename} = {num}")
@@ -122,4 +122,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

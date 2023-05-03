@@ -116,6 +116,33 @@ class TestAirssProvider:
         assert dct["volume"] == pytest.approx(57.051984)
 
 
+class TestSpin:
+    def test_read_spin(self):
+        with open(res_coc) as f:
+            lines = f.readlines()
+        # add spin to a line
+        lines[25] = lines[25][:-1] + " -1.4\n"
+        contents = "".join(lines)
+        provider = AirssProvider.from_str(contents)
+
+        for site in provider.structure:
+            if site.properties["magmom"] is not None:
+                assert site.properties.get("magmom") == pytest.approx(-1.4)
+                return
+        pytest.fail("valid 'magmom' not found in any site properties")
+
+    def test_gh_2938_example(self):
+        res_spin_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "res", "spins-in-last-col.res")
+        with open(res_spin_file) as res_file:
+            contents = res_file.read()
+
+        provider = AirssProvider.from_str(contents)
+
+        for site in provider.structure:
+            if site.properties["magmom"] is not None:
+                assert site.properties.get("magmom") in (3.31, 4.12, -0.01, -0.04, -0.17)
+
+
 class TestStructureModule:
     def test_structure_from_file(self):
         structure: Structure = Structure.from_file(res_coc)

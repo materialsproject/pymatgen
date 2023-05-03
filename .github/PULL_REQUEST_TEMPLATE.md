@@ -24,11 +24,11 @@ Before a pull request can be merged, the following items must be checked:
 - [ ] Tests have been added for any new functionality or bug fixes.
 - [ ] All linting and tests pass.
 
-Note that the CI system will run all the above checks. But it will be much more efficient if you already fix most errors prior to submitting the PR. We highly recommended installing `pre-commit` hooks. Simply Run
+Our CI will run all the above checks but it might be more efficient if you already fix most errors before submitting the PR. We highly recommended installing `pre-commit` hooks. Simply Run
 
 ```sh
 pip install -U pre-commit
 pre-commit install
 ```
 
-in the repo's root directory. Afterwards linters will run before every commit and abort if any issues pop up.
+in the repo's root directory. Once `pre-commit` has installed `git` hooks, our linters will run before every commit and abort if issues pop up.

@@ -218,7 +218,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     def as_dict(self):
         """
         Returns:
-            MSONAble dict.
+            MSONable dict.
         """
         return {
             "version": __version__,
@@ -710,7 +710,7 @@ class MoleculeMatcher(MSONable):
     def as_dict(self):
         """
         Returns:
-            MSONAble dict.
+            MSONable dict.
         """
         return {
             "version": __version__,
