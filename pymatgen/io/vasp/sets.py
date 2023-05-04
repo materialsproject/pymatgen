@@ -38,13 +38,13 @@ The above are recommendations. The following are UNBREAKABLE rules:
 from __future__ import annotations
 
 import abc
-import glob
 import itertools
 import os
 import re
 import shutil
 import warnings
 from copy import deepcopy
+from glob import glob
 from itertools import chain
 from pathlib import Path
 from zipfile import ZipFile
@@ -134,12 +134,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         Returns:
             VaspInput
         """
-        return VaspInput(
-            incar=self.incar,
-            kpoints=self.kpoints,
-            poscar=self.poscar,
-            potcar=self.potcar,
-        )
+        return VaspInput(incar=self.incar, kpoints=self.kpoints, poscar=self.poscar, potcar=self.potcar)
 
     def write_input(
         self,
@@ -1454,7 +1449,7 @@ class MPHSEBSSet(MPHSERelaxSet):
 
         files_to_transfer = {}
         if self.copy_chgcar:
-            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
+            chgcars = sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -1680,7 +1675,7 @@ class MPNonSCFSet(MPRelaxSet):
         files_to_transfer = {}
 
         if self.copy_chgcar:
-            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
+            chgcars = sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -1829,7 +1824,7 @@ class MPSOCSet(MPStaticSet):
 
         files_to_transfer = {}
         if self.copy_chgcar:
-            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
+            chgcars = sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -2095,7 +2090,7 @@ class MVLGWSet(DictSet):
         files_to_transfer = {}
         if self.copy_wavecar:
             for fname in ("WAVECAR", "WAVEDER", "WFULL"):
-                w = sorted(glob.glob(str(Path(prev_calc_dir) / (fname + "*"))))
+                w = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
                 if w:
                     if fname == "WFULL":
                         for f in w:
@@ -2847,8 +2842,8 @@ def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     :return:
     """
     path = Path(path)
-    vruns = list(glob.glob(str(path / "vasprun.xml*")))
-    outcars = list(glob.glob(str(path / "OUTCAR*")))
+    vruns = list(glob(str(path / "vasprun.xml*")))
+    outcars = list(glob(str(path / "OUTCAR*")))
 
     if len(vruns) == 0 or len(outcars) == 0:
         raise ValueError(f"Unable to get vasprun.xml/OUTCAR from prev calculation in {path}")
@@ -3227,7 +3222,7 @@ class MPAbsorptionSet(MPRelaxSet):
         files_to_transfer = {}
         if self.copy_wavecar:
             for fname in ("WAVECAR", "WAVEDER"):
-                w = sorted(glob.glob(str(Path(prev_calc_dir) / (fname + "*"))))
+                w = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
                 if w:
                     files_to_transfer[fname] = str(w[-1])
 

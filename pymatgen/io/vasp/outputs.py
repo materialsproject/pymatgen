@@ -5,7 +5,6 @@ Classes for reading/manipulating/writing VASP output files.
 from __future__ import annotations
 
 import datetime
-import glob
 import itertools
 import logging
 import math
@@ -15,6 +14,7 @@ import warnings
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from dataclasses import dataclass
+from glob import glob
 from io import StringIO
 from pathlib import Path
 from typing import DefaultDict, Literal
@@ -4114,7 +4114,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
     # TODO: Add better error handling!!!
     if os.path.exists(os.path.join(dir_name, "branch_0")):
         # get all branch dir names
-        branch_dir_names = [os.path.abspath(d) for d in glob.glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
+        branch_dir_names = [os.path.abspath(d) for d in glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
 
         # sort by the directory name (e.g, branch_10)
         sorted_branch_dir_names = sorted(branch_dir_names, key=lambda x: int(x.split("_")[-1]))

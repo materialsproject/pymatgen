@@ -42,11 +42,11 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 """
 from __future__ import annotations
 
-import glob
 import os
 import shutil
 import subprocess
 import warnings
+from glob import glob
 from shutil import which
 
 import numpy as np
@@ -155,7 +155,7 @@ class ChargemolAnalysis:
             (str): Absolute path to the file.
         """
         name_pattern = f"{filename}{suffix}*" if filename != "POTCAR" else f"{filename}*"
-        paths = glob.glob(os.path.join(path, name_pattern))
+        paths = glob(os.path.join(path, name_pattern))
         fpath = None
         if len(paths) >= 1:
             # using reverse=True because, if multiple files are present,

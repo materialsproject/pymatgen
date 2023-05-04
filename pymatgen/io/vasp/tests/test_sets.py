@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import glob
 import hashlib
 import os
 import shutil
 import tempfile
 import unittest
 import warnings
+from glob import glob
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -71,7 +71,7 @@ class SetChangeCheckTest(PymatgenTest):
         # For sets starting with "MVL" this is @shyuep, for sets starting
         # with "MP" this is @shyuep and @mkhorton.
         os.chdir(MODULE_DIR / "..")
-        input_sets = glob.glob("*.yaml")
+        input_sets = glob("*.yaml")
         hashes = {}
         for input_set in input_sets:
             with open(input_set) as f:
