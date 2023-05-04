@@ -631,10 +631,8 @@ class DictSet(VaspInputSet):
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the kpoints automatically
         if (
-            self.user_incar_settings.get("KSPACING")
-            or self._config_dict["INCAR"].get("KSPACING")
-            and self.user_kpoints_settings == {}
-        ):
+            self.user_incar_settings.get("KSPACING") or self._config_dict["INCAR"].get("KSPACING")
+        ) and self.user_kpoints_settings == {}:
             return None
 
         settings = self.user_kpoints_settings or self._config_dict.get("KPOINTS")
@@ -1142,7 +1140,7 @@ class MPStaticSet(MPRelaxSet):
         kpoints = super().kpoints
 
         # Prefer to use k-point scheme from previous run
-        # except for when lepsilon = True is specified
+        # unless lepsilon = True is specified
         if kpoints is not None and self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
             if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
                 k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
