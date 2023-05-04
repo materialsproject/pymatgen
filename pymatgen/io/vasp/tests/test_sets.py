@@ -15,7 +15,7 @@ import pytest
 from _pytest.monkeypatch import MonkeyPatch
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
-from pytest import approx
+from pytest import approx, mark
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
@@ -57,8 +57,9 @@ MODULE_DIR = Path(__file__).resolve().parent
 
 dec = MontyDecoder()
 
-if SETTINGS.get("PMG_VASP_PSP_DIR") is None:
-    raise unittest.SkipTest(f"PMG_VASP_PSP_DIR is not set. Skipping tests in {__file__}.")
+
+NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
+skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set.")
 
 
 class SetChangeCheckTest(PymatgenTest):
@@ -174,11 +175,13 @@ class MITMPRelaxSetTest(PymatgenTest):
             with pytest.warns(BadInputSetWarning, match="not known by pymatgen"):
                 MITRelaxSet(structure).potcar
 
+    @skip_if_no_psp_dir
     def test_lda_potcar(self):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
         p = MITRelaxSet(structure, user_potcar_functional="LDA").potcar
         assert p.functional == "LDA"
 
+    @skip_if_no_psp_dir
     def test_nelect(self):
         coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
         lattice = Lattice.cubic(4)
@@ -205,6 +208,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         assert MITRelaxSet(s).nelect == approx(16)
         assert MPRelaxSet(s).nelect == approx(22)
 
+    @skip_if_no_psp_dir
     def test_get_incar(self):
         incar = self.mpset.incar
 
@@ -222,13 +226,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
         # Silicon structure for testing.
         latt = Lattice(
-            np.array(
-                [
-                    [3.8401979337, 0.00, 0.00],
-                    [1.9200989668, 3.3257101909, 0.00],
-                    [0.00, -2.2171384943, 3.1355090603],
-                ]
-            )
+            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         )
         struct = Structure(latt, [si, si], coords)
         incar = MPRelaxSet(struct).incar
@@ -331,11 +329,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         s = Structure(lattice, ["Fe", "Cl", "S"], coords)
         incar = MITRelaxSet(
             s,
-            user_incar_settings={
-                "LDAU": True,
-                "LDAUL": {"Fe": 3},
-                "LDAUU": {"Fe": 1.8},
-            },
+            user_incar_settings={"LDAU": True, "LDAUL": {"Fe": 3}, "LDAUU": {"Fe": 1.8}},
         ).incar
         assert incar["LDAUL"] == [3.0, 0, 0]
         assert incar["LDAUU"] == [1.8, 0, 0]
@@ -354,13 +348,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
         # Silicon structure for testing.
         latt = Lattice(
-            np.array(
-                [
-                    [3.8401979337, 0.00, 0.00],
-                    [1.9200989668, 3.3257101909, 0.00],
-                    [0.00, -2.2171384943, 3.1355090603],
-                ]
-            )
+            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         )
         struct = Structure(latt, [si, si], coords, charge=1)
         mpr = MPRelaxSet(struct, use_structure_charge=True)
@@ -410,6 +398,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         assert kpoints.kpts == [[2, 4, 5]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
+    @skip_if_no_psp_dir
     def test_get_vasp_input(self):
         d = self.mitset.get_vasp_input()
         assert d["INCAR"]["ISMEAR"] == -5
@@ -420,17 +409,17 @@ class MITMPRelaxSetTest(PymatgenTest):
         assert d["INCAR"]["ISMEAR"] == 0
 
     def test_MPMetalRelaxSet(self):
-        mpmetalset = MPMetalRelaxSet(self.get_structure("Sn"))
-        incar = mpmetalset.incar
+        mp_metal_set = MPMetalRelaxSet(self.get_structure("Sn"))
+        incar = mp_metal_set.incar
         assert incar["ISMEAR"] == 1
         assert incar["SIGMA"] == 0.2
-        kpoints = mpmetalset.kpoints
+        kpoints = mp_metal_set.kpoints
         self.assertArrayAlmostEqual(kpoints.kpts[0], [5, 5, 5])
 
     def test_as_from_dict(self):
         mitset = MITRelaxSet(self.structure)
-        mpset = MPRelaxSet(self.structure)
-        mpuserset = MPRelaxSet(
+        mp_set = MPRelaxSet(self.structure)
+        mp_user_set = MPRelaxSet(
             self.structure,
             user_incar_settings={"MAGMOM": {"Fe": 10, "S": -5, "Mn3+": 100}},
         )
@@ -439,11 +428,11 @@ class MITMPRelaxSetTest(PymatgenTest):
         v = dec.process_decoded(d)
         assert v._config_dict["INCAR"]["LDAUU"]["O"]["Fe"] == 4
 
-        d = mpset.as_dict()
+        d = mp_set.as_dict()
         v = dec.process_decoded(d)
         assert v._config_dict["INCAR"]["LDAUU"]["O"]["Fe"] == 5.3
 
-        d = mpuserset.as_dict()
+        d = mp_user_set.as_dict()
         v = dec.process_decoded(d)
         # self.assertEqual(type(v), MPVaspInputSet)
         assert v.user_incar_settings["MAGMOM"] == {"Fe": 10, "S": -5, "Mn3+": 100}
@@ -456,6 +445,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         # even if U is turned off (thanks Andrew Rosen for reporting)
         assert p.incar["LMAXMIX"] == 4
 
+    @skip_if_no_psp_dir
     def test_write_input(self):
         self.mitset.write_input(".", make_dir_if_not_present=True)
         for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR"]:
@@ -476,11 +466,13 @@ class MITMPRelaxSetTest(PymatgenTest):
         for f in ["INCAR", "KPOINTS", "POSCAR", "POTCAR.spec"]:
             os.remove(f)
 
+    @skip_if_no_psp_dir
     def test_user_potcar_settings(self):
         vis = MPRelaxSet(self.structure, user_potcar_settings={"Fe": "Fe"})
         potcar = vis.potcar
         assert potcar.symbols == ["Fe", "P", "O"]
 
+    @skip_if_no_psp_dir
     def test_valid_magmom_struct(self):
         # First test the helper function
         struct = self.structure.copy()
