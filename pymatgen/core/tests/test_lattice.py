@@ -185,7 +185,7 @@ class LatticeTestCase(PymatgenTest):
         lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])
         reduced_latt = lattice.get_lll_reduced_lattice()
 
-        expected_ans = Lattice(np.array([0.0, 1.0, 0.0, 1.0, 0.0, 1.0, -2.0, 0.0, 1.0]).reshape((3, 3)))
+        expected_ans = Lattice([0.0, 1.0, 0.0, 1.0, 0.0, 1.0, -2.0, 0.0, 1.0]).reshape((3, 3))
         assert round(abs(np.linalg.det(np.linalg.solve(expected_ans.matrix, reduced_latt.matrix)) - 1), 7) == 0
         self.assertArrayAlmostEqual(sorted(reduced_latt.abc), sorted(expected_ans.abc))
         assert round(abs(reduced_latt.volume - lattice.volume), 7) == 0
@@ -201,19 +201,17 @@ class LatticeTestCase(PymatgenTest):
             14.253000,
         ]
         expected_ans = Lattice(
-            np.array(
-                [
-                    -4.298850,
-                    2.481942,
-                    0.000000,
-                    2.865900,
-                    4.963884,
-                    0.000000,
-                    0.000000,
-                    0.000000,
-                    14.253000,
-                ]
-            )
+            [
+                -4.298850,
+                2.481942,
+                0.000000,
+                2.865900,
+                4.963884,
+                0.000000,
+                0.000000,
+                0.000000,
+                14.253000,
+            ]
         )
         reduced_latt = Lattice(latt).get_lll_reduced_lattice()
         assert round(abs(np.linalg.det(np.linalg.solve(expected_ans.matrix, reduced_latt.matrix)) - 1), 7) == 0
@@ -481,7 +479,7 @@ class LatticeTestCase(PymatgenTest):
         for _ in range(10):
             lengths = [np.random.randint(1, 100) for i in range(3)]
             lattice = [np.random.rand(3) * lengths[i] for i in range(3)]
-            lattice = Lattice(np.array(lattice))
+            lattice = Lattice(lattice)
 
             f1 = np.random.rand(3)
             f2 = np.random.rand(3)
