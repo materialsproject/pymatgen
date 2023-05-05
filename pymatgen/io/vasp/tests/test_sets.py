@@ -31,6 +31,7 @@ from pymatgen.io.vasp.sets import (
     MITRelaxSet,
     MPAbsorptionSet,
     MPHSEBSSet,
+    MPHSERelaxSet,
     MPMetalRelaxSet,
     MPNMRSet,
     MPNonSCFSet,
@@ -46,6 +47,7 @@ from pymatgen.io.vasp.sets import (
     MVLRelax52Set,
     MVLScanRelaxSet,
     MVLSlabSet,
+    VaspInputSet,
     batch_write_input,
     get_structure_from_prev_run,
     get_valid_magmom_struct,
@@ -62,40 +64,55 @@ NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
 skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set.")
 
 
+@pytest.mark.parametrize(
+    "input_set",
+    [MPRelaxSet, MPHSERelaxSet, MVLRelax52Set, MPAbsorptionSet],
+)
+def test_Yb_2_warning(input_set: VaspInputSet) -> None:
+    structure = Structure(
+        lattice=Lattice.cubic(5),
+        species=("Yb", "O"),
+        coords=((0, 0, 0), (0.5, 0.5, 0.5)),
+    )
+
+    with pytest.warns(BadInputSetWarning) as record:
+        input_set(structure)
+
+    expected = "The structure contains Ytterbium (Yb) and this InputSet uses the Yb_2"
+    assert expected in str(record[0].message)
+
+
 class SetChangeCheckTest(PymatgenTest):
     def test_sets_changed(self):
-        # WARNING!
-        # These tests will fail when you change an input set.
-        # They are included as a sanity check: if you want to change
-        # an input set, please make sure to notify the users for that set.
-        # For sets starting with "MVL" this is @shyuep, for sets starting
-        # with "MP" this is @shyuep and @mkhorton.
+        msg = (
+            "WARNING! These tests will fail when you change an input set. They are included "
+            "as a sanity check: if you want to change an input set, please make sure to "
+            "notify the users for that set. For sets starting with 'MVL' this is @shyuep, for "
+            "sets starting with 'MP' this is @shyuep and @mkhorton. "
+        )
         os.chdir(MODULE_DIR / "..")
         input_sets = glob("*.yaml")
         hashes = {}
         for input_set in input_sets:
-            with open(input_set) as f:
-                hashes[input_set] = hashlib.sha1(f.read().encode("utf-8")).hexdigest()
+            with open(input_set) as file:
+                text = file.read().encode("utf-8")
+                hashes[input_set] = hashlib.sha1(text).hexdigest()
+
         known_hashes = {
-            "MVLGWSet.yaml": "f4df9516cf7dd923b37281172c662a70fa32bebc",
-            "MVLRelax52Set.yaml": "eb538ffb45c0cd13f13df48afc1e71c44d2e34b2",
-            "MPHSERelaxSet.yaml": "2bb969e64b57ff049077c8ec10e64f94c9c97f42",
+            "MVLGWSet.yaml": "104ae93c3b3be19a13b0ee46ebdd0f40ceb96597",
+            "MVLRelax52Set.yaml": "4cfc6b1bd0548e45da3bde4a9c65b3249da13ecd",
+            "MPHSERelaxSet.yaml": "0d0d96a620461071cfd416ec9d5d6a8d2dfd0855",
             "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
-            "MPSCANRelaxSet.yaml": "dfa9fee19178cb38c6a121ce6096db40693478e8",
-            "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
+            "MPSCANRelaxSet.yaml": "6bdda39a8802166ed5407916dc217b138b3602e9",
+            "MPRelaxSet.yaml": "f2949cdc5dc8cd0bee6d39a5df0d6a6b7c144821",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
-            "MPAbsorptionSet.yaml": "e86e405a014a7af41490cc7b99609f99f2ddd5b0",
+            "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
         }
 
-        assert hashes == known_hashes, (
-            "These tests will fail when you change an input set. "
-            "They are included as a sanity check: if you want to "
-            "change an input set, please make sure to notify the "
-            "users for that set. "
-            'For sets starting with "MVL" this is @shyuep, '
-            'for sets starting with "MP" this is @shyuep and @mkhorton.'
-        )
+        assert hashes == known_hashes, msg
+        for input_set in hashes:
+            assert hashes[input_set] == known_hashes[input_set], msg
 
 
 class MITMPRelaxSetTest(PymatgenTest):
