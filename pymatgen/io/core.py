@@ -140,6 +140,31 @@ class InputSet(MSONable, MutableMapping):
             return self.get(k)
         raise AttributeError(f"'{type(self).__name__}' object has no attribute {k!r}")
 
+    def __copy__(self):
+        cls = self.__class__
+        new_instance = cls.__new__(cls)
+
+        # Copy over all attributes. For a shallow copy, we don't need to worry
+        # about deep copying complex structures, hence a simple assignment is used.
+        for k, v in self.__dict__.items():
+            setattr(new_instance, k, v)
+
+        return new_instance
+
+    def __deepcopy__(self, memo):
+        import copy
+
+        cls = self.__class__
+        new_instance = cls.__new__(cls)
+        memo[id(self)] = new_instance
+
+        # Copy over all attributes. You might need to customize this if you have
+        # complex attributes that don't copy well this way.
+        for k, v in self.__dict__.items():
+            setattr(new_instance, k, copy.deepcopy(v, memo))
+
+        return new_instance
+
     def __len__(self):
         return len(self.inputs)
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import os
 
 import pytest
@@ -229,3 +230,35 @@ class TestInputSet:
             with open(os.path.join("input_dir", "file_from_strcast")) as f:
                 file_from_strcast = f.read()
                 assert file_from_strcast == "Aha\nBeh"
+
+    def test_deepcopy(self):
+        sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
+        sif2 = StructInputFile.from_file(os.path.join(test_dir, "LiFePO4.cif"))
+
+        inp_set = InputSet(
+            {
+                "cif1": sif1,
+                "cif2": sif2,
+            },
+            kwarg1=1,
+            kwarg2="hello",
+        )
+        inp_set2 = copy.deepcopy(inp_set)
+
+        assert inp_set.as_dict() == inp_set2.as_dict()
+
+    def test_copy(self):
+        sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
+        sif2 = StructInputFile.from_file(os.path.join(test_dir, "LiFePO4.cif"))
+
+        inp_set = InputSet(
+            {
+                "cif1": sif1,
+                "cif2": sif2,
+            },
+            kwarg1=1,
+            kwarg2="hello",
+        )
+        inp_set2 = copy.copy(inp_set)
+
+        assert inp_set.as_dict() == inp_set2.as_dict()
