@@ -691,6 +691,7 @@ class MPNonSCFSetTest(PymatgenTest):
         self.tmp = tempfile.mkdtemp()
         warnings.simplefilter("ignore")
 
+    @skip_if_no_psp_dir
     def test_init(self):
         prev_run = self.TEST_FILES_DIR / "relaxation"
         # check boltztrap mode
@@ -742,6 +743,7 @@ class MPNonSCFSetTest(PymatgenTest):
         vis.write_input(self.tmp)
         assert not os.path.exists(os.path.join(self.tmp, "CHGCAR"))
 
+    @skip_if_no_psp_dir
     def test_override_from_prev(self):
         prev_run = self.TEST_FILES_DIR / "relaxation"
 
@@ -911,6 +913,7 @@ class MITMDSetTest(PymatgenTest):
         assert v._config_dict["INCAR"]["PREC"] == "Low"
 
 
+@skip_if_no_psp_dir
 class MVLNPTMDSetTest(PymatgenTest):
     def setUp(self):
         file_path = self.TEST_FILES_DIR / "POSCAR"
@@ -987,6 +990,7 @@ class MITNEBSetTest(PymatgenTest):
         v = dec.process_decoded(d)
         assert v._config_dict["INCAR"]["IMAGES"] == 2
 
+    @skip_if_no_psp_dir
     def test_write_input(self):
         self.vis.write_input(".", write_cif=True, write_endpoint_inputs=True, write_path_cif=True)
         assert os.path.exists("INCAR")
@@ -1072,6 +1076,7 @@ class MPNMRSetTest(PymatgenTest):
         assert vis.incar.get("QUAD_EFG") == [-40.1]
 
 
+@skip_if_no_psp_dir
 class MVLSlabSetTest(PymatgenTest):
     def setUp(self):
         s = self.get_structure("Li2O")
@@ -1161,6 +1166,7 @@ class MVLElasticSetTest(PymatgenTest):
         assert "NPAR" not in incar
 
 
+@skip_if_no_psp_dir
 class MVLGWSetTest(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
@@ -1311,6 +1317,7 @@ class MVLScanRelaxSetTest(PymatgenTest):
         scan_rvv10_set = MVLScanRelaxSet(self.struct, vdw="rVV10")
         assert scan_rvv10_set.incar["BPARAM"] == 15.7
 
+    @skip_if_no_psp_dir
     def test_potcar(self):
         assert self.mvl_scan_set.potcar.functional == "PBE_52"
 
@@ -1408,6 +1415,7 @@ class MPScanRelaxSetTest(PymatgenTest):
             assert "LUSE_VDW" not in scan_vdw_set.incar
             assert "IVDW" not in scan_vdw_set.incar
 
+    @skip_if_no_psp_dir
     def test_potcar(self):
         assert self.mp_scan_set.potcar.functional == "PBE_52"
 
@@ -1425,6 +1433,7 @@ class MPScanRelaxSetTest(PymatgenTest):
         assert v._config_dict["INCAR"]["METAGGA"] == "R2SCAN"
         assert v.user_incar_settings["NSW"] == 500
 
+    @skip_if_no_psp_dir
     def test_write_input(self):
         self.mp_scan_set.write_input(".")
         assert os.path.exists("INCAR")
@@ -1546,6 +1555,7 @@ class MPScanStaticSetTest(PymatgenTest):
 
 
 class FuncTest(PymatgenTest):
+    @skip_if_no_psp_dir
     def test_batch_write_input(self):
         structures = [
             PymatgenTest.get_structure("Li2O"),
@@ -1559,6 +1569,7 @@ class FuncTest(PymatgenTest):
             shutil.rmtree(d)
 
 
+@skip_if_no_psp_dir
 class MVLGBSetTest(PymatgenTest):
     def setUp(self):
         filepath = self.TEST_FILES_DIR / "Li.cif"
@@ -1605,6 +1616,7 @@ class MVLRelax52SetTest(PymatgenTest):
         assert "NSW" in incar
         assert incar["LREAL"] == "Auto"
 
+    @skip_if_no_psp_dir
     def test_potcar(self):
         assert self.mvl_rlx_set.potcar.functional == "PBE_54"
         assert "Fe" in self.mvl_rlx_set.potcar.symbols
@@ -1685,6 +1697,7 @@ class LobsterSetTest(PymatgenTest):
         kpoints3 = self.lobsterset3.kpoints
         assert kpoints3.comment.split(" ")[6], 6000
 
+    @skip_if_no_psp_dir
     def test_potcar(self):
         # PBE_54 is preferred at the moment
         assert self.lobsterset1.potcar_functional == "PBE_54"
@@ -1707,6 +1720,7 @@ class LobsterSetTest(PymatgenTest):
         assert lobsterset_new.potcar_functional == "PBE_54"
 
 
+@skip_if_no_psp_dir
 class MPAbsorptionSetTest(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
