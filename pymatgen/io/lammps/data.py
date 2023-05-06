@@ -805,7 +805,7 @@ class LammpsData(MSONable):
         for k in topology:
             df = pd.DataFrame(np.concatenate(topo_collector[k]), columns=SECTION_HEADERS[k][1:])
             df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
-            if any(pd.isnull(df["type"])):  # Throw away undefined topologies
+            if any(pd.isna(df["type"])):  # Throw away undefined topologies
                 warnings.warn(f"Undefined {k.lower()} detected and removed")
                 df = df.dropna(subset=["type"])
                 df = df.reset_index(drop=True)
@@ -1022,7 +1022,7 @@ class ForceField(MSONable):
 
     @staticmethod
     def _is_valid(df):
-        return not pd.isnull(df).values.any()
+        return not pd.isna(df).values.any()
 
     def __init__(self, mass_info, nonbond_coeffs=None, topo_coeffs=None):
         """
