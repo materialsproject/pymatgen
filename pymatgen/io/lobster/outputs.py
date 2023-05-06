@@ -1345,9 +1345,8 @@ class Bandoverlaps:
                         if iband1 == iband2:
                             if abs(band2 - 1.0) > limit_deviation:
                                 return False
-                        else:
-                            if band2 > limit_deviation:
-                                return False
+                        elif band2 > limit_deviation:
+                            return False
 
         if spin_polarized:
             for matrix in self.bandoverlapsdict[Spin.down].values():
@@ -1358,9 +1357,8 @@ class Bandoverlaps:
                                 if iband1 == iband2:
                                     if abs(band2 - 1.0) > limit_deviation:
                                         return False
-                                else:
-                                    if band2 > limit_deviation:
-                                        return False
+                                elif band2 > limit_deviation:
+                                    return False
                         else:
                             ValueError("number_occ_bands_spin_down has to be specified")
         return True

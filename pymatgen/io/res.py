@@ -329,7 +329,6 @@ class ResWriter:
         """Write the res data to a file."""
         with zopen(filename, "w") as file:
             file.write(str(self))
-        return None
 
 
 class ResProvider(MSONable):

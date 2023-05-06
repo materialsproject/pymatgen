@@ -321,13 +321,12 @@ class PhaseDiagramTest(unittest.TestCase):
                 assert (
                     self.pd.get_phase_separation_energy(entry) >= 0
                 ), "Unstable entries should have positive decomposition energy!"
-            else:
-                if entry.is_element:
-                    el_ref = self.pd.el_refs[entry.composition.elements[0]]
-                    e_d = entry.energy_per_atom - el_ref.energy_per_atom
-                    assert self.pd.get_phase_separation_energy(entry) == pytest.approx(e_d)
-                # NOTE the remaining materials would require explicit tests as they
-                # could be either positive or negative
+            elif entry.is_element:
+                el_ref = self.pd.el_refs[entry.composition.elements[0]]
+                e_d = entry.energy_per_atom - el_ref.energy_per_atom
+                assert self.pd.get_phase_separation_energy(entry) == pytest.approx(e_d)
+            # NOTE the remaining materials would require explicit tests as they
+            # could be either positive or negative
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:

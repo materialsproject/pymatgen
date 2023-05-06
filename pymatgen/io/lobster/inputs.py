@@ -189,14 +189,13 @@ class Lobsterin(dict, MSONable):
                             "lobsterin1": v1,
                             "lobsterin2": other[new_key],
                         }
+                elif v1 != other[new_key]:
+                    different_param[k1.upper()] = {
+                        "lobsterin1": v1,
+                        "lobsterin2": other[new_key],
+                    }
                 else:
-                    if v1 != other[new_key]:
-                        different_param[k1.upper()] = {
-                            "lobsterin1": v1,
-                            "lobsterin2": other[new_key],
-                        }
-                    else:
-                        similar_param[k1.upper()] = v1
+                    similar_param[k1.upper()] = v1
 
         for k2, v2 in other.items():
             if k2.upper() not in similar_param and k2.upper() not in different_param:
@@ -595,16 +594,14 @@ class Lobsterin(dict, MSONable):
                             Lobsterindict[raw_datum[0].lower()] = " ".join(raw_datum[1:])
                         else:
                             raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                    elif raw_datum[0].lower() not in Lobsterindict:
+                        Lobsterindict[raw_datum[0].lower()] = float(raw_datum[1])
                     else:
-                        if raw_datum[0].lower() not in Lobsterindict:
-                            Lobsterindict[raw_datum[0].lower()] = float(raw_datum[1])
-                        else:
-                            raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                        raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                elif raw_datum[0].lower() not in Lobsterindict:
+                    Lobsterindict[raw_datum[0].lower()] = [" ".join(raw_datum[1:])]
                 else:
-                    if raw_datum[0].lower() not in Lobsterindict:
-                        Lobsterindict[raw_datum[0].lower()] = [" ".join(raw_datum[1:])]
-                    else:
-                        Lobsterindict[raw_datum[0].lower()].append(" ".join(raw_datum[1:]))
+                    Lobsterindict[raw_datum[0].lower()].append(" ".join(raw_datum[1:]))
             elif len(raw_datum) > 0:
                 Lobsterindict[raw_datum[0].lower()] = True
 

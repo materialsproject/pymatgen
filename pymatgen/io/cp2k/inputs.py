@@ -832,16 +832,14 @@ class Cp2kInput(Section):
                 if tmp:
                     if isinstance(tmp, KeywordList):
                         self.by_path(current).get(kwd.name).append(kwd)
+                    elif isinstance(self.by_path(current), SectionList):
+                        self.by_path(current)[-1][kwd.name] = KeywordList(keywords=[tmp, kwd])
                     else:
-                        if isinstance(self.by_path(current), SectionList):
-                            self.by_path(current)[-1][kwd.name] = KeywordList(keywords=[tmp, kwd])
-                        else:
-                            self.by_path(current)[kwd.name] = KeywordList(keywords=[kwd, tmp])
+                        self.by_path(current)[kwd.name] = KeywordList(keywords=[kwd, tmp])
+                elif isinstance(self.by_path(current), SectionList):
+                    self.by_path(current)[-1].keywords[kwd.name] = kwd
                 else:
-                    if isinstance(self.by_path(current), SectionList):
-                        self.by_path(current)[-1].keywords[kwd.name] = kwd
-                    else:
-                        self.by_path(current).keywords[kwd.name] = kwd
+                    self.by_path(current).keywords[kwd.name] = kwd
 
     def write_file(
         self,

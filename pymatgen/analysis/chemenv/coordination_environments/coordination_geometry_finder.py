@@ -519,16 +519,15 @@ class LocalGeometryFinder:
                 vals = bva.get_valences(structure=structure)
             except ValueError:
                 vals = "undefined"
+        elif valences == "undefined":
+            vals = valences
         else:
-            if valences == "undefined":
-                vals = valences
-            else:
-                len_vals, len_sites = len(valences), len(structure)
-                if len_vals != len_sites:
-                    raise ValueError(
-                        f"Valences ({len_vals}) do not match the number of sites in the structure ({len_sites})"
-                    )
-                vals = valences
+            len_vals, len_sites = len(valences), len(structure)
+            if len_vals != len_sites:
+                raise ValueError(
+                    f"Valences ({len_vals}) do not match the number of sites in the structure ({len_sites})"
+                )
+            vals = valences
         # TODO: add something to compute only the neighbors sets needed for the strategy.
         se = self.compute_structure_environments(
             only_cations=only_cations,

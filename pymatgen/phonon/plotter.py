@@ -265,13 +265,12 @@ class PhononBSPlotter:
                 uniq_d.append(tt[0])
                 uniq_l.append(tt[1])
                 logger.debug(f"Adding label {tt[0]} at {tt[1]}")
+            elif tt[1] == temp_ticks[i - 1][1]:
+                logger.debug(f"Skipping label {tt[1]}")
             else:
-                if tt[1] == temp_ticks[i - 1][1]:
-                    logger.debug(f"Skipping label {tt[1]}")
-                else:
-                    logger.debug(f"Adding label {tt[0]} at {tt[1]}")
-                    uniq_d.append(tt[0])
-                    uniq_l.append(tt[1])
+                logger.debug(f"Adding label {tt[0]} at {tt[1]}")
+                uniq_d.append(tt[0])
+                uniq_l.append(tt[1])
 
         logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
         plt.gca().set_xticks(uniq_d)
@@ -494,11 +493,10 @@ class PhononBSPlotter:
         labels: list[str]
         if rgb_labels is not None:
             labels = rgb_labels  # type: ignore[assignment]
+        elif site_comb == "element":
+            labels = [e.symbol for e in self._bs.structure.composition.elements]
         else:
-            if site_comb == "element":
-                labels = [e.symbol for e in self._bs.structure.composition.elements]
-            else:
-                labels = [f"{i}" for i in range(len(site_comb))]
+            labels = [f"{i}" for i in range(len(site_comb))]
         if len(indices) == 2:
             BSDOSPlotter._rb_line(ax, labels[0], labels[1], "best")
         elif len(indices) == 3:
@@ -582,11 +580,10 @@ class PhononBSPlotter:
                     tick_labels.pop()
                     tick_distance.pop()
                     tick_labels.append(label0 + "$\\mid$" + label1)
+                elif c.label.startswith("\\") or c.label.find("_") != -1:
+                    tick_labels.append("$" + c.label + "$")
                 else:
-                    if c.label.startswith("\\") or c.label.find("_") != -1:
-                        tick_labels.append("$" + c.label + "$")
-                    else:
-                        tick_labels.append(c.label)
+                    tick_labels.append(c.label)
                 previous_label = c.label
                 previous_branch = this_branch
         return {"distance": tick_distance, "label": tick_labels}

@@ -2140,11 +2140,10 @@ class GrainBoundaryGenerator:
                                 c_norm = c_norm_temp
                                 normal_init = True
                                 t_matrix[2] = temp
-                    else:
-                        if c_len_temp < c_length or (abs(c_len_temp - c_length) < 1.0e-8 and c_norm_temp < c_norm):
-                            t_matrix[2] = temp
-                            c_norm = c_norm_temp
-                            c_length = c_len_temp
+                    elif c_len_temp < c_length or (abs(c_len_temp - c_length) < 1.0e-8 and c_norm_temp < c_norm):
+                        t_matrix[2] = temp
+                        c_norm = c_norm_temp
+                        c_length = c_len_temp
 
         if normal and (not normal_init):
             logger.info("Did not find the perpendicular c vector, increase max_j")

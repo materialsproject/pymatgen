@@ -3452,15 +3452,14 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 if len(indices) != 1:
                     raise ValueError("Site assignments makes sense only for single int indices!")
                 self._sites[ii] = site
+            elif isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
+                self._sites[ii].species = site  # type: ignore
             else:
-                if isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
-                    self._sites[ii].species = site  # type: ignore
-                else:
-                    self._sites[ii].species = site[0]  # type: ignore
-                    if len(site) > 1:
-                        self._sites[ii].frac_coords = site[1]  # type: ignore
-                    if len(site) > 2:
-                        self._sites[ii].properties = site[2]  # type: ignore
+                self._sites[ii].species = site[0]  # type: ignore
+                if len(site) > 1:
+                    self._sites[ii].frac_coords = site[1]  # type: ignore
+                if len(site) > 2:
+                    self._sites[ii].properties = site[2]  # type: ignore
 
     def __delitem__(self, idx: SupportsIndex | slice) -> None:
         """Deletes a site from the Structure."""
@@ -4187,15 +4186,14 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         for ii in indices:
             if isinstance(site, Site):
                 self._sites[ii] = site
+            elif isinstance(site, str) or not isinstance(site, collections.abc.Sequence):
+                self._sites[ii].species = site  # type: ignore
             else:
-                if isinstance(site, str) or not isinstance(site, collections.abc.Sequence):
-                    self._sites[ii].species = site  # type: ignore
-                else:
-                    self._sites[ii].species = site[0]  # type: ignore
-                    if len(site) > 1:
-                        self._sites[ii].coords = site[1]  # type: ignore
-                    if len(site) > 2:
-                        self._sites[ii].properties = site[2]  # type: ignore
+                self._sites[ii].species = site[0]  # type: ignore
+                if len(site) > 1:
+                    self._sites[ii].coords = site[1]  # type: ignore
+                if len(site) > 2:
+                    self._sites[ii].properties = site[2]  # type: ignore
 
     def __delitem__(self, idx: SupportsIndex | slice) -> None:
         """Deletes a site from the Structure."""

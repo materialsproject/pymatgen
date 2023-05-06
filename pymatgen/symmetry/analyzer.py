@@ -1541,11 +1541,10 @@ def cluster_sites(mol, tol, give_only_index=False):
     for idx, site in enumerate(mol):
         if avg_dist[f[idx]] < tol:
             origin_site = idx if give_only_index else site
+        elif give_only_index:
+            clustered_sites[(avg_dist[f[idx]], site.species)].append(idx)
         else:
-            if give_only_index:
-                clustered_sites[(avg_dist[f[idx]], site.species)].append(idx)
-            else:
-                clustered_sites[(avg_dist[f[idx]], site.species)].append(site)
+            clustered_sites[(avg_dist[f[idx]], site.species)].append(site)
     return origin_site, clustered_sites
 
 

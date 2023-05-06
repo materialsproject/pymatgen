@@ -2795,12 +2795,11 @@ class LobsterSet(MPRelaxSet):
                 self.reciprocal_density = 310
             else:
                 self.reciprocal_density = reciprocal_density or self.user_kpoints_settings["reciprocal_density"]
+        elif not reciprocal_density:
+            # test, if this is okay
+            self.reciprocal_density = 310
         else:
-            if not reciprocal_density:
-                # test, if this is okay
-                self.reciprocal_density = 310
-            else:
-                self.reciprocal_density = reciprocal_density
+            self.reciprocal_density = reciprocal_density
 
         self._config_dict["POTCAR"].update({"W": "W_sv"})
         self.isym = isym

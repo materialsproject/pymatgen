@@ -1210,12 +1210,11 @@ class IcohpCollection(MSONable):
                                     newicohp_dict[key] = value
                             else:
                                 newicohp_dict[key] = value
-                    else:
-                        if maxsummedicohp is not None:
-                            if value.summed_icohp <= maxsummedicohp:
-                                newicohp_dict[key] = value
-                        else:
+                    elif maxsummedicohp is not None:
+                        if value.summed_icohp <= maxsummedicohp:
                             newicohp_dict[key] = value
+                    else:
+                        newicohp_dict[key] = value
 
         return newicohp_dict
 
@@ -1241,20 +1240,13 @@ class IcohpCollection(MSONable):
                 if not self._are_coops and not self._are_cobis:
                     if value.icohpvalue(spin) < extremum:
                         extremum = value.icohpvalue(spin)
-                        # print(extremum)
-                else:
-                    if value.icohpvalue(spin) > extremum:
-                        extremum = value.icohpvalue(spin)
-                        # print(extremum)
-            else:
-                if not self._are_coops and not self._are_cobis:
-                    if value.summed_icohp < extremum:
-                        extremum = value.summed_icohp
-                        # print(extremum)
-                else:
-                    if value.summed_icohp > extremum:
-                        extremum = value.summed_icohp
-                        # print(extremum)
+                elif value.icohpvalue(spin) > extremum:
+                    extremum = value.icohpvalue(spin)
+            elif not self._are_coops and not self._are_cobis:
+                if value.summed_icohp < extremum:
+                    extremum = value.summed_icohp
+            elif value.summed_icohp > extremum:
+                extremum = value.summed_icohp
         return extremum
 
     @property

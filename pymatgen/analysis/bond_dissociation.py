@@ -83,13 +83,12 @@ class BondDissociationEnergies(MSONable):
                 self.expected_charges = [final_charge, final_charge + 1]
             else:
                 self.expected_charges = [final_charge - 1, final_charge]
+        elif final_charge == 0:
+            self.expected_charges = [-2, -1, 0, 1, 2]
+        elif final_charge < 0:
+            self.expected_charges = [final_charge - 1, final_charge, final_charge + 1, final_charge + 2]
         else:
-            if final_charge == 0:
-                self.expected_charges = [-2, -1, 0, 1, 2]
-            elif final_charge < 0:
-                self.expected_charges = [final_charge - 1, final_charge, final_charge + 1, final_charge + 2]
-            else:
-                self.expected_charges = [final_charge - 2, final_charge - 1, final_charge, final_charge + 1]
+            self.expected_charges = [final_charge - 2, final_charge - 1, final_charge, final_charge + 1]
 
         # Build principle molecule graph
         self.mol_graph = MoleculeGraph.with_local_env_strategy(

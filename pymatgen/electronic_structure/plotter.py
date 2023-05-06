@@ -345,13 +345,12 @@ class BSPlotter:
                 uniq_d.append(t[0])
                 uniq_l.append(t[1])
                 logger.debug(f"Adding label {t[0]} at {t[1]}")
+            elif t[1] == temp_ticks[i - 1][1]:
+                logger.debug(f"Skipping label {t[1]}")
             else:
-                if t[1] == temp_ticks[i - 1][1]:
-                    logger.debug(f"Skipping label {t[1]}")
-                else:
-                    logger.debug(f"Adding label {t[0]} at {t[1]}")
-                    uniq_d.append(t[0])
-                    uniq_l.append(t[1])
+                logger.debug(f"Adding label {t[0]} at {t[1]}")
+                uniq_d.append(t[0])
+                uniq_l.append(t[1])
 
         logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
         plt.gca().set_xticks(uniq_d)
@@ -837,11 +836,10 @@ class BSPlotter:
                     tick_labels.pop()
                     tick_distance.pop()
                     tick_labels.append(label0 + "$\\mid$" + label1)
+                elif c.label.startswith("\\") or c.label.find("_") != -1:
+                    tick_labels.append("$" + c.label + "$")
                 else:
-                    if c.label.startswith("\\") or c.label.find("_") != -1:
-                        tick_labels.append("$" + c.label + "$")
-                    else:
-                        tick_labels.append(c.label)
+                    tick_labels.append(c.label)
                 previous_label = c.label
                 previous_branch = this_branch
         return {"distance": tick_distance, "label": tick_labels}
@@ -1813,23 +1811,22 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(
                             f"You cannot sum projection over one individual orbital {dictio[elt][0]!r} of {elt!r}."
                         )
+                elif sum_morbs is None:
+                    pass
+                elif elt not in sum_morbs:
+                    print(f"You do not want to sum projection over orbitals of element: {elt}")
                 else:
-                    if sum_morbs is None:
-                        pass
-                    elif elt not in sum_morbs:
-                        print(f"You do not want to sum projection over orbitals of element: {elt}")
+                    if len(sum_morbs[elt]) == 0:
+                        raise ValueError(f"The empty list is an invalid value for sum_morbs[{elt}].")
+                    if len(sum_morbs[elt]) > 1:
+                        for orb in sum_morbs[elt]:
+                            if dictio[elt][0] not in orb:
+                                raise ValueError(f"The invalid orbital {orb!r} was put into 'sum_morbs[{elt}]'.")
                     else:
-                        if len(sum_morbs[elt]) == 0:
-                            raise ValueError(f"The empty list is an invalid value for sum_morbs[{elt}].")
-                        if len(sum_morbs[elt]) > 1:
-                            for orb in sum_morbs[elt]:
-                                if dictio[elt][0] not in orb:
-                                    raise ValueError(f"The invalid orbital {orb!r} was put into 'sum_morbs[{elt}]'.")
-                        else:
-                            if orb == "s" or len(orb) > 1:
-                                raise ValueError(f"The invalid orbital {orb!r} was put into sum_orbs[{elt!r}].")
-                            sum_morbs[elt] = individual_orbs[dictio[elt][0]]
-                            dictio[elt] = individual_orbs[dictio[elt][0]]
+                        if orb == "s" or len(orb) > 1:
+                            raise ValueError(f"The invalid orbital {orb!r} was put into sum_orbs[{elt!r}].")
+                        sum_morbs[elt] = individual_orbs[dictio[elt][0]]
+                        dictio[elt] = individual_orbs[dictio[elt][0]]
             else:
                 duplicate = copy.deepcopy(dictio[elt])
                 for orb in dictio[elt]:
@@ -2041,12 +2038,11 @@ class BSPlotterProjected(BSPlotter):
             for elem, orbs in divide.items():
                 if elem == "s":
                     label += "s,"
+                elif len(orbs) == len(individual_orbs[elem]):
+                    label += elem + ","
                 else:
-                    if len(orbs) == len(individual_orbs[elem]):
-                        label += elem + ","
-                    else:
-                        orb_label = [orb[1:] for orb in orbs]
-                        label += elem + str(orb_label).replace("['", "").replace("']", "").replace("', '", "-") + ","
+                    orb_label = [orb[1:] for orb in orbs]
+                    label += elem + str(orb_label).replace("['", "").replace("']", "").replace("', '", "-") + ","
             return label[:-1]
 
         if sum_atoms is None and sum_morbs is None:
@@ -2190,13 +2186,12 @@ class BSPlotterProjected(BSPlotter):
                 uniq_d.append(t[0])
                 uniq_l.append(t[1])
                 logger.debug(f"Adding label {t[0]} at {t[1]}")
+            elif t[1] == temp_ticks[i - 1][1]:
+                logger.debug(f"Skipping label {t[1]}")
             else:
-                if t[1] == temp_ticks[i - 1][1]:
-                    logger.debug(f"Skipping label {t[1]}")
-                else:
-                    logger.debug(f"Adding label {t[0]} at {t[1]}")
-                    uniq_d.append(t[0])
-                    uniq_l.append(t[1])
+                logger.debug(f"Adding label {t[0]} at {t[1]}")
+                uniq_d.append(t[0])
+                uniq_l.append(t[1])
 
         logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
         plt.gca().set_xticks(uniq_d)

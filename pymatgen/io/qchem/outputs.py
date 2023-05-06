@@ -296,12 +296,11 @@ class QCOutput(MSONable):
                 if val[0] != temp_solvent[0][0]:
                     if val[0] != "for":
                         self.data["warnings"]["SMD_two_solvents"] = str(temp_solvent[0][0]) + " and " + str(val[0])
-                    else:
-                        if (
-                            "unrecognized_solvent" not in self.data["errors"]
-                            and "unrecognized_solvent" not in self.data["warnings"]
-                        ):
-                            self.data["warnings"]["questionable_SMD_parsing"] = True
+                    elif (
+                        "unrecognized_solvent" not in self.data["errors"]
+                        and "unrecognized_solvent" not in self.data["warnings"]
+                    ):
+                        self.data["warnings"]["questionable_SMD_parsing"] = True
             self.data["solvent_data"]["SMD_solvent"] = temp_solvent[0][0]
             self._read_smd_information()
         elif self.data["solvent_method"] == "ISOSVP":
@@ -1562,9 +1561,8 @@ class QCOutput(MSONable):
                         if not self.data.get("completion", []):
                             if "undefined_frequency" not in self.data["errors"]:
                                 self.data["errors"] += ["undefined_frequency"]
-                        else:
-                            if "undefined_frequency" not in self.data["warnings"]:
-                                self.data["warnings"]["undefined_frequency"] = True
+                        elif "undefined_frequency" not in self.data["warnings"]:
+                            self.data["warnings"]["undefined_frequency"] = True
                     else:
                         freqs[ii] = float(entry)
             self.data["frequencies"] = freqs

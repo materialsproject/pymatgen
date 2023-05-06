@@ -2093,7 +2093,6 @@ class WSWQTest(PymatgenTest):
         self.wswq = WSWQ.from_file(self.TEST_FILES_DIR / "WSWQ.gz")
 
     def test_consistency(self):
-        assert True is True
         assert self.wswq.nbands == 18
         assert self.wswq.nkpoints == 20
         assert self.wswq.nspin == 2

@@ -404,9 +404,8 @@ class ChargemolAnalysis:
         if os.name == "nt":
             if atomic_densities_path[-1] != "\\":
                 atomic_densities_path += "\\"
-        else:
-            if atomic_densities_path[-1] != "/":
-                atomic_densities_path += "/"
+        elif atomic_densities_path[-1] != "/":
+            atomic_densities_path += "/"
 
         lines += (
             f"\n<atomic densities directory complete path>\n{atomic_densities_path}\n</atomic densities directory "

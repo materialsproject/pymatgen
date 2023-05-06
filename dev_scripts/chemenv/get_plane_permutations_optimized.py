@@ -287,7 +287,7 @@ if __name__ == "__main__":
             if test == "y":
                 break
             elif test == "q":
-                exit()
+                raise SystemExit(0)
         # 2. Optimization of the permutations
         print(f"Getting explicit optimized permutations for geometry {cg.name!r} (symbol : {cg_symbol!r})\n")
         perms_used_algos = [{} for algo in cg.algorithms]
