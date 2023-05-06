@@ -34,13 +34,13 @@ class UnkTest(PymatgenTest):
         assert not self.unk_std.is_noncollinear
 
         # too small data
+        data_bad_shape = np.random.rand(2, 2, 2).astype(np.complex128)
         with pytest.raises(ValueError):
-            data_bad_shape = np.random.rand(2, 2, 2).astype(np.complex128)
             Unk(1, data_bad_shape)
 
         # too big data
+        data_bad_shape = np.random.rand(2, 2, 2, 2, 2, 2).astype(np.complex128)
         with pytest.raises(ValueError):
-            data_bad_shape = np.random.rand(2, 2, 2, 2, 2, 2).astype(np.complex128)
             Unk(1, data_bad_shape)
 
         # noncollinear unk file
@@ -54,8 +54,8 @@ class UnkTest(PymatgenTest):
         assert self.unk_ncl.is_noncollinear
 
         # too big data
+        data_bad_ncl = np.random.rand(2, 3, 2, 2, 2).astype(np.complex128)
         with pytest.raises(ValueError):
-            data_bad_ncl = np.random.rand(2, 3, 2, 2, 2).astype(np.complex128)
             Unk(1, data_bad_ncl)
 
     def test_from_file(self):

@@ -125,14 +125,14 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         Co8 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Co8.cif"))
         symprec = 1e-1
 
+        sga = SpacegroupAnalyzer(Co8, symprec=symprec)
+        magmoms = [0] * len(Co8)  # bad magmoms, see https://github.com/materialsproject/pymatgen/pull/2727
+        sga._cell = (*sga._cell, magmoms)
         with pytest.raises(
             ValueError,
             match=f"Symmetry detection failed for structure with formula {Co8.formula}. "
             f"Try setting {symprec=} to a different value.",
         ):
-            sga = SpacegroupAnalyzer(Co8, symprec=symprec)
-            magmoms = [0] * len(Co8)  # bad magmoms, see https://github.com/materialsproject/pymatgen/pull/2727
-            sga._cell = (*sga._cell, magmoms)
             sga._get_symmetry()
 
     def test_get_crystal_system(self):
@@ -142,12 +142,10 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
         orig_spg = self.sg._space_group_data["number"]
         self.sg._space_group_data["number"] = 0
-        try:
-            crystal_system = self.sg.get_crystal_system()
-        except ValueError as exc:
-            assert str(exc) == "Received invalid space group 0"
-        finally:
-            self.sg._space_group_data["number"] = orig_spg
+        with pytest.raises(ValueError, match="Received invalid space group 0"):
+            self.sg.get_crystal_system()
+
+        self.sg._space_group_data["number"] = orig_spg
 
     def test_get_refined_structure(self):
         for a in self.sg.get_refined_structure().lattice.angles:

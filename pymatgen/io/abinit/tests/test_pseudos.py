@@ -107,7 +107,8 @@ class PseudoTestCase(PymatgenTest):
         assert isinstance(oxygen.as_dict(), dict)
 
         assert oxygen.ispaw
-        assert oxygen.symbol == "O" and (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6), oxygen.Z_val == 6
+        assert oxygen.symbol == "O"
+        assert (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6), oxygen.Z_val == 6
 
         assert oxygen.xc.type == "GGA"
         assert oxygen.xc.name == "PBE"
@@ -122,7 +123,8 @@ class PseudoTestCase(PymatgenTest):
 
         for o in new_objs:
             assert o.ispaw
-            assert o.symbol == "O" and (o.Z, o.core, o.valence) == (8, 2, 6), o.Z_val == 6
+            assert o.symbol == "O"
+            assert (o.Z, o.core, o.valence) == (8, 2, 6), o.Z_val == 6
 
             assert o.paw_radius == approx(1.4146523028)
 

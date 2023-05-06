@@ -237,7 +237,8 @@ class TrajectoryTest(PymatgenTest):
         except Exception:
             incompatible_test_success = True
 
-        assert compatible_success and incompatible_test_success
+        assert compatible_success
+        assert incompatible_test_success
 
         traj = copy.deepcopy(self.traj_mols)
 

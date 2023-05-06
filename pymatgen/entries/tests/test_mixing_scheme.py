@@ -162,7 +162,7 @@ class MixingState:
         return self.gga_entries + self.scan_entries
 
 
-@pytest.fixture
+@pytest.fixture()
 def mixing_scheme_no_compat():
     """
     Return an instance of MaterialsProjectDFTMixingScheme with no additional
@@ -212,7 +212,7 @@ lattice_br_r2scan = Lattice.from_dict(
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_complete():
     """
     Mixing state where we have R2SCAN for all GGA
@@ -383,7 +383,7 @@ def ms_complete():
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_scan_only(ms_complete):
     """
     Mixing state with only R2SCAN entries
@@ -408,7 +408,7 @@ def ms_scan_only(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_only(ms_complete):
     """
     Mixing state with only GGA entries
@@ -433,7 +433,7 @@ def ms_gga_only(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_1_scan(ms_complete):
     """
     Mixing state with all GGA entries and one R2SCAN, corresponding to the GGA
@@ -457,7 +457,7 @@ def ms_gga_1_scan(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_1_scan_novel(ms_complete):
     """
     Mixing state with all GGA entries and 1 R2SCAN, corresponding to a composition
@@ -498,7 +498,7 @@ def ms_gga_1_scan_novel(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_2_scan_same(ms_complete):
     """
     Mixing state with all GGA entries and 2 R2SCAN, corresponding to the GGA
@@ -522,7 +522,7 @@ def ms_gga_2_scan_same(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_2_scan_diff_match(ms_complete):
     """
     Mixing state with all GGA entries and 2 R2SCAN entries corresponding to
@@ -548,7 +548,7 @@ def ms_gga_2_scan_diff_match(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_2_scan_diff_no_match(ms_complete):
     """
     Mixing state with all GGA entries and 2 R2SCAN, corresponding to the GGA
@@ -592,7 +592,7 @@ def ms_gga_2_scan_diff_no_match(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_all_gga_scan_gs(ms_complete):
     """
     Mixing state with all GGA entries and R2SCAN entries corresponding to all GGA
@@ -616,7 +616,7 @@ def ms_all_gga_scan_gs(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_all_gga_scan_gs_plus_novel(ms_all_gga_scan_gs):
     """
     Mixing state with all GGA entries and R2SCAN entries corresponding to all GGA
@@ -659,7 +659,7 @@ def ms_all_gga_scan_gs_plus_novel(ms_all_gga_scan_gs):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_all_scan_novel(ms_complete):
     """
     Mixing state with all GGA entries and all R2SCAN, with an additional unstable
@@ -702,7 +702,7 @@ def ms_all_scan_novel(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_incomplete_gga_all_scan(ms_complete):
     """
     Mixing state with an incomplete GGA phase diagram
@@ -726,7 +726,7 @@ def ms_incomplete_gga_all_scan(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_scan_chemsys_superset(ms_complete):
     """
     Mixing state where we have R2SCAN for all GGA, and there is an additional R2SCAN
@@ -757,7 +757,7 @@ def ms_scan_chemsys_superset(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_complete_duplicate_structs(ms_complete):
     """
     Mixing state where we have R2SCAN for all GGA, plus extra entries that duplicate

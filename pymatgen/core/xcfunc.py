@@ -142,7 +142,8 @@ class XcFunc(MSONable):
         x, c = LibxcFunc(int(first)), LibxcFunc(int(last))
         if not x.is_x_kind:
             x, c = c, x  # Swap
-        assert x.is_x_kind and c.is_c_kind
+        assert x.is_x_kind
+        assert c.is_c_kind
         return cls(x=x, c=c)
 
     @classmethod
