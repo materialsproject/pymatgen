@@ -5,7 +5,6 @@ files.
 
 from __future__ import annotations
 
-import glob
 import itertools
 import json
 import logging
@@ -16,6 +15,7 @@ import subprocess
 import warnings
 from collections import namedtuple
 from enum import Enum
+from glob import glob
 from hashlib import md5, sha256
 from typing import Any, Literal, Sequence
 
@@ -244,7 +244,7 @@ class Poscar(MSONable):
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         if check_for_POTCAR:
-            potcars = glob.glob(os.path.join(dirname, "*POTCAR*"))
+            potcars = glob(os.path.join(dirname, "*POTCAR*"))
             if potcars:
                 try:
                     potcar = Potcar.from_file(sorted(potcars)[0])
@@ -1178,7 +1178,7 @@ class Kpoints(MSONable):
         grid.
 
         Args:
-            kpts: Subdivisions N_1, N_2 and N_3 along reciprocal lattice
+            kpts: Subdivisions N_1, N_2, N_3 along reciprocal lattice
                 vectors. Defaults to (2,2,2)
             shift: Shift to be applied to the kpoints. Defaults to (0,0,0).
 

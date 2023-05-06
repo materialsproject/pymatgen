@@ -660,6 +660,8 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         """
         if not isinstance(grand_pd, GrandPotentialPhaseDiagram):
             raise ValueError("Please use the InterfacialReactivity class if using a regular phase diagram!")
+        if not isinstance(pd_non_grand, PhaseDiagram):
+            raise ValueError("Please provide non-grand phase diagram to compute no_mixing_energy!")
 
         super().__init__(
             c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy, bypass_grand_warning=True

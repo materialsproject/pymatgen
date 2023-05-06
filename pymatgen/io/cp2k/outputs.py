@@ -6,11 +6,11 @@ outputs.
 
 from __future__ import annotations
 
-import glob
 import logging
 import os
 import re
 import warnings
+from glob import glob
 from itertools import chain
 
 import numpy as np
@@ -246,8 +246,8 @@ class Cp2kOutput:
         Identify files present in the directory with the cp2k output file. Looks for trajectories,
         dos, and cubes
         """
-        self.filenames["DOS"] = glob.glob(os.path.join(self.dir, "*.dos*"))
-        pdos = glob.glob(os.path.join(self.dir, "*pdos*"))
+        self.filenames["DOS"] = glob(os.path.join(self.dir, "*.dos*"))
+        pdos = glob(os.path.join(self.dir, "*pdos*"))
         self.filenames["PDOS"] = []
         self.filenames["LDOS"] = []
         for p in pdos:
@@ -255,22 +255,22 @@ class Cp2kOutput:
                 self.filenames["LDOS"].append(p)
             else:
                 self.filenames["PDOS"].append(p)
-        self.filenames["band_structure"] = glob.glob(os.path.join(self.dir, "*BAND.bs*"))
-        self.filenames["trajectory"] = glob.glob(os.path.join(self.dir, "*pos*.xyz*"))
-        self.filenames["forces"] = glob.glob(os.path.join(self.dir, "*frc*.xyz*"))
-        self.filenames["stress"] = glob.glob(os.path.join(self.dir, "*stress*"))
-        self.filenames["cell"] = glob.glob(os.path.join(self.dir, "*.cell*"))
-        self.filenames["ener"] = glob.glob(os.path.join(self.dir, "*.ener*"))
-        self.filenames["electron_density"] = glob.glob(os.path.join(self.dir, "*ELECTRON_DENSITY*.cube*"))
-        self.filenames["spin_density"] = glob.glob(os.path.join(self.dir, "*SPIN_DENSITY*.cube*"))
-        self.filenames["v_hartree"] = glob.glob(os.path.join(self.dir, "*hartree*.cube*"))
-        self.filenames["hyperfine_tensor"] = glob.glob(os.path.join(self.dir, "*HYPERFINE*eprhyp*"))
-        self.filenames["g_tensor"] = glob.glob(os.path.join(self.dir, "*GTENSOR*data*"))
-        self.filenames["spinspin_tensor"] = glob.glob(os.path.join(self.dir, "*K*data*"))
-        self.filenames["chi_tensor"] = glob.glob(os.path.join(self.dir, "*CHI*data*"))
-        self.filenames["nmr_shift"] = glob.glob(os.path.join(self.dir, "*SHIFT*data*"))
-        self.filenames["raman"] = glob.glob(os.path.join(self.dir, "*raman*data*"))
-        restart = glob.glob(os.path.join(self.dir, "*restart*"))
+        self.filenames["band_structure"] = glob(os.path.join(self.dir, "*BAND.bs*"))
+        self.filenames["trajectory"] = glob(os.path.join(self.dir, "*pos*.xyz*"))
+        self.filenames["forces"] = glob(os.path.join(self.dir, "*frc*.xyz*"))
+        self.filenames["stress"] = glob(os.path.join(self.dir, "*stress*"))
+        self.filenames["cell"] = glob(os.path.join(self.dir, "*.cell*"))
+        self.filenames["ener"] = glob(os.path.join(self.dir, "*.ener*"))
+        self.filenames["electron_density"] = glob(os.path.join(self.dir, "*ELECTRON_DENSITY*.cube*"))
+        self.filenames["spin_density"] = glob(os.path.join(self.dir, "*SPIN_DENSITY*.cube*"))
+        self.filenames["v_hartree"] = glob(os.path.join(self.dir, "*hartree*.cube*"))
+        self.filenames["hyperfine_tensor"] = glob(os.path.join(self.dir, "*HYPERFINE*eprhyp*"))
+        self.filenames["g_tensor"] = glob(os.path.join(self.dir, "*GTENSOR*data*"))
+        self.filenames["spinspin_tensor"] = glob(os.path.join(self.dir, "*K*data*"))
+        self.filenames["chi_tensor"] = glob(os.path.join(self.dir, "*CHI*data*"))
+        self.filenames["nmr_shift"] = glob(os.path.join(self.dir, "*SHIFT*data*"))
+        self.filenames["raman"] = glob(os.path.join(self.dir, "*raman*data*"))
+        restart = glob(os.path.join(self.dir, "*restart*"))
         self.filenames["restart.bak"] = []
         self.filenames["restart"] = []
         for r in restart:
@@ -279,7 +279,7 @@ class Cp2kOutput:
             else:
                 self.filenames["restart"].append(r)
 
-        wfn = glob.glob(os.path.join(self.dir, "*.wfn*")) + glob.glob(os.path.join(self.dir, "*.kp*"))
+        wfn = glob(os.path.join(self.dir, "*.wfn*")) + glob(os.path.join(self.dir, "*.kp*"))
         self.filenames["wfn.bak"] = []
         for w in wfn:
             if "bak" in w.split("/")[-1]:

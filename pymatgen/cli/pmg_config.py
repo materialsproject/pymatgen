@@ -6,11 +6,11 @@ Implementation for `pmg config` CLI.
 
 from __future__ import annotations
 
-import glob
 import os
 import shutil
 import subprocess
 from argparse import Namespace
+from glob import glob
 from typing import Literal
 from urllib.request import urlretrieve
 
@@ -31,8 +31,6 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
             raise SystemExit(0)
     print("Generating pymatgen resource directory for CP2K...")
 
-    import glob
-
     from monty.json import jsanitize
     from ruamel import yaml
 
@@ -40,8 +38,8 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
     from pymatgen.io.cp2k.utils import chunk
 
-    basis_files = glob.glob(os.path.join(data_dir, "*BASIS*"))
-    potential_files = glob.glob(os.path.join(data_dir, "*POTENTIAL*"))
+    basis_files = glob(os.path.join(data_dir, "*BASIS*"))
+    potential_files = glob(os.path.join(data_dir, "*POTENTIAL*"))
 
     settings: dict[str, dict] = {str(el): {"potentials": {}, "basis_sets": {}} for el in Element}
 
@@ -141,7 +139,7 @@ def setup_potcars(potcar_dirs: list[str]):
         basename = os.path.basename(parent)
         basename = name_mappings.get(basename, basename)
         for subdir in subdirs:
-            filenames = glob.glob(os.path.join(parent, subdir, "POTCAR*"))
+            filenames = glob(os.path.join(parent, subdir, "POTCAR*"))
             if len(filenames) > 0:
                 try:
                     base_dir = os.path.join(target_dir, basename)
