@@ -157,8 +157,8 @@ class InterfaceReactionTest(unittest.TestCase):
                 Composition("Mn"),
                 grand_pd=self.gpd,
                 pd_non_grand=None,
-                norm=False,
-                include_no_mixing_energy=True,
+                # norm=False,
+                # include_no_mixing_energy=True,
             )
         assert str(exc_info.value) == "Please provide non-grand phase diagram to compute no_mixing_energy!"
 
@@ -166,15 +166,14 @@ class InterfaceReactionTest(unittest.TestCase):
 
     def test_get_entry_energy(self):
         comp = Composition("MnO3")
-        with warnings.catch_warnings(record=True) as w:
+        with warnings.catch_warnings(record=True) as record:
             warnings.simplefilter("always")
             energy = InterfacialReactivity._get_entry_energy(self.pd, comp)
-            assert len(w) == 1
+            assert len(record) == 1
             assert (
-                "The reactant MnO3 has no matching entry with"
-                " negative formation energy, instead convex "
-                "hull energy for this composition will be used"
-                " for reaction energy calculation." in str(w[-1].message)
+                "The reactant MnO3 has no matching entry with negative formation energy, "
+                "instead convex hull energy for this composition will be used"
+                " for reaction energy calculation." in str(record[-1].message)
             )
         test1 = np.isclose(energy, -30, atol=1e-03)
         assert test1, f"_get_entry_energy: energy for {comp.reduced_formula} is wrong!"
