@@ -346,11 +346,10 @@ class InterfaceReactionTest(unittest.TestCase):
                 relative_vectors_2 = [(x - x_kink[-1], e - energy_kink[-1]) for x, e in points]
                 relative_vectors = zip(relative_vectors_1, relative_vectors_2)
                 positions = [np.cross(v1, v2) for v1, v2 in relative_vectors]
-                test1 = np.all(np.array(positions) <= 0)
+                assert np.all(np.array(positions) <= 0)
 
                 hull = ConvexHull(points)
-                test2 = len(hull.vertices) == len(points)
-                assert test1 and test2, "Error: Generating non-convex plot!"
+                assert len(hull.vertices) == len(points), "Error: Generating non-convex plot!"
 
         for ir in self.ir:
             test_convexity_helper(ir)

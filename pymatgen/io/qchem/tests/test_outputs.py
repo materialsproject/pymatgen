@@ -4,6 +4,7 @@ import os
 import unittest
 
 from monty.serialization import dumpfn, loadfn
+from pytest import approx
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import QCOutput, check_for_structure_changes
@@ -409,9 +410,9 @@ class TestQCOutput(PymatgenTest):
 
     def test_almo_msdft2_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "almo.out")).data
-        self.assertListEqual(data["almo_coupling_states"], [[[1, 2], [0, 1]], [[0, 1], [1, 2]]])
+        assert data["almo_coupling_states"] == [[[1, 2], [0, 1]], [[0, 1], [1, 2]]]
         assert data["almo_hamiltonian"][0][0] == -156.62929
-        self.assertAlmostEqual(data["almo_coupling_eV"], 0.26895)
+        assert data["almo_coupling_eV"] == approx(0.26895)
 
     def test_pod_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "pod2_gs.out")).data

@@ -41,15 +41,15 @@ class CompositionTest(PymatgenTest):
         ]
 
     def test_immutable(self):
-        try:
+        with pytest.raises(TypeError) as exc_info:
             self.comp[0]["Fe"] = 1
-        except Exception as ex:
-            assert isinstance(ex, TypeError)
 
-        try:
+        assert "'Composition' object does not support item assignment" in str(exc_info.value)
+
+        with pytest.raises(TypeError) as exc_info:
             del self.comp[0]["Fe"]
-        except Exception as ex:
-            assert isinstance(ex, TypeError)
+
+        assert "'Composition' object does not support item deletion" in str(exc_info.value)
 
     def test_in(self):
         assert "Fe" in self.comp[0]

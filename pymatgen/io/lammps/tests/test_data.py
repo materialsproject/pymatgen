@@ -756,7 +756,7 @@ class ForceFieldTest(unittest.TestCase):
         yaml = YAML()
         with open(filename) as f:
             d = yaml.load(f)
-        # self.assertListEqual(d["mass_info"], [list(m) for m in v.mass_info])
+        # assert d["mass_info"] == [list(m) for m in v.mass_info]
         assert d["nonbond_coeffs"] == v.nonbond_coeffs
 
     def test_from_file(self):

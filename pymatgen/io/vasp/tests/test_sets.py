@@ -663,8 +663,8 @@ class MPStaticSetTest(PymatgenTest):
         os.remove("MPStaticSet.zip")
 
     def test_conflicting_arguments(self):
+        si = self.get_structure("Si")
         with pytest.raises(ValueError, match="deprecated"):
-            si = self.get_structure("Si")
             MPStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
 
     def test_grid_size_from_struct(self):
@@ -1545,8 +1545,8 @@ class MPScanStaticSetTest(PymatgenTest):
         assert lepsilon_vis.incar.get("NPAR") is None
 
     def test_conflicting_arguments(self):
+        si = self.get_structure("Si")
         with pytest.raises(ValueError, match="deprecated"):
-            si = self.get_structure("Si")
             MPScanStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
 
     def tearDown(self):
