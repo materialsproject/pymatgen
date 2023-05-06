@@ -1350,17 +1350,12 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
                 self.fda = self.ang
             else:
                 self.fda = self.angn
+        elif self.aa == 1:
+            self.fda = self.anginvdist if self.bb == 1 else self.anginvndist
+        elif self.bb == 1:
+            self.fda = self.angninvdist
         else:
-            if self.aa == 1:
-                if self.bb == 1:
-                    self.fda = self.anginvdist
-                else:
-                    self.fda = self.anginvndist
-            else:
-                if self.bb == 1:
-                    self.fda = self.angninvdist
-                else:
-                    self.fda = self.angninvndist
+            self.fda = self.angninvndist
 
     def __eq__(self, other: object) -> bool:
         needed_attrs = ("average_type", "aa", "bb")

@@ -205,9 +205,8 @@ class XcFunc(MSONable):
         if xc is None:
             if x is None or c is None:
                 raise ValueError("x or c must be specified when xc is None")
-        else:
-            if x is not None or c is not None:
-                raise ValueError("x and c should be None when xc is specified")
+        elif x is not None or c is not None:
+            raise ValueError("x and c should be None when xc is specified")
 
         self.xc, self.x, self.c = xc, x, c
 

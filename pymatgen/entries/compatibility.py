@@ -155,11 +155,10 @@ class PotcarCorrection(Correction):
                 psp_settings = {d.get("hash") for d in entry.parameters["potcar_spec"] if d}
             else:
                 raise ValueError("Cannot check hash without potcar_spec field")
+        elif entry.parameters.get("potcar_spec"):
+            psp_settings = {d.get("titel").split()[1] for d in entry.parameters["potcar_spec"] if d}
         else:
-            if entry.parameters.get("potcar_spec"):
-                psp_settings = {d.get("titel").split()[1] for d in entry.parameters["potcar_spec"] if d}
-            else:
-                psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
+            psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
 
         if {self.valid_potcars.get(str(el)) for el in entry.composition.elements} != psp_settings:
             raise CompatibilityError("Incompatible potcar")

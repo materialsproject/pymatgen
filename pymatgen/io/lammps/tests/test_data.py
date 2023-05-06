@@ -45,10 +45,10 @@ class LammpsBoxTest(PymatgenTest):
         )
 
     def test_volume(self):
-        obounds = np.array(self.peptide.bounds)
-        ov = np.prod(obounds[:, 1] - obounds[:, 0])
+        o_bounds = np.array(self.peptide.bounds)
+        ov = np.prod(o_bounds[:, 1] - o_bounds[:, 0])
         assert self.peptide.volume == ov
-        assert self.quartz.volume == approx(113.00733165874873)
+        assert self.quartz.volume == approx(113.007331)
 
     def test_get_string(self):
         peptide = self.peptide.get_string(5)
@@ -388,30 +388,30 @@ class LammpsDataTest(unittest.TestCase):
             [[36.840194, 64.211560], [41.013691, 68.385058], [29.768095, 57.139462]],
         )
         # body
-        assert pep.masses.at[7, "mass"] == 12.0110
-        assert ff["Pair Coeffs"].at[9, "coeff3"] == 0.152100
-        assert ff["Bond Coeffs"].at[5, "coeff2"] == 1.430000
-        assert ff["Angle Coeffs"].at[21, "coeff2"] == 120.000000
-        assert ff["Dihedral Coeffs"].at[10, "coeff1"] == 0.040000
-        assert ff["Improper Coeffs"].at[2, "coeff1"] == 20.000000
-        assert pep.atoms.at[29, "molecule-ID"] == 1
-        assert pep.atoms.at[29, "type"] == 7
-        assert pep.atoms.at[29, "q"] == -0.020
-        assert pep.atoms.at[29, "x"] == approx(42.96709)
-        assert pep.atoms.at[1808, "molecule-ID"] == 576
-        assert pep.atoms.at[1808, "type"] == 14
-        assert pep.atoms.at[1808, "y"] == approx(58.64352)
-        assert pep.atoms.at[1808, "nx"] == -1
-        assert pep.velocities.at[527, "vz"] == approx(-0.010889)
-        assert topo["Bonds"].at[47, "type"] == 8
-        assert topo["Bonds"].at[47, "atom2"] == 54
-        assert topo["Bonds"].at[953, "atom1"] == 1384
-        assert topo["Angles"].at[105, "type"] == 19
-        assert topo["Angles"].at[105, "atom3"] == 51
-        assert topo["Angles"].at[376, "atom2"] == 772
-        assert topo["Dihedrals"].at[151, "type"] == 14
-        assert topo["Dihedrals"].at[151, "atom4"] == 51
-        assert topo["Impropers"].at[4, "atom4"] == 32
+        assert pep.masses.loc[7, "mass"] == 12.0110
+        assert ff["Pair Coeffs"].loc[9, "coeff3"] == 0.152100
+        assert ff["Bond Coeffs"].loc[5, "coeff2"] == 1.430000
+        assert ff["Angle Coeffs"].loc[21, "coeff2"] == 120.000000
+        assert ff["Dihedral Coeffs"].loc[10, "coeff1"] == 0.040000
+        assert ff["Improper Coeffs"].loc[2, "coeff1"] == 20.000000
+        assert pep.atoms.loc[29, "molecule-ID"] == 1
+        assert pep.atoms.loc[29, "type"] == 7
+        assert pep.atoms.loc[29, "q"] == -0.020
+        assert pep.atoms.loc[29, "x"] == approx(42.96709)
+        assert pep.atoms.loc[1808, "molecule-ID"] == 576
+        assert pep.atoms.loc[1808, "type"] == 14
+        assert pep.atoms.loc[1808, "y"] == approx(58.64352)
+        assert pep.atoms.loc[1808, "nx"] == -1
+        assert pep.velocities.loc[527, "vz"] == approx(-0.010889)
+        assert topo["Bonds"].loc[47, "type"] == 8
+        assert topo["Bonds"].loc[47, "atom2"] == 54
+        assert topo["Bonds"].loc[953, "atom1"] == 1384
+        assert topo["Angles"].loc[105, "type"] == 19
+        assert topo["Angles"].loc[105, "atom3"] == 51
+        assert topo["Angles"].loc[376, "atom2"] == 772
+        assert topo["Dihedrals"].loc[151, "type"] == 14
+        assert topo["Dihedrals"].loc[151, "atom4"] == 51
+        assert topo["Impropers"].loc[4, "atom4"] == 32
         # class 2 and comments
         ethane = self.ethane
         assert ethane.masses.shape == (2, 1)
@@ -422,26 +422,26 @@ class LammpsDataTest(unittest.TestCase):
         assert class2["Angle Coeffs"].shape == (2, 4)
         assert class2["Dihedral Coeffs"].shape == (1, 6)
         assert class2["Improper Coeffs"].shape == (2, 2)
-        assert class2["BondBond Coeffs"].at[2, "coeff3"] == 1.1010
-        assert class2["BondAngle Coeffs"].at[2, "coeff4"] == 1.1010
-        assert class2["AngleAngle Coeffs"].at[2, "coeff6"] == 107.6600
-        assert class2["AngleAngle Coeffs"].at[2, "coeff6"] == 107.6600
-        assert class2["AngleAngleTorsion Coeffs"].at[1, "coeff3"] == 110.7700
-        assert class2["EndBondTorsion Coeffs"].at[1, "coeff8"] == 1.1010
-        assert class2["MiddleBondTorsion Coeffs"].at[1, "coeff4"] == 1.5300
-        assert class2["BondBond13 Coeffs"].at[1, "coeff3"] == 1.1010
-        assert class2["AngleTorsion Coeffs"].at[1, "coeff8"] == 110.7700
+        assert class2["BondBond Coeffs"].loc[2, "coeff3"] == 1.1010
+        assert class2["BondAngle Coeffs"].loc[2, "coeff4"] == 1.1010
+        assert class2["AngleAngle Coeffs"].loc[2, "coeff6"] == 107.6600
+        assert class2["AngleAngle Coeffs"].loc[2, "coeff6"] == 107.6600
+        assert class2["AngleAngleTorsion Coeffs"].loc[1, "coeff3"] == 110.7700
+        assert class2["EndBondTorsion Coeffs"].loc[1, "coeff8"] == 1.1010
+        assert class2["MiddleBondTorsion Coeffs"].loc[1, "coeff4"] == 1.5300
+        assert class2["BondBond13 Coeffs"].loc[1, "coeff3"] == 1.1010
+        assert class2["AngleTorsion Coeffs"].loc[1, "coeff8"] == 110.7700
         # tilt box and another atom_style
         quartz = self.quartz
         np.testing.assert_array_equal(quartz.box.tilt, [-2.456700, 0.0, 0.0])
         assert list(quartz.atoms.columns) == ["type", "x", "y", "z"]
-        assert quartz.atoms.at[7, "x"] == approx(0.299963)
+        assert quartz.atoms.loc[7, "x"] == approx(0.299963)
         # PairIJ Coeffs section
         virus = self.virus
         pairij = virus.force_field["PairIJ Coeffs"]
-        assert pairij.at[7, "id1"] == 3
-        assert pairij.at[7, "id2"] == 3
-        assert pairij.at[7, "coeff2"] == 2.1
+        assert pairij.loc[7, "id1"] == 3
+        assert pairij.loc[7, "id2"] == 3
+        assert pairij.loc[7, "coeff2"] == 2.1
         # sort_id
         atom_id = random.randint(1, 384)
         assert self.tatb.atoms.loc[atom_id].name == atom_id
@@ -702,12 +702,12 @@ class ForceFieldTest(unittest.TestCase):
     def test_init(self):
         v = self.virus
         assert v.mass_info == [("A", 1.00794), ("B", 12.0107), ("C", 15.9994), ("D", 1.00794)]
-        assert v.masses.at[3, "mass"] == 15.9994
+        assert v.masses.loc[3, "mass"] == 15.9994
         v_ff = v.force_field
         assert isinstance(v_ff, dict)
         assert "Pair Coeffs" not in v_ff
-        assert v_ff["PairIJ Coeffs"].iat[5, 4] == 1.93631
-        assert v_ff["Bond Coeffs"].at[2, "coeff2"] == 0.855906
+        assert v_ff["PairIJ Coeffs"].iloc[5, 4] == 1.93631
+        assert v_ff["Bond Coeffs"].loc[2, "coeff2"] == 0.855906
         v_maps = v.maps
         assert v_maps["Atoms"] == {"A": 1, "B": 2, "C": 3, "D": 4}
         assert v_maps["Bonds"] == {
@@ -719,23 +719,23 @@ class ForceFieldTest(unittest.TestCase):
             ("C", "B"): 2,
         }
         e = self.ethane
-        assert e.masses.at[1, "mass"] == 12.01115
+        assert e.masses.loc[1, "mass"] == 12.01115
         e_ff = e.force_field
         assert isinstance(e_ff, dict)
         assert "PairIJ Coeffs" not in e_ff
-        assert e_ff["Pair Coeffs"].at[1, "coeff2"] == 3.854
-        assert e_ff["Bond Coeffs"].at[2, "coeff4"] == 844.6
-        assert e_ff["Angle Coeffs"].at[2, "coeff4"] == -2.4318
-        assert e_ff["Dihedral Coeffs"].at[1, "coeff1"] == -0.1432
-        assert e_ff["Improper Coeffs"].at[2, "coeff2"] == 0.0
-        assert e_ff["BondBond Coeffs"].at[2, "coeff1"] == 5.3316
-        assert e_ff["BondAngle Coeffs"].at[1, "coeff3"] == 1.53
-        assert e_ff["MiddleBondTorsion Coeffs"].at[1, "coeff1"] == -14.261
-        assert e_ff["EndBondTorsion Coeffs"].at[1, "coeff1"] == 0.213
-        assert e_ff["AngleTorsion Coeffs"].at[1, "coeff3"] == -0.2466
-        assert e_ff["AngleAngleTorsion Coeffs"].at[1, "coeff1"] == -12.564
-        assert e_ff["BondBond13 Coeffs"].at[1, "coeff1"] == 0.0
-        assert e_ff["AngleAngle Coeffs"].at[1, "coeff2"] == -0.4825
+        assert e_ff["Pair Coeffs"].loc[1, "coeff2"] == 3.854
+        assert e_ff["Bond Coeffs"].loc[2, "coeff4"] == 844.6
+        assert e_ff["Angle Coeffs"].loc[2, "coeff4"] == -2.4318
+        assert e_ff["Dihedral Coeffs"].loc[1, "coeff1"] == -0.1432
+        assert e_ff["Improper Coeffs"].loc[2, "coeff2"] == 0.0
+        assert e_ff["BondBond Coeffs"].loc[2, "coeff1"] == 5.3316
+        assert e_ff["BondAngle Coeffs"].loc[1, "coeff3"] == 1.53
+        assert e_ff["MiddleBondTorsion Coeffs"].loc[1, "coeff1"] == -14.261
+        assert e_ff["EndBondTorsion Coeffs"].loc[1, "coeff1"] == 0.213
+        assert e_ff["AngleTorsion Coeffs"].loc[1, "coeff3"] == -0.2466
+        assert e_ff["AngleAngleTorsion Coeffs"].loc[1, "coeff1"] == -12.564
+        assert e_ff["BondBond13 Coeffs"].loc[1, "coeff1"] == 0.0
+        assert e_ff["AngleAngle Coeffs"].loc[1, "coeff2"] == -0.4825
         e_maps = e.maps
         assert e_maps["Atoms"] == {"c4": 1, "h1": 2}
         assert e_maps["Bonds"] == {("c4", "c4"): 1, ("c4", "h1"): 2, ("h1", "c4"): 2}
@@ -873,30 +873,30 @@ class CombinedDataTest(unittest.TestCase):
             [[-0.597365, 54.56835], [-0.597365, 54.56835], [-0.597365, 54.56835]],
         )
         # body
-        assert ec_fec.masses.at[7, "mass"] == 1.008
-        assert ff["Pair Coeffs"].at[9, "coeff2"] == 3.750
-        assert ff["Bond Coeffs"].at[5, "coeff2"] == 1.0900
-        assert ff["Angle Coeffs"].at[24, "coeff2"] == 108.46005
-        assert np.isnan(ff["Dihedral Coeffs"].at[30, "coeff6"])
-        assert ff["Improper Coeffs"].at[2, "coeff1"] == 10.5
-        assert ec_fec.atoms.at[29, "molecule-ID"] == 3
-        assert ec_fec.atoms.at[29, "type"] == 5
-        assert ec_fec.atoms.at[29, "q"] == 0.0755
-        assert ec_fec.atoms.at[29, "x"] == approx(14.442260)
-        assert ec_fec.atoms.at[14958, "molecule-ID"] == 1496
-        assert ec_fec.atoms.at[14958, "type"] == 11
-        assert ec_fec.atoms.at[14958, "y"] == approx(41.010962)
-        assert topo["Bonds"].at[47, "type"] == 5
-        assert topo["Bonds"].at[47, "atom2"] == 47
-        assert topo["Bonds"].at[953, "atom1"] == 951
-        assert topo["Angles"].at[105, "type"] == 2
-        assert topo["Angles"].at[105, "atom3"] == 63
-        assert topo["Angles"].at[14993, "atom2"] == 8815
-        assert topo["Dihedrals"].at[151, "type"] == 4
-        assert topo["Dihedrals"].at[151, "atom4"] == 55
-        assert topo["Dihedrals"].at[41991, "type"] == 30
-        assert topo["Dihedrals"].at[41991, "atom2"] == 14994
-        assert topo["Impropers"].at[4, "atom4"] == 34
+        assert ec_fec.masses.loc[7, "mass"] == 1.008
+        assert ff["Pair Coeffs"].loc[9, "coeff2"] == 3.750
+        assert ff["Bond Coeffs"].loc[5, "coeff2"] == 1.0900
+        assert ff["Angle Coeffs"].loc[24, "coeff2"] == 108.46005
+        assert np.isnan(ff["Dihedral Coeffs"].loc[30, "coeff6"])
+        assert ff["Improper Coeffs"].loc[2, "coeff1"] == 10.5
+        assert ec_fec.atoms.loc[29, "molecule-ID"] == 3
+        assert ec_fec.atoms.loc[29, "type"] == 5
+        assert ec_fec.atoms.loc[29, "q"] == 0.0755
+        assert ec_fec.atoms.loc[29, "x"] == approx(14.442260)
+        assert ec_fec.atoms.loc[14958, "molecule-ID"] == 1496
+        assert ec_fec.atoms.loc[14958, "type"] == 11
+        assert ec_fec.atoms.loc[14958, "y"] == approx(41.010962)
+        assert topo["Bonds"].loc[47, "type"] == 5
+        assert topo["Bonds"].loc[47, "atom2"] == 47
+        assert topo["Bonds"].loc[953, "atom1"] == 951
+        assert topo["Angles"].loc[105, "type"] == 2
+        assert topo["Angles"].loc[105, "atom3"] == 63
+        assert topo["Angles"].loc[14993, "atom2"] == 8815
+        assert topo["Dihedrals"].loc[151, "type"] == 4
+        assert topo["Dihedrals"].loc[151, "atom4"] == 55
+        assert topo["Dihedrals"].loc[41991, "type"] == 30
+        assert topo["Dihedrals"].loc[41991, "atom2"] == 14994
+        assert topo["Impropers"].loc[4, "atom4"] == 34
 
     def test_from_lammpsdata(self):
         # general tests
@@ -924,30 +924,30 @@ class CombinedDataTest(unittest.TestCase):
             [[-0.597365, 54.56835], [-0.597365, 54.56835], [-0.597365, 54.56835]],
         )
         # body
-        assert ec_fec.masses.at[7, "mass"] == 1.008
-        assert ff["Pair Coeffs"].at[9, "coeff2"] == 3.750
-        assert ff["Bond Coeffs"].at[5, "coeff2"] == 1.0900
-        assert ff["Angle Coeffs"].at[24, "coeff2"] == 108.46005
-        assert np.isnan(ff["Dihedral Coeffs"].at[30, "coeff6"])
-        assert ff["Improper Coeffs"].at[2, "coeff1"] == 10.5
-        assert ec_fec.atoms.at[29, "molecule-ID"] == 3
-        assert ec_fec.atoms.at[29, "type"] == 5
-        assert ec_fec.atoms.at[29, "q"] == 0.0755
-        assert ec_fec.atoms.at[29, "x"] == approx(14.442260)
-        assert ec_fec.atoms.at[14958, "molecule-ID"] == 1496
-        assert ec_fec.atoms.at[14958, "type"] == 11
-        assert ec_fec.atoms.at[14958, "y"] == approx(41.010962)
-        assert topo["Bonds"].at[47, "type"] == 5
-        assert topo["Bonds"].at[47, "atom2"] == 47
-        assert topo["Bonds"].at[953, "atom1"] == 951
-        assert topo["Angles"].at[105, "type"] == 2
-        assert topo["Angles"].at[105, "atom3"] == 63
-        assert topo["Angles"].at[14993, "atom2"] == 8815
-        assert topo["Dihedrals"].at[151, "type"] == 4
-        assert topo["Dihedrals"].at[151, "atom4"] == 55
-        assert topo["Dihedrals"].at[41991, "type"] == 30
-        assert topo["Dihedrals"].at[41991, "atom2"] == 14994
-        assert topo["Impropers"].at[4, "atom4"] == 34
+        assert ec_fec.masses.loc[7, "mass"] == 1.008
+        assert ff["Pair Coeffs"].loc[9, "coeff2"] == 3.750
+        assert ff["Bond Coeffs"].loc[5, "coeff2"] == 1.0900
+        assert ff["Angle Coeffs"].loc[24, "coeff2"] == 108.46005
+        assert np.isnan(ff["Dihedral Coeffs"].loc[30, "coeff6"])
+        assert ff["Improper Coeffs"].loc[2, "coeff1"] == 10.5
+        assert ec_fec.atoms.loc[29, "molecule-ID"] == 3
+        assert ec_fec.atoms.loc[29, "type"] == 5
+        assert ec_fec.atoms.loc[29, "q"] == 0.0755
+        assert ec_fec.atoms.loc[29, "x"] == approx(14.442260)
+        assert ec_fec.atoms.loc[14958, "molecule-ID"] == 1496
+        assert ec_fec.atoms.loc[14958, "type"] == 11
+        assert ec_fec.atoms.loc[14958, "y"] == approx(41.010962)
+        assert topo["Bonds"].loc[47, "type"] == 5
+        assert topo["Bonds"].loc[47, "atom2"] == 47
+        assert topo["Bonds"].loc[953, "atom1"] == 951
+        assert topo["Angles"].loc[105, "type"] == 2
+        assert topo["Angles"].loc[105, "atom3"] == 63
+        assert topo["Angles"].loc[14993, "atom2"] == 8815
+        assert topo["Dihedrals"].loc[151, "type"] == 4
+        assert topo["Dihedrals"].loc[151, "atom4"] == 55
+        assert topo["Dihedrals"].loc[41991, "type"] == 30
+        assert topo["Dihedrals"].loc[41991, "atom2"] == 14994
+        assert topo["Impropers"].loc[4, "atom4"] == 34
 
         # non-destructively use of input (ID number)
         fec = self.fec
@@ -959,40 +959,40 @@ class CombinedDataTest(unittest.TestCase):
         assert ff["Dihedral Coeffs"].index[0], 1
         assert ff["Improper Coeffs"].index[0] == 1
         assert fec.atoms.index[0] == 1
-        assert fec.atoms.at[1, "molecule-ID"] == 1
-        assert fec.atoms.at[1, "type"] == 1
+        assert fec.atoms.loc[1, "molecule-ID"] == 1
+        assert fec.atoms.loc[1, "type"] == 1
         assert topo["Bonds"].index[0] == 1
-        assert topo["Bonds"].at[1, "type"] == 1
-        assert topo["Bonds"].at[1, "atom1"] == 1
-        assert topo["Bonds"].at[1, "atom2"] == 2
+        assert topo["Bonds"].loc[1, "type"] == 1
+        assert topo["Bonds"].loc[1, "atom1"] == 1
+        assert topo["Bonds"].loc[1, "atom2"] == 2
         assert topo["Angles"].index[0] == 1
-        assert topo["Angles"].at[1, "atom1"] == 1
-        assert topo["Angles"].at[1, "atom2"] == 3
-        assert topo["Angles"].at[1, "atom3"] == 4
+        assert topo["Angles"].loc[1, "atom1"] == 1
+        assert topo["Angles"].loc[1, "atom2"] == 3
+        assert topo["Angles"].loc[1, "atom3"] == 4
         assert topo["Dihedrals"].index[0] == 1
-        assert topo["Dihedrals"].at[1, "atom1"] == 1
-        assert topo["Dihedrals"].at[1, "atom2"] == 3
-        assert topo["Dihedrals"].at[1, "atom3"] == 4
-        assert topo["Dihedrals"].at[1, "atom4"] == 5
+        assert topo["Dihedrals"].loc[1, "atom1"] == 1
+        assert topo["Dihedrals"].loc[1, "atom2"] == 3
+        assert topo["Dihedrals"].loc[1, "atom3"] == 4
+        assert topo["Dihedrals"].loc[1, "atom4"] == 5
         assert topo["Impropers"].index[0] == 1
-        assert topo["Impropers"].at[1, "atom1"] == 5
-        assert topo["Impropers"].at[1, "atom2"] == 4
-        assert topo["Impropers"].at[1, "atom3"] == 3
-        assert topo["Impropers"].at[1, "atom4"] == 6
+        assert topo["Impropers"].loc[1, "atom1"] == 5
+        assert topo["Impropers"].loc[1, "atom2"] == 4
+        assert topo["Impropers"].loc[1, "atom3"] == 3
+        assert topo["Impropers"].loc[1, "atom4"] == 6
 
         # tests for data objects with different number of ff kw
         li_ec = self.li_ec
         ec_li = self.ec_li
-        assert li_ec.force_field["Pair Coeffs"].at[6, "coeff2"] == 2.42
-        assert ec_li.force_field["Pair Coeffs"].at[6, "coeff2"] == 2.87
-        assert li_ec.force_field["Bond Coeffs"].at[5, "coeff2"] == 1.09
-        assert ec_li.force_field["Bond Coeffs"].at[5, "coeff2"] == 1.09
-        assert li_ec.force_field["Angle Coeffs"].at[7, "coeff2"] == 107.80
-        assert ec_li.force_field["Angle Coeffs"].at[7, "coeff2"] == 107.80
-        assert li_ec.force_field["Dihedral Coeffs"].at[11, "coeff2"] == 0.156
-        assert ec_li.force_field["Dihedral Coeffs"].at[11, "coeff2"] == 0.156
-        assert li_ec.force_field["Improper Coeffs"].at[1, "coeff1"] == 10.5
-        assert ec_li.force_field["Improper Coeffs"].at[1, "coeff1"] == 10.5
+        assert li_ec.force_field["Pair Coeffs"].loc[6, "coeff2"] == 2.42
+        assert ec_li.force_field["Pair Coeffs"].loc[6, "coeff2"] == 2.87
+        assert li_ec.force_field["Bond Coeffs"].loc[5, "coeff2"] == 1.09
+        assert ec_li.force_field["Bond Coeffs"].loc[5, "coeff2"] == 1.09
+        assert li_ec.force_field["Angle Coeffs"].loc[7, "coeff2"] == 107.80
+        assert ec_li.force_field["Angle Coeffs"].loc[7, "coeff2"] == 107.80
+        assert li_ec.force_field["Dihedral Coeffs"].loc[11, "coeff2"] == 0.156
+        assert ec_li.force_field["Dihedral Coeffs"].loc[11, "coeff2"] == 0.156
+        assert li_ec.force_field["Improper Coeffs"].loc[1, "coeff1"] == 10.5
+        assert ec_li.force_field["Improper Coeffs"].loc[1, "coeff1"] == 10.5
 
         # tests for combining data with no topo info
         li_2 = self.li_2
@@ -1128,30 +1128,30 @@ class CombinedDataTest(unittest.TestCase):
             [[-0.597365, 54.56835], [-0.597365, 54.56835], [-0.597365, 54.56835]],
         )
         # body
-        assert ec_fec.masses.at[7, "mass"] == 1.008
-        assert ff["Pair Coeffs"].at[9, "coeff2"] == 3.750
-        assert ff["Bond Coeffs"].at[5, "coeff2"] == 1.0900
-        assert ff["Angle Coeffs"].at[24, "coeff2"] == 108.46005
-        assert np.isnan(ff["Dihedral Coeffs"].at[30, "coeff6"])
-        assert ff["Improper Coeffs"].at[2, "coeff1"] == 10.5
-        assert ec_fec.atoms.at[29, "molecule-ID"] == 3
-        assert ec_fec.atoms.at[29, "type"] == 5
-        assert ec_fec.atoms.at[29, "q"] == 0.0755
-        assert ec_fec.atoms.at[29, "x"] == approx(14.442260)
-        assert ec_fec.atoms.at[14958, "molecule-ID"] == 1496
-        assert ec_fec.atoms.at[14958, "type"] == 11
-        assert ec_fec.atoms.at[14958, "y"] == approx(41.010962)
-        assert topo["Bonds"].at[47, "type"] == 5
-        assert topo["Bonds"].at[47, "atom2"] == 47
-        assert topo["Bonds"].at[953, "atom1"] == 951
-        assert topo["Angles"].at[105, "type"] == 2
-        assert topo["Angles"].at[105, "atom3"] == 63
-        assert topo["Angles"].at[14993, "atom2"] == 8815
-        assert topo["Dihedrals"].at[151, "type"] == 4
-        assert topo["Dihedrals"].at[151, "atom4"] == 55
-        assert topo["Dihedrals"].at[41991, "type"] == 30
-        assert topo["Dihedrals"].at[41991, "atom2"] == 14994
-        assert topo["Impropers"].at[4, "atom4"] == 34
+        assert ec_fec.masses.loc[7, "mass"] == 1.008
+        assert ff["Pair Coeffs"].loc[9, "coeff2"] == 3.750
+        assert ff["Bond Coeffs"].loc[5, "coeff2"] == 1.0900
+        assert ff["Angle Coeffs"].loc[24, "coeff2"] == 108.46005
+        assert np.isnan(ff["Dihedral Coeffs"].loc[30, "coeff6"])
+        assert ff["Improper Coeffs"].loc[2, "coeff1"] == 10.5
+        assert ec_fec.atoms.loc[29, "molecule-ID"] == 3
+        assert ec_fec.atoms.loc[29, "type"] == 5
+        assert ec_fec.atoms.loc[29, "q"] == 0.0755
+        assert ec_fec.atoms.loc[29, "x"] == approx(14.442260)
+        assert ec_fec.atoms.loc[14958, "molecule-ID"] == 1496
+        assert ec_fec.atoms.loc[14958, "type"] == 11
+        assert ec_fec.atoms.loc[14958, "y"] == approx(41.010962)
+        assert topo["Bonds"].loc[47, "type"] == 5
+        assert topo["Bonds"].loc[47, "atom2"] == 47
+        assert topo["Bonds"].loc[953, "atom1"] == 951
+        assert topo["Angles"].loc[105, "type"] == 2
+        assert topo["Angles"].loc[105, "atom3"] == 63
+        assert topo["Angles"].loc[14993, "atom2"] == 8815
+        assert topo["Dihedrals"].loc[151, "type"] == 4
+        assert topo["Dihedrals"].loc[151, "atom4"] == 55
+        assert topo["Dihedrals"].loc[41991, "type"] == 30
+        assert topo["Dihedrals"].loc[41991, "atom2"] == 14994
+        assert topo["Impropers"].loc[4, "atom4"] == 34
         ec_fec_lines = self.ec_fec_ld.get_string().splitlines()
         # header information
         assert ec_fec_lines[1] == ""

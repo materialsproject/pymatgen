@@ -215,13 +215,12 @@ def diamond_functions(xx, yy, y_x0, x_y0):
         else:
             p1 = npyy
             p2 = npxx
+    elif npxx[0] < npyy[0]:
+        p1 = npxx
+        p2 = npyy
     else:
-        if npxx[0] < npyy[0]:
-            p1 = npxx
-            p2 = npyy
-        else:
-            p1 = npyy
-            p2 = npxx
+        p1 = npyy
+        p2 = npxx
     slope = (p2[1] - p1[1]) / (p2[0] - p1[0])
     if slope > 0.0:
         x_bpoint = p1[0] + x_y0
@@ -326,12 +325,11 @@ def rectangle_surface_intersection(
                     "Function f_lower is not always lower or equal to function f_upper within "
                     "the domain defined by the functions bounds."
                 )
-        else:
-            if "<" not in function_comparison(f1=f_lower, f2=f_upper, x1=x1, x2=x2, numpoints_check=numpoints_check):
-                raise RuntimeError(
-                    "Function f_lower is not always lower or equal to function f_upper within "
-                    "the domain defined by x1 and x2."
-                )
+        elif "<" not in function_comparison(f1=f_lower, f2=f_upper, x1=x1, x2=x2, numpoints_check=numpoints_check):
+            raise RuntimeError(
+                "Function f_lower is not always lower or equal to function f_upper within "
+                "the domain defined by x1 and x2."
+            )
     if bounds_lower is None:
         raise NotImplementedError("Bounds should be given right now ...")
     if x2 < bounds_lower[0] or x1 > bounds_lower[1]:
@@ -716,11 +714,10 @@ class Plane:
         for ip, pp in enumerate(points):
             if self.is_in_plane(pp, dist_tolerance):
                 inplane.append(ip)
+            elif np.dot(pp + self.vector_to_origin, self.normal_vector) < 0.0:
+                side1.append(ip)
             else:
-                if np.dot(pp + self.vector_to_origin, self.normal_vector) < 0.0:
-                    side1.append(ip)
-                else:
-                    side2.append(ip)
+                side2.append(ip)
         return [side1, inplane, side2]
 
     def distance_to_point(self, point):

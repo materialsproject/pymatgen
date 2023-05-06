@@ -341,11 +341,10 @@ class NearNeighbors:
                     cn_dict[site_element] = idx["weight"]
                 else:
                     cn_dict[site_element] = 1
+            elif use_weights:
+                cn_dict[site_element] += idx["weight"]
             else:
-                if use_weights:
-                    cn_dict[site_element] += idx["weight"]
-                else:
-                    cn_dict[site_element] += 1
+                cn_dict[site_element] += 1
         return cn_dict
 
     def get_nn(self, structure: Structure, n: int):
