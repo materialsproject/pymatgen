@@ -336,7 +336,7 @@ class DictSet(VaspInputSet):
                 in with the VASP default value of 1.0
         """
         struct_has_Yb = any(specie.symbol == "Yb" for site in structure for specie in site.species)
-        uses_Yb_2_psp = self.CONFIG["POTCAR"]["Yb"].lower() == "yb_2"
+        uses_Yb_2_psp = self.CONFIG["POTCAR"]["Yb"] == "Yb_2"
         if struct_has_Yb and uses_Yb_2_psp:
             warnings.warn(
                 "The structure contains Ytterbium (Yb) and this InputSet uses the Yb_2 PSP.\n"
