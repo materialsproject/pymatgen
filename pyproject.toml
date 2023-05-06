@@ -35,6 +35,7 @@ select = [
   "PIE", # flake8-pie
   "PLE", # pylint error
   "PLW", # pylint warning
+  "PT",  # flake8-pytest-style
   "Q",   # flake8-quotes
   "RUF", # Ruff-specific rules
   "SIM", # flake8-simplify
@@ -60,6 +61,8 @@ ignore = [
   "PLR2004", # Magic number
   "PLW0603", # Using the global statement to update variables is discouraged
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
+  "PT011",   # pytest-raises-too-broad
+  "PT013",   # pytest-incorrect-pytest-import
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
   "SIM115",  # Use context handler for opening files
 ]
