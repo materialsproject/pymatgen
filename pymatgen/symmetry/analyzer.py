@@ -278,15 +278,20 @@ class SpacegroupAnalyzer:
                 direct coordinate operations.
 
         Returns:
-            ([SymmOp]): List of point group symmetry operations.
+            list[SymmOp]: Point group symmetry operations.
         """
         rotation, translation = self._get_symmetry()
         symmops = []
+        seen = set()
         mat = self._structure.lattice.matrix.T
-        invmat = np.linalg.inv(mat)
+        inv_mat = self._structure.lattice.inv_matrix.T
         for rot in rotation:
+            rot_hash = rot.tobytes()
+            if rot_hash in seen:
+                continue
+            seen.add(rot_hash)
             if cartesian:
-                rot = np.dot(mat, np.dot(rot, invmat))
+                rot = np.dot(mat, np.dot(rot, inv_mat))
             op = SymmOp.from_rotation_and_translation(rot, np.array([0, 0, 0]))
             symmops.append(op)
         return symmops

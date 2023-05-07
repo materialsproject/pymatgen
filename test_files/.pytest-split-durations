@@ -2197,7 +2197,7 @@
     "pymatgen/symmetry/tests/test_analyzer.py::SpacegroupAnalyzerTest::test_get_space_symbol": 0.04213570698630065,
     "pymatgen/symmetry/tests/test_analyzer.py::SpacegroupAnalyzerTest::test_get_symmetrized_structure": 0.057697248965268955,
     "pymatgen/symmetry/tests/test_analyzer.py::SpacegroupAnalyzerTest::test_get_symmetry_dataset": 0.0412811660207808,
-    "pymatgen/symmetry/tests/test_analyzer.py::SpacegroupAnalyzerTest::test_get_symmetry_operations": 0.11459195899078622,
+    "pymatgen/symmetry/tests/test_analyzer.py::SpacegroupAnalyzerTest::test_get_point_group_operations": 0.11459195899078622,
     "pymatgen/symmetry/tests/test_analyzer.py::SpacegroupAnalyzerTest::test_is_laue": 0.05062720997375436,
     "pymatgen/symmetry/tests/test_analyzer.py::SpacegroupAnalyzerTest::test_magnetic": 0.042263709008693695,
     "pymatgen/symmetry/tests/test_analyzer.py::SpacegroupAnalyzerTest::test_primitive": 0.05685829202411696,
