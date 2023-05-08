@@ -3,7 +3,7 @@ from __future__ import annotations
 import platform
 import sys
 
-import numpy
+import numpy as np
 from setuptools import Extension, find_namespace_packages, setup
 
 is_win_64 = sys.platform.startswith("win") and platform.machine().endswith("64")
@@ -182,5 +182,5 @@ setup(
             "get_environment = pymatgen.cli.get_environment:main",
         ]
     },
-    include_dirs=[numpy.get_include()],
+    include_dirs=[np.get_include()],
 )

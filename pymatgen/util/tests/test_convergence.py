@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import numpy
+import numpy as np
 import pytest
 
 from pymatgen.util.convergence import determine_convergence
@@ -26,10 +26,10 @@ class ConvergenceTest(PymatgenTest):
         # a non converging example
         ys = [4, 5, 6, 7, 8, 9]
         assert determine_convergence(xs, ys, name="name", tol=0.01, plots=False) == pytest.approx(
-            [False, numpy.inf, None, None, 14.607906815185412, None]
+            [False, np.inf, None, None, 14.607906815185412, None]
         )
         # another non converging example
         ys = [4, 5, 4, 5, 4, 5]
         assert determine_convergence(xs, ys, name="name", tol=0.01, plots=False) == pytest.approx(
-            [False, numpy.inf, None, None, 11.368169147574115, None]
+            [False, np.inf, None, None, 11.368169147574115, None]
         )

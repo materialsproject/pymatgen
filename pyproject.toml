@@ -32,6 +32,7 @@ select = [
   "E",   # pycodestyle error
   "F",   # pyflakes
   "I",   # isort
+  "ICN", # flake8-import-conventions
   "PD",  # pandas-vet
   "PIE", # flake8-pie
   "PL",  # pylint

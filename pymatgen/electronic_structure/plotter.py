@@ -2293,7 +2293,7 @@ class BSDOSPlotter:
             and savefig()
         """
         import matplotlib.lines as mlines
-        import matplotlib.pyplot as mplt
+        import matplotlib.pyplot as plt
         from matplotlib.gridspec import GridSpec
 
         # make sure the user-specified band structure projection is valid
@@ -2372,11 +2372,11 @@ class BSDOSPlotter:
         # set up bs and dos plot
         gs = GridSpec(1, 2, width_ratios=[2, 1]) if dos else GridSpec(1, 1)
 
-        fig = mplt.figure(figsize=self.fig_size)
+        fig = plt.figure(figsize=self.fig_size)
         fig.patch.set_facecolor("white")
-        bs_ax = mplt.subplot(gs[0])
+        bs_ax = plt.subplot(gs[0])
         if dos:
-            dos_ax = mplt.subplot(gs[1])
+            dos_ax = plt.subplot(gs[1])
 
         # set basic axes limits for the plot
         bs_ax.set_xlim(0, x_distances_list[-1][-1])
@@ -2546,8 +2546,8 @@ class BSDOSPlotter:
                 loc=self.dos_legend,
             )
 
-        mplt.subplots_adjust(wspace=0.1)
-        return mplt
+        plt.subplots_adjust(wspace=0.1)
+        return plt
 
     @staticmethod
     def _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles="solid"):

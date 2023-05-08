@@ -265,30 +265,30 @@ class StructureEnvironments(MSONable):
                 additional_condition: Additional condition for the neighbors.
                 other_origins: What to do with sources that do not come from the Voronoi grid (e.g. "from hints").
             """
-            mysrc = []
+            my_src = []
             for src in self.sources:
                 if src["origin"] == "dist_ang_ac_voronoi":
                     if src["ac"] != additional_condition:
                         continue
-                    mysrc.append(src)
+                    my_src.append(src)
                 else:
                     if other_origins == "DO_NOTHING":
                         continue
                     raise NotImplementedError("Nothing implemented for other sources ...")
-            if len(mysrc) == 0:
+            if len(my_src) == 0:
                 return None
 
-            dists = [src["dp_dict"]["min"] for src in mysrc]
-            angs = [src["ap_dict"]["max"] for src in mysrc]
-            next_dists = [src["dp_dict"]["next"] for src in mysrc]
-            next_angs = [src["ap_dict"]["next"] for src in mysrc]
+            dists = [src["dp_dict"]["min"] for src in my_src]
+            angs = [src["ap_dict"]["max"] for src in my_src]
+            next_dists = [src["dp_dict"]["next"] for src in my_src]
+            next_angs = [src["ap_dict"]["next"] for src in my_src]
 
             points_dict = {}
 
             pdists = []
             pangs = []
 
-            for isrc in range(len(mysrc)):
+            for isrc in range(len(my_src)):
                 if not any(np.isclose(pdists, dists[isrc])):
                     pdists.append(dists[isrc])
                 if not any(np.isclose(pdists, next_dists[isrc])):
@@ -857,7 +857,7 @@ class StructureEnvironments(MSONable):
             Matplotlib figure and axes representing the environments.
         """
         try:
-            import matplotlib.pyplot as mpl
+            import matplotlib.pyplot as plt
             from matplotlib import cm
             from matplotlib.colors import Normalize
             from matplotlib.patches import Polygon
@@ -866,7 +866,7 @@ class StructureEnvironments(MSONable):
             return None
 
         # Initializes the figure
-        fig = mpl.figure() if figsize is None else mpl.figure(figsize=figsize)
+        fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
         subplot = fig.add_subplot(111)
 
         # Initializes the distance and angle parameters
