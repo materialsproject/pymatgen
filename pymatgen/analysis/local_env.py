@@ -341,11 +341,10 @@ class NearNeighbors:
                     cn_dict[site_element] = idx["weight"]
                 else:
                     cn_dict[site_element] = 1
+            elif use_weights:
+                cn_dict[site_element] += idx["weight"]
             else:
-                if use_weights:
-                    cn_dict[site_element] += idx["weight"]
-                else:
-                    cn_dict[site_element] += 1
+                cn_dict[site_element] += 1
         return cn_dict
 
     def get_nn(self, structure: Structure, n: int):
@@ -2670,108 +2669,108 @@ class LocalStructOrderParams:
         # Y_6_-6
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_6[i] * self._cos_n_p[6][i]  # cos(x) =  cos(-x)
-            imag -= pre_y_6_6[i] * self._sin_n_p[6][i]  # sin(x) = -sin(-x)
+        for idx in nnn_range:
+            real += pre_y_6_6[idx] * self._cos_n_p[6][idx]  # cos(x) =  cos(-x)
+            imag -= pre_y_6_6[idx] * self._sin_n_p[6][idx]  # sin(x) = -sin(-x)
         acc += real * real + imag * imag
 
         # Y_6_-5
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_5[i] * self._cos_n_p[5][i]
-            imag -= pre_y_6_5[i] * self._sin_n_p[5][i]
+        for idx in nnn_range:
+            real += pre_y_6_5[idx] * self._cos_n_p[5][idx]
+            imag -= pre_y_6_5[idx] * self._sin_n_p[5][idx]
         acc += real * real + imag * imag
 
         # Y_6_-4
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_4[i] * self._cos_n_p[4][i]
-            imag -= pre_y_6_4[i] * self._sin_n_p[4][i]
+        for idx in nnn_range:
+            real += pre_y_6_4[idx] * self._cos_n_p[4][idx]
+            imag -= pre_y_6_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
         # Y_6_-3
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_3[i] * self._cos_n_p[3][i]
-            imag -= pre_y_6_3[i] * self._sin_n_p[3][i]
+        for idx in nnn_range:
+            real += pre_y_6_3[idx] * self._cos_n_p[3][idx]
+            imag -= pre_y_6_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_6_-2
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_2[i] * self._cos_n_p[2][i]
-            imag -= pre_y_6_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_6_2[idx] * self._cos_n_p[2][idx]
+            imag -= pre_y_6_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_6_-1
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_6_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real += pre_y_6_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_6_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_6_0
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
+        for idx in nnn_range:
             real += (
                 i32
                 * sqrt_13_pi
-                * (231 * self._pow_cos_t[6][i] - 315 * self._pow_cos_t[4][i] + 105 * self._pow_cos_t[2][i] - 5.0)
+                * (231 * self._pow_cos_t[6][idx] - 315 * self._pow_cos_t[4][idx] + 105 * self._pow_cos_t[2][idx] - 5.0)
             )
         acc += real * real
 
         # Y_6_1
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_6_1[i] * self._cos_n_p[1][i]
-            imag -= pre_y_6_1[i] * self._sin_n_p[1][i]
+        for idx in nnn_range:
+            real -= pre_y_6_1[idx] * self._cos_n_p[1][idx]
+            imag -= pre_y_6_1[idx] * self._sin_n_p[1][idx]
         acc += real * real + imag * imag
 
         # Y_6_2
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_2[i] * self._cos_n_p[2][i]
-            imag += pre_y_6_2[i] * self._sin_n_p[2][i]
+        for idx in nnn_range:
+            real += pre_y_6_2[idx] * self._cos_n_p[2][idx]
+            imag += pre_y_6_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
         # Y_6_3
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_6_3[i] * self._cos_n_p[3][i]
-            imag -= pre_y_6_3[i] * self._sin_n_p[3][i]
+        for idx in nnn_range:
+            real -= pre_y_6_3[idx] * self._cos_n_p[3][idx]
+            imag -= pre_y_6_3[idx] * self._sin_n_p[3][idx]
         acc += real * real + imag * imag
 
         # Y_6_4
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_4[i] * self._cos_n_p[4][i]
-            imag += pre_y_6_4[i] * self._sin_n_p[4][i]
+        for idx in nnn_range:
+            real += pre_y_6_4[idx] * self._cos_n_p[4][idx]
+            imag += pre_y_6_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
         # Y_6_5
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real -= pre_y_6_5[i] * self._cos_n_p[5][i]
-            imag -= pre_y_6_5[i] * self._sin_n_p[5][i]
+        for idx in nnn_range:
+            real -= pre_y_6_5[idx] * self._cos_n_p[5][idx]
+            imag -= pre_y_6_5[idx] * self._sin_n_p[5][idx]
         acc += real * real + imag * imag
 
         # Y_6_6
         real = 0.0
         imag = 0.0
-        for i in nnn_range:
-            real += pre_y_6_6[i] * self._cos_n_p[6][i]
-            imag += pre_y_6_6[i] * self._sin_n_p[6][i]
+        for idx in nnn_range:
+            real += pre_y_6_6[idx] * self._cos_n_p[6][idx]
+            imag += pre_y_6_6[idx] * self._sin_n_p[6][idx]
         acc += real * real + imag * imag
 
         q6 = sqrt(4 * pi * acc / (13 * float(nnn * nnn)))

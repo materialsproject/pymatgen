@@ -1034,7 +1034,7 @@ class IStructure(SiteCollection, MSONable):
     @property
     def density(self) -> float:
         """
-        Returns the density in units of g/cc
+        Returns the density in units of g/cm^3.
         """
         m = Mass(self.composition.weight, "amu")
         return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
@@ -2647,8 +2647,8 @@ class IStructure(SiteCollection, MSONable):
             sort (bool): Whether to sort sites. Default to False.
             merge_tol (float): If this is some positive number, sites that are within merge_tol from each other will be
                 merged. Usually 0.01 should be enough to deal with common numerical issues.
-            **kwargs: Passthrough to relevant reader. E.g., if it is CIF, the kwargs will be passed through to
-                CifParser.
+            kwargs: Passthrough to relevant reader. E.g. if the file has CIF format, the kwargs will be passed
+                through to CifParser.
 
         Returns:
             Structure.
@@ -2668,7 +2668,7 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.io.vasp import Chgcar, Vasprun
 
         fname = os.path.basename(filename)
-        with zopen(filename, "rt") as f:
+        with zopen(filename, "rt", errors="replace") as f:
             contents = f.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
@@ -3452,15 +3452,14 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 if len(indices) != 1:
                     raise ValueError("Site assignments makes sense only for single int indices!")
                 self._sites[ii] = site
+            elif isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
+                self._sites[ii].species = site  # type: ignore
             else:
-                if isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
-                    self._sites[ii].species = site  # type: ignore
-                else:
-                    self._sites[ii].species = site[0]  # type: ignore
-                    if len(site) > 1:
-                        self._sites[ii].frac_coords = site[1]  # type: ignore
-                    if len(site) > 2:
-                        self._sites[ii].properties = site[2]  # type: ignore
+                self._sites[ii].species = site[0]  # type: ignore
+                if len(site) > 1:
+                    self._sites[ii].frac_coords = site[1]  # type: ignore
+                if len(site) > 2:
+                    self._sites[ii].properties = site[2]  # type: ignore
 
     def __delitem__(self, idx: SupportsIndex | slice) -> None:
         """Deletes a site from the Structure."""
@@ -4187,15 +4186,14 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         for ii in indices:
             if isinstance(site, Site):
                 self._sites[ii] = site
+            elif isinstance(site, str) or not isinstance(site, collections.abc.Sequence):
+                self._sites[ii].species = site  # type: ignore
             else:
-                if isinstance(site, str) or not isinstance(site, collections.abc.Sequence):
-                    self._sites[ii].species = site  # type: ignore
-                else:
-                    self._sites[ii].species = site[0]  # type: ignore
-                    if len(site) > 1:
-                        self._sites[ii].coords = site[1]  # type: ignore
-                    if len(site) > 2:
-                        self._sites[ii].properties = site[2]  # type: ignore
+                self._sites[ii].species = site[0]  # type: ignore
+                if len(site) > 1:
+                    self._sites[ii].coords = site[1]  # type: ignore
+                if len(site) > 2:
+                    self._sites[ii].properties = site[2]  # type: ignore
 
     def __delitem__(self, idx: SupportsIndex | slice) -> None:
         """Deletes a site from the Structure."""

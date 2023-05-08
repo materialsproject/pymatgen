@@ -296,12 +296,11 @@ class QCOutput(MSONable):
                 if val[0] != temp_solvent[0][0]:
                     if val[0] != "for":
                         self.data["warnings"]["SMD_two_solvents"] = str(temp_solvent[0][0]) + " and " + str(val[0])
-                    else:
-                        if (
-                            "unrecognized_solvent" not in self.data["errors"]
-                            and "unrecognized_solvent" not in self.data["warnings"]
-                        ):
-                            self.data["warnings"]["questionable_SMD_parsing"] = True
+                    elif (
+                        "unrecognized_solvent" not in self.data["errors"]
+                        and "unrecognized_solvent" not in self.data["warnings"]
+                    ):
+                        self.data["warnings"]["questionable_SMD_parsing"] = True
             self.data["solvent_data"]["SMD_solvent"] = temp_solvent[0][0]
             self._read_smd_information()
         elif self.data["solvent_method"] == "ISOSVP":
@@ -1368,13 +1367,7 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = []
             if read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True).get("key") == [[]]:
                 self.data["errors"] += ["back_transform_error"]
-            elif read_pattern(
-                self.text,
-                {"key": r"pinv\(\)\: svd failed"},
-                terminate_on_match=True,
-            ).get(
-                "key"
-            ) == [[]]:
+            elif read_pattern(self.text, {"key": r"pinv\(\)\: svd failed"}, terminate_on_match=True).get("key") == [[]]:
                 self.data["errors"] += ["svd_failed"]
         else:
             real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
@@ -1568,9 +1561,8 @@ class QCOutput(MSONable):
                         if not self.data.get("completion", []):
                             if "undefined_frequency" not in self.data["errors"]:
                                 self.data["errors"] += ["undefined_frequency"]
-                        else:
-                            if "undefined_frequency" not in self.data["warnings"]:
-                                self.data["warnings"]["undefined_frequency"] = True
+                        elif "undefined_frequency" not in self.data["warnings"]:
+                            self.data["warnings"]["undefined_frequency"] = True
                     else:
                         freqs[ii] = float(entry)
             self.data["frequencies"] = freqs
@@ -2144,7 +2136,7 @@ class QCOutput(MSONable):
     def as_dict(self):
         """
         Returns:
-            MSONAble dict.
+            MSONable dict.
         """
         d = {}
         d["data"] = self.data
@@ -2668,13 +2660,13 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     Parse the perturbation energy section of NBO output.
 
     Args:
-            lines: QChem output lines.
+        lines: QChem output lines.
 
     Returns:
-            Data frame of formatted output.
+        Data frame of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     no_failures = True
     e2_dfs = []
@@ -2682,10 +2674,8 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     while no_failures:
         # 2nd order perturbation theory analysis
         try:
-            lines = jump_to_header(
-                lines,
-                "SECOND ORDER PERTURBATION THEORY ANALYSIS OF FOCK MATRIX IN NBO BASIS",
-            )
+            header_str = "SECOND ORDER PERTURBATION THEORY ANALYSIS OF FOCK MATRIX IN NBO BASIS"
+            lines = jump_to_header(lines, header_str)
         except RuntimeError:
             no_failures = False
 

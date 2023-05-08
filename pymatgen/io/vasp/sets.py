@@ -38,13 +38,13 @@ The above are recommendations. The following are UNBREAKABLE rules:
 from __future__ import annotations
 
 import abc
-import glob
 import itertools
 import os
 import re
 import shutil
 import warnings
 from copy import deepcopy
+from glob import glob
 from itertools import chain
 from pathlib import Path
 from zipfile import ZipFile
@@ -134,12 +134,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         Returns:
             VaspInput
         """
-        return VaspInput(
-            incar=self.incar,
-            kpoints=self.kpoints,
-            poscar=self.poscar,
-            potcar=self.potcar,
-        )
+        return VaspInput(incar=self.incar, kpoints=self.kpoints, poscar=self.poscar, potcar=self.potcar)
 
     def write_input(
         self,
@@ -217,7 +212,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
 
 def _load_yaml_config(fname):
-    config = loadfn(str(MODULE_DIR / (f"{fname}.yaml")))
+    config = loadfn(MODULE_DIR / (f"{fname}.yaml"))
     if "PARENT" in config:
         parent_config = _load_yaml_config(config["PARENT"])
         for k, v in parent_config.items():
@@ -340,6 +335,15 @@ class DictSet(VaspInputSet):
             validate_magmom (bool): Ensure that the missing magmom values are filled
                 in with the VASP default value of 1.0
         """
+        struct_has_Yb = any(specie.symbol == "Yb" for site in structure for specie in site.species)
+        uses_Yb_2_psp = self.CONFIG["POTCAR"]["Yb"] == "Yb_2"
+        if struct_has_Yb and uses_Yb_2_psp:
+            warnings.warn(
+                "The structure contains Ytterbium (Yb) and this InputSet uses the Yb_2 PSP.\n"
+                "Yb_2 is known to often give bad results since Yb has oxidation state 3+ in most compounds.\n"
+                "See https://github.com/materialsproject/pymatgen/issues/2968 for details.",
+                BadInputSetWarning,
+            )
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
@@ -631,10 +635,8 @@ class DictSet(VaspInputSet):
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the kpoints automatically
         if (
-            self.user_incar_settings.get("KSPACING")
-            or self._config_dict["INCAR"].get("KSPACING")
-            and self.user_kpoints_settings == {}
-        ):
+            self.user_incar_settings.get("KSPACING") or self._config_dict["INCAR"].get("KSPACING")
+        ) and self.user_kpoints_settings == {}:
             return None
 
         settings = self.user_kpoints_settings or self._config_dict.get("KPOINTS")
@@ -1142,7 +1144,7 @@ class MPStaticSet(MPRelaxSet):
         kpoints = super().kpoints
 
         # Prefer to use k-point scheme from previous run
-        # except for when lepsilon = True is specified
+        # unless lepsilon = True is specified
         if kpoints is not None and self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
             if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
                 k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
@@ -1456,7 +1458,7 @@ class MPHSEBSSet(MPHSERelaxSet):
 
         files_to_transfer = {}
         if self.copy_chgcar:
-            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
+            chgcars = sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -1682,7 +1684,7 @@ class MPNonSCFSet(MPRelaxSet):
         files_to_transfer = {}
 
         if self.copy_chgcar:
-            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
+            chgcars = sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -1831,7 +1833,7 @@ class MPSOCSet(MPStaticSet):
 
         files_to_transfer = {}
         if self.copy_chgcar:
-            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
+            chgcars = sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -2097,7 +2099,7 @@ class MVLGWSet(DictSet):
         files_to_transfer = {}
         if self.copy_wavecar:
             for fname in ("WAVECAR", "WAVEDER", "WFULL"):
-                w = sorted(glob.glob(str(Path(prev_calc_dir) / (fname + "*"))))
+                w = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
                 if w:
                     if fname == "WFULL":
                         for f in w:
@@ -2231,7 +2233,7 @@ class MVLSlabSet(MPRelaxSet):
     def as_dict(self, verbosity=2):
         """
         :param verbosity: Verbosity of dict. E.g., whether to include Structure.
-        :return: MSONAble dict
+        :return: MSONable dict
         """
         d = MSONable.as_dict(self)
         if verbosity == 1:
@@ -2793,12 +2795,11 @@ class LobsterSet(MPRelaxSet):
                 self.reciprocal_density = 310
             else:
                 self.reciprocal_density = reciprocal_density or self.user_kpoints_settings["reciprocal_density"]
+        elif not reciprocal_density:
+            # test, if this is okay
+            self.reciprocal_density = 310
         else:
-            if not reciprocal_density:
-                # test, if this is okay
-                self.reciprocal_density = 310
-            else:
-                self.reciprocal_density = reciprocal_density
+            self.reciprocal_density = reciprocal_density
 
         self._config_dict["POTCAR"].update({"W": "W_sv"})
         self.isym = isym
@@ -2849,8 +2850,8 @@ def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     :return:
     """
     path = Path(path)
-    vruns = list(glob.glob(str(path / "vasprun.xml*")))
-    outcars = list(glob.glob(str(path / "OUTCAR*")))
+    vruns = list(glob(str(path / "vasprun.xml*")))
+    outcars = list(glob(str(path / "OUTCAR*")))
 
     if len(vruns) == 0 or len(outcars) == 0:
         raise ValueError(f"Unable to get vasprun.xml/OUTCAR from prev calculation in {path}")
@@ -3229,7 +3230,7 @@ class MPAbsorptionSet(MPRelaxSet):
         files_to_transfer = {}
         if self.copy_wavecar:
             for fname in ("WAVECAR", "WAVEDER"):
-                w = sorted(glob.glob(str(Path(prev_calc_dir) / (fname + "*"))))
+                w = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
                 if w:
                     files_to_transfer[fname] = str(w[-1])
 

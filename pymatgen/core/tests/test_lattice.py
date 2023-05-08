@@ -182,38 +182,16 @@ class LatticeTestCase(PymatgenTest):
         assert not _identical(2, 3, 4, 100, 100, 100)
 
     def test_get_lll_reduced_lattice(self):
-        lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])
+        lattice = Lattice([1, 1, 1, -1, 0, 2, 3, 5, 6])
         reduced_latt = lattice.get_lll_reduced_lattice()
 
-        expected_ans = Lattice(np.array([0.0, 1.0, 0.0, 1.0, 0.0, 1.0, -2.0, 0.0, 1.0]).reshape((3, 3)))
+        expected_ans = Lattice([[0, 1, 0], [1, 0, 1], [-2, 0, 1]])
         assert round(abs(np.linalg.det(np.linalg.solve(expected_ans.matrix, reduced_latt.matrix)) - 1), 7) == 0
         self.assertArrayAlmostEqual(sorted(reduced_latt.abc), sorted(expected_ans.abc))
         assert round(abs(reduced_latt.volume - lattice.volume), 7) == 0
-        latt = [
-            7.164750,
-            2.481942,
-            0.000000,
-            -4.298850,
-            2.481942,
-            0.000000,
-            0.000000,
-            0.000000,
-            14.253000,
-        ]
+        latt = [7.164750, 2.481942, 0.000000, -4.298850, 2.481942, 0.000000, 0.000000, 0.000000, 14.253000]
         expected_ans = Lattice(
-            np.array(
-                [
-                    -4.298850,
-                    2.481942,
-                    0.000000,
-                    2.865900,
-                    4.963884,
-                    0.000000,
-                    0.000000,
-                    0.000000,
-                    14.253000,
-                ]
-            )
+            [-4.298850, 2.481942, 0.000000, 2.865900, 4.963884, 0.000000, 0.000000, 0.000000, 14.253000]
         )
         reduced_latt = Lattice(latt).get_lll_reduced_lattice()
         assert round(abs(np.linalg.det(np.linalg.solve(expected_ans.matrix, reduced_latt.matrix)) - 1), 7) == 0
@@ -481,7 +459,7 @@ class LatticeTestCase(PymatgenTest):
         for _ in range(10):
             lengths = [np.random.randint(1, 100) for i in range(3)]
             lattice = [np.random.rand(3) * lengths[i] for i in range(3)]
-            lattice = Lattice(np.array(lattice))
+            lattice = Lattice(lattice)
 
             f1 = np.random.rand(3)
             f2 = np.random.rand(3)
@@ -590,19 +568,15 @@ class LatticeTestCase(PymatgenTest):
     def test_selling_dist(self):
         # verification process described here
         # https://github.com/materialsproject/pymatgen/pull/1888#issuecomment-818072164
-        np.testing.assert_(Lattice.selling_dist(Lattice.cubic(5), Lattice.cubic(5)) == 0)
+        assert Lattice.selling_dist(Lattice.cubic(5), Lattice.cubic(5)) == 0
         hex_lattice = Lattice.hexagonal(5, 8)
         triclinic_lattice = Lattice.from_parameters(4, 10, 11, 100, 110, 80)
-        np.testing.assert_allclose(Lattice.selling_dist(hex_lattice, triclinic_lattice), 76, rtol=0.1)
-        np.testing.assert_allclose(
-            Lattice.selling_dist(Lattice.tetragonal(10, 12), Lattice.tetragonal(10.1, 11.9)),
-            3.7,
-            rtol=0.1,
+        assert Lattice.selling_dist(hex_lattice, triclinic_lattice) == pytest.approx(76, abs=0.1)
+        assert Lattice.selling_dist(Lattice.tetragonal(10, 12), Lattice.tetragonal(10.1, 11.9)) == pytest.approx(
+            3.7, abs=0.1
         )
-        np.testing.assert_allclose(
-            Lattice.selling_dist(Lattice.cubic(5), Lattice.from_parameters(8, 10, 12, 80, 90, 95)),
-            115.6,
-            rtol=0.1,
+        assert Lattice.selling_dist(Lattice.cubic(5), Lattice.from_parameters(8, 10, 12, 80, 90, 95)) == pytest.approx(
+            125.99, abs=0.1
         )
 
     def test_selling_vector(self):

@@ -84,10 +84,10 @@ class DosPlotterTest(unittest.TestCase):
             param_dict = self.get_plot_attributes(plt)
             plt_invert = self.plotter.get_plot(invert_axes=True, xlim=item["DOS_limit"], ylim=item["energy_limit"])
             param_dict_invert = self.get_plot_attributes(plt_invert)
-            self.assertEqual(item["energy_result"], param_dict["xaxis_limits"])
-            self.assertEqual(item["energy_result"], param_dict_invert["yaxis_limits"])
-            self.assertEqual(item["DOS_result"], param_dict["yaxis_limits"])
-            self.assertEqual(item["DOS_result"], param_dict_invert["xaxis_limits"])
+            assert item["energy_result"] == param_dict["xaxis_limits"]
+            assert item["energy_result"] == param_dict_invert["yaxis_limits"]
+            assert item["DOS_result"] == param_dict["yaxis_limits"]
+            assert item["DOS_result"] == param_dict_invert["xaxis_limits"]
 
     @staticmethod
     def get_plot_attributes(plt):

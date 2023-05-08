@@ -120,27 +120,26 @@ class StructureConnectivity(MSONable):
                     if np.allclose(data1["delta"], np.zeros(3)) and nb_index_unitcell == ineighb1:
                         exists = True
                         break
+            elif isite == nb_index_unitcell:
+                for isite1, ineighb1, data1 in existing_edges:
+                    if isite1 == ineighb1 and (
+                        np.allclose(data1["delta"], nb_image_cell) or np.allclose(data1["delta"], -nb_image_cell)
+                    ):
+                        exists = True
+                        break
             else:
-                if isite == nb_index_unitcell:
-                    for isite1, ineighb1, data1 in existing_edges:
-                        if isite1 == ineighb1 and (
-                            np.allclose(data1["delta"], nb_image_cell) or np.allclose(data1["delta"], -nb_image_cell)
-                        ):
-                            exists = True
-                            break
-                else:
-                    for _, ineighb1, data1 in existing_edges:
-                        if nb_index_unitcell == ineighb1:
-                            if data1["start"] == isite:
-                                if np.allclose(data1["delta"], nb_image_cell):
-                                    exists = True
-                                    break
-                            elif data1["end"] == isite:
-                                if np.allclose(data1["delta"], -nb_image_cell):
-                                    exists = True
-                                    break
-                            else:
-                                raise ValueError("SHOULD NOT HAPPEN ???")
+                for _, ineighb1, data1 in existing_edges:
+                    if nb_index_unitcell == ineighb1:
+                        if data1["start"] == isite:
+                            if np.allclose(data1["delta"], nb_image_cell):
+                                exists = True
+                                break
+                        elif data1["end"] == isite:
+                            if np.allclose(data1["delta"], -nb_image_cell):
+                                exists = True
+                                break
+                        else:
+                            raise ValueError("SHOULD NOT HAPPEN ???")
             if not exists:
                 self._graph.add_edge(
                     isite,
@@ -187,30 +186,29 @@ class StructureConnectivity(MSONable):
                         ce_this_site,
                     )
                     self._environment_subgraph.add_node(env_node)
+                elif self.light_structure_environments.structure.is_ordered:
+                    if self.light_structure_environments.structure[isite].specie.symbol in only_atoms:
+                        env_node = get_environment_node(
+                            self.light_structure_environments.structure[isite],
+                            isite,
+                            ce_this_site,
+                        )
+                        self._environment_subgraph.add_node(env_node)
                 else:
-                    if self.light_structure_environments.structure.is_ordered:
-                        if self.light_structure_environments.structure[isite].specie.symbol in only_atoms:
+                    #  TODO: add the possibility of a "constraint" on the minimum percentage
+                    #        of the atoms on the site
+                    this_site_elements = [
+                        sp.symbol for sp in self.light_structure_environments.structure[isite].species_and_occu
+                    ]
+                    for elem_symbol in this_site_elements:
+                        if elem_symbol in only_atoms:
                             env_node = get_environment_node(
                                 self.light_structure_environments.structure[isite],
                                 isite,
                                 ce_this_site,
                             )
                             self._environment_subgraph.add_node(env_node)
-                    else:
-                        #  TODO: add the possibility of a "constraint" on the minimum percentage
-                        #        of the atoms on the site
-                        this_site_elements = [
-                            sp.symbol for sp in self.light_structure_environments.structure[isite].species_and_occu
-                        ]
-                        for elem_symbol in this_site_elements:
-                            if elem_symbol in only_atoms:
-                                env_node = get_environment_node(
-                                    self.light_structure_environments.structure[isite],
-                                    isite,
-                                    ce_this_site,
-                                )
-                                self._environment_subgraph.add_node(env_node)
-                                break
+                            break
         # Find the connections between the environments
         nodes = list(self._environment_subgraph.nodes())
         for inode1, node1 in enumerate(nodes):

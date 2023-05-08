@@ -271,9 +271,9 @@ class BVAnalyzer:
 
         # make variables needed for recursion
         if structure.is_ordered:
-            n_sites = np.array([len(i) for i in equi_sites])
-            vmin = np.array([min(i) for i in valences])
-            vmax = np.array([max(i) for i in valences])
+            n_sites = np.array(list(map(len, equi_sites)))
+            vmin = np.array(list(map(min, valences)))
+            vmax = np.array(list(map(max, valences)))
 
             self._n = 0
             self._best_score = 0

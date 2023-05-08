@@ -5,8 +5,8 @@ files (log and dump).
 
 from __future__ import annotations
 
-import glob
 import re
+from glob import glob
 from io import StringIO
 
 import numpy as np
@@ -109,7 +109,7 @@ def parse_lammps_dumps(file_pattern):
         LammpsDump for each available snapshot.
 
     """
-    files = glob.glob(file_pattern)
+    files = glob(file_pattern)
     if len(files) > 1:
         pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
         files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))

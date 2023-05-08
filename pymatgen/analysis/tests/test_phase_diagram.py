@@ -321,13 +321,12 @@ class PhaseDiagramTest(unittest.TestCase):
                 assert (
                     self.pd.get_phase_separation_energy(entry) >= 0
                 ), "Unstable entries should have positive decomposition energy!"
-            else:
-                if entry.is_element:
-                    el_ref = self.pd.el_refs[entry.composition.elements[0]]
-                    e_d = entry.energy_per_atom - el_ref.energy_per_atom
-                    assert self.pd.get_phase_separation_energy(entry) == pytest.approx(e_d)
-                # NOTE the remaining materials would require explicit tests as they
-                # could be either positive or negative
+            elif entry.is_element:
+                el_ref = self.pd.el_refs[entry.composition.elements[0]]
+                e_d = entry.energy_per_atom - el_ref.energy_per_atom
+                assert self.pd.get_phase_separation_energy(entry) == pytest.approx(e_d)
+            # NOTE the remaining materials would require explicit tests as they
+            # could be either positive or negative
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
@@ -389,13 +388,14 @@ class PhaseDiagramTest(unittest.TestCase):
             ), "Stable composition should have only 1 decomposition!"
         dim = len(self.pd.elements)
         for entry in self.pd.all_entries:
-            ndecomp = len(self.pd.get_decomposition(entry.composition))
+            n_decomp = len(self.pd.get_decomposition(entry.composition))
+            assert n_decomp > 0
             assert (
-                ndecomp > 0 and ndecomp <= dim
+                n_decomp <= dim
             ), "The number of decomposition phases can at most be equal to the number of components."
 
         # Just to test decomposition for a fictitious composition
-        ansdict = {
+        ans_dict = {
             entry.composition.formula: amt for entry, amt in self.pd.get_decomposition(Composition("Li3Fe7O11")).items()
         }
         expected_ans = {
@@ -404,7 +404,7 @@ class PhaseDiagramTest(unittest.TestCase):
             "Fe6 O8": 0.33333333333333393,
         }
         for k, v in expected_ans.items():
-            assert ansdict[k] == pytest.approx(v)
+            assert ans_dict[k] == pytest.approx(v)
 
     def test_get_transition_chempots(self):
         for el in self.pd.elements:

@@ -313,6 +313,9 @@ class GaussianInput:
             # This condition allows for route cards spanning multiple lines
             elif (line == "" or line.isspace()) and route_index:
                 break
+            if route_index:
+                route += f" {line}"
+                route_index = idx
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
         ind = 2
         title = []
@@ -821,7 +824,7 @@ class GaussianOutput:
         geom_orientation = None
         opt_structures = []
 
-        with zopen(filename) as f:
+        with zopen(filename, mode="rt") as f:
             for line in f:
                 if parse_stage == 0:
                     if start_patt.search(line):
@@ -839,7 +842,8 @@ class GaussianOutput:
                             self.dieze_tag = params[3]
                             parse_stage = 1
                         else:
-                            routeline += line.strip()
+                            line = line.replace(" ", "", 1).rstrip("\n")
+                            routeline += line
                 elif parse_stage == 1:
                     if set(line.strip()) == {"-"} and self.title is None:
                         self.title = ""
@@ -1246,7 +1250,7 @@ class GaussianOutput:
         """
 
         def floatList(lst):
-            """return a list of float from a list of string"""
+            """Return a list of float from a list of string"""
             return [float(val) for val in lst]
 
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")

@@ -77,7 +77,7 @@ class DistanceCutoffFloat(float, StrategyOption):
         return flt
 
     def as_dict(self):
-        """MSONAble dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -109,7 +109,7 @@ class AngleCutoffFloat(float, StrategyOption):
         return flt
 
     def as_dict(self):
-        """MSONAble dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1300,7 +1300,7 @@ class AngleNbSetWeight(NbSetWeight):
         return self.aa == other.aa  # type: ignore
 
     def as_dict(self):
-        """MSONAble dict"""
+        """MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1350,17 +1350,12 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
                 self.fda = self.ang
             else:
                 self.fda = self.angn
+        elif self.aa == 1:
+            self.fda = self.anginvdist if self.bb == 1 else self.anginvndist
+        elif self.bb == 1:
+            self.fda = self.angninvdist
         else:
-            if self.aa == 1:
-                if self.bb == 1:
-                    self.fda = self.anginvdist
-                else:
-                    self.fda = self.anginvndist
-            else:
-                if self.bb == 1:
-                    self.fda = self.angninvdist
-                else:
-                    self.fda = self.angninvndist
+            self.fda = self.angninvndist
 
     def __eq__(self, other: object) -> bool:
         needed_attrs = ("average_type", "aa", "bb")

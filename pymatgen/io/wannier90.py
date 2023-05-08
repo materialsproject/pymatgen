@@ -185,7 +185,6 @@ class Unk:
                     and np.allclose(self.data[ib, 1], other.data[ib, 1], atol=1e-4)
                 ):
                     return False
-            else:
-                if not np.allclose(self.data[ib], other.data[ib], atol=1e-4):
-                    return False
+            elif not np.allclose(self.data[ib], other.data[ib], atol=1e-4):
+                return False
         return True

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import copy
 import os
+import unittest
 
 import pytest
 from monty.serialization import MontyDecoder
@@ -64,17 +66,17 @@ class TestInputFile:
         assert sif.structure == temp_sif.structure
 
 
-class TestInputSet:
+class TestInputSet(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
+        cls.sif2 = StructInputFile.from_file(os.path.join(test_dir, "LiFePO4.cif"))
+        cls.sif3 = StructInputFile.from_file(os.path.join(test_dir, "Li2O.cif"))
+
     def test_mapping(self):
-        sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
-        sif2 = StructInputFile.from_file(os.path.join(test_dir, "LiFePO4.cif"))
-        sif3 = StructInputFile.from_file(os.path.join(test_dir, "Li2O.cif"))
+        sif1, sif2, sif3 = self.sif1, self.sif2, self.sif3
         inp_set = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-                "cif3": sif3,
-            },
+            {"cif1": sif1, "cif2": sif2, "cif3": sif3},
             kwarg1=1,
             kwarg2="hello",
         )
@@ -109,52 +111,34 @@ class TestInputSet:
             assert contents is exp_contents
 
     def test_equality(self):
-        sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
-        sif2 = StructInputFile.from_file(os.path.join(test_dir, "LiFePO4.cif"))
-        sif3 = StructInputFile.from_file(os.path.join(test_dir, "Li2O.cif"))
+        sif1, sif2, sif3 = self.sif1, self.sif2, self.sif3
 
         inp_set = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="hello",
         )
 
         inp_set2 = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="hello",
         )
 
         inp_set3 = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-                "cif3": sif3,
-            },
+            {"cif1": sif1, "cif2": sif2, "cif3": sif3},
             kwarg1=1,
             kwarg2="hello",
         )
 
         inp_set4 = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="goodbye",
         )
 
         inp_set5 = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="hello",
             kwarg3="goodbye",
@@ -166,13 +150,9 @@ class TestInputSet:
         assert inp_set.as_dict() != inp_set5.as_dict()
 
     def test_msonable(self):
-        sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
-        sif2 = StructInputFile.from_file(os.path.join(test_dir, "Li2O.cif"))
+        sif1, sif2 = self.sif1, self.sif2
         inp_set = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="hello",
         )
@@ -189,13 +169,9 @@ class TestInputSet:
             assert contents.structure == contents2.structure
 
     def test_write(self):
-        sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
-        sif2 = StructInputFile.from_file(os.path.join(test_dir, "Li2O.cif"))
+        sif1, sif2 = self.sif1, self.sif2
         inp_set = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="hello",
         )
@@ -229,3 +205,27 @@ class TestInputSet:
             with open(os.path.join("input_dir", "file_from_strcast")) as f:
                 file_from_strcast = f.read()
                 assert file_from_strcast == "Aha\nBeh"
+
+    def test_copy(self):
+        sif1, sif2 = self.sif1, self.sif2
+
+        inp_set = InputSet(
+            {"cif1": sif1, "cif2": sif2},
+            kwarg1=1,
+            kwarg2="hello",
+        )
+        inp_set2 = copy.copy(inp_set)
+
+        assert inp_set.as_dict() == inp_set2.as_dict()
+
+    def test_deepcopy(self):
+        sif1, sif2 = self.sif1, self.sif2
+
+        inp_set = InputSet(
+            {"cif1": sif1, "cif2": sif2},
+            kwarg1=1,
+            kwarg2="hello",
+        )
+        inp_set2 = copy.deepcopy(inp_set)
+
+        assert inp_set.as_dict() == inp_set2.as_dict()

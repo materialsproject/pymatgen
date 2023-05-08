@@ -26,12 +26,12 @@ __date__ = "2/20/20"
 
 class TEMCalculatorTest(PymatgenTest):
     def test_wavelength_rel(self):
-        # Tests that the relativistic wavelength formula (for 200kv electron beam) is correct
+        # Test that the relativistic wavelength formula (for 200kv electron beam) is correct
         c = TEMCalculator()
         assert c.wavelength_rel() == pytest.approx(0.025079, rel=1e-4)
 
     def test_generate_points(self):
-        # Tests that 3d points are properly generated
+        # Test that 3d points are properly generated
         c = TEMCalculator()
         actual = c.generate_points(-1, 1)
         expected = np.array(
@@ -65,10 +65,10 @@ class TEMCalculatorTest(PymatgenTest):
                 [1, 1, 1],
             ]
         )
-        self.assertArrayEqual(expected, actual)
+        assert expected == pytest.approx(actual)
 
     def test_zone_axis_filter(self):
-        # Tests that the appropriate Laue-Zoned points are returned
+        # Test that the appropriate Laue-Zoned points are returned
         c = TEMCalculator()
         empty_points = np.asarray([])
         assert c.zone_axis_filter(empty_points) == []
@@ -78,7 +78,7 @@ class TEMCalculatorTest(PymatgenTest):
         assert c.zone_axis_filter(laue_1, 1) == [(0, 0, 1)]
 
     def test_get_interplanar_spacings(self):
-        # Tests that the appropriate interplacing spacing is returned
+        # Test that the appropriate interplacing spacing is returned
         c = TEMCalculator()
         point = [(3, 9, 0)]
         latt = Lattice.cubic(4.209)
@@ -100,7 +100,7 @@ class TEMCalculatorTest(PymatgenTest):
             assert spacings_mono[p] == pytest.approx(0.84450786041677972)
 
     def test_bragg_angles(self):
-        # Tests that the appropriate bragg angle is returned. Testing formula with values of x-ray diffraction in
+        # Test that the appropriate bragg angle is returned. Testing formula with values of x-ray diffraction in
         # materials project.
         c = TEMCalculator()
         latt = Lattice.cubic(4.209)
@@ -111,7 +111,7 @@ class TEMCalculatorTest(PymatgenTest):
         assert bragg_angles_val == pytest.approx(0.26179, rel=1e-4)
 
     def test_get_s2(self):
-        # Tests that the appropriate s2 factor is returned.
+        # Test that the appropriate s2 factor is returned.
         c = TEMCalculator()
         latt = Lattice.cubic(4.209)
         cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
@@ -231,7 +231,7 @@ class TEMCalculatorTest(PymatgenTest):
         points = c.generate_points(-2, 2)
         structure = self.get_structure("Si")
         positions = c.get_positions(structure, points)
-        self.assertArrayEqual([0, 0], positions[(0, 0, 0)])
+        assert [0, 0] == positions[(0, 0, 0)].tolist()
         # Test silicon diffraction data spot rough positions:
         # see https://www.doitpoms.ac.uk/tlplib/diffraction-patterns/printall.php
         self.assertArrayAlmostEqual([1, 0], positions[(-1, 0, 0)], 0)

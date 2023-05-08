@@ -39,12 +39,12 @@ V. Luaña, Comput. Phys. Communications 180, 157-166 (2009)
 
 from __future__ import annotations
 
-import glob
 import logging
 import os
 import subprocess
 import warnings
 from enum import Enum
+from glob import glob
 from shutil import which
 
 import numpy as np
@@ -322,7 +322,7 @@ def get_filepath(filename, warning, path, suffix):
         path: Path to search
         suffix: Suffixes to search.
     """
-    paths = glob.glob(os.path.join(path, filename + suffix + "*"))
+    paths = glob(os.path.join(path, filename + suffix + "*"))
     if not paths:
         warnings.warn(warning)
         return None

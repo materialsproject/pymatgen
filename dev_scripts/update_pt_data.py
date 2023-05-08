@@ -73,11 +73,11 @@ def parse_ionic_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
     with open("ionic_radii.csv") as f:
-        radiidata = f.read()
-    radiidata = radiidata.split("\r")
-    header = radiidata[0].split(",")
-    for i in range(1, len(radiidata)):
-        line = radiidata[i]
+        radii_data = f.read()
+    radii_data = radii_data.split("\r")
+    header = radii_data[0].split(",")
+    for idx in range(1, len(radii_data)):
+        line = radii_data[idx]
         toks = line.strip().split(",")
         suffix = ""
         name = toks[1]

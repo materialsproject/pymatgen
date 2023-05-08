@@ -32,8 +32,9 @@ select = [
   "E",   # pycodestyle
   "F",   # pyflakes
   "I",   # isort
-  "PLE", # pylint error
-  "PLW", # pylint warning
+  "PIE", # flake8-pie
+  "PL",  # pylint
+  "PT",  # flake8-pytest-style
   "Q",   # flake8-quotes
   "RUF", # Ruff-specific rules
   "SIM", # flake8-simplify
@@ -41,14 +42,13 @@ select = [
   "UP",  # pyupgrade
   "W",   # pycodestyle
   "YTT", # flake8-2020
+  "PD",  # pandas-vet
 ]
 ignore = [
-  "B018", # Found useless expression. Either assign it to a variable or remove it.
-  "B019", # functools.lru_cache on methods can lead to memory leaks
-  "B023", # Function definition does not bind loop variable
-  "B028", # No explicit stacklevel keyword argument found
-  # TODO: remove when https://github.com/charliermarsh/ruff/issues/3801 is closed
-  "B031",    # Reusing generator returned from itertools.groupby()
+  "B018",    # Found useless expression. Either assign it to a variable or remove it.
+  "B019",    # functools.lru_cache on methods can lead to memory leaks
+  "B023",    # Function definition does not bind loop variable
+  "B028",    # No explicit stacklevel keyword argument found
   "B904",    # Within an except clause, raise exceptions with ...
   "D100",    # Missing docstring in public module
   "D104",    # Missing docstring in public package
@@ -58,9 +58,17 @@ ignore = [
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
   "D415",    # First line should end with a period, question mark, or exclamation point
+  "PD002",   # pandas-use-of-inplace-argument
+  "PD011",   # pandas-use-of-dot-values
+  "PD901",   # pandas-df-variable-name
+  "PLC0414", # useless-import-alias
+  "PLC1901", # compare-to-empty-string
+  "PLR",     # pylint refactor
   "PLR2004", # Magic number
   "PLW0603", # Using the global statement to update variables is discouraged
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
+  "PT011",   # pytest-raises-too-broad
+  "PT013",   # pytest-incorrect-pytest-import
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
   "SIM115",  # Use context handler for opening files
 ]

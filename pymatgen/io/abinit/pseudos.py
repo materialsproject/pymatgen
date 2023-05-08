@@ -1817,9 +1817,8 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             if exclude:
                 if p.symbol in symbols:
                     continue
-            else:
-                if p.symbol not in symbols:
-                    continue
+            elif p.symbol not in symbols:
+                continue
 
             pseudos.append(p)
 

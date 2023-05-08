@@ -356,9 +356,8 @@ class ExcitingInput(MSONable):
                 ExcitingInput._indent(el, level + 1)
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
-        else:
-            if level and (not elem.tail or not elem.tail.strip()):
-                elem.tail = i
+        elif level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
 
     def _dicttoxml(self, paramdict_, element):
         for key, value in paramdict_.items():

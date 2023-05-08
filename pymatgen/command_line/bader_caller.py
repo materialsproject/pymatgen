@@ -14,11 +14,11 @@ Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 
 from __future__ import annotations
 
-import glob
 import os
 import shutil
 import subprocess
 import warnings
+from glob import glob
 from shutil import which
 
 import numpy as np
@@ -418,7 +418,7 @@ class BaderAnalysis:
 
         def _get_filepath(filename):
             name_pattern = filename + suffix + "*" if filename != "POTCAR" else filename + "*"
-            paths = glob.glob(os.path.join(path, name_pattern))
+            paths = glob(os.path.join(path, name_pattern))
             fpath = None
             if len(paths) >= 1:
                 # using reverse=True because, if multiple files are present,
@@ -478,7 +478,7 @@ def bader_analysis_from_path(path, suffix=""):
     """
 
     def _get_filepath(filename, warning, path=path, suffix=suffix):
-        paths = glob.glob(os.path.join(path, filename + suffix + "*"))
+        paths = glob(os.path.join(path, filename + suffix + "*"))
         if not paths:
             warnings.warn(warning)
             return None

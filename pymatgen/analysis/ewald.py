@@ -132,9 +132,9 @@ class EwaldSummation(MSONable):
         out.
         """
         total_energy_matrix = self.total_energy_matrix.copy()
-        for i in removed_indices:
-            total_energy_matrix[i, :] = 0
-            total_energy_matrix[:, i] = 0
+        for idx in removed_indices:
+            total_energy_matrix[idx, :] = 0
+            total_energy_matrix[:, idx] = 0
         return sum(sum(total_energy_matrix))
 
     def compute_sub_structure(self, sub_structure, tol: float = 1e-3):
@@ -547,11 +547,11 @@ class EwaldMinimizer:
         # Setup and checking of inputs
         self._matrix = copy(matrix)
         # Make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
-        for i in range(len(self._matrix)):
-            for j in range(i, len(self._matrix)):
-                value = (self._matrix[i, j] + self._matrix[j, i]) / 2
-                self._matrix[i, j] = value
-                self._matrix[j, i] = value
+        for ii in range(len(self._matrix)):
+            for jj in range(ii, len(self._matrix)):
+                value = (self._matrix[ii, jj] + self._matrix[jj, ii]) / 2
+                self._matrix[ii, jj] = value
+                self._matrix[jj, ii] = value
 
         # sort the m_list based on number of permutations
         self._m_list = sorted(m_list, key=lambda x: comb(len(x[2]), x[1]), reverse=True)

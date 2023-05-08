@@ -6,8 +6,9 @@ import os
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.trajectory import Trajectory
+from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import PymatgenTest
@@ -19,8 +20,25 @@ class TrajectoryTest(PymatgenTest):
         self.traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_XDATCAR"))
         self.structures = xdatcar.structures
 
+        out = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "ts.out"))
+        last_mol = out.data["molecule_from_last_geometry"]
+        species = last_mol.species
+        coords = out.data["geometries"]
+
+        self.molecules = []
+        for c in coords:
+            mol = Molecule(species, c, charge=int(last_mol.charge), spin_multiplicity=int(last_mol.spin_multiplicity))
+            self.molecules.append(mol)
+
+        self.traj_mols = Trajectory(
+            species=species,
+            coords=coords,
+            charge=int(last_mol.charge),
+            spin_multiplicity=int(last_mol.spin_multiplicity),
+        )
+
     def _check_traj_equality(self, traj_1, traj_2):
-        if not np.allclose(traj_1.lattice, traj_2.lattice):
+        if traj_1.lattice is not None and not np.allclose(traj_1.lattice, traj_2.lattice):
             return False
 
         if traj_1.species != traj_2.species:
@@ -31,17 +49,29 @@ class TrajectoryTest(PymatgenTest):
     def _get_lattice_species_and_coords(self):
         lattice = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
         species = ["Si", "Si"]
-        frac_coords = np.asarray(
+        coords = np.asarray(
             [
                 [[0, 0, 0], [0.5, 0.5, 0.5]],
                 [[0.1, 0.1, 0.1], [0.6, 0.6, 0.6]],
                 [[0.2, 0.2, 0.2], [0.7, 0.7, 0.7]],
             ]
         )
-        return lattice, species, frac_coords
+        return lattice, species, coords
+
+    def _get_species_and_coords(self):
+        species = ["C", "O"]
+        coords = np.asarray(
+            [
+                [[1.5709474478, -0.16099953, 0.0], [1.9291378639, -1.2161950538, 0.0]],
+                [[1.5688628148, -0.1548583957, 0.0], [1.9312224969, -1.2223361881, 0.0]],
+                [[1.5690858055, -0.1555153055, 0.0], [1.9309995062, -1.2216792783, 0.0]],
+            ]
+        )
+        return species, coords, 0, 1
 
     def test_single_index_slice(self):
         assert all(self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19))
+        assert all(self.traj_mols[i] == self.molecules[i] for i in range(0, len(self.molecules)))
 
     def test_slice(self):
         sliced_traj = self.traj[2:99:3]
@@ -60,12 +90,36 @@ class TrajectoryTest(PymatgenTest):
         else:
             raise AssertionError
 
+        sliced_traj = self.traj_mols[0:2]
+        sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[0:2])
+
+        if len(sliced_traj) == len(sliced_traj_from_mols):
+            assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
+        else:
+            raise AssertionError
+
+        sliced_traj = self.traj_mols[:-2]
+        sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[:-2])
+
+        if len(sliced_traj) == len(sliced_traj_from_mols):
+            assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
+        else:
+            raise AssertionError
+
     def test_list_slice(self):
         sliced_traj = self.traj[[10, 30, 70]]
         sliced_traj_from_structs = Trajectory.from_structures([self.structures[i] for i in [10, 30, 70]])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
             assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
+        else:
+            raise AssertionError
+
+        sliced_traj = self.traj_mols[[1, 3]]
+        sliced_traj_from_mols = Trajectory.from_molecules([self.molecules[i] for i in [1, 3]])
+
+        if len(sliced_traj) == len(sliced_traj_from_mols):
+            assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
         else:
             raise AssertionError
 
@@ -76,8 +130,13 @@ class TrajectoryTest(PymatgenTest):
 
         assert all(struct == self.structures[i] for i, struct in enumerate(self.traj))
 
+        self.traj_mols.to_displacements()
+        self.traj_mols.to_positions()
+
+        assert all(mol == self.molecules[i] for i, mol in enumerate(self.traj_mols))
+
     def test_site_properties(self):
-        lattice, species, frac_coords = self._get_lattice_species_and_coords()
+        lattice, species, coords = self._get_lattice_species_and_coords()
 
         props = [
             {
@@ -93,7 +152,29 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             },
         ]
-        traj = Trajectory(lattice, species, frac_coords, site_properties=props)
+        traj = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props)
+
+        # compare the overall site properties list
+        assert traj.site_properties == props
+
+        # compare the site properties after slicing
+        assert traj[0].site_properties == props[0]
+        assert traj[1:].site_properties == props[1:]
+
+        species, coords, charge, spin = self._get_species_and_coords()
+
+        props = [
+            {"test": [[True, True, True], [False, False, False]]},
+            {"test": [[False, False, False], [False, False, False]]},
+            {"test": [[True, True, True], [False, False, False]]},
+        ]
+        traj = Trajectory(
+            species=species,
+            coords=coords,
+            charge=charge,
+            spin_multiplicity=spin,
+            site_properties=props,
+        )
 
         # compare the overall site properties list
         assert traj.site_properties == props
@@ -103,11 +184,30 @@ class TrajectoryTest(PymatgenTest):
         assert traj[1:].site_properties == props[1:]
 
     def test_frame_properties(self):
-        lattice, species, frac_coords = self._get_lattice_species_and_coords()
+        lattice, species, coords = self._get_lattice_species_and_coords()
 
         props = [{"energy_per_atom": e} for e in [-3.0001, -3.0971, -3.0465]]
 
-        traj = Trajectory(lattice, species, frac_coords, frame_properties=props)
+        traj = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props)
+
+        # compare the overall site properties
+        assert traj.frame_properties == props
+
+        # compare the site properties after slicing
+        expected = props[1:]
+        assert traj[1:].frame_properties == expected
+
+        species, coords, charge, spin = self._get_species_and_coords()
+
+        props = [{"SCF_energy_in_the_final_basis_set": e} for e in [-113.3256885788, -113.3260019471, -113.326006415]]
+
+        traj = Trajectory(
+            species=species,
+            coords=coords,
+            charge=charge,
+            spin_multiplicity=spin,
+            frame_properties=props,
+        )
 
         # compare the overall site properties
         assert traj.frame_properties == props
@@ -137,11 +237,56 @@ class TrajectoryTest(PymatgenTest):
         except Exception:
             incompatible_test_success = True
 
-        assert compatible_success and incompatible_test_success
+        assert compatible_success
+        assert incompatible_test_success
+
+        traj = copy.deepcopy(self.traj_mols)
+
+        # Case of compatible trajectories
+        compatible_traj = Trajectory(
+            species=traj.species,
+            coords=[
+                [
+                    [-1.46958173, -0.47370158, -0.03391061],
+                    [-0.79757102, 0.48588802, 0.94508206],
+                    [0.50256405, 0.8947604, 0.47698504],
+                    [1.56101382, 0.13356272, 0.79931048],
+                    [1.43897567, -0.8642765, 1.56363034],
+                    [2.66882238, 0.48431336, 0.30635727],
+                    [-2.72606146, -0.81552889, 0.39696593],
+                    [3.307822, -1.01132269, 1.26654957],
+                    [-0.81092724, -1.35590014, -0.1458541],
+                    [-1.48634516, 0.02121279, -1.02465009],
+                    [-0.71212347, 0.03008471, 1.93272477],
+                    [-1.37888759, 1.40819443, 1.02143913],
+                    [-4.79241099, 0.80275103, -0.39852432],
+                    [-4.28509927, -1.03484764, 0.86348452],
+                ]
+            ],
+            charge=0,
+            spin_multiplicity=2,
+        )
+        traj.extend(compatible_traj)
+
+        assert len(traj) == 5
+        assert traj[-2] == traj[-1]
+
+        # Case of incompatible trajectories
+        species, coords, charge, spin = self._get_species_and_coords()
+
+        traj = copy.deepcopy(self.traj)
+        incompatible_traj = Trajectory(species=species, coords=coords, charge=charge, spin_multiplicity=spin)
+        incompatible_test_success = False
+        try:
+            traj.extend(incompatible_traj)
+        except Exception:
+            incompatible_test_success = True
+
+        assert incompatible_test_success
 
     def test_extend_site_props(self):
-        lattice, species, frac_coords = self._get_lattice_species_and_coords()
-        num_frames = len(frac_coords)
+        lattice, species, coords = self._get_lattice_species_and_coords()
+        num_frames = len(coords)
 
         props_1 = {
             "selective_dynamics": [[False, False, False], [False, False, False]],
@@ -166,10 +311,13 @@ class TrajectoryTest(PymatgenTest):
             },
         ]
 
-        traj_1 = Trajectory(lattice, species, frac_coords, site_properties=props_1)
-        traj_2 = Trajectory(lattice, species, frac_coords, site_properties=props_2)
-        traj_3 = Trajectory(lattice, species, frac_coords, site_properties=props_3)
-        traj_4 = Trajectory(lattice, species, frac_coords, site_properties=None)
+        traj_1 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props_1)
+
+        traj_2 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props_2)
+
+        traj_3 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=props_3)
+
+        traj_4 = Trajectory(lattice=lattice, species=species, coords=coords, site_properties=None)
 
         # const & const (both constant and the same site properties)
         traj_combined = copy.deepcopy(traj_1)
@@ -232,7 +380,7 @@ class TrajectoryTest(PymatgenTest):
         assert traj_combined.site_properties == expected_site_props
 
     def test_extend_frame_props(self):
-        lattice, species, frac_coords = self._get_lattice_species_and_coords()
+        lattice, species, coords = self._get_lattice_species_and_coords()
 
         energy_1 = [-3, -3.9, -4.1]
         energy_2 = [-4.2, -4.25, -4.3]
@@ -240,14 +388,14 @@ class TrajectoryTest(PymatgenTest):
 
         # energy only properties
         props_1 = [{"energy": e} for e in energy_1]
-        traj_1 = Trajectory(lattice, species, frac_coords, frame_properties=props_1)
+        traj_1 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props_1)
 
         # energy and pressure properties
         props_2 = [{"energy": e, "pressure": p} for e, p in zip(energy_2, pressure_2)]
-        traj_2 = Trajectory(lattice, species, frac_coords, frame_properties=props_2)
+        traj_2 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props_2)
 
         # no properties
-        traj_3 = Trajectory(lattice, species, frac_coords, frame_properties=None)
+        traj_3 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=None)
 
         # test combining two with different properties
         traj_combined = copy.deepcopy(traj_1)
@@ -258,7 +406,7 @@ class TrajectoryTest(PymatgenTest):
         # test combining two where one has properties and the other does not
         traj_combined = copy.deepcopy(traj_1)
         traj_combined.extend(traj_3)
-        expected_props = props_1 + [None] * len(frac_coords)
+        expected_props = props_1 + [None] * len(coords)
         assert traj_combined.frame_properties == expected_props
 
         # test combining two both of which have no properties
@@ -268,6 +416,7 @@ class TrajectoryTest(PymatgenTest):
 
     def test_length(self):
         assert len(self.traj) == len(self.structures)
+        assert len(self.traj_mols) == len(self.molecules)
 
     def test_displacements(self):
         poscar = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
@@ -283,7 +432,7 @@ class TrajectoryTest(PymatgenTest):
         traj = Trajectory.from_structures(structures, constant_lattice=True)
         traj.to_displacements()
 
-        assert np.allclose(traj.frac_coords, displacements)
+        assert np.allclose(traj.coords, displacements)
 
     def test_variable_lattice(self):
         structure = self.structures[0]
@@ -311,6 +460,10 @@ class TrajectoryTest(PymatgenTest):
 
     def test_to_from_dict(self):
         d = self.traj.as_dict()
+        traj = Trajectory.from_dict(d)
+        assert isinstance(traj, Trajectory)
+
+        d = self.traj_mols.as_dict()
         traj = Trajectory.from_dict(d)
         assert isinstance(traj, Trajectory)
 

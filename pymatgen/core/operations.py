@@ -427,7 +427,7 @@ class SymmOp(MSONable):
 
     def as_dict(self) -> dict[str, Any]:
         """
-        :return: MSONAble dict.
+        :return: MSONable dict.
         """
         return {
             "@module": type(self).__module__,
