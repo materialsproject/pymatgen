@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -59,6 +61,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#direct-contributions-to-pymatgen-main-distribution">Direct contributions to pymatgen main distribution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#writing-add-ons-for-pymatgen">Writing add-ons for pymatgen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#existing-add-ons-and-ecosystem-tools">Existing add-ons and ecosystem tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#coding-guidelines">Coding Guidelines</a></li>
 </ul>
 </li>
@@ -81,7 +84,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Contributing</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/contributing.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -134,8 +137,8 @@ necessary for rigorous testing of the code.</p>
 </div>
 </li>
 <li><p>Code (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Commit early and commit often. Keep your code up to date. You need to add the main
-repository to the list of your remotes. Let’s name the upstream repo as mpmaster (materialsproject master):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">remote</span> <span class="n">add</span> <span class="n">mpmaster</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">materialsproject</span><span class="o">/</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">git</span>
+repository to the list of your remotes. Let’s name the upstream repo as upstream (materialsproject master):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">remote</span> <span class="n">add</span> <span class="n">upstream</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">materialsproject</span><span class="o">/</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
 </div>
 <p>Make sure your repository is clean (no uncommitted changes) and is currently on the master branch. If not, commit or
@@ -144,7 +147,7 @@ stash any changes and switch to the master:</p>
 </pre></div>
 </div>
 <p>Then you can pull all the new commits from the main line:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">pull</span> <span class="n">mpmaster</span> <span class="n">master</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">pull</span> <span class="n">upstream</span> <span class="n">master</span>
 </pre></div>
 </div>
 <p>Remember, pull is a combination of the commands fetch and merge, so there may be merge conflicts that may need to be
@@ -191,13 +194,11 @@ under the pymatgen.analysis, pymatgen.ext and and pymatgen.io namespaces and not
 pymatgen root namespace is meant for development of broad classes of functionality. If in doubt, please consult with
 the pymatgen maintainers. The benefits of writing an add-on for pymatgen are:</p>
 <ul class="simple">
-<li><p>You control the development and distribution of the add-on. You also get full recognition of your work.</p></li>
+<li><p>You control the development and distribution of the add-on. You also get full recognition for your work.</p></li>
 <li><p>The add-on does not affect the main pymatgen distribution and end users have a choice of whether to install the
 add-on or not via <cite>pip install pymatgen-analysis-addon</cite>.</p></li>
 <li><p>Once installed, the add-on functions exactly like a part of pymatgen in that the imports are still via
 <cite>from pymatgen.analysis.addon import *</cite>.</p></li>
-<li><p>We will help your add-on gain recognition via our <a class="reference external" href="/addons">listing of pymatgen add-ons</a>. We have plans to develop
-this into a full-fledged searchable database of add-ons.</p></li>
 </ul>
 <p>The namespaces provide an important clue what kind of contributions are suitable for add-ons.</p>
 <ul class="simple">
@@ -214,6 +215,10 @@ no guarantees whatsoever on the quality or reliability of any code that is not p
 The add-on architecture therefore provides flexibility for broad expansion of scope in pymatgen functionality by the
 community by loosening up the tight control in the main repository, which is bottlenecked by the small team maintaining
 it.</p>
+</section>
+<section id="existing-add-ons-and-ecosystem-tools">
+<h2>Existing add-ons and ecosystem tools<a class="headerlink" href="#existing-add-ons-and-ecosystem-tools" title="Permalink to this heading"></a></h2>
+<p>We help add-ons gain visibility and recognition on our <a class="reference external" href="/addons">add-ons page</a>. Feel free to suggest additions to this list via <a class="reference external" href="https://github.com/materialsproject/pymatgen/edit/master/docs_rst/addons.rst">GitHub PR</a>.</p>
 </section>
 <section id="coding-guidelines">
 <h2>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this heading"></a></h2>

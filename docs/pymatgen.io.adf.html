@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -101,7 +103,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
@@ -341,6 +343,8 @@ converted to upper cases.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/adf.py#L671-L954"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A basic ADF output file parser.</p>
+<section id="attributes">
+<h2>Attributes:<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h2>
 <dl class="simple">
 <dt>is_failed<span class="classifier">bool</span></dt><dd><p>True is the ADF job is terminated without success. Otherwise False.</p>
 </dd>
@@ -369,10 +373,14 @@ of the ADF manual for more detail.</p>
 </dl>
 <p>Initialization method.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The ADF output file to parse.</p>
+<dt class="field-odd">param filename<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The ADF output file to parse.</p>
+</dd>
+<dt class="field-even">type filename<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py exception">
@@ -387,21 +395,59 @@ of the ADF manual for more detail.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdfTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'energy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ADF_RUN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_subkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_directives</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/adf.py#L432-L619"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Basic task for ADF. All settings in this class are independent of molecules.</p>
+<section id="notes">
+<h2>Notes:<a class="headerlink" href="#notes" title="Permalink to this heading"></a></h2>
 <p>Unlike other quantum chemistry packages (NWChem, Gaussian, …), ADF does
 not support calculating force/gradient.</p>
 <p>Initialization method.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>operation</strong> (<em>str</em>) – The target operation.</p></li>
-<li><p><strong>basis_set</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The basis set definitions for this task. Defaults to ‘DZ/Large’.</p></li>
-<li><p><strong>xc</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The exchange-correlation functionals. Defaults to PBE.</p></li>
-<li><p><strong>title</strong> (<em>str</em>) – The title of this ADF task.</p></li>
-<li><p><strong>units</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The units. Defaults to Angstroms/Degree.</p></li>
-<li><p><strong>geo_subkeys</strong> (<em>Sized</em>) – The subkeys for the block key ‘GEOMETRY’.</p></li>
-<li><p><strong>scf</strong> (<a class="reference internal" href="#pymatgen.io.adf.AdfKey" title="pymatgen.io.adf.AdfKey"><em>AdfKey</em></a>) – The scf options.</p></li>
-<li><p><strong>other_directives</strong> (<em>Sized</em>) – User-defined directives.</p></li>
-</ul>
+<dt class="field-odd">param operation<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The target operation.</p>
+</dd>
+<dt class="field-even">type operation<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+<dt class="field-odd">param basis_set<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The basis set definitions for this task. Defaults to ‘DZ/Large’.</p>
+</dd>
+<dt class="field-even">type basis_set<span class="colon">:</span></dt>
+<dd class="field-even"><p>AdfKey</p>
+</dd>
+<dt class="field-odd">param xc<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The exchange-correlation functionals. Defaults to PBE.</p>
+</dd>
+<dt class="field-even">type xc<span class="colon">:</span></dt>
+<dd class="field-even"><p>AdfKey</p>
+</dd>
+<dt class="field-odd">param title<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The title of this ADF task.</p>
+</dd>
+<dt class="field-even">type title<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+<dt class="field-odd">param units<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The units. Defaults to Angstroms/Degree.</p>
+</dd>
+<dt class="field-even">type units<span class="colon">:</span></dt>
+<dd class="field-even"><p>AdfKey</p>
+</dd>
+<dt class="field-odd">param geo_subkeys<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The subkeys for the block key ‘GEOMETRY’.</p>
+</dd>
+<dt class="field-even">type geo_subkeys<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sized</p>
+</dd>
+<dt class="field-odd">param scf<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The scf options.</p>
+</dd>
+<dt class="field-even">type scf<span class="colon">:</span></dt>
+<dd class="field-even"><p>AdfKey</p>
+</dd>
+<dt class="field-odd">param other_directives<span class="colon">:</span></dt>
+<dd class="field-odd"><p>User-defined directives.</p>
+</dd>
+<dt class="field-even">type other_directives<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sized</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -461,6 +507,7 @@ not support calculating force/gradient.</p>
 <span class="sig-name descname"><span class="pre">operations</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'energy':</span> <span class="pre">'Evaluate</span> <span class="pre">the</span> <span class="pre">single</span> <span class="pre">point</span> <span class="pre">energy.',</span> <span class="pre">'freq':</span> <span class="pre">'Same</span> <span class="pre">as</span> <span class="pre">frequencies.',</span> <span class="pre">'frequencies':</span> <span class="pre">'Compute</span> <span class="pre">second</span> <span class="pre">derivatives</span> <span class="pre">and</span> <span class="pre">print</span> <span class="pre">out</span> <span class="pre">an</span> <span class="pre">analysis</span> <span class="pre">of</span> <span class="pre">molecular</span> <span class="pre">vibrations.',</span> <span class="pre">'numerical_frequencies':</span> <span class="pre">'Compute</span> <span class="pre">molecular</span> <span class="pre">frequencies</span> <span class="pre">using</span> <span class="pre">numerical</span> <span class="pre">method.',</span> <span class="pre">'optimize':</span> <span class="pre">'Minimize</span> <span class="pre">the</span> <span class="pre">energy</span> <span class="pre">by</span> <span class="pre">varying</span> <span class="pre">the</span> <span class="pre">molecular</span> <span class="pre">structure.'}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/io/adf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.operations" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+</section>
 </dd></dl>
 
 <dl class="py function">

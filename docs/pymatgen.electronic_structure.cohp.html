@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -101,7 +103,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
@@ -349,7 +351,7 @@ label_list)</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.cohp.IcohpCollection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IcohpCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_atom1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_atom2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_translation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_icohp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_spin_polarized</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">are_coops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">are_cobis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../electronic_structure/cohp.py#L1029-L1279"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IcohpCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_atom1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_atom2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_translation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_icohp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_spin_polarized</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">are_coops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">are_cobis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../electronic_structure/cohp.py#L1029-L1271"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Class to store IcohpValues</p>
 <dl class="py attribute">
@@ -414,7 +416,7 @@ indicate if the Lobster calculation was done spin polarized or not</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.cohp.IcohpCollection.extremum_icohpvalue">
-<span class="sig-name descname"><span class="pre">extremum_icohpvalue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summed_spin_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Spin.up</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../electronic_structure/cohp.py#L1222-L1258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.extremum_icohpvalue" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">extremum_icohpvalue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summed_spin_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Spin.up</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../electronic_structure/cohp.py#L1221-L1250"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.extremum_icohpvalue" title="Permalink to this definition"></a></dt>
 <dd><p>get ICOHP/ICOOP of strongest bond
 :param summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
 :param spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned</p>
@@ -459,7 +461,7 @@ ICOHPLIST/ICOOPLIST)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.cohp.IcohpCollection.get_icohp_dict_of_site">
-<span class="sig-name descname"><span class="pre">get_icohp_dict_of_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minsummedicohp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsummedicohp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minbondlength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxbondlength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_bonds_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../electronic_structure/cohp.py#L1168-L1220"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.get_icohp_dict_of_site" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_icohp_dict_of_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minsummedicohp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsummedicohp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minbondlength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxbondlength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_bonds_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../electronic_structure/cohp.py#L1168-L1219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.IcohpCollection.get_icohp_dict_of_site" title="Permalink to this definition"></a></dt>
 <dd><p>get a dict of IcohpValue for a certain site (indicated by integer)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -628,7 +630,7 @@ in ICOHPLIST/ICOOPLIST)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.cohp.get_integrated_cohp_in_energy_range">
-<span class="sig-name descname"><span class="pre">get_integrated_cohp_in_energy_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cohp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_E_Fermi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summed_spin_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../electronic_structure/cohp.py#L1282-L1369"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.get_integrated_cohp_in_energy_range" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_integrated_cohp_in_energy_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cohp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbital</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_E_Fermi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summed_spin_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../electronic_structure/cohp.py#L1274-L1361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.get_integrated_cohp_in_energy_range" title="Permalink to this definition"></a></dt>
 <dd><p>Method that can integrate completecohp objects which include data on integrated COHPs
 :param cohp: CompleteCOHP object
 :param label: label of the COHP data

@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -101,7 +103,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
@@ -239,8 +241,8 @@ sites. Helper method for the find_adsorption_sites algorithm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>site_list</strong> (<em>list of sites</em>) – list of sites</p></li>
-<li><p><strong>indices</strong> (<em>list of ints</em>) – list of ints from which to select
+<li><p><strong>site_list</strong> (<em>list</em><em> of </em><em>sites</em>) – list of sites</p></li>
+<li><p><strong>indices</strong> (<em>list</em><em> of </em><em>ints</em>) – list of ints from which to select
 sites from site list</p></li>
 <li><p><strong>cartesian</strong> (<em>bool</em>) – whether to get average fractional or
 Cartesian coordinate</p></li>
@@ -405,13 +407,13 @@ by constructing supercell of surface sites.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.subsurface_sites">
 <span class="sig-name descname"><span class="pre">subsurface_sites</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../analysis/adsorption.py#L213-L215"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.subsurface_sites" title="Permalink to this definition"></a></dt>
-<dd><p>convenience method to return list of subsurface sites.</p>
+<dd><p>Convenience method to return list of subsurface sites.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.surface_sites">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">surface_sites</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/analysis/adsorption.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.surface_sites" title="Permalink to this definition"></a></dt>
-<dd><p>convenience method to return a list of surface sites.</p>
+<dd><p>Convenience method to return a list of surface sites.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -470,13 +472,13 @@ a fraction of the unit cell limits</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.put_coord_inside">
 <span class="sig-name descname"><span class="pre">put_coord_inside</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cart_coordinate</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../analysis/adsorption.py#L609-L612"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.put_coord_inside" title="Permalink to this definition"></a></dt>
-<dd><p>converts a Cartesian coordinate such that it is inside the unit cell.</p>
+<dd><p>Converts a Cartesian coordinate such that it is inside the unit cell.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.adsorption.reorient_z">
 <span class="sig-name descname"><span class="pre">reorient_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../analysis/adsorption.py#L615-L622"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.reorient_z" title="Permalink to this definition"></a></dt>
-<dd><p>reorients a structure such that the z axis is concurrent with the normal
+<dd><p>Reorients a structure such that the z axis is concurrent with the normal
 to the A-B plane.</p>
 </dd></dl>
 

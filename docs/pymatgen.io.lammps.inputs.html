@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -101,7 +103,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
@@ -143,12 +145,14 @@ stages = [</p>
 <div><p>{“stage_name”: “Stage 1”, “commands”: [(cmd1, args1), (cmd2, args2)]},
 {“stage_name”: “Stage 2”, “commands”: [(cmd3, args3)]}</p>
 </div></blockquote>
+<section id="id3">
+<h2>]<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
 <p>where cmd’s are the LAMMPS command names (e.g., “units”, or “pair_coeff”)
 and the args are the corresponding arguments.
 “Stage 1” and “Stage 2” are examples of stage names.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stages</strong> – list of LAMMPS input settings.</p>
+<dt class="field-odd">param stages<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of LAMMPS input settings.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -160,14 +164,16 @@ is avoided here to avoid mistakes (e.g., the commands are added to the wrong sta
 <p class="rubric">Example</p>
 <p>In order to add the command <code class="docutils literal notranslate"><span class="pre">pair_coeff</span> <span class="pre">1</span> <span class="pre">1</span> <span class="pre">morse</span> <span class="pre">0.0580</span> <span class="pre">3.987</span> <span class="pre">3.404</span></code>
 to the stage “Definition of the potential”, simply use
-<a href="#id3"><span class="problematic" id="id4">``</span></a>`
+<a href="#id4"><span class="problematic" id="id5">``</span></a>`
 your_input_file.add_commands(</p>
 <blockquote>
 <div><p>stage_name=”Definition of the potential”,
 commands=”pair_coeff 1 1 morse 0.0580 3.987 3.404”</p>
 </div></blockquote>
+<section id="id6">
+<h3>)<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
 <p>To add multiple commands, use a dict or a list, e.g.,
-<a href="#id5"><span class="problematic" id="id6">``</span></a>`
+<a href="#id7"><span class="problematic" id="id8">``</span></a>`
 your_input_file.add_commands(</p>
 <blockquote>
 <div><p>stage_name=”Definition of the potential”,
@@ -179,14 +185,24 @@ your_input_file.add_commands(</p>
 <div><p>stage_name=”Definition of the potential”,
 commands={“pair_coeff”: “1 1 morse 0.0580 3.987 3.404”, “units”: “atomic”}</p>
 </div></blockquote>
+</section>
+<section id="id9">
+<h3>)<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>stage_name</strong> (<em>str</em>) – name of the stage to which the command should be added.</p></li>
-<li><p><strong>commands</strong> (<em>str</em><em> or </em><em>list</em><em> or </em><em>dict</em>) – LAMMPS command, with or without the arguments.</p></li>
-</ul>
+<dt class="field-odd">param stage_name<span class="colon">:</span></dt>
+<dd class="field-odd"><p>name of the stage to which the command should be added.</p>
+</dd>
+<dt class="field-even">type stage_name<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+<dt class="field-odd">param commands<span class="colon">:</span></dt>
+<dd class="field-odd"><p>LAMMPS command, with or without the arguments.</p>
+</dd>
+<dt class="field-even">type commands<span class="colon">:</span></dt>
+<dd class="field-even"><p>str or list or dict</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py method">
@@ -196,12 +212,17 @@ commands={“pair_coeff”: “1 1 morse 0.0580 3.987 3.404”, “units”: “
 from a stage_name and commands. Both ways are mutually exclusive.</p>
 <p class="rubric">Examples</p>
 <p>1) In order to add a stage defining the force field to be used, you can use:
-<a href="#id7"><span class="problematic" id="id8">``</span></a>`
+<a href="#id10"><span class="problematic" id="id11">``</span></a>`
 your_input_file.add_stage(</p>
 <blockquote>
 <div><p>commands=[“pair_coeff 1 1 morse 0.0580 3.987 3.404”, “pair_coeff 1 4 morse 0.0408 1.399 3.204”],
 stage_name=”Definition of the force field”</p>
 </div></blockquote>
+<section id="id12">
+<h3>)<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+</section>
+<section id="or">
+<h3>or<a class="headerlink" href="#or" title="Permalink to this heading"></a></h3>
 <dl>
 <dt>your_input_file.add_stage(</dt><dd><dl>
 <dt>{</dt><dd><p>“stage_name”: “Definition of the force field”,
@@ -216,8 +237,11 @@ stage_name=”Definition of the force field”</p>
 <p>}</p>
 </dd>
 </dl>
+</section>
+<section id="id13">
+<h3>)<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
 <p>2) Another stage could consist in an energy minimization. In that case, the commands could look like
-<a href="#id9"><span class="problematic" id="id10">``</span></a>`
+<a href="#id14"><span class="problematic" id="id15">``</span></a>`
 commands = [</p>
 <blockquote>
 <div><p>“thermo 1”,
@@ -228,27 +252,47 @@ commands = [</p>
 “minimize 1.0e-16 1.0e-16 5000 10000”,
 “write_data run.data”</p>
 </div></blockquote>
+</section>
+<section id="id16">
+<h3>]<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
 <p>or a dictionary such as <cite>{“thermo”: 1, …}</cite>, or a string with a single command (e.g., “units atomic”).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>stage</strong> (<em>dict</em>) – if provided, this is the stage that will be added to the LammpsInputFile.stages</p></li>
-<li><p><strong>commands</strong> (<em>str</em><em> or </em><em>list</em><em> or </em><em>dict</em>) – if provided, these are the LAMMPS command(s)
+<dt class="field-odd">param stage<span class="colon">:</span></dt>
+<dd class="field-odd"><p>if provided, this is the stage that will be added to the LammpsInputFile.stages</p>
+</dd>
+<dt class="field-even">type stage<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+<dt class="field-odd">param commands<span class="colon">:</span></dt>
+<dd class="field-odd"><p>if provided, these are the LAMMPS command(s)
 that will be included in the stage to add.
 Can pass a list of LAMMPS commands with their arguments.
 Also accepts a dictionary of LAMMPS commands and
 corresponding arguments as key, value pairs.
 A single string can also be passed (single command together with its arguments).
-Not used in case a whole stage is given.</p></li>
-<li><p><strong>stage_name</strong> (<em>str</em>) – If a stage name is mentioned, the commands are added
+Not used in case a whole stage is given.</p>
+</dd>
+<dt class="field-even">type commands<span class="colon">:</span></dt>
+<dd class="field-even"><p>str or list or dict</p>
+</dd>
+<dt class="field-odd">param stage_name<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If a stage name is mentioned, the commands are added
 under that stage block, else the new stage is named from numbering.
 If given, stage_name cannot be one of the already present stage names.
-Not used in case a whole stage is given.</p></li>
-<li><p><strong>after_stage</strong> (<em>str</em>) – Name of the stage after which this stage should be added.
-If None, the stage is added at the end of the LammpsInputFile.</p></li>
-</ul>
+Not used in case a whole stage is given.</p>
+</dd>
+<dt class="field-even">type stage_name<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+<dt class="field-odd">param after_stage<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Name of the stage after which this stage should be added.
+If None, the stage is added at the end of the LammpsInputFile.</p>
+</dd>
+<dt class="field-even">type after_stage<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py method">
@@ -481,6 +525,7 @@ If False, a single block is assumed.</p></li>
 </dl>
 </dd></dl>
 
+</section>
 </dd></dl>
 
 <dl class="py class">
@@ -530,7 +575,7 @@ placeholders.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.inputs.LammpsRun.template_dir">
-<span class="sig-name descname"><span class="pre">template_dir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/shyue/repos/pymatgen/pymatgen/io/lammps/templates'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/io/lammps/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.template_dir" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">template_dir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/janosh/dev/pmg/pymatgen/io/lammps/templates'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/io/lammps/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.template_dir" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -101,7 +103,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -122,7 +124,7 @@ boundary conditions or otherwise. Many of these are heavily vectorized in
 numpy for performance.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.util.coord.Simplex">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Simplex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L367-L503"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Simplex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L356-L486"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>A generalized simplex object. See <a class="reference external" href="http://en.wikipedia.org/wiki/Simplex">http://en.wikipedia.org/wiki/Simplex</a>.</p>
 <p>Initializes a Simplex from vertex coordinates.</p>
@@ -134,7 +136,7 @@ numpy for performance.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.coord.Simplex.bary_coords">
-<span class="sig-name descname"><span class="pre">bary_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L403-L414"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.bary_coords" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">bary_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L392-L403"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.bary_coords" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>point</em>) – Point coordinates.</p>
@@ -153,7 +155,7 @@ numpy for performance.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.coord.Simplex.in_simplex">
-<span class="sig-name descname"><span class="pre">in_simplex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L429-L445"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.in_simplex" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">in_simplex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L418-L434"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.in_simplex" title="Permalink to this definition"></a></dt>
 <dd><p>Checks if a point is in the simplex using the standard barycentric
 coordinate system algorithm.</p>
 <p>Taking an arbitrary vertex as an origin, we compute the basis for the
@@ -174,7 +176,7 @@ is in the facet.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.coord.Simplex.line_intersection">
-<span class="sig-name descname"><span class="pre">line_intersection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L447-L476"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.line_intersection" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">line_intersection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L436-L465"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.line_intersection" title="Permalink to this definition"></a></dt>
 <dd><p>Computes the intersection points of a line with a simplex
 :param point1: Points that determine the line
 :type point1: [float]
@@ -189,7 +191,7 @@ is in the facet.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.coord.Simplex.point_from_bary_coords">
-<span class="sig-name descname"><span class="pre">point_from_bary_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bary_coords</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L416-L427"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.point_from_bary_coords" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">point_from_bary_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bary_coords</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L405-L416"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.point_from_bary_coords" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>bary_coords</em>) – Barycentric coordinates</p>
@@ -228,7 +230,7 @@ coords1[i] and coords2[j] is distances[i,j]</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.coord.barycentric_coords">
-<span class="sig-name descname"><span class="pre">barycentric_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simplex</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L323-L341"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.barycentric_coords" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">barycentric_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simplex</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L312-L330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.barycentric_coords" title="Permalink to this definition"></a></dt>
 <dd><p>Converts a list of coordinates to barycentric coordinates, given a
 simplex with d+1 points. Only works for d &gt;= 2.</p>
 <dl class="field-list simple">
@@ -327,7 +329,7 @@ axis of the lattice.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.coord.get_angle">
-<span class="sig-name descname"><span class="pre">get_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'degrees'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L344-L364"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.get_angle" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'degrees'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L333-L353"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.get_angle" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the angle between two vectors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -445,7 +447,7 @@ axis of the lattice.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.coord.lattice_points_in_supercell">
-<span class="sig-name descname"><span class="pre">lattice_points_in_supercell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supercell_matrix</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L280-L320"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.lattice_points_in_supercell" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">lattice_points_in_supercell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">supercell_matrix</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../util/coord.py#L280-L309"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.lattice_points_in_supercell" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the list of points on the original lattice contained in the
 supercell in fractional coordinates (with the supercell basis).
 e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]]</p>

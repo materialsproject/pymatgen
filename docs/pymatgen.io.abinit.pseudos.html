@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -101,7 +103,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
@@ -319,7 +321,7 @@ Base classes should provide a concrete implementation that computes this value.<
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.pseudos.PseudoTable">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PseudoTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pseudos</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1559-L1921"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PseudoTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pseudos</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1559-L1920"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Define the pseudopotentials from the element table.
 Individidual elements are accessed by name, symbol or atomic number.</p>
@@ -400,7 +402,7 @@ we try to open all files in top</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.pseudos.PseudoTable.get_pseudos_for_structure">
-<span class="sig-name descname"><span class="pre">get_pseudos_for_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1830-L1841"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.get_pseudos_for_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_pseudos_for_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1829-L1840"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.get_pseudos_for_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Return the list of <a class="reference internal" href="#pymatgen.io.abinit.pseudos.Pseudo" title="pymatgen.io.abinit.pseudos.Pseudo"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pseudo</span></code></a> objects to be used for this <code class="xref py py-class docutils literal notranslate"><span class="pre">Structure</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -423,7 +425,7 @@ we try to open all files in top</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.pseudos.PseudoTable.print_table">
-<span class="sig-name descname"><span class="pre">print_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream=&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_function=None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1843-L1854"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.print_table" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">print_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream=&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_function=None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1842-L1853"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.print_table" title="Permalink to this definition"></a></dt>
 <dd><p>A pretty ASCII printer for the periodic table, based on some filter_function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -461,14 +463,14 @@ if multiple occurrences are found. Use allow_multi to prevent this.</p></li>
 <dd><p>Return the pseudos with the given chemical symbols.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError if one of the symbols is not found</strong><strong> or </strong><strong>multiple occurrences are present.</strong> – </p>
+<dd class="field-odd"><p><strong>ValueError if one</strong><strong> of </strong><strong>the symbols is not found</strong><strong> or </strong><strong>multiple occurrences are present.</strong> – </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.pseudos.PseudoTable.select">
-<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="pymatgen.io.abinit.pseudos.PseudoTable"><span class="pre">PseudoTable</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1891-L1901"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.select" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="pymatgen.io.abinit.pseudos.PseudoTable"><span class="pre">PseudoTable</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1890-L1900"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.select" title="Permalink to this definition"></a></dt>
 <dd><p>Select only those pseudopotentials for which condition is True.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -485,20 +487,20 @@ if multiple occurrences are found. Use allow_multi to prevent this.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.pseudos.PseudoTable.select_family">
-<span class="sig-name descname"><span class="pre">select_family</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">family</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1916-L1921"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.select_family" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">select_family</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">family</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1915-L1920"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.select_family" title="Permalink to this definition"></a></dt>
 <dd><p>Return PseudoTable with element belonging to the specified family, e.g. family=”alkaline”</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.pseudos.PseudoTable.select_rows">
-<span class="sig-name descname"><span class="pre">select_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1907-L1914"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.select_rows" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">select_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1906-L1913"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.select_rows" title="Permalink to this definition"></a></dt>
 <dd><p>Return new class:<cite>PseudoTable</cite> object with pseudos in the given rows of the periodic table.
 rows can be either a int or a list of integers.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.pseudos.PseudoTable.select_symbols">
-<span class="sig-name descname"><span class="pre">select_symbols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ret_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1797-L1828"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.select_symbols" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">select_symbols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ret_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1797-L1827"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.select_symbols" title="Permalink to this definition"></a></dt>
 <dd><p>Return a <a class="reference internal" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="pymatgen.io.abinit.pseudos.PseudoTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">PseudoTable</span></code></a> with the pseudopotentials with the given list of chemical symbols.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -513,13 +515,13 @@ Prepend the symbol string with “-”, to exclude pseudos.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.pseudos.PseudoTable.sort_by_z">
-<span class="sig-name descname"><span class="pre">sort_by_z</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1887-L1889"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.sort_by_z" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sort_by_z</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1886-L1888"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.sort_by_z" title="Permalink to this definition"></a></dt>
 <dd><p>Return a new <a class="reference internal" href="#pymatgen.io.abinit.pseudos.PseudoTable" title="pymatgen.io.abinit.pseudos.PseudoTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">PseudoTable</span></code></a> with pseudos sorted by Z</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.pseudos.PseudoTable.sorted">
-<span class="sig-name descname"><span class="pre">sorted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1869-L1885"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.sorted" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sorted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1868-L1884"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.sorted" title="Permalink to this definition"></a></dt>
 <dd><p>Sort the table according to the value of attribute attrname.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -533,13 +535,13 @@ Prepend the symbol string with “-”, to exclude pseudos.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.pseudos.PseudoTable.to_table">
-<span class="sig-name descname"><span class="pre">to_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1856-L1867"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.to_table" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1855-L1866"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.to_table" title="Permalink to this definition"></a></dt>
 <dd><p>Return string with data in tabular form.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.abinit.pseudos.PseudoTable.with_dojo_report">
-<span class="sig-name descname"><span class="pre">with_dojo_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1903-L1905"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.with_dojo_report" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">with_dojo_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/core/../io/abinit/pseudos.py#L1902-L1904"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.pseudos.PseudoTable.with_dojo_report" title="Permalink to this definition"></a></dt>
 <dd><p>Select pseudos containing the DOJO_REPORT section. Return new class:<cite>PseudoTable</cite> object.</p>
 </dd></dl>
 

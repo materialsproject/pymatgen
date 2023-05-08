@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.3.23
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -101,7 +103,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
@@ -184,7 +186,7 @@ only if you are using overwrite_inputs to add a $van_der_waals section to the in
 In ‘atomic’ mode (default), dict keys represent the atomic number associated with each
 radius (e.g., ‘12’ = carbon). In ‘sequential’ mode, dict keys represent the sequential
 position of a single specific atom in the input structure.</p></li>
-<li><p><strong>cdft_constraints</strong> (<em>list of lists of dicts</em>) – <p>A list of lists of dictionaries, where each dictionary represents a charge
+<li><p><strong>cdft_constraints</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>dicts</em>) – <p>A list of lists of dictionaries, where each dictionary represents a charge
 constraint in the cdft section of the QChem input file.</p>
 <p>Each entry in the main list represents one state (allowing for multi-configuration
 calculations using constrained density functional theory - configuration interaction
@@ -352,7 +354,7 @@ only if you are using overwrite_inputs to add a $van_der_waals section to the in
 In ‘atomic’ mode (default), dict keys represent the atomic number associated with each
 radius (e.g., ‘12’ = carbon). In ‘sequential’ mode, dict keys represent the sequential
 position of a single specific atom in the input structure.</p></li>
-<li><p><strong>cdft_constraints</strong> (<em>list of lists of dicts</em>) – <p>A list of lists of dictionaries, where each dictionary represents a charge
+<li><p><strong>cdft_constraints</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>dicts</em>) – <p>A list of lists of dictionaries, where each dictionary represents a charge
 constraint in the cdft section of the QChem input file.</p>
 <p>Each entry in the main list represents one state (allowing for multi-configuration
 calculations using constrained density functional theory - configuration interaction
@@ -530,7 +532,7 @@ only if you are using overwrite_inputs to add a $van_der_waals section to the in
 In ‘atomic’ mode (default), dict keys represent the atomic number associated with each
 radius (e.g., ‘12’ = carbon). In ‘sequential’ mode, dict keys represent the sequential
 position of a single specific atom in the input structure.</p></li>
-<li><p><strong>cdft_constraints</strong> (<em>list of lists of dicts</em>) – <p>A list of lists of dictionaries, where each dictionary represents a charge
+<li><p><strong>cdft_constraints</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>dicts</em>) – <p>A list of lists of dictionaries, where each dictionary represents a charge
 constraint in the cdft section of the QChem input file.</p>
 <p>Each entry in the main list represents one state (allowing for multi-configuration
 calculations using constrained density functional theory - configuration interaction
@@ -918,7 +920,7 @@ cdft_constraints=[</p>
 <p>]</p>
 </p></li>
 <li><p><strong>cdft_constraints</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>dict</em><em>]</em><em>]</em>) – A list of lists of dictionaries, where each</p></li>
-<li><p><strong>almo_coupling_states</strong> (<em>list of lists of int 2-tuples</em>) – <p>A list of lists of int 2-tuples used for calculations of diabatization and state
+<li><p><strong>almo_coupling_states</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>int 2-tuples</em>) – <p>A list of lists of int 2-tuples used for calculations of diabatization and state
 coupling calculations relying on the absolutely localized molecular orbitals (ALMO)
 methodology. Each entry in the main list represents a single state (two states are
 included in an ALMO calculation). Within a single state, each 2-tuple represents the
@@ -1044,7 +1046,7 @@ electronegative halogenicity”
 Refer to the QChem manual for further details.</p></li>
 <li><p><strong>max_scf_cycles</strong> (<em>int</em>) – Maximum number of SCF iterations. (Default: 100)</p></li>
 <li><p><strong>plot_cubes</strong> (<em>bool</em>) – Whether to write CUBE files of the electron density. (Default: False)</p></li>
-<li><p><strong>cdft_constraints</strong> (<em>list of lists of dicts</em>) – <p>A list of lists of dictionaries, where each dictionary represents a charge
+<li><p><strong>cdft_constraints</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>dicts</em>) – <p>A list of lists of dictionaries, where each dictionary represents a charge
 constraint in the cdft section of the QChem input file.</p>
 <p>Each entry in the main list represents one state (allowing for multi-configuration
 calculations using constrained density functional theory - configuration interaction
@@ -1130,7 +1132,7 @@ cdft_constraints=[</p>
 </div></blockquote>
 <p>]</p>
 </p></li>
-<li><p><strong>almo_coupling_states</strong> (<em>list of lists of int 2-tuples</em>) – <p>A list of lists of int 2-tuples used for calculations of diabatization and state
+<li><p><strong>almo_coupling_states</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>int 2-tuples</em>) – <p>A list of lists of int 2-tuples used for calculations of diabatization and state
 coupling calculations relying on the absolutely localized molecular orbitals (ALMO)
 methodology. Each entry in the main list represents a single state (two states are
 included in an ALMO calculation). Within a single state, each 2-tuple represents the
