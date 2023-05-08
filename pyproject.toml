@@ -1,9 +1,9 @@
 [build-system]
 requires = [
   # pin NumPy version used in the build
+  "Cython>=0.29.23",
   "oldest-supported-numpy",
   "setuptools>=65.0.0",
-  "Cython>=0.29.23",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -29,9 +29,10 @@ select = [
   "B",   # flake8-bugbear
   "C40", # flake8-comprehensions
   "D",   # pydocstyle
-  "E",   # pycodestyle
+  "E",   # pycodestyle error
   "F",   # pyflakes
   "I",   # isort
+  "PD",  # pandas-vet
   "PIE", # flake8-pie
   "PL",  # pylint
   "PT",  # flake8-pytest-style
@@ -40,9 +41,8 @@ select = [
   "SIM", # flake8-simplify
   "TID", # tidy imports
   "UP",  # pyupgrade
-  "W",   # pycodestyle
+  "W",   # pycodestyle warning
   "YTT", # flake8-2020
-  "PD",  # pandas-vet
 ]
 ignore = [
   "B018",    # Found useless expression. Either assign it to a variable or remove it.
@@ -89,15 +89,15 @@ relative_files = true
 
 [tool.coverage.report]
 exclude_lines = [
-  "pragma: no cover",
+  "@deprecated",
   "def __repr__",
-  "if self.debug:",
-  "if settings.DEBUG",
-  "raise AssertionError",
-  "raise NotImplementedError",
   "if 0:",
   "if __name__ == .__main__.:",
-  "@deprecated",
+  "if self.debug:",
+  "if settings.DEBUG",
+  "pragma: no cover",
+  "raise AssertionError",
+  "raise NotImplementedError",
   "show_plot",
 ]
 
@@ -108,7 +108,7 @@ explicit_package_bases = true
 no_implicit_optional = false
 
 [[tool.mypy.overrides]]
-module = ["tabulate.*", "requests.*"]
+module = ["requests.*", "tabulate.*"]
 ignore_missing_imports = true
 
 [tool.codespell]
