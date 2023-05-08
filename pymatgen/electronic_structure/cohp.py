@@ -35,7 +35,9 @@ class Cohp(MSONable):
     Basic COHP object.
     """
 
-    def __init__(self, efermi, energies, cohp, are_coops=False, are_cobis=False, are_multicenter_cobis=False, icohp=None):
+    def __init__(
+        self, efermi, energies, cohp, are_coops=False, are_cobis=False, are_multicenter_cobis=False, icohp=None
+    ):
         """
         Args:
             are_coops: Indicates whether this object describes COOPs.
@@ -48,7 +50,7 @@ class Cohp(MSONable):
         """
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        self.are_multicenter_cobis=are_multicenter_cobis
+        self.are_multicenter_cobis = are_multicenter_cobis
         self.efermi = efermi
         self.energies = np.array(energies)
         self.cohp = cohp
@@ -202,7 +204,7 @@ class Cohp(MSONable):
             icohp=icohp,
             are_coops=d["are_coops"],
             are_cobis=are_cobis,
-            are_multicenter_cobis=are_multicenter_cobis
+            are_multicenter_cobis=are_multicenter_cobis,
         )
 
 
@@ -289,7 +291,7 @@ class CompleteCohp(Cohp):
         self.structure = structure
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        self.are_multicenter_cobis= are_multicenter_cobis
+        self.are_multicenter_cobis = are_multicenter_cobis
         self.all_cohps = cohp_dict
         self.orb_res_cohp = orb_res_cohp
         if bonds is None:
@@ -586,7 +588,7 @@ class CompleteCohp(Cohp):
         structure = Structure.from_dict(d["structure"])
         are_cobis = False if "are_cobis" not in d else d["are_cobis"]
         are_multicenter_cobis = False if "are_multicenter_cobis" not in d else d["are_multicener_cobis"]
-        are_coops =d["are_coops"]
+        are_coops = d["are_coops"]
         if "bonds" in d:
             bonds = {
                 bond: {
@@ -604,7 +606,15 @@ class CompleteCohp(Cohp):
             except KeyError:
                 icohp = None
             if label == "average":
-                avg_cohp = Cohp(efermi, energies, cohp, icohp=icohp, are_coops=are_coops,are_cobis=are_cobis,are_multicenter_cobis=are_multicenter_cobis)
+                avg_cohp = Cohp(
+                    efermi,
+                    energies,
+                    cohp,
+                    icohp=icohp,
+                    are_coops=are_coops,
+                    are_cobis=are_cobis,
+                    are_multicenter_cobis=are_multicenter_cobis,
+                )
             else:
                 cohp_dict[label] = Cohp(efermi, energies, cohp, icohp=icohp)
 
@@ -668,15 +678,22 @@ class CompleteCohp(Cohp):
             orb_cohp = None
 
         if "average" not in d["COHP"]:
-            #TODO: check if this really works (e.g., spin polarization)
+            # TODO: check if this really works (e.g., spin polarization)
             # calculate average
             cohp = np.array([np.array(c) for c in d["COHP"].values()]).mean(axis=0)
             try:
                 icohp = np.array([np.array(c) for c in d["ICOHP"].values()]).mean(axis=0)
             except KeyError:
                 icohp = None
-            avg_cohp = Cohp(efermi, energies, cohp, icohp=icohp, are_coops=d["are_coops"], are_cobis=are_cobis, are_multicenter_cobis=are_multicenter_cobis)
-
+            avg_cohp = Cohp(
+                efermi,
+                energies,
+                cohp,
+                icohp=icohp,
+                are_coops=d["are_coops"],
+                are_cobis=are_cobis,
+                are_multicenter_cobis=are_multicenter_cobis,
+            )
 
         return CompleteCohp(
             structure,
@@ -690,7 +707,9 @@ class CompleteCohp(Cohp):
         )
 
     @classmethod
-    def from_file(cls, fmt, filename=None, structure_file=None, are_coops=False, are_cobis=False, are_multicenter_cobis=False):
+    def from_file(
+        cls, fmt, filename=None, structure_file=None, are_coops=False, are_cobis=False, are_multicenter_cobis=False
+    ):
         """
         Creates a CompleteCohp object from an output file of a COHP
         calculation. Valid formats are either LMTO (for the Stuttgart
@@ -734,8 +753,11 @@ class CompleteCohp(Cohp):
                 filename = "COPL"
             cohp_file = LMTOCopl(filename=filename, to_eV=True)
         elif fmt == "LOBSTER":
-            if (are_coops and are_cobis) or (are_coops and are_multicenter_cobis) or (
-                    are_cobis and are_multicenter_cobis):
+            if (
+                (are_coops and are_cobis)
+                or (are_coops and are_multicenter_cobis)
+                or (are_cobis and are_multicenter_cobis)
+            ):
                 raise ValueError("You cannot have info about COOPs, COBIs and/or multicenter COBIS in the same file.")
             if structure_file is None:
                 structure_file = "POSCAR"
@@ -746,7 +768,9 @@ class CompleteCohp(Cohp):
                     filename = "COBICAR.lobster"
                 else:
                     filename = "COHPCAR.lobster"
-            cohp_file = Cohpcar(filename=filename, are_coops=are_coops, are_cobis=are_cobis, are_multicenter_cobis=are_multicenter_cobis)
+            cohp_file = Cohpcar(
+                filename=filename, are_coops=are_coops, are_cobis=are_cobis, are_multicenter_cobis=are_multicenter_cobis
+            )
             orb_res_cohp = cohp_file.orb_res_cohp
         else:
             raise ValueError(f"Unknown format {fmt}. Valid formats are LMTO and LOBSTER.")
@@ -809,31 +833,59 @@ class CompleteCohp(Cohp):
                     icohp=cohp_data["average"]["COHP"],
                     are_coops=are_coops,
                     are_cobis=are_cobis,
-                    are_multicenter_cobis=are_multicenter_cobis
+                    are_multicenter_cobis=are_multicenter_cobis,
                 )
                 del cohp_data["average"]
             else:
                 # only include two-center cobis in average
                 # do this for both spin channels
-                cohp={}
-                cohp[Spin.up] = np.array([np.array(c["COHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"])>2]).mean(axis=0)
+                cohp = {}
+                cohp[Spin.up] = np.array(
+                    [np.array(c["COHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) > 2]
+                ).mean(axis=0)
                 try:
-                    cohp[Spin.down] = np.array([np.array(c["COHP"][Spin.down]) for c in cohp_file.cohp_data.values() if len(c["sites"])>2]).mean(axis=0)
+                    cohp[Spin.down] = np.array(
+                        [np.array(c["COHP"][Spin.down]) for c in cohp_file.cohp_data.values() if len(c["sites"]) > 2]
+                    ).mean(axis=0)
                 except KeyError:
                     pass
                 try:
-                    icohp={}
-                    icohp[Spin.up]= np.array([np.array(c["ICOHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"])>2] ).mean(axis=0)
+                    icohp = {}
+                    icohp[Spin.up] = np.array(
+                        [np.array(c["ICOHP"][Spin.up]) for c in cohp_file.cohp_data.values() if len(c["sites"]) > 2]
+                    ).mean(axis=0)
                     try:
-                        icohp[Spin.down]= np.array([np.array(c["ICOHP"][Spin.down]) for c in cohp_file.cohp_data.values() if len(c["sites"])>2] ).mean(axis=0)
+                        icohp[Spin.down] = np.array(
+                            [
+                                np.array(c["ICOHP"][Spin.down])
+                                for c in cohp_file.cohp_data.values()
+                                if len(c["sites"]) > 2
+                            ]
+                        ).mean(axis=0)
                     except KeyError:
                         pass
                 except KeyError:
                     icohp = None
-                avg_cohp = Cohp(efermi, energies, cohp, icohp=icohp, are_coops=are_coops, are_cobis=are_cobis, are_multicenter_cobis=are_multicenter_cobis)
+                avg_cohp = Cohp(
+                    efermi,
+                    energies,
+                    cohp,
+                    icohp=icohp,
+                    are_coops=are_coops,
+                    are_cobis=are_cobis,
+                    are_multicenter_cobis=are_multicenter_cobis,
+                )
 
         cohp_dict = {
-            label: Cohp(efermi, energies, v["COHP"], icohp=v["ICOHP"], are_coops=are_coops, are_cobis=are_cobis, are_multicenter_cobis=are_multicenter_cobis)
+            label: Cohp(
+                efermi,
+                energies,
+                v["COHP"],
+                icohp=v["ICOHP"],
+                are_coops=are_coops,
+                are_cobis=are_cobis,
+                are_multicenter_cobis=are_multicenter_cobis,
+            )
             for label, v in cohp_data.items()
         }
 
