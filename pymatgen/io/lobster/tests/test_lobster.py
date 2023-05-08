@@ -2436,11 +2436,7 @@ class WavefunctionTest(PymatgenTest):
 
     def test_set_volumetric_data(self):
         wave1 = Wavefunction(
-            filename=os.path.join(
-                test_dir_doscar,
-                "cohp",
-                "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1" ".gz",
-            ),
+            filename=os.path.join(test_dir_doscar, "cohp", "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
             structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")),
         )
 

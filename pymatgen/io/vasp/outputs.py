@@ -1846,7 +1846,7 @@ class Outcar:
         time_patt = re.compile(r"\((sec|kb)\)")
         efermi_patt = re.compile(r"E-fermi\s*:\s*(\S+)")
         nelect_patt = re.compile(r"number of electron\s+(\S+)\s+magnetization")
-        mag_patt = re.compile(r"number of electron\s+\S+\s+magnetization\s+(" r"\S+)")
+        mag_patt = re.compile(r"number of electron\s+\S+\s+magnetization\s+(\S+)")
         e_fr_energy_pattern = re.compile(r"free  energy   TOTEN\s+=\s+([\d\-\.]+)")
         e_wo_entrp_pattern = re.compile(r"energy  without entropy\s*=\s+([\d\-\.]+)")
         e0_pattern = re.compile(r"energy\(sigma->0\)\s*=\s+([\d\-\.]+)")
@@ -2410,9 +2410,7 @@ class Outcar:
         Returns:
         G0 contribution matrix as list of list.
         """
-        header_pattern = (
-            r"^\s+Core NMR properties\s*$\n" r"\n" r"^\s+typ\s+El\s+Core shift \(ppm\)\s*$\n" r"^\s+-{20,}$\n"
-        )
+        header_pattern = r"^\s+Core NMR properties\s*$\n\n^\s+typ\s+El\s+Core shift \(ppm\)\s*$\n^\s+-{20,}$\n"
         row_pattern = r"\d+\s+(?P<element>[A-Z][a-z]?\w?)\s+(?P<shift>[-]?\d+\.\d+)"
         footer_pattern = r"\s+-{20,}\s*$"
         self.read_table_pattern(
@@ -2433,7 +2431,7 @@ class Outcar:
         Returns:
             nsymmetrized tensors list in the order of atoms.
         """
-        header_pattern = r"\s+-{50,}\s+" r"\s+Absolute Chemical Shift tensors\s+" r"\s+-{50,}$"
+        header_pattern = r"\s+-{50,}\s+\s+Absolute Chemical Shift tensors\s+\s+-{50,}$"
         first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
         row_pattern = r"\s+".join([r"([-]?\d+\.\d+)"] * 3)
         unsym_footer_pattern = r"^\s+SYMMETRIZED TENSORS\s+$"
@@ -2470,7 +2468,7 @@ class Outcar:
             A list of Electric Field Gradient Tensors in the order of Atoms from OUTCAR
         """
         header_pattern = (
-            r"Electric field gradients \(V/A\^2\)\n" r"-*\n" r" ion\s+V_xx\s+V_yy\s+V_zz\s+V_xy\s+V_xz\s+V_yz\n" r"-*\n"
+            r"Electric field gradients \(V/A\^2\)\n-*\n ion\s+V_xx\s+V_yy\s+V_zz\s+V_xy\s+V_xz\s+V_yz\n-*\n"
         )
 
         row_pattern = r"\d+\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)"
@@ -2499,7 +2497,7 @@ class Outcar:
             r"^-{50,}\s*$\n"
         )
         row_pattern = (
-            r"\d+\s+(?P<cq>[-]?\d+\.\d+)\s+(?P<eta>[-]?\d+\.\d+)\s+" r"(?P<nuclear_quadrupole_moment>[-]?\d+\.\d+)"
+            r"\d+\s+(?P<cq>[-]?\d+\.\d+)\s+(?P<eta>[-]?\d+\.\d+)\s+(?P<nuclear_quadrupole_moment>[-]?\d+\.\d+)"
         )
         footer_pattern = r"-{50,}\s*$"
         self.read_table_pattern(
@@ -2518,7 +2516,7 @@ class Outcar:
         Returns:
             6x6 array corresponding to the elastic tensor from the OUTCAR.
         """
-        header_pattern = r"TOTAL ELASTIC MODULI \(kBar\)\s+" r"Direction\s+([X-Z][X-Z]\s+)+" r"\-+"
+        header_pattern = r"TOTAL ELASTIC MODULI \(kBar\)\s+Direction\s+([X-Z][X-Z]\s+)+\-+"
         row_pattern = r"[X-Z][X-Z]\s+" + r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"\-+"
         et_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
@@ -2528,7 +2526,7 @@ class Outcar:
         """
         Parse the piezo tensor data
         """
-        header_pattern = r"PIEZOELECTRIC TENSOR  for field in x, y, " r"z\s+\(C/m\^2\)\s+([X-Z][X-Z]\s+)+\-+"
+        header_pattern = r"PIEZOELECTRIC TENSOR  for field in x, y, z\s+\(C/m\^2\)\s+([X-Z][X-Z]\s+)+\-+"
         row_pattern = r"[x-z]\s+" + r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"BORN EFFECTIVE"
         pt_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
@@ -2583,7 +2581,7 @@ class Outcar:
         :param reverse: Whether to start from end of OUTCAR.
         :param terminate_on_match: Whether to terminate once match is found.
         """
-        patterns = {"dipol_quadrupol_correction": r"dipol\+quadrupol energy " r"correction\s+([\d\-\.]+)"}
+        patterns = {"dipol_quadrupol_correction": r"dipol\+quadrupol energy correction\s+([\d\-\.]+)"}
         self.read_pattern(
             patterns,
             reverse=reverse,
@@ -2658,7 +2656,7 @@ class Outcar:
 
             search.append(
                 [
-                    r"^ *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) " r"*([-0-9.Ee+]*) *\)",
+                    r"^ *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                     None,
                     er_ev,
                 ]
@@ -2670,7 +2668,7 @@ class Outcar:
 
             search.append(
                 [
-                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) " r"*([-0-9.Ee+]*) *\)",
+                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                     lambda results, line: results.context == 2,
                     er_bp,
                 ]
@@ -2683,7 +2681,7 @@ class Outcar:
 
             search.append(
                 [
-                    r"^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) " r"*([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
+                    r"^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                     None,
                     er_ev_up,
                 ]
@@ -2700,7 +2698,7 @@ class Outcar:
 
             search.append(
                 [
-                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) " r"*([-0-9.Ee+]*) *\)",
+                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                     lambda results, line: results.context == Spin.up,
                     er_bp_up,
                 ]
@@ -2718,7 +2716,7 @@ class Outcar:
 
             search.append(
                 [
-                    r"^.*Spin component 2 *e<r>_ev=\( *([-0-9.Ee+]*) " r"*([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
+                    r"^.*Spin component 2 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                     None,
                     er_ev_dn,
                 ]
@@ -2729,7 +2727,7 @@ class Outcar:
 
             search.append(
                 [
-                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) " r"*([-0-9.Ee+]*) *\)",
+                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                     lambda results, line: results.context == Spin.down,
                     er_bp_dn,
                 ]
@@ -2754,7 +2752,7 @@ class Outcar:
 
             search.append(
                 [
-                    r"^.*ionic dipole moment: " r"*p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) " r"*([-0-9.Ee+]*) *\)",
+                    r"^.*ionic dipole moment: *p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                     None,
                     p_ion,
                 ]
@@ -2891,7 +2889,7 @@ class Outcar:
 
             search.append(
                 [
-                    r"PIEZOELECTRIC TENSOR  for field in x, y, z        " r"\(C/m\^2\)",
+                    r"PIEZOELECTRIC TENSOR  for field in x, y, z        \(C/m\^2\)",
                     None,
                     piezo_section_start,
                 ]
@@ -2904,8 +2902,7 @@ class Outcar:
             search.append(
                 [
                     r"^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)"
-                    + r" +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)"
-                    + r" +([-0-9.Ee+]+)*$",
+                    r" +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)*$",
                     lambda results, line: results.piezo_index >= 0 if results.piezo_index is not None else None,
                     piezo_data,
                 ]
@@ -3049,7 +3046,7 @@ class Outcar:
 
             search.append(
                 [
-                    r"PIEZOELECTRIC TENSOR IONIC CONTR  for field in " r"x, y, z        ",
+                    r"PIEZOELECTRIC TENSOR IONIC CONTR  for field in x, y, z        ",
                     None,
                     piezo_section_start,
                 ]
@@ -3064,8 +3061,7 @@ class Outcar:
             search.append(
                 [
                     r"^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)"
-                    + r" +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)"
-                    + r" +([-0-9.Ee+]+)*$",
+                    r" +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)*$",
                     lambda results, line: results.piezo_ionic_index >= 0
                     if results.piezo_ionic_index is not None
                     else results.piezo_ionic_index,
@@ -3145,7 +3141,7 @@ class Outcar:
 
                 search.append(
                     [
-                        r"^.*p\[sp1\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) " r"*([-0-9.Ee+]*) *\)",
+                        r"^.*p\[sp1\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                         None,
                         p_sp1,
                     ]
@@ -3162,7 +3158,7 @@ class Outcar:
 
                 search.append(
                     [
-                        r"^.*p\[sp2\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) " r"*([-0-9.Ee+]*) *\)",
+                        r"^.*p\[sp2\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                         None,
                         p_sp2,
                     ]
@@ -3179,7 +3175,7 @@ class Outcar:
 
             search.append(
                 [
-                    r"^.*Ionic dipole moment: *p\[ion\]=" r"\( *([-0-9.Ee+]*)" r" *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
+                    r"^.*Ionic dipole moment: *p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
                     None,
                     p_ion,
                 ]
@@ -3822,7 +3818,7 @@ class Procar:
         headers = None
 
         with zopen(filename, "rt") as file_handle:
-            preambleexpr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of " r"ions:\s*(\d+)")
+            preambleexpr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
             kpointexpr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
             bandexpr = re.compile(r"^band\s+(\d+)")
             ionexpr = re.compile(r"^ion.*")
@@ -3974,9 +3970,7 @@ class Oszicar:
         """
         electronic_steps = []
         ionic_steps = []
-        ionic_pattern = re.compile(
-            r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+" r"E0=\s*([\d\-\.E\+]+)\s+" r"d\s*E\s*=\s*([\d\-\.E\+]+)$"
-        )
+        ionic_pattern = re.compile(r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+E0=\s*([\d\-\.E\+]+)\s+d\s*E\s*=\s*([\d\-\.E\+]+)$")
         ionic_mag_pattern = re.compile(
             r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
             r"E0=\s*([\d\-\.E\+]+)\s+"

@@ -243,7 +243,7 @@ class LammpsDataTest(unittest.TestCase):
         assert c2h6_header == c2h6_header_5
         # distance and charge
         c2h6_atom = c2h6_lines[kw_inds["Atoms"] + 2]
-        assert c2h6_atom == "1  1  1 -0.080 4.46291 5.14833 -5.00041" "  0  0  0"
+        assert c2h6_atom == "1  1  1 -0.080 4.46291 5.14833 -5.00041  0  0  0"
         # no floats in topology sections
         c2h6_topos = "\n".join(c2h6_lines[kw_inds["Bonds"] :])
         assert "." not in c2h6_topos

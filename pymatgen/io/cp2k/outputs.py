@@ -771,7 +771,7 @@ class Cp2kOutput:
             ]
 
         warnings.warn(
-            "Input file lost. Reading cell params from summary at top of output. " "Precision errors may result."
+            "Input file lost. Reading cell params from summary at top of output. Precision errors may result."
         )
         cell_volume = re.compile(r"\s+CELL\|\sVolume.*\s(\d+\.\d+)")
         vectors = re.compile(r"\s+CELL\| Vector.*\s(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)")
@@ -895,15 +895,15 @@ class Cp2kOutput:
         """
         Parse the SCF cycles (not usually important)
         """
-        header = r"Step\s+Update method\s+Time\s+Convergence\s+Total energy\s+Change" + r"\s+\-+"
+        header = r"Step\s+Update method\s+Time\s+Convergence\s+Total energy\s+Change\s+\-+"
         row = (
             r"(\d+)"
-            + r"\s+([A-Za-z\./_]+\s?[A-Za-z\./]+)"
-            + r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
-            + r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
-            + r"(\s+-?\d+\.\d+(?:[eE][+\-]?\d+)?)?"
-            + r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
-            + r"(\s+-?\d+\.\d+(?:[eE][+\-]?\d+)?)?"
+            r"\s+([A-Za-z\./_]+\s?[A-Za-z\./]+)"
+            r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
+            r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
+            r"(\s+-?\d+\.\d+(?:[eE][+\-]?\d+)?)?"
+            r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
+            r"(\s+-?\d+\.\d+(?:[eE][+\-]?\d+)?)?"
         )
 
         footer = r"^$"
@@ -928,9 +928,7 @@ class Cp2kOutput:
         """
         Parse the timing info (how long did the run take).
         """
-        header = (
-            r"SUBROUTINE\s+CALLS\s+ASD\s+SELF TIME\s+TOTAL TIME" + r"\s+MAXIMUM\s+AVERAGE\s+MAXIMUM\s+AVERAGE\s+MAXIMUM"
-        )
+        header = r"SUBROUTINE\s+CALLS\s+ASD\s+SELF TIME\s+TOTAL TIME\s+MAXIMUM\s+AVERAGE\s+MAXIMUM\s+AVERAGE\s+MAXIMUM"
         row = r"(\w+)\s+(.+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
         footer = r"\-+"
 
@@ -1047,7 +1045,7 @@ class Cp2kOutput:
         else:
             pattern = (
                 r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+"
-                + r"(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
+                r"(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
             )
             d = self.read_table_pattern(
                 header_pattern=header,

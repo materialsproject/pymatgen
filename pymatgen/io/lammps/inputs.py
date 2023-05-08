@@ -663,7 +663,7 @@ class LammpsInputFile(InputFile):
     def _check_stage_format(stage: dict):
         if list(stage.keys()) != ["stage_name", "commands"]:
             raise KeyError(
-                "The provided stage does not have the correct keys. It should be 'stage_name' and " "'commands'."
+                "The provided stage does not have the correct keys. It should be 'stage_name' and 'commands'."
             )
         if not isinstance(stage["stage_name"], str):
             raise TypeError("The value of 'stage_name' should be a string.")

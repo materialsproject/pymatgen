@@ -1940,7 +1940,7 @@ class MoleculeGraph(MSONable):
         # ensure that edge exists before attempting to change it
         if not existing_edge:
             raise ValueError(
-                f"Edge between {from_index} and {to_index} cannot be altered; " f"no edge exists between those sites."
+                f"Edge between {from_index} and {to_index} cannot be altered; no edge exists between those sites."
             )
 
         # Third index should always be 0 because there should only be one edge between any two nodes
