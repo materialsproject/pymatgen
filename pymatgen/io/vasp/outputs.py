@@ -2361,7 +2361,7 @@ class Outcar:
         )
         first_part_pattern = r"\s+\(absolute, valence only\)\s+$"
         swallon_valence_body_pattern = r".+?\(absolute, valence and core\)\s+$"
-        row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+\s+".join([r"([-]?\d+\.\d+)"] * 3)
+        row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 3)
         footer_pattern = r"-{50,}\s*$"
         h1 = header_pattern + first_part_pattern
         cs_valence_only = self.read_table_pattern(
@@ -2392,7 +2392,7 @@ class Outcar:
             r"^\s+BDIR\s+X\s+Y\s+Z\s*$\n"
             r"^\s+-{50,}\s*$\n"
         )
-        row_pattern = r"(?:\d+)\s+\s+".join([r"([-]?\d+\.\d+)"] * 3)
+        row_pattern = r"(?:\d+)\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 3)
         footer_pattern = r"\s+-{50,}\s*$"
         self.read_table_pattern(
             header_pattern,
@@ -2517,7 +2517,7 @@ class Outcar:
             6x6 array corresponding to the elastic tensor from the OUTCAR.
         """
         header_pattern = r"TOTAL ELASTIC MODULI \(kBar\)\s+Direction\s+([X-Z][X-Z]\s+)+\-+"
-        row_pattern = r"[X-Z][X-Z]\s+\s+".join([r"(\-*[\.\d]+)"] * 6)
+        row_pattern = r"[X-Z][X-Z]\s+" + r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"\-+"
         et_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
         self.data["elastic_tensor"] = et_table
@@ -2527,7 +2527,7 @@ class Outcar:
         Parse the piezo tensor data
         """
         header_pattern = r"PIEZOELECTRIC TENSOR  for field in x, y, z\s+\(C/m\^2\)\s+([X-Z][X-Z]\s+)+\-+"
-        row_pattern = r"[x-z]\s+\s+".join([r"(\-*[\.\d]+)"] * 6)
+        row_pattern = r"[x-z]\s+" + r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"BORN EFFECTIVE"
         pt_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
         self.data["piezo_tensor"] = pt_table
@@ -2541,7 +2541,7 @@ class Outcar:
         # therefore regex assumes f, but filter out None values if d
 
         header_pattern = r"spin component  1\n"
-        row_pattern = r"[^\S\r\n]*(?:(-?[\d.]+))(?:[^\S\r\n]*(-?[\d.]+)[^\S\r\n]*)?" * 6 + r".*?"
+        row_pattern = r"[^\S\r\n]*(?:(-?[\d.]+))" + r"(?:[^\S\r\n]*(-?[\d.]+)[^\S\r\n]*)?" * 6 + r".*?"
         footer_pattern = r"\nspin component  2"
         spin1_component = self.read_table_pattern(
             header_pattern,
@@ -2557,7 +2557,7 @@ class Outcar:
         # and repeat for Spin.down
 
         header_pattern = r"spin component  2\n"
-        row_pattern = r"[^\S\r\n]*(?:([\d.-]+))(?:[^\S\r\n]*(-?[\d.]+)[^\S\r\n]*)?" * 6 + r".*?"
+        row_pattern = r"[^\S\r\n]*(?:([\d.-]+))" + r"(?:[^\S\r\n]*(-?[\d.]+)[^\S\r\n]*)?" * 6 + r".*?"
         footer_pattern = r"\n occupancies and eigenvectors"
         spin2_component = self.read_table_pattern(
             header_pattern,
@@ -2811,7 +2811,7 @@ class Outcar:
 
         search.append(
             [
-                r"^\s+([x,y,z])\s+([-]?\d+\.\d+)\s+" * 6,
+                r"^\s+([x,y,z])\s+" + r"([-]?\d+\.\d+)\s+" * 6,
                 lambda results, line: results.internal_strain_ion is not None,
                 internal_strain_data,
             ]
@@ -3412,7 +3412,7 @@ class Outcar:
             r"\s*ion\s+A_pw\s+A_1PS\s+A_1AE\s+A_1c\s+A_tot\s+"
             r"\s*\-+"
         )
-        row_pattern1 = r"(?:\d+)\s+\s+".join([r"([-]?\d+\.\d+)"] * 5)
+        row_pattern1 = r"(?:\d+)\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 5)
         footer_pattern = r"\-+"
         fch_table = self.read_table_pattern(
             header_pattern1,
@@ -3429,7 +3429,7 @@ class Outcar:
             r"\s*ion\s+A_xx\s+A_yy\s+A_zz\s+A_xy\s+A_xz\s+A_yz\s+"
             r"\s*\-+"
         )
-        row_pattern2 = r"(?:\d+)\s+\s+".join([r"([-]?\d+\.\d+)"] * 6)
+        row_pattern2 = r"(?:\d+)\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 6)
         dh_table = self.read_table_pattern(
             header_pattern2,
             row_pattern2,
@@ -3446,7 +3446,7 @@ class Outcar:
             r"\s*ion\s+A_xx\s+A_yy\s+A_zz\s+asymmetry \(A_yy - A_xx\)/ A_zz\s+"
             r"\s*\-+"
         )
-        row_pattern3 = r"(?:\d+)\s+\s+".join([r"([-]?\d+\.\d+)"] * 4)
+        row_pattern3 = r"(?:\d+)\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 4)
         th_table = self.read_table_pattern(
             header_pattern3,
             row_pattern3,
