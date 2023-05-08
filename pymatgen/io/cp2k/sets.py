@@ -521,7 +521,7 @@ class DftSet(Cp2kInput):
             if potential is None:
                 if basis_and_potential.get(el, {}).get("potential"):
                     warnings.warn(
-                        f"Unable to validate potential for {el}. " " Exact name provided will be put in input file."
+                        f"Unable to validate potential for {el}. Exact name provided will be put in input file."
                     )
                     potential = basis_and_potential.get(el, {}).get("potential")
                 else:

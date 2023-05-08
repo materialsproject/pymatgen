@@ -61,7 +61,7 @@ class XYZ:
         num_sites = int(lines[0])
         coords = []
         sp = []
-        coord_patt = re.compile(r"(\w+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)\s+" r"([0-9\-\+\.*^eEdD]+)")
+        coord_patt = re.compile(r"(\w+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)")
         for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:
@@ -90,7 +90,7 @@ class XYZ:
         white_space = r"[ \t\r\f\v]"
         natoms_line = white_space + r"*\d+" + white_space + r"*\n"
         comment_line = r"[^\n]*\n"
-        coord_lines = r"(\s*\w+\s+[0-9\-\+\.*^eEdD]+\s+[0-9\-\+\.*^eEdD]+" r"\s+[0-9\-\+\.*^eEdD]+.*\n)+"
+        coord_lines = r"(\s*\w+\s+[0-9\-\+\.*^eEdD]+\s+[0-9\-\+\.*^eEdD]+\s+[0-9\-\+\.*^eEdD]+.*\n)+"
         frame_pattern_text = natoms_line + comment_line + coord_lines
         pat = re.compile(frame_pattern_text, re.MULTILINE)
         mols = []

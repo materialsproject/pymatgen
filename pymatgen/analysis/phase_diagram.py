@@ -1924,15 +1924,9 @@ class ReactionDiagram:
                         entry.decomposition = product_entries
                         rxn_entries.append(entry)
                 except np.linalg.LinAlgError:
-                    logger.debug(
-                        "Reactants = "
-                        + ", ".join(
-                            [
-                                entry1.composition.reduced_formula,
-                                entry2.composition.reduced_formula,
-                            ]
-                        )
-                    )
+                    form_1 = entry1.composition.reduced_formula
+                    form_2 = entry2.composition.reduced_formula
+                    logger.debug(f"Reactants = {form_1}, {form_2}")
                     logger.debug(f"Products = {', '.join([e.composition.reduced_formula for e in face_entries])}")
 
         rxn_entries = sorted(rxn_entries, key=lambda e: e.name, reverse=True)

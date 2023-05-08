@@ -216,10 +216,8 @@ class GraphUtilsTest(PymatgenTest):
             validate=False,
             ordered=False,
         )
-        with pytest.raises(
-            ValueError,
-            match="SimpleGraphCycle is not valid : " "The list of nodes in the cycle cannot be strictly ordered.",
-        ):
+        expected_err_msg = "SimpleGraphCycle is not valid : The list of nodes in the cycle cannot be strictly ordered."
+        with pytest.raises(ValueError, match=expected_err_msg):
             sgc.validate(check_strict_ordering=True)
 
         # Check the order method
@@ -235,10 +233,7 @@ class GraphUtilsTest(PymatgenTest):
         )
         sgc.order(raise_on_fail=False)
         assert not sgc.ordered
-        with pytest.raises(
-            ValueError,
-            match="SimpleGraphCycle is not valid : " "The list of nodes in the cycle cannot be strictly ordered.",
-        ):
+        with pytest.raises(ValueError, match=expected_err_msg):
             sgc.order(raise_on_fail=True)
 
         sgc = SimpleGraphCycle(
@@ -353,14 +348,14 @@ class GraphUtilsTest(PymatgenTest):
         assert msg == ""
         with pytest.raises(
             ValueError,
-            match="MultiGraphCycle is not valid : " "Number of nodes different from number of " "edge indices.",
+            match="MultiGraphCycle is not valid : Number of nodes different from number of edge indices.",
         ):
             MultiGraphCycle([0, 2, 4], [0, 0])  # number of nodes is different from number of edge_indices
         with pytest.raises(ValueError, match="MultiGraphCycle is not valid : Duplicate nodes."):
             MultiGraphCycle([0, 2, 4, 3, 2], [0, 0, 0, 0, 0])  # duplicated nodes
         with pytest.raises(
             ValueError,
-            match="MultiGraphCycle is not valid : " "Cycles with two nodes cannot use the same " "edge for the cycle.",
+            match="MultiGraphCycle is not valid : Cycles with two nodes cannot use the same edge for the cycle.",
         ):
             MultiGraphCycle([3, 5], [1, 1])  # number of nodes is different from number of edge_indices
 
@@ -443,7 +438,7 @@ class GraphUtilsTest(PymatgenTest):
         assert not mgc.ordered
         with pytest.raises(
             ValueError,
-            match="MultiGraphCycle is not valid : " "Number of nodes different from " "number of edge indices.",
+            match="MultiGraphCycle is not valid : Number of nodes different from number of edge indices.",
         ):
             mgc.validate(check_strict_ordering=False)
 
@@ -471,7 +466,7 @@ class GraphUtilsTest(PymatgenTest):
         )
         with pytest.raises(
             ValueError,
-            match="MultiGraphCycle is not valid : " "Cycles with two nodes cannot use the same edge for the cycle.",
+            match="MultiGraphCycle is not valid : Cycles with two nodes cannot use the same edge for the cycle.",
         ):
             mgc.validate()
 
@@ -500,10 +495,8 @@ class GraphUtilsTest(PymatgenTest):
             validate=False,
             ordered=False,
         )
-        with pytest.raises(
-            ValueError,
-            match="MultiGraphCycle is not valid : " "The list of nodes in the cycle cannot be strictly ordered.",
-        ):
+        expected_err_msg = "MultiGraphCycle is not valid : The list of nodes in the cycle cannot be strictly ordered."
+        with pytest.raises(ValueError, match=expected_err_msg):
             mgc.validate(check_strict_ordering=True)
 
         # Check the order method
@@ -520,10 +513,7 @@ class GraphUtilsTest(PymatgenTest):
         )
         mgc.order(raise_on_fail=False)
         assert not mgc.ordered
-        with pytest.raises(
-            ValueError,
-            match="MultiGraphCycle is not valid : " "The list of nodes in the cycle cannot be strictly ordered.",
-        ):
+        with pytest.raises(ValueError, match=expected_err_msg):
             mgc.order(raise_on_fail=True)
 
         mgc = MultiGraphCycle(

@@ -1402,7 +1402,7 @@ class Kpoints(MSONable):
         if style == "a":
             return Kpoints.automatic(int(lines[3].split()[0].strip()))
 
-        coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+" r"([\d+.\-Ee]+)")
+        coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in ["g", "m"]:
@@ -1438,7 +1438,7 @@ class Kpoints(MSONable):
             style = Kpoints.supported_modes.Line_mode
             kpts = []
             labels = []
-            patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)" r"\s*!*\s*(.*)")
+            patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
@@ -1724,7 +1724,7 @@ class PotcarSingle:
         self.header = data.split("\n")[0].strip()
 
         search_lines = re.search(
-            r"(?s)(parameters from PSCTR are:" r".*?END of PSCTR-controll parameters)",
+            r"(?s)(parameters from PSCTR are:.*?END of PSCTR-controll parameters)",
             data,
         ).group(1)
 
@@ -1764,7 +1764,7 @@ class PotcarSingle:
             PSCTR["Orbitals"] = tuple(orbitals)
 
         description_string = re.search(
-            r"(?s)Description\s*\n" r"(.*?)Error from kinetic" r" energy argument \(eV\)",
+            r"(?s)Description\s*\n(.*?)Error from kinetic energy argument \(eV\)",
             search_lines,
         )
         if description_string:
@@ -1786,7 +1786,7 @@ class PotcarSingle:
             PSCTR["OrbitalDescriptions"] = tuple(descriptions)
 
         rrkj_kinetic_energy_string = re.search(
-            r"(?s)Error from kinetic energy argument \(eV\)\s*\n" r"(.*?)END of PSCTR-controll parameters",
+            r"(?s)Error from kinetic energy argument \(eV\)\s*\n(.*?)END of PSCTR-controll parameters",
             search_lines,
         )
         rrkj_array = []

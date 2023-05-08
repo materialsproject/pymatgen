@@ -339,9 +339,7 @@ class PhaseDiagramTest(unittest.TestCase):
                 ), "Stable entries should have negative decomposition energy!"
                 assert self.pd.get_phase_separation_energy(entry, stable_only=True) == pytest.approx(
                     self.pd.get_equilibrium_reaction_energy(entry)
-                ), (
-                    "Using `stable_only=True` should give decomposition energy equal to " "equilibrium reaction energy!"
-                )
+                ), "Using `stable_only=True` should give decomposition energy equal to equilibrium reaction energy!"
 
         # Test that we get correct behavior with a polymorph
         toy_entries = {

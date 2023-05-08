@@ -516,7 +516,7 @@ class PourbaixDiagram(MSONable):
             self._unprocessed_entries = solid_entries + ion_entries
 
             if not len(solid_entries + ion_entries) == len(entries):
-                raise ValueError("All supplied entries must have a phase type of " 'either "Solid" or "Ion"')
+                raise ValueError('All supplied entries must have a phase type of either "Solid" or "Ion"')
 
             if self.filter_solids:
                 # O is 2.46 b/c pbx entry finds energies referenced to H2O

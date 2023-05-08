@@ -354,12 +354,10 @@ class BoltztrapRunner(MSONable):
                 so = "so"
             f.write(
                 "5, 'boltztrap.intrans',      'old',    'formatted',0\n"
-                + "6,'boltztrap.outputtrans',      'unknown',    "
+                "6,'boltztrap.outputtrans',      'unknown',    "
                 "'formatted',0\n"
-                + "20,'boltztrap.struct',         'old',    'formatted',0\n"
-                + "10,'boltztrap.energy"
-                + so
-                + "',         'old',    "
+                "20,'boltztrap.struct',         'old',    'formatted',0\n"
+                "10,'boltztrap.energy" + so + "',         'old',    "
                 "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
                 "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
                 "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
@@ -406,12 +404,10 @@ class BoltztrapRunner(MSONable):
                 so = "so"
             f.write(
                 "5, 'boltztrap.intrans',      'old',    'formatted',0\n"
-                + "6,'boltztrap.outputtrans',      'unknown',    "
+                "6,'boltztrap.outputtrans',      'unknown',    "
                 "'formatted',0\n"
-                + "20,'boltztrap.struct',         'old',    'formatted',0\n"
-                + "10,'boltztrap.energy"
-                + so
-                + "',         'old',    "
+                "20,'boltztrap.struct',         'old',    'formatted',0\n"
+                "10,'boltztrap.energy" + so + "',         'old',    "
                 "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
                 "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
                 "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"

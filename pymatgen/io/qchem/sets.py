@@ -458,10 +458,9 @@ class QChemDictSet(QCInput):
             if self.smd_solvent in ("custom", "other"):
                 if self.custom_smd is None:
                     raise ValueError(
-                        "A user-defined SMD requires passing custom_smd, a string"
-                        + " of seven comma separated values in the following order:"
-                        + " dielectric, refractive index, acidity, basicity, surface"
-                        + " tension, aromaticity, electronegative halogenicity"
+                        "A user-defined SMD requires passing custom_smd, a string of seven comma separated values "
+                        "in the following order: dielectric, refractive index, acidity, basicity, surface"
+                        " tension, aromaticity, electronegative halogenicity"
                     )
                 elif self.qchem_version == 6:
                     custom_smd_vals = self.custom_smd.split(",")

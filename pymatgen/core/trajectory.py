@@ -171,9 +171,7 @@ class Trajectory(MSONable):
         """
         struct = self[idx]
         if isinstance(struct, Molecule):
-            raise TypeError(
-                "Cannot return `Structure` for `Molecule`-based" "`Trajectory`! Use `get_molecule` instead!"
-            )
+            raise TypeError("Cannot return `Structure` for `Molecule`-based `Trajectory`! Use `get_molecule` instead!")
 
         return struct
 
@@ -189,9 +187,7 @@ class Trajectory(MSONable):
         """
         mol = self[idx]
         if isinstance(mol, Structure):
-            raise TypeError(
-                "Cannot return `Molecule` for `Structure`-based" "`Trajectory`! Use `get_structure` instead!"
-            )
+            raise TypeError("Cannot return `Molecule` for `Structure`-based `Trajectory`! Use `get_structure` instead!")
 
         return mol
 
@@ -255,7 +251,7 @@ class Trajectory(MSONable):
             or self.lattice is not None  # is structures
             and trajectory.lattice is None  # is molecules
         ):
-            raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. " "objects.")
+            raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. objects.")
 
         if self.time_step != trajectory.time_step:
             raise ValueError(

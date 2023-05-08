@@ -33,6 +33,7 @@ select = [
   "F",   # pyflakes
   "I",   # isort
   "ICN", # flake8-import-conventions
+  "ISC", # flake8-implicit-str-concat
   "PD",  # pandas-vet
   "PIE", # flake8-pie
   "PL",  # pylint

@@ -118,7 +118,7 @@ class ZeoCssr(Cssr):
         chrg = []
         for line in lines[4:]:
             m = re.match(
-                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" + r"([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
+                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
                 line.strip(),
             )
             if m:
@@ -175,7 +175,7 @@ class ZeoVoronoiXYZ(XYZ):
         coords = []
         sp = []
         prop = []
-        coord_patt = re.compile(r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" + r"([0-9\-\.]+)")
+        coord_patt = re.compile(r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)")
         for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:

@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
         # Define the coordination geometry
         cg_symbol = input(
-            "Enter symbol of the geometry for which you want to get the optimized permutations " 'or "q" to quit : '
+            'Enter symbol of the geometry for which you want to get the optimized permutations or "q" to quit : '
         )
         if cg_symbol == "q":
             break

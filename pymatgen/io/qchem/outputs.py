@@ -1295,7 +1295,7 @@ class QCOutput(MSONable):
 
         grad_format_length = self._get_grad_format_length(grad_header_pattern)
         grad_table_pattern = (
-            r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*" r"(\-?[\d\.]{9,12})"
+            r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*(\-?[\d\.]{9,12})"
         )
         if grad_format_length > 1:
             for _ in range(1, grad_format_length):
