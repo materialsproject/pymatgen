@@ -140,6 +140,27 @@ class InputSet(MSONable, MutableMapping):
             return self.get(k)
         raise AttributeError(f"'{type(self).__name__}' object has no attribute {k!r}")
 
+    def __copy__(self) -> InputSet:
+        cls = self.__class__
+        new_instance = cls.__new__(cls)
+
+        for k, v in self.__dict__.items():
+            setattr(new_instance, k, v)
+
+        return new_instance
+
+    def __deepcopy__(self, memo: dict[int, InputSet]) -> InputSet:
+        import copy
+
+        cls = self.__class__
+        new_instance = cls.__new__(cls)
+        memo[id(self)] = new_instance
+
+        for k, v in self.__dict__.items():
+            setattr(new_instance, k, copy.deepcopy(v, memo))
+
+        return new_instance
+
     def __len__(self):
         return len(self.inputs)
 

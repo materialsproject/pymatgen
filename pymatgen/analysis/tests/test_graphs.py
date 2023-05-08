@@ -528,12 +528,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.cyclohexene.add_edge(5, 14, weight=1.0)
         self.cyclohexene.add_edge(5, 15, weight=1.0)
 
-        butadiene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/butadiene.xyz",
-            )
-        )
+        butadiene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/butadiene.xyz"))
         self.butadiene = MoleculeGraph.with_empty_graph(butadiene, edge_weight_name="strength", edge_weight_units="")
         self.butadiene.add_edge(0, 1, weight=2.0)
         self.butadiene.add_edge(1, 2, weight=1.0)
@@ -545,12 +540,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.butadiene.add_edge(3, 8, weight=1.0)
         self.butadiene.add_edge(3, 9, weight=1.0)
 
-        ethylene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/ethylene.xyz",
-            )
-        )
+        ethylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/ethylene.xyz"))
         self.ethylene = MoleculeGraph.with_empty_graph(ethylene, edge_weight_name="strength", edge_weight_units="")
         self.ethylene.add_edge(0, 1, weight=2.0)
         self.ethylene.add_edge(0, 2, weight=1.0)
@@ -669,16 +659,17 @@ class MoleculeGraphTest(unittest.TestCase):
         assert self.cyclohexene.get_coordination_of_site(0) == 4
 
     def test_edge_editing(self):
-        self.cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo": "bar"})
-        new_edge = self.cyclohexene.graph.get_edge_data(0, 1)[0]
+        cyclohexene = copy.deepcopy(self.cyclohexene)
+        cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo": "bar"})
+        new_edge = cyclohexene.graph.get_edge_data(0, 1)[0]
         assert new_edge["weight"] == 0.0
         assert new_edge["foo"] == "bar"
 
-        self.cyclohexene.break_edge(0, 1)
-        assert self.cyclohexene.graph.get_edge_data(0, 1) is None
+        cyclohexene.break_edge(0, 1)
+        assert cyclohexene.graph.get_edge_data(0, 1) is None
 
         # Replace the now-broken edge
-        self.cyclohexene.add_edge(0, 1, weight=1.0)
+        cyclohexene.add_edge(0, 1, weight=1.0)
 
     def test_insert_remove(self):
         mol_copy = copy.deepcopy(self.ethylene.molecule)
@@ -711,27 +702,21 @@ class MoleculeGraphTest(unittest.TestCase):
         disconnected = Molecule(
             ["C", "H", "H", "H", "H", "He"],
             [
-                [0.0000, 0.0000, 0.0000],
+                [0, 0, 0],
                 [-0.3633, -0.5138, -0.8900],
-                [1.0900, 0.0000, 0.0000],
-                [-0.3633, 1.0277, 0.0000],
+                [1.0900, 0, 0],
+                [-0.3633, 1.0277, 0],
                 [-0.3633, -0.5138, -0.8900],
-                [5.0000, 5.0000, 5.0000],
+                [5, 5, 5],
             ],
         )
 
         no_he = Molecule(
             ["C", "H", "H", "H", "H"],
-            [
-                [0.0000, 0.0000, 0.0000],
-                [-0.3633, -0.5138, -0.8900],
-                [1.0900, 0.0000, 0.0000],
-                [-0.3633, 1.0277, 0.0000],
-                [-0.3633, -0.5138, -0.8900],
-            ],
+            [[0, 0, 0], [-0.3633, -0.5138, -0.8900], [1.0900, 0, 0], [-0.3633, 1.0277, 0], [-0.3633, -0.5138, -0.8900]],
         )
 
-        just_he = Molecule(["He"], [[5.0000, 5.0000, 5.0000]])
+        just_he = Molecule(["He"], [[5, 5, 5]])
 
         dis_mg = MoleculeGraph.with_empty_graph(disconnected)
         dis_mg.add_edge(0, 1)
@@ -740,16 +725,21 @@ class MoleculeGraphTest(unittest.TestCase):
         dis_mg.add_edge(0, 4)
 
         fragments = dis_mg.get_disconnected_fragments()
+        fragments_2, index_map = dis_mg.get_disconnected_fragments(return_index_map=True)
+        assert list(map(str, fragments)) == list(map(str, fragments_2))
         assert len(fragments) == 2
         assert fragments[0].molecule == no_he
         assert fragments[1].molecule == just_he
+        assert index_map == {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5}
 
         con_mg = MoleculeGraph.with_empty_graph(no_he)
         con_mg.add_edge(0, 1)
         con_mg.add_edge(0, 2)
         con_mg.add_edge(0, 3)
         con_mg.add_edge(0, 4)
-        fragments = con_mg.get_disconnected_fragments()
+        # make sure get_disconnected_fragments() only returns fragments even if return_index_map=True
+        # when the graph is weakly connected
+        fragments = con_mg.get_disconnected_fragments(return_index_map=True)
         assert len(fragments) == 1
 
     def test_split(self):
@@ -850,7 +840,7 @@ class MoleculeGraphTest(unittest.TestCase):
 
     def test_find_rings(self):
         rings = self.cyclohexene.find_rings(including=[0])
-        assert sorted(rings[0]) == [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)]
+        assert sorted(rings[0]) == [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 0)]
         no_rings = self.butadiene.find_rings()
         assert no_rings == []
 

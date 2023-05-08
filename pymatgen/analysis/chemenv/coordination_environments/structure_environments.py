@@ -1581,9 +1581,8 @@ class LightStructureEnvironments(MSONable):
             valences = structure_environments.valences
             if valences_origin is None:
                 valences_origin = "from_structure_environments"
-        else:
-            if valences_origin is None:
-                valences_origin = "user-specified"
+        elif valences_origin is None:
+            valences_origin = "user-specified"
 
         for isite, site in enumerate(structure):
             site_ces_and_nbs_list = strategy.get_site_ce_fractions_and_neighbors(site, strategy_info=True)

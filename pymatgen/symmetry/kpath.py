@@ -1330,11 +1330,10 @@ class KPathLatimerMunro(KPathBase):
                     existing_labels[:] = [label for label in existing_labels if "'" not in label]
                 if len(existing_labels) == 1:
                     max_occurence = 0
+                elif "'" not in point_label:
+                    max_occurence = max(int(label[3:-1]) for label in existing_labels[1:])
                 else:
-                    if "'" not in point_label:
-                        max_occurence = max(int(label[3:-1]) for label in existing_labels[1:])
-                    else:
-                        max_occurence = max(int(label[4:-1]) for label in existing_labels[1:])
+                    max_occurence = max(int(label[4:-1]) for label in existing_labels[1:])
                 kpoints[point_label + "_{" + str(max_occurence + 1) + "}"] = key_points[point_ind]
                 reverse_kpoints[point_ind] = point_label + "_{" + str(max_occurence + 1) + "}"
 

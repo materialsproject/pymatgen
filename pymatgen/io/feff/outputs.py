@@ -225,7 +225,7 @@ class LDos(MSONable):
         return cht
 
     def charge_transfer_to_string(self):
-        """returns shrage transfer as string"""
+        """Returns charge transfer as string"""
         ch = self.charge_transfer
         chts = ["\nCharge Transfer\n\nabsorbing atom"]
         for i in range(len(ch)):

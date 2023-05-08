@@ -142,7 +142,8 @@ class XcFunc(MSONable):
         x, c = LibxcFunc(int(first)), LibxcFunc(int(last))
         if not x.is_x_kind:
             x, c = c, x  # Swap
-        assert x.is_x_kind and c.is_c_kind
+        assert x.is_x_kind
+        assert c.is_c_kind
         return cls(x=x, c=c)
 
     @classmethod
@@ -204,9 +205,8 @@ class XcFunc(MSONable):
         if xc is None:
             if x is None or c is None:
                 raise ValueError("x or c must be specified when xc is None")
-        else:
-            if x is not None or c is not None:
-                raise ValueError("x and c should be None when xc is specified")
+        elif x is not None or c is not None:
+            raise ValueError("x and c should be None when xc is specified")
 
         self.xc, self.x, self.c = xc, x, c
 

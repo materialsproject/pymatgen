@@ -322,18 +322,18 @@ class HeisenbergMapper:
                         j_ji = str(j_index) + "-" + str(i_index) + order
 
                         if j_ij in ex_mat.columns:
-                            ex_row.at[sgraph_index, j_ij] -= s_i * s_j
+                            ex_row.loc[sgraph_index, j_ij] -= s_i * s_j
                         elif j_ji in ex_mat.columns:
-                            ex_row.at[sgraph_index, j_ji] -= s_i * s_j
+                            ex_row.loc[sgraph_index, j_ji] -= s_i * s_j
 
                 # Ignore the row if it is a duplicate to avoid singular matrix
-                if ex_mat.append(ex_row)[j_columns].equals(
-                    ex_mat.append(ex_row)[j_columns].drop_duplicates(keep="first")
-                ):
+                # Create a temporary DataFrame with the new row
+                temp_df = pd.concat([ex_mat, ex_row], ignore_index=True)
+                if temp_df[j_columns].equals(temp_df[j_columns].drop_duplicates(keep="first")):
                     e_index = self.ordered_structures.index(sgraph.structure)
-                    ex_row.at[sgraph_index, "E"] = self.energies[e_index]
+                    ex_row.loc[sgraph_index, "E"] = self.energies[e_index]
                     sgraph_index += 1
-                    ex_mat = ex_mat.append(ex_row)
+                    ex_mat = pd.concat([ex_mat, ex_row], ignore_index=True)
                     # if sgraph_index == num_nn_j:  # check for zero columns
                     #     zeros = [b for b in (ex_mat[j_columns] == 0).all(axis=0)]
                     #     if True in zeros:

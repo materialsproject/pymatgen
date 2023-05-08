@@ -212,12 +212,12 @@ class VasprunTest(PymatgenTest):
         assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
 
         pdos0_norm = vasprun.complete_dos_normalized.pdos[vasprun.final_structure[0]]
-        self.assertAlmostEqual(pdos0_norm[Orbital.s][Spin.up][16], 0.0026)  # the site data should not change
+        assert pdos0_norm[Orbital.s][Spin.up][16] == approx(0.0026)  # the site data should not change
         assert pdos0_norm[Orbital.s][Spin.up].shape == (301,)
 
         cdos_norm, cdos = vasprun.complete_dos_normalized, vasprun.complete_dos
         ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
-        self.assertAlmostEqual(ratio, vasprun.final_structure.volume)  # the site data should not change
+        assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
 
         filepath2 = self.TEST_FILES_DIR / "lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
@@ -2093,7 +2093,6 @@ class WSWQTest(PymatgenTest):
         self.wswq = WSWQ.from_file(self.TEST_FILES_DIR / "WSWQ.gz")
 
     def test_consistency(self):
-        assert True is True
         assert self.wswq.nbands == 18
         assert self.wswq.nkpoints == 20
         assert self.wswq.nspin == 2

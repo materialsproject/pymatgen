@@ -97,36 +97,32 @@ def _c2index_isreverse(c1, c2):
         elif c2_1_index == len(c2.nodes) - 1:
             reverse = True
         else:
-            return (
-                None,
-                None,
+            msg = (
                 "Second node of cycle c1 is not second or last in cycle c2 "
-                "(first node of cycle c1 is first in cycle c2).",
+                "(first node of cycle c1 is first in cycle c2)."
             )
+            return None, None, msg
     elif c2_0_index == len(c2.nodes) - 1:
         if c2_1_index == 0:
             reverse = False
         elif c2_1_index == c2_0_index - 1:
             reverse = True
         else:
-            return (
-                None,
-                None,
+            msg = (
                 "Second node of cycle c1 is not first or before last in cycle c2 "
-                "(first node of cycle c1 is last in cycle c2).",
+                "(first node of cycle c1 is last in cycle c2)."
             )
+            return None, None, msg
+    elif c2_1_index == c2_0_index + 1:
+        reverse = False
+    elif c2_1_index == c2_0_index - 1:
+        reverse = True
     else:
-        if c2_1_index == c2_0_index + 1:
-            reverse = False
-        elif c2_1_index == c2_0_index - 1:
-            reverse = True
-        else:
-            return (
-                None,
-                None,
-                "Second node of cycle c1 in cycle c2 is not just after or "
-                "just before first node of cycle c1 in cycle c2.",
-            )
+        msg = (
+            "Second node of cycle c1 in cycle c2 is not just after or "
+            "just before first node of cycle c1 in cycle c2."
+        )
+        return None, None, msg
     return c2_0_index, reverse, ""
 
 
@@ -296,7 +292,7 @@ class SimpleGraphCycle(MSONable):
 
     def as_dict(self):
         """
-        :return: MSONAble dict
+        :return: MSONable dict
         """
         d = MSONable.as_dict(self)
         # Transforming tuple object to a list to allow BSON and MongoDB

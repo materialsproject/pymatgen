@@ -20,7 +20,7 @@ if True:  # if which("packmol") is None:
     pytest.skip("packmol executable not present", allow_module_level=True)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ethanol():
     """
     Returns a Molecule of ethanol
@@ -41,7 +41,7 @@ def ethanol():
     return Molecule(ethanol_atoms, ethanol_coords)
 
 
-@pytest.fixture
+@pytest.fixture()
 def water():
     """
     Returns a Molecule of water

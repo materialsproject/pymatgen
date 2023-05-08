@@ -552,7 +552,7 @@ class LammpsData(MSONable):
         for um, s in zip(unique_masses, symbols):
             masses.loc[masses["mass"] == um, "element"] = s
         if atom_labels is None:  # add unique labels based on elements
-            for el, vc in masses["element"].value_counts().iteritems():
+            for el, vc in masses["element"].value_counts().items():
                 masses.loc[masses["element"] == el, "label"] = [f"{el}{c}" for c in range(1, vc + 1)]
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
         mass_info = [(row.label, row.mass) for row in masses.itertuples()]
@@ -805,7 +805,7 @@ class LammpsData(MSONable):
         for k in topology:
             df = pd.DataFrame(np.concatenate(topo_collector[k]), columns=SECTION_HEADERS[k][1:])
             df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
-            if any(pd.isnull(df["type"])):  # Throw away undefined topologies
+            if any(pd.isna(df["type"])):  # Throw away undefined topologies
                 warnings.warn(f"Undefined {k.lower()} detected and removed")
                 df = df.dropna(subset=["type"])
                 df = df.reset_index(drop=True)
@@ -1022,7 +1022,7 @@ class ForceField(MSONable):
 
     @staticmethod
     def _is_valid(df):
-        return not pd.isnull(df).values.any()
+        return not pd.isna(df).values.any()
 
     def __init__(self, mass_info, nonbond_coeffs=None, topo_coeffs=None):
         """

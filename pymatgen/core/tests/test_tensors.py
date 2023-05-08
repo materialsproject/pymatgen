@@ -8,6 +8,7 @@ import warnings
 import numpy as np
 import pytest
 from monty.serialization import MontyDecoder, loadfn
+from pytest import approx
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.tensors import (
@@ -127,17 +128,12 @@ class TensorTest(PymatgenTest):
         assert self.rand_rank4.rank == 4
 
     def test_zeroed(self):
-        self.assertArrayEqual(
-            self.low_val.zeroed(),
-            Tensor([[0, 1 + 1e-5, 0], [1 + 1e-6, 0, 0], [0, 0, 1 + 1e-5]]),
+        assert self.low_val.zeroed() == approx(Tensor([[0, 1 + 1e-5, 0], [1 + 1e-6, 0, 0], [0, 0, 1 + 1e-5]]))
+        assert self.low_val.zeroed(tol=1e-6) == approx(
+            Tensor([[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [0, 0, 1 + 1e-5]])
         )
-        self.assertArrayEqual(
-            self.low_val.zeroed(tol=1e-6),
-            Tensor([[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [0, 0, 1 + 1e-5]]),
-        )
-        self.assertArrayEqual(
-            Tensor([[1e-6, -30, 1], [1e-7, 1, 0], [1e-8, 0, 1]]).zeroed(),
-            Tensor([[0, -30, 1], [0, 1, 0], [0, 0, 1]]),
+        assert Tensor([[1e-6, -30, 1], [1e-7, 1, 0], [1e-8, 0, 1]]).zeroed() == approx(
+            Tensor([[0, -30, 1], [0, 1, 0], [0, 0, 1]])
         )
 
     def test_transform(self):
@@ -284,7 +280,7 @@ class TensorTest(PymatgenTest):
         tbs = [Tensor.from_voigt(row) for row in np.eye(6) * 0.01]
         reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
         assert len(reduced) == 2
-        self.assertArrayEqual([len(i) for i in reduced.values()], [2, 2])
+        assert [len(i) for i in reduced.values()] == [2, 2]
         reconstructed = []
         for k, v in reduced.items():
             reconstructed.extend([k.voigt] + [k.transform(op).voigt for op in v])
@@ -298,7 +294,7 @@ class TensorTest(PymatgenTest):
         tkey = Tensor.from_values_indices([0.01], [(0, 0)])
         tval = reduced[tkey]
         for tens_1, tens_2 in zip(tval, reduced[tbs[0]]):
-            assert pytest.approx(tens_1) == tens_2
+            assert approx(tens_1) == tens_2
         # Test set
         reduced[tkey] = "test_val"
         assert reduced[tkey] == "test_val"
@@ -320,12 +316,12 @@ class TensorTest(PymatgenTest):
         vtens[3, 3] = 73.48
         et = Tensor.from_voigt(vtens)
         populated = et.populate(sn, prec=1e-3).voigt.round(2)
-        assert populated[1, 1] == pytest.approx(259.31)
-        assert populated[2, 2] == pytest.approx(259.31)
-        assert populated[0, 2] == pytest.approx(160.71)
-        assert populated[1, 2] == pytest.approx(160.71)
-        assert populated[4, 4] == pytest.approx(73.48)
-        assert populated[5, 5] == pytest.approx(73.48)
+        assert populated[1, 1] == approx(259.31)
+        assert populated[2, 2] == approx(259.31)
+        assert populated[0, 2] == approx(160.71)
+        assert populated[1, 2] == approx(160.71)
+        assert populated[4, 4] == approx(73.48)
+        assert populated[5, 5] == approx(73.48)
         # test a rank 6 example
         vtens = np.zeros([6] * 3)
         indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), (0, 3, 3), (0, 5, 5), (3, 4, 5)]
@@ -334,13 +330,13 @@ class TensorTest(PymatgenTest):
             vtens[idx] = v
         toec = Tensor.from_voigt(vtens)
         toec = toec.populate(sn, prec=1e-3, verbose=True)
-        assert toec.voigt[1, 1, 1] == pytest.approx(-1271)
-        assert toec.voigt[0, 1, 1] == pytest.approx(-814)
-        assert toec.voigt[0, 2, 2] == pytest.approx(-814)
-        assert toec.voigt[1, 4, 4] == pytest.approx(-3)
-        assert toec.voigt[2, 5, 5] == pytest.approx(-3)
-        assert toec.voigt[1, 2, 0] == pytest.approx(-50)
-        assert toec.voigt[4, 5, 3] == pytest.approx(-95)
+        assert toec.voigt[1, 1, 1] == approx(-1271)
+        assert toec.voigt[0, 1, 1] == approx(-814)
+        assert toec.voigt[0, 2, 2] == approx(-814)
+        assert toec.voigt[1, 4, 4] == approx(-3)
+        assert toec.voigt[2, 5, 5] == approx(-3)
+        assert toec.voigt[1, 2, 0] == approx(-50)
+        assert toec.voigt[4, 5, 3] == approx(-95)
 
         et = Tensor.from_voigt(test_data["C3_raw"]).fit_to_structure(sn)
         new = np.zeros(et.voigt.shape)
@@ -422,9 +418,9 @@ class TensorCollectionTest(PymatgenTest):
         # zeroed
         tc = TensorCollection([1e-4 * Tensor(np.eye(3))] * 4)
         for t in tc.zeroed():
-            self.assertArrayEqual(t, np.zeros((3, 3)))
+            assert t == approx(0)
         for t in tc.zeroed(1e-5):
-            self.assertArrayEqual(t, 1e-4 * np.eye(3))
+            assert t == approx(1e-4 * np.eye(3))
         self.list_based_function_check("zeroed", tc)
         self.list_based_function_check("zeroed", tc, tol=1e-5)
 
@@ -517,14 +513,11 @@ class SquareTensorTest(PymatgenTest):
 
     def test_properties(self):
         # transpose
-        self.assertArrayEqual(
-            self.non_symm.trans,
-            SquareTensor([[0.1, 0.4, 0.2], [0.2, 0.5, 0.5], [0.3, 0.6, 0.5]]),
-        )
-        self.assertArrayEqual(self.rand_sqtensor.trans, np.transpose(self.rand_sqtensor))
-        self.assertArrayEqual(self.symm_sqtensor, self.symm_sqtensor.trans)
+        assert self.non_symm.trans == approx(SquareTensor([[0.1, 0.4, 0.2], [0.2, 0.5, 0.5], [0.3, 0.6, 0.5]]))
+        assert self.rand_sqtensor.trans == approx(np.transpose(self.rand_sqtensor))
+        assert self.symm_sqtensor == approx(self.symm_sqtensor.trans)
         # inverse
-        self.assertArrayEqual(self.non_symm.inv, np.linalg.inv(self.non_symm))
+        assert self.non_symm.inv == approx(np.linalg.inv(self.non_symm))
         with pytest.raises(ValueError):
             self.non_invertible.inv
 
@@ -534,11 +527,8 @@ class SquareTensorTest(PymatgenTest):
         assert self.non_symm.det == 0.009
 
         # symmetrized
-        self.assertArrayEqual(
-            self.rand_sqtensor.symmetrized,
-            0.5 * (self.rand_sqtensor + self.rand_sqtensor.trans),
-        )
-        self.assertArrayEqual(self.symm_sqtensor, self.symm_sqtensor.symmetrized)
+        assert self.rand_sqtensor.symmetrized == approx(0.5 * (self.rand_sqtensor + self.rand_sqtensor.trans))
+        assert self.symm_sqtensor == approx(self.symm_sqtensor.symmetrized)
         self.assertArrayAlmostEqual(
             self.non_symm.symmetrized,
             SquareTensor([[0.1, 0.3, 0.25], [0.3, 0.5, 0.55], [0.25, 0.55, 0.5]]),
@@ -573,10 +563,7 @@ class SquareTensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.rotation, new.refine_rotation())
 
     def test_get_scaled(self):
-        self.assertArrayEqual(
-            self.non_symm.get_scaled(10.0),
-            SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]),
-        )
+        assert self.non_symm.get_scaled(10.0) == approx(SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]))
 
     def test_polar_decomposition(self):
         u, p = self.rand_sqtensor.polar_decomposition()

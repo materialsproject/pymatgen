@@ -5,7 +5,6 @@ Classes for reading/manipulating/writing VASP output files.
 from __future__ import annotations
 
 import datetime
-import glob
 import itertools
 import logging
 import math
@@ -15,6 +14,7 @@ import warnings
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from dataclasses import dataclass
+from glob import glob
 from io import StringIO
 from pathlib import Path
 from typing import DefaultDict, Literal
@@ -3318,7 +3318,7 @@ class Outcar:
 
     def as_dict(self):
         """
-        :return: MSONAble dict.
+        :return: MSONable dict.
         """
         d = {
             "@module": type(self).__module__,
@@ -3866,20 +3866,18 @@ class Procar:
                     num_data = np.array([float(t) for t in toks[: len(headers)]])
                     if not done:
                         data[spin][current_kpoint, current_band, index, :] = num_data
+                    elif len(toks) > len(headers):
+                        # new format of PROCAR (vasp 5.4.4)
+                        num_data = np.array([float(t) for t in toks[: 2 * len(headers)]])
+                        for orb in range(len(headers)):
+                            phase_factors[spin][current_kpoint, current_band, index, orb] = complex(
+                                num_data[2 * orb], num_data[2 * orb + 1]
+                            )
+                    elif np.isnan(phase_factors[spin][current_kpoint, current_band, index, 0]):
+                        # old format of PROCAR (vasp 5.4.1 and before)
+                        phase_factors[spin][current_kpoint, current_band, index, :] = num_data
                     else:
-                        if len(toks) > len(headers):
-                            # new format of PROCAR (vasp 5.4.4)
-                            num_data = np.array([float(t) for t in toks[: 2 * len(headers)]])
-                            for orb in range(len(headers)):
-                                phase_factors[spin][current_kpoint, current_band, index, orb] = complex(
-                                    num_data[2 * orb], num_data[2 * orb + 1]
-                                )
-                        else:
-                            # old format of PROCAR (vasp 5.4.1 and before)
-                            if np.isnan(phase_factors[spin][current_kpoint, current_band, index, 0]):
-                                phase_factors[spin][current_kpoint, current_band, index, :] = num_data
-                            else:
-                                phase_factors[spin][current_kpoint, current_band, index, :] += 1j * num_data
+                        phase_factors[spin][current_kpoint, current_band, index, :] += 1j * num_data
                 elif line.startswith("tot"):
                     done = True
                 elif preambleexpr.match(line):
@@ -4114,7 +4112,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
     # TODO: Add better error handling!!!
     if os.path.exists(os.path.join(dir_name, "branch_0")):
         # get all branch dir names
-        branch_dir_names = [os.path.abspath(d) for d in glob.glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
+        branch_dir_names = [os.path.abspath(d) for d in glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
 
         # sort by the directory name (e.g, branch_10)
         sorted_branch_dir_names = sorted(branch_dir_names, key=lambda x: int(x.split("_")[-1]))
@@ -4226,9 +4224,8 @@ class Xdatcar:
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
-            else:
-                if ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                    structures.append(p.structure)
+            elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
+                structures.append(p.structure)
         self.structures = structures
         self.comment = comment or self.structures[0].formula
 
@@ -4295,9 +4292,8 @@ class Xdatcar:
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
-                    else:
-                        if ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                            structures.append(p.structure)
+                    elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
+                        structures.append(p.structure)
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
@@ -4306,9 +4302,8 @@ class Xdatcar:
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
-            else:
-                if ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                    structures.append(p.structure)
+            elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
+                structures.append(p.structure)
         self.structures = structures
 
     def get_string(self, ionicstep_start=1, ionicstep_end=None, significant_figures=8):
@@ -4343,14 +4338,13 @@ class Xdatcar:
                         line = " ".join(format_str.format(c) for c in coords)
                         lines.append(line)
                     output_cnt += 1
-            else:
-                if ionicstep_start <= ionicstep_cnt < ionicstep_end:
-                    lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
-                    for site in structure:
-                        coords = site.frac_coords
-                        line = " ".join(format_str.format(c) for c in coords)
-                        lines.append(line)
-                    output_cnt += 1
+            elif ionicstep_start <= ionicstep_cnt < ionicstep_end:
+                lines.append("Direct configuration=" + " " * (7 - len(str(output_cnt))) + str(output_cnt))
+                for site in structure:
+                    coords = site.frac_coords
+                    line = " ".join(format_str.format(c) for c in coords)
+                    lines.append(line)
+                output_cnt += 1
         return "\n".join(lines) + "\n"
 
     def write_file(self, filename, **kwargs):

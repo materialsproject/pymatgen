@@ -5,7 +5,6 @@ files.
 
 from __future__ import annotations
 
-import glob
 import itertools
 import json
 import logging
@@ -16,6 +15,7 @@ import subprocess
 import warnings
 from collections import namedtuple
 from enum import Enum
+from glob import glob
 from hashlib import md5, sha256
 from typing import Any, Literal, Sequence
 
@@ -94,7 +94,7 @@ class Poscar(MSONable):
         self,
         structure: Structure,
         comment: str | None = None,
-        selective_dynamics=None,
+        selective_dynamics: ArrayLike | None = None,
         true_names: bool = True,
         velocities: ArrayLike | None = None,
         predictor_corrector: ArrayLike | None = None,
@@ -102,32 +102,43 @@ class Poscar(MSONable):
         sort_structure: bool = False,
     ):
         """
-        :param structure: Structure object.
-        :param comment: Optional comment line for POSCAR. Defaults to unit
-            cell formula of structure. Defaults to None.
-        :param selective_dynamics: bool values for selective dynamics,
-            where N is number of sites. Defaults to None.
-        :param true_names: Set to False if the names in the POSCAR are not
-            well-defined and ambiguous. This situation arises commonly in
-            vasp < 5 where the POSCAR sometimes does not contain element
-            symbols. Defaults to True.
-        :param velocities: Velocities for the POSCAR. Typically parsed
-            in MD runs or can be used to initialize velocities.
-        :param predictor_corrector: Predictor corrector for the POSCAR.
-            Typically parsed in MD runs.
-        :param predictor_corrector_preamble: Preamble to the predictor
-            corrector.
-        :param sort_structure: Whether to sort structure. Useful if species
-            are not grouped properly together.
+        Args:
+            structure (Structure): Structure object.
+            comment (str | None, optional): Optional comment line for POSCAR. Defaults to unit
+                cell formula of structure. Defaults to None.
+            selective_dynamics (ArrayLike | None, optional): Bool values for selective dynamics,
+                where N is the number of sites. Defaults to None.
+            true_names (bool, optional): Set to False if the names in the POSCAR are not
+                well-defined and ambiguous. This situation arises commonly in
+                VASP < 5 where the POSCAR sometimes does not contain element
+                symbols. Defaults to True.
+            velocities (ArrayLike | None, optional): Velocities for the POSCAR. Typically parsed
+                in MD runs or can be used to initialize velocities. Defaults to None.
+            predictor_corrector (ArrayLike | None, optional): Predictor corrector for the POSCAR.
+                Typically parsed in MD runs. Defaults to None.
+            predictor_corrector_preamble (str | None, optional): Preamble to the predictor
+                corrector. Defaults to None.
+            sort_structure (bool, optional): Whether to sort the structure. Useful if species
+                are not grouped properly together. Defaults to False.
         """
         if structure.is_ordered:
             site_properties = {}
-            if selective_dynamics:
-                site_properties["selective_dynamics"] = selective_dynamics
-            if velocities:
-                site_properties["velocities"] = velocities
-            if predictor_corrector:
-                site_properties["predictor_corrector"] = predictor_corrector
+
+            if selective_dynamics is not None:
+                selective_dynamics = np.array(selective_dynamics)
+                if not selective_dynamics.all():
+                    site_properties["selective_dynamics"] = selective_dynamics
+
+            if velocities is not None:
+                velocities = np.array(velocities)
+                if velocities.any():
+                    site_properties["velocities"] = velocities
+
+            if predictor_corrector is not None:
+                predictor_corrector = np.array(predictor_corrector)
+                if predictor_corrector.any():
+                    site_properties["predictor_corrector"] = predictor_corrector
+
             structure = Structure.from_sites(structure)
             self.structure = structure.copy(site_properties=site_properties)
             if sort_structure:
@@ -233,7 +244,7 @@ class Poscar(MSONable):
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         if check_for_POTCAR:
-            potcars = glob.glob(os.path.join(dirname, "*POTCAR*"))
+            potcars = glob(os.path.join(dirname, "*POTCAR*"))
             if potcars:
                 try:
                     potcar = Potcar.from_file(sorted(potcars)[0])
@@ -1167,7 +1178,7 @@ class Kpoints(MSONable):
         grid.
 
         Args:
-            kpts: Subdivisions N_1, N_2 and N_3 along reciprocal lattice
+            kpts: Subdivisions N_1, N_2, N_3 along reciprocal lattice
                 vectors. Defaults to (2,2,2)
             shift: Shift to be applied to the kpoints. Defaults to (0,0,0).
 
@@ -2275,8 +2286,8 @@ class Potcar(list, MSONable):
 
         functionals = []
         for p in fdata.split("End of Dataset"):
-            if p.strip():
-                single = PotcarSingle(p + "End of Dataset\n")
+            if p_strip := p.strip():
+                single = PotcarSingle(p_strip + "End of Dataset\n")
                 potcar.append(single)
                 functionals.append(single.functional)
         if len(set(functionals)) != 1:
@@ -2284,10 +2295,10 @@ class Potcar(list, MSONable):
         potcar.functional = functionals[0]
         return potcar
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n".join(str(potcar).strip("\n") for potcar in self) + "\n"
 
-    def write_file(self, filename):
+    def write_file(self, filename: str) -> None:
         """
         Write Potcar to a file.
 

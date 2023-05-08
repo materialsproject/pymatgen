@@ -87,11 +87,11 @@ class AseAtomsAdaptor:
         charges = structure.site_properties["final_charge"] if "final_charge" in structure.site_properties else None
         if magmoms or charges:
             if magmoms and charges:
-                calc = SinglePointDFTCalculator(atoms, **{"magmoms": magmoms, "charges": charges})
+                calc = SinglePointDFTCalculator(atoms, magmoms=magmoms, charges=charges)
             elif magmoms:
-                calc = SinglePointDFTCalculator(atoms, **{"magmoms": magmoms})
+                calc = SinglePointDFTCalculator(atoms, magmoms=magmoms)
             elif charges:
-                calc = SinglePointDFTCalculator(atoms, **{"charges": charges})
+                calc = SinglePointDFTCalculator(atoms, charges=charges)
             atoms.calc = calc
 
         # Get the oxidation states from the structure
