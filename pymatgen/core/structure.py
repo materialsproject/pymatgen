@@ -2353,13 +2353,13 @@ class IStructure(SiteCollection, MSONable):
                 dist_matrix = subset_structure.distance_matrix
                 dists = sorted(set(dist_matrix.ravel()))
                 unique_dists = []
-                for i in range(1, len(dists)):
-                    if dists[i] - dists[i - 1] > 0.1:
-                        unique_dists.append(dists[i])
+                for idx in range(1, len(dists)):
+                    if dists[idx] - dists[idx - 1] > 0.1:
+                        unique_dists.append(dists[idx])
                 clusters = {(i + 2): d + 0.01 for i, d in enumerate(unique_dists) if i < 2}
                 kwargs["clusters"] = clusters
             return [run_mcsqs(self, **kwargs).bestsqs]
-        raise ValueError()
+        raise ValueError("Invalid mode!")
 
     def as_dict(self, verbosity=1, fmt=None, **kwargs):
         """

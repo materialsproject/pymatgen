@@ -1690,7 +1690,7 @@ class ExcHamiltonian(AbivarAble):
             )
 
         elif self.use_direct_diago or self.use_cg:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         else:
             raise ValueError(f"Unknown algorithm for EXC: {self.algo}")

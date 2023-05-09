@@ -284,7 +284,7 @@ class SupercellTransformation(AbstractTransformation):
         """
         Raises: NotImplementedError
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1018,7 +1018,7 @@ class ChargedCellTransformation(AbstractTransformation):
         """
         Raises: NotImplementedError
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def is_one_to_many(self) -> bool:

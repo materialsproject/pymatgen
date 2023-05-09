@@ -413,9 +413,8 @@ class PackmolRunner:
         Returns:
             Molecule
         """
-        # only for pdb
-        if not self.control_params["filetype"] == "pdb":
-            raise ValueError()
+        if not self.control_params["filetype"] == "pdb":  # only for pdb
+            raise ValueError("site properties can only be restored for pdb files.")
 
         filename = filename or self.control_params["output"]
         bma = BabelMolAdaptor.from_file(filename, "pdb")

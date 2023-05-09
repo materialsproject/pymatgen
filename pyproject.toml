@@ -27,7 +27,7 @@ target-version = "py38"
 line-length = 120
 select = [
   "B",   # flake8-bugbear
-  "C40", # flake8-comprehensions
+  "C4",  # flake8-comprehensions
   "D",   # pydocstyle
   "E",   # pycodestyle error
   "F",   # pyflakes
@@ -39,6 +39,7 @@ select = [
   "PL",  # pylint
   "PT",  # flake8-pytest-style
   "Q",   # flake8-quotes
+  "RSE", # flake8-raise
   "RUF", # Ruff-specific rules
   "SIM", # flake8-simplify
   "TID", # tidy imports

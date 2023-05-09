@@ -2067,7 +2067,7 @@ class MoleculeGraph(MSONable):
             sub_mols.append(MoleculeGraph(new_mol, graph_data=graph_data))
 
         if return_index_map:
-            return sub_mols, {new: old for new, old in enumerate(new_to_old_index)}
+            return sub_mols, dict(enumerate(new_to_old_index))
         return sub_mols
 
     def split_molecule_subgraphs(self, bonds, allow_reverse=False, alterations=None):

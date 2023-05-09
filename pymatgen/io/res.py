@@ -526,13 +526,13 @@ class AirssProvider(ResProvider):
         return self._raise_or_none(ParseError("Could not find line with AIRSS version."))  # type: ignore
 
     def _get_compiler(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _get_compile_options(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _get_rng_seeds(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_pspots(self) -> dict[str, str]:
         """
