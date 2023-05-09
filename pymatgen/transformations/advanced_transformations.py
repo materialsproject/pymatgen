@@ -1600,7 +1600,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             self.transformation_matrix = target_sc_lat_vecs @ np.linalg.inv(lat_vecs)  # type: ignore
 
             # round the entries of T and force T to be non-singular
-            self.transformation_matrix = _round_and_make_arr_singular(
+            self.transformation_matrix = _round_and_make_arr_singular(  # type: ignore[assignment]
                 self.transformation_matrix  # type: ignore[arg-type]
             )
 
