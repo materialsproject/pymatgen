@@ -1601,7 +1601,7 @@ class CubicSupercellTransformation(AbstractTransformation):
 
             # round the entries of T and force T to be non-singular
             self.transformation_matrix = _round_and_make_arr_singular(
-                self.transformation_matrix  # type: ignore[assignment]
+                self.transformation_matrix  # type: ignore[arg-type]
             )
 
             proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs
