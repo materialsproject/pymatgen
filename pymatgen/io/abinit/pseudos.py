@@ -14,8 +14,6 @@ from collections import defaultdict, namedtuple
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
-
-# from monty.dev import deprecated
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MontyDecoder, MSONable

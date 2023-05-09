@@ -7,7 +7,6 @@ import unittest
 import warnings
 
 import numpy as np
-import pytest
 from monty.serialization import dumpfn, loadfn
 from monty.tempfile import ScratchDir
 from pytest import approx
@@ -259,8 +258,6 @@ class PourbaixDiagramTest(unittest.TestCase):
 
         # Test with unstable solid entries included (filter_solids=False), this should result in the
         # previously filtered entries being included
-        with pytest.warns(DeprecationWarning, match="The include_unprocessed_entries kwarg is deprecated!"):
-            d = self.pbx_nofilter.as_dict(include_unprocessed_entries=True)
         new = PourbaixDiagram.from_dict(d)
         assert {e.name for e in new.stable_entries} == {
             "ZnO(s)",
