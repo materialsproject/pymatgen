@@ -38,7 +38,9 @@ select = [
   "PIE", # flake8-pie
   "PL",  # pylint
   "PT",  # flake8-pytest-style
+  "PYI", # flakes8-pyi
   "Q",   # flake8-quotes
+  "RET", # flake8-return
   "RSE", # flake8-raise
   "RUF", # Ruff-specific rules
   "SIM", # flake8-simplify
@@ -72,6 +74,8 @@ ignore = [
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT011",   # pytest-raises-too-broad
   "PT013",   # pytest-incorrect-pytest-import
+  "RET501",  # unnecessary-return-none
+  "RET504",  # unnecessary-assign
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
   "SIM115",  # Use context handler for opening files
 ]
