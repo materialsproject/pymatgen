@@ -223,7 +223,7 @@ def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
             of disordered structure. Offending {structure = }
         """
         )
-    elif on_disorder.startswith("take_"):
+    if on_disorder.startswith("take_"):
         # disordered structures raise AttributeError when passed to NearNeighbors.get_cn()
         # or NearNeighbors.get_bonded_structure() (and probably others too, see GH-2070).
         # As a workaround, we create a new structure with majority species on each site.
@@ -236,7 +236,7 @@ def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
                     raise ValueError(
                         f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
                     )
-                elif on_disorder == "take_majority_drop":
+                if on_disorder == "take_majority_drop":
                     continue
 
             # this is the take_max_species case

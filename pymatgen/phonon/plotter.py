@@ -400,10 +400,10 @@ class PhononBSPlotter:
         # if there are two groups, use red and blue
         if len(colors) == 2:
             return [colors[0], 0, colors[1]]
-        elif len(colors) == 3:
+        if len(colors) == 3:
             return colors
         # if there are four groups, use cyan, magenta, yellow and black
-        elif len(colors) == 4:
+        if len(colors) == 4:
             r = (1 - colors[0]) * (1 - colors[3])
             g = (1 - colors[1]) * (1 - colors[3])
             b = (1 - colors[2]) * (1 - colors[3])

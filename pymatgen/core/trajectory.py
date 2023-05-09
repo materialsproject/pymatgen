@@ -343,16 +343,15 @@ class Trajectory(MSONable):
                     site_properties=self._get_site_props(frames),  # type: ignore
                 )
 
-            else:
-                lattice = self.lattice if self.constant_lattice else self.lattice[frames]  # type: ignore
+            lattice = self.lattice if self.constant_lattice else self.lattice[frames]  # type: ignore
 
-                return Structure(
-                    Lattice(lattice),
-                    self.species,
-                    self.coords[frames],
-                    site_properties=self._get_site_props(frames),  # type: ignore
-                    to_unit_cell=True,
-                )
+            return Structure(
+                Lattice(lattice),
+                self.species,
+                self.coords[frames],
+                site_properties=self._get_site_props(frames),  # type: ignore
+                to_unit_cell=True,
+            )
 
         # For slice input, return a trajectory
         if isinstance(frames, (slice, list, np.ndarray)):
@@ -386,20 +385,19 @@ class Trajectory(MSONable):
                     base_positions=self.base_positions,
                 )
 
-            else:
-                lattice = self.lattice if self.constant_lattice else self.lattice[selected]  # type: ignore
+            lattice = self.lattice if self.constant_lattice else self.lattice[selected]  # type: ignore
 
-                return Trajectory(
-                    species=self.species,
-                    coords=coords,
-                    lattice=lattice,
-                    site_properties=self._get_site_props(selected),
-                    frame_properties=frame_properties,
-                    constant_lattice=self.constant_lattice,
-                    time_step=self.time_step,
-                    coords_are_displacement=False,
-                    base_positions=self.base_positions,
-                )
+            return Trajectory(
+                species=self.species,
+                coords=coords,
+                lattice=lattice,
+                site_properties=self._get_site_props(selected),
+                frame_properties=frame_properties,
+                constant_lattice=self.constant_lattice,
+                time_step=self.time_step,
+                coords_are_displacement=False,
+                base_positions=self.base_positions,
+            )
 
         supported = [int, slice, list or np.ndarray]
         raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")

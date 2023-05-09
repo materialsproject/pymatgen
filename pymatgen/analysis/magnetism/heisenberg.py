@@ -95,9 +95,9 @@ class HeisenbergMapper:
         # Check how many commensurate graphs we found
         if len(self.sgraphs) < 2:
             raise SystemExit("We need at least 2 unique orderings.")
-        else:  # Set attributes
-            self._get_nn_dict()
-            self._get_exchange_df()
+        # Set attributes
+        self._get_nn_dict()
+        self._get_exchange_df()
 
     @staticmethod
     def _get_graphs(cutoff, ordered_structures):

@@ -1100,6 +1100,7 @@ class CifParser:
                 struct = struct.get_reduced_structure()
 
             return struct
+        return None
 
     def get_structures(self, primitive=True, symmetrized=False):
         """

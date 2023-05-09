@@ -53,10 +53,9 @@ def _hash_label(label, digest_size):
 def _init_node_labels(G, edge_attr, node_attr):
     if node_attr:
         return {u: str(dd[node_attr]) for u, dd in G.nodes(data=True)}
-    elif edge_attr:
+    if edge_attr:
         return {u: "" for u in G}
-    else:
-        return {u: str(deg) for u, deg in G.degree()}
+    return {u: str(deg) for u, deg in G.degree()}
 
 
 def _neighborhood_aggregate(G, node, node_labels, edge_attr=None):

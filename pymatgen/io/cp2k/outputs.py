@@ -1428,7 +1428,7 @@ class Cp2kOutput:
             if self.filenames["hyperfine_tensor"]:
                 hyperfine_filename = self.filenames["hyperfine_tensor"][0]
             else:
-                return
+                return None
 
         with zopen(hyperfine_filename, "rt") as f:
             lines = [line for line in f.read().split("\n") if line]
@@ -1451,7 +1451,7 @@ class Cp2kOutput:
             if self.filenames["g_tensor"]:
                 gtensor_filename = self.filenames["g_tensor"][0]
             else:
-                return
+                return None
 
         with zopen(gtensor_filename, "rt") as f:
             lines = [line for line in f.read().split("\n") if line]
@@ -1490,7 +1490,7 @@ class Cp2kOutput:
             if self.filenames["chi_tensor"]:
                 chi_filename = self.filenames["chi_tensor"][0]
             else:
-                return
+                return None
 
         with zopen(chi_filename, "rt") as f:
             lines = [line for line in f.read().split("\n") if line]
