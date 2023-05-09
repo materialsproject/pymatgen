@@ -497,6 +497,7 @@ class DftSet(Cp2kInput):
                 for p in possible_potentials:
                     if x.info.electrons == p.info.electrons:
                         return p
+                return None
 
             for b in possible_basis_sets:
                 fb = match_elecs(b)
@@ -559,8 +560,7 @@ class DftSet(Cp2kInput):
                 max_lshell = max(shell for shell in b.lmax)
                 exponent = np.log(radius**max_lshell / threshold) / radius**2
                 return [[exponent]]
-            else:
-                return b.exponents
+            return b.exponents
 
         exponents = [get_soft_exponents(b) for b in basis_sets if b.exponents]
         exponents = list(itertools.chain.from_iterable(exponents))

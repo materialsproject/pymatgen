@@ -1236,7 +1236,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="not found in the mixing state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_complete_duplicate_structs.state_data)
                 continue
-            elif e.entry_id in ["gga-1", "gga-3", "gga-4"]:
+            if e.entry_id in ["gga-1", "gga-3", "gga-4"]:
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_complete_duplicate_structs.state_data)
             else:
@@ -1277,7 +1277,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 assert compat.get_adjustments(e, state_data)[0].value == -6
                 continue
 
-            elif e.entry_id in ["gga-1", "gga-3", "gga-4"]:
+            if e.entry_id in ["gga-1", "gga-3", "gga-4"]:
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     compat.get_adjustments(e, ms_complete.state_data)
             else:

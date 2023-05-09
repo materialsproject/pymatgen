@@ -306,9 +306,8 @@ class LammpsInputFile(InputFile):
         if stage_name in self.stages_names:
             if new_name in self.stages_names:
                 raise ValueError("The provided stage name is already present in LammpsInputFile.stages.")
-            else:
-                idx = self.stages_names.index(stage_name)
-                self.stages[idx]["stage_name"] = new_name
+            idx = self.stages_names.index(stage_name)
+            self.stages[idx]["stage_name"] = new_name
         else:
             raise LookupError("The given stage name is not present in this LammpsInputFile.")
 

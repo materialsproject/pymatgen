@@ -462,7 +462,7 @@ class QChemDictSet(QCInput):
                         "in the following order: dielectric, refractive index, acidity, basicity, surface"
                         " tension, aromaticity, electronegative halogenicity"
                     )
-                elif self.qchem_version == 6:
+                if self.qchem_version == 6:
                     custom_smd_vals = self.custom_smd.split(",")
                     mysmx["epsilon"] = custom_smd_vals[0]
                     mysmx["SolN"] = custom_smd_vals[1]

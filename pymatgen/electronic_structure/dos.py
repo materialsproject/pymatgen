@@ -1314,18 +1314,17 @@ class CompleteDos(Dos):
             rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)
             return np.dot(vec1, vec2) / rescale
 
-        elif not tanimoto and normalize:
+        if not tanimoto and normalize:
             rescale = np.linalg.norm(vec1) * np.linalg.norm(vec2)
             return np.dot(vec1, vec2) / rescale
 
-        elif not tanimoto and not normalize:
+        if not tanimoto and not normalize:
             rescale = 1.0
             return np.dot(vec1, vec2) / rescale
 
-        else:
-            raise ValueError(
-                "Cannot compute similarity index. Please set either normalize=True or tanimoto=True or both to False."
-            )
+        raise ValueError(
+            "Cannot compute similarity index. Please set either normalize=True or tanimoto=True or both to False."
+        )
 
     @classmethod
     def from_dict(cls, d) -> CompleteDos:

@@ -94,8 +94,7 @@ class DosPlotterTest(unittest.TestCase):
         if plt.axes:
             ax = plt.gca()
             return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
-        else:
-            return None
+        return None
 
 
 class BSPlotterTest(unittest.TestCase):

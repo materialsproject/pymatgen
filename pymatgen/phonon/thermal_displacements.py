@@ -155,8 +155,7 @@ class ThermalDisplacementMatrices(MSONable):
                 mat_cif = np.dot(np.dot(Ninv, mat), Ninv.T)
                 Ucif.append(mat_cif)
             return np.array(Ucif)
-        else:
-            return self.thermal_displacement_matrix_cif_matrixform
+        return self.thermal_displacement_matrix_cif_matrixform
 
     @property
     def B(self):

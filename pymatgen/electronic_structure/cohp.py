@@ -957,6 +957,7 @@ class IcohpValue(MSONable):
                 + str(self._icohp[Spin.up])
                 + " (Spin up)"
             )
+        return None
 
     @property
     def num_bonds(self):

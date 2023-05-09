@@ -494,6 +494,7 @@ class PWInput:
         m = re.match(r"^[\"|'](.+)[\"|']$", val)
         if m:
             return m.group(1)
+        return None
 
 
 class PWInputError(BaseException):

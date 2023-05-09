@@ -332,45 +332,44 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 return adjustments
 
             # Discard GGA ground states whose structures already exist in R2SCAN.
-            else:
-                df_slice = mixing_state_data[(mixing_state_data["entry_id_1"] == entry.entry_id)]
+            df_slice = mixing_state_data[(mixing_state_data["entry_id_1"] == entry.entry_id)]
 
-                if df_slice["entry_id_2"].notna().item():
-                    # there is a matching run_type_2 entry, so we will discard this entry
-                    if df_slice["is_stable_1"].item():
-                        # this is a GGA ground state.
-                        raise CompatibilityError(
-                            f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
-                            f"because it is a {self.run_type_1} ground state that matches a {self.run_type_2} "
-                            "material."
-                        )
-
+            if df_slice["entry_id_2"].notna().item():
+                # there is a matching run_type_2 entry, so we will discard this entry
+                if df_slice["is_stable_1"].item():
+                    # this is a GGA ground state.
                     raise CompatibilityError(
                         f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
-                        f"because there is a matching {self.run_type_2} material."
+                        f"because it is a {self.run_type_1} ground state that matches a {self.run_type_2} "
+                        "material."
                     )
 
-                # If a GGA is not present in R2SCAN, correct its energy to give the same
-                # e_above_hull on the R2SCAN hull that it would have on the GGA hull
-                hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
-                hull_energy_2 = df_slice["hull_energy_2"].iloc[0]
-                correction = (hull_energy_2 - hull_energy_1) * entry.composition.num_atoms
-
-                adjustments.append(
-                    ConstantEnergyAdjustment(
-                        correction,
-                        0.0,
-                        name=f"MP {self.run_type_1}/{self.run_type_2} mixing adjustment",
-                        cls=self.as_dict(),
-                        description=f"Place {self.run_type_1} energy onto the {self.run_type_2} hull",
-                    )
+                raise CompatibilityError(
+                    f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                    f"because there is a matching {self.run_type_2} material."
                 )
-                return adjustments
+
+            # If a GGA is not present in R2SCAN, correct its energy to give the same
+            # e_above_hull on the R2SCAN hull that it would have on the GGA hull
+            hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
+            hull_energy_2 = df_slice["hull_energy_2"].iloc[0]
+            correction = (hull_energy_2 - hull_energy_1) * entry.composition.num_atoms
+
+            adjustments.append(
+                ConstantEnergyAdjustment(
+                    correction,
+                    0.0,
+                    name=f"MP {self.run_type_1}/{self.run_type_2} mixing adjustment",
+                    cls=self.as_dict(),
+                    description=f"Place {self.run_type_1} energy onto the {self.run_type_2} hull",
+                )
+            )
+            return adjustments
 
         # Second case - there are run_type_2 energies available for at least some run_type_1
         # stable entries. Here, we can correct run_type_2 energies at certain compositions
         # to preserve their e_above_hull on the run_type_1 hull
-        elif any(mixing_state_data[mixing_state_data["is_stable_1"]]["entry_id_2"].notna()):
+        if any(mixing_state_data[mixing_state_data["is_stable_1"]]["entry_id_2"].notna()):
             if run_type in self.valid_rtypes_1:  # pylint: disable=R1705
                 df_slice = mixing_state_data[mixing_state_data["entry_id_1"] == entry.entry_id]
 
@@ -392,55 +391,54 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 # For other run_type_1 entries, there is no correction
                 return adjustments
 
-            else:
-                # for run_type_2, determine whether there is a run_type_2 ground state at this composition
-                df_slice = mixing_state_data[mixing_state_data["formula"] == entry.composition.reduced_formula]
+            # for run_type_2, determine whether there is a run_type_2 ground state at this composition
+            df_slice = mixing_state_data[mixing_state_data["formula"] == entry.composition.reduced_formula]
 
-                if any(df_slice[df_slice["is_stable_1"]]["entry_id_2"].notna()):
-                    # there is a run_type_2 entry corresponding to the run_type_1 ground state
-                    # adjust the run_type_2 energy to preserve the e_above_hull
-                    gs_energy_type_2 = df_slice[df_slice["is_stable_1"]]["energy_2"].item()
-                    e_above_hull = entry.energy_per_atom - gs_energy_type_2
-                    hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
-                    correction = (hull_energy_1 + e_above_hull - entry.energy_per_atom) * entry.composition.num_atoms
-                    adjustments.append(
-                        ConstantEnergyAdjustment(
-                            correction,
-                            0.0,
-                            name=f"MP {self.run_type_1}/{self.run_type_2} mixing adjustment",
-                            cls=self.as_dict(),
-                            description=f"Place {self.run_type_2} energy onto the {self.run_type_1} hull",
-                        )
+            if any(df_slice[df_slice["is_stable_1"]]["entry_id_2"].notna()):
+                # there is a run_type_2 entry corresponding to the run_type_1 ground state
+                # adjust the run_type_2 energy to preserve the e_above_hull
+                gs_energy_type_2 = df_slice[df_slice["is_stable_1"]]["energy_2"].item()
+                e_above_hull = entry.energy_per_atom - gs_energy_type_2
+                hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
+                correction = (hull_energy_1 + e_above_hull - entry.energy_per_atom) * entry.composition.num_atoms
+                adjustments.append(
+                    ConstantEnergyAdjustment(
+                        correction,
+                        0.0,
+                        name=f"MP {self.run_type_1}/{self.run_type_2} mixing adjustment",
+                        cls=self.as_dict(),
+                        description=f"Place {self.run_type_2} energy onto the {self.run_type_1} hull",
                     )
-                    return adjustments
-
-                # this composition is not stable in run_type_1. If the run_type_2 entry matches a run_type_1
-                # entry, we can adjust the run_type_2 energy to match the run_type_1 energy.
-                if any(df_slice[df_slice["entry_id_2"] == entry.entry_id]["entry_id_1"].notna()):
-                    # adjust the energy of the run_type_2 entry to match that of the run_type_1 entry
-                    type_1_energy = df_slice[df_slice["entry_id_2"] == entry.entry_id]["energy_1"].iloc[0]
-                    correction = (type_1_energy - entry.energy_per_atom) * entry.composition.num_atoms
-                    adjustments.append(
-                        ConstantEnergyAdjustment(
-                            correction,
-                            0.0,
-                            name=f"MP {self.run_type_1}/{self.run_type_2} mixing adjustment",
-                            cls=self.as_dict(),
-                            description=f"Replace {self.run_type_2} energy with {self.run_type_1} energy",
-                        )
-                    )
-                    return adjustments
-
-                # there is no run_type_1 entry that matches this material, and no ground state. Discard.
-                raise CompatibilityError(
-                    f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
-                    f"because there is no matching {self.run_type_1} entry and no {self.run_type_2} "
-                    "ground state at this composition."
                 )
+                return adjustments
+
+            # this composition is not stable in run_type_1. If the run_type_2 entry matches a run_type_1
+            # entry, we can adjust the run_type_2 energy to match the run_type_1 energy.
+            if any(df_slice[df_slice["entry_id_2"] == entry.entry_id]["entry_id_1"].notna()):
+                # adjust the energy of the run_type_2 entry to match that of the run_type_1 entry
+                type_1_energy = df_slice[df_slice["entry_id_2"] == entry.entry_id]["energy_1"].iloc[0]
+                correction = (type_1_energy - entry.energy_per_atom) * entry.composition.num_atoms
+                adjustments.append(
+                    ConstantEnergyAdjustment(
+                        correction,
+                        0.0,
+                        name=f"MP {self.run_type_1}/{self.run_type_2} mixing adjustment",
+                        cls=self.as_dict(),
+                        description=f"Replace {self.run_type_2} energy with {self.run_type_1} energy",
+                    )
+                )
+                return adjustments
+
+            # there is no run_type_1 entry that matches this material, and no ground state. Discard.
+            raise CompatibilityError(
+                f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                f"because there is no matching {self.run_type_1} entry and no {self.run_type_2} "
+                "ground state at this composition."
+            )
 
         # Third case - there are no run_type_2 energies available for any run_type_1
         # ground states. There's no way to use the run_type_2 energies in this case.
-        elif all(mixing_state_data[mixing_state_data["is_stable_1"]]["entry_id_2"].isna()):
+        if all(mixing_state_data[mixing_state_data["is_stable_1"]]["entry_id_2"].isna()):
             if run_type in self.valid_rtypes_1:
                 # nothing to do for run_type_1, return as is
                 return adjustments
@@ -452,11 +450,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             )
 
         # this statement is here to make pylint happy by guaranteeing a return or raise
-        else:
-            raise CompatibilityError(
-                "WARNING! If you see this Exception it means you have encountered"
-                f"an edge case in {type(self).__name__}. Inspect your input carefully and post a bug report."
-            )
+        raise CompatibilityError(
+            "WARNING! If you see this Exception it means you have encountered"
+            f"an edge case in {type(self).__name__}. Inspect your input carefully and post a bug report."
+        )
 
     def get_mixing_state_data(self, entries: list[ComputedStructureEntry]):
         """

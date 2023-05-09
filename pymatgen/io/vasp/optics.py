@@ -219,11 +219,10 @@ class DielectricFunctionCalculator(MSONable):
         try:
             min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
             min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
-        except ValueError as e:
-            if "zero-size array" in str(e):
-                raise ValueError("No matrix elements found.  Check the mask.")
-            else:
-                raise e
+        except ValueError as exc:
+            if "zero-size array" in str(exc):
+                raise ValueError("No matrix elements found. Check the mask.")
+            raise
 
         x_val = []
         y_val = []
@@ -278,9 +277,9 @@ def delta_func(x, ismear):
     """Replication of VASP's delta function"""
     if ismear < -1:
         raise ValueError("Delta function not implemented for ismear < -1")
-    elif ismear == -1:
+    if ismear == -1:
         return step_func(x, -1) * (1 - step_func(x, -1))
-    elif ismear < 0:
+    if ismear < 0:
         return np.exp(-(x * x)) / np.sqrt(np.pi)
     return delta_methfessel_paxton(x, ismear)
 
@@ -289,9 +288,9 @@ def step_func(x, ismear):
     """Replication of VASP's step function"""
     if ismear < -1:
         raise ValueError("Delta function not implemented for ismear < -1")
-    elif ismear == -1:
+    if ismear == -1:
         return 1 / (1.0 + np.exp(-x))
-    elif ismear < 0:
+    if ismear < 0:
         return 0.5 + 0.5 * scipy.special.erf(x)
     return step_methfessel_paxton(x, ismear)
 

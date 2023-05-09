@@ -104,8 +104,7 @@ class WulffShapeTest(PymatgenTest):
                 symm_point = op.operate(point)
                 if in_coord_list(wulff_vertices, symm_point):
                     continue
-                else:
-                    return False
+                return False
         return True
 
     def consistency_tests(self):

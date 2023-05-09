@@ -78,9 +78,9 @@ class Ion:
         if self.spin is None:
             ion_fmt = "{:<7s}{:<2d} {:.8f} {:.8f} {:.8f} {:f}"
             return ion_fmt.format(self.specie, self.specie_num, *self.pos, self.occupancy)
-        else:
-            ion_fmt = "{:<7s}{:<2d} {:.8f} {:.8f} {:.8f} {:f} {:5.2f}"
-            return ion_fmt.format(self.specie, self.specie_num, *self.pos, self.occupancy, self.spin)
+
+        ion_fmt = "{:<7s}{:<2d} {:.8f} {:.8f} {:.8f} {:f} {:5.2f}"
+        return ion_fmt.format(self.specie, self.specie_num, *self.pos, self.occupancy, self.spin)
 
 
 @dataclass(frozen=True)
@@ -158,10 +158,9 @@ class ResParser:
             return AirssTITL(
                 seed, float(pressure), float(volume), float(energy), float(spin), float(abs_spin), spg, int(nap)
             )
-        else:
-            # there should at least be the first 6 fields if it's an AIRSS res file
-            # if it doesn't have them, then just stop looking
-            return None
+        # there should at least be the first 6 fields if it's an AIRSS res file
+        # if it doesn't have them, then just stop looking
+        return None
 
     def _parse_cell(self, line: str) -> ResCELL:
         """Parses the CELL entry."""
@@ -216,7 +215,7 @@ class ResParser:
                 splits = len(split)
                 if splits == 0:
                     continue
-                elif splits == 1:
+                if splits == 1:
                     first, rest = *split, ""
                 else:
                     first, rest = split
