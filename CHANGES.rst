@@ -3,107 +3,56 @@ Change log
 
 v2023.5.8
 ---------
-* PR #2959 from @materialsproject dependabot/github_actions/pypa/cibuildwheel-2.12.3
-    Bumps [pypa/cibuildwheel](https://github.com/pypa/cibuildwheel) from 2.11.4 to 2.12.3.
-    <details>
-    <summary>Release notes</summary>
-    <p><em>Sourced from <a href="https://github.com/pypa/cibuildwheel/releases">pypa/cibuildwheel's releases</a>.</em></p>
-    <blockquote>
-    <h2>v2.12.3</h2>
-    <ul>
-    <li>🐛 Fix an import error when running on Python 3.7. (<a href="https://redirect.github.com/pypa/cibuildwheel/issues/1479">#1479</a>)</li>
-    </ul>
-    <h2>v2.12.2</h2>
-    <ul>
-    <li>🐛 Fix a bug that caused an extra empty config-setting to be passed to the backend when CIBW_BUILD_FRONTEND is set to <code>build</code>. (<a href="https://redirect.github.com/pypa/cibuildwheel/issues/1474">#1474</a>)</li>
-    <li>🐛 Fix a crash that occurred when overwriting an existing wheel on Windows. (<a href="https://redirect.github.com/pypa/cibuildwheel/issues/1464">#1464</a>)</li>
-    <li>🛠 Pinned version updates, including CPython 3.10.11, 3.11.3, pip 23.1 and wheel 0.40.0.</li>
-    </ul>
-    <h2>v2.12.1</h2>
-    <ul>
-    <li>🐛 Fix a bug that prevented the use of CIBW_CONFIG_SETTINGS with the 'pip' build backend. (<a href="https://redirect.github.com/pypa/cibuildwheel/issues/1430">#1430</a>)</li>
-    </ul>
-    <h2>v2.12.0</h2>
-    <ul>
-    <li>✨ Adds support for PyPy arm64 wheels. This means that you can build PyPy wheels for Apple Silicon machines. Cross-compilation is not supported for these wheels, so you'll have to build on an Apple Silicon machine. (<a href="https://redirect.github.com/pypa/cibuildwheel/issues/1372">#1372</a>)</li>
-    <li>🛠 Pinned version updates, including PyPy to v7.3.11 and setuptools to 66.0.0.</li>
-    </ul>
-    </blockquote>
-    </details>
-    <details>
-    <summary>Changelog</summary>
-    <p><em>Sourced from <a href="https://github.com/pypa/cibuildwheel/blob/main/docs/changelog.md">pypa/cibuildwheel's changelog</a>.</em></p>
-    <blockquote>
-    <h3>v2.12.3</h3>
-    <p><em>19 April 2023</em></p>
-    <ul>
-    <li>🐛 Fix an import error when running on Python 3.7. (<a href="https://redirect.github.com/pypa/cibuildwheel/issues/1479">#1479</a>)</li>
-    </ul>
-    <h3>v2.12.2</h3>
-    <p><em>18 April 2023</em></p>
-    <ul>
-    <li>🐛 Fix a bug that caused an extra empty config-setting to be passed to the backend when CIBW_BUILD_FRONTEND is set to <code>build</code>. (<a href="https://redirect.github.com/pypa/cibuildwheel/issues/1474">#1474</a>)</li>
-    <li>🐛 Fix a crash that occurred when overwriting an existing wheel on Windows. (<a href="https://redirect.github.com/pypa/cibuildwheel/issues/1464">#1464</a>)</li>
-    <li>🛠 Pinned version updates, including CPython 3.10.11, 3.11.3, pip 23.1 and wheel 0.40.0.</li>
-    </ul>
-    <h3>v2.12.1</h3>
-    <p><em>11 March 2023</em></p>
-    <ul>
-    <li>🐛 Fix a bug that prevented the use of CIBW_CONFIG_SETTINGS with the 'pip' build backend. (<a href="https://redirect.github.com/pypa/cibuildwheel/issues/1430">#1430</a>)</li>
-    </ul>
-    <h3>v2.12.0</h3>
-    <p><em>16 Jan 2023</em></p>
-    <ul>
-    <li>✨ Adds support for PyPy arm64 wheels. This means that you can build PyPy wheels for Apple Silicon machines. Cross-compilation is not supported for these wheels, so you'll have to build on an Apple Silicon machine. (<a href="https://redirect.github.com/pypa/cibuildwheel/issues/1372">#1372</a>)</li>
-    <li>🛠 Pinned version updates, including PyPy to v7.3.11 and setuptools to 66.0.0.</li>
-    </ul>
-    </blockquote>
-    </details>
-    <details>
-    <summary>Commits</summary>
-    <ul>
-    <li><a href="https://github.com/pypa/cibuildwheel/commit/5e15bb25b428e1bf2daf2215f173d2b40135f56f"><code>5e15bb2</code></a> Bump version: v2.12.3</li>
-    <li><a href="https://github.com/pypa/cibuildwheel/commit/52572ccdd01fcde11603283bcfda090086a7d11c"><code>52572cc</code></a> Merge pull request <a href="https://redirect.github.com/pypa/cibuildwheel/issues/1479">#1479</a> from henryiii/henryiii/fix/py37</li>
-    <li><a href="https://github.com/pypa/cibuildwheel/commit/c6027e4fc72eee01851e06b1cd173aabeb3abfe0"><code>c6027e4</code></a> docs: fix options.md typos (<a href="https://redirect.github.com/pypa/cibuildwheel/issues/1477">#1477</a>)</li>
-    <li><a href="https://github.com/pypa/cibuildwheel/commit/aff6dd5adc49114f1ee49c82bcb386a142fc614a"><code>aff6dd5</code></a> refactor: tomllib in _compat</li>
-    <li><a href="https://github.com/pypa/cibuildwheel/commit/31bd9c91743e09f5b48c4def38c255c14c00d1af"><code>31bd9c9</code></a> refactor: restore typing for non-backports</li>
-    <li><a href="https://github.com/pypa/cibuildwheel/commit/d996af554ae21435028e538e417e403e8db7433e"><code>d996af5</code></a> fix: restore Python 3.7 support</li>
-    <li><a href="https://github.com/pypa/cibuildwheel/commit/e42f243b523a93352f0686ba2f4a62b7bf5f7d34"><code>e42f243</code></a> ci: add Python 3.7</li>
-    <li><a href="https://github.com/pypa/cibuildwheel/commit/9f18d385cbb38b9c24f46a2c798f361ecea8fd5c"><code>9f18d38</code></a> Bump version: v2.12.2</li>
-    <li><a href="https://github.com/pypa/cibuildwheel/commit/dfbc6c3902b689c250f9d9dd10ce8f88db8e2b7b"><code>dfbc6c3</code></a> Merge pull request <a href="https://redirect.github.com/pypa/cibuildwheel/issues/1476">#1476</a> from henryiii/henryiii/chore/ruff_ex</li>
-    <li><a href="https://github.com/pypa/cibuildwheel/commit/8c5f89c035ba6ac81794ed5a5d6cd2110957f181"><code>8c5f89c</code></a> chore: update typing to be generic on function args</li>
-    <li>Additional commits viewable in <a href="https://github.com/pypa/cibuildwheel/compare/v2.11.4...v2.12.3">compare view</a></li>
-    </ul>
-    </details>
-    <br />
-    [![Dependabot compatibility score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=pypa/cibuildwheel&package-manager=github_actions&previous-version=2.11.4&new-version=2.12.3)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
-    Dependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.
-    [//]: # (dependabot-automerge-start)
-    [//]: # (dependabot-automerge-end)
-    ---
-    <details>
-    <summary>Dependabot commands and options</summary>
-    <br />
-    You can trigger Dependabot actions by commenting on this PR:
-    - `@dependabot rebase` will rebase this PR
-    - `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it
-    - `@dependabot merge` will merge this PR after your CI passes on it
-    - `@dependabot squash and merge` will squash and merge this PR after your CI passes on it
-    - `@dependabot cancel merge` will cancel a previously requested merge and block automerging
-    - `@dependabot reopen` will reopen this PR if it is closed
-    - `@dependabot close` will close this PR and stop Dependabot recreating it. You can achieve the same result by closing it manually
-    - `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)
-    - `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)
-    - `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)
-    </details>
-* PR #2935 from @materialsproject pandas-v2-fixes
-    Closes #2914.
-    Replace calls to df.append() with pd.concat() and df.iteritems() with df.items().
-* PR #2925 from @jmmshn master
-    ## Allow proper versioning for forked repos
-    I'm not 100% sure how the current version numbering is updated for `pymatgen` but it's not able to update the number properly for forks.  The forks seem to keep a much older version number (from before the forking)
-    This creates problems if you have the forked repo as a dependency in a requirement.txt file.
-    This should fix that issue.
+
+❗ The ``Yb_2`` deprecation release ❗
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This release changes the Ytterbium (Yb) pseudo-potential (PSP) from ``Yb_2`` to ``Yb_3`` for all ``PBE_54`` VASP input sets.
+
+Background: The `A-lab <https://newscenter.lbl.gov/2023/04/17/meet-the-autonomous-lab-of-the-future>`_ revealed that as a result of using ``Yb_2`` the energy on Yb compounds is off by a lot, resulting in supposedly stable things being unsynthesizable. While an unfortunate mistake, it's also great to see how experiment can help surface simulation errors.
+
+On pre-``PBE_54`` input sets, we now issue a warning that ``Yb_2`` will give bad results for most systems since Yb is most often in oxidation state Yb3+.
+
+Reason: The better fix ``Yb_3`` only became available in the ``PBE_54`` PSP set. Requiring it on ``pre-PBE_54`` input sets would mean you can't run Yb compounds.
+
+For more details see `#2968 <https://github.com/materialsproject/pymatgen/pull/2968>`_ and `#2969 <https://github.com/materialsproject/pymatgen/pull/2969>`_.
+
+What's Changed
+===============
+
+* Fix TypeError: a bytes-like object is required, not 'list' when passing triplet of bools to ``find_points_in_spheres()`` ``pbc`` kwarg  by @janosh in `#2907 <https://github.com/materialsproject/pymatgen/pull/2907>`_
+* Fix ValueError: not enough values to unpack in PDPlotter if no unstable entries in PD by @janosh in `#2908 <https://github.com/materialsproject/pymatgen/pull/2908>`_
+* Fix ``VolumetricData.to_cube()`` not preserving structure dimensions by @janosh in `#2909 <https://github.com/materialsproject/pymatgen/pull/2909>`_
+* Update team.rst by @jmmshn in `#2912 <https://github.com/materialsproject/pymatgen/pull/2912>`_
+* Faff by @janosh in `#2915 <https://github.com/materialsproject/pymatgen/pull/2915>`_
+* Add ``formal_chempots`` option to ``ChemicalPotentialDiagram`` to plot the formal chemical potentials rather than the DFT energies by @kavanase in `#2916 <https://github.com/materialsproject/pymatgen/pull/2916>`_
+* Modified dosplotter by @kaueltzen in `#2844 <https://github.com/materialsproject/pymatgen/pull/2844>`_
+* auto version by @jmmshn in `#2925 <https://github.com/materialsproject/pymatgen/pull/2925>`_
+* bug fix for potcar parsing by @jmmshn in `#2910 <https://github.com/materialsproject/pymatgen/pull/2910>`_
+* Fix breaking changes from pandas v2 by @janosh in `#2935 <https://github.com/materialsproject/pymatgen/pull/2935>`_
+* add kwarg to MoleculeGraph method and fix PackmolSet bug by @orionarcher in `#2927 <https://github.com/materialsproject/pymatgen/pull/2927>`_
+* fix on reading multiple route in Gaussian input file by @Ameyanagi in `#2939 <https://github.com/materialsproject/pymatgen/pull/2939>`_
+* Fix CI errors by @janosh in `#2940 <https://github.com/materialsproject/pymatgen/pull/2940>`_
+* Add ResParser support for reading files with spin values by @ScottNotFound in `#2941 <https://github.com/materialsproject/pymatgen/pull/2941>`_
+* Ignore bad unicode characters in Structure.from_file() by @janosh in `#2948 <https://github.com/materialsproject/pymatgen/pull/2948>`_
+* Minor modification for symmetrically distinct Miller index generation by @fyalcin in `#2949 <https://github.com/materialsproject/pymatgen/pull/2949>`_
+* Fixed Wulff shape for new versions of matplotlib by @CifLord in `#2950 <https://github.com/materialsproject/pymatgen/pull/2950>`_
+* Test figure returned by WulffShape.get_plot() contains single Axes3D by @janosh in `#2953 <https://github.com/materialsproject/pymatgen/pull/2953>`_
+* Fix ``Cp2kOutput.spin_polarized()`` likely not doing what author intended by @janosh in `#2954 <https://github.com/materialsproject/pymatgen/pull/2954>`_
+* For MPcules: Molecule Trajectory and graph hashes by @espottesmith in `#2945 <https://github.com/materialsproject/pymatgen/pull/2945>`_
+* ``self.assertArrayEqual->assert`` by @janosh in `#2955 <https://github.com/materialsproject/pymatgen/pull/2955>`_
+* fix GaussianOutput bug with multiple route lines by @xjf729 in `#2937 <https://github.com/materialsproject/pymatgen/pull/2937>`_
+* Fix ValueError when passing ``selective_dynamics`` to ``Poscar`` by @chiang-yuan in `#2951 <https://github.com/materialsproject/pymatgen/pull/2951>`_
+* Bump beautifulsoup4 from 4.11.1 to 4.12.2 by @dependabot in `#2962 <https://github.com/materialsproject/pymatgen/pull/2962>`_
+* Bump pypa/cibuildwheel from 2.11.4 to 2.12.3 by @dependabot in `#2959 <https://github.com/materialsproject/pymatgen/pull/2959>`_
+* Bump uncertainties from 3.1.6 to 3.1.7 by @dependabot in `#2960 <https://github.com/materialsproject/pymatgen/pull/2960>`_
+* Bump numpy from 1.23.2 to 1.24.3 by @dependabot in `#2963 <https://github.com/materialsproject/pymatgen/pull/2963>`_
+* Bump tabulate from 0.8.10 to 0.9.0 by @dependabot in `#2961 <https://github.com/materialsproject/pymatgen/pull/2961>`_
+* Bump pandas from 1.4.4 to 2.0.1 by @dependabot in `#2964 <https://github.com/materialsproject/pymatgen/pull/2964>`_
+* Link /addons from new subsection on /contributing page by @janosh in `#2967 <https://github.com/materialsproject/pymatgen/pull/2967>`_
+* Breaking: change ``Yb`` pseudo-potential on all VASP input sets from ``Yb_2`` to ``Yb_3`` by @janosh in `#2969 <https://github.com/materialsproject/pymatgen/pull/2969>`_
+* fix recursion error by adding copy and deepcopy dunder methods by @orionarcher in `#2973 <https://github.com/materialsproject/pymatgen/pull/2973>`_
+* Revert to ``Yb_2`` on pre-``PBE_54`` input sets by @janosh in `#2972
 
 v2023.3.23
 ----------
