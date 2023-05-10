@@ -1,3 +1,4 @@
+# cython: language_level=3
 """
 This module contains an algorithm to solve the Linear Assignment Problem
 """
