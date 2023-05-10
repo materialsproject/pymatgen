@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2023.5.10
+----------
+* Fix mem leak in pbc_shortest_vector cython code. (@stichri)
+* Set all cython code to language level 3.
+
 v2023.5.8
 ---------
 
@@ -18,8 +23,6 @@ Reason: The better fix ``Yb_3`` only became available in the ``PBE_54`` PSP set.
 For more details see `#2968 <https://github.com/materialsproject/pymatgen/pull/2968>`_ and `#2969 <https://github.com/materialsproject/pymatgen/pull/2969>`_.
 
 What's Changed
-===============
-
 * Fix TypeError: a bytes-like object is required, not 'list' when passing triplet of bools to ``find_points_in_spheres()`` ``pbc`` kwarg  by @janosh in `#2907 <https://github.com/materialsproject/pymatgen/pull/2907>`_
 * Fix ValueError: not enough values to unpack in PDPlotter if no unstable entries in PD by @janosh in `#2908 <https://github.com/materialsproject/pymatgen/pull/2908>`_
 * Fix ``VolumetricData.to_cube()`` not preserving structure dimensions by @janosh in `#2909 <https://github.com/materialsproject/pymatgen/pull/2909>`_
