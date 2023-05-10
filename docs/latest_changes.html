@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2023.3.23 documentation</title>
+  <title>Change log &mdash; pymatgen 2023.5.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -34,18 +34,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-
-          
-          
-          <a href="index.html">
-            
+            <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.3.23
+                2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -76,7 +72,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
       <li class="breadcrumb-item active">Change log</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/latest_changes.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -89,88 +85,11 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
-<section id="v2023-5-8">
-<h2>v2023.5.8<a class="headerlink" href="#v2023-5-8" title="Permalink to this heading"></a></h2>
+<section id="v2023-5-10">
+<h2>v2023.5.10<a class="headerlink" href="#v2023-5-10" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><dl class="simple">
-<dt>PR #2959 from &#64;materialsproject dependabot/github_actions/pypa/cibuildwheel-2.12.3</dt><dd><p>Bumps [pypa/cibuildwheel](<a class="reference external" href="https://github.com/pypa/cibuildwheel">https://github.com/pypa/cibuildwheel</a>) from 2.11.4 to 2.12.3.
-&lt;details&gt;
-&lt;summary&gt;Release notes&lt;/summary&gt;
-&lt;p&gt;&lt;em&gt;Sourced from &lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/releases">https://github.com/pypa/cibuildwheel/releases</a>”&gt;pypa/cibuildwheel’s releases&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;h2&gt;v2.12.3&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;🐛 Fix an import error when running on Python 3.7. (&lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1479">https://redirect.github.com/pypa/cibuildwheel/issues/1479</a>”&gt;#1479&lt;/a&gt;)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;v2.12.2&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;🐛 Fix a bug that caused an extra empty config-setting to be passed to the backend when CIBW_BUILD_FRONTEND is set to &lt;code&gt;build&lt;/code&gt;. (&lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1474">https://redirect.github.com/pypa/cibuildwheel/issues/1474</a>”&gt;#1474&lt;/a&gt;)&lt;/li&gt;
-&lt;li&gt;🐛 Fix a crash that occurred when overwriting an existing wheel on Windows. (&lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1464">https://redirect.github.com/pypa/cibuildwheel/issues/1464</a>”&gt;#1464&lt;/a&gt;)&lt;/li&gt;
-&lt;li&gt;🛠 Pinned version updates, including CPython 3.10.11, 3.11.3, pip 23.1 and wheel 0.40.0.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;v2.12.1&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;🐛 Fix a bug that prevented the use of CIBW_CONFIG_SETTINGS with the ‘pip’ build backend. (&lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1430">https://redirect.github.com/pypa/cibuildwheel/issues/1430</a>”&gt;#1430&lt;/a&gt;)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;v2.12.0&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;✨ Adds support for PyPy arm64 wheels. This means that you can build PyPy wheels for Apple Silicon machines. Cross-compilation is not supported for these wheels, so you’ll have to build on an Apple Silicon machine. (&lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1372">https://redirect.github.com/pypa/cibuildwheel/issues/1372</a>”&gt;#1372&lt;/a&gt;)&lt;/li&gt;
-&lt;li&gt;🛠 Pinned version updates, including PyPy to v7.3.11 and setuptools to 66.0.0.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/blockquote&gt;
-&lt;/details&gt;
-&lt;details&gt;
-&lt;summary&gt;Changelog&lt;/summary&gt;
-&lt;p&gt;&lt;em&gt;Sourced from &lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/blob/main/docs/changelog.md">https://github.com/pypa/cibuildwheel/blob/main/docs/changelog.md</a>”&gt;pypa/cibuildwheel’s changelog&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;h3&gt;v2.12.3&lt;/h3&gt;
-&lt;p&gt;&lt;em&gt;19 April 2023&lt;/em&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;🐛 Fix an import error when running on Python 3.7. (&lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1479">https://redirect.github.com/pypa/cibuildwheel/issues/1479</a>”&gt;#1479&lt;/a&gt;)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;v2.12.2&lt;/h3&gt;
-&lt;p&gt;&lt;em&gt;18 April 2023&lt;/em&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;🐛 Fix a bug that caused an extra empty config-setting to be passed to the backend when CIBW_BUILD_FRONTEND is set to &lt;code&gt;build&lt;/code&gt;. (&lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1474">https://redirect.github.com/pypa/cibuildwheel/issues/1474</a>”&gt;#1474&lt;/a&gt;)&lt;/li&gt;
-&lt;li&gt;🐛 Fix a crash that occurred when overwriting an existing wheel on Windows. (&lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1464">https://redirect.github.com/pypa/cibuildwheel/issues/1464</a>”&gt;#1464&lt;/a&gt;)&lt;/li&gt;
-&lt;li&gt;🛠 Pinned version updates, including CPython 3.10.11, 3.11.3, pip 23.1 and wheel 0.40.0.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;v2.12.1&lt;/h3&gt;
-&lt;p&gt;&lt;em&gt;11 March 2023&lt;/em&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;🐛 Fix a bug that prevented the use of CIBW_CONFIG_SETTINGS with the ‘pip’ build backend. (&lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1430">https://redirect.github.com/pypa/cibuildwheel/issues/1430</a>”&gt;#1430&lt;/a&gt;)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;v2.12.0&lt;/h3&gt;
-&lt;p&gt;&lt;em&gt;16 Jan 2023&lt;/em&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;✨ Adds support for PyPy arm64 wheels. This means that you can build PyPy wheels for Apple Silicon machines. Cross-compilation is not supported for these wheels, so you’ll have to build on an Apple Silicon machine. (&lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1372">https://redirect.github.com/pypa/cibuildwheel/issues/1372</a>”&gt;#1372&lt;/a&gt;)&lt;/li&gt;
-&lt;li&gt;🛠 Pinned version updates, including PyPy to v7.3.11 and setuptools to 66.0.0.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/blockquote&gt;
-&lt;/details&gt;
-&lt;details&gt;
-&lt;summary&gt;Commits&lt;/summary&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/commit/5e15bb25b428e1bf2daf2215f173d2b40135f56f">https://github.com/pypa/cibuildwheel/commit/5e15bb25b428e1bf2daf2215f173d2b40135f56f</a>”&gt;&lt;code&gt;5e15bb2&lt;/code&gt;&lt;/a&gt; Bump version: v2.12.3&lt;/li&gt;
-&lt;li&gt;&lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/commit/52572ccdd01fcde11603283bcfda090086a7d11c">https://github.com/pypa/cibuildwheel/commit/52572ccdd01fcde11603283bcfda090086a7d11c</a>”&gt;&lt;code&gt;52572cc&lt;/code&gt;&lt;/a&gt; Merge pull request &lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1479">https://redirect.github.com/pypa/cibuildwheel/issues/1479</a>”&gt;#1479&lt;/a&gt; from henryiii/henryiii/fix/py37&lt;/li&gt;
-&lt;li&gt;&lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/commit/c6027e4fc72eee01851e06b1cd173aabeb3abfe0">https://github.com/pypa/cibuildwheel/commit/c6027e4fc72eee01851e06b1cd173aabeb3abfe0</a>”&gt;&lt;code&gt;c6027e4&lt;/code&gt;&lt;/a&gt; docs: fix options.md typos (&lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1477">https://redirect.github.com/pypa/cibuildwheel/issues/1477</a>”&gt;#1477&lt;/a&gt;)&lt;/li&gt;
-&lt;li&gt;&lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/commit/aff6dd5adc49114f1ee49c82bcb386a142fc614a">https://github.com/pypa/cibuildwheel/commit/aff6dd5adc49114f1ee49c82bcb386a142fc614a</a>”&gt;&lt;code&gt;aff6dd5&lt;/code&gt;&lt;/a&gt; refactor: tomllib in _compat&lt;/li&gt;
-&lt;li&gt;&lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/commit/31bd9c91743e09f5b48c4def38c255c14c00d1af">https://github.com/pypa/cibuildwheel/commit/31bd9c91743e09f5b48c4def38c255c14c00d1af</a>”&gt;&lt;code&gt;31bd9c9&lt;/code&gt;&lt;/a&gt; refactor: restore typing for non-backports&lt;/li&gt;
-&lt;li&gt;&lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/commit/d996af554ae21435028e538e417e403e8db7433e">https://github.com/pypa/cibuildwheel/commit/d996af554ae21435028e538e417e403e8db7433e</a>”&gt;&lt;code&gt;d996af5&lt;/code&gt;&lt;/a&gt; fix: restore Python 3.7 support&lt;/li&gt;
-&lt;li&gt;&lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/commit/e42f243b523a93352f0686ba2f4a62b7bf5f7d34">https://github.com/pypa/cibuildwheel/commit/e42f243b523a93352f0686ba2f4a62b7bf5f7d34</a>”&gt;&lt;code&gt;e42f243&lt;/code&gt;&lt;/a&gt; ci: add Python 3.7&lt;/li&gt;
-&lt;li&gt;&lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/commit/9f18d385cbb38b9c24f46a2c798f361ecea8fd5c">https://github.com/pypa/cibuildwheel/commit/9f18d385cbb38b9c24f46a2c798f361ecea8fd5c</a>”&gt;&lt;code&gt;9f18d38&lt;/code&gt;&lt;/a&gt; Bump version: v2.12.2&lt;/li&gt;
-&lt;li&gt;&lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/commit/dfbc6c3902b689c250f9d9dd10ce8f88db8e2b7b">https://github.com/pypa/cibuildwheel/commit/dfbc6c3902b689c250f9d9dd10ce8f88db8e2b7b</a>”&gt;&lt;code&gt;dfbc6c3&lt;/code&gt;&lt;/a&gt; Merge pull request &lt;a href=”<a class="reference external" href="https://redirect.github.com/pypa/cibuildwheel/issues/1476">https://redirect.github.com/pypa/cibuildwheel/issues/1476</a>”&gt;#1476&lt;/a&gt; from henryiii/henryiii/chore/ruff_ex&lt;/li&gt;
-&lt;li&gt;&lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/commit/8c5f89c035ba6ac81794ed5a5d6cd2110957f181">https://github.com/pypa/cibuildwheel/commit/8c5f89c035ba6ac81794ed5a5d6cd2110957f181</a>”&gt;&lt;code&gt;8c5f89c&lt;/code&gt;&lt;/a&gt; chore: update typing to be generic on function args&lt;/li&gt;
-&lt;li&gt;Additional commits viewable in &lt;a href=”<a class="reference external" href="https://github.com/pypa/cibuildwheel/compare/v2.11.4...v2.12.3">https://github.com/pypa/cibuildwheel/compare/v2.11.4…v2.12.3</a>”&gt;compare view&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/details&gt;
-&lt;br /&gt;
-[![Dependabot compatibility score](<a class="reference external" href="https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=pypa/cibuildwheel&amp;package-manager=github_actions&amp;previous-version=2.11.4&amp;new-version=2.12.3)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores">https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=pypa/cibuildwheel&amp;package-manager=github_actions&amp;previous-version=2.11.4&amp;new-version=2.12.3)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores</a>)
-Dependabot will resolve any conflicts with this PR as long as you don’t alter it yourself. You can also trigger a rebase manually by commenting <cite>&#64;dependabot rebase</cite>.
-[//]: # (dependabot-automerge-start)</p>
-</dd>
-</dl>
-</li>
+<li><p>Fix mem leak in pbc_shortest_vector cython code. (&#64;stichri)</p></li>
+<li><p>Set all cython code to language level 3.</p></li>
 </ul>
 </section>
 </section>
