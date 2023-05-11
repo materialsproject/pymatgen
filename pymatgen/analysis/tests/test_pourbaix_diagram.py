@@ -246,8 +246,8 @@ class PourbaixDiagramTest(unittest.TestCase):
         assert oxidized_phase.name == "ZnO(s)"
 
     def test_serialization(self):
-        d = self.pbx.as_dict()
-        new = PourbaixDiagram.from_dict(d)
+        dct = self.pbx.as_dict()
+        new = PourbaixDiagram.from_dict(dct)
         assert {e.name for e in new.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
@@ -258,7 +258,8 @@ class PourbaixDiagramTest(unittest.TestCase):
 
         # Test with unstable solid entries included (filter_solids=False), this should result in the
         # previously filtered entries being included
-        new = PourbaixDiagram.from_dict(d)
+        dct = self.pbx_nofilter.as_dict()
+        new = PourbaixDiagram.from_dict(dct)
         assert {e.name for e in new.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
