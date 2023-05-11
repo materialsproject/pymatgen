@@ -846,7 +846,6 @@ class LammpsRun(MSONable):
     force field and a few more settings. Experienced LAMMPS users should
     consider using write_lammps_inputs method with more sophisticated
     templates.
-
     """
 
     template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")

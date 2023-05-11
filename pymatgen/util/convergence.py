@@ -539,7 +539,7 @@ def determine_convergence(xs, ys, name, tol: float = 0.0001, extra="", verbose=F
                         popt, pcov, func = multi_reciprocal_extra(xs, ys)
                     else:
                         print(xs, ys)
-                        popt, pcov = None, None  # type: ignore
+                        popt, pcov = None, None  # type: ignore[assignment]
                 elif mode == "extra_noise":
                     popt, pcov, func = multi_reciprocal_extra(xs, ys, noise=True)
                 else:
@@ -565,7 +565,7 @@ def determine_convergence(xs, ys, name, tol: float = 0.0001, extra="", verbose=F
                     print_plot_line(func[0], popt, xs, ys, name, tol=tol, extra=extra)
 
         except ImportError:
-            popt, pcov = None, None  # type: ignore
+            popt, pcov = None, None  # type: ignore[assignment]
         for n in range(0, len(ds), 1):
             if verbose:
                 print(n, ys[n])

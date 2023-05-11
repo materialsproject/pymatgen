@@ -85,7 +85,7 @@ class SubstrateMatch(ZSLMatch):
 class SubstrateAnalyzer(ZSLGenerator):
     """
     This class applies a set of search criteria to identify suitable
-    substrates for film growth. It first uses a topoplogical search by Zur
+    substrates for film growth. It first uses a topological search by Zur
     and McGill to identify matching super-lattices on various faces of the
     two materials. Additional criteria can then be used to identify the most
     suitable substrate. Currently, the only additional criteria is the

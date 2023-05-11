@@ -20,7 +20,6 @@ from pathlib import Path
 from typing import DefaultDict, Literal
 
 import numpy as np
-from monty.dev import deprecated
 from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
@@ -2333,14 +2332,6 @@ class Outcar:
         self.plasma_frequencies = {k: np.array(v[:3]) for k, v in plasma_frequencies.items()}
         self.dielectric_energies = np.array(energies)
         self.dielectric_tensor_function = np.array(data["REAL"]) + 1j * np.array(data["IMAGINARY"])
-
-    @property  # type: ignore
-    @deprecated(message="frequencies has been renamed to dielectric_energies.")
-    def frequencies(self):
-        """
-        Renamed to dielectric energies.
-        """
-        return self.dielectric_energies
 
     def read_chemical_shielding(self):
         """

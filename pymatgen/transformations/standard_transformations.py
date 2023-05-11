@@ -576,7 +576,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         if self.no_oxi_states:
             structure = Structure.from_sites(structure)
             for i, site in enumerate(structure):
-                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore
+                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore[assignment]
 
         equivalent_sites: list[list[int]] = []
         exemplars: list[PeriodicSite] = []
