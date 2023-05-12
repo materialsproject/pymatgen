@@ -786,7 +786,7 @@ class CompleteCohp(Cohp):
                 efermi,
                 energies,
                 cohp_data["average"]["COHP"],
-                icohp=cohp_data["average"]["COHP"],
+                icohp=cohp_data["average"]["ICOHP"],
                 are_coops=are_coops,
                 are_cobis=are_cobis,
             )
