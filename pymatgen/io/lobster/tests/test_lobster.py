@@ -67,7 +67,9 @@ class CohpcarTest(PymatgenTest):
         )
 
         # example with f electrons
-        self.cohp_Na2UO4 = Cohpcar(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.Na2UO4.gz"))
+        self.cohp_Na2UO4 = Cohpcar(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.Na2UO4.gz")
+        )
         self.coop_Na2UO4 = Cohpcar(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COOPCAR.lobster.Na2UO4.gz"),
             are_coops=True,
