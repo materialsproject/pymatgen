@@ -1220,7 +1220,14 @@ class SlabTransformation(AbstractTransformation):
             lll_reduce (bool): whether to apply LLL reduction
             center_slab (bool): whether to center the slab
             primitive (bool): whether to reduce slabs to most primitive cell
-            in_unit_planes (bool): whether to return slabs in unit of planes
+            in_unit_planes (bool): Whether to set min_slab_size and min_vac_size
+                in units of hkl planes (True) or Angstrom (False, the default). Setting in
+                units of planes is useful for ensuring some slabs have a certain n_layer of
+                atoms. e.g. for Cs (100), a 10 Ang slab will result in a slab with only 2
+                layer of atoms, whereas Fe (100) will have more layer of atoms. By using units
+                of hkl planes instead, we ensure both slabs have the same number of atoms. The
+                slab thickness will be in min_slab_size/math.ceil(self._proj_height/dhkl)
+                multiples of oriented unit cells.
             max_normal_search (int): maximum index to include in linear
                 combinations of indices to find c lattice vector orthogonal
                 to slab surface

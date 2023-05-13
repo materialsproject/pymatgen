@@ -482,12 +482,7 @@ class Trajectory(MSONable):
         }
 
     @classmethod
-    def from_structures(
-        cls,
-        structures: list[Structure],
-        constant_lattice: bool = True,
-        **kwargs,
-    ) -> Trajectory:
+    def from_structures(cls, structures: list[Structure], constant_lattice: bool = True, **kwargs) -> Trajectory:
         """
         Create trajectory from a list of structures.
 
@@ -497,6 +492,7 @@ class Trajectory(MSONable):
             structures: pymatgen Structure objects.
             constant_lattice: Whether the lattice changes during the simulation,
                 such as in an NPT MD simulation.
+            **kwargs: Additional kwargs passed to Trajectory constructor.
 
         Returns:
             A trajectory from the structures.
@@ -520,18 +516,15 @@ class Trajectory(MSONable):
         )
 
     @classmethod
-    def from_molecules(
-        cls,
-        molecules: list[Molecule],
-        **kwargs,
-    ) -> Trajectory:
+    def from_molecules(cls, molecules: list[Molecule], **kwargs) -> Trajectory:
         """
         Create trajectory from a list of molecules.
 
         Note: Assumes no atoms removed during simulation.
 
         Args:
-            molecules: pymatgen Molecules objects.
+            molecules: pymatgen Molecule objects.
+            **kwargs: Additional kwargs passed to Trajectory constructor.
 
         Returns:
             A trajectory from the structures.
@@ -550,12 +543,7 @@ class Trajectory(MSONable):
         )
 
     @classmethod
-    def from_file(
-        cls,
-        filename: str | Path,
-        constant_lattice: bool = True,
-        **kwargs,
-    ) -> Trajectory:
+    def from_file(cls, filename: str | Path, constant_lattice: bool = True, **kwargs) -> Trajectory:
         """
         Create trajectory from XDATCAR or vasprun.xml file.
 
@@ -563,6 +551,7 @@ class Trajectory(MSONable):
             filename: Path to the file to read from.
             constant_lattice: Whether the lattice changes during the simulation,
                 such as in an NPT MD simulation.
+            **kwargs: Additional kwargs passed to Trajectory constructor.
 
         Returns:
             A trajectory from the file.
