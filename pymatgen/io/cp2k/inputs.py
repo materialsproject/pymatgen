@@ -2731,9 +2731,9 @@ class GthPotential(AtomicMetadata):
         ):
             raise ValueError("Must initialize all attributes in order to get string")
 
-        out = f"{str(self.element)} {self.name} {' '.join(self.alias_names)}\n"
+        out = f"{self.element!s} {self.name} {' '.join(self.alias_names)}\n"
         out += f"{' '.join(str(self.n_elecs[i]) for i in range(len(self.n_elecs)))}\n"
-        out += f"{self.r_loc: .14f} {str(self.nexp_ppl)} "
+        out += f"{self.r_loc: .14f} {self.nexp_ppl!s} "
         for i in range(self.nexp_ppl):
             out += f"{self.c_exp_ppl[i]: .14f} "
         out += "\n"

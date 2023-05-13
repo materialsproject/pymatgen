@@ -1142,7 +1142,7 @@ class CifParser:
                 self.warnings.append(str(exc))
                 warnings.warn(f"No structure parsed for {i + 1} structure in CIF. Section of CIF file below.")
                 warnings.warn(str(d))
-                warnings.warn(f"Error is {str(exc)}.")
+                warnings.warn(f"Error is {exc!s}.")
 
         if self.warnings:
             warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))

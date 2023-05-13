@@ -1302,8 +1302,8 @@ class BSPlotterProjected(BSPlotter):
 
         # Adjusting  projections for plot
         dictio_d, dictpa_d = self._summarize_keys_for_plot(dictio, dictpa, sum_atoms, sum_morbs)
-        print(f"dictio_d: {str(dictio_d)}")
-        print(f"dictpa_d: {str(dictpa_d)}")
+        print(f"dictio_d: {dictio_d!s}")
+        print(f"dictpa_d: {dictpa_d!s}")
 
         if (sum_atoms is None) and (sum_morbs is None):
             proj_br_d = copy.deepcopy(proj_br)

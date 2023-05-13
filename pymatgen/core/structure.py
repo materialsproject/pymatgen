@@ -2546,7 +2546,7 @@ class IStructure(SiteCollection, MSONable):
                 return None
             return s
         else:
-            raise ValueError(f"Invalid format: `{str(fmt)}`")
+            raise ValueError(f"Invalid format: `{fmt!s}`")
 
         if filename:
             writer.write_file(filename)

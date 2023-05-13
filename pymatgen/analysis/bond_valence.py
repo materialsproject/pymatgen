@@ -26,8 +26,8 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Read in BV parameters.
 BV_PARAMS = {}
-for k, v in loadfn(os.path.join(module_dir, "bvparam_1991.yaml")).items():
-    BV_PARAMS[Element(k)] = v
+for key, val in loadfn(os.path.join(module_dir, "bvparam_1991.yaml")).items():
+    BV_PARAMS[Element(key)] = val
 
 # Read in yaml containing data-mined ICSD BV data.
 all_data = loadfn(os.path.join(module_dir, "icsd_bv.yaml"))

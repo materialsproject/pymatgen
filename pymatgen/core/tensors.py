@@ -598,7 +598,7 @@ class Tensor(np.ndarray, MSONable):
         3. Reset the non-zero entries of the original tensor
 
         Args:
-            structure (structure object)
+            structure (Structure): structure to base population on
             prec (float): precision for determining a non-zero value
             maxiter (int): maximum iterations for populating the tensor
             verbose (bool): whether to populate verbosely

@@ -67,7 +67,7 @@ class Spectrum(MSONable):
             return self.x
         if item == self.YLABEL.lower():
             return self.y
-        raise AttributeError(f"Invalid attribute name {str(item)}")
+        raise AttributeError(f"Invalid attribute name {item!s}")
 
     def __len__(self):
         return self.ydim[0]

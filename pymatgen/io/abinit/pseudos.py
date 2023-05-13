@@ -934,7 +934,7 @@ class PawAbinitHeader(AbinitHeader):
             self[key] = value
 
         if kwargs:
-            raise RuntimeError(f"kwargs should be empty but got {str(kwargs)}")
+            raise RuntimeError(f"kwargs should be empty but got {kwargs!s}")
 
     @staticmethod
     def paw_header(filename, ppdesc):
@@ -1652,7 +1652,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             symbols = [p.symbol for p in pseudo_list]
             symbol = symbols[0]
             if any(symb != symbol for symb in symbols):
-                raise ValueError(f"All symbols must be equal while they are: {str(symbols)}")
+                raise ValueError(f"All symbols must be equal while they are: {symbols!s}")
 
             setattr(self, symbol, pseudo_list)
 

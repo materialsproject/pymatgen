@@ -35,8 +35,8 @@ class Interface(Structure):
         coords_are_cartesian=False,
         in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 0,
-        vacuum_over_film: float = 0.0,
-        interface_properties: dict | None = None,
+        vacuum_over_film: float = 0,
+        interface_properties: dict = None,
     ):
         """
         Makes an interface structure, a structure object with additional information
@@ -62,6 +62,7 @@ class Interface(Structure):
                 each species.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
+            to_unit_cell (bool): Whether to translate sites into the unit cell. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
@@ -72,7 +73,8 @@ class Interface(Structure):
                 to the substrate
             gap: gap between substrate and film in Angstroms; zero corresponds to
                 the original distance between substrate and film sites
-            vacuum_over_film: vacuum space above the film in Angstroms
+            vacuum_over_film: vacuum space above the film in Angstroms. Defaults to 0.
+            interface_properties: properties associated with the interface. Defaults to None.
         """
         assert (
             "interface_label" in site_properties
@@ -340,8 +342,8 @@ class Interface(Structure):
         film_slab: Slab,
         in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 1.6,
-        vacuum_over_film: float = 0.0,
-        interface_properties: dict | None = None,
+        vacuum_over_film: float = 0,
+        interface_properties: dict = None,
         center_slab: bool = True,
     ) -> Interface:
         """
@@ -353,14 +355,15 @@ class Interface(Structure):
         appropriate interface structure is already met.
 
         Args:
-            sub_slab: slab for the substrate
-            film_slab: slab for the film
-            in_plane_offset: fractional shift in plane
-                for the film with respect to the substrate
-            gap: gap between substrate and film in Angstroms
-            vacuum_over_film: vacuum space above the film in Angstroms
-            structure_properties: dictionary of misc properties for this structure
-            center_slab: center the slab
+            substrate_slab (Slab): slab for the substrate
+            film_slab (Slab): slab for the film
+            in_plane_offset (tuple): fractional shift in plane for the film with respect to the substrate.
+                For example, (0.5, 0.5) will shift the film by half the substrate's a- and b-vectors.
+                Defaults to (0, 0).
+            gap (float): gap between substrate and film in Angstroms. Defaults to 1.6.
+            vacuum_over_film (float): vacuum space above the film in Angstroms. Defaults to 0.
+            interface_properties (dict): misc properties to assign to the interface. Defaults to None.
+            center_slab (bool): center the slab. Defaults to True.
         """
         interface_properties = interface_properties or {}
 

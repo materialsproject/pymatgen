@@ -167,7 +167,7 @@ class PackmolBoxGen(InputGenerator):
             if isinstance(v, list):
                 file_contents += f"{k} {' '.join(str(x) for x in v)}\n"
             else:
-                file_contents += f"{k} {str(v)}\n"
+                file_contents += f"{k} {v!s}\n"
         file_contents += f"seed {self.seed}\n"
         file_contents += f"tolerance {self.tolerance}\n\n"
 
@@ -214,7 +214,7 @@ class PackmolBoxGen(InputGenerator):
                 # fmt: on
             else:
                 file_contents += f"structure {fname}\n"
-            file_contents += f"  number {str(d['number'])}\n"
+            file_contents += f"  number {d['number']!s}\n"
             file_contents += f"  inside box {box_list}\n"
             file_contents += "end structure\n\n"
 
