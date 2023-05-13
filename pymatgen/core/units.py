@@ -822,7 +822,7 @@ def unitized(unit):
             elif val is None:
                 pass
             else:
-                raise TypeError(f"Don't know how to assign units to {str(val)}")
+                raise TypeError(f"Don't know how to assign units to {val!s}")
             return val
 
         return wrapped_f

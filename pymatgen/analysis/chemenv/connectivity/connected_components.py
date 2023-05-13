@@ -747,7 +747,7 @@ class ConnectedComponent(MSONable):
                         nbunch=[node_neighbor], data=True, keys=True
                     )
                     logging.debug(
-                        f"            Delta image from node {str(node)} to neighbor {str(node_neighbor)} : "
+                        f"            Delta image from node {node!s} to neighbor {node_neighbor!s} : "
                         f"({', '.join(map(str, myddelta))})"
                     )
                     # Loop on the edges of this neighbor

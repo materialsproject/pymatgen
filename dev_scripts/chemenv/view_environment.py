@@ -46,7 +46,7 @@ if __name__ == "__main__":
             continue
         print(cg.name)
         for ipoint, point in enumerate(cg.points):
-            print(f"Point #{ipoint:d} : {repr(point[0])} {repr(point[1])} {repr(point[2])}")
+            print(f"Point #{ipoint:d} : {point[0]!r} {point[1]!r} {point[2]!r}")
         print("Algorithms used :")
         for ialgo, algo in enumerate(cg.algorithms):
             print(f"Algorithm #{ialgo:d} :")

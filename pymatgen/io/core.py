@@ -203,7 +203,7 @@ class InputSet(MSONable, MutableMapping):
                 path.mkdir(parents=True, exist_ok=True)
 
             if file.exists() and not overwrite:
-                raise FileExistsError(f"File {str(fname)} already exists!")
+                raise FileExistsError(f"File {fname!s} already exists!")
             file.touch()
 
             # write the file
