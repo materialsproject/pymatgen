@@ -48,9 +48,9 @@ class DielectricFunctionCalculator(MSONable):
         - Perform symmetry operations (this is not implemented here)
         - Calculate the real part
 
-    Currently, this Calculator only works for ``ISYM=0`` calculations since we cannot gauranttee that our
-    externally defined symmetry operations are the same as VASP's.  This can be fixed by printing the
-    symmetry operators into the vasprun.xml file.  If this happens in future versions of VASP,
+    Currently, this Calculator only works for ``ISYM=0`` calculations since we cannot guarantee that our
+    externally defined symmetry operations are the same as VASP's. This can be fixed by printing the
+    symmetry operators into the vasprun.xml file. If this happens in future versions of VASP,
     we can dramatically speed up the calculations here by considering only the irreducible kpoints.
     """
 
@@ -279,7 +279,7 @@ def delta_func(x, ismear):
         raise ValueError("Delta function not implemented for ismear < -1")
     if ismear == -1:
         return step_func(x, -1) * (1 - step_func(x, -1))
-    if ismear < 0:
+    if ismear == 0:
         return np.exp(-(x * x)) / np.sqrt(np.pi)
     return delta_methfessel_paxton(x, ismear)
 
@@ -290,7 +290,7 @@ def step_func(x, ismear):
         raise ValueError("Delta function not implemented for ismear < -1")
     if ismear == -1:
         return 1 / (1.0 + np.exp(-x))
-    if ismear < 0:
+    if ismear == 0:
         return 0.5 + 0.5 * scipy.special.erf(x)
     return step_methfessel_paxton(x, ismear)
 

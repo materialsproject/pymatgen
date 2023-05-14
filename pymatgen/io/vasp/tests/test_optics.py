@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
+import scipy.special
 
-from pymatgen.io.vasp.optics import DielectricFunctionCalculator
+from pymatgen.io.vasp.optics import DielectricFunctionCalculator, delta_func, delta_methfessel_paxton, step_func
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.testing import PymatgenTest
 
@@ -17,6 +19,10 @@ class VasprunTest(PymatgenTest):
         vrun = Vasprun(eps_data_path / "vasprun.xml")
         dfc = DielectricFunctionCalculator.from_directory(eps_data_path)
         egrid, eps = dfc.get_epsilon(0, 0)
+
+        assert egrid[0] == 0
+        assert egrid[-1] == 59.3802
+        assert len(egrid) == len(eps) == 3000
 
         _, eps_real_ref, eps_imag_ref = vrun.dielectric
         eps_real_ref = np.array(eps_real_ref)[:, 0]
@@ -40,3 +46,39 @@ class VasprunTest(PymatgenTest):
         mask = np.ones_like(dfc.cder, dtype=float)
         x_val, y_val, text = dfc.plot_weighted_transition_data(0, 0, mask=mask, min_val=0.001)
         assert len(x_val) == len(y_val) == len(text)
+
+
+def test_delta_func():
+    x = np.array([0, 1, 2, 3, 4, 5])
+
+    # ismear < -1
+    with pytest.raises(ValueError, match="Delta function not implemented for ismear < -1"):
+        delta_func(x, -2)
+
+    # ismear == -1
+    assert np.all(delta_func(x, -1) == step_func(x, -1) * (1 - step_func(x, -1)))
+
+    # ismear == 0
+    assert np.all(delta_func(x, 0) == np.exp(-(x * x)) / np.sqrt(np.pi))
+
+    # ismear > 0
+    for ismear in [1, 2, 3]:
+        assert np.all(delta_func(x, ismear) == delta_methfessel_paxton(x, ismear))
+
+
+def test_step_func():
+    # array of positive values
+    x = np.array([1, 2, 3, 4, 5])
+    assert np.allclose(step_func(x, -1), 1 / (1.0 + np.exp(-x)))
+
+    # array of negative values
+    x = np.array([-1, -2, -3, -4, -5])
+    assert np.allclose(step_func(x, -1), 1 / (1.0 + np.exp(-x)))
+
+    # array that includes zero
+    x = np.array([-1, 0, 1])
+    assert np.allclose(step_func(x, -1), 1 / (1.0 + np.exp(-x)))
+
+    # ismear == 0
+    x = np.array([1, 2, 3, 4, 5])
+    assert np.allclose(step_func(x, 0), 0.5 + 0.5 * scipy.special.erf(x))
