@@ -1536,11 +1536,11 @@ def cluster_sites(mol: Molecule, tol: float, give_only_index: bool = False) -> t
     """
     # Cluster works for dim > 2 data. We just add a dummy 0 for second
     # coordinate.
-    dists = [[np.linalg.norm(site.coords), 0] for site in mol]
+    dists: list[list[float]] = [[np.linalg.norm(site.coords), 0] for site in mol]
     import scipy.cluster
 
     f = scipy.cluster.hierarchy.fclusterdata(dists, tol, criterion="distance")
-    clustered_dists = defaultdict(list)
+    clustered_dists: dict[str, list[list[float]]] = defaultdict(list)
     for idx in range(len(mol)):
         clustered_dists[f[idx]].append(dists[idx])
     avg_dist = {label: np.mean(val) for label, val in clustered_dists.items()}
