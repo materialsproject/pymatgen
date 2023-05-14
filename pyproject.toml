@@ -31,6 +31,7 @@ select = [
   "D",   # pydocstyle
   "E",   # pycodestyle error
   "F",   # pyflakes
+  "FLY", # flynt
   "I",   # isort
   "ICN", # flake8-import-conventions
   "ISC", # flake8-implicit-str-concat
