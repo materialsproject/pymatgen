@@ -508,11 +508,13 @@ class StructureMatcher(MSONable):
         fractional translation vector to minimize RMS distance
 
         Args:
-            s1, s2: numpy arrays of fractional coordinates. len(s1) >= len(s2)
+            s1: numpy array of fractional coordinates.
+            s2: numpy array of fractional coordinates. len(s1) >= len(s2)
             avg_lattice: Lattice on which to calculate distances
             mask: numpy array of booleans. mask[i, j] = True indicates
                 that s2[i] cannot be matched to s1[j]
             normalization (float): inverse normalization length
+            lll_frac_tol (float): tolerance for Lenstra-Lenstra-Lovász lattice basis reduction algorithm
 
         Returns:
             Distances from s2 to s1, normalized by (V/atom) ^ 1/3

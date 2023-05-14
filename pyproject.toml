@@ -87,6 +87,11 @@ isort.required-imports = ["from __future__ import annotations"]
 "__init__.py" = ["F401"]
 "*/tests/*" = ["D"]
 "tasks.py" = ["D"]
+"pymatgen/analysis/*" = ["D"]
+"pymatgen/vis/*" = ["D"]
+"pymatgen/util/*" = ["D"]
+"pymatgen/io/*" = ["D"]
+"dev_scripts/*" = ["D"]
 
 [tool.pytest.ini_options]
 addopts = "-x --durations=30 --quiet -rxXs --color=yes -p no:warnings"

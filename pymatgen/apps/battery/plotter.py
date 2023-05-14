@@ -127,16 +127,15 @@ class VoltageProfilePlotter:
     ):
         """
         Return plotly Figure object
+
         Args:
             width: Width of the plot. Defaults to 800 px.
             height: Height of the plot. Defaults to 600 px.
-            font: dictionary that defines the font
+            font_dict: define the font. Defaults to {"family": "Arial", "size": 24, "color": "#000000"}
             term_zero: If True append zero voltage point at the end
-            **kwargs:
-
-        Returns:
+            **kwargs: passed to plotly.graph_objects.Layout
         """
-        font_dict = {"family": "Arial", "size": 24, "color": "#000000"} if font_dict is None else font_dict
+        font_dict = font_dict or {"family": "Arial", "size": 24, "color": "#000000"}
         hover_temp = "Voltage : %{y:.2f} V"
 
         data = []
@@ -210,5 +209,7 @@ class VoltageProfilePlotter:
         Args:
             filename: Filename to save to.
             image_format: Format to save to. Defaults to eps.
+            width: Width of the plot. Defaults to 8 in.
+            height: Height of the plot. Defaults to 6 in.
         """
         self.get_plot(width, height).savefig(filename, format=image_format)

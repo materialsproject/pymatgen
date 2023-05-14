@@ -50,8 +50,9 @@ class KPathBase(metaclass=abc.ABCMeta):
         symprec (float): Tolerance for symmetry finding.
         angle_tolerance (float): Angle tolerance for symmetry finding.
         atol (float): Absolute tolerance used to compare structures
-            and determine symmetric equivalence of points and lines
-            in the BZ.
+            and determine symmetric equivalence of points and lines in the BZ.
+        *args: Other arguments supported by subclasses.
+        **kwargs: Other keyword arguments supported by subclasses.
         """
         self._structure = structure
         self._latt = self._structure.lattice
