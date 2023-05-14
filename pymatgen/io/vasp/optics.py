@@ -279,7 +279,7 @@ def delta_func(x, ismear):
         raise ValueError("Delta function not implemented for ismear < -1")
     if ismear == -1:
         return step_func(x, -1) * (1 - step_func(x, -1))
-    if ismear < 0:
+    if ismear == 0:
         return np.exp(-(x * x)) / np.sqrt(np.pi)
     return delta_methfessel_paxton(x, ismear)
 
@@ -290,7 +290,7 @@ def step_func(x, ismear):
         raise ValueError("Delta function not implemented for ismear < -1")
     if ismear == -1:
         return 1 / (1.0 + np.exp(-x))
-    if ismear < 0:
+    if ismear == 0:
         return 0.5 + 0.5 * scipy.special.erf(x)
     return step_methfessel_paxton(x, ismear)
 
