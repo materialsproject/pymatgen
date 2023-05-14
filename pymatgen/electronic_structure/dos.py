@@ -1192,10 +1192,12 @@ class CompleteDos(Dos):
         Args:
             type (str): Specify fingerprint type needed can accept '{s/p/d/f/}summed_{pdos/tdos}'
             (default is summed_pdos)
+            binning (bool): If true, the DOS fingerprint is binned using np.linspace and n_bins.
+                Default is True.
             min_e (float): The minimum mode energy to include in the fingerprint (default is None)
             max_e (float): The maximum mode energy to include in the fingerprint (default is None)
             n_bins (int): Number of bins to be used in the fingerprint (default is 256)
-            normalize (bool): If true, normalizes the area under fp to equal to 1 (default is True)
+            normalize (bool): If true, normalizes the area under fp to equal to 1. Default is True.
 
         Raises:
             ValueError: If type is not one of the accepted values {s/p/d/f/}summed_{pdos/tdos}.

@@ -548,8 +548,6 @@ class BoltztrapRunner(MSONable):
                 in convergence mode
             min_egrid: (float) minimum egrid value to try before giving up in
                 convergence mode
-
-        Returns:
         """
         # TODO: consider making this a part of custodian rather than pymatgen
         # A lot of this functionality (scratch dirs, handlers, monitors)
@@ -1178,7 +1176,7 @@ class BoltztrapAnalyzer:
 
         return BoltztrapAnalyzer._format_to_output(result, result_doping, output, doping_levels, multi=relaxation_time)
 
-    def get_zt(self, output="eigs", doping_levels=True, relaxation_time=1e-14, kl=1.0):
+    def get_zt(self, output="eigs", doping_levels=True, relaxation_time=1e-14, k_l=1):
         """
         Gives the ZT coefficient (S^2*cond*T/thermal cond) in either a full
         3x3 tensor form,
@@ -1231,7 +1229,7 @@ class BoltztrapAnalyzer:
                         result_doping[doping][t].append(
                             np.dot(
                                 pf_tensor * relaxation_time * t,
-                                np.linalg.inv(thermal_conduct + kl * np.eye(3, 3)),
+                                np.linalg.inv(thermal_conduct + k_l * np.eye(3, 3)),
                             )
                         )
         else:
@@ -1246,7 +1244,7 @@ class BoltztrapAnalyzer:
                     result[t].append(
                         np.dot(
                             pf_tensor * relaxation_time * t,
-                            np.linalg.inv(thermal_conduct + kl * np.eye(3, 3)),
+                            np.linalg.inv(thermal_conduct + k_l * np.eye(3, 3)),
                         )
                     )
 
@@ -1609,9 +1607,8 @@ class BoltztrapAnalyzer:
         Gives a CompleteDos object with the DOS from the interpolated projected band structure
 
         Args:
-            the structure (necessary to identify sites for projection)
-            analyzer_for_second_spin must be specified to have a
-            CompleteDos with both Spin components
+            structure: necessary to identify sites for projection
+            analyzer_for_second_spin: must be specified to have a CompleteDos with both Spin components
 
         Returns:
             a CompleteDos object

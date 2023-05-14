@@ -182,7 +182,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         ref = [0.097408810215, 0.29335112354, 0.614673998089]
         for i in range(0, 3):
             assert self.bz.get_zt()["n"][800][4][i] == approx(ref[i])
-        assert self.bz.get_zt(output="average", kl=0.5)["p"][700][2] == approx(0.0170001879916)
+        assert self.bz.get_zt(output="average", k_l=0.5)["p"][700][2] == approx(0.0170001879916)
         assert self.bz.get_zt(output="average", doping_levels=False, relaxation_time=1e-15)[300][240] == approx(
             0.0041923533238348342
         )

@@ -1491,19 +1491,16 @@ class _MPResterLegacy:
         Args:
             material_id (str): Materials Project material_id, e.g., 'mp-129'.
             pretty_formula (str): The formula of metals. e.g., 'Fe'
-            sigma(int): The sigma value of a certain type of grain boundary
-            gb_plane(list of integer): The Miller index of grain
-            boundary plane. e.g., [1, 1, 1]
-            rotation_axis(list of integer): The Miller index of rotation
-            axis. e.g., [1, 0, 0], [1, 1, 0], and [1, 1, 1]
-            Sigma value is determined by the combination of rotation axis and
-            rotation angle. The five degrees of freedom (DOF) of one grain boundary
-            include: rotation axis (2 DOFs), rotation angle (1 DOF), and grain
-            boundary plane (2 DOFs).
+            chemsys (str): The chemical system. e.g., 'Fe-O'
+            sigma (int): The sigma value of a certain type of grain boundary
+            gb_plane (list of integer): The Miller index of grain boundary plane. e.g., [1, 1, 1]
+            rotation_axis (list of integer): The Miller index of rotation axis. e.g.,
+                [1, 0, 0], [1, 1, 0], and [1, 1, 1] Sigma value is determined by the combination of
+                rotation axis and rotation angle. The five degrees of freedom (DOF) of one grain boundary
+                include: rotation axis (2 DOFs), rotation angle (1 DOF), and grain boundary plane (2 DOFs).
             include_work_of_separation (bool): whether to include the work of separation
-            (in unit of (J/m^2)). If you want to query the work of separation, please
-            specify the material_id.
-
+                (in unit of (J/m^2)). If you want to query the work of separation, please
+                specify the material_id.
 
         Returns:
             A list of grain boundaries that satisfy the query conditions (sigma, gb_plane).
@@ -1571,7 +1568,7 @@ class _MPResterLegacy:
                 `pymatgen.analysis.reaction_calculator.Reaction`.
         """
         payload = {
-            "reactants": " ".join([reactant1, reactant2]),
+            "reactants": f"{reactant1} {reactant2}",
             "open_el": open_el,
             "relative_mu": relative_mu,
             "use_hull_energy": use_hull_energy,

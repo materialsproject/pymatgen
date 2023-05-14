@@ -271,7 +271,7 @@ class GulpIO:
         Args:
             structure: pymatgen Structure object
             cell_flg (default = True): Option to use lattice parameters.
-            fractional_flg (default = True): If True, fractional coordinates
+            frac_flg (default = True): If True, fractional coordinates
                 are used. Else, Cartesian coordinates in Angstroms are used.
                 ******
                 GULP convention is to use fractional coordinates for periodic
@@ -530,10 +530,10 @@ class GulpIO:
         return gin
 
     @staticmethod
-    def get_energy(gout):
+    def get_energy(gout: str):
         """
         Args:
-            gout ():
+            gout (str): GULP output string.
 
         Returns:
             Energy
@@ -547,10 +547,10 @@ class GulpIO:
         raise GulpError("Energy not found in Gulp output")
 
     @staticmethod
-    def get_relaxed_structure(gout):
+    def get_relaxed_structure(gout: str):
         """
         Args:
-            gout ():
+            gout (str): GULP output string.
 
         Returns:
             (Structure) relaxed structure.

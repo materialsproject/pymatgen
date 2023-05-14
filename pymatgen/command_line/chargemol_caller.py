@@ -367,8 +367,8 @@ class ChargemolAnalysis:
             periodicity (tuple[bool]): Periodicity of the system.
                 Default: (True, True, True).
             method (str): Method to use for the analysis. Options include "ddec6"
-            and "ddec3".
-                Default: "ddec6"
+                and "ddec3". Default: "ddec6"
+            compute_bond_orders (bool): Whether to compute bond orders. Default: True.
         """
         self.net_charge = net_charge
         self.periodicity = periodicity

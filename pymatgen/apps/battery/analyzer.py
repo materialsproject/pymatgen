@@ -37,7 +37,7 @@ class BatteryAnalyzer:
             struc_oxid: a Structure object; oxidation states *must* be assigned for this structure; disordered
                 structures should be OK
             working_ion: a String symbol or Element for the working ion.
-            oxy_override: a dict of String element symbol, Integer oxidation state pairs.
+            oxi_override: a dict of String element symbol, Integer oxidation state pairs.
                 by default, H, C, N, O, F, S, Cl, Se, Br, Te, I are considered anions.
         """
         for site in struc_oxid:
@@ -195,10 +195,11 @@ class BatteryAnalyzer:
         This is a helper method for get_removals_int_oxid!
 
         Args:
-            spec_amts_oxi - a dict of species to their amounts in the structure
-            redox_el - the element to oxidize or reduce
-            redox_els - the full list of elements that might be oxidized or reduced
-            numa - a running set of numbers of A ion at integer oxidation steps
+            spec_amts_oxi: a dict of species to their amounts in the structure
+            redox_el: the element to oxidize or reduce
+            redox_els: the full list of elements that might be oxidized or reduced
+            numa: a running set of numbers of A ion at integer oxidation steps
+
         Returns:
             a set of numbers A; steps for oxidizing oxid_el first, then the other oxid_els in this list
         """

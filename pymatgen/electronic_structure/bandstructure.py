@@ -136,21 +136,21 @@ class Kpoint(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Create from dict.
 
         Args:
-            A dict with all data for a kpoint object.
+            dct (dict): A dict with all data for a kpoint object.
 
         Returns:
             A Kpoint object
         """
         return cls(
-            coords=d["fcoords"],
-            lattice=Lattice.from_dict(d["lattice"]),
+            coords=dct["fcoords"],
+            lattice=Lattice.from_dict(dct["lattice"]),
             coords_are_cartesian=False,
-            label=d["label"],
+            label=dct["label"],
         )
 
 
@@ -640,40 +640,40 @@ class BandStructure:
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Create from dict.
 
         Args:
-            A dict with all data for a band structure object.
+            dct: A dict with all data for a band structure object.
 
         Returns:
             A BandStructure object
         """
         # Strip the label to recover initial string
         # (see trick used in as_dict to handle $ chars)
-        labels_dict = {k.strip(): v for k, v in d["labels_dict"].items()}
+        labels_dict = {k.strip(): v for k, v in dct["labels_dict"].items()}
         projections = {}
         structure = None
-        if isinstance(list(d["bands"].values())[0], dict):
-            eigenvals = {Spin(int(k)): np.array(d["bands"][k]["data"]) for k in d["bands"]}
+        if isinstance(list(dct["bands"].values())[0], dict):
+            eigenvals = {Spin(int(k)): np.array(dct["bands"][k]["data"]) for k in dct["bands"]}
         else:
-            eigenvals = {Spin(int(k)): d["bands"][k] for k in d["bands"]}
+            eigenvals = {Spin(int(k)): dct["bands"][k] for k in dct["bands"]}
 
-        if "structure" in d:
-            structure = Structure.from_dict(d["structure"])
+        if "structure" in dct:
+            structure = Structure.from_dict(dct["structure"])
 
         try:
-            if d.get("projections"):
-                if isinstance(d["projections"]["1"][0][0], dict):
+            if dct.get("projections"):
+                if isinstance(dct["projections"]["1"][0][0], dict):
                     raise ValueError("Old band structure dict format detected!")
-                projections = {Spin(int(spin)): np.array(v) for spin, v in d["projections"].items()}
+                projections = {Spin(int(spin)): np.array(v) for spin, v in dct["projections"].items()}
 
             return cls(
-                d["kpoints"],
+                dct["kpoints"],
                 eigenvals,
-                Lattice(d["lattice_rec"]["matrix"]),
-                d["efermi"],
+                Lattice(dct["lattice_rec"]["matrix"]),
+                dct["efermi"],
                 labels_dict,
                 structure=structure,
                 projections=projections,
@@ -686,7 +686,7 @@ class BandStructure:
                 "format. The old format will be retired in pymatgen "
                 "5.0."
             )
-            return cls.from_old_dict(d)
+            return cls.from_old_dict(dct)
 
     @classmethod
     def from_old_dict(cls, d):
@@ -764,14 +764,14 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient
             efermi: fermi energy
-            label_dict: (dict) of {} this link a kpoint (in frac coords or
+            labels_dict: (dict) of {} this link a kpoint (in frac coords or
                 Cartesian coordinates depending on the coords).
             coords_are_cartesian: Whether coordinates are cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
                 provide projections to the band structure.
             projections: dict of orbital projections as {spin: ndarray}. The
-                indices of the ndarrayare [band_index, kpoint_index, orbital_index,
+                indices of the ndarray are [band_index, kpoint_index, orbital_index,
                 ion_index].If the band structure is not spin polarized, we only
                 store one data set under Spin.up.
         """
