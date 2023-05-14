@@ -48,9 +48,9 @@ class DielectricFunctionCalculator(MSONable):
         - Perform symmetry operations (this is not implemented here)
         - Calculate the real part
 
-    Currently, this Calculator only works for ``ISYM=0`` calculations since we cannot gauranttee that our
-    externally defined symmetry operations are the same as VASP's.  This can be fixed by printing the
-    symmetry operators into the vasprun.xml file.  If this happens in future versions of VASP,
+    Currently, this Calculator only works for ``ISYM=0`` calculations since we cannot guarantee that our
+    externally defined symmetry operations are the same as VASP's. This can be fixed by printing the
+    symmetry operators into the vasprun.xml file. If this happens in future versions of VASP,
     we can dramatically speed up the calculations here by considering only the irreducible kpoints.
     """
 
