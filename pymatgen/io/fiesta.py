@@ -800,8 +800,8 @@ class FiestaOutput:
 
                 m = GW_BANDS_results_patt.search(line)
                 if m:
-                    d = {}
-                    d.update(
+                    dct = {}
+                    dct.update(
                         band=m.group(1).strip(),
                         eKS=m.group(2),
                         eXX=m.group(3),
@@ -812,17 +812,17 @@ class FiestaOutput:
                         sigma_c_SCF=m.group(8),
                         eQP_SCF=m.group(9),
                     )
-                    GW_results[m.group(1).strip()] = d
+                    GW_results[m.group(1).strip()] = dct
 
                 n = GW_GAPS_results_patt.search(line)
                 if n:
-                    d = {}
-                    d.update(
+                    dct = {}
+                    dct.update(
                         Egap_KS=n.group(1),
                         Egap_QP_Linear=n.group(2),
                         Egap_QP_SCF=n.group(3),
                     )
-                    GW_results["Gaps"] = d
+                    GW_results["Gaps"] = dct
 
             if line.find("GW Results") != -1:
                 parse_gw_results = True
@@ -883,9 +883,9 @@ class BSEOutput:
 
                 m = BSE_exitons_patt.search(line)
                 if m:
-                    d = {}
-                    d.update(bse_eig=m.group(2), osc_strength=m.group(3))
-                    BSE_results[str(m.group(1).strip())] = d
+                    dct = {}
+                    dct.update(bse_eig=m.group(2), osc_strength=m.group(3))
+                    BSE_results[str(m.group(1).strip())] = dct
 
             if line.find("FULL BSE eig.(eV), osc. strength and dipoles:") != -1:
                 parse_BSE_results = True

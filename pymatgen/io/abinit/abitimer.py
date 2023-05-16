@@ -176,11 +176,11 @@ class AbinitTimerParser(collections.abc.Iterable):
                 line = line[1:].strip()
 
                 if inside == 2:
-                    d = {}
+                    dct = {}
                     for tok in line.split(","):
                         key, val = (s.strip() for s in tok.split("="))
-                        d[key] = float(val)
-                    cpu_time, wall_time = d["cpu_time"], d["wall_time"]
+                        dct[key] = float(val)
+                    cpu_time, wall_time = dct["cpu_time"], dct["wall_time"]
 
                 elif inside > 5:
                     sections.append(parse_line(line))

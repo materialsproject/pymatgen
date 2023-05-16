@@ -215,44 +215,44 @@ class _MPResterLegacy:
 
             try:
                 with open(MP_LOG_FILE) as f:
-                    d = dict(yaml.load(f))
+                    dct = dict(yaml.load(f))
             except (OSError, TypeError):
                 # TypeError: 'NoneType' object is not iterable occurs if MP_LOG_FILE exists but is empty
-                d = {}
+                dct = {}
 
-            d = d or {}
+            dct = dct or {}
 
-            if "MAPI_DB_VERSION" not in d:
-                d["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
+            if "MAPI_DB_VERSION" not in dct:
+                dct["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
             else:
                 # ensure data is parsed as dict, rather than ordered dict,
                 # due to change in YAML parsing behavior
-                d["MAPI_DB_VERSION"] = dict(d["MAPI_DB_VERSION"])
+                dct["MAPI_DB_VERSION"] = dict(dct["MAPI_DB_VERSION"])
 
-            if "LOG" in d["MAPI_DB_VERSION"]:
-                d["MAPI_DB_VERSION"]["LOG"] = dict(d["MAPI_DB_VERSION"]["LOG"])
+            if "LOG" in dct["MAPI_DB_VERSION"]:
+                dct["MAPI_DB_VERSION"]["LOG"] = dict(dct["MAPI_DB_VERSION"]["LOG"])
 
             # store a log of what database versions are being connected to
-            if db_version not in d["MAPI_DB_VERSION"]["LOG"]:
-                d["MAPI_DB_VERSION"]["LOG"][db_version] = 1
+            if db_version not in dct["MAPI_DB_VERSION"]["LOG"]:
+                dct["MAPI_DB_VERSION"]["LOG"][db_version] = 1
             else:
-                d["MAPI_DB_VERSION"]["LOG"][db_version] += 1
+                dct["MAPI_DB_VERSION"]["LOG"][db_version] += 1
 
             # alert user if db version changed
-            last_accessed = d["MAPI_DB_VERSION"]["LAST_ACCESSED"]
+            last_accessed = dct["MAPI_DB_VERSION"]["LAST_ACCESSED"]
             if last_accessed and last_accessed != db_version:
                 print(
                     f"This database version has changed from the database last accessed ({last_accessed}).\n"
                     f"Please see release notes on materialsproject.org for information about what has changed."
                 )
-            d["MAPI_DB_VERSION"]["LAST_ACCESSED"] = db_version
+            dct["MAPI_DB_VERSION"]["LAST_ACCESSED"] = db_version
 
             # write out new database log if possible
             # base Exception is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
                 with open(MP_LOG_FILE, "w") as f:
-                    yaml.dump(d, f)
+                    yaml.dump(dct, f)
             except Exception:
                 pass
 

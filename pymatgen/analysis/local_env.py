@@ -666,10 +666,10 @@ class NearNeighbors:
             lostops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
             lostop_vals = lostops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore
-            d = {}
+            dct = {}
             for i, lostop in enumerate(lostop_vals):
-                d[names[i]] = lostop
-            return d
+                dct[names[i]] = lostop
+            return dct
         return None
 
 
@@ -4223,7 +4223,7 @@ class CutOffDictNN(NearNeighbors):
     @staticmethod
     def from_preset(preset):
         """
-        Initialise a CutOffDictNN according to a preset set of cut-offs.
+        Initialize a CutOffDictNN according to a preset set of cut-offs.
 
         Args:
             preset (str): A preset name. The list of supported presets are:

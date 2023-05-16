@@ -600,17 +600,17 @@ class Electrons(AbivarAble, MSONable):
 
     def as_dict(self):
         """Json friendly dict representation"""
-        d = {}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["spin_mode"] = self.spin_mode.as_dict()
-        d["smearing"] = self.smearing.as_dict()
-        d["algorithm"] = self.algorithm.as_dict() if self.algorithm else None
-        d["nband"] = self.nband
-        d["fband"] = self.fband
-        d["charge"] = self.charge
-        d["comment"] = self.comment
-        return d
+        dct = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["spin_mode"] = self.spin_mode.as_dict()
+        dct["smearing"] = self.smearing.as_dict()
+        dct["algorithm"] = self.algorithm.as_dict() if self.algorithm else None
+        dct["nband"] = self.nband
+        dct["fband"] = self.fband
+        dct["charge"] = self.charge
+        dct["comment"] = self.comment
+        return dct
 
     @classmethod
     def from_dict(cls, d):

@@ -165,15 +165,15 @@ class SubstitutionProbability:
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d(dict): Dict representation
+            dct (dict): Dict representation
 
         Returns:
             Class
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class SubstitutionPredictor:

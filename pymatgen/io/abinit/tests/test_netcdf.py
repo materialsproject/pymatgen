@@ -24,12 +24,10 @@ def ref_file(filename):
 
 class ETSF_Reader_TestCase(PymatgenTest):
     def setUp(self):
-        formulas = [
-            "Si2",
-        ]
-        self.GSR_paths = d = {}
+        formulas = ["Si2"]
+        self.GSR_paths = dct = {}
         for formula in formulas:
-            d[formula] = ref_file(formula + "_GSR.nc")
+            dct[formula] = ref_file(formula + "_GSR.nc")
 
     @unittest.skipIf(netCDF4 is None, "Requires Netcdf4")
     def test_read_Si2(self):

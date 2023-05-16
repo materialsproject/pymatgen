@@ -1705,18 +1705,18 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
     def as_dict(self, **kwargs):
         """Return dictionary for MSONable protocol."""
-        d = {}
+        dct = {}
         for p in self:
             k, count = p.element.name, 1
             # k, count = p.element, 1
             # Handle multiple-pseudos with the same name!
-            while k in d:
+            while k in dct:
                 k += k.split("#")[0] + "#" + str(count)
                 count += 1
-            d.update({k: p.as_dict()})
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+            dct.update({k: p.as_dict()})
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):
@@ -1744,13 +1744,13 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
             table.all_combinations_for_elements(["Li", "F"])
         """
-        d = {}
+        dct = {}
         for symbol in element_symbols:
-            d[symbol] = self.select_symbols(symbol, ret_list=True)
+            dct[symbol] = self.select_symbols(symbol, ret_list=True)
 
         from itertools import product
 
-        return list(product(*d.values()))
+        return list(product(*dct.values()))
 
     def pseudo_with_symbol(self, symbol, allow_multi=False):
         """

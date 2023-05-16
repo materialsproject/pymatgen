@@ -293,26 +293,26 @@ class ETSF_Reader(NetcdfReader):
 
         Return :class:`AbinitHeader`
         """
-        d = {}
+        dct = {}
         for hvar in _HDR_VARIABLES.values():
             ncname = hvar.etsf_name if hvar.etsf_name is not None else hvar.name
             if ncname in self.rootgrp.variables:
-                d[hvar.name] = self.read_value(ncname)
+                dct[hvar.name] = self.read_value(ncname)
             elif ncname in self.rootgrp.dimensions:
-                d[hvar.name] = self.read_dimvalue(ncname)
+                dct[hvar.name] = self.read_dimvalue(ncname)
             else:
                 raise ValueError(f"Cannot find `{ncname}` in `{self.path}`")
             # Convert scalars to (well) scalars.
-            if hasattr(d[hvar.name], "shape") and not d[hvar.name].shape:
-                d[hvar.name] = np.asarray(d[hvar.name]).item()
+            if hasattr(dct[hvar.name], "shape") and not dct[hvar.name].shape:
+                dct[hvar.name] = np.asarray(dct[hvar.name]).item()
             if hvar.name in ("title", "md5_pseudos", "codvsn"):
                 # Convert array of numpy bytes to list of strings
                 if hvar.name == "codvsn":
-                    d[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in d[hvar.name])
+                    dct[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in dct[hvar.name])
                 else:
-                    d[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip() for astr in d[hvar.name]]
+                    dct[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip() for astr in dct[hvar.name]]
 
-        return AbinitHeader(d)
+        return AbinitHeader(dct)
 
 
 def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
@@ -344,12 +344,12 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
         type_idx = type_atom[atom] - 1
         species[atom] = int(znucl_type[type_idx])
 
-    d = {}
+    dct = {}
     if site_properties is not None:
         for prop in site_properties:
-            d[prop] = ncdata.read_value(prop)
+            dct[prop] = ncdata.read_value(prop)
 
-    structure = cls(lattice, species, red_coords, site_properties=d)
+    structure = cls(lattice, species, red_coords, site_properties=dct)
 
     # Quick and dirty hack.
     # I need an abipy structure since I need to_abivars and other methods.

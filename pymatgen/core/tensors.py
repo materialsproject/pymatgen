@@ -249,7 +249,7 @@ class Tensor(np.ndarray, MSONable):
             list of index groups where tensor values are equivalent to
             within tolerances
         """
-        d = {}
+        dct = {}
         array = self.voigt if voigt else self
         grouped = self.get_grouped_indices(voigt=voigt, **kwargs)
         p = 0 if zero_index else 1
@@ -258,8 +258,8 @@ class Tensor(np.ndarray, MSONable):
             sym_string += "".join(str(i + p) for i in indices[0])
             value = array[indices[0]]
             if not np.isclose(value, 0):
-                d[sym_string] = array[indices[0]]
-        return d
+                dct[sym_string] = array[indices[0]]
+        return dct
 
     def round(self, decimals=0):
         """
