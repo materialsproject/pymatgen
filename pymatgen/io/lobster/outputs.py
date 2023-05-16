@@ -371,10 +371,7 @@ class Icohplist:
 
         if self.orbitalwise:
             list_orb_icohp = []
-            if self.is_spin_polarized:
-                num_orbs = len(data_orbitals) // 2
-            else:
-                num_orbs = len(data_orbitals)
+            num_orbs = len(data_orbitals) // 2 if self.is_spin_polarized else len(data_orbitals)
 
             for i_data_orb in range(num_orbs):
                 data_orb = data_orbitals[i_data_orb]
