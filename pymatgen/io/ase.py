@@ -13,7 +13,7 @@ import numpy as np
 from pymatgen.core.structure import Molecule, Structure
 
 try:
-    from ase import Atoms
+    import ase
 
     ase_loaded = True
 except ImportError:
