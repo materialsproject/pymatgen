@@ -201,9 +201,10 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
 
     # Get center atoms' cube indices
     cdef long[:, ::1] center_indices3 = <long[:n_center, :3]> safe_malloc(n_center*3*sizeof(long))
-    cdef long *center_indices1 = <long*> safe_malloc(n_center*sizeof(long))
+    #cdef long *center_indices1 = <long*> safe_malloc(n_center*sizeof(long))
+    cdef long[::1] center_indices1 = <long[:n_center]> safe_malloc(n_center*sizeof(long))
     compute_cube_index(center_coords, valid_min, ledge, center_indices3)
-    three_to_one(center_indices3, ncube[1], ncube[2], <long[:n_center]>center_indices1)
+    three_to_one(center_indices3, ncube[1], ncube[2], center_indices1)
 
     # it works by allocate incrementally n more memory locations, I found it 3x faster to do so
     # compared to using vectors in cpp
@@ -219,11 +220,10 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
 
     count = 0
     for i in range(n_center):
-        ncube_indices_temp = neighbor_map[center_indices1[i]]
-        for j in ncube_indices_temp:
-            if j == -1:
+        for j in range(27):
+            if neighbor_map[center_indices1[i], j] == -1:
                 continue
-            cube_index_temp = j
+            cube_index_temp = neighbor_map[center_indices1[i], j]
             link_index = head[cube_index_temp]
             while link_index != -1:
                 d_temp2 = distance2(expanded_coords, center_coords, link_index, i, 3)
@@ -261,7 +261,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
         PyMem_Free(indices_p)
         PyMem_Free(&all_indices3[0, 0])
         PyMem_Free(&all_indices1[0])
-        PyMem_Free(center_indices1)
+        PyMem_Free(&center_indices1[0])
         PyMem_Free(head)
         PyMem_Free(atom_indices)
 
@@ -294,7 +294,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     PyMem_Free(indices_p)
     PyMem_Free(&all_indices3[0, 0])
     PyMem_Free(&all_indices1[0])
-    PyMem_Free(center_indices1)
+    PyMem_Free(&center_indices1[0])
     PyMem_Free(head)
     PyMem_Free(atom_indices)
     return py_index_1, py_index_2, py_offsets, py_distances
