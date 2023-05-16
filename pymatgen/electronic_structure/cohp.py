@@ -717,7 +717,6 @@ class CompleteCohp(Cohp):
         LMTO-ASA code) or LOBSTER (for the LOBSTER code).
 
         Args:
-
             fmt: A string for the code that was used to calculate
                 the COHPs so that the output file can be handled
                 correctly. Can take the values "LMTO" or "LOBSTER".
