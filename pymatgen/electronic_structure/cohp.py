@@ -717,21 +717,7 @@ class CompleteCohp(Cohp):
         LMTO-ASA code) or LOBSTER (for the LOBSTER code).
 
         Args:
-<<<<<<< HEAD
-            cohp_file: Name of the COHP output file. Defaults to COPL
-                for LMTO and COHPCAR.lobster/COOPCAR.lobster for LOBSTER.
 
-            are_coops: Indicates whether the populations are COOPs or
-                COHPs. Defaults to False for COHPs.
-
-            are_cobis: Indicates whether the populations are COBIs or
-                COHPs. Defaults to False for COHPs.
-
-            are_cobis: Indicates whether the populations are multicenter
-                COBIs or COHPs. Defaults to False for COHPs.
-
-=======
->>>>>>> 5d446871cab95f8ef8d61155add723914f71a5cb
             fmt: A string for the code that was used to calculate
                 the COHPs so that the output file can be handled
                 correctly. Can take the values "LMTO" or "LOBSTER".
@@ -744,6 +730,8 @@ class CompleteCohp(Cohp):
                 COHPs. Defaults to False for COHPs.
             are_cobis: Indicates whether the populations are COBIs or
                 COHPs. Defaults to False for COHPs.
+            are_multicenter_cobis: Indicates whether this file
+                includes information on multi-center COBIs
 
         Returns:
             A CompleteCohp object.
@@ -839,7 +827,7 @@ class CompleteCohp(Cohp):
                     efermi,
                     energies,
                     cohp_data["average"]["COHP"],
-                    icohp=cohp_data["average"]["COHP"],
+                    icohp=cohp_data["average"]["ICOHP"],
                     are_coops=are_coops,
                     are_cobis=are_cobis,
                     are_multicenter_cobis=are_multicenter_cobis,
@@ -889,13 +877,8 @@ class CompleteCohp(Cohp):
             label: Cohp(
                 efermi,
                 energies,
-<<<<<<< HEAD
                 v["COHP"],
                 icohp=v["ICOHP"],
-=======
-                cohp_data["average"]["COHP"],
-                icohp=cohp_data["average"]["ICOHP"],
->>>>>>> 5d446871cab95f8ef8d61155add723914f71a5cb
                 are_coops=are_coops,
                 are_cobis=are_cobis,
                 are_multicenter_cobis=are_multicenter_cobis,
