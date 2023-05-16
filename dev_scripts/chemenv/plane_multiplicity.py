@@ -32,8 +32,7 @@ if __name__ == "__main__":
             equiv_plane.extend(opposite_edge)
             equiv_plane.sort()
             all_plane_points.append(tuple(equiv_plane))
-        all_plane_points = list(set(all_plane_points))
-        all_plane_points = [list(equiv_plane) for equiv_plane in all_plane_points]
+        all_plane_points = [tuple(equiv_plane) for equiv_plane in set(all_plane_points)]
 
     print(f"All plane points ({len(all_plane_points):d}) for {cg_symbol} : ")
     print(all_plane_points)
