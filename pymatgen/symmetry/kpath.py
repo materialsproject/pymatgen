@@ -7,7 +7,7 @@ from __future__ import annotations
 import abc
 import itertools
 from math import ceil, cos, e, pi, sin, tan
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from warnings import warn
 
 import networkx as nx
@@ -18,14 +18,16 @@ from scipy.linalg import sqrtm
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.typing import SpeciesLike
 
 try:
     from seekpath import get_path
 except ImportError:
     get_path = None
+
+if TYPE_CHECKING:
+    from pymatgen.core.structure import Structure
+    from pymatgen.util.typing import SpeciesLike
 
 __author__ = "Geoffroy Hautier, Katherine Latimer, Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"

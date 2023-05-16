@@ -6,10 +6,12 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
-from pymatgen.core import Molecule
+if TYPE_CHECKING:
+    from pymatgen.core import Molecule
 
 __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"

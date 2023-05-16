@@ -16,7 +16,7 @@ from monty.json import MSONable
 from pymatgen.util import coord_cython as cuc
 
 if typing.TYPE_CHECKING:
-    from pymatgen.util.typing import ArrayLike
+    from numpy.typing import ArrayLike
 
 
 # array size threshold for looping instead of broadcasting

@@ -13,8 +13,7 @@ import os
 import re
 import warnings
 from functools import lru_cache
-from io import StringIO
-from typing import Any, Iterator, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Iterator, Literal, Sequence
 
 import numpy as np
 import plotly.graph_objs as go
@@ -30,7 +29,11 @@ from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from io import StringIO
+
+    from numpy.typing import ArrayLike
 
 logger = logging.getLogger(__name__)
 

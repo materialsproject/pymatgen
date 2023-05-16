@@ -11,16 +11,19 @@ import itertools
 import logging
 import math
 import time
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.analysis.local_env import MinimumDistanceNN
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.transformation_abc import AbstractTransformation
+
+if TYPE_CHECKING:
+    from pymatgen.core.sites import PeriodicSite
+    from pymatgen.core.structure import Structure
 
 
 class InsertSitesTransformation(AbstractTransformation):

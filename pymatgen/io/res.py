@@ -11,11 +11,9 @@ REM entries.
 
 from __future__ import annotations
 
-import datetime
 import re
-from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 import dateutil.parser  # type: ignore
 from monty.io import zopen
@@ -26,6 +24,10 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from datetime import date
 
 __all__ = ["ResProvider", "AirssProvider", "ResIO", "ResWriter", "ParseError", "ResError"]
 
@@ -426,7 +428,7 @@ class AirssProvider(ResProvider):
         return cls(ResParser._parse_file(filename), parse_rems)
 
     @classmethod
-    def _parse_date(cls, string: str) -> datetime.date:
+    def _parse_date(cls, string: str) -> date:
         """Parses a date from a string where the date is in the format typically used by CASTEP."""
         match = cls._date_fmt.search(string)
         if match is None:
@@ -439,7 +441,7 @@ class AirssProvider(ResProvider):
             return None
         raise err
 
-    def get_run_start_info(self) -> tuple[datetime.date, str] | None:
+    def get_run_start_info(self) -> tuple[date, str] | None:
         """
         Retrieves the run start date and the path it was started in from the REM entries.
 
@@ -510,7 +512,7 @@ class AirssProvider(ResProvider):
                 return (p, q, r), (po, qo, ro), int(srem[11]), float(srem[13])
         return self._raise_or_none(ParseError("Could not find line with MP grid."))  # type: ignore
 
-    def get_airss_version(self) -> tuple[str, datetime.date] | None:
+    def get_airss_version(self) -> tuple[str, date] | None:
         """
         Retrieves the version of AIRSS that was used along with the build date (not compile date).
 

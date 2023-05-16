@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Sequence, Union
 
 import numpy as np
-from numpy.typing import ArrayLike as ArrayLike
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element, Species

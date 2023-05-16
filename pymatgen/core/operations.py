@@ -9,14 +9,16 @@ import string
 import typing
 import warnings
 from math import cos, pi, sin, sqrt
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.string import transformation_to_string
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 

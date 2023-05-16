@@ -19,15 +19,18 @@ from __future__ import annotations
 import itertools
 import logging
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 import plotly.graph_objs as go
 from scipy.spatial import ConvexHull
 
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_angle
 from pymatgen.util.string import unicodeify_spacegroup
+
+if TYPE_CHECKING:
+    from pymatgen.core.lattice import Lattice
 
 __author__ = "Zihan Xu, Richard Tran, Shyue Ping Ong"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"

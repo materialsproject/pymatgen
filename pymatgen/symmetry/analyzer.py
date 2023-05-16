@@ -19,18 +19,20 @@ from collections import defaultdict
 from fractions import Fraction
 from functools import lru_cache
 from math import cos, sin
-from typing import Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import numpy as np
 import spglib
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import Site
 from pymatgen.core.structure import Molecule, PeriodicSite, Structure
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
+
+if TYPE_CHECKING:
+    from pymatgen.core.periodic_table import Element, Species
+    from pymatgen.core.sites import Site
 
 logger = logging.getLogger(__name__)
 

@@ -27,6 +27,7 @@ import os
 import warnings
 from functools import lru_cache
 from itertools import groupby
+from typing import TYPE_CHECKING
 
 import numpy as np
 import plotly.express as px
@@ -36,9 +37,11 @@ from scipy.spatial import ConvexHull, HalfspaceIntersection
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core.composition import Composition, Element
-from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
 from pymatgen.util.string import htmlify
+
+if TYPE_CHECKING:
+    from pymatgen.entries.computed_entries import ComputedEntry
 
 with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_chempot_layouts.json")) as f:
     plotly_layouts = json.load(f)

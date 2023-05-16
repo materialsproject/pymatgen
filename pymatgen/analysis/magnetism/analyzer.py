@@ -10,7 +10,7 @@ import os
 import warnings
 from collections import namedtuple
 from enum import Enum, unique
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.serialization import loadfn
@@ -28,7 +28,9 @@ from pymatgen.transformations.advanced_transformations import (
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
 )
-from pymatgen.util.typing import VectorLike
+
+if TYPE_CHECKING:
+    from pymatgen.util.typing import VectorLike
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"

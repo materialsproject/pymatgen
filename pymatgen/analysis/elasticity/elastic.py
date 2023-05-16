@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import itertools
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 import sympy as sp
@@ -17,7 +18,6 @@ from scipy.special import factorial
 
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.analysis.elasticity.stress import Stress
-from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import (
     DEFAULT_QUAD,
     SquareTensor,
@@ -26,6 +26,10 @@ from pymatgen.core.tensors import (
     get_uvec,
 )
 from pymatgen.core.units import Unit
+
+if TYPE_CHECKING:
+    from pymatgen.core.structure import Structure
+
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"

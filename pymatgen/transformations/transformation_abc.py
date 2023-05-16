@@ -5,10 +5,12 @@ Defines an abstract base class contract for Transformation object.
 from __future__ import annotations
 
 import abc
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
-from pymatgen.core import Structure
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

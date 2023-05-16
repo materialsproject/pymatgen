@@ -5,14 +5,14 @@ This module provides classes to identify optimal substrates for film growth
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from pymatgen.analysis.elasticity.strain import Deformation, Strain
 from pymatgen.analysis.interfaces.zsl import ZSLGenerator, ZSLMatch, reduce_vectors
-from pymatgen.core import Structure
-from pymatgen.core.surface import (
-    SlabGenerator,
-    get_symmetrically_distinct_miller_indices,
-)
+from pymatgen.core.surface import SlabGenerator, get_symmetrically_distinct_miller_indices
+
+if TYPE_CHECKING:
+    from pymatgen.core.structure import Structure
 
 
 @dataclass
