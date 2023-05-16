@@ -311,7 +311,7 @@ class Icohplist:
             data_without_orbitals = []
             data_orbitals = []
             for line in data:
-                if not "_" in line.split()[1]:
+                if "_" not in line.split()[1]:
                     data_without_orbitals.append(line)
                 else:
                     data_orbitals.append(line)
@@ -319,7 +319,6 @@ class Icohplist:
         else:
             data_without_orbitals = data
 
-        print(data_without_orbitals)
         if "distance" in data_without_orbitals[len(data_without_orbitals) // 2]:
             # TODO: adapt this for orbitalwise stuff
             num_bonds = len(data_without_orbitals) // 2
@@ -372,24 +371,31 @@ class Icohplist:
 
         if self.orbitalwise:
             list_orb_icohp = []
-            for data_orb in data_orbitals:
+            if self.is_spin_polarized:
+                num_orbs = len(data_orbitals) // 2
+            else:
+                num_orbs = len(data_orbitals)
+
+            for i_data_orb in range(num_orbs):
+                data_orb = data_orbitals[i_data_orb]
+                icohp = {}
                 line = data_orb.split()
                 label = f"{line[0]}"
                 orbs = re.findall(r"_(.*?)(?=\s)", data_orb)
                 orb_label, orbitals = get_orb_from_str(orbs)
                 icohp[Spin.up] = float(line[7])
+
                 if self.is_spin_polarized:
-                    # probalby wrong for orbital-resolved cohp
-                    # TODO:  This is not correct yet...
-                    icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[7])
-            if len(list_orb_icohp) < int(label):
-                list_orb_icohp.append({orb_label: {"icohp": icohp, "orbitals": orbitals}})
-            else:
-                list_orb_icohp[int(label) - 1][orb_label] = {"icohp": icohp, "orbitals": orbitals}
+                    icohp[Spin.down] = float(data_orbitals[num_orbs + i_data_orb].split()[7])
+
+                if len(list_orb_icohp) < int(label):
+                    list_orb_icohp.append({orb_label: {"icohp": icohp, "orbitals": orbitals}})
+                else:
+                    list_orb_icohp[int(label) - 1][orb_label] = {"icohp": icohp, "orbitals": orbitals}
+
         else:
             list_orb_icohp = None
-        # TODO: add functions to get orbital resolved iCOHPs
-
+        # # TODO: add functions to get orbital resolved iCOHPs
         # to avoid circular dependencies
         from pymatgen.electronic_structure.cohp import IcohpCollection
 
@@ -419,6 +425,7 @@ class Icohplist:
                 "number_of_bonds": value._num,
                 "icohp": value._icohp,
                 "translation": value._translation,
+                "orbitals": value._orbitals,
             }
         return icohplist_new
 
