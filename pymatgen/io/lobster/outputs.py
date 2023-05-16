@@ -303,7 +303,6 @@ class Icohplist:
         # include case when there is only one ICOHP!!!
         if len(data) > 2 and "_" in data[1].split()[1]:
             self.orbitalwise = True
-            warnings.warn("This is an orbitalwise IC**LIST.lobter. Currently, the orbitalwise information is not read!")
         else:
             self.orbitalwise = False
 
