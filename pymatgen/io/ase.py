@@ -13,12 +13,13 @@ import numpy as np
 from pymatgen.core.structure import Molecule, Structure
 
 try:
+    from ase.atoms import Atoms
+
     ase_loaded = True
 except ImportError:
     ase_loaded = False
 
 if ase_loaded:
-    from ase.atoms import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
     from ase.constraints import FixAtoms
 
@@ -94,7 +95,7 @@ class AseAtomsAdaptor:
             atoms.calc = calc
 
         # Get the oxidation states from the structure
-        oxi_states = [getattr(site.specie, "oxi_state", None) for site in structure]
+        oxi_states: list[float | None] = [getattr(site.specie, "oxi_state", None) for site in structure]
 
         # Read in selective dynamics if present. Note that the ASE FixAtoms class fixes (x,y,z), so
         # here we make sure that [False, False, False] or [True, True, True] is set for the site selective
@@ -122,26 +123,24 @@ class AseAtomsAdaptor:
         for prop in structure.site_properties:
             if prop not in ["magmom", "charge", "final_magmom", "final_charge", "selective_dynamics"]:
                 atoms.set_array(prop, np.array(structure.site_properties[prop]))
-        if np.any(oxi_states):
+        if any(oxi_states):
             atoms.set_array("oxi_states", np.array(oxi_states))
 
         return atoms
 
     @staticmethod
-    def get_structure(atoms: Atoms, cls: Structure = None, **cls_kwargs) -> Structure:
+    def get_structure(atoms: Atoms, cls: type[Structure] = Structure, **cls_kwargs) -> Structure:
         """
         Returns pymatgen structure from ASE Atoms.
 
         Args:
             atoms: ASE Atoms object
-            cls: The Structure class to instantiate (defaults to pymatgen structure)
+            cls: The Structure class to instantiate (defaults to pymatgen Structure)
             **cls_kwargs: Any additional kwargs to pass to the cls
 
         Returns:
             Equivalent pymatgen.core.structure.Structure
         """
-        cls = Structure if cls is None else cls
-
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
@@ -223,7 +222,7 @@ class AseAtomsAdaptor:
         return structure
 
     @staticmethod
-    def get_molecule(atoms: Atoms, cls: Molecule = None, **cls_kwargs) -> Molecule:
+    def get_molecule(atoms: Atoms, cls: type[Molecule] = Molecule, **cls_kwargs) -> Molecule:
         """
         Returns pymatgen molecule from ASE Atoms.
 
@@ -235,7 +234,6 @@ class AseAtomsAdaptor:
         Returns:
             Equivalent pymatgen.core.structure.Molecule
         """
-        cls = Molecule if cls is None else cls
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
         charge = round(np.sum(atoms.get_initial_charges())) if atoms.has("initial_charges") else 0
         mult = round(np.sum(atoms.get_initial_magnetic_moments())) + 1 if atoms.has("initial_magmoms") else 1
