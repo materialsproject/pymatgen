@@ -368,8 +368,9 @@ class Icohplist:
             list_num.append(num)
             list_icohp.append(icohp)
 
+        list_orb_icohp: list[dict] | None = None
         if self.orbitalwise:
-            list_orb_icohp: list[dict] | None = []
+            list_orb_icohp = []
             num_orbs = len(data_orbitals) // 2 if self.is_spin_polarized else len(data_orbitals)
 
             for i_data_orb in range(num_orbs):
@@ -389,9 +390,6 @@ class Icohplist:
                 else:
                     list_orb_icohp[int(label) - 1][orb_label] = {"icohp": icohp, "orbitals": orbitals}
 
-        else:
-            list_orb_icohp = None
-        # # TODO: add functions to get orbital resolved iCOHPs
         # to avoid circular dependencies
         from pymatgen.electronic_structure.cohp import IcohpCollection
 
