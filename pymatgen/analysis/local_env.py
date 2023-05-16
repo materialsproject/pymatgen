@@ -2935,7 +2935,7 @@ class LocalStructOrderParams:
                         rjknorm[j].append(rjk[j][kk] / distjk[j][kk])
                         kk = kk + 1
         # Initialize OP list and, then, calculate OPs.
-        ops = [0 for t in self._types]
+        ops = [0.0 for t in self._types]
         # norms = [[[] for j in range(nneigh)] for t in self._types]
 
         # First, coordination number and distance-based OPs.
@@ -2945,7 +2945,7 @@ class LocalStructOrderParams:
             elif t == "sgl_bd":
                 dist_sorted = sorted(dist)
                 if len(dist_sorted) == 1:
-                    ops[i] = 1.0
+                    ops[i] = 1
                 elif len(dist_sorted) > 1:
                     ops[i] = 1 - dist_sorted[0] / dist_sorted[1]
 
@@ -2990,7 +2990,7 @@ class LocalStructOrderParams:
         # (Peters, J. Chem. Phys., 131, 244103, 2009;
         #  Zimmermann et al., J. Am. Chem. Soc., under revision, 2015).
         if self._geomops:
-            gaussthetak = [0 for t in self._types]  # not used by all OPs
+            gaussthetak: list[float] = [0 for t in self._types]  # not used by all OPs
             qsptheta = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
             norms = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
             ipi = 1 / pi
