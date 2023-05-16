@@ -13,7 +13,7 @@ import numpy as np
 from pymatgen.core.structure import Molecule, Structure
 
 try:
-    from ase.atoms import Atoms
+    from ase import Atoms
 
     ase_loaded = True
 except ImportError:
@@ -37,16 +37,16 @@ class AseAtomsAdaptor:
     """
 
     @staticmethod
-    def get_atoms(structure: Structure, **kwargs) -> Atoms:
+    def get_atoms(structure: Structure | Molecule, **kwargs) -> Atoms:
         """
         Returns ASE Atoms object from pymatgen structure or molecule.
 
         Args:
-            structure: pymatgen.core.structure.Structure or pymatgen.core.structure.Molecule
-            **kwargs: other keyword args to pass into the ASE Atoms constructor
+            structure (Structure | Molecule): Input structure or molecule
+            **kwargs: passed to the ASE Atoms constructor
 
         Returns:
-            ASE Atoms object
+            Atoms: ASE Atoms object
         """
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
@@ -232,11 +232,11 @@ class AseAtomsAdaptor:
             **cls_kwargs: Any additional kwargs to pass to the cls
 
         Returns:
-            Equivalent pymatgen.core.structure.Molecule
+            Molecule: Equivalent pymatgen.core.structure.Molecule
         """
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
         charge = round(np.sum(atoms.get_initial_charges())) if atoms.has("initial_charges") else 0
-        mult = round(np.sum(atoms.get_initial_magnetic_moments())) + 1 if atoms.has("initial_magmoms") else 1
-        molecule.set_charge_and_spin(charge, spin_multiplicity=mult)
+        spin_mult = round(np.sum(atoms.get_initial_magnetic_moments())) + 1 if atoms.has("initial_magmoms") else 1
+        molecule.set_charge_and_spin(charge, spin_multiplicity=spin_mult)
 
         return molecule
