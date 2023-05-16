@@ -20,6 +20,7 @@ except ImportError:
     ase_loaded = False
 
 if ase_loaded:
+    from ase.atoms import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
     from ase.constraints import FixAtoms
 
@@ -37,7 +38,7 @@ class AseAtomsAdaptor:
     """
 
     @staticmethod
-    def get_atoms(structure, **kwargs):
+    def get_atoms(structure: Structure, **kwargs) -> Atoms:
         """
         Returns ASE Atoms object from pymatgen structure or molecule.
 
@@ -129,7 +130,7 @@ class AseAtomsAdaptor:
         return atoms
 
     @staticmethod
-    def get_structure(atoms, cls=None, **cls_kwargs):
+    def get_structure(atoms: Atoms, cls: Structure = None, **cls_kwargs) -> Structure:
         """
         Returns pymatgen structure from ASE Atoms.
 
@@ -224,7 +225,7 @@ class AseAtomsAdaptor:
         return structure
 
     @staticmethod
-    def get_molecule(atoms, cls=None, **cls_kwargs):
+    def get_molecule(atoms: Atoms, cls: Molecule = None, **cls_kwargs) -> Molecule:
         """
         Returns pymatgen molecule from ASE Atoms.
 
