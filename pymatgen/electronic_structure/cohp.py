@@ -1036,7 +1036,7 @@ class IcohpValue(MSONable):
     @property
     def summed_icohp(self):
         """
-        Adds ICOHPs of both spin channels for spin polarized compounds
+        Sums ICOHPs of both spin channels for spin polarized compounds
         Returns:
              icohp value in eV
         """
@@ -1045,6 +1045,12 @@ class IcohpValue(MSONable):
 
     @property
     def summed_orbital_icohp(self):
+        """
+        Sums orbitals-resolved ICOHPs of both spin channels for spin-plarized compounds
+        Returns:
+            {"str(Orbital1)-str(Ortibal2)": icohp value in eV}
+
+        """
         orbital_icohp = {}
         for orb, item in self._orbitals.items():
             orbital_icohp[orb] = (
