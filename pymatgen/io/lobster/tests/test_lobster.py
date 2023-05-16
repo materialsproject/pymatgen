@@ -486,6 +486,8 @@ class IcohplistTest(unittest.TestCase):
         assert self.icobi_orbitalwise_add.orbitalwise
         assert self.icobi_orbitalwise_spinpolarized_add.orbitalwise
 
+
+
     def test_values(self):
         icohplist_bise = {
             "1": {
@@ -651,6 +653,7 @@ class IcohplistTest(unittest.TestCase):
         assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi.icohpcollection.extremum_icohpvalue() == 0.58649
+        print(self.icobi_orbitalwise.icohplist["2"])
 
 
 class DoscarTest(unittest.TestCase):

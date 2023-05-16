@@ -834,7 +834,7 @@ class IcohpValue(MSONable):
 
     """
 
-    def __init__(self, label, atom1, atom2, length, translation, num, icohp, are_coops=False, are_cobis=False):
+    def __init__(self, label, atom1, atom2, length, translation, num, icohp, are_coops=False, are_cobis=False, orbitals=None):
         """
         Args:
             label: label for the icohp
@@ -846,6 +846,8 @@ class IcohpValue(MSONable):
             icohp: dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
             are_coops: if True, this are COOPs
             are_cobis: if True, this are COBIs
+            orbitals: {[Orbital1, Orbital2]: {Spin.up: icohps, Spin.down: icohps}, ...}; Orbital1 corresponds to atom1
+
         """
         if are_coops and are_cobis:
             raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
@@ -1049,15 +1051,12 @@ class IcohpCollection(MSONable):
         list_num,
         list_icohp,
         is_spin_polarized,
+        list_orb_icohp,
         are_coops=False,
         are_cobis=False,
     ):
         """
         Args:
-            is_spin_polarized: Boolean to indicate if the Lobster calculation was done spin polarized or not Boolean to
-                indicate if the Lobster calculation was done spin polarized or not
-            are_coops: Boolean to indicate whether ICOOPs are stored
-            are_cobis: Boolean to indicate whether ICOBIs are stored
             list_labels: list of labels for ICOHP/ICOOP values
             list_atom1: list of str of atomnames e.g. "O1"
             list_atom2: list of str of atomnames e.g. "O1"
@@ -1065,6 +1064,12 @@ class IcohpCollection(MSONable):
             list_translation: list of translation list, e.g. [0,0,0]
             list_num: list of equivalent bonds, usually 1 starting from Lobster 3.0.0
             list_icohp: list of dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
+            is_spin_polarized: Boolean to indicate if the Lobster calculation was done spin polarized or not Boolean to
+                indicate if the Lobster calculation was done spin polarized or not
+            list_orb_icohp: list of dict={[Orbital1,Orbital2]: {Spin.up: icohpvalue for spin.up, Spin.down:
+                icohpvalue for spin.down}}
+            are_coops: Boolean to indicate whether ICOOPs are stored
+            are_cobis: Boolean to indicate whether ICOBIs are stored
         """
         if are_coops and are_cobis:
             raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
