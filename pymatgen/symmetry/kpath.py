@@ -7,7 +7,7 @@ from __future__ import annotations
 import abc
 import itertools
 from math import ceil, cos, e, pi, sin, tan
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from warnings import warn
 
 import networkx as nx
@@ -18,14 +18,16 @@ from scipy.linalg import sqrtm
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.typing import SpeciesLike
 
 try:
     from seekpath import get_path
 except ImportError:
     get_path = None
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
+    from pymatgen.util.typing import SpeciesLike
 
 __author__ = "Geoffroy Hautier, Katherine Latimer, Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -607,8 +609,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "A": np.array([0.0, 0.0, 0.5]),
-            "H": np.array([1.0 / 3.0, 1.0 / 3.0, 0.5]),
-            "K": np.array([1.0 / 3.0, 1.0 / 3.0, 0.0]),
+            "H": np.array([1 / 3, 1 / 3, 0.5]),
+            "K": np.array([1 / 3, 1 / 3, 0.0]),
             "L": np.array([0.5, 0.0, 0.5]),
             "M": np.array([0.5, 0.0, 0.0]),
         }
@@ -625,18 +627,18 @@ class KPathSetyawanCurtarolo(KPathBase):
         """
         self.name = "RHL1"
         eta = (1 + 4 * cos(alpha)) / (2 + 4 * cos(alpha))
-        nu = 3.0 / 4.0 - eta / 2.0
+        nu = 3 / 4 - eta / 2.0
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
-            "B": np.array([eta, 0.5, 1.0 - eta]),
-            "B_1": np.array([1.0 / 2.0, 1.0 - eta, eta - 1.0]),
+            "B": np.array([eta, 0.5, 1 - eta]),
+            "B_1": np.array([1 / 2.0, 1 - eta, eta - 1.0]),
             "F": np.array([0.5, 0.5, 0.0]),
             "L": np.array([0.5, 0.0, 0.0]),
             "L_1": np.array([0.0, 0.0, -0.5]),
             "P": np.array([eta, nu, nu]),
-            "P_1": np.array([1.0 - nu, 1.0 - nu, 1.0 - eta]),
+            "P_1": np.array([1 - nu, 1 - nu, 1 - eta]),
             "P_2": np.array([nu, nu, eta - 1.0]),
-            "Q": np.array([1.0 - nu, nu, 0.0]),
+            "Q": np.array([1 - nu, nu, 0.0]),
             "X": np.array([nu, 0.0, -nu]),
             "Z": np.array([0.5, 0.5, 0.5]),
         }
@@ -654,7 +656,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         """
         self.name = "RHL2"
         eta = 1 / (2 * tan(alpha / 2.0) ** 2)
-        nu = 3.0 / 4.0 - eta / 2.0
+        nu = 3 / 4 - eta / 2.0
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "F": np.array([0.5, -0.5, 0.0]),
@@ -662,7 +664,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             "P": np.array([1 - nu, -nu, 1 - nu]),
             "P_1": np.array([nu, nu - 1.0, nu - 1.0]),
             "Q": np.array([eta, eta, eta]),
-            "Q_1": np.array([1.0 - eta, -eta, -eta]),
+            "Q_1": np.array([1 - eta, -eta, -eta]),
             "Z": np.array([0.5, -0.5, 0.5]),
         }
         path = [["\\Gamma", "P", "Z", "Q", "\\Gamma", "F", "P_1", "Q_1", "L", "Z"]]
@@ -682,10 +684,10 @@ class KPathSetyawanCurtarolo(KPathBase):
             "D": np.array([0.5, 0.0, 0.5]),
             "D_1": np.array([0.5, 0.5, -0.5]),
             "E": np.array([0.5, 0.5, 0.5]),
-            "H": np.array([0.0, eta, 1.0 - nu]),
-            "H_1": np.array([0.0, 1.0 - eta, nu]),
+            "H": np.array([0.0, eta, 1 - nu]),
+            "H_1": np.array([0.0, 1 - eta, nu]),
             "H_2": np.array([0.0, eta, -nu]),
-            "M": np.array([0.5, eta, 1.0 - nu]),
+            "M": np.array([0.5, eta, 1 - nu]),
             "M_1": np.array([0.5, 1 - eta, nu]),
             "M_2": np.array([0.5, 1 - eta, nu]),
             "X": np.array([0.0, 0.5, 0.0]),
@@ -1483,7 +1485,7 @@ class KPathLatimerMunro(KPathBase):
         for i, facet in enumerate(bz):
             bz_as_key_point_inds.append([])
             for j, vert in enumerate(facet):
-                edge_center = (vert + facet[j + 1]) / 2.0 if j != len(facet) - 1 else (vert + facet[0]) / 2.0
+                edge_center = (vert + facet[j + 1]) / 2 if j != len(facet) - 1 else (vert + facet[0]) / 2.0
                 duplicatevert = False
                 duplicateedge = False
                 for k, point in enumerate(key_points):
@@ -1807,7 +1809,7 @@ class KPathLatimerMunro(KPathBase):
         if len(pos1) != len(pos2):
             return False
         for idx, p1 in enumerate(pos1):
-            if abs(p1 - pos2[idx]) > tolerance[idx] and abs(p1 - pos2[idx]) < 1.0 - tolerance[idx]:
+            if abs(p1 - pos2[idx]) > tolerance[idx] and abs(p1 - pos2[idx]) < 1 - tolerance[idx]:
                 return False
         return True
 

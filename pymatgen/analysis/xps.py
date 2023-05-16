@@ -21,13 +21,16 @@ from __future__ import annotations
 import collections
 import warnings
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.spectrum import Spectrum
-from pymatgen.electronic_structure.dos import CompleteDos
+
+if TYPE_CHECKING:
+    from pymatgen.electronic_structure.dos import CompleteDos
 
 
 def _load_cross_sections(fname):

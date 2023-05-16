@@ -3,18 +3,11 @@
 from __future__ import annotations
 
 import itertools
-
-__author__ = "Jimmy-Xuan Shen"
-__copyright__ = "Copyright 2022, The Materials Project"
-__maintainer__ = "Jimmy-Xuan Shen"
-__email__ = "jmmshn@gmail.com"
-
-
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
-import numpy.typing as npt
 import scipy.constants
 import scipy.special
 from monty.json import MSONable
@@ -22,6 +15,14 @@ from tqdm import tqdm
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike, NDArray
+
+__author__ = "Jimmy-Xuan Shen"
+__copyright__ = "Copyright 2022, The Materials Project"
+__maintainer__ = "Jimmy-Xuan Shen"
+__email__ = "jmmshn@gmail.com"
 
 au2ang = scipy.constants.physical_constants["atomic unit of length"][0] / 1e-10
 ryd2ev = scipy.constants.physical_constants["Rydberg constant times hc in eV"][0]
@@ -54,10 +55,10 @@ class DielectricFunctionCalculator(MSONable):
     we can dramatically speed up the calculations here by considering only the irreducible kpoints.
     """
 
-    cder_real: npt.NDArray
-    cder_imag: npt.NDArray
-    eigs: npt.NDArray
-    kweights: npt.NDArray
+    cder_real: NDArray
+    cder_imag: NDArray
+    eigs: NDArray
+    kweights: NDArray
     nedos: int
     deltae: float
     ismear: int
@@ -146,8 +147,8 @@ class DielectricFunctionCalculator(MSONable):
         ismear: int | None = None,
         sigma: float | None = None,
         cshift: float | None = None,
-        mask: npt.NDArray | None = None,
-    ) -> tuple[npt.NDArray, npt.NDArray]:
+        mask: NDArray | None = None,
+    ) -> tuple[NDArray, NDArray]:
         """Compute the frequency dependent dielectric function.
 
         Args:
@@ -192,9 +193,7 @@ class DielectricFunctionCalculator(MSONable):
             eps += 1.0 + 0.0j
         return egrid, eps
 
-    def plot_weighted_transition_data(
-        self, idir: int, jdir: int, mask: npt.NDArray | None = None, min_val: float = 0.0
-    ):
+    def plot_weighted_transition_data(self, idir: int, jdir: int, mask: NDArray | None = None, min_val: float = 0.0):
         """Data for plotting the weight matrix elements as a scatter plot.
 
         Since the computation of the final spectrum (especially the smearing part)
@@ -343,9 +342,9 @@ def get_step(x0, sigma, nx, dx, ismear):
 
 
 def epsilon_imag(
-    cder: npt.NDArray,
-    eigs: npt.NDArray,
-    kweights: npt.ArrayLike,
+    cder: NDArray,
+    eigs: NDArray,
+    kweights: ArrayLike,
     efermi: float,
     nedos: int,
     deltae: float,
@@ -353,7 +352,7 @@ def epsilon_imag(
     sigma: float,
     idir: int,
     jdir: int,
-    mask: npt.NDArray | None = None,
+    mask: NDArray | None = None,
 ):
     """Replicate the EPSILON_IMAG function of VASP.
 
@@ -424,7 +423,7 @@ def kramers_kronig(
     nedos: int,
     deltae: float,
     cshift: float = 0.1,
-) -> npt.NDArray:
+) -> NDArray:
     """Perform the Kramers-Kronig transformation.
 
     Perform the Kramers-Kronig transformation exactly as VASP does it.

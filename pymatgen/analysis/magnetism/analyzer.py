@@ -10,7 +10,7 @@ import os
 import warnings
 from collections import namedtuple
 from enum import Enum, unique
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.serialization import loadfn
@@ -28,7 +28,9 @@ from pymatgen.transformations.advanced_transformations import (
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
 )
-from pymatgen.util.typing import VectorLike
+
+if TYPE_CHECKING:
+    from pymatgen.util.typing import VectorLike
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -1096,6 +1098,6 @@ def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> Magn
     p = np.dot(lattice_a_inv, lattice_b)
     eta = 0.5 * (np.dot(p.T, p) - np.identity(3))
     w, v = np.linalg.eig(eta)
-    deformation = 100 * (1.0 / 3.0) * np.sqrt(w[0] ** 2 + w[1] ** 2 + w[2] ** 2)
+    deformation = 100 * (1 / 3) * np.sqrt(w[0] ** 2 + w[1] ** 2 + w[2] ** 2)
 
     return MagneticDeformation(deformation=deformation, type=type_str)

@@ -7,6 +7,7 @@ from __future__ import annotations
 import collections
 import itertools
 from math import acos, pi
+from typing import TYPE_CHECKING
 from warnings import warn
 
 import numpy as np
@@ -16,9 +17,11 @@ from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import abs_cap
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"

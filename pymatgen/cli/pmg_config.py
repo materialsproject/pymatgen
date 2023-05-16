@@ -9,14 +9,16 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
-from argparse import Namespace
 from glob import glob
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 from urllib.request import urlretrieve
 
 from monty.serialization import dumpfn, loadfn
 
 from pymatgen.core import OLD_SETTINGS_FILE, SETTINGS_FILE
+
+if TYPE_CHECKING:
+    from argparse import Namespace
 
 
 def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:

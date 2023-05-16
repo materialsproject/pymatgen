@@ -21,7 +21,7 @@ import sys
 import warnings
 from enum import Enum, unique
 from time import sleep
-from typing import Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
@@ -37,9 +37,11 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
+    from pymatgen.phonon.dos import CompletePhononDos
 
 logger = logging.getLogger(__name__)
 

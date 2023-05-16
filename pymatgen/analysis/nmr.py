@@ -103,7 +103,7 @@ class ChemicalShielding(SquareTensor):
         omega = np.diag(pas)[2] - np.diag(pas)[0]
         # There is a typo in equation 20 from Magn. Resonance Chem. 2008, 46, 582-598, the sign is wrong.
         # There correct order is presented in Solid State Nucl. Magn. Resonance 1993, 2, 285-288.
-        kappa = 3.0 * (np.diag(pas)[1] - sigma_iso) / omega
+        kappa = 3 * (np.diag(pas)[1] - sigma_iso) / omega
         return self.MarylandNotation(sigma_iso, omega, kappa)
 
     @classmethod
@@ -119,9 +119,9 @@ class ChemicalShielding(SquareTensor):
         Returns:
             ChemicalShielding
         """
-        sigma_22 = sigma_iso + kappa * omega / 3.0
-        sigma_11 = (3.0 * sigma_iso - omega - sigma_22) / 2.0
-        sigma_33 = 3.0 * sigma_iso - sigma_22 - sigma_11
+        sigma_22 = sigma_iso + kappa * omega / 3
+        sigma_11 = (3 * sigma_iso - omega - sigma_22) / 2
+        sigma_33 = 3 * sigma_iso - sigma_22 - sigma_11
         return cls(np.diag([sigma_11, sigma_22, sigma_33]))
 
 

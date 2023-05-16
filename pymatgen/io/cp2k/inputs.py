@@ -32,18 +32,20 @@ import typing
 from dataclasses import dataclass, field
 from hashlib import md5
 from pathlib import Path
-from typing import Any, Iterable, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence
 
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.utils import chunk, postprocessor, preprocessor
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.vasp.inputs import Kpoints_supported_modes
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core.lattice import Lattice
+    from pymatgen.core.structure import Molecule, Structure
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"

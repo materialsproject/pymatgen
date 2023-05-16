@@ -10,22 +10,21 @@ import collections
 import copy
 import math
 import os
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
-    LocalGeometryFinder,
-)
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
-    LightStructureEnvironments,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
 from pymatgen.analysis.local_env import NearNeighbors
-from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import CompleteCohp
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.plotter import CohpPlotter
 from pymatgen.io.lobster import Charge, Icohplist
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"

@@ -9,20 +9,21 @@ import sqlite3
 import textwrap
 from array import array
 from fractions import Fraction
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
 from monty.design_patterns import cached_class
 
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.groups import SymmetryGroup, in_array_list
 from pymatgen.symmetry.settings import JonesFaithfulTransformation
 from pymatgen.util.string import transformation_to_string
 
-__author__ = "Matthew Horton, Shyue Ping Ong"
+if TYPE_CHECKING:
+    from pymatgen.core.lattice import Lattice
 
+__author__ = "Matthew Horton, Shyue Ping Ong"
 
 MAGSYMM_DATA = os.path.join(os.path.dirname(__file__), "symm_data_magnetic.sqlite")
 

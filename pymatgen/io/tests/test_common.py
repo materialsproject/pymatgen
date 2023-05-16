@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pymatgen.io.common import VolumetricData
 from pymatgen.util.testing import PymatgenTest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_cube_io_faithful(tmp_path: Path) -> None:

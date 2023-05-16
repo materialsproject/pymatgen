@@ -10,7 +10,7 @@ from __future__ import annotations
 import itertools
 import os
 import warnings
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 
 import numpy as np
 import spglib
@@ -18,11 +18,14 @@ from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
 
-from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+
+if TYPE_CHECKING:
+    from pymatgen.core.composition import Composition
+
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"

@@ -7,7 +7,7 @@ from __future__ import annotations
 import functools
 import warnings
 from collections import namedtuple
-from typing import Mapping, NamedTuple
+from typing import TYPE_CHECKING, Mapping, NamedTuple
 
 import numpy as np
 from monty.json import MSONable
@@ -15,12 +15,16 @@ from scipy.constants import value as _cd
 from scipy.signal import hilbert
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
-from pymatgen.util.typing import ArrayLike, SpeciesLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.core.sites import PeriodicSite
+    from pymatgen.util.typing import SpeciesLike
 
 
 class DOS(Spectrum):

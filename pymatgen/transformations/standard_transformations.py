@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 from fractions import Fraction
+from typing import TYPE_CHECKING
 
 from numpy import around
 
@@ -19,14 +20,16 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.site_transformations import (
     PartialRemoveSitesTransformation,
 )
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.util.typing import SpeciesLike
+
+if TYPE_CHECKING:
+    from pymatgen.core.sites import PeriodicSite
+    from pymatgen.util.typing import SpeciesLike
 
 logger = logging.getLogger(__name__)
 
@@ -316,7 +319,7 @@ class SubstitutionTransformation(AbstractTransformation):
         self._species_map = dict(species_map)
         for k, v in self._species_map.items():
             if isinstance(v, (tuple, list)):
-                self._species_map[k] = dict(v)  # type: ignore
+                self._species_map[k] = dict(v)  # type: ignore[assignment]
 
     def apply_transformation(self, structure: Structure) -> Structure:
         """

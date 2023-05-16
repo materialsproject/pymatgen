@@ -181,7 +181,7 @@ class BVAnalyzer:
         try:
             prob = {k: v / sum(prob.values()) for k, v in prob.items()}
         except ZeroDivisionError:
-            prob = {k: 0.0 for k in prob}
+            prob = {key: 0 for key in prob}
         return prob
 
     def _calc_site_probabilities_unordered(self, site, nn):
@@ -202,7 +202,7 @@ class BVAnalyzer:
             try:
                 prob[el] = {k: v / sum(prob[el].values()) for k, v in prob[el].items()}
             except ZeroDivisionError:
-                prob[el] = {k: 0.0 for k in prob[el]}
+                prob[el] = {key: 0 for key in prob[el]}
         return prob
 
     def get_valences(self, structure):

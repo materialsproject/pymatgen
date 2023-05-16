@@ -11,7 +11,7 @@ import itertools
 import os
 import string
 import warnings
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
 from monty.json import MSONable
@@ -21,8 +21,10 @@ from scipy.linalg import polar
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Joseph Montoya"
 __credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, Mark Asta, Anubhav Jain, Terence Lew"

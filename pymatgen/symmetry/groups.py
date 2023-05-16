@@ -23,9 +23,11 @@ from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
     # don't import at runtime to avoid circular import
+    from numpy.typing import ArrayLike
+
     from pymatgen.core.lattice import Lattice
-    from pymatgen.core.operations import SymmOp
-    from pymatgen.util.typing import ArrayLike
+    from pymatgen.core.operations import SymmOp  # noqa: TCH004
+
 
 SYMM_DATA = None
 
