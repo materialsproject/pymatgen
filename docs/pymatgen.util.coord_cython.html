@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.util.coord_cython module &mdash; pymatgen 2023.3.23 documentation</title>
+  <title>pymatgen.util.coord_cython module &mdash; pymatgen 2023.5.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,14 +14,12 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.util.io_utils module" href="pymatgen.util.io_utils.html" />
+    <link rel="next" title="pymatgen.util.graph_hashing module" href="pymatgen.util.graph_hashing.html" />
     <link rel="prev" title="pymatgen.util.coord module" href="pymatgen.util.coord.html" />
  
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
@@ -41,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.3.23
+                2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -121,7 +119,7 @@
 boundary conditions or otherwise.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.coord_cython.coord_list_mapping_pbc">
-<span class="sig-name descname"><span class="pre">coord_list_mapping_pbc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.coord_list_mapping_pbc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">coord_list_mapping_pbc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.coord_list_mapping_pbc" title="Permalink to this definition"></a></dt>
 <dd><p>Gives the index mapping from a subset to a superset.
 Superset cannot contain duplicate matching rows</p>
 <dl class="field-list simple">
@@ -141,7 +139,7 @@ axis of the lattice.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.coord_cython.is_coord_subset_pbc">
-<span class="sig-name descname"><span class="pre">is_coord_subset_pbc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.is_coord_subset_pbc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_coord_subset_pbc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.is_coord_subset_pbc" title="Permalink to this definition"></a></dt>
 <dd><p>Tests if all fractional coords in subset are contained in superset.
 Allows specification of a mask determining pairs that are not
 allowed to match to each other</p>
@@ -162,7 +160,7 @@ axis of the lattice.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.coord_cython.pbc_shortest_vectors">
-<span class="sig-name descname"><span class="pre">pbc_shortest_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.3.23/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.pbc_shortest_vectors" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pbc_shortest_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/util/coord_cython.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord_cython.pbc_shortest_vectors" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the shortest vectors between two lists of coordinates taking into
 account periodic boundary conditions and the lattice.</p>
 <dl class="field-list simple">

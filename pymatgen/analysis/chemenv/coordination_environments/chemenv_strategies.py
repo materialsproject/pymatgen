@@ -322,7 +322,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :return: The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
             can return a list of list of neighbors
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def uniquely_determines_coordination_environments(self):
@@ -330,7 +330,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         Returns True if the strategy leads to a unique coordination environment, False otherwise.
         :return: True if the strategy leads to a unique coordination environment, False otherwise.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_site_coordination_environment(self, site):
@@ -341,7 +341,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
             solutions, this can return a list of coordination environments for the site
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_site_coordination_environments(self, site):
@@ -352,7 +352,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
             solutions, this can return a list of coordination environments for the site
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_site_coordination_environments_fractions(
@@ -374,7 +374,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
             solutions, this can return a list of coordination environments for the site
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_site_ce_fractions_and_neighbors(self, site, full_ce_info=False, strategy_info=False):
         """
@@ -439,7 +439,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :param other: strategy to be compared with the current one
         :return:
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __str__(self):
         out = f"  Chemenv Strategy {type(self).__name__!r}\n"
@@ -458,7 +458,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         Bson-serializable dict representation of the SimplestChemenvStrategy object.
         :return: Bson-serializable dict representation of the SimplestChemenvStrategy object.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def from_dict(cls, d):
@@ -468,7 +468,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :param d: dict representation of the SimpleAbundanceChemenvStrategy object
         :return: StructureEnvironments object
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class SimplestChemenvStrategy(AbstractChemenvStrategy):
@@ -2038,7 +2038,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         if weight_type == "has_intersection":
             self.area_weight = self.w_area_has_intersection
         elif weight_type == "has_intersection_smoothstep":
-            raise NotImplementedError()
+            raise NotImplementedError
             # self.area_weight = self.w_area_has_intersection_smoothstep
         else:
             raise ValueError(f'Weight type is {weight_type!r} while it should be "has_intersection"')
@@ -2556,10 +2556,10 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         :param structure_environments: StructureEnvironments object containing all the information on the
             coordination of the sites in a structure
         """
+        if nb_set_weights is None:
+            raise ValueError(f"{nb_set_weights=} must be provided")
         AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
         self._additional_condition = additional_condition
-        if nb_set_weights is None:
-            raise ValueError()
         self.nb_set_weights = nb_set_weights
         self.ordered_weights = []
         for nb_set_weight in self.nb_set_weights:

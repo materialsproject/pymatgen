@@ -248,7 +248,7 @@ def _get_shifts(shift_mode, structure):
             return shifts
         return ((0, 0, 0),)
 
-    raise ValueError(f"invalid shift_mode: `{str(shift_mode)}`")
+    raise ValueError(f"invalid shift_mode: `{shift_mode!s}`")
 
 
 def gs_input(
@@ -806,7 +806,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         d = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
-                raise TypeError(f"type {type(obj)}: {repr(obj)} does not have `to_abivars` method")
+                raise TypeError(f"type {type(obj)}: {obj!r} does not have `to_abivars` method")
             d.update(self.set_vars(obj.to_abivars()))
         return d
 
@@ -1106,7 +1106,7 @@ class BasicMultiDataset:
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:
-                raise self.Error(f"Cannot find the following pseudopotential files:\n{str(missing)}")
+                raise self.Error(f"Cannot find the following pseudopotential files:\n{missing!s}")
 
             pseudos = PseudoTable(pseudo_paths)
 

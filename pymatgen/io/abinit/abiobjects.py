@@ -52,9 +52,9 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         angdeg = np.reshape(angdeg, 3)
 
         if np.any(angdeg <= 0.0):
-            raise ValueError(f"Angles must be > 0 but got {str(angdeg)}")
+            raise ValueError(f"Angles must be > 0 but got {angdeg!s}")
         if angdeg.sum() >= 360.0:
-            raise ValueError(f"The sum of angdeg must be lower that 360, angdeg {str(angdeg)}")
+            raise ValueError(f"The sum of angdeg must be lower that 360, angdeg {angdeg!s}")
 
         # This code follows the implementation in ingeo.F90
         # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
@@ -138,7 +138,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
         coords_are_cartesian = True
 
     if coords is None:
-        raise ValueError(f"Cannot extract coordinates from:\n {str(d)}")
+        raise ValueError(f"Cannot extract coordinates from:\n {d!s}")
 
     coords = np.reshape(coords, (-1, 3))
 
@@ -374,7 +374,7 @@ class SpinMode(
         try:
             return _mode2spinvars[obj]
         except KeyError:
-            raise KeyError(f"Wrong value for spin_mode: {str(obj)}")
+            raise KeyError(f"Wrong value for spin_mode: {obj!s}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
@@ -1217,7 +1217,7 @@ class PPModel(AbivarAble, MSONable):
         return self.mode != PPModelModes.noppmodel
 
     def __repr__(self):
-        return f"<{type(self).__name__} at {id(self)}, mode = {str(self.mode)}>"
+        return f"<{type(self).__name__} at {id(self)}, mode = {self.mode!s}>"
 
     def to_abivars(self):
         """Return dictionary with Abinit variables."""
@@ -1690,7 +1690,7 @@ class ExcHamiltonian(AbivarAble):
             )
 
         elif self.use_direct_diago or self.use_cg:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         else:
             raise ValueError(f"Unknown algorithm for EXC: {self.algo}")

@@ -5,7 +5,7 @@ import os
 import unittest
 import warnings
 
-import numpy
+import numpy as np
 import pytest
 from monty.serialization import loadfn
 from pytest import approx
@@ -44,8 +44,8 @@ class KpointTest(unittest.TestCase):
     def test_as_dict(self):
         assert isinstance(self.kpoint.as_dict()["fcoords"], list)
         assert isinstance(self.kpoint.as_dict()["ccoords"], list)
-        assert not isinstance(self.kpoint.as_dict()["fcoords"][0], numpy.float64)
-        assert not isinstance(self.kpoint.as_dict()["ccoords"][0], numpy.float64)
+        assert not isinstance(self.kpoint.as_dict()["fcoords"][0], np.float64)
+        assert not isinstance(self.kpoint.as_dict()["ccoords"][0], np.float64)
         assert self.kpoint.as_dict()["fcoords"] == [0.1, 0.4, -0.5]
         assert self.kpoint.as_dict()["ccoords"] == [1.0, 4.0, -5.0]
 

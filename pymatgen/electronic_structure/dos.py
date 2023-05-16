@@ -1192,10 +1192,12 @@ class CompleteDos(Dos):
         Args:
             type (str): Specify fingerprint type needed can accept '{s/p/d/f/}summed_{pdos/tdos}'
             (default is summed_pdos)
+            binning (bool): If true, the DOS fingerprint is binned using np.linspace and n_bins.
+                Default is True.
             min_e (float): The minimum mode energy to include in the fingerprint (default is None)
             max_e (float): The maximum mode energy to include in the fingerprint (default is None)
             n_bins (int): Number of bins to be used in the fingerprint (default is 256)
-            normalize (bool): If true, normalizes the area under fp to equal to 1 (default is True)
+            normalize (bool): If true, normalizes the area under fp to equal to 1. Default is True.
 
         Raises:
             ValueError: If type is not one of the accepted values {s/p/d/f/}summed_{pdos/tdos}.
@@ -1314,18 +1316,17 @@ class CompleteDos(Dos):
             rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)
             return np.dot(vec1, vec2) / rescale
 
-        elif not tanimoto and normalize:
+        if not tanimoto and normalize:
             rescale = np.linalg.norm(vec1) * np.linalg.norm(vec2)
             return np.dot(vec1, vec2) / rescale
 
-        elif not tanimoto and not normalize:
+        if not tanimoto and not normalize:
             rescale = 1.0
             return np.dot(vec1, vec2) / rescale
 
-        else:
-            raise ValueError(
-                "Cannot compute similarity index. Please set either normalize=True or tanimoto=True or both to False."
-            )
+        raise ValueError(
+            "Cannot compute similarity index. Please set either normalize=True or tanimoto=True or both to False."
+        )
 
     @classmethod
     def from_dict(cls, d) -> CompleteDos:

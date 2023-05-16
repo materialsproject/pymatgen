@@ -46,16 +46,16 @@ class ThermalDisplacementMatrices(MSONable):
     def __init__(self, thermal_displacement_matrix_cart, structure, temperature, thermal_displacement_matrix_cif=None):
         """
         Args:
-            thermal_displacement_matrix: 2D numpy array including the thermal_displacement matrix Ucart
+            thermal_displacement_matrix_cart: 2D numpy array including the thermal_displacement matrix Ucart
                 1st dimension atom types, then compressed thermal displacement matrix will follow
-                 U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
-                 convention similar to "thermal_displacement_matrices.yaml" in phonopy
+                U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
+                convention similar to "thermal_displacement_matrices.yaml" in phonopy
             structure: A pymatgen Structure object
             temperature: temperature at which thermal displacement matrix was determined
-            thermal_displacement_matrix: 2D numpy array including the thermal_displacement matrix Ucif format
+            thermal_displacement_matrix_cif: 2D numpy array including the thermal_displacement matrix Ucif format
                 1st dimension atom types, then compressed thermal displacement matrix will follow
-                 U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
-                 convention similar to "thermal_displacement_matrices.yaml" in phonopy
+                U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
+                convention similar to "thermal_displacement_matrices.yaml" in phonopy
         """
         self.thermal_displacement_matrix_cart = np.array(thermal_displacement_matrix_cart)
         self.structure = structure
@@ -155,8 +155,7 @@ class ThermalDisplacementMatrices(MSONable):
                 mat_cif = np.dot(np.dot(Ninv, mat), Ninv.T)
                 Ucif.append(mat_cif)
             return np.array(Ucif)
-        else:
-            return self.thermal_displacement_matrix_cif_matrixform
+        return self.thermal_displacement_matrix_cif_matrixform
 
     @property
     def B(self):

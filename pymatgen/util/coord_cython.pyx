@@ -1,3 +1,4 @@
+# cython: language_level=3
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise.
@@ -91,8 +92,8 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     pbc = lattice.pbc
     cdef int n_pbc = sum(pbc)
     cdef int n_pbc_im = 3 ** n_pbc
-    cdef np.float_t[:, ::1] frac_im = <np.float_t[:n_pbc_im, :3]> malloc(3 * n_pbc_im * sizeof(np.float_t))
 
+    cdef np.float_t[:, ::1] frac_im
     cdef int i, j, k, l, I, J
 
     if n_pbc == 3:
@@ -101,6 +102,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
         matrix = lattice.lll_matrix
         frac_im = images_view
     else:
+        frac_im = <np.float_t[:n_pbc_im, :3]> malloc(3 * n_pbc_im * sizeof(np.float_t))
         matrix = lattice.matrix.copy()
         k = 0
         for i in range(27):
@@ -178,6 +180,8 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
                 for l in range(3):
                     vs[i, j, l] = 1e20
 
+    if not (n_pbc == 3):
+        free(&frac_im[0,0])
     free(&cart_f1[0,0])
     free(&cart_f2[0,0])
     free(&cart_im[0,0])

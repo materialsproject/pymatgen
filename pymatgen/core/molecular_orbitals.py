@@ -33,20 +33,16 @@ class MolecularOrbitals:
     def __init__(self, formula):
         """
         Args:
-            chemical formula as a string. formula must have integer subscripts
-            Ex: 'SrTiO3'
+            formula (str): Chemical formula. Must have integer subscripts. Ex: 'SrTiO3'.
 
         Attributes:
-            composition: the composition as a dictionary.
-                         Ex: {'Sr': 1, 'Ti': 1, 'O', 3}
-            elements:    the dictionary keys for the composition
-            elec_neg:    the maximum pairwise electronegativity difference
-            aos:         the consituant atomic orbitals for each element as a
-                         dictionary
-            band_edges:  dictionary containing the highest occupied molecular
-                         orbital (HOMO), lowest unoccupied molecular orbital
-                         (LUMO), and whether the material is predicted to be a
-                         metal
+            composition: the composition as a dictionary. Ex: {'Sr': 1, 'Ti': 1, 'O', 3}
+            elements: the dictionary keys for the composition
+            elec_neg: the maximum pairwise electronegativity difference
+            aos: the constituent atomic orbitals for each element as a dictionary
+            band_edges: dictionary containing the highest occupied molecular orbital (HOMO),
+                lowest unoccupied molecular orbital (LUMO), and whether the material is predicted
+                to be a metal
         """
         self.composition = Composition(formula).as_dict()
         self.elements = list(self.composition)

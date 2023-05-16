@@ -746,11 +746,9 @@ class PhaseDiagram(MSONable):
         except Exception as exc:
             if on_error == "raise":
                 raise ValueError(f"Unable to get decomposition for {entry}") from exc
-            elif on_error == "warn":
+            if on_error == "warn":
                 warnings.warn(f"Unable to get decomposition for {entry}, encountered {exc}")
-                return None, None
-            else:
-                return None, None
+            return None, None
         e_above_hull = entry.energy_per_atom - hull_energy
 
         if allow_negative or e_above_hull >= -PhaseDiagram.numerical_tol:
@@ -759,7 +757,7 @@ class PhaseDiagram(MSONable):
         msg = f"No valid decomposition found for {entry}! (e_h: {e_above_hull})"
         if on_error == "raise":
             raise ValueError(msg)
-        elif on_error == "warn":
+        if on_error == "warn":
             warnings.warn(msg)
         return None, None  # 'ignore' and 'warn' case
 
@@ -768,7 +766,8 @@ class PhaseDiagram(MSONable):
         Provides the energy above convex hull for an entry
 
         Args:
-            entry (PDEntry): A PDEntry like object
+            entry (PDEntry): A PDEntry like object.
+            **kwargs: Passed to get_decomp_and_e_above_hull().
 
         Returns:
             float | None: Energy above convex hull of entry. Stable entries should have
@@ -1924,15 +1923,9 @@ class ReactionDiagram:
                         entry.decomposition = product_entries
                         rxn_entries.append(entry)
                 except np.linalg.LinAlgError:
-                    logger.debug(
-                        "Reactants = "
-                        + ", ".join(
-                            [
-                                entry1.composition.reduced_formula,
-                                entry2.composition.reduced_formula,
-                            ]
-                        )
-                    )
+                    form_1 = entry1.composition.reduced_formula
+                    form_2 = entry2.composition.reduced_formula
+                    logger.debug(f"Reactants = {form_1}, {form_2}")
                     logger.debug(f"Products = {', '.join([e.composition.reduced_formula for e in face_entries])}")
 
         rxn_entries = sorted(rxn_entries, key=lambda e: e.name, reverse=True)

@@ -306,9 +306,8 @@ class LammpsInputFile(InputFile):
         if stage_name in self.stages_names:
             if new_name in self.stages_names:
                 raise ValueError("The provided stage name is already present in LammpsInputFile.stages.")
-            else:
-                idx = self.stages_names.index(stage_name)
-                self.stages[idx]["stage_name"] = new_name
+            idx = self.stages_names.index(stage_name)
+            self.stages[idx]["stage_name"] = new_name
         else:
             raise LookupError("The given stage name is not present in this LammpsInputFile.")
 
@@ -663,7 +662,7 @@ class LammpsInputFile(InputFile):
     def _check_stage_format(stage: dict):
         if list(stage.keys()) != ["stage_name", "commands"]:
             raise KeyError(
-                "The provided stage does not have the correct keys. It should be 'stage_name' and " "'commands'."
+                "The provided stage does not have the correct keys. It should be 'stage_name' and 'commands'."
             )
         if not isinstance(stage["stage_name"], str):
             raise TypeError("The value of 'stage_name' should be a string.")
@@ -847,7 +846,6 @@ class LammpsRun(MSONable):
     force field and a few more settings. Experienced LAMMPS users should
     consider using write_lammps_inputs method with more sophisticated
     templates.
-
     """
 
     template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")

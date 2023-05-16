@@ -126,13 +126,15 @@ class SuperTransformation(AbstractTransformation):
         self._transformations = transformations
         self.nstructures_per_trans = nstructures_per_trans
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Applies the transformation.
 
         Args:
             structure: Input Structure
-            return_ranked_list: Number of structures to return.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
             Structures with all transformations applied.
@@ -212,13 +214,15 @@ class MultipleSubstitutionTransformation:
         self.charge_balance_species = charge_balance_species
         self.order = order
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Applies the transformation.
 
         Args:
             structure: Input Structure
-            return_ranked_list: Number of structures to return.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
             Structures with all substitutions applied.
@@ -226,8 +230,7 @@ class MultipleSubstitutionTransformation:
         if not return_ranked_list:
             raise ValueError(
                 "MultipleSubstitutionTransformation has no single"
-                " best structure output. Must use"
-                " return_ranked_list."
+                " best structure output. Must use return_ranked_list."
             )
         outputs = []
         for charge, el_list in self.substitution_dict.items():
@@ -349,16 +352,17 @@ class EnumerateStructureTransformation(AbstractTransformation):
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Returns either a single ordered structure or a sequence of all ordered
         structures.
 
         Args:
             structure: Structure to order.
-            return_ranked_list (bool): Whether or not multiple structures are
-                returned. If return_ranked_list is a number, that number of
-                structures is returned.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
+
 
         Returns:
             Depending on returned_ranked list, either a transformed structure
@@ -530,13 +534,15 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         self.scale_volumes = scale_volumes
         self._substitutor = SubstitutionPredictor(threshold=threshold, **kwargs)
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Applies the transformation.
 
         Args:
             structure: Input Structure
-            return_ranked_list: Number of structures to return.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
             Predicted Structures.
@@ -861,7 +867,8 @@ class MagOrderingTransformation(AbstractTransformation):
 
         Args:
             structure (Structure): Any ordered structure.
-            return_ranked_list (bool, optional): As in other Transformations. Defaults to False.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Raises:
             ValueError: On disordered structures.
@@ -1008,7 +1015,7 @@ class DopingTransformation(AbstractTransformation):
             ionic_radius_tol (float): E.g., Fractional allowable ionic radii
                 mismatch for dopant to fit into a site. Default of inf means
                 that any dopant with the right oxidation state is allowed.
-            min_Length (float): Min. lattice parameter between periodic
+            min_length (float): Min. lattice parameter between periodic
                 images of dopant. Defaults to 10A for now.
             alio_tol (int): If this is not 0, attempt will be made to dope
                 sites with oxidation_states +- alio_tol of the dopant. E.g.,
@@ -1037,10 +1044,14 @@ class DopingTransformation(AbstractTransformation):
         self.allowed_doping_species = allowed_doping_species
         self.kwargs = kwargs
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Args:
             structure (Structure): Input structure to dope
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
+
 
         Returns:
             [{"structure": Structure, "energy": float}]
@@ -1085,8 +1096,8 @@ class DopingTransformation(AbstractTransformation):
 
         lengths = structure.lattice.abc
         scaling = [max(1, int(round(math.ceil(self.min_length / x)))) for x in lengths]
-        logger.info(f"Lengths are {str(lengths)}")
-        logger.info(f"Scaling = {str(scaling)}")
+        logger.info(f"Lengths are {lengths!s}")
+        logger.info(f"Scaling = {scaling!s}")
 
         all_structures = []
         trafo = EnumerateStructureTransformation(**self.kwargs)
@@ -1209,6 +1220,14 @@ class SlabTransformation(AbstractTransformation):
             lll_reduce (bool): whether to apply LLL reduction
             center_slab (bool): whether to center the slab
             primitive (bool): whether to reduce slabs to most primitive cell
+            in_unit_planes (bool): Whether to set min_slab_size and min_vac_size
+                in units of hkl planes (True) or Angstrom (False, the default). Setting in
+                units of planes is useful for ensuring some slabs have a certain n_layer of
+                atoms. e.g. for Cs (100), a 10 Ang slab will result in a slab with only 2
+                layer of atoms, whereas Fe (100) will have more layer of atoms. By using units
+                of hkl planes instead, we ensure both slabs have the same number of atoms. The
+                slab thickness will be in min_slab_size/math.ceil(self._proj_height/dhkl)
+                multiples of oriented unit cells.
             max_normal_search (int): maximum index to include in linear
                 combinations of indices to find c lattice vector orthogonal
                 to slab surface
@@ -1281,11 +1300,13 @@ class DisorderOrderedTransformation(AbstractTransformation):
         """
         self.max_sites_to_merge = max_sites_to_merge
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Args:
             structure: ordered structure
-            return_ranked_list: as in other pymatgen Transformations
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
             Transformed disordered structure(s)
@@ -1488,7 +1509,9 @@ class GrainBoundaryTransformation(AbstractTransformation):
 
         Args:
             structure: Input Structure
-            return_ranked_list: Number of structures to return.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
             Grain boundary Structures.
@@ -1528,7 +1551,7 @@ class CubicSupercellTransformation(AbstractTransformation):
 
     The algorithm solves for a transformation matrix that makes the supercell
     cubic. The matrix must have integer entries, so entries are rounded (in such
-    a way that forces the matrix to be nonsingular). From the supercell
+    a way that forces the matrix to be non-singular). From the supercell
     resulting from this transformation matrix, vector projections are used to
     determine the side length of the largest cube that can fit inside the
     supercell. The algorithm will iteratively increase the size of the supercell
@@ -1570,7 +1593,7 @@ class CubicSupercellTransformation(AbstractTransformation):
         """
         The algorithm solves for a transformation matrix that makes the
         supercell cubic. The matrix must have integer entries, so entries are
-        rounded (in such a way that forces the matrix to be nonsingular). From
+        rounded (in such a way that forces the matrix to be non-singular). From
         the supercell resulting from this transformation matrix, vector
         projections are used to determine the side length of the largest cube
         that can fit inside the supercell. The algorithm will iteratively
@@ -1599,8 +1622,10 @@ class CubicSupercellTransformation(AbstractTransformation):
             target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
             self.transformation_matrix = target_sc_lat_vecs @ np.linalg.inv(lat_vecs)  # type: ignore
 
-            # round the entries of T and force T to be nonsingular
-            self.transformation_matrix = _round_and_make_arr_singular(self.transformation_matrix)  # type: ignore
+            # round the entries of T and force T to be non-singular
+            self.transformation_matrix = _round_and_make_arr_singular(  # type: ignore[assignment]
+                self.transformation_matrix  # type: ignore[arg-type]
+            )
 
             proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs
 
@@ -1717,13 +1742,13 @@ class AddAdsorbateTransformation(AbstractTransformation):
         self.reorient = reorient
         self.find_args = find_args
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Args:
             structure: Must be a Slab structure
-            return_ranked_list:  Whether or not multiple structures are
-                returned. If return_ranked_list is a number, up to that number of
-                structures is returned.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns: Slab with adsorbate
         """
@@ -1877,13 +1902,13 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
         self.range_tol = range_tol
         self.dist_from_surf = dist_from_surf
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Args:
             structure: Must be a Slab structure
-            return_ranked_list:  Whether or not multiple structures are
-                returned. If return_ranked_list is a number, up to that number of
-                structures is returned.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns: Slab with sites substituted
         """
@@ -2053,12 +2078,16 @@ class SQSTransformation(AbstractTransformation):
 
         return clusters
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Applies SQS transformation
+
         Args:
             structure (pymatgen Structure): pymatgen Structure with partial occupancies
-            return_ranked_list (bool): number of structures to return
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
+
         Returns:
             pymatgen Structure which is an SQS of the input structure
         """
@@ -2106,7 +2135,9 @@ class SQSTransformation(AbstractTransformation):
         Args:
             sqs (Sqs): Sqs class object.
             best_only (bool): only return structures with lowest objective function.
-            return_ranked_list (bool): Number of structures to return.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
             remove_duplicate_structures (bool): only return unique structures.
             reduction_algo (str): The lattice reduction algorithm to use.
                 Currently supported options are "niggli" or "LLL".

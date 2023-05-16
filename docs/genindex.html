@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; pymatgen 2023.3.23 documentation</title>
+  <title>Index &mdash; pymatgen 2023.5.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -13,10 +13,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.3.23
+                2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -4017,6 +4015,8 @@
 </li>
       <li><a href="pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.from_molecule_graph">from_molecule_graph() (BabelMolAdaptor static method)</a>
 </li>
+      <li><a href="pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.from_molecules">from_molecules() (Trajectory class method)</a>
+</li>
       <li><a href="pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.from_moment_relative_to_crystal_axes">from_moment_relative_to_crystal_axes() (Magmom class method)</a>
 </li>
       <li><a href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.from_multi_jobs_file">from_multi_jobs_file() (QCInput class method)</a>
@@ -5196,7 +5196,11 @@
       <li><a href="pymatgen.entries.mixing_scheme.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_mixing_state_data">get_mixing_state_data() (MaterialsProjectDFTMixingScheme method)</a>
 </li>
       <li><a href="pymatgen.io.ase.html#pymatgen.io.ase.AseAtomsAdaptor.get_molecule">get_molecule() (AseAtomsAdaptor static method)</a>
+
+      <ul>
+        <li><a href="pymatgen.core.trajectory.html#pymatgen.core.trajectory.Trajectory.get_molecule">(Trajectory method)</a>
 </li>
+      </ul></li>
       <li><a href="pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.get_molecule_hash">get_molecule_hash() (AbstractMolAtomMapper method)</a>
 
       <ul>
@@ -8883,6 +8887,8 @@
 </li>
         <li><a href="pymatgen.util.coord_cython.html#module-pymatgen.util.coord_cython">pymatgen.util.coord_cython</a>
 </li>
+        <li><a href="pymatgen.util.graph_hashing.html#module-pymatgen.util.graph_hashing">pymatgen.util.graph_hashing</a>
+</li>
         <li><a href="pymatgen.util.io_utils.html#module-pymatgen.util.io_utils">pymatgen.util.io_utils</a>
 </li>
         <li><a href="pymatgen.util.num.html#module-pymatgen.util.num">pymatgen.util.num</a>
@@ -12352,6 +12358,13 @@
 </li>
       </ul></li>
       <li>
+    pymatgen.util.graph_hashing
+
+      <ul>
+        <li><a href="pymatgen.util.graph_hashing.html#module-pymatgen.util.graph_hashing">module</a>
+</li>
+      </ul></li>
+      <li>
     pymatgen.util.io_utils
 
       <ul>
@@ -14830,6 +14843,10 @@
       <li><a href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy">WeightedNbSetChemenvStrategy (class in pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies)</a>
 </li>
       <li><a href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Procar.weights">weights (Procar attribute)</a>
+</li>
+      <li><a href="pymatgen.util.graph_hashing.html#pymatgen.util.graph_hashing.weisfeiler_lehman_graph_hash">weisfeiler_lehman_graph_hash() (in module pymatgen.util.graph_hashing)</a>
+</li>
+      <li><a href="pymatgen.util.graph_hashing.html#pymatgen.util.graph_hashing.weisfeiler_lehman_subgraph_hashes">weisfeiler_lehman_subgraph_hashes() (in module pymatgen.util.graph_hashing)</a>
 </li>
       <li><a href="pymatgen.io.abinit.pseudos.html#pymatgen.io.abinit.pseudos.PseudoTable.with_dojo_report">with_dojo_report() (PseudoTable method)</a>
 </li>

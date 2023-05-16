@@ -1070,6 +1070,8 @@ class Lattice(MSONable):
                 this one.
             ltol (float): Tolerance for matching lengths. Defaults to 1e-5.
             atol (float): Tolerance for matching angles. Defaults to 1.
+            skip_rotation_matrix (bool): Whether to skip calculation of the rotation matrix.
+                Defaults to False.
 
         Returns:
             (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is

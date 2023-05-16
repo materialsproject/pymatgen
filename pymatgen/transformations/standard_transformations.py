@@ -284,7 +284,7 @@ class SupercellTransformation(AbstractTransformation):
         """
         Raises: NotImplementedError
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def is_one_to_many(self) -> bool:
@@ -441,15 +441,15 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         self.fraction_to_remove = fraction_to_remove
         self.algo = algo
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Apply the transformation.
 
         Args:
             structure: input structure
-            return_ranked_list (bool/int): Boolean stating whether or not
-                multiple structures are returned. If return_ranked_list is
-                an int, that number of structures is returned.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
             Depending on returned_ranked list, either a transformed structure
@@ -541,7 +541,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
@@ -551,9 +551,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         Args:
             structure: Oxidation state decorated disordered structure to order
-            return_ranked_list (bool): Whether or not multiple structures are
-                returned. If return_ranked_list is a number, that number of
-                structures is returned.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
             Depending on returned_ranked list, either a transformed structure
@@ -576,7 +576,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         if self.no_oxi_states:
             structure = Structure.from_sites(structure)
             for i, site in enumerate(structure):
-                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore
+                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore[assignment]
 
         equivalent_sites: list[list[int]] = []
         exemplars: list[PeriodicSite] = []
@@ -1018,7 +1018,7 @@ class ChargedCellTransformation(AbstractTransformation):
         """
         Raises: NotImplementedError
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def is_one_to_many(self) -> bool:

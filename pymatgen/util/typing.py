@@ -10,14 +10,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Sequence, Union
 
 import numpy as np
+from numpy.typing import ArrayLike as ArrayLike
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element, Species
-
-try:
-    from numpy.typing import ArrayLike
-except ImportError:
-    ArrayLike = Union[Sequence[float], Sequence[Sequence[float]], Sequence[np.ndarray], np.ndarray]  # type: ignore
 
 if TYPE_CHECKING:  # needed to avoid circular imports
     from pymatgen.analysis.cost import CostEntry  # type: ignore[attr-defined]

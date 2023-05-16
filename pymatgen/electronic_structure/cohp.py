@@ -144,6 +144,7 @@ class Cohp(MSONable):
 
         Args:
             energy: Energy to return the COHP value for.
+            integrated: Return COHP (False) or ICOHP (True)
         """
         inter = {}
         for spin in self.cohp:
@@ -262,7 +263,7 @@ class CompleteCohp(Cohp):
         Args:
             structure: Structure associated with this COHP.
             avg_cohp: The average cohp as a COHP object.
-            cohps: A dict of COHP objects for individual bonds of the form
+            cohp_dict: A dict of COHP objects for individual bonds of the form
                 {label: COHP}
             bonds: A dict containing information on the bonds of the form
                 {label: {key: val}}. The key-val pair can be any information
@@ -716,6 +717,7 @@ class CompleteCohp(Cohp):
         LMTO-ASA code) or LOBSTER (for the LOBSTER code).
 
         Args:
+<<<<<<< HEAD
             cohp_file: Name of the COHP output file. Defaults to COPL
                 for LMTO and COHPCAR.lobster/COOPCAR.lobster for LOBSTER.
 
@@ -728,13 +730,20 @@ class CompleteCohp(Cohp):
             are_cobis: Indicates whether the populations are multicenter
                 COBIs or COHPs. Defaults to False for COHPs.
 
+=======
+>>>>>>> 5d446871cab95f8ef8d61155add723914f71a5cb
             fmt: A string for the code that was used to calculate
                 the COHPs so that the output file can be handled
                 correctly. Can take the values "LMTO" or "LOBSTER".
-
+            filename: Name of the COHP output file. Defaults to COPL
+                for LMTO and COHPCAR.lobster/COOPCAR.lobster for LOBSTER.
             structure_file: Name of the file containing the structure.
                 If no file name is given, use CTRL for LMTO and POSCAR
                 for LOBSTER.
+            are_coops: Indicates whether the populations are COOPs or
+                COHPs. Defaults to False for COHPs.
+            are_cobis: Indicates whether the populations are COBIs or
+                COHPs. Defaults to False for COHPs.
 
         Returns:
             A CompleteCohp object.
@@ -880,8 +889,13 @@ class CompleteCohp(Cohp):
             label: Cohp(
                 efermi,
                 energies,
+<<<<<<< HEAD
                 v["COHP"],
                 icohp=v["ICOHP"],
+=======
+                cohp_data["average"]["COHP"],
+                icohp=cohp_data["average"]["ICOHP"],
+>>>>>>> 5d446871cab95f8ef8d61155add723914f71a5cb
                 are_coops=are_coops,
                 are_cobis=are_cobis,
                 are_multicenter_cobis=are_multicenter_cobis,
@@ -1049,6 +1063,7 @@ class IcohpValue(MSONable):
                 + str(self._icohp[Spin.up])
                 + " (Spin up)"
             )
+        return None
 
     @property
     def num_bonds(self):

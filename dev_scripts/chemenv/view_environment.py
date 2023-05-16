@@ -46,34 +46,34 @@ if __name__ == "__main__":
             continue
         print(cg.name)
         for ipoint, point in enumerate(cg.points):
-            print(f"Point #{ipoint:d} : {repr(point[0])} {repr(point[1])} {repr(point[2])}")
+            print(f"Point #{ipoint:d} : {point[0]!r} {point[1]!r} {point[2]!r}")
         print("Algorithms used :")
         for ialgo, algo in enumerate(cg.algorithms):
             print(f"Algorithm #{ialgo:d} :")
             print(algo)
             print()
         # Visualize the separation plane of a given algorithm
-        sepplane = False
+        sep_plane = False
         if any(algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms):
             test = input("Enter index of the algorithm for which you want to visualize the plane : ")
             if test != "":
                 try:
                     ialgo = int(test)
                     algo = cg.algorithms[ialgo]
-                    sepplane = True
+                    sep_plane = True
                 except Exception:
                     print(
                         "Unable to determine the algorithm/separation_plane you want "
                         "to visualize for this geometry. Continues without ..."
                     )
-        myfactor = 3.0
+        my_factor = 3
         if vis is None:
-            vis = visualize(cg=cg, zoom=1.0, myfactor=myfactor)
+            vis = visualize(cg=cg, zoom=1, myfactor=my_factor)
         else:
-            vis = visualize(cg=cg, vis=vis, myfactor=myfactor)
-        cg_points = [myfactor * np.array(pp) for pp in cg.points]
-        cg_central_site = myfactor * np.array(cg.central_site)
-        if sepplane:
+            vis = visualize(cg=cg, vis=vis, myfactor=my_factor)
+        cg_points = [my_factor * np.array(pp) for pp in cg.points]
+        cg_central_site = my_factor * np.array(cg.central_site)
+        if sep_plane:
             pts = [cg_points[ii] for ii in algo.plane_points]
             if algo.minimum_number_of_points == 2:
                 pts.append(cg_central_site)
@@ -92,23 +92,23 @@ if __name__ == "__main__":
             p3 = centre - factor * (pts[0] - centre)
             p4 = centre - perp
 
-            vis.add_faces([[p1, p2, p3, p4]], [1.0, 0.0, 0.0], opacity=0.5)
+            vis.add_faces([[p1, p2, p3, p4]], [1, 0, 0], opacity=0.5)
 
             target_radius = 0.25
             radius = 1.5 * target_radius
 
             if algo.minimum_number_of_points == 2:
                 vis.add_partial_sphere(
-                    coords=cg_central_site, radius=radius, color=[1.0, 0.0, 0.0], start=0, end=360, opacity=0.5
+                    coords=cg_central_site, radius=radius, color=[1, 0, 0], start=0, end=360, opacity=0.5
                 )
             for pp in pts:
-                vis.add_partial_sphere(coords=pp, radius=radius, color=[1.0, 0.0, 0.0], start=0, end=360, opacity=0.5)
+                vis.add_partial_sphere(coords=pp, radius=radius, color=[1, 0, 0], start=0, end=360, opacity=0.5)
 
             ps1 = [cg_points[ii] for ii in algo.point_groups[0]]
             ps2 = [cg_points[ii] for ii in algo.point_groups[1]]
 
             for pp in ps1:
-                vis.add_partial_sphere(coords=pp, radius=radius, color=[0.0, 1.0, 0.0], start=0, end=360, opacity=0.5)
+                vis.add_partial_sphere(coords=pp, radius=radius, color=[0, 1, 0], start=0, end=360, opacity=0.5)
             for pp in ps2:
-                vis.add_partial_sphere(coords=pp, radius=radius, color=[0.0, 0.0, 1.0], start=0, end=360, opacity=0.5)
+                vis.add_partial_sphere(coords=pp, radius=radius, color=[0, 0, 1], start=0, end=360, opacity=0.5)
         vis.show()

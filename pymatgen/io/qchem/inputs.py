@@ -836,26 +836,26 @@ class QCInput(InputFile):
             else:
                 mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
             return mol
-        else:
-            header = r"\s*(?:\-)*\d+\s+(?:\-)*\d+"
-            row = r"\s*([A-Za-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-            footer = r"(:?(:?\-\-)|(:?\$end))"
 
-            molecules = []
+        header = r"\s*(?:\-)*\d+\s+(?:\-)*\d+"
+        row = r"\s*([A-Za-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+        footer = r"(:?(:?\-\-)|(:?\$end))"
 
-            patterns = {"charge_spin": r"\s*\-\-\s*([\-0-9]+)\s+([\-0-9]+)"}
-            matches = read_pattern(string, patterns)
+        molecules = []
 
-            mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-            for match, table in zip(matches.get("charge_spin"), mol_table):
-                charge = int(match[0])
-                spin = int(match[1])
-                species = [val[0] for val in table]
-                coords = [[float(val[1]), float(val[2]), float(val[3])] for val in table]
-                mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin)
-                molecules.append(mol)
+        patterns = {"charge_spin": r"\s*\-\-\s*([\-0-9]+)\s+([\-0-9]+)"}
+        matches = read_pattern(string, patterns)
 
-            return molecules
+        mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        for match, table in zip(matches.get("charge_spin"), mol_table):
+            charge = int(match[0])
+            spin = int(match[1])
+            species = [val[0] for val in table]
+            coords = [[float(val[1]), float(val[2]), float(val[3])] for val in table]
+            mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin)
+            molecules.append(mol)
+
+        return molecules
 
     @staticmethod
     def read_rem(string: str) -> dict:

@@ -259,18 +259,9 @@ class StructureConnectivity(MSONable):
         self.environment_subgraphs[envs_string] = self._environment_subgraph
 
     def setup_connectivity_description(self):
-        """
-        Returns:
-        """
+        pass
 
     def get_connected_components(self, environments_symbols=None, only_atoms=None):
-        """
-        Args:
-            environments_symbols ():
-            only_atoms ():
-
-        Returns:
-        """
         connected_components = []
         env_subgraph = self.environment_subgraph(environments_symbols=environments_symbols, only_atoms=only_atoms)
         for component_nodes in nx.connected_components(env_subgraph):
@@ -279,31 +270,13 @@ class StructureConnectivity(MSONable):
         return connected_components
 
     def setup_atom_environment_subgraph(self, atom_environment):
-        """
-        Args:
-            atom_environment ():
-
-        Returns:
-        """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def setup_environments_subgraph(self, environments_symbols):
-        """
-        Args:
-            environments_symbols ():
-
-        Returns:
-        """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def setup_atom_environments_subgraph(self, atoms_environments):
-        """
-        Args:
-            atoms_environments ():
-
-        Returns:
-        """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def print_links(self):
         """

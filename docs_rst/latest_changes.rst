@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v2023.3.23
+v2023.5.10
 ----------
-* Misc bug fixes.
-* Enable Structure relaxations with TrajectoryObserver (@janosh)
-* Breaking: Rename `gen_sl_transform_matricies->gen_sl_transform_matrices` (#2894)
+* Fix mem leak in pbc_shortest_vector cython code. (@stichri)
+* Set all cython code to language level 3.

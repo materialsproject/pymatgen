@@ -390,9 +390,8 @@ class DictSet(VaspInputSet):
 
         if potcar_functional is not None and user_potcar_functional is not None:
             raise ValueError(
-                "Received both 'potcar_functional' and "
-                "'user_potcar_functional arguments. 'potcar_functional "
-                "is deprecated."
+                "Received both 'potcar_functional' and 'user_potcar_functional arguments. "
+                "'potcar_functional is deprecated."
             )
         if potcar_functional:
             warnings.warn(

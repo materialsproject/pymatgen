@@ -99,7 +99,7 @@ def monotonic(values, mode="<", atol=1.0e-8):
             if abs(vp - v) > atol and vp >= v:
                 return False
 
-    raise ValueError(f"Wrong mode {str(mode)}")
+    raise ValueError(f"Wrong mode {mode!s}")
 
 
 def round_to_sigfigs(num, sigfigs):

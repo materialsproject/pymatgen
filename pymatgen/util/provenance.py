@@ -241,7 +241,7 @@ class StructureNL:
             raise ValueError("Invalid format for SNL reference! Should be BibTeX string.")
         if len(references) > MAX_BIBTEX_CHARS:
             raise ValueError(
-                f"The BibTeX string must be fewer than {MAX_BIBTEX_CHARS} chars " f", you have {len(references)}"
+                f"The BibTeX string must be fewer than {MAX_BIBTEX_CHARS} chars, you have {len(references)}"
             )
 
         self.references = references

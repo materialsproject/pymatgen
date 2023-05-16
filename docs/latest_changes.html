@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2023.3.23 documentation</title>
+  <title>Change log &mdash; pymatgen 2023.5.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.3.23
+                2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -87,12 +85,11 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
-<section id="v2023-3-23">
-<h2>v2023.3.23<a class="headerlink" href="#v2023-3-23" title="Permalink to this heading"></a></h2>
+<section id="v2023-5-10">
+<h2>v2023.5.10<a class="headerlink" href="#v2023-5-10" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>Misc bug fixes.</p></li>
-<li><p>Enable Structure relaxations with TrajectoryObserver (&#64;janosh)</p></li>
-<li><p>Breaking: Rename <cite>gen_sl_transform_matricies-&gt;gen_sl_transform_matrices</cite> (#2894)</p></li>
+<li><p>Fix mem leak in pbc_shortest_vector cython code. (&#64;stichri)</p></li>
+<li><p>Set all cython code to language level 3.</p></li>
 </ul>
 </section>
 </section>

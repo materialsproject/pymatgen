@@ -159,7 +159,7 @@ class PWInput:
             kpt_str.extend([f"{i}" for i in self.kpoints_shift])
             out.append(f"  {' '.join(kpt_str)}")
         elif self.kpoints_mode == "crystal_b":
-            out.append(f" {str(len(self.kpoints_grid))}")
+            out.append(f" {len(self.kpoints_grid)!s}")
             for i in range(len(self.kpoints_grid)):
                 kpt_str = [f"{entry:.4f}" for entry in self.kpoints_grid[i]]
                 out.append(f" {' '.join(kpt_str)}")
@@ -494,6 +494,7 @@ class PWInput:
         m = re.match(r"^[\"|'](.+)[\"|']$", val)
         if m:
             return m.group(1)
+        return None
 
 
 class PWInputError(BaseException):

@@ -11,7 +11,7 @@ import math
 import typing
 import warnings
 from collections import Counter
-from typing import List, Literal, cast
+from typing import List, Literal, Sequence, cast
 
 import matplotlib.lines as mlines
 import numpy as np
@@ -253,6 +253,9 @@ class DosPlotter:
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
+            invert_axes (bool): Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
+            beta_dashed (bool): Plots the beta spin channel with a dashed line. Defaults to False.
         """
         plt = self.get_plot(xlim, ylim, invert_axes, beta_dashed)
         plt.savefig(filename, format=img_format)
@@ -265,6 +268,9 @@ class DosPlotter:
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
+            invert_axes (bool): Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
+            beta_dashed (bool): Plots the beta spin channel with a dashed line. Defaults to False.
         """
         plt = self.get_plot(xlim, ylim, invert_axes, beta_dashed)
         plt.show()
@@ -412,8 +418,8 @@ class BSPlotter:
         Get the data nicely formatted for a plot
 
         Args:
-            zero_to_efermi: Automatically subtract off the Fermi energy from the
-                eigenvalues and plot.
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+                Defaults to True.
             bs: the bandstructure to get the data from. If not provided, the first
                 one in the self._bs list will be used.
             bs_ref: is the bandstructure of reference when a rescale of the distances
@@ -596,8 +602,8 @@ class BSPlotter:
         same high symm path.
 
         Args:
-            zero_to_efermi: Automatically subtract off the Fermi energy from
-                the eigenvalues and plot (E-Ef).
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+                Defaults to True.
             ylim: Specify the y-axis (energy) limits; by default None let
                 the code choose. It is vbm-4 and cbm+4 if insulator
                 efermi-10 and efermi+10 if metal
@@ -738,8 +744,8 @@ class BSPlotter:
         Show the plot using matplotlib.
 
         Args:
-            zero_to_efermi: Automatically subtract off the Fermi energy from
-                the eigenvalues and plot (E-Ef).
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+                Defaults to True.
             ylim: Specify the y-axis (energy) limits; by default None let
                 the code choose. It is vbm-4 and cbm+4 if insulator
                 efermi-10 and efermi+10 if metal
@@ -758,7 +764,8 @@ class BSPlotter:
             filename: Filename to write to.
             img_format: Image format to use. Defaults to EPS.
             ylim: Specifies the y-axis limits.
-            zero_to_efermi: Automatically the Fermi level as the origin.
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+                Defaults to True.
             smooth: Cubic spline interpolation of the bands.
         """
         plt = self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi, smooth=smooth)
@@ -980,6 +987,10 @@ class BSPlotterProjected(BSPlotter):
                 If you use this class to plot LobsterBandStructureSymmLine,
                 the orbitals are named as in the FATBAND filename, e.g.
                 "2p" or "2p_x"
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+                Defaults to True.
+            ylim: Specify the y-axis limits. Defaults to None.
+            vbm_cbm_marker: Add markers for the VBM and CBM. Defaults to False.
 
         Returns:
             a pylab object with different subfigures for each projection
@@ -1156,6 +1167,8 @@ class BSPlotterProjected(BSPlotter):
         spin up and spin down are differientiated by a '-' and a '--' line
 
         Args:
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+                Defaults to True.
             elt_ordered: A list of Element ordered. The first one is red,
                 second green, last blue
 
@@ -1302,8 +1315,8 @@ class BSPlotterProjected(BSPlotter):
 
         # Adjusting  projections for plot
         dictio_d, dictpa_d = self._summarize_keys_for_plot(dictio, dictpa, sum_atoms, sum_morbs)
-        print(f"dictio_d: {str(dictio_d)}")
-        print(f"dictpa_d: {str(dictpa_d)}")
+        print(f"dictio_d: {dictio_d!s}")
+        print(f"dictpa_d: {dictpa_d!s}")
 
         if (sum_atoms is None) and (sum_morbs is None):
             proj_br_d = copy.deepcopy(proj_br)
@@ -1539,63 +1552,49 @@ class BSPlotterProjected(BSPlotter):
         Args:
             dictio: The elements and the orbitals you need to project on. The
                 format is {Element:[Orbitals]}, for instance:
-                {'Cu':['dxy','s','px'],'O':['px','py','pz']} will give
-                projections for Cu on orbitals dxy, s, px and
-                for O on orbitals px, py, pz. If you want to sum over all
-                individual orbitals of subshell orbitals,
-                for example, 'px', 'py' and 'pz' of O, just simply set
-                {'Cu':['dxy','s','px'],'O':['p']} and set sum_morbs (see
-                explanations below) as {'O':[p],...}.
-                Otherwise, you will get an error.
+                {'Cu':['dxy','s','px'],'O':['px','py','pz']} will give projections for Cu on
+                orbitals dxy, s, px and for O on orbitals px, py, pz. If you want to sum over all
+                individual orbitals of subshell orbitals, for example, 'px', 'py' and 'pz' of O,
+                just simply set {'Cu':['dxy','s','px'],'O':['p']} and set sum_morbs (see
+                explanations below) as {'O':[p],...}. Otherwise, you will get an error.
             dictpa: The elements and their sites (defined by site numbers) you
-                need to project on. The format is
-                {Element: [Site numbers]}, for instance: {'Cu':[1,5],'O':[3,4]}
-                will give projections for Cu on site-1
-                and on site-5, O on site-3 and on site-4 in the cell.
-
-        Attention:
-                The correct site numbers of atoms are consistent with
-                themselves in the structure computed. Normally,
-                the structure should be totally similar with POSCAR file,
-                however, sometimes VASP can rotate or
-                translate the cell. Thus, it would be safe if using Vasprun
-                class to get the final_structure and as a
+                need to project on. The format is {Element: [Site numbers]}, for instance:
+                {'Cu':[1,5],'O':[3,4]} will give projections for Cu on site-1 and on site-5, O on
+                site-3 and on site-4 in the cell. The correct site numbers of atoms are consistent
+                with themselves in the structure computed. Normally, the structure should be totally
+                similar with POSCAR file, however, sometimes VASP can rotate or translate the cell.
+                Thus, it would be safe if using Vasprun class to get the final_structure and as a
                 result, correct index numbers of atoms.
             sum_atoms: Sum projection of the similar atoms together (e.g.: Cu
-                on site-1 and Cu on site-5). The format is
-                {Element: [Site numbers]}, for instance:
-                 {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on
-                 site-1 and Cu on site-5 and O on site-3
-                 and on site-4. If you do not want to use this functional, just
-                 turn it off by setting sum_atoms = None.
+                on site-1 and Cu on site-5). The format is {Element: [Site numbers]}, for instance:
+                 {'Cu': [1,5], 'O': [3,4]} means summing projections over Cu on site-1 and Cu on
+                 site-5 and O on site-3 and on site-4. If you do not want to use this functional,
+                 just turn it off by setting sum_atoms = None.
             sum_morbs: Sum projections of individual orbitals of similar atoms
-                together (e.g.: 'dxy' and 'dxz'). The
-                format is {Element: [individual orbitals]}, for instance:
-                {'Cu': ['dxy', 'dxz'], 'O': ['px', 'py']} means summing
-                projections over 'dxy' and 'dxz' of Cu and 'px'
-                and 'py' of O. If you do not want to use this functional, just
-                turn it off by setting sum_morbs = None.
+                together (e.g.: 'dxy' and 'dxz'). The format is {Element: [individual orbitals]},
+                for instance: {'Cu': ['dxy', 'dxz'], 'O': ['px', 'py']} means summing projections
+                over 'dxy' and 'dxz' of Cu and 'px' and 'py' of O. If you do not want to use this
+                functional, just turn it off by setting sum_morbs = None.
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+                Defaults to True.
+            ylim: The y-axis limit. Defaults to None.
+            vbm_cbm_marker: Whether to plot points to indicate valence band maxima and conduction
+                band minima positions. Defaults to False.
             selected_branches: The index of symmetry lines you chose for
-                plotting. This can be useful when the number of
-                symmetry lines (in KPOINTS file) are manny while you only want
-                to show for certain ones. The format is
-                [index of line], for instance:
-                [1, 3, 4] means you just need to do projection along lines
-                number 1, 3 and 4 while neglecting lines
-                number 2 and so on. By default, this is None type and all
-                symmetry lines will be plotted.
+                plotting. This can be useful when the number of symmetry lines (in KPOINTS file) are
+                manny while you only want to show for certain ones. The format is [index of line],
+                for instance: [1, 3, 4] means you just need to do projection along lines number 1, 3
+                and 4 while neglecting lines number 2 and so on. By default, this is None type and
+                all symmetry lines will be plotted.
             w_h_size: This variable help you to control the width and height
-                of figure. By default, width = 12 and
-                height = 8 (inches). The width/height ratio is kept the same
-                for subfigures and the size of each depends
-                on how many number of subfigures are plotted.
+                of figure. By default, width = 12 and height = 8 (inches). The width/height ratio is
+                kept the same for subfigures and the size of each depends on how many number of
+                subfigures are plotted.
             num_column: This variable help you to manage how the subfigures are
-                arranged in the figure by setting
-                up the number of columns of subfigures. The value should be an
-                int number. For example, num_column = 3
-                means you want to plot subfigures in 3 columns. By default,
-                num_column = None and subfigures are
-                aligned in 2 columns.
+                arranged in the figure by setting up the number of columns of subfigures. The value
+                should be an int number. For example, num_column = 3 means you want to plot
+                subfigures in 3 columns. By default, num_column = None and subfigures are aligned in
+                2 columns.
 
         Returns:
             A pylab object with different subfigures for different projections.
@@ -2293,7 +2292,7 @@ class BSDOSPlotter:
             and savefig()
         """
         import matplotlib.lines as mlines
-        import matplotlib.pyplot as mplt
+        import matplotlib.pyplot as plt
         from matplotlib.gridspec import GridSpec
 
         # make sure the user-specified band structure projection is valid
@@ -2372,11 +2371,11 @@ class BSDOSPlotter:
         # set up bs and dos plot
         gs = GridSpec(1, 2, width_ratios=[2, 1]) if dos else GridSpec(1, 1)
 
-        fig = mplt.figure(figsize=self.fig_size)
+        fig = plt.figure(figsize=self.fig_size)
         fig.patch.set_facecolor("white")
-        bs_ax = mplt.subplot(gs[0])
+        bs_ax = plt.subplot(gs[0])
         if dos:
-            dos_ax = mplt.subplot(gs[1])
+            dos_ax = plt.subplot(gs[1])
 
         # set basic axes limits for the plot
         bs_ax.set_xlim(0, x_distances_list[-1][-1])
@@ -2546,8 +2545,8 @@ class BSDOSPlotter:
                 loc=self.dos_legend,
             )
 
-        mplt.subplots_adjust(wspace=0.1)
-        return mplt
+        plt.subplots_adjust(wspace=0.1)
+        return plt
 
     @staticmethod
     def _rgbline(ax, k, e, red, green, blue, alpha=1, linestyles="solid"):
@@ -2972,15 +2971,15 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return plt
 
-    def plot_seebeck_mu(self, temp=600, output="eig", xlim=None):
+    def plot_seebeck_mu(self, temp: float = 600, output: str = "eig", xlim: Sequence[float] = None):
         """
         Plot the seebeck coefficient in function of Fermi level
 
         Args:
-            temp:
-                the temperature
-            xlim:
-                a list of min and max fermi energy by default (0, and band gap)
+            temp (float): the temperature
+            output (str): "eig" or "average"
+            xlim (tuple[float, float]): a 2-tuple of min and max fermi energy. Defaults to (0, band gap)
+
 
         Returns:
             a matplotlib object
@@ -3004,16 +3003,19 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return plt
 
-    def plot_conductivity_mu(self, temp=600, output="eig", relaxation_time=1e-14, xlim=None):
+    def plot_conductivity_mu(
+        self, temp: float = 600, output: str = "eig", relaxation_time: float = 1e-14, xlim: Sequence[float] = None
+    ):
         """
         Plot the conductivity in function of Fermi level. Semi-log plot
 
         Args:
-            temp: the temperature
-            xlim: a list of min and max fermi energy by default (0, and band
-                gap)
-            tau: A relaxation time in s. By default none and the plot is by
+            temp (float): the temperature
+            output (str): "eig" or "average"
+            relaxation_time (float): A relaxation time in s. Defaults to 1e-14 and the plot is in
                units of relaxation time
+            xlim (tuple[float, float]): a 2-tuple of min and max fermi energy. Defaults to (0, band gap)
+
 
         Returns:
             a matplotlib object
@@ -3037,16 +3039,19 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return plt
 
-    def plot_power_factor_mu(self, temp=600, output="eig", relaxation_time=1e-14, xlim=None):
+    def plot_power_factor_mu(
+        self, temp: float = 600, output: str = "eig", relaxation_time: float = 1e-14, xlim: Sequence[float] = None
+    ):
         """
         Plot the power factor in function of Fermi level. Semi-log plot
 
         Args:
-            temp: the temperature
-            xlim: a list of min and max fermi energy by default (0, and band
-                gap)
-            tau: A relaxation time in s. By default none and the plot is by
+            temp (float): the temperature
+            output (str): "eig" or "average"
+            relaxation_time (float): A relaxation time in s. Defaults to 1e-14 and the plot is in
                units of relaxation time
+            xlim (tuple[float, float]): a 2-tuple of min and max fermi energy. Defaults to (0, band gap)
+
 
         Returns:
             a matplotlib object
@@ -3069,19 +3074,21 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return plt
 
-    def plot_zt_mu(self, temp=600, output="eig", relaxation_time=1e-14, xlim=None):
+    def plot_zt_mu(
+        self, temp: float = 600, output: str = "eig", relaxation_time: float = 1e-14, xlim: Sequence[float] = None
+    ):
         """
         Plot the ZT in function of Fermi level.
 
         Args:
-            temp: the temperature
-            xlim: a list of min and max fermi energy by default (0, and band
-                gap)
-            tau: A relaxation time in s. By default none and the plot is by
+            temp (float): the temperature
+            output (str): "eig" or "average"
+            relaxation_time (float): A relaxation time in s. Defaults to 1e-14 and the plot is in
                units of relaxation time
+            xlim (tuple[float, float]): a 2-tuple of min and max fermi energy. Defaults to (0, band gap)
 
         Returns:
-            a matplotlib object
+            matplotlib.pyplot module
         """
         plt = pretty_plot(9, 7)
         zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output, doping_levels=False)[temp]
@@ -3107,10 +3114,10 @@ class BoltztrapPlotter:
         doping levels.
 
         Args:
-            dopings: the default 'all' plots all the doping levels in the analyzer.
-                     Specify a list of doping levels if you want to plot only some.
+            doping (str): the default 'all' plots all the doping levels in the analyzer.
+                Specify a list of doping levels if you want to plot only some.
             output: with 'average' you get an average of the three directions
-                    with 'eigs' you get all the three directions.
+                with 'eigs' you get all the three directions.
 
         Returns:
             a matplotlib object
@@ -3160,10 +3167,10 @@ class BoltztrapPlotter:
         Plot the conductivity in function of temperature for different doping levels.
 
         Args:
-            dopings: the default 'all' plots all the doping levels in the analyzer.
-                     Specify a list of doping levels if you want to plot only some.
+            doping (str): the default 'all' plots all the doping levels in the analyzer.
+                Specify a list of doping levels if you want to plot only some.
             output: with 'average' you get an average of the three directions
-                    with 'eigs' you get all the three directions.
+                with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
 
         Returns:
@@ -3215,10 +3222,10 @@ class BoltztrapPlotter:
         Plot the Power Factor in function of temperature for different doping levels.
 
         Args:
-            dopings: the default 'all' plots all the doping levels in the analyzer.
-                     Specify a list of doping levels if you want to plot only some.
+            doping (str): the default 'all' plots all the doping levels in the analyzer.
+                Specify a list of doping levels if you want to plot only some.
             output: with 'average' you get an average of the three directions
-                    with 'eigs' you get all the three directions.
+                with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
 
         Returns:
@@ -3269,10 +3276,10 @@ class BoltztrapPlotter:
         Plot the figure of merit zT in function of temperature for different doping levels.
 
         Args:
-            dopings: the default 'all' plots all the doping levels in the analyzer.
-                     Specify a list of doping levels if you want to plot only some.
+            doping (str): the default 'all' plots all the doping levels in the analyzer.
+                Specify a list of doping levels if you want to plot only some.
             output: with 'average' you get an average of the three directions
-                    with 'eigs' you get all the three directions.
+                with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
 
         Returns:
@@ -3323,10 +3330,10 @@ class BoltztrapPlotter:
         for different doping levels.
 
         Args:
-            dopings: the default 'all' plots all the doping levels in the analyzer.
-                     Specify a list of doping levels if you want to plot only some.
+            doping (str): the default 'all' plots all the doping levels in the analyzer.
+                Specify a list of doping levels if you want to plot only some.
             output: with 'average' you get an average of the three directions
-                    with 'eigs' you get all the three directions.
+                with 'eigs' you get all the three directions.
 
         Returns:
             a matplotlib object
@@ -3378,7 +3385,7 @@ class BoltztrapPlotter:
             temps: the default 'all' plots all the temperatures in the analyzer.
                    Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
-                    with 'eigs' you get all the three directions.
+                with 'eigs' you get all the three directions.
 
         Returns:
             a matplotlib object
@@ -3432,7 +3439,7 @@ class BoltztrapPlotter:
             temps: the default 'all' plots all the temperatures in the analyzer.
                    Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
-                    with 'eigs' you get all the three directions.
+                with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
 
         Returns:
@@ -3485,7 +3492,7 @@ class BoltztrapPlotter:
             temps: the default 'all' plots all the temperatures in the analyzer.
                    Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
-                    with 'eigs' you get all the three directions.
+                with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
 
         Returns:
@@ -3540,7 +3547,7 @@ class BoltztrapPlotter:
             temps: the default 'all' plots all the temperatures in the analyzer.
                    Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
-                    with 'eigs' you get all the three directions.
+                with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
 
         Returns:
@@ -3595,7 +3602,7 @@ class BoltztrapPlotter:
             temps: the default 'all' plots all the temperatures in the analyzer.
                    Specify a list of temperatures if you want to plot only some.
             output: with 'average' you get an average of the three directions
-                    with 'eigs' you get all the three directions.
+                with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
 
         Returns:
@@ -3986,7 +3993,7 @@ def plot_fermi_surface(
             Should be the same length as the number of surfaces being plotted.
             Example (3 surfaces): colors=[(1,0,0), (0,1,0), (0,0,1)]
             Example (2 surfaces): colors=[(0, 0.5, 0.5)]
-        transparency_factor [float]: Values in the range [0,1] to tune the
+        transparency_factor (float): Values in the range [0,1] to tune the
             opacity of each surface. Should be one transparency_factor per
             surface.
         labels_scale_factor (float): factor to tune size of the kpoint labels
@@ -4466,10 +4473,11 @@ def plot_ellipsoid(
         rescale: factor for size scaling of the ellipsoid
         ax: matplotlib :class:`Axes` or None if a new figure should be created.
         coords_are_cartesian: Set to True if you are providing a center in
-                              Cartesian coordinates. Defaults to False.
-        kwargs: kwargs passed to the matplotlib function 'plot_wireframe'.
-                Color defaults to blue, rstride and cstride
-                default to 4, alpha defaults to 0.2.
+            Cartesian coordinates. Defaults to False.
+        arrows: whether to plot arrows for the principal axes of the ellipsoid. Defaults to False.
+        **kwargs: passed to the matplotlib function 'plot_wireframe'.
+            Color defaults to blue, rstride and cstride
+            default to 4, alpha defaults to 0.2.
 
     Returns:
         matplotlib figure and matplotlib ax

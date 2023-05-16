@@ -178,7 +178,7 @@ class ValenceIonicRadiusEvaluator:
             valences = bv.get_valences(self._structure)
         except Exception:
             try:
-                bv = BVAnalyzer(symm_tol=0.0)
+                bv = BVAnalyzer(symm_tol=0)
                 self._structure = bv.get_oxi_state_decorated_structure(self._structure)
                 valences = bv.get_valences(self._structure)
             except Exception:
@@ -223,7 +223,7 @@ def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
             of disordered structure. Offending {structure = }
         """
         )
-    elif on_disorder.startswith("take_"):
+    if on_disorder.startswith("take_"):
         # disordered structures raise AttributeError when passed to NearNeighbors.get_cn()
         # or NearNeighbors.get_bonded_structure() (and probably others too, see GH-2070).
         # As a workaround, we create a new structure with majority species on each site.
@@ -236,7 +236,7 @@ def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
                     raise ValueError(
                         f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
                     )
-                elif on_disorder == "take_majority_drop":
+                if on_disorder == "take_majority_drop":
                     continue
 
             # this is the take_max_species case
@@ -1313,13 +1313,13 @@ class MinimumDistanceNN(NearNeighbors):
     (relative) distance tolerance parameter.
     """
 
-    def __init__(self, tol: float = 0.1, cutoff=10.0, get_all_sites=False):
+    def __init__(self, tol: float = 0.1, cutoff=10, get_all_sites=False):
         """
         Args:
             tol (float): tolerance parameter for neighbor identification
                 (default: 0.1).
             cutoff (float): cutoff radius in Angstrom to look for trial
-                near-neighbor sites (default: 10.0).
+                near-neighbor sites (default: 10).
             get_all_sites (bool): If this is set to True then the neighbor
                 sites are only determined by the cutoff radius, tol is ignored
         """
@@ -1718,13 +1718,13 @@ class MinimumOKeeffeNN(NearNeighbors):
     to calculate relative distances.
     """
 
-    def __init__(self, tol: float = 0.1, cutoff=10.0):
+    def __init__(self, tol: float = 0.1, cutoff=10):
         """
         Args:
             tol (float): tolerance parameter for neighbor identification
                 (default: 0.1).
             cutoff (float): cutoff radius in Angstrom to look for trial
-                near-neighbor sites (default: 10.0).
+                near-neighbor sites (default: 10).
         """
         self.tol = tol
         self.cutoff = cutoff
@@ -1813,13 +1813,13 @@ class MinimumVIRENN(NearNeighbors):
     to calculate relative distances.
     """
 
-    def __init__(self, tol: float = 0.1, cutoff=10.0):
+    def __init__(self, tol: float = 0.1, cutoff=10):
         """
         Args:
             tol (float): tolerance parameter for neighbor identification
                 (default: 0.1).
             cutoff (float): cutoff radius in Angstrom to look for trial
-                near-neighbor sites (default: 10.0).
+                near-neighbor sites (default: 10).
         """
         self.tol = tol
         self.cutoff = cutoff
@@ -2020,7 +2020,7 @@ def get_okeeffe_distance_prediction(el1, el2):
     return r1 + r2 - r1 * r2 * pow(sqrt(c1) - sqrt(c2), 2) / (c1 * r1 + c2 * r2)
 
 
-def get_neighbors_of_site_with_index(struct, n, approach="min_dist", delta=0.1, cutoff=10.0):
+def get_neighbors_of_site_with_index(struct, n, approach="min_dist", delta=0.1, cutoff=10):
     """
     Returns the neighbors of a given site using a specific neighbor-finding
     method.
@@ -2052,7 +2052,7 @@ def get_neighbors_of_site_with_index(struct, n, approach="min_dist", delta=0.1, 
     raise RuntimeError(f"unsupported neighbor-finding method ({approach}).")
 
 
-def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10.0, thresh=None):
+def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10, thresh=None):
     """
     Returns the motif type of the site with index n in structure struct;
     currently featuring "tetrahedral", "octahedral", "bcc", and "cp"

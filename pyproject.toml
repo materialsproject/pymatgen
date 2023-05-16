@@ -1,9 +1,9 @@
 [build-system]
 requires = [
   # pin NumPy version used in the build
+  "Cython>=0.29.23",
   "oldest-supported-numpy",
   "setuptools>=65.0.0",
-  "Cython>=0.29.23",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -27,22 +27,28 @@ target-version = "py38"
 line-length = 120
 select = [
   "B",   # flake8-bugbear
-  "C40", # flake8-comprehensions
+  "C4",  # flake8-comprehensions
   "D",   # pydocstyle
-  "E",   # pycodestyle
+  "E",   # pycodestyle error
   "F",   # pyflakes
+  "FLY", # flynt
   "I",   # isort
+  "ICN", # flake8-import-conventions
+  "ISC", # flake8-implicit-str-concat
+  "PD",  # pandas-vet
   "PIE", # flake8-pie
   "PL",  # pylint
   "PT",  # flake8-pytest-style
+  "PYI", # flakes8-pyi
   "Q",   # flake8-quotes
+  "RET", # flake8-return
+  "RSE", # flake8-raise
   "RUF", # Ruff-specific rules
   "SIM", # flake8-simplify
   "TID", # tidy imports
   "UP",  # pyupgrade
-  "W",   # pycodestyle
+  "W",   # pycodestyle warning
   "YTT", # flake8-2020
-  "PD",  # pandas-vet
 ]
 ignore = [
   "B018",    # Found useless expression. Either assign it to a variable or remove it.
@@ -67,8 +73,11 @@ ignore = [
   "PLR2004", # Magic number
   "PLW0603", # Using the global statement to update variables is discouraged
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
+  "PLW3301", # TODO: remove once https://github.com/charliermarsh/ruff/pull/4412 released
   "PT011",   # pytest-raises-too-broad
   "PT013",   # pytest-incorrect-pytest-import
+  "RET501",  # unnecessary-return-none
+  "RET504",  # unnecessary-assign
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
   "SIM115",  # Use context handler for opening files
 ]
@@ -79,6 +88,11 @@ isort.required-imports = ["from __future__ import annotations"]
 "__init__.py" = ["F401"]
 "*/tests/*" = ["D"]
 "tasks.py" = ["D"]
+"pymatgen/analysis/*" = ["D"]
+"pymatgen/vis/*" = ["D"]
+"pymatgen/util/*" = ["D"]
+"pymatgen/io/*" = ["D"]
+"dev_scripts/*" = ["D"]
 
 [tool.pytest.ini_options]
 addopts = "-x --durations=30 --quiet -rxXs --color=yes -p no:warnings"
@@ -89,15 +103,15 @@ relative_files = true
 
 [tool.coverage.report]
 exclude_lines = [
-  "pragma: no cover",
+  "@deprecated",
   "def __repr__",
-  "if self.debug:",
-  "if settings.DEBUG",
-  "raise AssertionError",
-  "raise NotImplementedError",
   "if 0:",
   "if __name__ == .__main__.:",
-  "@deprecated",
+  "if self.debug:",
+  "if settings.DEBUG",
+  "pragma: no cover",
+  "raise AssertionError",
+  "raise NotImplementedError",
   "show_plot",
 ]
 
@@ -108,7 +122,7 @@ explicit_package_bases = true
 no_implicit_optional = false
 
 [[tool.mypy.overrides]]
-module = ["tabulate.*", "requests.*"]
+module = ["requests.*", "tabulate.*"]
 ignore_missing_imports = true
 
 [tool.codespell]

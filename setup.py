@@ -3,7 +3,7 @@ from __future__ import annotations
 import platform
 import sys
 
-import numpy
+import numpy as np
 from setuptools import Extension, find_namespace_packages, setup
 
 is_win_64 = sys.platform.startswith("win") and platform.machine().endswith("64")
@@ -26,7 +26,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2023.3.23",
+    version="2023.5.10",
     python_requires=">=3.8",
     install_requires=[
         "matplotlib>=1.5",
@@ -182,5 +182,5 @@ setup(
             "get_environment = pymatgen.cli.get_environment:main",
         ]
     },
-    include_dirs=[numpy.get_include()],
+    include_dirs=[np.get_include()],
 )

@@ -9,6 +9,7 @@ import sqlite3
 import textwrap
 from array import array
 from fractions import Fraction
+from typing import Sequence
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -32,7 +33,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     Representation of a magnetic space group.
     """
 
-    def __init__(self, id, setting_transformation="a,b,c;0,0,0"):
+    def __init__(self, label, setting_transformation="a,b,c;0,0,0"):
         """
         Initializes a MagneticSpaceGroup from its Belov, Neronova and
         Smirnova (BNS) number supplied as a list or its label supplied
@@ -106,14 +107,14 @@ class MagneticSpaceGroup(SymmetryGroup):
         # retrieve raw data
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()
-        if isinstance(id, str):
-            id = "".join(id.split())  # remove any white space
-            c.execute("SELECT * FROM space_groups WHERE BNS_label=?;", (id,))
-        elif isinstance(id, list):
-            c.execute("SELECT * FROM space_groups WHERE BNS1=? AND BNS2=?;", (id[0], id[1]))
-        elif isinstance(id, int):
+        if isinstance(label, str):
+            label = "".join(label.split())  # remove any white space
+            c.execute("SELECT * FROM space_groups WHERE BNS_label=?;", (label,))
+        elif isinstance(label, list):
+            c.execute("SELECT * FROM space_groups WHERE BNS1=? AND BNS2=?;", (label[0], label[1]))
+        elif isinstance(label, int):
             # OG3 index is a 'master' index, going from 1 to 1651
-            c.execute("SELECT * FROM space_groups WHERE OG3=?;", (id,))
+            c.execute("SELECT * FROM space_groups WHERE OG3=?;", (label,))
         raw_data = list(c.fetchone())
 
         # Jones Faithful transformation
@@ -132,10 +133,10 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         def _get_point_operator(idx):
             """Retrieve information on point operator (rotation matrix and Seitz label)."""
-            hex = self._data["bns_number"][0] >= 143 and self._data["bns_number"][0] <= 194
+            is_hex = self._data["bns_number"][0] >= 143 and self._data["bns_number"][0] <= 194
             c.execute(
                 "SELECT symbol, matrix FROM point_operators WHERE idx=? AND hex=?;",
-                (idx - 1, hex),
+                (idx - 1, is_hex),
             )
             op = c.fetchone()
             op = {
@@ -281,7 +282,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         db.close()
 
     @classmethod
-    def from_og(cls, id):
+    def from_og(cls, label: Sequence[int] | str) -> MagneticSpaceGroup:
         """
         Initialize from Opechowski and Guccione (OG) label or number.
 
@@ -291,12 +292,12 @@ class MagneticSpaceGroup(SymmetryGroup):
         """
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()
-        if isinstance(id, str):
-            c.execute("SELECT BNS_label FROM space_groups WHERE OG_label=?", (id,))
-        elif isinstance(id, list):
+        if isinstance(label, str):
+            c.execute("SELECT BNS_label FROM space_groups WHERE OG_label=?", (label,))
+        elif isinstance(label, list):
             c.execute(
                 "SELECT BNS_label FROM space_groups WHERE OG1=? and OG2=? and OG3=?",
-                (id[0], id[1], id[2]),
+                (label[0], label[1], label[2]),
             )
         bns_label = c.fetchone()[0]
         db.close()
@@ -371,8 +372,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
         Args:
             p: Point as a 3x1 array.
-            m: A magnetic moment, compatible with
-            :class:`pymatgen.electronic_structure.core.Magmom`
+            magmom: A magnetic moment, compatible with :class:`pymatgen.electronic_structure.core.Magmom`
             tol: Tolerance for determining if sites are the same. 1e-5 should
                 be sufficient for most purposes. Set to 0 for exact matching
                 (and also needed for symbolic orbits).

@@ -467,15 +467,14 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         trans = EnumerateStructureTransformation()
         return trans.apply_transformation(s, 10000)
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Apply the transformation.
 
         Args:
             structure: input structure
-            return_ranked_list (bool): Whether or not multiple structures are
-                returned. If return_ranked_list is a number, that number of
-                structures is returned.
+            return_ranked_list (bool | int): Whether or not multiple structures are returned.
+                If return_ranked_list is int, that number of structures is returned.
 
         Returns:
             Depending on returned_ranked list, either a transformed structure

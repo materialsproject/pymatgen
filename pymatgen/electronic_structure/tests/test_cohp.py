@@ -725,21 +725,25 @@ class CompleteCohpTest(PymatgenTest):
         filepath = os.path.join(test_dir, "COPL.BiSe")
         structure = os.path.join(test_dir, "CTRL.BiSe")
         self.cohp_lmto = CompleteCohp.from_file("lmto", filename=filepath, structure_file=structure)
-        filepath = os.path.join(test_dir, "COHPCAR.lobster")
+        filepath = os.path.join(test_dir, "COHPCAR.lobster.gz")
         structure = os.path.join(test_dir, "POSCAR")
         self.cohp_lobster = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
-        filepath = os.path.join(test_dir, "COOPCAR.lobster.BiSe")
+        # with open(os.path.join(test_dir, "complete_cohp_lobster.json"),'w') as f:
+        #    json.dump(self.cohp_lobster.as_dict(),f)
+        filepath = os.path.join(test_dir, "COOPCAR.lobster.BiSe.gz")
         structure = os.path.join(test_dir, "POSCAR.BiSe")
         self.coop_lobster = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure, are_coops=True
         )
-        filepath = os.path.join(test_dir, "COHPCAR.lobster.orbitalwise")
+        filepath = os.path.join(test_dir, "COHPCAR.lobster.orbitalwise.gz")
         structure = os.path.join(test_dir, "POSCAR.orbitalwise")
         self.cohp_orb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
-        filepath = os.path.join(test_dir, "COHPCAR.lobster.notot.orbitalwise")
+        # with open(os.path.join(test_dir, "complete_cohp_orbitalwise.json"),'w') as f:
+        #    json.dump(self.cohp_orb.as_dict(),f)
+        filepath = os.path.join(test_dir, "COHPCAR.lobster.notot.orbitalwise.gz")
         self.cohp_notot = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
         # Lobster 3.0
-        filepath = os.path.join(test_dir, "COHPCAR.lobster.Na2UO4")
+        filepath = os.path.join(test_dir, "COHPCAR.lobster.Na2UO4.gz")
         structure = os.path.join(test_dir, "POSCAR.Na2UO4")
         self.cohp_lobster_forb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
@@ -750,12 +754,12 @@ class CompleteCohpTest(PymatgenTest):
             "lobster", filename=filepath, structure_file=structure
         )
         # COBI
-        filepath = os.path.join(test_dir, "COBICAR.lobster")
+        filepath = os.path.join(test_dir, "COBICAR.lobster.gz")
         structure = os.path.join(test_dir, "POSCAR.COBI")
 
         self.cobi = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure, are_cobis=True)
 
-    def test_attiributes(self):
+    def test_attributes(self):
         assert not self.cohp_lobster.are_coops
         assert not self.cohp_lobster.are_cobis
         assert not self.cohp_lobster_dict.are_coops
@@ -778,6 +782,9 @@ class CompleteCohpTest(PymatgenTest):
 
         assert self.cobi.are_cobis
         assert not self.cobi.are_coops
+
+        assert self.cohp_lobster_forb.cohp[Spin.up][0] == 0.00000
+        assert self.cohp_lobster_forb.icohp[Spin.up][0] == -0.09040
 
     def test_dict(self):
         # The json files are dict representations of the COHPs from the LMTO
@@ -1092,11 +1099,11 @@ class CompleteCohpTest(PymatgenTest):
 
 class MethodTest(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(test_dir, "COHPCAR.lobster")
+        filepath = os.path.join(test_dir, "COHPCAR.lobster.gz")
         structure = os.path.join(test_dir, "POSCAR")
         self.cohp_lobster = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
-        filepath = os.path.join(test_dir, "COHPCAR.lobster.orbitalwise")
+        filepath = os.path.join(test_dir, "COHPCAR.lobster.orbitalwise.gz")
         structure = os.path.join(test_dir, "POSCAR.orbitalwise")
         self.cohp_orb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 

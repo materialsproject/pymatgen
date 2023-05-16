@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
         # Define the coordination geometry
         cg_symbol = input(
-            "Enter symbol of the geometry for which you want to get the optimized permutations " 'or "q" to quit : '
+            'Enter symbol of the geometry for which you want to get the optimized permutations or "q" to quit : '
         )
         if cg_symbol == "q":
             break
@@ -235,9 +235,9 @@ if __name__ == "__main__":
                     points_perfect=points_perfect,
                 )
 
-                mycsms = [c["symmetry_measure"] for c in csms]
+                my_csms = [c["symmetry_measure"] for c in csms]
                 prt1(string="Continuous symmetry measures", printing_volume=printing_volume)
-                prt1(string=mycsms, printing_volume=printing_volume)
+                prt1(string=my_csms, printing_volume=printing_volume)
                 csms_with_recorded_permutation = []
                 explicit_permutations = []
                 for icsm, csm in enumerate(csms):
@@ -378,19 +378,19 @@ if __name__ == "__main__":
                         points_perfect=points_perfect,
                     )
 
-                    mycsms = [c["symmetry_measure"] for c in csms]
-                    imin = np.argmin(mycsms)
-                    mincsm = min(mycsms)
+                    my_csms = [c["symmetry_measure"] for c in csms]
+                    imin = np.argmin(my_csms)
+                    mincsm = min(my_csms)
                     if not mincsm < 1.0:
-                        print("Following is not close enough to 0.0 ...")
-                        input(mycsms)
+                        print("Following is not close enough to 0 ...")
+                        input(my_csms)
                     mincsm_indices = []
-                    for icsm, csm in enumerate(mycsms):
+                    for icsm, csm in enumerate(my_csms):
                         if np.isclose(mincsm, csm, rtol=0.0):
                             mincsm_indices.append(icsm)
                     this_plane_sep_perm = tuple(sep_perms[imin])
                     prt2(
-                        string=f"  permutation {'-'.join(map(str, this_plane_sep_perm))} gives csm={mycsms[imin]:.6f}",
+                        string=f"  permutation {'-'.join(map(str, this_plane_sep_perm))} gives csm={my_csms[imin]:.6f}",
                         printing_volume=printing_volume,
                     )
 

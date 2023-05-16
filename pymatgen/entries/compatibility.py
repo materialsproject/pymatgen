@@ -770,7 +770,7 @@ class MaterialsProjectCompatibility(CorrectionsList):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
-    MaterialsProject parameters (see pymatgen.io.vaspio_set.MPVaspInputSet).
+    MaterialsProject parameters (see pymatgen.io.vasp.sets.MPVaspInputSet).
     Using this compatibility scheme on runs with different parameters is not
     valid.
     """
@@ -1100,7 +1100,7 @@ class MITCompatibility(CorrectionsList):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
-    MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using
+    MIT parameters (see pymatgen.io.vasp.sets MITVaspInputSet). Using
     this compatibility scheme on runs with different parameters is not valid.
     """
 
@@ -1141,7 +1141,7 @@ class MITAqueousCompatibility(CorrectionsList):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
-    MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using
+    MIT parameters (see pymatgen.io.vasp.sets MITVaspInputSet). Using
     this compatibility scheme on runs with different parameters is not valid.
     """
 

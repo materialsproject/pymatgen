@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2023.3.23 documentation</title>
+  <title>Change log &mdash; pymatgen 2023.5.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -14,10 +14,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -41,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.3.23
+                2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -55,6 +53,11 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2023-5-10">v2023.5.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2023-5-8">v2023.5.8</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-yb-2-deprecation-release">❗ The <code class="docutils literal notranslate"><span class="pre">Yb_2</span></code> deprecation release ❗</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#v2023-3-23">v2023.3.23</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2023-3-10">v2023.3.10</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2023-2-28">v2023.2.28</a></li>
@@ -417,6 +420,58 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
+<section id="v2023-5-10">
+<h2>v2023.5.10<a class="headerlink" href="#v2023-5-10" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Fix mem leak in pbc_shortest_vector cython code. (&#64;stichri)</p></li>
+<li><p>Set all cython code to language level 3.</p></li>
+</ul>
+</section>
+<section id="v2023-5-8">
+<h2>v2023.5.8<a class="headerlink" href="#v2023-5-8" title="Permalink to this heading"></a></h2>
+<section id="the-yb-2-deprecation-release">
+<h3>❗ The <code class="docutils literal notranslate"><span class="pre">Yb_2</span></code> deprecation release ❗<a class="headerlink" href="#the-yb-2-deprecation-release" title="Permalink to this heading"></a></h3>
+<p>This release changes the Ytterbium (Yb) pseudo-potential (PSP) from <code class="docutils literal notranslate"><span class="pre">Yb_2</span></code> to <code class="docutils literal notranslate"><span class="pre">Yb_3</span></code> for all <code class="docutils literal notranslate"><span class="pre">PBE_54</span></code> VASP input sets.</p>
+<p>Background: The <a class="reference external" href="https://newscenter.lbl.gov/2023/04/17/meet-the-autonomous-lab-of-the-future">A-lab</a> revealed that as a result of using <code class="docutils literal notranslate"><span class="pre">Yb_2</span></code> the energy on Yb compounds is off by a lot, resulting in supposedly stable things being unsynthesizable. While an unfortunate mistake, it’s also great to see how experiment can help surface simulation errors.</p>
+<p>On pre-<code class="docutils literal notranslate"><span class="pre">PBE_54</span></code> input sets, we now issue a warning that <code class="docutils literal notranslate"><span class="pre">Yb_2</span></code> will give bad results for most systems since Yb is most often in oxidation state Yb3+.</p>
+<p>Reason: The better fix <code class="docutils literal notranslate"><span class="pre">Yb_3</span></code> only became available in the <code class="docutils literal notranslate"><span class="pre">PBE_54</span></code> PSP set. Requiring it on <code class="docutils literal notranslate"><span class="pre">pre-PBE_54</span></code> input sets would mean you can’t run Yb compounds.</p>
+<p>For more details see <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2968">#2968</a> and <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2969">#2969</a>.</p>
+<p>What’s Changed
+* Fix TypeError: a bytes-like object is required, not ‘list’ when passing triplet of bools to <code class="docutils literal notranslate"><span class="pre">find_points_in_spheres()</span></code> <code class="docutils literal notranslate"><span class="pre">pbc</span></code> kwarg  by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2907">#2907</a>
+* Fix ValueError: not enough values to unpack in PDPlotter if no unstable entries in PD by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2908">#2908</a>
+* Fix <code class="docutils literal notranslate"><span class="pre">VolumetricData.to_cube()</span></code> not preserving structure dimensions by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2909">#2909</a>
+* Update team.rst by &#64;jmmshn in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2912">#2912</a>
+* Faff by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2915">#2915</a>
+* Add <code class="docutils literal notranslate"><span class="pre">formal_chempots</span></code> option to <code class="docutils literal notranslate"><span class="pre">ChemicalPotentialDiagram</span></code> to plot the formal chemical potentials rather than the DFT energies by &#64;kavanase in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2916">#2916</a>
+* Modified dosplotter by &#64;kaueltzen in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2844">#2844</a>
+* auto version by &#64;jmmshn in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2925">#2925</a>
+* bug fix for potcar parsing by &#64;jmmshn in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2910">#2910</a>
+* Fix breaking changes from pandas v2 by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2935">#2935</a>
+* add kwarg to MoleculeGraph method and fix PackmolSet bug by &#64;orionarcher in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2927">#2927</a>
+* fix on reading multiple route in Gaussian input file by &#64;Ameyanagi in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2939">#2939</a>
+* Fix CI errors by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2940">#2940</a>
+* Add ResParser support for reading files with spin values by &#64;ScottNotFound in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2941">#2941</a>
+* Ignore bad unicode characters in Structure.from_file() by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2948">#2948</a>
+* Minor modification for symmetrically distinct Miller index generation by &#64;fyalcin in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2949">#2949</a>
+* Fixed Wulff shape for new versions of matplotlib by &#64;CifLord in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2950">#2950</a>
+* Test figure returned by WulffShape.get_plot() contains single Axes3D by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2953">#2953</a>
+* Fix <code class="docutils literal notranslate"><span class="pre">Cp2kOutput.spin_polarized()</span></code> likely not doing what author intended by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2954">#2954</a>
+* For MPcules: Molecule Trajectory and graph hashes by &#64;espottesmith in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2945">#2945</a>
+* <code class="docutils literal notranslate"><span class="pre">self.assertArrayEqual-&gt;assert</span></code> by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2955">#2955</a>
+* fix GaussianOutput bug with multiple route lines by &#64;xjf729 in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2937">#2937</a>
+* Fix ValueError when passing <code class="docutils literal notranslate"><span class="pre">selective_dynamics</span></code> to <code class="docutils literal notranslate"><span class="pre">Poscar</span></code> by &#64;chiang-yuan in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2951">#2951</a>
+* Bump beautifulsoup4 from 4.11.1 to 4.12.2 by &#64;dependabot in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2962">#2962</a>
+* Bump pypa/cibuildwheel from 2.11.4 to 2.12.3 by &#64;dependabot in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2959">#2959</a>
+* Bump uncertainties from 3.1.6 to 3.1.7 by &#64;dependabot in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2960">#2960</a>
+* Bump numpy from 1.23.2 to 1.24.3 by &#64;dependabot in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2963">#2963</a>
+* Bump tabulate from 0.8.10 to 0.9.0 by &#64;dependabot in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2961">#2961</a>
+* Bump pandas from 1.4.4 to 2.0.1 by &#64;dependabot in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2964">#2964</a>
+* Link /addons from new subsection on /contributing page by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2967">#2967</a>
+* Breaking: change <code class="docutils literal notranslate"><span class="pre">Yb</span></code> pseudo-potential on all VASP input sets from <code class="docutils literal notranslate"><span class="pre">Yb_2</span></code> to <code class="docutils literal notranslate"><span class="pre">Yb_3</span></code> by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2969">#2969</a>
+* fix recursion error by adding copy and deepcopy dunder methods by &#64;orionarcher in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2973">#2973</a>
+* Revert to <code class="docutils literal notranslate"><span class="pre">Yb_2</span></code> on pre-<code class="docutils literal notranslate"><span class="pre">PBE_54</span></code> input sets by &#64;janosh in <a href="#id35"><span class="problematic" id="id36">`</span></a>#2972</p>
+</section>
+</section>
 <section id="v2023-3-23">
 <h2>v2023.3.23<a class="headerlink" href="#v2023-3-23" title="Permalink to this heading"></a></h2>
 <ul class="simple">
@@ -1232,7 +1287,7 @@ to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (&#
 <section id="v2020-7-14">
 <h2>v2020.7.14<a class="headerlink" href="#v2020-7-14" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>EwaldSummation is now MSONAble (&#64;lbluque).</p></li>
+<li><p>EwaldSummation is now MSONable (&#64;lbluque).</p></li>
 <li><p>Fix for QChem freq parsing (&#64;samblau)</p></li>
 <li><p>Much improved linting and workflows.</p></li>
 </ul>
@@ -2204,7 +2259,7 @@ Ar, which are set to infinity with a warning.</p></li>
 <section id="v4-5-7">
 <h2>v4.5.7<a class="headerlink" href="#v4-5-7" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>PMG settings are now prefixed with <a href="#id5"><span class="problematic" id="id6">PMG_</span></a> to ensure proper namespacing.</p></li>
+<li><p>PMG settings are now prefixed with <a href="#id41"><span class="problematic" id="id42">PMG_</span></a> to ensure proper namespacing.</p></li>
 <li><p>Improve error output in command line bader caller.</p></li>
 <li><p>Add Py3.6 classifier.</p></li>
 <li><p>Misc bug fixes.</p></li>
@@ -2872,9 +2927,9 @@ document schema for use with MPRester.query method.</p></li>
 <ul class="simple">
 <li><p>Completely revamped symmetry package. The finder.SymmetryFinder and
 pointgroup and spacegroup modules are now deprecated. Instead,
-all symmetry analysis is in the <a href="#id1"><span class="problematic" id="id2">:module:`pymatgen.symmetry.analyzer`_</span></a>
+all symmetry analysis is in the <a href="#id37"><span class="problematic" id="id38">:module:`pymatgen.symmetry.analyzer`_</span></a>
 module. There is also a completely rewritten support for symmetry groups in
-<a href="#id3"><span class="problematic" id="id4">:module:`pymatgen.symmetry.groups`_</span></a>. Structure now supports a static
+<a href="#id39"><span class="problematic" id="id40">:module:`pymatgen.symmetry.groups`_</span></a>. Structure now supports a static
 constructor to generate a structure from a spacegroup (see examples).</p></li>
 <li><p>BatteryAnalyzer class (Anubhav Jain) to provide for some common analysis of
 intercalation electrodes.</p></li>
