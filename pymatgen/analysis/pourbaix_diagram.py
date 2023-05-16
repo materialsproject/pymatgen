@@ -492,7 +492,7 @@ class PourbaixDiagram(MSONable):
         else:
             # Set default conc/comp dicts
             if not comp_dict:
-                comp_dict = {elt.symbol: 1.0 / len(self.pbx_elts) for elt in self.pbx_elts}
+                comp_dict = {elt.symbol: 1 / len(self.pbx_elts) for elt in self.pbx_elts}
             if not conc_dict:
                 conc_dict = {elt.symbol: 1e-6 for elt in self.pbx_elts}
             self._conc_dict = conc_dict

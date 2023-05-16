@@ -55,7 +55,7 @@ class Stress(SquareTensor):
     @property
     def von_mises(self):
         """
-        Returns the von mises stress
+        Returns the von Mises stress
         """
         if not self.is_symmetric():
             raise ValueError(
@@ -68,7 +68,7 @@ class Stress(SquareTensor):
         """
         Returns the mean stress
         """
-        return 1.0 / 3.0 * self.trace()
+        return 1 / 3 * self.trace()
 
     @property
     def deviator_stress(self):

@@ -194,7 +194,7 @@ class PackmolBoxGen(InputGenerator):
                     + self.tolerance
                 )
                 net_volume += (length**3.0) * float(d["number"])
-            box_length = net_volume ** (1.0 / 3.0)
+            box_length = net_volume ** (1 / 3)
             print(f"Auto determined box size is {box_length:.1f} Å per side.")
             box_list = f"0.0 0.0 0.0 {box_length:.1f} {box_length:.1f} {box_length:.1f}"
 

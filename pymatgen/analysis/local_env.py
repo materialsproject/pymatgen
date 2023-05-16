@@ -1386,7 +1386,7 @@ class MinimumDistanceNN(NearNeighbors):
             min_dist = min(nn.nn_distance for nn in neighs_dists)
             for nn in neighs_dists:
                 dist = nn.nn_distance
-                if dist < (1.0 + self.tol) * min_dist:
+                if dist < (1 + self.tol) * min_dist:
                     weight = min_dist / dist
                     siw.append(
                         {
@@ -1790,7 +1790,7 @@ class MinimumOKeeffeNN(NearNeighbors):
         siw = []
         min_reldist = min(reldist for reldist, neigh in reldists_neighs)
         for reldist, s in reldists_neighs:
-            if reldist < (1.0 + self.tol) * min_reldist:
+            if reldist < (1 + self.tol) * min_reldist:
                 w = min_reldist / reldist
                 siw.append(
                     {
@@ -1868,7 +1868,7 @@ class MinimumVIRENN(NearNeighbors):
         siw = []
         min_reldist = min(reldist for reldist, neigh in reldists_neighs)
         for reldist, s in reldists_neighs:
-            if reldist < (1.0 + self.tol) * min_reldist:
+            if reldist < (1 + self.tol) * min_reldist:
                 w = min_reldist / reldist
                 siw.append(
                     {
@@ -2456,8 +2456,8 @@ class LocalStructOrderParams:
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
 
-        sqrt_15_2pi = sqrt(15.0 / (2 * pi))
-        sqrt_5_pi = sqrt(5.0 / pi)
+        sqrt_15_2pi = sqrt(15 / (2 * pi))
+        sqrt_5_pi = sqrt(5 / pi)
 
         pre_y_2_2 = [0.25 * sqrt_15_2pi * val for val in self._pow_sin_t[2]]
         pre_y_2_1 = [0.5 * sqrt_15_2pi * val[0] * val[1] for val in zip(self._pow_sin_t[1], self._pow_cos_t[1])]
@@ -2522,14 +2522,14 @@ class LocalStructOrderParams:
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
 
-        i16_3 = 3.0 / 16.0
-        i8_3 = 3.0 / 8.0
+        i16_3 = 3 / 16.0
+        i8_3 = 3 / 8.0
 
-        sqrt_35_pi = sqrt(35.0 / pi)
-        sqrt_35_2pi = sqrt(35.0 / (2 * pi))
-        sqrt_5_pi = sqrt(5.0 / pi)
-        sqrt_5_2pi = sqrt(5.0 / (2 * pi))
-        sqrt_1_pi = sqrt(1.0 / pi)
+        sqrt_35_pi = sqrt(35 / pi)
+        sqrt_35_2pi = sqrt(35 / (2 * pi))
+        sqrt_5_pi = sqrt(5 / pi)
+        sqrt_5_2pi = sqrt(5 / (2 * pi))
+        sqrt_1_pi = sqrt(1 / pi)
 
         pre_y_4_4 = [i16_3 * sqrt_35_2pi * val for val in self._pow_sin_t[4]]
         pre_y_4_3 = [i8_3 * sqrt_35_pi * val[0] * val[1] for val in zip(self._pow_sin_t[3], self._pow_cos_t[1])]
@@ -2629,17 +2629,17 @@ class LocalStructOrderParams:
         nnn = len(self._pow_sin_t[1])
         nnn_range = range(nnn)
 
-        i64 = 1.0 / 64.0
-        i32 = 1.0 / 32.0
-        i32_3 = 3.0 / 32.0
-        i16 = 1.0 / 16.0
+        i64 = 1 / 64.0
+        i32 = 1 / 32.0
+        i32_3 = 3 / 32.0
+        i16 = 1 / 16.0
 
-        sqrt_3003_pi = sqrt(3003.0 / pi)
-        sqrt_1001_pi = sqrt(1001.0 / pi)
-        sqrt_91_2pi = sqrt(91.0 / (2 * pi))
-        sqrt_1365_pi = sqrt(1365.0 / pi)
-        sqrt_273_2pi = sqrt(273.0 / (2 * pi))
-        sqrt_13_pi = sqrt(13.0 / pi)
+        sqrt_3003_pi = sqrt(3003 / pi)
+        sqrt_1001_pi = sqrt(1001 / pi)
+        sqrt_91_2pi = sqrt(91 / (2 * pi))
+        sqrt_1365_pi = sqrt(1365 / pi)
+        sqrt_273_2pi = sqrt(273 / (2 * pi))
+        sqrt_13_pi = sqrt(13 / pi)
 
         pre_y_6_6 = [i64 * sqrt_3003_pi * val for val in self._pow_sin_t[6]]
         pre_y_6_5 = [i32_3 * sqrt_1001_pi * val[0] * val[1] for val in zip(self._pow_sin_t[5], self._pow_cos_t[1])]
@@ -2874,10 +2874,10 @@ class LocalStructOrderParams:
         if tol < 0.0:
             raise ValueError("Negative tolerance for weighted solid angle!")
 
-        left_of_unity = 1.0 - 1.0e-12
+        left_of_unity = 1 - 1.0e-12
         # The following threshold has to be adapted to non-Angstrom units.
         very_small = 1.0e-12
-        fac_bcc = 1.0 / exp(-0.5)
+        fac_bcc = 1 / exp(-0.5)
 
         # Find central site and its neighbors.
         # Note that we adopt the same way of accessing sites here as in
@@ -2932,7 +2932,7 @@ class LocalStructOrderParams:
                         rjknorm[j].append(rjk[j][kk] / distjk[j][kk])
                         kk = kk + 1
         # Initialize OP list and, then, calculate OPs.
-        ops = [0.0 for t in self._types]
+        ops = [0 for t in self._types]
         # norms = [[[] for j in range(nneigh)] for t in self._types]
 
         # First, coordination number and distance-based OPs.
@@ -2944,7 +2944,7 @@ class LocalStructOrderParams:
                 if len(dist_sorted) == 1:
                     ops[i] = 1.0
                 elif len(dist_sorted) > 1:
-                    ops[i] = 1.0 - dist_sorted[0] / dist_sorted[1]
+                    ops[i] = 1 - dist_sorted[0] / dist_sorted[1]
 
         # Then, bond orientational OPs based on spherical harmonics
         # according to Steinhardt et al., Phys. Rev. B, 28, 784-805, 1983.
@@ -2987,13 +2987,13 @@ class LocalStructOrderParams:
         # (Peters, J. Chem. Phys., 131, 244103, 2009;
         #  Zimmermann et al., J. Am. Chem. Soc., under revision, 2015).
         if self._geomops:
-            gaussthetak = [0.0 for t in self._types]  # not used by all OPs
+            gaussthetak = [0 for t in self._types]  # not used by all OPs
             qsptheta = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
             norms = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
-            ipi = 1.0 / pi
+            ipi = 1 / pi
             piover2 = pi / 2.0
-            onethird = 1.0 / 3.0
-            twothird = 2.0 / 3.0
+            onethird = 1 / 3
+            twothird = 2 / 3.0
             for j in range(nneigh):  # Neighbor j is put to the North pole.
                 zaxis = rij_norm[j]
                 kc = 0
@@ -3191,7 +3191,7 @@ class LocalStructOrderParams:
                                                 norms[i][j][kc] += 1
                                         elif t == "bcc" and j < k:
                                             if thetak < self._params[i]["min_SPP"]:
-                                                fac = 1.0 if thetak > piover2 else -1.0
+                                                fac = 1 if thetak > piover2 else -1
                                                 tmp = (thetam - piover2) / asin(1 / 3)
                                                 qsptheta[i][j][kc] += (
                                                     fac * cos(3 * phi) * fac_bcc * tmp * exp(-0.5 * tmp * tmp)
@@ -3349,7 +3349,7 @@ class LocalStructOrderParams:
                 neighscent = neighscent / float(nneigh)
             h = np.linalg.norm(neighscent - centvec)
             b = min(distjk_unique) if len(distjk_unique) > 0 else 0
-            dhalf = max(distjk_unique) / 2.0 if len(distjk_unique) > 0 else 0
+            dhalf = max(distjk_unique) / 2 if len(distjk_unique) > 0 else 0
 
             for i, t in enumerate(self._types):
                 if t in ("reg_tri", "sq"):
@@ -3423,7 +3423,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
         neighs_dists = structure.get_neighbors(site, self.cutoff)
         ds = sorted(i.nn_distance for i in neighs_dists)
 
-        ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
+        ns = [1 / ds[i] - 1 / ds[i + 1] for i in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
@@ -3791,7 +3791,7 @@ class CrystalNN(NearNeighbors):
         Initialize CrystalNN with desired parameters. Default parameters assume
         "chemical bond" type behavior is desired. For geometric neighbor
         finding (e.g., structural framework), set (i) distance_cutoffs=None,
-        (ii) x_diff_weight=0.0 and (optionally) (iii) porous_adjustment=False
+        (ii) x_diff_weight=0 and (optionally) (iii) porous_adjustment=False
         which will disregard the atomic identities and perform best for a purely
         geometric match.
 
@@ -3998,7 +3998,7 @@ class CrystalNN(NearNeighbors):
                 cn_weights[cn] = self._semicircle_integral(dist_bins, idx)
 
         # add zero coord
-        cn0_weight = 1.0 - sum(cn_weights.values())
+        cn0_weight = 1 - sum(cn_weights.values())
         if cn0_weight > 0:
             cn_nninfo[0] = []
             cn_weights[0] = cn0_weight
@@ -4173,7 +4173,7 @@ class CutOffDictNN(NearNeighbors):
         Args:
             cut_off_dict (dict[str, float]): a dictionary
             of cut-off distances, e.g. {('Fe','O'): 2.0} for
-            a maximum Fe-O bond length of 2.0 Angstroms.
+            a maximum Fe-O bond length of 2 Angstroms.
             Bonds will only be created between pairs listed
             in the cut-off dictionary.
             If your structure is oxidation state decorated,

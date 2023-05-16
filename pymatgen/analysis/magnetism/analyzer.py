@@ -1096,6 +1096,6 @@ def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> Magn
     p = np.dot(lattice_a_inv, lattice_b)
     eta = 0.5 * (np.dot(p.T, p) - np.identity(3))
     w, v = np.linalg.eig(eta)
-    deformation = 100 * (1.0 / 3.0) * np.sqrt(w[0] ** 2 + w[1] ** 2 + w[2] ** 2)
+    deformation = 100 * (1 / 3) * np.sqrt(w[0] ** 2 + w[1] ** 2 + w[2] ** 2)
 
     return MagneticDeformation(deformation=deformation, type=type_str)
