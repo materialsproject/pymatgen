@@ -315,12 +315,20 @@ cdef void get_cube_neighbors(long [:] ncube, long[:, ::1] neighbor_map):
     Get {cube_index: cube_neighbor_indices} map
     """
     cdef long ncubes = ncube[0] * ncube[1] * ncube[2]
+    cdef long count = 0
+    cdef int i, j, k
+
     memset(<void*>&neighbor_map[0, 0], -1, neighbor_map.shape[0] * 27 * sizeof(long))
     cdef long[::1] counts = <long[:ncubes]> safe_malloc(ncubes * sizeof(long))
     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> safe_malloc(ncubes*3*sizeof(long))
     cdef long[::1] cube_indices_1d = <long[:ncubes]> safe_malloc(ncubes*sizeof(long))
-    cdef long count = 0
-    cdef int i, j, k
+
+    cdef long[1][3] index3_arr
+    cdef long[:, ::1] index3 = index3_arr
+    cdef long[1] index1_arr
+    cdef long[::1] index1 = index1_arr
+
+    cdef long[:, ::1] ovectors = compute_offset_vectors(1)
 
     for i in range(ncubes):
         counts[i] = 0
@@ -332,10 +340,8 @@ cdef void get_cube_neighbors(long [:] ncube, long[:, ::1] neighbor_map):
                 cube_indices_3d[count, 1] = j
                 cube_indices_3d[count, 2] = k
                 count += 1
+
     three_to_one(cube_indices_3d, ncube[1], ncube[2], cube_indices_1d)
-    cdef long[:, ::1] index3 = <long[:1, :3]> safe_malloc(3*sizeof(long))
-    cdef long index1[1]
-    cdef long[:, ::1] ovectors = compute_offset_vectors(1)
 
     for i in range(ncubes):
         for j in range(27):
@@ -350,7 +356,6 @@ cdef void get_cube_neighbors(long [:] ncube, long[:, ::1] neighbor_map):
 
     PyMem_Free(&cube_indices_3d[0, 0])
     PyMem_Free(&cube_indices_1d[0])
-    PyMem_Free(&index3[0, 0])
     PyMem_Free(&counts[0])
 
 
