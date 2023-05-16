@@ -1099,8 +1099,8 @@ class IcohpCollection(MSONable):
             list_icohp: list of dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
             is_spin_polarized: Boolean to indicate if the Lobster calculation was done spin polarized or not Boolean to
                 indicate if the Lobster calculation was done spin polarized or not
-            list_orb_icohp: list of dict={[str(Orbital1)-str(Orbital2)]: {"icohp":{Spin.up: icohpvalue for spin.up, Spin.down:
-                icohpvalue for spin.down}, "orbitals":[Orbital1, Orbital2]}}
+            list_orb_icohp: list of dict={[str(Orbital1)-str(Orbital2)]: {"icohp":{Spin.up: icohpvalue for spin.up,
+                Spin.down: icohpvalue for spin.down}, "orbitals":[Orbital1, Orbital2]}}
             are_coops: Boolean to indicate whether ICOOPs are stored
             are_cobis: Boolean to indicate whether ICOBIs are stored
         """
@@ -1158,13 +1158,13 @@ class IcohpCollection(MSONable):
             if summed_spin_channels:
                 return icohp_here.summed_icohp
             return icohp_here.icohpvalue(spin)
-        else:
-            if isinstance(orbitals, list):
-                orbitals = str(orbitals[0]) + "-" + str(orbitals[1])
-            if summed_spin_channels:
-                return icohp_here.summed_orbital_icohp[orbitals]
-            else:
-                return icohp_here.icohpvalue_orbital(spin=spin, orbitals=orbitals)
+
+        if isinstance(orbitals, list):
+            orbitals = str(orbitals[0]) + "-" + str(orbitals[1])
+        if summed_spin_channels:
+            return icohp_here.summed_orbital_icohp[orbitals]
+
+        return icohp_here.icohpvalue_orbital(spin=spin, orbitals=orbitals)
 
     def get_summed_icohp_by_label_list(self, label_list, divisor=1.0, summed_spin_channels=True, spin=Spin.up):
         """
