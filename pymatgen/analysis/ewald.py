@@ -371,7 +371,7 @@ class EwaldSummation(MSONable):
         Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2
         """
         fcoords = self._s.frac_coords
-        forcepf = 2.0 * self._sqrt_eta / sqrt(pi)
+        forcepf = 2 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
         numsites = self._s.num_sites
         ereal = np.empty((numsites, numsites), dtype=np.float_)

@@ -5,11 +5,11 @@ Piezo sensitivity analysis module.
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
 
-from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
 
@@ -18,6 +18,10 @@ try:
     from phonopy.harmonic import dynmat_to_fc as dyntofc
 except ImportError:
     Phonopy = None
+
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Handong Ling"
 __copyright__ = "Copyright 2019, The Materials Project"

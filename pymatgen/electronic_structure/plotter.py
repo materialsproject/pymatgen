@@ -11,7 +11,7 @@ import math
 import typing
 import warnings
 from collections import Counter
-from typing import List, Literal, Sequence, cast
+from typing import TYPE_CHECKING, List, Literal, Sequence, cast
 
 import matplotlib.lines as mlines
 import numpy as np
@@ -23,14 +23,18 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
-from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig_plt, pretty_plot
-from pymatgen.util.typing import ArrayLike
 
 try:
     from mayavi import mlab
 except ImportError:
     mlab = None
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.electronic_structure.dos import CompleteDos, Dos
+
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"

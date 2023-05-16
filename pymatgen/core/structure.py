@@ -46,10 +46,12 @@ from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
-from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
 
 if TYPE_CHECKING:
     from m3gnet.models._dynamics import TrajectoryObserver
+    from numpy.typing import ArrayLike
+
+    from pymatgen.util.typing import CompositionLike, SpeciesLike
 
 
 class Neighbor(Site):

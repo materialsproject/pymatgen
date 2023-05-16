@@ -4,7 +4,10 @@ Write Prismatic (http://prism-em.com) input files.
 
 from __future__ import annotations
 
-from pymatgen.core.structure import Structure
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 class Prismatic:

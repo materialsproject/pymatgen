@@ -12,7 +12,7 @@ import itertools
 import json
 import logging
 import re
-from typing import Iterable, Literal
+from typing import TYPE_CHECKING, Iterable, Literal
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.string import unicode2str
@@ -21,8 +21,10 @@ from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.analysis.structure_matcher import SpeciesComparator, StructureMatcher
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.entries import Entry
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+
+if TYPE_CHECKING:
+    from pymatgen.entries import Entry
+    from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 
 logger = logging.getLogger(__name__)
 

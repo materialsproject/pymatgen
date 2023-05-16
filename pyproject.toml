@@ -45,6 +45,7 @@ select = [
   "RSE", # flake8-raise
   "RUF", # Ruff-specific rules
   "SIM", # flake8-simplify
+  "TCH", # flake8-type-checking
   "TID", # tidy imports
   "UP",  # pyupgrade
   "W",   # pycodestyle warning

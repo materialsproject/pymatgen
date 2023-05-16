@@ -5,16 +5,18 @@ This module provides classes to store, generate, and manipulate material interfa
 from __future__ import annotations
 
 from itertools import product
-from typing import Iterator, Sequence
+from typing import TYPE_CHECKING, Iterator, Sequence
 
 import numpy as np
 from scipy.linalg import polar
 
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.interfaces.zsl import ZSLGenerator, fast_norm
-from pymatgen.core import Structure
 from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 class CoherentInterfaceBuilder:

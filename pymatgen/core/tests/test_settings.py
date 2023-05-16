@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-from pytest import MonkeyPatch
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pytest import MonkeyPatch
 
 from pymatgen.core import _load_pmg_settings
 

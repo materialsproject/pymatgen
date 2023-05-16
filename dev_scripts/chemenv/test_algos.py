@@ -87,7 +87,7 @@ if __name__ == "__main__":
             algos_results.append(min(results[0]))
 
             if not np.isclose(min(results[0]), 0):
-                print("Following is not 0.0 ...")
+                print("Following is not 0 ...")
                 input(results)
         print("   => ", algos_results)
         idx_perm += 1

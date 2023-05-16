@@ -5,12 +5,15 @@ used to facilitate writing large numbers of input files based on a template.
 
 from __future__ import annotations
 
-from pathlib import Path
 from string import Template
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 
 from pymatgen.io.core import InputGenerator, InputSet
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"

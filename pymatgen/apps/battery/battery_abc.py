@@ -10,12 +10,15 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 from scipy.constants import N_A
 
 from pymatgen.core import Composition, Element
-from pymatgen.entries.computed_entries import ComputedEntry
+
+if TYPE_CHECKING:
+    from pymatgen.entries.computed_entries import ComputedEntry
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

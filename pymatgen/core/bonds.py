@@ -9,10 +9,13 @@ import collections
 import json
 import os
 import warnings
+from typing import TYPE_CHECKING
 
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.sites import Site
-from pymatgen.util.typing import SpeciesLike
+
+if TYPE_CHECKING:
+    from pymatgen.core.sites import Site
+    from pymatgen.util.typing import SpeciesLike
 
 
 def _load_bond_length_data():

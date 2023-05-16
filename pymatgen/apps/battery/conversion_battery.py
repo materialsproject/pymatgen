@@ -5,7 +5,7 @@ This module contains the classes to build a ConversionElectrode.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
 from scipy.constants import N_A
 
@@ -15,7 +15,9 @@ from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltage
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
-from pymatgen.entries.computed_entries import ComputedEntry
+
+if TYPE_CHECKING:
+    from pymatgen.entries.computed_entries import ComputedEntry
 
 
 @dataclass
@@ -23,7 +25,7 @@ class ConversionElectrode(AbstractElectrode):
     """
     Class representing a ConversionElectrode, since it is dataclass
     this object can be constructed for the attributes.
-    However, it is usually easier to construct a ConversionElectrode using one of the classmethods
+    However, it is usually easier to construct a ConversionElectrode using one of the classmethod
     constructors provided.
 
     Attribute:
