@@ -369,8 +369,7 @@ class Icohplist:
             list_icohp.append(icohp)
 
         if self.orbitalwise:
-
-            list_orb_icohp: list[dict]|None = []
+            list_orb_icohp: list[dict] | None = []
             num_orbs = len(data_orbitals) // 2 if self.is_spin_polarized else len(data_orbitals)
 
             for i_data_orb in range(num_orbs):
