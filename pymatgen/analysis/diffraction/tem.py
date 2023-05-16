@@ -23,7 +23,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import latexify_spacegroup, unicodeify_spacegroup
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)

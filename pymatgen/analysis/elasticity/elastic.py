@@ -28,7 +28,7 @@ from pymatgen.core.tensors import (
 from pymatgen.core.units import Unit
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 
 __author__ = "Joseph Montoya"

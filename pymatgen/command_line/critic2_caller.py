@@ -61,7 +61,7 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

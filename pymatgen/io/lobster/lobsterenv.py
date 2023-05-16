@@ -24,7 +24,7 @@ from pymatgen.electronic_structure.plotter import CohpPlotter
 from pymatgen.io.lobster import Charge, Icohplist
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"

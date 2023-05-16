@@ -19,7 +19,7 @@ from pymatgen.core.periodic_table import Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 

@@ -9,7 +9,7 @@ import itertools
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 
 def get_warren_cowley_parameters(structure: Structure, r: float, dr: float) -> dict[tuple, float]:

@@ -12,7 +12,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 
 def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[SymmOp]]:

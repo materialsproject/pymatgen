@@ -15,7 +15,7 @@ from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 
 class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):

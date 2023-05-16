@@ -16,7 +16,7 @@ from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 
 class CoherentInterfaceBuilder:

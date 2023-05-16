@@ -21,7 +21,7 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 __author__ = "Handong Ling"
 __copyright__ = "Copyright 2019, The Materials Project"

@@ -12,7 +12,7 @@ from pymatgen.analysis.interfaces.zsl import ZSLGenerator, ZSLMatch, reduce_vect
 from pymatgen.core.surface import SlabGenerator, get_symmetrically_distinct_miller_indices
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 
 @dataclass

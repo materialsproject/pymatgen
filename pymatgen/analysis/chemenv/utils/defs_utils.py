@@ -11,7 +11,7 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
 )
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 
 __author__ = "David Waroquiers"

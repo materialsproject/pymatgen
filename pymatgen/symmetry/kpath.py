@@ -26,7 +26,7 @@ except ImportError:
     get_path = None
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
     from pymatgen.util.typing import SpeciesLike
 
 __author__ = "Geoffroy Hautier, Katherine Latimer, Jason Munro"

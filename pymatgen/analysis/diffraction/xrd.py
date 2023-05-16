@@ -19,7 +19,7 @@ from pymatgen.analysis.diffraction.core import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from pymatgen.core.structure import Structure
+    from pymatgen.core import Structure
 
 # XRD wavelengths in angstroms
 WAVELENGTHS = {
