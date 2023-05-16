@@ -1,15 +1,19 @@
+# cython: language_level=3
+# cython: initializedcheck=False
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: nonecheck=False
-# cython: cdivision=False
+# cython: cdivision=True
 # cython: profile=True
 # distutils: language = c
+
+# isort: dont-add-imports
 
 import numpy as np
 
 cimport numpy as np
+from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from libc.math cimport ceil, floor, pi, sqrt
-from libc.stdlib cimport free, malloc, realloc
 from libc.string cimport memset
 
 
@@ -17,7 +21,7 @@ cdef void *safe_malloc(size_t size) except? NULL:
     """Raise memory error if malloc fails"""
     if size == 0:
         return NULL
-    cdef void *ptr = malloc(size)
+    cdef void *ptr = PyMem_Malloc(size)
     if ptr == NULL:
         raise MemoryError(f"Memory allocation of {size} bytes failed!")
     return ptr
@@ -26,17 +30,16 @@ cdef void *safe_malloc(size_t size) except? NULL:
 cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
     """Raise memory error if realloc fails"""
     if size == 0:
-        free(ptr_orig)
         return NULL
-    cdef void *ptr = realloc(ptr_orig, size)
+    cdef void *ptr = PyMem_Realloc(ptr_orig, size)
     if ptr == NULL:
         raise MemoryError(f"Realloc memory of {size} bytes failed!")
     return ptr
 
 
 def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords,
-                           float r, long[:] pbc, double[:, ::1] lattice,
-                           double tol=1e-8, float min_r=1.0):
+                           float r, object pbc, double[:, ::1] lattice,
+                           double tol=1e-8, float min_r=1.0, int num_threads=2):
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
     cutoff radius `r`. All the coordinates should be in Cartesian.
@@ -65,6 +68,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
         return findex1[mask], findex2[mask], foffset_vectors[mask], fdistances[
             mask]
 
+    cdef long[:] pbc_int = np.array(pbc, dtype=long)  # convert bool to int
     cdef int i, j, k, l, m, n
     cdef double maxr[3]
     # valid boundary, that is the minimum in center_coords - r
@@ -75,7 +79,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
         ledge = 0.1
     else:
         ledge = r
-    max_and_min(center_coords, valid_max, valid_min)
+    max_and_min(center_coords, &valid_max[0], &valid_min[0])
     for i in range(3):
         valid_max[i] = valid_max[i] + r + tol
         valid_min[i] = valid_min[i] - r - tol
@@ -91,21 +95,29 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
+    cdef double[3][3] inv_lattice_arr
+    cdef double[:, ::1] inv_lattice = inv_lattice_arr
+    cdef double[3][3] reciprocal_lattice_arr = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+    cdef double[:, ::1] reciprocal_lattice = reciprocal_lattice_arr
 
-    get_frac_coords(lattice, all_coords, offset_correction)
+    get_frac_coords(lattice, inv_lattice, all_coords, offset_correction)
     for i in range(n_total):
         for j in range(3):
-            if pbc[j]:
+            if pbc_int[j]:
                 # only wrap atoms when this dimension is PBC
                 all_fcoords[i, j] = offset_correction[i, j] % 1
                 offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
             else:
                 all_fcoords[i, j] = offset_correction[i, j]
                 offset_correction[i, j] = 0
-    get_max_r(lattice, maxr, r)
+
+    # computes reciprocal lattice in place
+    get_reciprocal_lattice(reciprocal_lattice, lattice)
+    get_max_r(reciprocal_lattice, maxr, r)
+
     # Get fractional coordinates of center points
-    get_frac_coords(lattice, center_coords, frac_coords)
-    get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
+    get_frac_coords(lattice, inv_lattice, center_coords, frac_coords)
+    get_bounds(frac_coords, maxr, pbc_int, max_bounds, min_bounds)
     for i in range(3):
         nlattice *= (max_bounds[i] - min_bounds[i])
     matmul(all_fcoords, lattice, coords_in_cell)
@@ -144,13 +156,13 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
 
     # if no valid neighbors were found return empty
     if count == 0:
-        free(&frac_coords[0, 0])
-        free(&all_fcoords[0, 0])
-        free(&coords_in_cell[0, 0])
-        free(&offset_correction[0, 0])
-        free(offsets_p_temp)
-        free(expanded_coords_p_temp)
-        free(indices_p_temp)
+        PyMem_Free(&frac_coords[0, 0])
+        PyMem_Free(&all_fcoords[0, 0])
+        PyMem_Free(&coords_in_cell[0, 0])
+        PyMem_Free(&offset_correction[0, 0])
+        PyMem_Free(offsets_p_temp)
+        PyMem_Free(expanded_coords_p_temp)
+        PyMem_Free(indices_p_temp)
         return (np.array([], dtype=int), np.array([], dtype=int),
             np.array([[], [], []], dtype=float).T, np.array([], dtype=float))
 
@@ -200,7 +212,6 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     cdef long *index_2 = <long*> safe_malloc(n*sizeof(long))
     cdef double *offset_final = <double*> safe_malloc(3*n*sizeof(double))
     cdef double *distances = <double*> safe_malloc(n*sizeof(double))
-    cdef long[:] ncube_indices_map
     cdef long cube_index_temp
     cdef long link_index
     cdef double d_temp2
@@ -235,24 +246,24 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
                 link_index = atom_indices[link_index]
 
     if count == 0:
-        free(index_1)
-        free(index_2)
-        free(offset_final)
-        free(distances)
-        free(&offset_correction[0, 0])
-        free(&frac_coords[0, 0])
-        free(&all_fcoords[0, 0])
-        free(&coords_in_cell[0, 0])
-        free(&center_indices3[0, 0])
-        free(&neighbor_map[0, 0])
-        free(offsets_p)
-        free(expanded_coords_p)
-        free(indices_p)
-        free(&all_indices3[0, 0])
-        free(&all_indices1[0])
-        free(center_indices1)
-        free(head)
-        free(atom_indices)
+        PyMem_Free(index_1)
+        PyMem_Free(index_2)
+        PyMem_Free(offset_final)
+        PyMem_Free(distances)
+        PyMem_Free(&offset_correction[0, 0])
+        PyMem_Free(&frac_coords[0, 0])
+        PyMem_Free(&all_fcoords[0, 0])
+        PyMem_Free(&coords_in_cell[0, 0])
+        PyMem_Free(&center_indices3[0, 0])
+        PyMem_Free(&neighbor_map[0, 0])
+        PyMem_Free(offsets_p)
+        PyMem_Free(expanded_coords_p)
+        PyMem_Free(indices_p)
+        PyMem_Free(&all_indices3[0, 0])
+        PyMem_Free(&all_indices1[0])
+        PyMem_Free(center_indices1)
+        PyMem_Free(head)
+        PyMem_Free(atom_indices)
 
         return np.array([], dtype=int), np.array([], dtype=int), np.array([[], [], []], dtype=float).T, np.array([], dtype=float)
 
@@ -268,27 +279,27 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     py_distances = np.array(<double[:count]>distances)
 
     # free allocated memories
-    free(index_1)
-    free(index_2)
-    free(offset_final)
-    free(distances)
-    free(&offset_correction[0, 0])
-    free(&frac_coords[0, 0])
-    free(&all_fcoords[0, 0])
-    free(&coords_in_cell[0, 0])
-    free(&center_indices3[0, 0])
-    free(&neighbor_map[0, 0])
-    free(offsets_p)
-    free(expanded_coords_p)
-    free(indices_p)
-    free(&all_indices3[0, 0])
-    free(&all_indices1[0])
-    free(center_indices1)
-    free(head)
-    free(atom_indices)
+    PyMem_Free(index_1)
+    PyMem_Free(index_2)
+    PyMem_Free(offset_final)
+    PyMem_Free(distances)
+    PyMem_Free(&offset_correction[0, 0])
+    PyMem_Free(&frac_coords[0, 0])
+    PyMem_Free(&all_fcoords[0, 0])
+    PyMem_Free(&coords_in_cell[0, 0])
+    PyMem_Free(&center_indices3[0, 0])
+    PyMem_Free(&neighbor_map[0, 0])
+    PyMem_Free(offsets_p)
+    PyMem_Free(expanded_coords_p)
+    PyMem_Free(indices_p)
+    PyMem_Free(&all_indices3[0, 0])
+    PyMem_Free(&all_indices1[0])
+    PyMem_Free(center_indices1)
+    PyMem_Free(head)
+    PyMem_Free(atom_indices)
     return py_index_1, py_index_2, py_offsets, py_distances
 
-cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size):
+cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size) nogil:
     """
     Faster way to compute the distance squared by not using slice but providing indices in each matrix
 
@@ -337,18 +348,55 @@ cdef void get_cube_neighbors(long [:] ncube, long[:, ::1] neighbor_map):
                 neighbor_map[i, counts[i]] = index1[0]
                 counts[i] += 1
 
-    free(&cube_indices_3d[0, 0])
-    free(&cube_indices_1d[0])
-    free(&index3[0, 0])
-    free(&counts[0])
+    PyMem_Free(&cube_indices_3d[0, 0])
+    PyMem_Free(&cube_indices_1d[0])
+    PyMem_Free(&index3[0, 0])
+    PyMem_Free(&counts[0])
 
-cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, long[:] max_bounds, long[:] min_bounds):
-    """Given the fractional coordinates and the number of repeation needed in each direction, maxr,
+
+cdef compute_offset_vectors(long n):
+    cdef long i, j, k
+    cdef double center[8][3] # center vertices coords
+    cdef int ind
+    cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
+    cdef long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
+    cdef long count = 0
+    cdef double off[8][3]  # offsetted vertices
+
+    for i in range(2):
+        for j in range(2):
+            for k in range(2):
+                ind = i * 4 + j * 2 + k
+                center[ind][0] = i - 0.5
+                center[ind][1] = j - 0.5
+                center[ind][2] = k - 0.5
+
+    for i in range(-n, n + 1):
+        for j in range(-n, n + 1):
+            for k in range(-n, n + 1):
+                offset_cube(center, i, j, k, off)
+                if distance_vertices(center, off, n):
+                    ovectors[3*count] = i
+                    ovectors[3*count + 1] = j
+                    ovectors[3*count + 2] = k
+                    count += 1
+
+    ovectors = <long *> safe_realloc(ovectors, count * 3 * sizeof(long))
+    array = np.array(<long[:count, :3]>ovectors)
+    PyMem_Free(ovectors)
+    return array
+
+
+cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, long[:] max_bounds, long[:] min_bounds) nogil:
+    """
+    Given the fractional coordinates and the number of repeation needed in each direction, maxr,
     compute the translational bounds in each dimension
     """
     cdef double max_fcoords[3]
     cdef double min_fcoords[3]
-    max_and_min(frac_coords, max_fcoords, min_fcoords)
+
+    max_and_min(frac_coords, &max_fcoords[0], &min_fcoords[0])
+
     cdef int i
     for i in range(3):
         min_bounds[i] = 0
@@ -359,15 +407,14 @@ cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, 
             min_bounds[i] = <long>(floor(min_fcoords[i] - maxr[i] - 1e-8))
             max_bounds[i] = <long>(ceil(max_fcoords[i] + maxr[i] + 1e-8))
 
-cdef void get_frac_coords(double[:, ::1] lattice, double[:, ::1] cart_coords, double [:, ::1] frac_coords):
+cdef void get_frac_coords(double[:, ::1] lattice, double[:, ::1] inv_lattice, double[:, ::1] cart_coords, double [:, ::1] frac_coords) nogil:
     """
     Compute the fractional coordinates
     """
-    cdef double[:, ::1] inv_lattice = np.empty((3, 3), dtype=np.float64)
     matrix_inv(lattice, inv_lattice)
     matmul(cart_coords, inv_lattice, frac_coords)
 
-cdef void matmul(double [:, ::1] m1, double [:, ::1] m2, double [:, ::1] out):
+cdef void matmul(double [:, ::1] m1, double [:, ::1] m2, double [:, ::1] out) nogil:
     """
     Matrix multiplication
     """
@@ -379,7 +426,7 @@ cdef void matmul(double [:, ::1] m1, double [:, ::1] m2, double [:, ::1] out):
             for k in range(n):
                 out[i, j] += m1[i, k] * m2[k, j]
 
-cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv):
+cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv) nogil:
     """
     Matrix inversion
     """
@@ -390,7 +437,7 @@ cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv):
             inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] -
                 matrix[(j+2)%3, (i+1)%3] * matrix[(j+1)%3, (i+2)%3]) / det
 
-cdef double matrix_det(double[:, ::1] matrix):
+cdef double matrix_det(double[:, ::1] matrix) nogil:
     """
     Matrix determinant
     """
@@ -398,20 +445,17 @@ cdef double matrix_det(double[:, ::1] matrix):
         matrix[0, 1] * (matrix[1, 2] * matrix[2, 0] - matrix[1, 0] * matrix[2, 2]) + \
             matrix[0, 2] * (matrix[1, 0] * matrix[2, 1] - matrix[1, 1] * matrix[2, 0])
 
-cdef void get_max_r(double[:, ::1] lattice, double [::1] maxr, double r):
+cdef void get_max_r(double[:, ::1] reciprocal_lattice, double [::1] maxr, double r) nogil:
     """
     Get maximum repetition in each directions
     """
-    cdef double [:, ::1] reciprocal_lattice = np.eye(3, dtype=np.float64)
     cdef int i
-    cdef int n = lattice.shape[1]
     cdef double recp_len
-    get_reciprocal_lattice(lattice, reciprocal_lattice)
-    for i in range(n):
+    for i in range(3):  # is it ever not 3x3 for our cases?
         recp_len = norm(reciprocal_lattice[i, :])
         maxr[i] = ceil((r + 0.15) * recp_len / (2 * pi))
 
-cdef void get_reciprocal_lattice(double[:, ::1] lattice, double[:, ::1] reciprocal):
+cdef void get_reciprocal_lattice(double[:, ::1] reciprocal, double[:, ::1] lattice) nogil:
     """
     Compute the reciprocal lattice
     """
@@ -419,29 +463,29 @@ cdef void get_reciprocal_lattice(double[:, ::1] lattice, double[:, ::1] reciproc
     for i in range(3):
         recip_component(lattice[i, :], lattice[(i+1)%3, :], lattice[(i+2)%3, :], reciprocal[i, :])
 
-cdef void recip_component(double[::1] a1, double[::1] a2, double[::1] a3, double[::1] out):
+cdef void recip_component(double[::1] a1, double[::1] a2, double[::1] a3, double[::1] out) nogil:
     """
     Compute the reciprocal lattice vector
     """
     cdef double ai_cross_aj[3]
     cdef double prod
     cdef int i
-    cross(a2, a3, ai_cross_aj)
-    prod = inner(a1, ai_cross_aj)
-    for i in range(a1.shape[0]):
+    cross(&a2[0], &a3[0], &ai_cross_aj[0])
+    prod = inner(&a1[0], &ai_cross_aj[0], 3)
+    for i in range(3):
         out[i] = 2 * pi * ai_cross_aj[i] / prod
 
-cdef double inner(double[:] x, double[:] y):
+cdef double inner(double* x, double* y, long n) nogil:
     """
     Compute inner product
     """
     cdef double sum = 0
-    cdef int i, n = x.shape[0]
+    cdef int i
     for i in range(n):
         sum += x[i] * y[i]
     return sum
 
-cdef void cross(double[:] x, double[:] y, double[:] out) nogil:
+cdef void cross(double* x, double* y, double* out) nogil:
     """
     Cross product of vector x and y, output in out
     """
@@ -459,7 +503,7 @@ cdef double norm(double[::1] vec) nogil:
         sum += vec[i] * vec[i]
     return sqrt(sum)
 
-cdef max_and_min(double[:, ::1] coords, double[::1] max_coords, double[::1] min_coords):
+cdef void max_and_min(double[:, ::1] coords, double* max_coords, double* min_coords) nogil:
     """
     Compute the min and max of coords
     """
@@ -493,39 +537,7 @@ cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d
         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
 
 
-def compute_offset_vectors(long n):
-    cdef long i, j, k
-    cdef long v[3]
-    cdef double center[8][3] # center vertices coords
-    cdef int ind
-    cdef bint is_within
-    cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
-    cdef long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
-    cdef long count = 0
-    for i in range(2):
-        for j in range(2):
-            for k in range(2):
-                ind = i * 4 + j * 2 + k
-                center[ind][0] = i - 0.5
-                center[ind][1] = j - 0.5
-                center[ind][2] = k - 0.5
-
-    cdef double off[8][3] # offsetted vertices
-    for i in range(-n, n + 1):
-        for j in range(-n, n + 1):
-            for k in range(-n, n + 1):
-                offset_cube(center, i, j, k, off)
-                if distance_vertices(center, off, n):
-                    ovectors[3*count] = i
-                    ovectors[3*count + 1] = j
-                    ovectors[3*count + 2] = k
-                    count += 1
-    ovectors = <long*>safe_realloc(ovectors, count*3*sizeof(long))
-    array = np.array(<long[:count, :3]>ovectors)
-    free(ovectors)
-    return array
-
-cdef bint distance_vertices(double center[8][3], double off[8][3], double r):
+cdef bint distance_vertices(double center[8][3], double off[8][3], double r) nogil:
     cdef int i, j
     cdef double d2
     cdef double r2 = r * r
@@ -537,7 +549,7 @@ cdef bint distance_vertices(double center[8][3], double off[8][3], double r):
                 return 1
     return 0
 
-cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offsetted)[8][3]):
+cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offsetted)[8][3]) nogil:
     cdef int i, j, k
     for i in range(2):
         for j in range(2):
