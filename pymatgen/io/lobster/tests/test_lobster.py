@@ -486,8 +486,6 @@ class IcohplistTest(unittest.TestCase):
         assert self.icobi_orbitalwise_add.orbitalwise
         assert self.icobi_orbitalwise_spinpolarized_add.orbitalwise
 
-
-
     def test_values(self):
         icohplist_bise = {
             "1": {
