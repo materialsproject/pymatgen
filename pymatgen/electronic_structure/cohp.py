@@ -358,7 +358,6 @@ class CompleteCohp(Cohp):
         Returns:
             Returns the COHP object to simplify plotting
         """
-        # TODO: possibly add option to only get one spin channel as Spin.down in the future!
         if label.lower() == "average":
             divided_cohp = self.cohp
             divided_icohp = self.icohp
@@ -1139,7 +1138,6 @@ class IcohpCollection(MSONable):
             joinstr.append(str(value))
         return "\n".join(joinstr)
 
-    # TODO: add option to select orbitals as well
     def get_icohp_by_label(self, label, summed_spin_channels=True, spin=Spin.up, orbitals=None):
         """
         get an icohp value for a certain bond as indicated by the label (bond labels starting by "1" as in
