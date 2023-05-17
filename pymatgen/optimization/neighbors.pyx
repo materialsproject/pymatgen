@@ -4,7 +4,7 @@
 # cython: wraparound=False
 # cython: nonecheck=False
 # cython: cdivision=True
-# cython: profile=True
+# cython: profile=False
 # distutils: language = c
 
 # isort: dont-add-imports
@@ -12,7 +12,9 @@
 import numpy as np
 
 cimport numpy as np
-from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
+
+# from cython.parallel import prange
+from libc.stdlib cimport free, malloc, realloc
 from libc.math cimport ceil, floor, pi, sqrt
 from libc.string cimport memset
 
@@ -21,7 +23,7 @@ cdef void *safe_malloc(size_t size) except? NULL:
     """Raise memory error if malloc fails"""
     if size == 0:
         return NULL
-    cdef void *ptr = PyMem_Malloc(size)
+    cdef void *ptr = malloc(size)
     if ptr == NULL:
         raise MemoryError(f"Memory allocation of {size} bytes failed!")
     return ptr
@@ -31,7 +33,7 @@ cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
     """Raise memory error if realloc fails"""
     if size == 0:
         return NULL
-    cdef void *ptr = PyMem_Realloc(ptr_orig, size)
+    cdef void *ptr = realloc(ptr_orig, size)
     if ptr == NULL:
         raise MemoryError(f"Realloc memory of {size} bytes failed!")
     return ptr
@@ -156,13 +158,13 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
 
     # if no valid neighbors were found return empty
     if count == 0:
-        PyMem_Free(&frac_coords[0, 0])
-        PyMem_Free(&all_fcoords[0, 0])
-        PyMem_Free(&coords_in_cell[0, 0])
-        PyMem_Free(&offset_correction[0, 0])
-        PyMem_Free(offsets_p_temp)
-        PyMem_Free(expanded_coords_p_temp)
-        PyMem_Free(indices_p_temp)
+        free(&frac_coords[0, 0])
+        free(&all_fcoords[0, 0])
+        free(&coords_in_cell[0, 0])
+        free(&offset_correction[0, 0])
+        free(offsets_p_temp)
+        free(expanded_coords_p_temp)
+        free(indices_p_temp)
         return (np.array([], dtype=int), np.array([], dtype=int),
             np.array([[], [], []], dtype=float).T, np.array([], dtype=float))
 
@@ -246,24 +248,24 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
                 link_index = atom_indices[link_index]
 
     if count == 0:
-        PyMem_Free(index_1)
-        PyMem_Free(index_2)
-        PyMem_Free(offset_final)
-        PyMem_Free(distances)
-        PyMem_Free(&offset_correction[0, 0])
-        PyMem_Free(&frac_coords[0, 0])
-        PyMem_Free(&all_fcoords[0, 0])
-        PyMem_Free(&coords_in_cell[0, 0])
-        PyMem_Free(&center_indices3[0, 0])
-        PyMem_Free(&neighbor_map[0, 0])
-        PyMem_Free(offsets_p)
-        PyMem_Free(expanded_coords_p)
-        PyMem_Free(indices_p)
-        PyMem_Free(&all_indices3[0, 0])
-        PyMem_Free(&all_indices1[0])
-        PyMem_Free(&center_indices1[0])
-        PyMem_Free(head)
-        PyMem_Free(atom_indices)
+        free(index_1)
+        free(index_2)
+        free(offset_final)
+        free(distances)
+        free(&offset_correction[0, 0])
+        free(&frac_coords[0, 0])
+        free(&all_fcoords[0, 0])
+        free(&coords_in_cell[0, 0])
+        free(&center_indices3[0, 0])
+        free(&neighbor_map[0, 0])
+        free(offsets_p)
+        free(expanded_coords_p)
+        free(indices_p)
+        free(&all_indices3[0, 0])
+        free(&all_indices1[0])
+        free(&center_indices1[0])
+        free(head)
+        free(atom_indices)
 
         return np.array([], dtype=int), np.array([], dtype=int), np.array([[], [], []], dtype=float).T, np.array([], dtype=float)
 
@@ -279,36 +281,26 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     py_distances = np.array(<double[:count]>distances)
 
     # free allocated memories
-    PyMem_Free(index_1)
-    PyMem_Free(index_2)
-    PyMem_Free(offset_final)
-    PyMem_Free(distances)
-    PyMem_Free(&offset_correction[0, 0])
-    PyMem_Free(&frac_coords[0, 0])
-    PyMem_Free(&all_fcoords[0, 0])
-    PyMem_Free(&coords_in_cell[0, 0])
-    PyMem_Free(&center_indices3[0, 0])
-    PyMem_Free(&neighbor_map[0, 0])
-    PyMem_Free(offsets_p)
-    PyMem_Free(expanded_coords_p)
-    PyMem_Free(indices_p)
-    PyMem_Free(&all_indices3[0, 0])
-    PyMem_Free(&all_indices1[0])
-    PyMem_Free(&center_indices1[0])
-    PyMem_Free(head)
-    PyMem_Free(atom_indices)
+    free(index_1)
+    free(index_2)
+    free(offset_final)
+    free(distances)
+    free(&offset_correction[0, 0])
+    free(&frac_coords[0, 0])
+    free(&all_fcoords[0, 0])
+    free(&coords_in_cell[0, 0])
+    free(&center_indices3[0, 0])
+    free(&neighbor_map[0, 0])
+    free(offsets_p)
+    free(expanded_coords_p)
+    free(indices_p)
+    free(&all_indices3[0, 0])
+    free(&all_indices1[0])
+    free(&center_indices1[0])
+    free(head)
+    free(atom_indices)
     return py_index_1, py_index_2, py_offsets, py_distances
 
-cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size) nogil:
-    """
-    Faster way to compute the distance squared by not using slice but providing indices in each matrix
-
-    """
-    cdef double s = 0
-    cdef long i
-    for i in range(size):
-        s += (m1[index1, i] - m2[index2, i]) * (m1[index1, i] - m2[index2, i])
-    return s
 
 cdef void get_cube_neighbors(long [:] ncube, long[:, ::1] neighbor_map):
     """
@@ -354,9 +346,9 @@ cdef void get_cube_neighbors(long [:] ncube, long[:, ::1] neighbor_map):
                 neighbor_map[i, counts[i]] = index1[0]
                 counts[i] += 1
 
-    PyMem_Free(&cube_indices_3d[0, 0])
-    PyMem_Free(&cube_indices_1d[0])
-    PyMem_Free(&counts[0])
+    free(&cube_indices_3d[0, 0])
+    free(&cube_indices_1d[0])
+    free(&counts[0])
 
 
 cdef compute_offset_vectors(long n):
@@ -388,8 +380,20 @@ cdef compute_offset_vectors(long n):
 
     ovectors = <long *> safe_realloc(ovectors, count * 3 * sizeof(long))
     array = np.array(<long[:count, :3]>ovectors)
-    PyMem_Free(ovectors)
+    free(ovectors)
     return array
+
+
+cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size) nogil:
+    """
+    Faster way to compute the distance squared by not using slice but providing indices in each matrix
+
+    """
+    cdef double s = 0
+    cdef long i
+    for i in range(size):
+        s += (m1[index1, i] - m2[index2, i]) * (m1[index1, i] - m2[index2, i])
+    return s
 
 
 cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, long[:] max_bounds, long[:] min_bounds) nogil:

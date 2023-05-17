@@ -173,7 +173,9 @@ setup(
         ),
         Extension("pymatgen.util.coord_cython", ["pymatgen/util/coord_cython.pyx"], extra_link_args=extra_link_args),
         Extension(
-            "pymatgen.optimization.neighbors", ["pymatgen/optimization/neighbors.pyx"], extra_link_args=extra_link_args
+            "pymatgen.optimization.neighbors", ["pymatgen/optimization/neighbors.pyx"],
+            extra_link_args=extra_link_args #+ ["-fopenmp"],
+            # extra_compile_args=["-fopenmp"],
         ),
     ],
     entry_points={
