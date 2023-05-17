@@ -184,15 +184,15 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict Representation
+            dct (dict): Dict Representation
 
         Returns:
             VaspToComputedEntryDrone
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
@@ -297,15 +297,15 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict Representation
+            dct (dict): Dict Representation
 
         Returns:
             SimpleVaspToComputedEntryDrone
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class GaussianToComputedEntryDrone(AbstractDrone):
@@ -422,15 +422,15 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict Representation
+            dct (dict): Dict Representation
 
         Returns:
             GaussianToComputedEntryDrone
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 def _get_transformation_history(path):

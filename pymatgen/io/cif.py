@@ -253,7 +253,7 @@ class CifFile:
         :param string: String representation.
         :return: CifFile
         """
-        d = {}
+        dct = {}
         for x in re.split(r"^\s*data_", "x\n" + string, flags=re.MULTILINE | re.DOTALL)[1:]:
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in
@@ -263,8 +263,8 @@ class CifFile:
             if "powder_pattern" in re.split(r"\n", x, 1)[0]:
                 continue
             c = CifBlock.from_string("data_" + x)
-            d[c.header] = c
-        return cls(d, string)
+            dct[c.header] = c
+        return cls(dct, string)
 
     @classmethod
     def from_file(cls, filename):
@@ -1221,12 +1221,12 @@ class CifParser:
         """
         :return: MSONable dict
         """
-        d = {}
+        dct = {}
         for k, v in self._cif.data.items():
-            d[k] = {}
+            dct[k] = {}
             for k2, v2 in v.data.items():
-                d[k][k2] = v2
-        return d
+                dct[k][k2] = v2
+        return dct
 
     @property
     def has_errors(self):
@@ -1417,9 +1417,9 @@ class CifWriter:
                     "_atom_site_moment_crystalaxis_z",
                 ]
             )
-        d = {}
-        d[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
-        self._cf = CifFile(d)
+        dct = {}
+        dct[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
+        self._cf = CifFile(dct)
 
     @property
     def ciffile(self):

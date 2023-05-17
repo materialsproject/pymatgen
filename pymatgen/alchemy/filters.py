@@ -113,15 +113,15 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation
+            dct (dict): Dict representation
 
         Returns:
             Filter
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class SpecieProximityFilter(AbstractStructureFilter):
@@ -176,15 +176,15 @@ class SpecieProximityFilter(AbstractStructureFilter):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation
+            dct (dict): Dict representation
 
         Returns:
             Filter
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class RemoveDuplicatesFilter(AbstractStructureFilter):

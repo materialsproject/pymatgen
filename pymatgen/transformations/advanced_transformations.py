@@ -1400,14 +1400,14 @@ class DisorderOrderedTransformation(AbstractTransformation):
         """
 
         def _get_replacement_dict_from_partition(partition):
-            d = {}  # to be passed to Structure.replace_species()
+            dct = {}  # to be passed to Structure.replace_species()
             for sp_list in partition:
                 if len(sp_list) > 1:
                     total_occ = sum(composition[sp] for sp in sp_list)
                     merged_comp = {sp: composition[sp] / total_occ for sp in sp_list}
                     for sp in sp_list:
-                        d[sp] = merged_comp
-            return d
+                        dct[sp] = merged_comp
+            return dct
 
         disorder_mapping = [_get_replacement_dict_from_partition(p) for p in partitions]
 

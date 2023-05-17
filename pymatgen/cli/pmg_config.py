@@ -272,17 +272,17 @@ def add_config_var(tokens: list[str], backup_suffix: str) -> None:
     else:
         # if neither exists, create new config file
         fpath = SETTINGS_FILE
-    d = {}
+    dct = {}
     if os.path.exists(fpath):
         if backup_suffix:
             shutil.copy(fpath, fpath + backup_suffix)
             print(f"Existing {fpath} backed up to {fpath}{backup_suffix}")
-        d = loadfn(fpath)
+        dct = loadfn(fpath)
     if len(tokens) % 2 != 0:
         raise ValueError(f"Uneven number {len(tokens)} of tokens passed to pmg config. Needs a value for every key.")
     for key, val in zip(tokens[0::2], tokens[1::2]):
-        d[key] = val
-    dumpfn(d, fpath)
+        dct[key] = val
+    dumpfn(dct, fpath)
     print(f"New {fpath} written!")
 
 

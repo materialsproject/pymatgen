@@ -803,12 +803,12 @@ class BasicAbinitInput(AbstractInput, MSONable):
         This function receive a list of ``AbiVarable`` objects and add
         the corresponding variables to the input.
         """
-        d = {}
+        dct = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
                 raise TypeError(f"type {type(obj)}: {obj!r} does not have `to_abivars` method")
-            d.update(self.set_vars(obj.to_abivars()))
-        return d
+            dct.update(self.set_vars(obj.to_abivars()))
+        return dct
 
     def __setitem__(self, key, value):
         if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):

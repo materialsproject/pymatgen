@@ -86,14 +86,14 @@ class LammpsDump(MSONable):
         """
         Returns: MSONable dict
         """
-        d = {}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["timestep"] = self.timestep
-        d["natoms"] = self.natoms
-        d["box"] = self.box.as_dict()
-        d["data"] = self.data.to_json(orient="split")
-        return d
+        dct = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["timestep"] = self.timestep
+        dct["natoms"] = self.natoms
+        dct["box"] = self.box.as_dict()
+        dct["data"] = self.data.to_json(orient="split")
+        return dct
 
 
 def parse_lammps_dumps(file_pattern):

@@ -881,28 +881,28 @@ class HeisenbergModel(MSONable):
         """
         Because some dicts have tuple keys, some sanitization is required for json compatibility.
         """
-        d = {}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["@version"] = __version__
-        d["formula"] = self.formula
-        d["structures"] = [s.as_dict() for s in self.structures]
-        d["energies"] = self.energies
-        d["cutoff"] = self.cutoff
-        d["tol"] = self.tol
-        d["sgraphs"] = [sgraph.as_dict() for sgraph in self.sgraphs]
-        d["dists"] = self.dists
-        d["ex_params"] = self.ex_params
-        d["javg"] = self.javg
-        d["igraph"] = self.igraph.as_dict()
+        dct = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["@version"] = __version__
+        dct["formula"] = self.formula
+        dct["structures"] = [s.as_dict() for s in self.structures]
+        dct["energies"] = self.energies
+        dct["cutoff"] = self.cutoff
+        dct["tol"] = self.tol
+        dct["sgraphs"] = [sgraph.as_dict() for sgraph in self.sgraphs]
+        dct["dists"] = self.dists
+        dct["ex_params"] = self.ex_params
+        dct["javg"] = self.javg
+        dct["igraph"] = self.igraph.as_dict()
 
         # Sanitize tuple & int keys
-        d["ex_mat"] = jsanitize(self.ex_mat)
-        d["nn_interactions"] = jsanitize(self.nn_interactions)
-        d["unique_site_ids"] = jsanitize(self.unique_site_ids)
-        d["wyckoff_ids"] = jsanitize(self.wyckoff_ids)
+        dct["ex_mat"] = jsanitize(self.ex_mat)
+        dct["nn_interactions"] = jsanitize(self.nn_interactions)
+        dct["unique_site_ids"] = jsanitize(self.unique_site_ids)
+        dct["wyckoff_ids"] = jsanitize(self.wyckoff_ids)
 
-        return d
+        return dct
 
     @classmethod
     def from_dict(cls, d):
