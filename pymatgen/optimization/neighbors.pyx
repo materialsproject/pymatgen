@@ -305,21 +305,23 @@ cdef void get_cube_neighbors(long [:] ncube, long[:, ::1] neighbor_map):
     """
     Get {cube_index: cube_neighbor_indices} map
     """
-    cdef long ncubes = ncube[0] * ncube[1] * ncube[2]
-    cdef long count = 0
-    cdef int i, j, k
+    cdef:
+        int i, j, k
+        long count = 0
+        long ncubes = ncube[0] * ncube[1] * ncube[2]
+        long[::1] counts = <long[:ncubes]> safe_malloc(ncubes * sizeof(long))
+        long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> safe_malloc(ncubes*3*sizeof(long))
+        long[::1] cube_indices_1d = <long[:ncubes]> safe_malloc(ncubes*sizeof(long))
+
+        # creating the memviews of c-arrays once subtantially improves speed
+        # but for some reason it makes the increases the scaling with the number of atoms
+        long[1][3] index3_arr
+        long[:, ::1] index3 = index3_arr
+        long[1] index1_arr
+        long[::1] index1 = index1_arr
+        long[:, ::1] ovectors = compute_offset_vectors(1)
 
     memset(<void*>&neighbor_map[0, 0], -1, neighbor_map.shape[0] * 27 * sizeof(long))
-    cdef long[::1] counts = <long[:ncubes]> safe_malloc(ncubes * sizeof(long))
-    cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> safe_malloc(ncubes*3*sizeof(long))
-    cdef long[::1] cube_indices_1d = <long[:ncubes]> safe_malloc(ncubes*sizeof(long))
-
-    cdef long[1][3] index3_arr
-    cdef long[:, ::1] index3 = index3_arr
-    cdef long[1] index1_arr
-    cdef long[::1] index1 = index1_arr
-
-    cdef long[:, ::1] ovectors = compute_offset_vectors(1)
 
     for i in range(ncubes):
         counts[i] = 0
@@ -351,13 +353,14 @@ cdef void get_cube_neighbors(long [:] ncube, long[:, ::1] neighbor_map):
 
 
 cdef compute_offset_vectors(long n):
-    cdef long i, j, k
-    cdef double center[8][3] # center vertices coords
-    cdef int ind
-    cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
-    cdef long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
-    cdef long count = 0
-    cdef double off[8][3]  # offsetted vertices
+    cdef:
+        long i, j, k
+        int ind
+        double center[8][3] # center vertices coords
+        double offset[8][3]  # offsetted vertices
+        long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
+        long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
+        long count = 0
 
     for i in range(2):
         for j in range(2):
@@ -370,8 +373,8 @@ cdef compute_offset_vectors(long n):
     for i in range(-n, n + 1):
         for j in range(-n, n + 1):
             for k in range(-n, n + 1):
-                offset_cube(center, i, j, k, off)
-                if distance_vertices(center, off, n):
+                offset_cube(center, i, j, k, offset)
+                if distance_vertices(center, offset, n):
                     ovectors[3*count] = i
                     ovectors[3*count + 1] = j
                     ovectors[3*count + 2] = k
@@ -388,8 +391,10 @@ cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long in
     Faster way to compute the distance squared by not using slice but providing indices in each matrix
 
     """
-    cdef double s = 0
-    cdef long i
+    cdef:
+        long i
+        double s = 0
+
     for i in range(size):
         s += (m1[index1, i] - m2[index2, i]) * (m1[index1, i] - m2[index2, i])
     return s
@@ -400,12 +405,13 @@ cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, 
     Given the fractional coordinates and the number of repeation needed in each direction, maxr,
     compute the translational bounds in each dimension
     """
-    cdef double max_fcoords[3]
-    cdef double min_fcoords[3]
+    cdef:
+        int i
+        double max_fcoords[3]
+        double min_fcoords[3]
 
     max_and_min(frac_coords, &max_fcoords[0], &min_fcoords[0])
 
-    cdef int i
     for i in range(3):
         min_bounds[i] = 0
         max_bounds[i] = 1
@@ -426,8 +432,10 @@ cdef void matmul(double [:, ::1] m1, double [:, ::1] m2, double [:, ::1] out) no
     """
     Matrix multiplication
     """
-    cdef int m = m1.shape[0], n = m1.shape[1], l = m2.shape[1]
-    cdef int i, j, k
+    cdef:
+        int i, j, k
+        int m = m1.shape[0], n = m1.shape[1], l = m2.shape[1]
+
     for i in range(m):
         for j in range(l):
             out[i, j] = 0
@@ -438,8 +446,10 @@ cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv) nogil:
     """
     Matrix inversion
     """
-    cdef double det = matrix_det(matrix)
-    cdef int i, j
+    cdef:
+        int i, j
+        double det = matrix_det(matrix)
+
     for i in range(3):
         for j in range(3):
             inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] -
@@ -457,8 +467,10 @@ cdef void get_max_r(double[:, ::1] reciprocal_lattice, double [::1] maxr, double
     """
     Get maximum repetition in each directions
     """
-    cdef int i
-    cdef double recp_len
+    cdef:
+        int i
+        double recp_len
+
     for i in range(3):  # is it ever not 3x3 for our cases?
         recp_len = norm(reciprocal_lattice[i, :])
         maxr[i] = ceil((r + 0.15) * recp_len / (2 * pi))
@@ -475,9 +487,11 @@ cdef void recip_component(double[::1] a1, double[::1] a2, double[::1] a3, double
     """
     Compute the reciprocal lattice vector
     """
-    cdef double ai_cross_aj[3]
-    cdef double prod
-    cdef int i
+    cdef:
+        double ai_cross_aj[3]
+        double prod
+        int i
+
     cross(&a2[0], &a3[0], &ai_cross_aj[0])
     prod = inner(&a1[0], &ai_cross_aj[0], 3)
     for i in range(3):
@@ -487,8 +501,10 @@ cdef double inner(double* x, double* y, long n) nogil:
     """
     Compute inner product
     """
-    cdef double sum = 0
-    cdef int i
+    cdef:
+        double sum = 0
+        int i
+
     for i in range(n):
         sum += x[i] * y[i]
     return sum
@@ -505,8 +521,11 @@ cdef double norm(double[::1] vec) nogil:
     """
     Vector norm
     """
-    cdef int i, n = vec.shape[0]
-    cdef double sum = 0
+    cdef:
+        int i
+        int n = vec.shape[0]
+        double sum = 0
+
     for i in range(n):
         sum += vec[i] * vec[i]
     return sqrt(sum)
@@ -515,9 +534,11 @@ cdef void max_and_min(double[:, ::1] coords, double* max_coords, double* min_coo
     """
     Compute the min and max of coords
     """
-    cdef int i, j
-    cdef int M = coords.shape[0]
-    cdef int N = coords.shape[1]
+    cdef:
+        int i, j
+        int M = coords.shape[0]
+        int N = coords.shape[1]
+
     for i in range(N):
         max_coords[i] = coords[0, i]
         min_coords[i] = coords[0, i]
@@ -539,16 +560,20 @@ cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d
     """
     3D vector representation to 1D
     """
-    cdef int i
-    cdef int n = label3d.shape[0]
+    cdef:
+        int i
+        int n = label3d.shape[0]
+
     for i in range(n):
         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
 
 
 cdef bint distance_vertices(double center[8][3], double off[8][3], double r) nogil:
-    cdef int i, j
-    cdef double d2
-    cdef double r2 = r * r
+    cdef:
+        int i, j
+        double d2
+        double r2 = r * r
+
     for i in range(8):
         for j in range(8):
             d2 = (center[i][0] - off[j][0]) * (center[i][0] - off[j][0]) + (center[i][1] - off[j][1]) * (center[i][1] - off[j][1]) + \
