@@ -119,7 +119,7 @@
 <p>Analysis classes for batteries</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.BatteryAnalyzer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BatteryAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struc_oxid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Li'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxi_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../apps/battery/analyzer.py#L27-L242"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BatteryAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struc_oxid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Li'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxi_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../apps/battery/analyzer.py#L27-L243"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.BatteryAnalyzer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A suite of methods for starting with an oxidized structure and determining its potential as a battery</p>
 <p>Pass in a structure for analysis</p>
@@ -129,7 +129,7 @@
 <li><p><strong>struc_oxid</strong> – a Structure object; oxidation states <em>must</em> be assigned for this structure; disordered
 structures should be OK</p></li>
 <li><p><strong>working_ion</strong> – a String symbol or Element for the working ion.</p></li>
-<li><p><strong>oxy_override</strong> – a dict of String element symbol, Integer oxidation state pairs.
+<li><p><strong>oxi_override</strong> – a dict of String element symbol, Integer oxidation state pairs.
 by default, H, C, N, O, F, S, Cl, Se, Br, Te, I are considered anions.</p></li>
 </ul>
 </dd>
@@ -217,7 +217,7 @@ extra ions.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.apps.battery.analyzer.is_redox_active_intercalation">
-<span class="sig-name descname"><span class="pre">is_redox_active_intercalation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../apps/battery/analyzer.py#L245-L268"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.is_redox_active_intercalation" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_redox_active_intercalation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../apps/battery/analyzer.py#L246-L269"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.analyzer.is_redox_active_intercalation" title="Permalink to this definition"></a></dt>
 <dd><p>True if element is redox active and interesting for intercalation materials</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

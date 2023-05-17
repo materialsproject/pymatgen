@@ -125,7 +125,26 @@ when they are ready to be merged:</p>
 </pre></div>
 </div>
 <p>Note that the entire Github repo is fairly large because of the presence of test files, but these are absolutely
-necessary for rigorous testing of the code.</p>
+necessary for rigorous testing of the code. If you are not planning to do major development on pymatgen and would
+like a minimal clone (e.g., installing dev version of pymatgen on HPC resources), you can use the following series of
+commands (size would be a fraction of the full repo):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">n</span> <span class="o">--</span><span class="n">depth</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="nb">filter</span><span class="o">=</span><span class="n">tree</span><span class="p">:</span><span class="mi">0</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">materialsproject</span><span class="o">/</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">git</span>
+<span class="n">cd</span> <span class="n">pymatgen</span>
+
+<span class="c1"># if you have Git 2.25+, you can use the sparse-checkout command.</span>
+<span class="c1"># git sparse-checkout set --no-cone pymatgen setup.py pyproject.toml requirements.txt requirements-optional.txt</span>
+
+<span class="c1"># The code below should work for any git after 2012.</span>
+<span class="n">git</span> <span class="n">config</span> <span class="n">core</span><span class="o">.</span><span class="n">sparseCheckout</span> <span class="n">true</span>
+<span class="n">echo</span> <span class="n">pymatgen</span> <span class="o">&gt;&gt;</span> <span class="o">.</span><span class="n">git</span><span class="o">/</span><span class="n">info</span><span class="o">/</span><span class="n">sparse</span><span class="o">-</span><span class="n">checkout</span>
+<span class="n">echo</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="o">&gt;&gt;</span> <span class="o">.</span><span class="n">git</span><span class="o">/</span><span class="n">info</span><span class="o">/</span><span class="n">sparse</span><span class="o">-</span><span class="n">checkout</span>
+<span class="n">echo</span> <span class="n">pyproject</span><span class="o">.</span><span class="n">toml</span> <span class="o">&gt;&gt;</span> <span class="o">.</span><span class="n">git</span><span class="o">/</span><span class="n">info</span><span class="o">/</span><span class="n">sparse</span><span class="o">-</span><span class="n">checkout</span>
+<span class="n">echo</span> <span class="s2">&quot;requirements.txt&quot;</span> <span class="o">&gt;&gt;</span> <span class="o">.</span><span class="n">git</span><span class="o">/</span><span class="n">info</span><span class="o">/</span><span class="n">sparse</span><span class="o">-</span><span class="n">checkout</span>
+<span class="n">echo</span> <span class="s2">&quot;requirements-optional.txt&quot;</span> <span class="o">&gt;&gt;</span> <span class="o">.</span><span class="n">git</span><span class="o">/</span><span class="n">info</span><span class="o">/</span><span class="n">sparse</span><span class="o">-</span><span class="n">checkout</span>
+
+<span class="n">git</span> <span class="n">checkout</span>
+</pre></div>
+</div>
 </li>
 <li><p>It is highly recommended you install all the optional dependencies as well:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="s1">&#39;.[dev,optional]&#39;</span>

@@ -242,10 +242,10 @@ dict, where El is element.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.get_energy">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gout</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/gulp_caller.py#L532-L547"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_energy" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/gulp_caller.py#L532-L547"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_energy" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>gout</em>) – </p>
+<dd class="field-odd"><p><strong>gout</strong> (<em>str</em>) – GULP output string.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Energy</p>
@@ -255,10 +255,10 @@ dict, where El is element.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_relaxed_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gout</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/gulp_caller.py#L549-L638"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_relaxed_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/gulp_caller.py#L549-L638"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>gout</em>) – </p>
+<dd class="field-odd"><p><strong>gout</strong> (<em>str</em>) – GULP output string.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(Structure) relaxed structure.</p>
@@ -333,7 +333,7 @@ input.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> – pymatgen Structure object</p></li>
 <li><p><strong>cell_flg</strong> (<em>default = True</em>) – Option to use lattice parameters.</p></li>
-<li><p><strong>fractional_flg</strong> (<em>default = True</em>) – If True, fractional coordinates
+<li><p><strong>frac_flg</strong> (<em>default = True</em>) – If True, fractional coordinates
 are used. Else, Cartesian coordinates in Angstroms are used.
 <strong>**</strong>
 GULP convention is to use fractional coordinates for periodic

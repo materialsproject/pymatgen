@@ -128,22 +128,16 @@ This class stores thermal displacement matrices in Ucart format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>thermal_displacement_matrix</strong> – <p>2D numpy array including the thermal_displacement matrix Ucart
-1st dimension atom types, then compressed thermal displacement matrix will follow</p>
-<blockquote>
-<div><p>U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
-convention similar to “thermal_displacement_matrices.yaml” in phonopy</p>
-</div></blockquote>
-</p></li>
+<li><p><strong>thermal_displacement_matrix_cart</strong> – 2D numpy array including the thermal_displacement matrix Ucart
+1st dimension atom types, then compressed thermal displacement matrix will follow
+U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
+convention similar to “thermal_displacement_matrices.yaml” in phonopy</p></li>
 <li><p><strong>structure</strong> – A pymatgen Structure object</p></li>
 <li><p><strong>temperature</strong> – temperature at which thermal displacement matrix was determined</p></li>
-<li><p><strong>thermal_displacement_matrix</strong> – <p>2D numpy array including the thermal_displacement matrix Ucif format
-1st dimension atom types, then compressed thermal displacement matrix will follow</p>
-<blockquote>
-<div><p>U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
-convention similar to “thermal_displacement_matrices.yaml” in phonopy</p>
-</div></blockquote>
-</p></li>
+<li><p><strong>thermal_displacement_matrix_cif</strong> – 2D numpy array including the thermal_displacement matrix Ucif format
+1st dimension atom types, then compressed thermal displacement matrix will follow
+U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
+convention similar to “thermal_displacement_matrices.yaml” in phonopy</p></li>
 </ul>
 </dd>
 </dl>
