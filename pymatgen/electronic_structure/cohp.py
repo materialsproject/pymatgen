@@ -358,7 +358,6 @@ class CompleteCohp(Cohp):
         Returns:
             Returns the COHP object to simplify plotting
         """
-        # TODO: possibly add option to only get one spin channel as Spin.down in the future!
         if label.lower() == "average":
             divided_cohp = self.cohp
             divided_icohp = self.icohp
@@ -834,7 +833,9 @@ class IcohpValue(MSONable):
 
     """
 
-    def __init__(self, label, atom1, atom2, length, translation, num, icohp, are_coops=False, are_cobis=False):
+    def __init__(
+        self, label, atom1, atom2, length, translation, num, icohp, are_coops=False, are_cobis=False, orbitals=None
+    ):
         """
         Args:
             label: label for the icohp
@@ -846,6 +847,9 @@ class IcohpValue(MSONable):
             icohp: dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
             are_coops: if True, this are COOPs
             are_cobis: if True, this are COBIs
+            orbitals: {[str(Orbital1)-str(Orbital2)]: {"icohp":{Spin.up: icohpvalue for spin.up, Spin.down:
+                icohpvalue for spin.down}, "orbitals":[Orbital1, Orbital2]}}
+
         """
         if are_coops and are_cobis:
             raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
@@ -858,6 +862,7 @@ class IcohpValue(MSONable):
         self._translation = translation
         self._num = num
         self._icohp = icohp
+        self._orbitals = orbitals
         if Spin.down in self._icohp:
             self._is_spin_polarized = True
         else:
@@ -1004,6 +1009,20 @@ class IcohpValue(MSONable):
 
         return self._icohp[spin]
 
+    def icohpvalue_orbital(self, orbitals, spin=Spin.up):
+        """
+        Args:
+            orbitals: List of Orbitals or "str(Orbital1)-str(Orbital2)"
+            spin: Spin.up or Spin.down
+        Returns:
+            icohpvalue (float) corresponding to chosen spin
+        """
+        if not self.is_spin_polarized and spin == Spin.down:
+            raise ValueError("The calculation was not performed with spin polarization")
+        if isinstance(orbitals, list):
+            orbitals = str(orbitals[0]) + "-" + str(orbitals[1])
+        return self._orbitals[orbitals]["icohp"][spin]
+
     @property
     def icohp(self):
         """
@@ -1016,12 +1035,27 @@ class IcohpValue(MSONable):
     @property
     def summed_icohp(self):
         """
-        Adds ICOHPs of both spin channels for spin polarized compounds
+        Sums ICOHPs of both spin channels for spin polarized compounds
         Returns:
              icohp value in eV
         """
         sum_icohp = self._icohp[Spin.down] + self._icohp[Spin.up] if self._is_spin_polarized else self._icohp[Spin.up]
         return sum_icohp
+
+    @property
+    def summed_orbital_icohp(self):
+        """
+        Sums orbitals-resolved ICOHPs of both spin channels for spin-plarized compounds
+        Returns:
+            {"str(Orbital1)-str(Ortibal2)": icohp value in eV}
+
+        """
+        orbital_icohp = {}
+        for orb, item in self._orbitals.items():
+            orbital_icohp[orb] = (
+                item["icohp"][Spin.up] + item["icohp"][Spin.down] if self._is_spin_polarized else item["icohp"][Spin.up]
+            )
+        return orbital_icohp
 
 
 class IcohpCollection(MSONable):
@@ -1029,10 +1063,10 @@ class IcohpCollection(MSONable):
     Class to store IcohpValues
 
     .. attribute:: are_coops
-        Boolean to indicate if this are ICOOPs
+        Boolean to indicate if these are ICOOPs
 
     .. attribute:: are_cobis
-        Boolean to indicate if this are ICOOPs
+        Boolean to indicate if these are ICOOPs
 
     .. attribute:: is_spin_polarized
         Boolean to indicate if the Lobster calculation was done spin polarized or not
@@ -1049,15 +1083,12 @@ class IcohpCollection(MSONable):
         list_num,
         list_icohp,
         is_spin_polarized,
+        list_orb_icohp=None,
         are_coops=False,
         are_cobis=False,
     ):
         """
         Args:
-            is_spin_polarized: Boolean to indicate if the Lobster calculation was done spin polarized or not Boolean to
-                indicate if the Lobster calculation was done spin polarized or not
-            are_coops: Boolean to indicate whether ICOOPs are stored
-            are_cobis: Boolean to indicate whether ICOBIs are stored
             list_labels: list of labels for ICOHP/ICOOP values
             list_atom1: list of str of atomnames e.g. "O1"
             list_atom2: list of str of atomnames e.g. "O1"
@@ -1065,6 +1096,12 @@ class IcohpCollection(MSONable):
             list_translation: list of translation list, e.g. [0,0,0]
             list_num: list of equivalent bonds, usually 1 starting from Lobster 3.0.0
             list_icohp: list of dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
+            is_spin_polarized: Boolean to indicate if the Lobster calculation was done spin polarized or not Boolean to
+                indicate if the Lobster calculation was done spin polarized or not
+            list_orb_icohp: list of dict={[str(Orbital1)-str(Orbital2)]: {"icohp":{Spin.up: icohpvalue for spin.up,
+                Spin.down: icohpvalue for spin.down}, "orbitals":[Orbital1, Orbital2]}}
+            are_coops: Boolean to indicate whether ICOOPs are stored
+            are_cobis: Boolean to indicate whether ICOBIs are stored
         """
         if are_coops and are_cobis:
             raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
@@ -1079,6 +1116,7 @@ class IcohpCollection(MSONable):
         self._list_translation = list_translation
         self._list_num = list_num
         self._list_icohp = list_icohp
+        self._list_orb_icohp = list_orb_icohp
 
         for ilist, listel in enumerate(list_labels):
             self._icohplist[listel] = IcohpValue(
@@ -1091,6 +1129,7 @@ class IcohpCollection(MSONable):
                 icohp=list_icohp[ilist],
                 are_coops=are_coops,
                 are_cobis=are_cobis,
+                orbitals=None if list_orb_icohp is None else list_orb_icohp[ilist],
             )
 
     def __str__(self):
@@ -1099,7 +1138,7 @@ class IcohpCollection(MSONable):
             joinstr.append(str(value))
         return "\n".join(joinstr)
 
-    def get_icohp_by_label(self, label, summed_spin_channels=True, spin=Spin.up):
+    def get_icohp_by_label(self, label, summed_spin_channels=True, spin=Spin.up, orbitals=None):
         """
         get an icohp value for a certain bond as indicated by the label (bond labels starting by "1" as in
         ICOHPLIST/ICOOPLIST)
@@ -1108,16 +1147,22 @@ class IcohpCollection(MSONable):
             label: label in str format (usually the bond number in Icohplist.lobster/Icooplist.lobster
             summed_spin_channels: Boolean to indicate whether the ICOHPs/ICOOPs of both spin channels should be summed
             spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
-
+            orbitals: List of Orbital or "str(Orbital1)-str(Orbital2)"
         Returns:
             float describing ICOHP/ICOOP value
         """
         icohp_here = self._icohplist[label]
-        if icohp_here._is_spin_polarized:
+        if orbitals is None:
             if summed_spin_channels:
                 return icohp_here.summed_icohp
             return icohp_here.icohpvalue(spin)
-        return icohp_here.icohpvalue(spin)
+
+        if isinstance(orbitals, list):
+            orbitals = str(orbitals[0]) + "-" + str(orbitals[1])
+        if summed_spin_channels:
+            return icohp_here.summed_orbital_icohp[orbitals]
+
+        return icohp_here.icohpvalue_orbital(spin=spin, orbitals=orbitals)
 
     def get_summed_icohp_by_label_list(self, label_list, divisor=1.0, summed_spin_channels=True, spin=Spin.up):
         """

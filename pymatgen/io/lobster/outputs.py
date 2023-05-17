@@ -62,7 +62,7 @@ class Cohpcar:
 
          Boolean to indicate if the calculation is spin polarized.
 
-    .. attribute: orb_res_cohp
+    .. attribute: orb_cohp
 
         orb_cohp[label] = {bond_data["orb_label"]: {"COHP": {Spin.up: cohps, Spin.down:cohps},
                                                      "ICOHP": {Spin.up: icohps, Spin.down: icohps},
@@ -112,7 +112,6 @@ class Cohpcar:
             self.is_spin_polarized = False
 
         # The COHP data start in row num_bonds + 3
-        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
         data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
         self.energies = data[0]
         cohp_data: dict[str, dict[str, Any]] = {
@@ -209,24 +208,6 @@ class Cohpcar:
             indices, a tuple containing the orbitals (if orbital-resolved),
             and a label for the orbitals (if orbital-resolved).
         """
-        orb_labs = [
-            "s",
-            "p_y",
-            "p_z",
-            "p_x",
-            "d_xy",
-            "d_yz",
-            "d_z^2",
-            "d_xz",
-            "d_x^2-y^2",
-            "f_y(3x^2-y^2)",
-            "f_xyz",
-            "f_yz^2",
-            "f_z^3",
-            "f_xz^2",
-            "f_z(x^2-y^2)",
-            "f_x(x^2-3y^2)",
-        ]
 
         line_new = line.rsplit("(", 1)
         length = float(line_new[-1][:-1])
@@ -236,8 +217,7 @@ class Cohpcar:
 
         if "[" in sites[0]:
             orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
-            orbitals = [(int(orb[0]), Orbital(orb_labs.index(orb[1:]))) for orb in orbs]
-            orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: ignore
+            orb_label, orbitals = get_orb_from_str(orbs)
 
         else:
             orbitals = None
@@ -323,15 +303,18 @@ class Icohplist:
         # include case when there is only one ICOHP!!!
         if len(data) > 2 and "_" in data[1].split()[1]:
             self.orbitalwise = True
-            warnings.warn("This is an orbitalwise IC**LIST.lobter. Currently, the orbitalwise information is not read!")
         else:
             self.orbitalwise = False
 
         if self.orbitalwise:
             data_without_orbitals = []
+            data_orbitals = []
             for line in data:
                 if "_" not in line.split()[1]:
                     data_without_orbitals.append(line)
+                else:
+                    data_orbitals.append(line)
+
         else:
             data_without_orbitals = data
 
@@ -350,6 +333,7 @@ class Icohplist:
         list_translation = []
         list_num = []
         list_icohp = []
+
         for bond in range(num_bonds):
             line = data_without_orbitals[bond].split()
             icohp = {}
@@ -384,7 +368,27 @@ class Icohplist:
             list_num.append(num)
             list_icohp.append(icohp)
 
-        # TODO: add functions to get orbital resolved iCOHPs
+        list_orb_icohp: list[dict] | None = None
+        if self.orbitalwise:
+            list_orb_icohp = []
+            num_orbs = len(data_orbitals) // 2 if self.is_spin_polarized else len(data_orbitals)
+
+            for i_data_orb in range(num_orbs):
+                data_orb = data_orbitals[i_data_orb]
+                icohp = {}
+                line = data_orb.split()
+                label = f"{line[0]}"
+                orbs = re.findall(r"_(.*?)(?=\s)", data_orb)
+                orb_label, orbitals = get_orb_from_str(orbs)
+                icohp[Spin.up] = float(line[7])
+
+                if self.is_spin_polarized:
+                    icohp[Spin.down] = float(data_orbitals[num_orbs + i_data_orb].split()[7])
+
+                if len(list_orb_icohp) < int(label):
+                    list_orb_icohp.append({orb_label: {"icohp": icohp, "orbitals": orbitals}})
+                else:
+                    list_orb_icohp[int(label) - 1][orb_label] = {"icohp": icohp, "orbitals": orbitals}
 
         # to avoid circular dependencies
         from pymatgen.electronic_structure.cohp import IcohpCollection
@@ -400,6 +404,7 @@ class Icohplist:
             list_num=list_num,
             list_icohp=list_icohp,
             is_spin_polarized=self.is_spin_polarized,
+            list_orb_icohp=list_orb_icohp,
         )
 
     @property
@@ -414,6 +419,7 @@ class Icohplist:
                 "number_of_bonds": value._num,
                 "icohp": value._icohp,
                 "translation": value._translation,
+                "orbitals": value._orbitals,
             }
         return icohplist_new
 
@@ -1706,3 +1712,37 @@ class SitePotential:
         }
         new_struct = struct.copy(site_properties=site_properties)
         return new_struct
+
+
+def get_orb_from_str(orbs):
+    """
+
+    Args:
+        orbs: list of two str, e.g. ["2p_x", "3s"]
+
+    Returns:
+        list of tw Orbital objects
+
+    """
+    # TODO: also useful for plotting of dos
+    orb_labs = [
+        "s",
+        "p_y",
+        "p_z",
+        "p_x",
+        "d_xy",
+        "d_yz",
+        "d_z^2",
+        "d_xz",
+        "d_x^2-y^2",
+        "f_y(3x^2-y^2)",
+        "f_xyz",
+        "f_yz^2",
+        "f_z^3",
+        "f_xz^2",
+        "f_z(x^2-y^2)",
+        "f_x(x^2-3y^2)",
+    ]
+    orbitals = [(int(orb[0]), Orbital(orb_labs.index(orb[1:]))) for orb in orbs]
+    orb_label = f"{orbitals[0][0]}{orbitals[0][1].name}-{orbitals[1][0]}{orbitals[1][1].name}"  # type: ignore
+    return orb_label, orbitals

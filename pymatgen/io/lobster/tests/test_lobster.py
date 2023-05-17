@@ -493,66 +493,77 @@ class IcohplistTest(unittest.TestCase):
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -2.18042},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "2": {
                 "length": 3.10144,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.14347},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "3": {
                 "length": 2.88231,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -2.18042},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "4": {
                 "length": 3.10144,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.14348},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "5": {
                 "length": 3.05001,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.30006},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "6": {
                 "length": 2.91676,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.96843},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "7": {
                 "length": 3.05001,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.30006},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "8": {
                 "length": 2.91676,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.96843},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "9": {
                 "length": 3.37522,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.47531},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "10": {
                 "length": 3.07294,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -2.38796},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "11": {
                 "length": 3.37522,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.47531},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
         }
         icooplist_bise = {
@@ -561,66 +572,77 @@ class IcohplistTest(unittest.TestCase):
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: 0.14245},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "2": {
                 "length": 3.10144,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.04118},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "3": {
                 "length": 2.88231,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: 0.14245},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "4": {
                 "length": 3.10144,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.04118},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "5": {
                 "length": 3.05001,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.03516},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "6": {
                 "length": 2.91676,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: 0.10745},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "7": {
                 "length": 3.05001,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.03516},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "8": {
                 "length": 2.91676,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: 0.10745},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "9": {
                 "length": 3.37522,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.12395},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "10": {
                 "length": 3.07294,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: 0.24714},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "11": {
                 "length": 3.37522,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.12395},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
         }
         icooplist_fe = {
@@ -629,12 +651,14 @@ class IcohplistTest(unittest.TestCase):
                 "number_of_bonds": 2,
                 "icohp": {Spin.up: -0.10218, Spin.down: -0.19701},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
             "2": {
                 "length": 2.45249,
                 "number_of_bonds": 1,
                 "icohp": {Spin.up: -0.28485, Spin.down: -0.58279},
                 "translation": [0, 0, 0],
+                "orbitals": None,
             },
         }
 
@@ -651,6 +675,7 @@ class IcohplistTest(unittest.TestCase):
         assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi.icohpcollection.extremum_icohpvalue() == 0.58649
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == 0.0247
 
 
 class DoscarTest(unittest.TestCase):
