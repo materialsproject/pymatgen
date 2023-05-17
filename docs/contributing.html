@@ -131,10 +131,10 @@ commands (size would be a fraction of the full repo):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">n</span> <span class="o">--</span><span class="n">depth</span><span class="o">=</span><span class="mi">1</span> <span class="o">--</span><span class="nb">filter</span><span class="o">=</span><span class="n">tree</span><span class="p">:</span><span class="mi">0</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">materialsproject</span><span class="o">/</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">git</span>
 <span class="n">cd</span> <span class="n">pymatgen</span>
 
-<span class="c1"># if you have Git 2.25+, you can use the sparse-checkout command.</span>
+<span class="c1"># If you have Git 2.25+ (released 2023-01-01), you can use the sparse-checkout command (uncomment the next line).</span>
 <span class="c1"># git sparse-checkout set --no-cone pymatgen setup.py pyproject.toml requirements.txt requirements-optional.txt</span>
 
-<span class="c1"># The code below should work for any git after 2012.</span>
+<span class="c1"># If you are on a system with an older version of git, run the commands below.</span>
 <span class="n">git</span> <span class="n">config</span> <span class="n">core</span><span class="o">.</span><span class="n">sparseCheckout</span> <span class="n">true</span>
 <span class="n">echo</span> <span class="n">pymatgen</span> <span class="o">&gt;&gt;</span> <span class="o">.</span><span class="n">git</span><span class="o">/</span><span class="n">info</span><span class="o">/</span><span class="n">sparse</span><span class="o">-</span><span class="n">checkout</span>
 <span class="n">echo</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="o">&gt;&gt;</span> <span class="o">.</span><span class="n">git</span><span class="o">/</span><span class="n">info</span><span class="o">/</span><span class="n">sparse</span><span class="o">-</span><span class="n">checkout</span>

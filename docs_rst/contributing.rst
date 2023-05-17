@@ -42,10 +42,10 @@ Direct contributions to pymatgen main distribution
       git clone -n --depth=1 --filter=tree:0 git@github.com:materialsproject/pymatgen.git
       cd pymatgen
 
-      # if you have Git 2.25+, you can use the sparse-checkout command.
+      # If you have Git 2.25+ (released 2023-01-01), you can use the sparse-checkout command (uncomment the next line).
       # git sparse-checkout set --no-cone pymatgen setup.py pyproject.toml requirements.txt requirements-optional.txt
 
-      # The code below should work for any git after 2012.
+      # If you are on a system with an older version of git, run the commands below.
       git config core.sparseCheckout true
       echo pymatgen >> .git/info/sparse-checkout
       echo setup.py >> .git/info/sparse-checkout
