@@ -72,10 +72,10 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
 
     cdef:
         int i, j, k, l, m
-        double maxr[3]
+        double[3] maxr
         # valid boundary, that is the minimum in center_coords - r
-        double valid_min[3]
-        double valid_max[3]
+        double[3] valid_min
+        double[3] valid_max
         double ledge
 
         int n_center = center_coords.shape[0]
@@ -117,7 +117,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
         ledge = 0.1
     else:
         ledge = r
-    max_and_min(center_coords, &valid_max[0], &valid_min[0])
+    max_and_min(center_coords, valid_max, valid_min)
     for i in range(3):
         valid_max[i] = valid_max[i] + r + tol
         valid_min[i] = valid_min[i] - r - tol
@@ -140,7 +140,8 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
 
     # Get fractional coordinates of center points
     get_frac_coords(lattice, inv_lattice, center_coords, frac_coords)
-    get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
+    get_bounds(frac_coords, maxr, &pbc[0], max_bounds, min_bounds)
+
     for i in range(3):
         nlattice *= (max_bounds[i] - min_bounds[i])
     matmul(all_fcoords, lattice, coords_in_cell)
@@ -302,7 +303,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     return py_index_1, py_index_2, py_offsets, py_distances
 
 
-cdef void get_cube_neighbors(long [:] ncube, long[:, ::1] neighbor_map):
+cdef void get_cube_neighbors(long[:] ncube, long[:, ::1] neighbor_map):
     """
     Get {cube_index: cube_neighbor_indices} map
     """
@@ -400,17 +401,17 @@ cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long in
     return s
 
 
-cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, long[:] max_bounds, long[:] min_bounds) nogil:
+cdef void get_bounds(double[:, ::1] frac_coords, double[3] maxr, long[3] pbc, long[3] max_bounds, long[3] min_bounds) nogil:
     """
     Given the fractional coordinates and the number of repeation needed in each direction, maxr,
     compute the translational bounds in each dimension
     """
     cdef:
         int i
-        double max_fcoords[3]
-        double min_fcoords[3]
+        double[3] max_fcoords
+        double[3] min_fcoords
 
-    max_and_min(frac_coords, &max_fcoords[0], &min_fcoords[0])
+    max_and_min(frac_coords, max_fcoords, min_fcoords)
 
     for i in range(3):
         min_bounds[i] = 0
@@ -421,14 +422,14 @@ cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, 
             min_bounds[i] = <long>(floor(min_fcoords[i] - maxr[i] - 1e-8))
             max_bounds[i] = <long>(ceil(max_fcoords[i] + maxr[i] + 1e-8))
 
-cdef void get_frac_coords(double[:, ::1] lattice, double[:, ::1] inv_lattice, double[:, ::1] cart_coords, double [:, ::1] frac_coords) nogil:
+cdef void get_frac_coords(double[:, ::1] lattice, double[:, ::1] inv_lattice, double[:, ::1] cart_coords, double[:, ::1] frac_coords) nogil:
     """
     Compute the fractional coordinates
     """
     matrix_inv(lattice, inv_lattice)
     matmul(cart_coords, inv_lattice, frac_coords)
 
-cdef void matmul(double [:, ::1] m1, double [:, ::1] m2, double [:, ::1] out) nogil:
+cdef void matmul(double[:, ::1] m1, double[:, ::1] m2, double [:, ::1] out) nogil:
     """
     Matrix multiplication
     """
@@ -463,7 +464,7 @@ cdef double matrix_det(double[:, ::1] matrix) nogil:
         matrix[0, 1] * (matrix[1, 2] * matrix[2, 0] - matrix[1, 0] * matrix[2, 2]) + \
             matrix[0, 2] * (matrix[1, 0] * matrix[2, 1] - matrix[1, 1] * matrix[2, 0])
 
-cdef void get_max_r(double[:, ::1] reciprocal_lattice, double [::1] maxr, double r) nogil:
+cdef void get_max_r(double[:, ::1] reciprocal_lattice, double[3] maxr, double r) nogil:
     """
     Get maximum repetition in each directions
     """
@@ -492,24 +493,24 @@ cdef void recip_component(double[::1] a1, double[::1] a2, double[::1] a3, double
         double prod
         double ai_cross_aj[3]
 
-    cross(&a2[0], &a3[0], &ai_cross_aj[0])
-    prod = inner(&a1[0], &ai_cross_aj[0], 3)
+    cross(&a2[0], &a3[0], ai_cross_aj)  # need to pass address of memviews
+    prod = inner(&a1[0], ai_cross_aj)
     for i in range(3):
         out[i] = 2 * pi * ai_cross_aj[i] / prod
 
-cdef double inner(double* x, double* y, long n) nogil:
+cdef double inner(double[3] x, double[3] y) nogil:
     """
-    Compute inner product
+    Compute inner product of 3d vectors
     """
     cdef:
         double sum = 0
         int i
 
-    for i in range(n):
+    for i in range(3):
         sum += x[i] * y[i]
     return sum
 
-cdef void cross(double* x, double* y, double* out) nogil:
+cdef void cross(double[3] x, double[3] y, double[3] out) nogil:
     """
     Cross product of vector x and y, output in out
     """
@@ -530,7 +531,7 @@ cdef double norm(double[::1] vec) nogil:
         sum += vec[i] * vec[i]
     return sqrt(sum)
 
-cdef void max_and_min(double[:, ::1] coords, double* max_coords, double* min_coords) nogil:
+cdef void max_and_min(double[:, ::1] coords, double[3] max_coords, double[3] min_coords) nogil:
     """
     Compute the min and max of coords
     """
@@ -549,11 +550,11 @@ cdef void max_and_min(double[:, ::1] coords, double* max_coords, double* min_coo
             if coords[i, j] <= min_coords[j]:
                 min_coords[j] = coords[i, j]
 
-cdef void compute_cube_index(double[:, ::1] coords, double [:] global_min, double radius, long[:, ::1] return_indice) nogil:
+cdef void compute_cube_index(double[:, ::1] coords, double[3] global_min, double radius, long[:, ::1] return_indices) nogil:
     cdef int i, j
     for i in range(coords.shape[0]):
         for j in range(coords.shape[1]):
-            return_indice[i, j] = <long>(floor((coords[i, j] - global_min[j] + 1e-8) / radius))
+            return_indices[i, j] = <long>(floor((coords[i, j] - global_min[j] + 1e-8) / radius))
 
 
 cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d) nogil:
@@ -568,7 +569,7 @@ cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d
         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
 
 
-cdef bint distance_vertices(double center[8][3], double off[8][3], double r) nogil:
+cdef bint distance_vertices(double[8][3] center, double[8][3] off, double r) nogil:
     cdef:
         int i, j
         double d2
@@ -582,7 +583,7 @@ cdef bint distance_vertices(double center[8][3], double off[8][3], double r) nog
                 return 1
     return 0
 
-cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offsetted)[8][3]) nogil:
+cdef void offset_cube(double[8][3] center, long n, long m, long l, double[8][3] (&offsetted)) nogil:
     cdef int i, j, k
     for i in range(2):
         for j in range(2):
