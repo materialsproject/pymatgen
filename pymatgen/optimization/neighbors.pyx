@@ -307,7 +307,7 @@ cdef void get_cube_neighbors(long [:] ncube, long[:, ::1] neighbor_map):
     """
     cdef:
         int i, j, k
-        long count = 0
+        int count = 0
         long ncubes = ncube[0] * ncube[1] * ncube[2]
         long[::1] counts = <long[:ncubes]> safe_malloc(ncubes * sizeof(long))
         long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> safe_malloc(ncubes*3*sizeof(long))
@@ -354,13 +354,12 @@ cdef void get_cube_neighbors(long [:] ncube, long[:, ::1] neighbor_map):
 
 cdef compute_offset_vectors(long n):
     cdef:
-        long i, j, k
-        int ind
+        int i, j, k, ind
+        int count = 0
         double center[8][3] # center vertices coords
         double offset[8][3]  # offsetted vertices
         long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
         long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
-        long count = 0
 
     for i in range(2):
         for j in range(2):
@@ -392,7 +391,7 @@ cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long in
 
     """
     cdef:
-        long i
+        int i
         double s = 0
 
     for i in range(size):
@@ -488,9 +487,9 @@ cdef void recip_component(double[::1] a1, double[::1] a2, double[::1] a3, double
     Compute the reciprocal lattice vector
     """
     cdef:
-        double ai_cross_aj[3]
-        double prod
         int i
+        double prod
+        double ai_cross_aj[3]
 
     cross(&a2[0], &a3[0], &ai_cross_aj[0])
     prod = inner(&a1[0], &ai_cross_aj[0], 3)
