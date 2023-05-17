@@ -40,7 +40,7 @@ cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
 
 
 def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords,
-                           float r, object pbc, double[:, ::1] lattice,
+                           float r, long[::1] pbc_int, double[:, ::1] lattice,
                            double tol=1e-8, float min_r=1.0, int num_threads=2):
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
@@ -51,7 +51,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
             this is all the points in the lattice.
         center_coords: (np.ndarray[double, dim=2]) all centering points
         r: (float) cutoff radius
-        pbc: (list of bool) whether to set periodic boundaries
+        pbc_int: (np.ndarray[long, dim=1]) whether to set periodic boundaries
         lattice: (np.ndarray[double, dim=2]) 3x3 lattice matrix
         tol: (float) numerical tolerance
         min_r: (float) minimal cutoff to calculate the neighbor list
@@ -65,12 +65,11 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     if r < min_r:
         findex1, findex2, foffset_vectors, fdistances = find_points_in_spheres(
             all_coords=all_coords, center_coords=center_coords,
-            r=min_r + tol, pbc=pbc, lattice=lattice, tol=tol, min_r=min_r)
+            r=min_r + tol, pbc=pbc_int, lattice=lattice, tol=tol, min_r=min_r)
         mask = fdistances <= r
         return findex1[mask], findex2[mask], foffset_vectors[mask], fdistances[
             mask]
 
-    cdef long[:] pbc_int = np.array(pbc, dtype=long)  # convert bool to int
     cdef int i, j, k, l, m, n
     cdef double maxr[3]
     # valid boundary, that is the minimum in center_coords - r
