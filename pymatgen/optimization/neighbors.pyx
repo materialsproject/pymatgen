@@ -303,7 +303,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     return py_index_1, py_index_2, py_offsets, py_distances
 
 
-cdef void get_cube_neighbors(long[:] ncube, long[:, ::1] neighbor_map):
+cdef void get_cube_neighbors(long[3] ncube, long[:, ::1] neighbor_map):
     """
     Get {cube_index: cube_neighbor_indices} map
     """
