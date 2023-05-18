@@ -39,16 +39,21 @@ cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
     return ptr
 
 
-def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords,
-                           float r, long[::1] pbc, double[:, ::1] lattice,
-                           double tol=1e-8, float min_r=1.0):
+def find_points_in_spheres(
+        const double[:, ::1] all_coords,
+        const double[:, ::1] center_coords,
+        const double r,
+        const long[::1] pbc,
+        const double[:, ::1] lattice,
+        const double tol=1e-8,
+        const double min_r=1.0):
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
     cutoff radius `r`. All the coordinates should be in Cartesian.
 
     Args:
-        all_coords: (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,
-            this is all the points in the lattice.
+        all_coords: (np.ndarray[double, dim=2]) all available points.
+            When periodic boundary is considered, this is all the points in the lattice.
         center_coords: (np.ndarray[double, dim=2]) all centering points
         r: (float) cutoff radius
         pbc: (np.ndarray[long, dim=1]) whether to set periodic boundaries
@@ -59,8 +64,9 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
             will calculate neighbor list using min_r as cutoff and discard
             those that have larger distances.
     Returns:
-        index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ). index1 of center_coords, and index2 of all_coords that form the neighbor pair
-            offset_vectors are the periodic image offsets for the all_coords.
+        index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ).
+        index1 of center_coords, and index2 of all_coords that form the neighbor pair
+        offset_vectors are the periodic image offsets for the all_coords.
     """
     if r < min_r:
         findex1, findex2, foffset_vectors, fdistances = find_points_in_spheres(
@@ -136,7 +142,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
                 offset_correction[i, j] = 0
 
     # computes reciprocal lattice in place
-    get_reciprocal_lattice(reciprocal_lattice, lattice)
+    get_reciprocal_lattice(lattice, reciprocal_lattice)
     get_max_r(reciprocal_lattice, maxr, r)
 
     # Get fractional coordinates of center points
@@ -268,8 +274,9 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
                     distances[count] = sqrt(d_temp2)
 
                     count += 1
-                    # increasing the memory size by allocating incrementally malloc_chunk more memory locations,
-                    # I found it 3x faster to do so compared to using vectors in cpp
+                    # increasing the memory size by allocating incrementally
+                    # malloc_chunk more memory locations, I found it 3x faster to do so
+                    # compared to using vectors in cpp
                     if count >= malloc_chunk:
                         malloc_chunk += malloc_chunk  # double the size
                         index_1 = <long*> realloc(index_1, malloc_chunk * sizeof(long))
@@ -424,7 +431,13 @@ cdef int compute_offset_vectors(long* ovectors, long n) nogil:
     return count
 
 
-cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size) nogil:
+cdef double distance2(
+        const double[:, ::1] m1,
+        const double[:, ::1] m2,
+        long index1,
+        long index2,
+        long size
+    ) nogil:
     """
     Faster way to compute the distance squared by not using slice but providing indices in each matrix
     """
@@ -437,7 +450,13 @@ cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long in
     return s
 
 
-cdef void get_bounds(double[:, ::1] frac_coords, double[3] maxr, long[3] pbc, long[3] max_bounds, long[3] min_bounds) nogil:
+cdef void get_bounds(
+        const double[:, ::1] frac_coords,
+        const double[3] maxr,
+        const long[3] pbc,
+        long[3] max_bounds,
+        long[3] min_bounds
+    ) nogil:
     """
     Given the fractional coordinates and the number of repeation needed in each direction, maxr,
     compute the translational bounds in each dimension
@@ -458,14 +477,23 @@ cdef void get_bounds(double[:, ::1] frac_coords, double[3] maxr, long[3] pbc, lo
             min_bounds[i] = <long>(floor(min_fcoords[i] - maxr[i] - 1e-8))
             max_bounds[i] = <long>(ceil(max_fcoords[i] + maxr[i] + 1e-8))
 
-cdef void get_frac_coords(double[:, ::1] lattice, double[:, ::1] inv_lattice, double[:, ::1] cart_coords, double[:, ::1] frac_coords) nogil:
+cdef void get_frac_coords(
+        const double[:, ::1] lattice,
+        double[:, ::1] inv_lattice,
+        const double[:, ::1] cart_coords,
+        double[:, ::1] frac_coords
+    ) nogil:
     """
     Compute the fractional coordinates
     """
     matrix_inv(lattice, inv_lattice)
     matmul(cart_coords, inv_lattice, frac_coords)
 
-cdef void matmul(double[:, ::1] m1, double[:, ::1] m2, double [:, ::1] out) nogil:
+cdef void matmul(
+        const double[:, ::1] m1,
+        const double[:, ::1] m2,
+        double [:, ::1] out
+    ) nogil:
     """
     Matrix multiplication
     """
@@ -479,7 +507,7 @@ cdef void matmul(double[:, ::1] m1, double[:, ::1] m2, double [:, ::1] out) nogi
             for k in range(n):
                 out[i, j] += m1[i, k] * m2[k, j]
 
-cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv) nogil:
+cdef void matrix_inv(const double[:, ::1] matrix, double[:, ::1] inv) nogil:
     """
     Matrix inversion
     """
@@ -492,15 +520,21 @@ cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv) nogil:
             inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] -
                 matrix[(j+2)%3, (i+1)%3] * matrix[(j+1)%3, (i+2)%3]) / det
 
-cdef double matrix_det(double[:, ::1] matrix) nogil:
+cdef double matrix_det(const double[:, ::1] matrix) nogil:
     """
     Matrix determinant
     """
-    return matrix[0, 0] * (matrix[1, 1] * matrix[2, 2] - matrix[1, 2] * matrix[2, 1]) + \
-        matrix[0, 1] * (matrix[1, 2] * matrix[2, 0] - matrix[1, 0] * matrix[2, 2]) + \
-            matrix[0, 2] * (matrix[1, 0] * matrix[2, 1] - matrix[1, 1] * matrix[2, 0])
+    return (
+        matrix[0, 0] * (matrix[1, 1] * matrix[2, 2] - matrix[1, 2] * matrix[2, 1]) +
+        matrix[0, 1] * (matrix[1, 2] * matrix[2, 0] - matrix[1, 0] * matrix[2, 2]) +
+        matrix[0, 2] * (matrix[1, 0] * matrix[2, 1] - matrix[1, 1] * matrix[2, 0])
+    )
 
-cdef void get_max_r(double[:, ::1] reciprocal_lattice, double[3] maxr, double r) nogil:
+cdef void get_max_r(
+        const double[:, ::1] reciprocal_lattice,
+        double[3] maxr,
+        double r
+    ) nogil:
     """
     Get maximum repetition in each directions
     """
@@ -512,15 +546,23 @@ cdef void get_max_r(double[:, ::1] reciprocal_lattice, double[3] maxr, double r)
         recp_len = norm(reciprocal_lattice[i, :])
         maxr[i] = ceil((r + 0.15) * recp_len / (2 * pi))
 
-cdef void get_reciprocal_lattice(double[:, ::1] reciprocal, double[:, ::1] lattice) nogil:
+cdef void get_reciprocal_lattice(
+        const double[:, ::1] lattice,
+        double[:, ::1] reciprocal_lattice
+    ) nogil:
     """
     Compute the reciprocal lattice
     """
     cdef int i
     for i in range(3):
-        recip_component(lattice[i, :], lattice[(i+1)%3, :], lattice[(i+2)%3, :], reciprocal[i, :])
+        recip_component(lattice[i, :], lattice[(i+1)%3, :], lattice[(i+2)%3, :], reciprocal_lattice[i, :])
 
-cdef void recip_component(double[::1] a1, double[::1] a2, double[::1] a3, double[::1] out) nogil:
+cdef void recip_component(
+        const double[::1] a1,
+        const double[::1] a2,
+        const double[::1] a3,
+        double[::1] out
+    ) nogil:
     """
     Compute the reciprocal lattice vector
     """
@@ -534,7 +576,7 @@ cdef void recip_component(double[::1] a1, double[::1] a2, double[::1] a3, double
     for i in range(3):
         out[i] = 2 * pi * ai_cross_aj[i] / prod
 
-cdef double inner(double[3] x, double[3] y) nogil:
+cdef double inner(const double[3] x, const double[3] y) nogil:
     """
     Compute inner product of 3d vectors
     """
@@ -546,7 +588,7 @@ cdef double inner(double[3] x, double[3] y) nogil:
         sum += x[i] * y[i]
     return sum
 
-cdef void cross(double[3] x, double[3] y, double[3] out) nogil:
+cdef void cross(const double[3] x, const double[3] y, double[3] out) nogil:
     """
     Cross product of vector x and y, output in out
     """
@@ -554,7 +596,7 @@ cdef void cross(double[3] x, double[3] y, double[3] out) nogil:
     out[1] = x[2] * y[0] - x[0] * y[2]
     out[2] = x[0] * y[1] - x[1] * y[0]
 
-cdef double norm(double[::1] vec) nogil:
+cdef double norm(const double[::1] vec) nogil:
     """
     Vector norm
     """
@@ -567,7 +609,11 @@ cdef double norm(double[::1] vec) nogil:
         sum += vec[i] * vec[i]
     return sqrt(sum)
 
-cdef void max_and_min(double[:, ::1] coords, double[3] max_coords, double[3] min_coords) nogil:
+cdef void max_and_min(
+        const double[:, ::1] coords,
+        double[3] max_coords,
+        double[3] min_coords
+    ) nogil:
     """
     Compute the min and max of coords
     """
@@ -586,14 +632,20 @@ cdef void max_and_min(double[:, ::1] coords, double[3] max_coords, double[3] min
             if coords[i, j] <= min_coords[j]:
                 min_coords[j] = coords[i, j]
 
-cdef void compute_cube_index(double[:, ::1] coords, double[3] global_min, double radius, long[:, ::1] return_indices) nogil:
+cdef void compute_cube_index(
+        const double[:, ::1] coords,
+        const double[3] global_min,
+        double radius, long[:, ::1] return_indices
+    ) nogil:
     cdef int i, j
     for i in range(coords.shape[0]):
         for j in range(coords.shape[1]):
             return_indices[i, j] = <long>(floor((coords[i, j] - global_min[j] + 1e-8) / radius))
 
 
-cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d) nogil:
+cdef void three_to_one(
+        const long[:, ::1] label3d, long ny, long nz, long[::1] label1d
+    ) nogil:
     """
     3D vector representation to 1D
     """
@@ -605,7 +657,9 @@ cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d
         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
 
 
-cdef bint distance_vertices(double[8][3] center, double[8][3] off, double r) nogil:
+cdef bint distance_vertices(
+        const double[8][3] center, const double[8][3] off, double r
+    ) nogil:
     cdef:
         int i, j
         double d2
@@ -613,13 +667,18 @@ cdef bint distance_vertices(double[8][3] center, double[8][3] off, double r) nog
 
     for i in range(8):
         for j in range(8):
-            d2 = (center[i][0] - off[j][0]) * (center[i][0] - off[j][0]) + (center[i][1] - off[j][1]) * (center[i][1] - off[j][1]) + \
-                (center[i][2] - off[j][2]) * (center[i][2] - off[j][2])
+            d2 = (center[i][0] - off[j][0]) * (center[i][0] - off[j][0]) + \
+                 (center[i][1] - off[j][1]) * (center[i][1] - off[j][1]) + \
+                 (center[i][2] - off[j][2]) * (center[i][2] - off[j][2])
             if d2 <= r2:
                 return 1
     return 0
 
-cdef void offset_cube(double[8][3] center, long n, long m, long l, double[8][3] (&offsetted)) nogil:
+cdef void offset_cube(
+        const double[8][3] center,
+        long n, long m, long l,
+        const double[8][3] (&offsetted)
+    ) nogil:
     cdef int i, j, k
     for i in range(2):
         for j in range(2):
