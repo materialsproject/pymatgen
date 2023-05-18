@@ -4,7 +4,7 @@
 # cython: wraparound=False
 # cython: nonecheck=False
 # cython: cdivision=True
-# cython: profile=False
+# cython: profile=True
 # distutils: language = c
 
 # isort: dont-add-imports
@@ -321,7 +321,16 @@ cdef void get_cube_neighbors(long[3] ncube, long[:, ::1] neighbor_map):
         long[:, ::1] index3 = index3_arr
         long[1] index1_arr
         long[::1] index1 = index1_arr
-        long[:, ::1] ovectors = compute_offset_vectors(1)
+
+        int n = 1
+        long ntotal = (2 * n + 1) * (2 * n + 1) * (2 * n + 1)
+        long[:, ::1] ovectors
+        long *ovectors_p = <long *> safe_malloc(ntotal * 3 * sizeof(long))
+        int n_ovectors = compute_offset_vectors(ovectors_p, n)
+
+    # now resize to the actual size
+    ovectors_p = <long *> safe_realloc(ovectors_p, n_ovectors * 3 * sizeof(long))
+    ovectors = <long[:n_ovectors, :3]>ovectors_p
 
     memset(<void*>&neighbor_map[0, 0], -1, neighbor_map.shape[0] * 27 * sizeof(long))
 
@@ -352,16 +361,15 @@ cdef void get_cube_neighbors(long[3] ncube, long[:, ::1] neighbor_map):
     free(&cube_indices_3d[0, 0])
     free(&cube_indices_1d[0])
     free(&counts[0])
+    free(ovectors_p)
 
 
-cdef compute_offset_vectors(long n):
+cdef int compute_offset_vectors(long* ovectors, long n) nogil:
     cdef:
         int i, j, k, ind
         int count = 0
         double center[8][3] # center vertices coords
         double offset[8][3]  # offsetted vertices
-        long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
-        long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
 
     for i in range(2):
         for j in range(2):
@@ -381,16 +389,12 @@ cdef compute_offset_vectors(long n):
                     ovectors[3*count + 2] = k
                     count += 1
 
-    ovectors = <long *> safe_realloc(ovectors, count * 3 * sizeof(long))
-    array = np.array(<long[:count, :3]>ovectors)
-    free(ovectors)
-    return array
+    return count
 
 
 cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size) nogil:
     """
     Faster way to compute the distance squared by not using slice but providing indices in each matrix
-
     """
     cdef:
         int i
