@@ -103,7 +103,8 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
         long[:, ::1] center_indices3 = <long[:n_center, :3]> safe_malloc(n_center*3*sizeof(long))
         long[::1] center_indices1 = <long[:n_center]> safe_malloc(n_center*sizeof(long))
 
-        int malloc_chunk = 10000
+        int malloc_chunk = 10000  # size of memory chunks to re-allocate dynamically
+        int failed_malloc = 0  # flag for failed reallocation within loops
         long *index_1 = <long*> safe_malloc(malloc_chunk*sizeof(long))
         long *index_2 = <long*> safe_malloc(malloc_chunk*sizeof(long))
         double *offset_final = <double*> safe_malloc(3*malloc_chunk*sizeof(double))
@@ -168,9 +169,26 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
                         count += 1
                         if count >= natoms:  # exceeding current memory
                             natoms += natoms
-                            offsets_p_temp = <double*>safe_realloc(offsets_p_temp, natoms * 3 * sizeof(double))
-                            expanded_coords_p_temp = <double*>safe_realloc(expanded_coords_p_temp, natoms * 3 * sizeof(double))
-                            indices_p_temp = <long*>safe_realloc(indices_p_temp, natoms * sizeof(long))
+                            offsets_p_temp = <double*> realloc(offsets_p_temp, natoms * 3 * sizeof(double))
+                            expanded_coords_p_temp = <double*> realloc(expanded_coords_p_temp, natoms * 3 * sizeof(double))
+                            indices_p_temp = <long*> realloc(indices_p_temp, natoms * sizeof(long))
+                        if offset_final == NULL or expanded_coords_p_temp == NULL or indices_p_temp == NULL:
+                            failed_malloc = 1
+                            break
+                else:
+                    continue
+                break
+            else:
+                continue
+            break
+        else:
+            continue
+        break
+
+    if failed_malloc:
+        raise MemoryError(f"A realloc of memory of failed!")
+    else:
+        failed_malloc = 0
 
     # if no valid neighbors were found return empty
     if count == 0:
@@ -250,15 +268,29 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
                     distances[count] = sqrt(d_temp2)
 
                     count += 1
-                    # increasing the memory size  by allocate incrementally malloc_chunk more memory locations,
+                    # increasing the memory size by allocating incrementally malloc_chunk more memory locations,
                     # I found it 3x faster to do so compared to using vectors in cpp
                     if count >= malloc_chunk:
                         malloc_chunk += malloc_chunk  # double the size
-                        index_1 = <long*>safe_realloc(index_1, malloc_chunk * sizeof(long))
-                        index_2 = <long*>safe_realloc(index_2, malloc_chunk*sizeof(long))
-                        offset_final = <double*>safe_realloc(offset_final, 3*malloc_chunk*sizeof(double))
-                        distances = <double*>safe_realloc(distances, malloc_chunk*sizeof(double))
+                        index_1 = <long*> realloc(index_1, malloc_chunk * sizeof(long))
+                        index_2 = <long*> realloc(index_2, malloc_chunk*sizeof(long))
+                        offset_final = <double*> realloc(offset_final, 3*malloc_chunk*sizeof(double))
+                        distances = <double*> realloc(distances, malloc_chunk*sizeof(double))
+                        if index_1 == NULL or index_2 == NULL or offset_final == NULL or distances == NULL:
+                            failed_malloc = 1
+                            break
                 link_index = atom_indices[link_index]
+            else:
+                continue
+            break
+        else:
+            continue
+        break
+
+    if failed_malloc:
+        raise MemoryError(f"A realloc of memory of failed!")
+    else:
+        failed_malloc = 0
 
     if count == 0:
         py_index_1 = np.array([], dtype=int)
