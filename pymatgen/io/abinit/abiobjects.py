@@ -1541,7 +1541,7 @@ class SelfEnergy(AbivarAble):
             # "bdgw"     : self.bdgw,
         }
 
-        # FIXME: problem with the spin
+        # TODO: problem with the spin
         # assert len(self.bdgw) == self.nkptgw
 
         # ppmodel variables
@@ -1682,7 +1682,6 @@ class ExcHamiltonian(AbivarAble):
         }
 
         if self.use_haydock:
-            # FIXME
             abivars.update(
                 bs_haydock_niter=100,  # No. of iterations for Haydock
                 bs_hayd_term=0,  # No terminator

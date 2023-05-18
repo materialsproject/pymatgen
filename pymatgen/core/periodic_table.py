@@ -23,8 +23,8 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import SpeciesLike
 
 # Loads element data from json file
-with open(str(Path(__file__).absolute().parent / "periodic_table.json")) as f:
-    _pt_data = json.load(f)
+with open(Path(__file__).absolute().parent / "periodic_table.json") as ptable_json:
+    _pt_data = json.load(ptable_json)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 

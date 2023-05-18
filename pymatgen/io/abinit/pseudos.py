@@ -1297,10 +1297,10 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """Number of valence electrons."""
         return self.valence
 
-    # FIXME
     @property
     def l_max(self):
         """Maximum angular momentum."""
+        # TODO return an actual value
         return None
 
     @property

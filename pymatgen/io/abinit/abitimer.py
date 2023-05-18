@@ -215,7 +215,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         """
         section_names = []
 
-        # FIXME this is not trivial
+        # TODO this is not trivial
         for idx, timer in enumerate(self.timers()):
             if idx == 0:
                 section_names = [s.name for s in timer.order_sections(ordkey)]
