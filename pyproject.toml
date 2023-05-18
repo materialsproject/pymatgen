@@ -30,6 +30,7 @@ select = [
   "C4",  # flake8-comprehensions
   "D",   # pydocstyle
   "E",   # pycodestyle error
+  "EXE", # flake8-executable
   "F",   # pyflakes
   "FLY", # flynt
   "I",   # isort

@@ -986,12 +986,12 @@ class Vasprun(MSONable):
                 projections=p_eigenvals,
             )
         return BandStructure(
-            kpoints,
-            eigenvals,
+            kpoints,  # type: ignore[arg-type]
+            eigenvals,  # type: ignore[arg-type]
             lattice_new,
             e_fermi,
             structure=self.final_structure,
-            projections=p_eigenvals,
+            projections=p_eigenvals,  # type: ignore[arg-type]
         )
 
     @property
