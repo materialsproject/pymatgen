@@ -358,7 +358,7 @@ class ElementTestCase(PymatgenTest):
         assert Element("Bi").is_post_transition_metal, True
 
 
-class SpecieTestCase(PymatgenTest):
+class SpeciesTestCase(PymatgenTest):
     def setUp(self):
         self.specie1 = Species.from_string("Fe2+")
         self.specie2 = Species("Fe", 3)
@@ -492,7 +492,27 @@ class SpecieTestCase(PymatgenTest):
         assert Species("S", -2).to_unicode_string() == "S²⁻"
 
 
-class DummySpecieTestCase(unittest.TestCase):
+@pytest.mark.parametrize(
+    ("symbol_oxi", "expected_element", "expected_oxi_state"),
+    [
+        ("Fe", "Fe", None),
+        ("Fe2+", "Fe", 2),
+        ("O2-", "O", -2),
+        ("N-", "N", -1),
+        ("Ca+", "Ca", 1),
+        ("Te3+", "Te", 3),
+        ("P5+", "P", 5),
+        ("Na0+", "Na", 0),
+        ("Na0-", "Na", 0),
+    ],
+)
+def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
+    species = Species(symbol_oxi)
+    assert species._el.symbol == expected_element
+    assert species._oxi_state == expected_oxi_state
+
+
+class DummySpeciesTestCase(unittest.TestCase):
     def test_init(self):
         self.specie1 = DummySpecies("X")
         with pytest.raises(ValueError):
