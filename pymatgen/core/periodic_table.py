@@ -31,7 +31,13 @@ _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
 @functools.total_ordering
 class ElementBase(Enum):
-    """Element class defined without any enum values so it can be subclassed."""
+    """Element class defined without any enum values so it can be subclassed.
+
+    This class is needed to get nested (as|from)_dict to work properly. All emmet classes that had
+    Element classes required custom construction whereas this definition behaves more like dataclasses
+    so serialization is less troublesome. There were many times where objects in as_dict serialized
+    only when they were top level. See https://github.com/materialsproject/pymatgen/issues/2999.
+    """
 
     def __init__(self, symbol: SpeciesLike):
         """
