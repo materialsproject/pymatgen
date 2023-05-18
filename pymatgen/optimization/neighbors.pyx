@@ -4,7 +4,7 @@
 # cython: wraparound=False
 # cython: nonecheck=False
 # cython: cdivision=True
-# cython: profile=True
+# cython: profile=False
 # distutils: language = c
 
 # isort: dont-add-imports
@@ -41,7 +41,7 @@ cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
 
 def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords,
                            float r, long[::1] pbc, double[:, ::1] lattice,
-                           double tol=1e-8, float min_r=1.0, int num_threads=2):
+                           double tol=1e-8, float min_r=1.0):
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
     cutoff radius `r`. All the coordinates should be in Cartesian.
