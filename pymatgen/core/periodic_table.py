@@ -11,13 +11,16 @@ from collections import Counter
 from enum import Enum
 from itertools import combinations, product
 from pathlib import Path
-from typing import Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
 from pymatgen.util.string import Stringify, formula_double_format
+
+if TYPE_CHECKING:
+    from pymatgen.util.typing import SpeciesLike
 
 # Loads element data from json file
 with open(str(Path(__file__).absolute().parent / "periodic_table.json")) as f:
@@ -30,7 +33,7 @@ _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 class ElementBase(Enum):
     """Element class defined without any enum values so it can be subclassed."""
 
-    def __init__(self, symbol: str):
+    def __init__(self, symbol: SpeciesLike):
         """
         Basic immutable element object with all relevant properties.
 
@@ -183,7 +186,7 @@ class ElementBase(Enum):
             energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
             ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
         """
-        self.symbol = symbol
+        self.symbol = str(symbol)
         d = _pt_data[symbol]
 
         # Store key variables for quick access
@@ -1044,7 +1047,7 @@ class Species(MSONable, Stringify):
 
     def __init__(
         self,
-        symbol: str,
+        symbol: SpeciesLike,
         oxidation_state: float | None = None,
         properties: dict | None = None,
     ) -> None:
@@ -1062,11 +1065,11 @@ class Species(MSONable, Stringify):
         Raises:
             ValueError: If oxidation state passed both in symbol and via oxidation_state kwarg.
         """
-        if oxidation_state is not None and symbol[-1] in {"+", "-"}:
+        if oxidation_state is not None and isinstance(symbol, str) and symbol[-1] in {"+", "-"}:
             raise ValueError(
                 f"Oxidation state should be specified either in {symbol=} or as {oxidation_state=}, not both."
             )
-        if symbol[-1] in {"+", "-"}:
+        if isinstance(symbol, str) and symbol[-1] in {"+", "-"}:
             # Extract oxidation state from symbol
             symbol, oxi = re.match(r"([A-Za-z]+)([0-9]*[\+\-])", symbol).groups()  # type: ignore[union-attr]
             self._oxi_state: float | None = (1 if "+" in oxi else -1) * float(oxi[:-1] or 1)
