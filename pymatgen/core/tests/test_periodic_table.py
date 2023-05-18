@@ -543,5 +543,25 @@ class FuncTest(unittest.TestCase):
         assert get_el_sp("Mn3+") == Species("Mn", 3)
 
 
+@pytest.mark.parametrize(
+    ("symbol_oxi", "expected_element", "expected_oxi_state"),
+    [
+        ("Fe", "Fe", None),
+        ("Fe2+", "Fe", 2),
+        ("O2-", "O", -2),
+        ("N-", "N", -1),
+        ("Ca+", "Ca", 1),
+        ("Te3+", "Te", 3),
+        ("P5+", "P", 5),
+        ("Na0+", "Na", 0),
+        ("Na0-", "Na", 0),
+    ],
+)
+def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
+    species = Species(symbol_oxi)
+    assert species._el.symbol == expected_element
+    assert species._oxi_state == expected_oxi_state
+
+
 if __name__ == "__main__":
     unittest.main()
