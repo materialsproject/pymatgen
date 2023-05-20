@@ -1604,7 +1604,7 @@ class LightStructureEnvironments(MSONable):
                 else:
                     csm = None
                 ce_dict["csm"] = csm
-                ce_dict["permutation"] = ce_and_neighbors["ce_dict"]["permutation"]
+                ce_dict["permutation"] = (ce_and_neighbors.get("ce_dict") or {}).get("permutation")
                 site_ces.append(ce_dict)
                 # Neighbors
                 neighbors = ce_and_neighbors["neighbors"]
