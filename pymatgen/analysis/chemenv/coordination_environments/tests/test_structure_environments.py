@@ -12,10 +12,12 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     MultiWeightsChemenvStrategy,
     SimplestChemenvStrategy,
 )
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
     StructureEnvironments,
 )
+from pymatgen.core import Structure
 from pymatgen.core.periodic_table import Species
 from pymatgen.util.testing import PymatgenTest
 
@@ -249,6 +251,18 @@ class StructureEnvironmentsTest(PymatgenTest):
             assert lse_multi.coordination_environments[isite][0]["csm"] == pytest.approx(0.009887784240541068)
             assert lse_multi.coordination_environments[isite][0]["ce_fraction"] == pytest.approx(1.0)
             assert lse_multi.coordination_environments[isite][0]["ce_symbol"] == "T:4"
+
+    def test_from_structure_environments(self):
+        # https://github.com/materialsproject/pymatgen/issues/2756
+        mp_id = "mp-554015"
+        struct = Structure.from_file(PymatgenTest.TEST_FILES_DIR / f"{mp_id}.json.gz")
+        strategy = SimplestChemenvStrategy(distance_cutoff=1.4, angle_cutoff=0.3)
+        local_geom_finder = LocalGeometryFinder()
+        local_geom_finder.setup_structure(structure=struct)
+        envs = local_geom_finder.compute_structure_environments()
+
+        lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=envs)
+        assert len(lse.coordination_environments) == len(struct)
 
 
 if __name__ == "__main__":
