@@ -9,12 +9,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
-from pymatgen.analysis.reaction_calculator import (
-    BalancedReaction,
-    ComputedReaction,
-    Reaction,
-    ReactionError,
-)
+from pymatgen.analysis.reaction_calculator import BalancedReaction, ComputedReaction, Reaction, ReactionError
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 

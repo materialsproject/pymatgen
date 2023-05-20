@@ -18,16 +18,12 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     SelfCSMNbSetWeight,
     SimplestChemenvStrategy,
 )
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
-    LocalGeometryFinder,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
     StructureEnvironments,
 )
-from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
-    DetailedVoronoiContainer,
-)
+from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 

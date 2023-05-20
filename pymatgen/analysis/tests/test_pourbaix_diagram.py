@@ -11,13 +11,7 @@ from monty.serialization import dumpfn, loadfn
 from monty.tempfile import ScratchDir
 from pytest import approx
 
-from pymatgen.analysis.pourbaix_diagram import (
-    IonEntry,
-    MultiEntry,
-    PourbaixDiagram,
-    PourbaixEntry,
-    PourbaixPlotter,
-)
+from pymatgen.analysis.pourbaix_diagram import IonEntry, MultiEntry, PourbaixDiagram, PourbaixEntry, PourbaixPlotter
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import PymatgenTest

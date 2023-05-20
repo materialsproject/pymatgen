@@ -21,10 +21,7 @@ from monty.re import regrep
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructure,
-    BandStructureSymmLine,
-)
+from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.io.cp2k.inputs import Keyword

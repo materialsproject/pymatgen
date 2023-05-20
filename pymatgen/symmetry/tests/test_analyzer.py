@@ -11,12 +11,7 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.symmetry.analyzer import (
-    PointGroupAnalyzer,
-    SpacegroupAnalyzer,
-    cluster_sites,
-    iterative_symmetrize,
-)
+from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, cluster_sites, iterative_symmetrize
 from pymatgen.util.testing import PymatgenTest
 
 test_dir_mol = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")

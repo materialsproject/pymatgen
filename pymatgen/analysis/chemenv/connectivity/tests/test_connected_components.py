@@ -8,19 +8,11 @@ import networkx as nx
 import numpy as np
 import pytest
 
-from pymatgen.analysis.chemenv.connectivity.connected_components import (
-    ConnectedComponent,
-)
-from pymatgen.analysis.chemenv.connectivity.connectivity_finder import (
-    ConnectivityFinder,
-)
+from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
+from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    SimplestChemenvStrategy,
-)
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
-    LocalGeometryFinder,
-)
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
     StructureEnvironments,

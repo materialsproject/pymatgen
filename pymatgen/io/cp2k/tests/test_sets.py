@@ -7,13 +7,7 @@ import pytest
 from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.cp2k.sets import (
-    SETTINGS,
-    Cp2kValidationError,
-    DftSet,
-    GaussianTypeOrbitalBasisSet,
-    GthPotential,
-)
+from pymatgen.io.cp2k.sets import SETTINGS, Cp2kValidationError, DftSet, GaussianTypeOrbitalBasisSet, GthPotential
 from pymatgen.util.testing import PymatgenTest
 
 Si_structure = Structure(

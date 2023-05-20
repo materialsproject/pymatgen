@@ -12,12 +12,7 @@ import pytest
 from monty.serialization import loadfn
 from pytest import approx
 
-from pymatgen.analysis.graphs import (
-    MoleculeGraph,
-    MolGraphSplitError,
-    PeriodicSite,
-    StructureGraph,
-)
+from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError, PeriodicSite, StructureGraph
 from pymatgen.analysis.local_env import (
     CovalentBondNN,
     CutOffDictNN,

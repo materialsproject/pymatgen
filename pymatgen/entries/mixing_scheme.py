@@ -21,10 +21,7 @@ from pymatgen.entries.compatibility import (
     CompatibilityError,
     MaterialsProject2020Compatibility,
 )
-from pymatgen.entries.computed_entries import (
-    ComputedStructureEntry,
-    ConstantEnergyAdjustment,
-)
+from pymatgen.entries.computed_entries import ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.entries.entry_tools import EntrySet
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))

@@ -5,14 +5,7 @@ from typing import Any
 # pymatgen.entries needs to be imported before pymatgen.util.typing
 # to avoid circular import.
 from pymatgen.entries import Entry
-from pymatgen.util.typing import (
-    CompositionLike,
-    EntryLike,
-    MatrixLike,
-    PathLike,
-    SpeciesLike,
-    VectorLike,
-)
+from pymatgen.util.typing import CompositionLike, EntryLike, MatrixLike, PathLike, SpeciesLike, VectorLike
 
 # This module tests types are as expected and can be imported without circular ImportError.
 

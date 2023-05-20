@@ -35,11 +35,7 @@ import numpy as np
 from monty.serialization import dumpfn, loadfn
 from tqdm import tqdm
 
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructure,
-    BandStructureSymmLine,
-    Spin,
-)
+from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine, Spin
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, Orbital
 from pymatgen.electronic_structure.plotter import BSPlotter, DosPlotter

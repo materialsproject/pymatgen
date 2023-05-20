@@ -8,12 +8,7 @@ import warnings
 from pytest import approx
 from sympy import Number, Symbol
 
-from pymatgen.analysis.surface_analysis import (
-    NanoscaleStability,
-    SlabEntry,
-    SurfaceEnergyPlotter,
-    WorkFunctionAnalyzer,
-)
+from pymatgen.analysis.surface_analysis import NanoscaleStability, SlabEntry, SurfaceEnergyPlotter, WorkFunctionAnalyzer
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import PymatgenTest
 

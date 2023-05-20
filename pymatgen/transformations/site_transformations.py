@@ -463,9 +463,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
                 s[ind] = new_sp
         # Perform enumeration
-        from pymatgen.transformations.advanced_transformations import (
-            EnumerateStructureTransformation,
-        )
+        from pymatgen.transformations.advanced_transformations import EnumerateStructureTransformation
 
         trans = EnumerateStructureTransformation()
         return trans.apply_transformation(s, 10000)

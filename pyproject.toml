@@ -85,6 +85,7 @@ ignore = [
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
+isort.split-on-trailing-comma = false
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]

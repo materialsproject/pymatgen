@@ -18,13 +18,7 @@ from scipy.special import factorial
 
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.analysis.elasticity.stress import Stress
-from pymatgen.core.tensors import (
-    DEFAULT_QUAD,
-    SquareTensor,
-    Tensor,
-    TensorCollection,
-    get_uvec,
-)
+from pymatgen.core.tensors import DEFAULT_QUAD, SquareTensor, Tensor, TensorCollection, get_uvec
 from pymatgen.core.units import Unit
 
 if TYPE_CHECKING:

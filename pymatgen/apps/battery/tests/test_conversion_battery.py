@@ -7,10 +7,7 @@ import unittest
 from monty.json import MontyDecoder
 from pytest import approx
 
-from pymatgen.apps.battery.conversion_battery import (
-    ConversionElectrode,
-    ConversionVoltagePair,
-)
+from pymatgen.apps.battery.conversion_battery import ConversionElectrode, ConversionVoltagePair
 from pymatgen.core.composition import Composition
 from pymatgen.util.testing import PymatgenTest
 

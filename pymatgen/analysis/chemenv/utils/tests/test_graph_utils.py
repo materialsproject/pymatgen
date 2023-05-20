@@ -4,11 +4,7 @@ import numpy as np
 import pytest
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.analysis.chemenv.utils.graph_utils import (
-    MultiGraphCycle,
-    SimpleGraphCycle,
-    get_delta,
-)
+from pymatgen.analysis.chemenv.utils.graph_utils import MultiGraphCycle, SimpleGraphCycle, get_delta
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"

@@ -7,10 +7,7 @@ import warnings
 import pytest
 from pytest import approx
 
-from pymatgen.analysis.structure_prediction.volume_predictor import (
-    DLSVolumePredictor,
-    RLSVolumePredictor,
-)
+from pymatgen.analysis.structure_prediction.volume_predictor import DLSVolumePredictor, RLSVolumePredictor
 from pymatgen.core import Structure
 from pymatgen.util.testing import PymatgenTest
 

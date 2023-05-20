@@ -14,9 +14,7 @@ from monty.json import MSONable
 from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.alchemy.transmuters import StandardTransmuter
-from pymatgen.analysis.structure_prediction.substitution_probability import (
-    SubstitutionProbability,
-)
+from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionProbability
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 

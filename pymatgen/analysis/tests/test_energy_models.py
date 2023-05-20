@@ -6,11 +6,7 @@ import warnings
 
 from pytest import approx
 
-from pymatgen.analysis.energy_models import (
-    EwaldElectrostaticModel,
-    IsingModel,
-    SymmetryModel,
-)
+from pymatgen.analysis.energy_models import EwaldElectrostaticModel, IsingModel, SymmetryModel
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest

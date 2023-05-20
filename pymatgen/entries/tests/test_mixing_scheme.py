@@ -112,11 +112,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import Compatibility, CompatibilityError
-from pymatgen.entries.computed_entries import (
-    CompositionEnergyAdjustment,
-    ComputedEntry,
-    ComputedStructureEntry,
-)
+from pymatgen.entries.computed_entries import CompositionEnergyAdjustment, ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
 from pymatgen.util.testing import PymatgenTest
 

@@ -13,12 +13,7 @@ import numpy as np
 
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.symmetry.kpath import (
-    KPathBase,
-    KPathLatimerMunro,
-    KPathSeek,
-    KPathSetyawanCurtarolo,
-)
+from pymatgen.symmetry.kpath import KPathBase, KPathLatimerMunro, KPathSeek, KPathSetyawanCurtarolo
 
 __author__ = "Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"

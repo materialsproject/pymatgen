@@ -22,9 +22,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.transformations.site_transformations import (
-    PartialRemoveSitesTransformation,
-)
+from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:

@@ -17,10 +17,7 @@ from pymatgen.analysis.wulff import WulffShape
 from pymatgen.core import SETTINGS
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition, Structure
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructure,
-    BandStructureSymmLine,
-)
+from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
