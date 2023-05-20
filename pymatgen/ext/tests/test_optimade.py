@@ -51,16 +51,18 @@ class OptimadeTest(PymatgenTest):
             response_field_structs_set = optimade.get_snls(
                 elements=["Ga", "N"], nelements=2, additional_response_fields={"nsites", "nelements"}
             )
-            if ("mp" in response_field_structs_single) and ("mp" in response_field_structs_set):
+            if "mp" in response_field_structs_single:
                 assert len(structs["mp"]) == len(response_field_structs_single["mp"])
+                struct_nl = list(response_field_structs_single["mp"].values())[0]
+                assert "nsites" in struct_nl.data["_optimade"]
+
+            if "mp" in response_field_structs_set:
                 assert len(structs["mp"]) == len(response_field_structs_set["mp"])
 
                 # Check that the requested response fields appear in the SNL metadata
-                s = list(response_field_structs_single["mp"].values())[0]
-                sp = list(response_field_structs_set["mp"].values())[0]
-                assert "nsites" in s.data["_optimade"]
-                assert "nsites" in sp.data["_optimade"]
-                assert "nelements" in sp.data["_optimade"]
+                struct_nl_set = list(response_field_structs_set["mp"].values())[0]
+                assert "nsites" in struct_nl_set.data["_optimade"]
+                assert "nelements" in struct_nl_set.data["_optimade"]
 
     # Tests fail in CI for unknown reason, use for development only.
     # def test_get_structures_mcloud_2dstructures(self):

@@ -2493,19 +2493,19 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.cssr import Cssr
 
             writer = Cssr(self)  # type: ignore
-        elif fmt == "json" or fnmatch(filename.lower(), "*.json"):
-            s = json.dumps(self.as_dict())
+        elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
+            dct = json.dumps(self.as_dict())
             if filename:
-                with zopen(filename, "wt") as f:
-                    f.write(s)
-            return s
+                with zopen(filename, "wt") as file:
+                    file.write(dct)
+            return dct
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
 
             s = XSF(self).to_string()
             if filename:
-                with zopen(filename, "wt", encoding="utf8") as f:
-                    f.write(s)
+                with zopen(filename, "wt", encoding="utf8") as file:
+                    file.write(s)
             return s
         elif (
             fmt == "mcsqs"
@@ -2517,8 +2517,8 @@ class IStructure(SiteCollection, MSONable):
 
             s = Mcsqs(self).to_string()
             if filename:
-                with zopen(filename, "wt", encoding="ascii") as f:
-                    f.write(s)
+                with zopen(filename, "wt", encoding="ascii") as file:
+                    file.write(s)
             return s
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
             from pymatgen.io.prismatic import Prismatic
@@ -2528,8 +2528,8 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "yaml" or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             if filename:
-                with zopen(filename, "wt") as f:
-                    yaml.dump(self.as_dict(), f)
+                with zopen(filename, "wt") as file:
+                    yaml.dump(self.as_dict(), file)
                 return None
             sio = StringIO()
             yaml.dump(self.as_dict(), sio)
@@ -2543,8 +2543,8 @@ class IStructure(SiteCollection, MSONable):
 
             s = ResIO.structure_to_str(self)
             if filename:
-                with zopen(filename, "wt", encoding="utf8") as f:
-                    f.write(s)
+                with zopen(filename, "wt", encoding="utf8") as file:
+                    file.write(s)
                 return None
             return s
         else:
