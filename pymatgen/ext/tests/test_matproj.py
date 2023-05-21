@@ -5,6 +5,7 @@ import random
 import re
 import unittest
 import warnings
+from unittest.mock import patch
 
 import pytest
 import requests
@@ -89,8 +90,8 @@ class MPResterOldTest(PymatgenTest):
             "icsd_ids",
             "total_magnetization",
         }
-        mpid = "mp-1143"
-        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mpid}/json/")
+        mp_id = "mp-1143"
+        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/")
         expected_vals = vals.json()
 
         for prop in props:
@@ -101,23 +102,23 @@ class MPResterOldTest(PymatgenTest):
                 "icsd_ids",
                 "task_ids",
             ]:
-                val = self.rester.get_data(mpid, prop=prop)[0][prop]
+                val = self.rester.get_data(mp_id, prop=prop)[0][prop]
                 if prop in ["energy", "energy_per_atom"]:
                     prop = "final_" + prop
                 assert expected_vals[prop] == pytest.approx(val), f"Failed with property {prop}"
             elif prop in ["elements", "icsd_ids", "task_ids"]:
-                upstream_vals = set(self.rester.get_data(mpid, prop=prop)[0][prop])
+                upstream_vals = set(self.rester.get_data(mp_id, prop=prop)[0][prop])
                 assert set(expected_vals[prop]) <= upstream_vals
             else:
-                assert expected_vals[prop] == self.rester.get_data(mpid, prop=prop)[0][prop]
+                assert expected_vals[prop] == self.rester.get_data(mp_id, prop=prop)[0][prop]
 
         props = ["structure", "initial_structure", "final_structure", "entry"]
         for prop in props:
-            obj = self.rester.get_data(mpid, prop=prop)[0][prop]
+            obj = self.rester.get_data(mp_id, prop=prop)[0][prop]
             if prop.endswith("structure"):
                 assert isinstance(obj, Structure)
             elif prop == "entry":
-                obj = self.rester.get_data(mpid, prop=prop)[0][prop]
+                obj = self.rester.get_data(mp_id, prop=prop)[0][prop]
                 assert isinstance(obj, ComputedEntry)
 
         # Test chemsys search
@@ -140,10 +141,10 @@ class MPResterOldTest(PymatgenTest):
 
     def test_find_structure(self):
         mpr = _MPResterLegacy()
-        ciffile = self.TEST_FILES_DIR / "Fe3O4.cif"
-        data = mpr.find_structure(str(ciffile))
+        cif_file = self.TEST_FILES_DIR / "Fe3O4.cif"
+        data = mpr.find_structure(str(cif_file))
         assert len(data) > 1
-        s = CifParser(ciffile).get_structures()[0]
+        s = CifParser(cif_file).get_structures()[0]
         data = mpr.find_structure(s)
         assert len(data) > 1
 
@@ -174,7 +175,7 @@ class MPResterOldTest(PymatgenTest):
 
         # requesting unknown mp-id
         with pytest.raises(MPRestError):
-            self.rester.get_structure_by_material_id("mp-does-not-exist")
+            self.rester.get_structure_by_material_id("id-does-not-exist")
 
     def test_get_entry_by_material_id(self):
         entry = self.rester.get_entry_by_material_id("mp-19017")
@@ -234,13 +235,13 @@ class MPResterOldTest(PymatgenTest):
     def test_get_entries(self):
         entries = self.rester.get_entries("TiO2")
         assert len(entries) > 1
-        for e in entries:
-            assert e.composition.reduced_formula == "TiO2"
+        for entry in entries:
+            assert entry.composition.reduced_formula == "TiO2"
 
         entries = self.rester.get_entries("TiO2", inc_structure=True)
         assert len(entries) > 1
-        for e in entries:
-            assert e.structure.composition.reduced_formula == "TiO2"
+        for entry in entries:
+            assert entry.structure.composition.reduced_formula == "TiO2"
 
         # all_entries = self.rester.get_entries("Fe", compatible_only=False)
         # entries = self.rester.get_entries("Fe", compatible_only=True)
@@ -248,8 +249,8 @@ class MPResterOldTest(PymatgenTest):
         entries = self.rester.get_entries("Fe", compatible_only=True, property_data=["cif"])
         assert "cif" in entries[0].data
 
-        for e in self.rester.get_entries("CdO2", inc_structure=False):
-            assert e.data["oxide_type"] is not None
+        for entry in self.rester.get_entries("CdO2", inc_structure=False):
+            assert entry.data["oxide_type"] is not None
 
         # test if it will retrieve the conventional unit cell of Ni
         entry = self.rester.get_entry_by_material_id("mp-23", inc_structure=True, conventional_unit_cell=True)
@@ -454,8 +455,8 @@ class MPResterOldTest(PymatgenTest):
         assert "Li-Li" not in crit["chemsys"]["$in"]
 
         comps = _MPResterLegacy.parse_criteria("**O3")["pretty_formula"]["$in"]
-        for c in comps:
-            assert len(Composition(c)) == 3, f"Failed in {c}"
+        for comp in comps:
+            assert len(Composition(comp)) == 3, f"Failed in {comp}"
 
         chemsys = _MPResterLegacy.parse_criteria("{Fe,Mn}-O")["chemsys"]["$in"]
         assert len(chemsys) == 2
@@ -520,6 +521,15 @@ class MPResterOldTest(PymatgenTest):
         entries = self.rester.get_pourbaix_entries(["Bi", "V"])
         pbx = PourbaixDiagram(entries, filter_solids=True, conc_dict={"Bi": 1e-8, "V": 1e-8})
         assert all("Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries)
+
+    @patch.dict(SETTINGS, {"PMG_MAPI_KEY": "foobar"})
+    def test_api_key_is_none(self):
+        # https://github.com/materialsproject/pymatgen/pull/3004
+        with _MPResterLegacy(None) as mpr:
+            assert mpr.api_key == "foobar"
+
+        with _MPResterLegacy(api_key=None) as mpr:
+            assert mpr.api_key == "foobar"
 
 
 if __name__ == "__main__":

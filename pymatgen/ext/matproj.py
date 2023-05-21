@@ -1509,9 +1509,9 @@ class _MPResterLegacy:
             Energies are given in SI units (J/m^2).
         """
         if gb_plane:
-            gb_plane = ",".join(str(i) for i in gb_plane)
+            gb_plane = ",".join(str(plane) for plane in gb_plane)
         if rotation_axis:
-            rotation_axis = ",".join(str(i) for i in rotation_axis)
+            rotation_axis = ",".join(str(ax) for ax in rotation_axis)
 
         payload = {
             "material_id": material_id,
@@ -1530,8 +1530,8 @@ class _MPResterLegacy:
                 surface_energy = self.get_surface_data(material_id=material_id, miller_index=gb_plane_int)[
                     "surface_energy"
                 ]
-                wsep = 2 * surface_energy - gb_energy  # calculate the work of separation
-                gb_dict["work_of_separation"] = wsep
+                work_of_sep = 2 * surface_energy - gb_energy  # calculate the work of separation
+                gb_dict["work_of_separation"] = work_of_sep
             return list_of_gbs
 
         return self._make_request("/grain_boundaries", payload=payload)
@@ -1631,7 +1631,7 @@ class _MPResterLegacy:
                 prefix += f"file_pattern={file_pattern}&"
         prefix += "external_id="
 
-        urls = [prefix + tids for tids in nomad_exist_task_ids]
+        urls = [f"{prefix}{task_ids}" for task_ids in nomad_exist_task_ids]
         return meta, urls
 
     @staticmethod
@@ -1686,7 +1686,7 @@ class _MPResterLegacy:
         Returns:
             A mongo query dict.
         """
-        toks = criteria_string.split()
+        tokens = criteria_string.split()
 
         def parse_sym(sym):
             if sym == "*":
@@ -1701,13 +1701,13 @@ class _MPResterLegacy:
                 return {"task_id": t}
             if "-" in t:
                 elements = [parse_sym(sym) for sym in t.split("-")]
-                chemsyss = []
+                chem_sys_lst = []
                 for cs in itertools.product(*elements):
                     if len(set(cs)) == len(cs):
                         # Check for valid symbols
                         cs = [Element(s).symbol for s in cs]
-                        chemsyss.append("-".join(sorted(cs)))
-                return {"chemsys": {"$in": chemsyss}}
+                        chem_sys_lst.append("-".join(sorted(cs)))
+                return {"chemsys": {"$in": chem_sys_lst}}
             all_formulas = set()
             explicit_els = []
             wild_card_els = []
@@ -1729,30 +1729,29 @@ class _MPResterLegacy:
                     all_formulas.add(c.reduced_formula)
             return {"pretty_formula": {"$in": list(all_formulas)}}
 
-        if len(toks) == 1:
-            return parse_tok(toks[0])
-        return {"$or": list(map(parse_tok, toks))}
+        if len(tokens) == 1:
+            return parse_tok(tokens[0])
+        return {"$or": list(map(parse_tok, tokens))}
 
 
 class MPRester:
     """
     A class to conveniently interface with the new and legacy Materials Project REST
-    interface. The recommended way to use MPRester is with the "with" context
-    manager to ensure that sessions are properly closed after usage::
+    interface. The recommended way to use MPRester is as a context manager to ensure
+    that sessions are properly closed after usage:
 
-        with MPRester("API_KEY") as m:
-            do_something
+        with MPRester("API_KEY") as mpr:
+            docs = mpr.call_some_method()
 
-    MPRester uses the "requests" package, which provides for HTTP connection
+    MPRester uses the "requests" package, which provides HTTP connection
     pooling. All connections are made via https for security.
 
     For more advanced uses of the Materials API, please consult the API
     documentation at https://materialsproject.org/api and https://docs.materialsproject.org.
 
-    Note that this barebones class is to handle transition between the old and new API keys in a transparent manner,
-    providing backwards compatibility. Use it as you would with normal MPRester usage. If a new API key is detected,
-    the _MPResterNew will be initialized. Otherwise, the _MPResterLegacy. Consult the Materials Project documentation
-    at https://docs.materialsproject.org for advice on which API to use.
+    This class handles the transition between old and new MP API, making it easy to switch between them
+    by passing a new (length 32) or old (15 <= length <= 17) API key. See https://docs.materialsproject.org
+    for which API to use.
     """
 
     def __new__(cls, *args, **kwargs):
@@ -1761,20 +1760,19 @@ class MPRester:
            *args: Pass through to either legacy or new MPRester.
            **kwargs: Pass through to either legacy or new MPRester.
         """
-        if len(args) > 0:
-            api_key = args[0]
-        else:
+        api_key = args[0] if len(args) > 0 else None
+
+        if api_key is None:
             api_key = kwargs.get("api_key", SETTINGS.get("PMG_MAPI_KEY"))
             kwargs["api_key"] = api_key
 
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
 
-        return (_MPResterNew if len(api_key) == 32 else _MPResterLegacy)(*args, **kwargs)
+        rester = _MPResterNew if len(api_key) == 32 else _MPResterLegacy
+
+        return rester(*args, **kwargs)
 
 
 class MPRestError(Exception):
-    """
-    Exception class for legacy MPRestAdaptor.
-    Raised when the query has problems, e.g., bad query format.
-    """
+    """Exception class for legacy MPRestAdaptor. Raised when query is malformed."""
