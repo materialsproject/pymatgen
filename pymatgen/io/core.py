@@ -197,30 +197,30 @@ class InputSet(MSONable, MutableMapping):
         path = directory if isinstance(directory, Path) else Path(directory)
 
         for fname, contents in self.inputs.items():
-            file = path / fname
+            file_path = path / fname
 
             if not path.exists() and make_dir:
                 path.mkdir(parents=True, exist_ok=True)
 
-            if file.exists() and not overwrite:
+            if file_path.exists() and not overwrite:
                 raise FileExistsError(f"File {fname!s} already exists!")
-            file.touch()
+            file_path.touch()
 
             # write the file
             if isinstance(contents, InputFile):
-                contents.write_file(file)
+                contents.write_file(file_path)
             else:
-                with zopen(file, "wt") as f:
+                with zopen(file_path, "wt") as f:
                     f.write(str(contents))
 
         if zip_inputs:
-            zipfilename = path / f"{type(self).__name__}.zip"
-            with ZipFile(zipfilename, "w") as zip:
+            filename = path / f"{type(self).__name__}.zip"
+            with ZipFile(filename, "w") as zip_file:
                 for fname in self.inputs:
-                    file = path / fname
+                    file_path = path / fname
                     try:
-                        zip.write(file)
-                        os.remove(file)
+                        zip_file.write(file_path)
+                        os.remove(file_path)
                     except FileNotFoundError:
                         pass
 

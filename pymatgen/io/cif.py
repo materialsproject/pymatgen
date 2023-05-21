@@ -750,14 +750,15 @@ class CifParser:
         Separate function since additional operation for time reversal symmetry
         (which changes magnetic moments on sites) needs to be returned.
         """
-        magsymmops = []
+        mag_symm_ops = []
+        bns_name = data.data.get("_space_group_magn.name_BNS")  # get BNS label for MagneticSpaceGroup()
+        bns_num = data.data.get("_space_group_magn.number_BNS")  # get BNS number for MagneticSpaceGroup()
 
         # check to see if magCIF file explicitly contains magnetic symmetry operations
-        if data.data.get("_space_group_symop_magn_operation.xyz"):
-            xyzt = data.data.get("_space_group_symop_magn_operation.xyz")
+        if xyzt := data.data.get("_space_group_symop_magn_operation.xyz"):
             if isinstance(xyzt, str):
                 xyzt = [xyzt]
-            magsymmops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
+            mag_symm_ops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
             if data.data.get("_space_group_symop_magn_centering.xyz"):
                 xyzt = data.data.get("_space_group_symop_magn_centering.xyz")
@@ -766,7 +767,7 @@ class CifParser:
                 centering_symops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
                 all_ops = []
-                for op in magsymmops:
+                for op in mag_symm_ops:
                     for centering_op in centering_symops:
                         new_translation = [
                             i - np.floor(i) for i in op.translation_vector + centering_op.translation_vector
@@ -779,37 +780,30 @@ class CifParser:
                                 time_reversal=new_time_reversal,
                             )
                         )
-                magsymmops = all_ops
+                mag_symm_ops = all_ops
 
         # else check to see if it specifies a magnetic space group
-        elif data.data.get("_space_group_magn.name_BNS") or data.data.get("_space_group_magn.number_BNS"):
-            if data.data.get("_space_group_magn.name_BNS"):
-                # get BNS label for MagneticSpaceGroup()
-                id = data.data.get("_space_group_magn.name_BNS")
-            else:
-                # get BNS number for MagneticSpaceGroup()
-                # by converting string to list of ints
-                id = list(map(int, (data.data.get("_space_group_magn.number_BNS").split("."))))
+        elif bns_name or bns_num:
+            label = bns_name if bns_name else list(map(int, (bns_num.split("."))))
 
-            if data.data.get("_space_group_magn.transform_BNS_Pp_abc"):
-                if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
-                    jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
-                    msg = MagneticSpaceGroup(id, jf)
+            if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
+                jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
+                msg = MagneticSpaceGroup(label, jf)
 
             elif data.data.get("_space_group_magn.transform_BNS_Pp"):
                 return NotImplementedError("Incomplete specification to implement.")
             else:
-                msg = MagneticSpaceGroup(id)
+                msg = MagneticSpaceGroup(label)
 
-            magsymmops = msg.symmetry_ops
+            mag_symm_ops = msg.symmetry_ops
 
-        if not magsymmops:
+        if not mag_symm_ops:
             msg = "No magnetic symmetry detected, using primitive symmetry."
             warnings.warn(msg)
             self.warnings.append(msg)
-            magsymmops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
+            mag_symm_ops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
 
-        return magsymmops
+        return mag_symm_ops
 
     @staticmethod
     def parse_oxi_states(data):

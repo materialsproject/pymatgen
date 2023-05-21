@@ -48,6 +48,7 @@ select = [
   "SIM", # flake8-simplify
   "TCH", # flake8-type-checking
   "TID", # tidy imports
+  "TID", # flake8-tidy-imports
   "UP",  # pyupgrade
   "W",   # pycodestyle warning
   "YTT", # flake8-2020
