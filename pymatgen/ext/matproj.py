@@ -1761,9 +1761,11 @@ class MPRester:
            *args: Pass through to either legacy or new MPRester.
            **kwargs: Pass through to either legacy or new MPRester.
         """
+        api_key = None
         if len(args) > 0:
             api_key = args[0]
-        else:
+
+        if api_key is None:
             api_key = kwargs.get("api_key", SETTINGS.get("PMG_MAPI_KEY"))
             kwargs["api_key"] = api_key
 
