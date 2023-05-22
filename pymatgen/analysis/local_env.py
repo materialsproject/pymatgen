@@ -2991,7 +2991,7 @@ class LocalStructOrderParams:
         #  Zimmermann et al., J. Am. Chem. Soc., under revision, 2015).
         if self._geomops:
             gaussthetak: list[float] = [0 for t in self._types]  # not used by all OPs
-            qsptheta = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
+            qsp_theta = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
             norms = [[[] for j in range(nneigh)] for t in self._types]  # type: ignore
             ipi = 1 / pi
             piover2 = pi / 2.0
@@ -3003,7 +3003,7 @@ class LocalStructOrderParams:
                 for k in range(nneigh):  # From neighbor k, we construct
                     if j != k:  # the prime meridian.
                         for i in range(len(self._types)):
-                            qsptheta[i][j].append(0.0)
+                            qsp_theta[i][j].append(0.0)
                             norms[i][j].append(0)
                         tmp = max(-1.0, min(np.inner(zaxis, rij_norm[k]), 1.0))
                         thetak = acos(tmp)
@@ -3025,17 +3025,17 @@ class LocalStructOrderParams:
                         for i, t in enumerate(self._types):
                             if t in ["bent", "sq_pyr_legacy"]:
                                 tmp = self._params[i]["IGW_TA"] * (thetak * ipi - self._params[i]["TA"])
-                                qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp)
                                 norms[i][j][kc] += 1
                             elif t in ["tri_plan", "tri_plan_max", "tet", "tet_max"]:
                                 tmp = self._params[i]["IGW_TA"] * (thetak * ipi - self._params[i]["TA"])
                                 gaussthetak[i] = exp(-0.5 * tmp * tmp)
                                 if t in ["tri_plan_max", "tet_max"]:
-                                    qsptheta[i][j][kc] += gaussthetak[i]
+                                    qsp_theta[i][j][kc] += gaussthetak[i]
                                     norms[i][j][kc] += 1
                             elif t in ["T", "tri_pyr", "sq_pyr", "pent_pyr", "hex_pyr"]:
                                 tmp = self._params[i]["IGW_EP"] * (thetak * ipi - 0.5)
-                                qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp)
                                 norms[i][j][kc] += 1
                             elif t in [
                                 "sq_plan",
@@ -3046,7 +3046,7 @@ class LocalStructOrderParams:
                             ]:
                                 if thetak >= self._params[i]["min_SPP"]:
                                     tmp = self._params[i]["IGW_SPP"] * (thetak * ipi - 1.0)
-                                    qsptheta[i][j][kc] += self._params[i]["w_SPP"] * exp(-0.5 * tmp * tmp)
+                                    qsp_theta[i][j][kc] += self._params[i]["w_SPP"] * exp(-0.5 * tmp * tmp)
                                     norms[i][j][kc] += self._params[i]["w_SPP"]
                             elif t in [
                                 "see_saw_rect",
@@ -3065,23 +3065,23 @@ class LocalStructOrderParams:
                                         else self._params[i]["IGW_TA"]
                                         * (fabs(thetak * ipi - 0.5) - self._params[i]["TA"])
                                     )
-                                    qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                    qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp)
                                     norms[i][j][kc] += 1
                             elif t in ["pent_plan", "pent_plan_max"]:
                                 tmp = 0.4 if thetak <= self._params[i]["TA"] * pi else 0.8
                                 tmp2 = self._params[i]["IGW_TA"] * (thetak * ipi - tmp)
                                 gaussthetak[i] = exp(-0.5 * tmp2 * tmp2)
                                 if t == "pent_plan_max":
-                                    qsptheta[i][j][kc] += gaussthetak[i]
+                                    qsp_theta[i][j][kc] += gaussthetak[i]
                                     norms[i][j][kc] += 1
                             elif t == "bcc" and j < k:
                                 if thetak >= self._params[i]["min_SPP"]:
                                     tmp = self._params[i]["IGW_SPP"] * (thetak * ipi - 1.0)
-                                    qsptheta[i][j][kc] += self._params[i]["w_SPP"] * exp(-0.5 * tmp * tmp)
+                                    qsp_theta[i][j][kc] += self._params[i]["w_SPP"] * exp(-0.5 * tmp * tmp)
                                     norms[i][j][kc] += self._params[i]["w_SPP"]
                             elif t == "sq_face_cap_trig_pris" and thetak < self._params[i]["TA3"]:
                                 tmp = self._params[i]["IGW_TA1"] * (thetak * ipi - self._params[i]["TA1"])
-                                qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp)
                                 norms[i][j][kc] += 1
 
                         for m in range(nneigh):
@@ -3117,7 +3117,7 @@ class LocalStructOrderParams:
                                     and thetam >= self._params[i]["min_SPP"]
                                 ):
                                     tmp = self._params[i]["IGW_SPP"] * (thetam * ipi - 1.0)
-                                    qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                    qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp)
                                     norms[i][j][kc] += 1
 
                                 # Contributions of j-i-m angle and
@@ -3133,14 +3133,14 @@ class LocalStructOrderParams:
                                             tmp = self._params[i]["IGW_TA"] * (thetam * ipi - self._params[i]["TA"])
                                             tmp2 = cos(self._params[i]["fac_AA"] * phi) ** self._params[i]["exp_cos_AA"]
                                             tmp3 = 1 if t in ["tri_plan_max", "tet_max"] else gaussthetak[i]
-                                            qsptheta[i][j][kc] += tmp3 * exp(-0.5 * tmp * tmp) * tmp2
+                                            qsp_theta[i][j][kc] += tmp3 * exp(-0.5 * tmp * tmp) * tmp2
                                             norms[i][j][kc] += 1
                                         elif t in ["pent_plan", "pent_plan_max"]:
                                             tmp = 0.4 if thetam <= self._params[i]["TA"] * pi else 0.8
                                             tmp2 = self._params[i]["IGW_TA"] * (thetam * ipi - tmp)
                                             tmp3 = cos(phi)
                                             tmp4 = 1 if t == "pent_plan_max" else gaussthetak[i]
-                                            qsptheta[i][j][kc] += tmp4 * exp(-0.5 * tmp2 * tmp2) * tmp3 * tmp3
+                                            qsp_theta[i][j][kc] += tmp4 * exp(-0.5 * tmp2 * tmp2) * tmp3 * tmp3
                                             norms[i][j][kc] += 1
                                         elif t in [
                                             "T",
@@ -3151,7 +3151,7 @@ class LocalStructOrderParams:
                                         ]:
                                             tmp = cos(self._params[i]["fac_AA"] * phi) ** self._params[i]["exp_cos_AA"]
                                             tmp3 = self._params[i]["IGW_EP"] * (thetam * ipi - 0.5)
-                                            qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp3 * tmp3)
+                                            qsp_theta[i][j][kc] += tmp * exp(-0.5 * tmp3 * tmp3)
                                             norms[i][j][kc] += 1
                                         elif t in ["sq_plan", "oct", "oct_legacy"]:
                                             if (
@@ -3163,9 +3163,9 @@ class LocalStructOrderParams:
                                                     ** self._params[i]["exp_cos_AA"]
                                                 )
                                                 tmp2 = self._params[i]["IGW_EP"] * (thetam * ipi - 0.5)
-                                                qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                qsp_theta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
                                                 if t == "oct_legacy":
-                                                    qsptheta[i][j][kc] -= tmp * self._params[i][6] * self._params[i][7]
+                                                    qsp_theta[i][j][kc] -= tmp * self._params[i][6] * self._params[i][7]
                                                 norms[i][j][kc] += 1
                                         elif t in [
                                             "tri_bipyr",
@@ -3190,13 +3190,13 @@ class LocalStructOrderParams:
                                                     else self._params[i]["IGW_TA"]
                                                     * (fabs(thetam * ipi - 0.5) - self._params[i]["TA"])
                                                 )
-                                                qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                qsp_theta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
                                                 norms[i][j][kc] += 1
                                         elif t == "bcc" and j < k:
                                             if thetak < self._params[i]["min_SPP"]:
                                                 fac = 1 if thetak > piover2 else -1
                                                 tmp = (thetam - piover2) / asin(1 / 3)
-                                                qsptheta[i][j][kc] += (
+                                                qsp_theta[i][j][kc] += (
                                                     fac * cos(3 * phi) * fac_bcc * tmp * exp(-0.5 * tmp * tmp)
                                                 )
                                                 norms[i][j][kc] += 1
@@ -3211,7 +3211,7 @@ class LocalStructOrderParams:
                                                     ** self._params[i]["exp_cos_AA"]
                                                 )
                                                 tmp2 = self._params[i]["IGW_EP"] * (thetam * ipi - 0.5)
-                                                qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                qsp_theta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
                                                 norms[i][j][kc] += 1.0
                                         elif t in ["cuboct", "cuboct_max"]:
                                             if (
@@ -3221,19 +3221,19 @@ class LocalStructOrderParams:
                                                 if self._params[i][4] < thetam < self._params[i][2]:
                                                     tmp = cos(phi)
                                                     tmp2 = self._params[i][5] * (thetam * ipi - 0.5)
-                                                    qsptheta[i][j][kc] += tmp * tmp * exp(-0.5 * tmp2 * tmp2)
+                                                    qsp_theta[i][j][kc] += tmp * tmp * exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1.0
                                                 elif thetam < self._params[i][4]:
                                                     tmp = 0.0556 * (cos(phi - 0.5 * pi) - 0.81649658)
                                                     tmp2 = self._params[i][6] * (thetam * ipi - onethird)
-                                                    qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp) * exp(
+                                                    qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp) * exp(
                                                         -0.5 * tmp2 * tmp2
                                                     )
                                                     norms[i][j][kc] += 1.0
                                                 elif thetam > self._params[i][2]:
                                                     tmp = 0.0556 * (cos(phi - 0.5 * pi) - 0.81649658)
                                                     tmp2 = self._params[i][6] * (thetam * ipi - twothird)
-                                                    qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp) * exp(
+                                                    qsp_theta[i][j][kc] += exp(-0.5 * tmp * tmp) * exp(
                                                         -0.5 * tmp2 * tmp2
                                                     )
                                                     norms[i][j][kc] += 1.0
@@ -3262,7 +3262,7 @@ class LocalStructOrderParams:
                                                     thetam * ipi - self._params[i]["TA2"]
                                                 )
 
-                                            qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                            qsp_theta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
                                             norms[i][j][kc] += 1
 
                         kc += 1
@@ -3281,7 +3281,7 @@ class LocalStructOrderParams:
                 ]:
                     ops[i] = tmp_norm = 0.0
                     for j in range(nneigh):
-                        ops[i] += sum(qsptheta[i][j])
+                        ops[i] += sum(qsp_theta[i][j])
                         tmp_norm += float(sum(norms[i][j]))
                     ops[i] = ops[i] / tmp_norm if tmp_norm > 1.0e-12 else None  # type: ignore
                 elif t in [
@@ -3307,15 +3307,15 @@ class LocalStructOrderParams:
                     ops[i] = None  # type: ignore
                     if nneigh > 1:
                         for j in range(nneigh):
-                            for k in range(len(qsptheta[i][j])):
-                                qsptheta[i][j][k] = (
-                                    qsptheta[i][j][k] / norms[i][j][k] if norms[i][j][k] > 1.0e-12 else 0.0
+                            for k in range(len(qsp_theta[i][j])):
+                                qsp_theta[i][j][k] = (
+                                    qsp_theta[i][j][k] / norms[i][j][k] if norms[i][j][k] > 1.0e-12 else 0.0
                                 )
-                            ops[i] = max(qsptheta[i][j]) if j == 0 else max(ops[i], max(qsptheta[i][j]))
+                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], max(qsp_theta[i][j]))
                 elif t == "bcc":
                     ops[i] = 0.0
                     for j in range(nneigh):
-                        ops[i] += sum(qsptheta[i][j])
+                        ops[i] += sum(qsp_theta[i][j])
                     if nneigh > 3:
                         ops[i] = ops[i] / float(0.5 * float(nneigh * (6 + (nneigh - 2) * (nneigh - 3))))
                     else:
@@ -3328,7 +3328,7 @@ class LocalStructOrderParams:
                             tmp = self._params[i][2] * (d - dmean)
                             acc = acc + exp(-0.5 * tmp * tmp)
                         for j in range(nneigh):
-                            ops[i] = max(qsptheta[i][j]) if j == 0 else max(ops[i], max(qsptheta[i][j]))
+                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], max(qsp_theta[i][j]))
                         ops[i] = acc * ops[i] / float(nneigh)
                         # nneigh * (nneigh - 1))
                     else:
