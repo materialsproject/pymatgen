@@ -2047,7 +2047,7 @@ class SQSTransformation(AbstractTransformation):
         disordered_substructure = struc_disordered.copy()
 
         idx_to_remove = []
-        for idx, site in enumerate(disordered_substructure.sites):
+        for idx, site in enumerate(disordered_substructure):
             if site.is_ordered:
                 idx_to_remove.append(idx)
         disordered_substructure.remove_sites(idx_to_remove)

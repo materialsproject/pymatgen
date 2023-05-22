@@ -3037,16 +3037,16 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     default_values = {"s": 1.0, "v": [1.0, 1.0, 1.0], "n": None}
     if spin_mode[0].lower() == "a":
         mode = "n"
-        for isite in structure.sites:
-            if "magmom" not in isite.properties or isite.properties["magmom"] is None:
+        for site in structure:
+            if "magmom" not in site.properties or site.properties["magmom"] is None:
                 pass
-            elif isinstance(isite.properties["magmom"], (float, int)):
+            elif isinstance(site.properties["magmom"], (float, int)):
                 if mode == "v":
                     raise TypeError("Magmom type conflict")
                 mode = "s"
-                if isinstance(isite.properties["magmom"], int):
-                    isite.properties["magmom"] = float(isite.properties["magmom"])
-            elif len(isite.properties["magmom"]) == 3:
+                if isinstance(site.properties["magmom"], int):
+                    site.properties["magmom"] = float(site.properties["magmom"])
+            elif len(site.properties["magmom"]) == 3:
                 if mode == "s":
                     raise TypeError("Magmom type conflict")
                 mode = "v"
@@ -3056,12 +3056,12 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
         mode = spin_mode[0].lower()
 
     new_struct = structure.copy() if not inplace else structure
-    for isite in new_struct.sites:
+    for site in new_struct:
         if mode == "n":
-            if "magmom" in isite.properties:
-                isite.properties.pop("magmom")
-        elif "magmom" not in isite.properties or isite.properties["magmom"] is None:
-            isite.properties["magmom"] = default_values[mode]
+            if "magmom" in site.properties:
+                site.properties.pop("magmom")
+        elif "magmom" not in site.properties or site.properties["magmom"] is None:
+            site.properties["magmom"] = default_values[mode]
 
     if not inplace:
         return new_struct

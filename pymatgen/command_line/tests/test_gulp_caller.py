@@ -253,7 +253,7 @@ class GulpIOTest(unittest.TestCase):
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
-        assert len(struct.sites) == 8
+        assert len(struct) == 8
         assert struct.lattice.a == 4.212
         assert struct.lattice.alpha == 90
 
@@ -286,12 +286,12 @@ class GlobalFunctionsTest(unittest.TestCase):
     def test_get_energy_tersoff(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False)
         structure = p.structure
-        enrgy = get_energy_tersoff(structure)
-        assert isinstance(enrgy, float)
+        energy = get_energy_tersoff(structure)
+        assert isinstance(energy, float)
 
     def test_get_energy_buckingham(self):
-        enrgy = get_energy_buckingham(self.mgo_uc)
-        assert isinstance(enrgy, float)
+        energy = get_energy_buckingham(self.mgo_uc)
+        assert isinstance(energy, float)
         # test with vacancy structure
         del self.mgo_uc[0]
         energy = get_energy_buckingham(
@@ -302,10 +302,10 @@ class GlobalFunctionsTest(unittest.TestCase):
         assert isinstance(energy, float)
 
     def test_get_energy_relax_structure_buckingham(self):
-        enrgy, struct = get_energy_relax_structure_buckingham(self.mgo_uc)
-        assert isinstance(enrgy, float)
+        energy, struct = get_energy_relax_structure_buckingham(self.mgo_uc)
+        assert isinstance(energy, float)
         assert isinstance(struct, Structure)
-        site_len = len(struct.sites)
+        site_len = len(struct)
         assert site_len == len(self.mgo_uc.sites)
 
 

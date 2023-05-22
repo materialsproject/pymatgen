@@ -160,7 +160,7 @@ class Substitutor(MSONable):
         """
         Checks if the structure object is charge balanced
         """
-        return sum(s.specie.oxi_state for s in struct.sites) == 0.0
+        return sum(site.specie.oxi_state for site in struct) == 0.0
 
     @staticmethod
     def _is_from_chemical_system(chemical_system, struct):

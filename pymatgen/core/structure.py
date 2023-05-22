@@ -773,17 +773,17 @@ class IStructure(SiteCollection, MSONable):
         prop_keys: list[str] = []
         props = {}
         lattice = sites[0].lattice
-        for i, site in enumerate(sites):
+        for idx, site in enumerate(sites):
             if site.lattice != lattice:
                 raise ValueError("Sites must belong to the same lattice")
-            for k, v in site.properties.items():
-                if k not in prop_keys:
-                    prop_keys.append(k)
-                    props[k] = [None] * len(sites)
-                props[k][i] = v
-        for k, v in props.items():
-            if any(vv is None for vv in v):
-                warnings.warn(f"Not all sites have property {k}. Missing values are set to None.")
+            for key, val in site.properties.items():
+                if key not in prop_keys:
+                    prop_keys.append(key)
+                    props[key] = [None] * len(sites)
+                props[key][idx] = val
+        for key, val in props.items():
+            if any(vv is None for vv in val):
+                warnings.warn(f"Not all sites have property {key}. Missing values are set to None.")
         return cls(
             lattice,
             [site.species for site in sites],

@@ -82,11 +82,11 @@ class ZeoCssr(Cssr):
             f"{len(self.structure)} 0",
             f"0 {self.structure.formula}",
         ]
-        for i, site in enumerate(self.structure.sites):
+        for idx, site in enumerate(self.structure):
             charge = site.charge if hasattr(site, "charge") else 0
             # specie = site.specie.symbol
             specie = site.species_string
-            output.append(f"{i + 1} {specie} {site.c:.4f} {site.a:.4f} {site.b:.4f} 0 0 0 0 0 0 0 0 {charge:.4f}")
+            output.append(f"{idx + 1} {specie} {site.c:.4f} {site.a:.4f} {site.b:.4f} 0 0 0 0 0 0 0 0 {charge:.4f}")
 
         return "\n".join(output)
 

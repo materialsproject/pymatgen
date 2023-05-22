@@ -493,7 +493,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         atom_pos_car = []
         atom_pos_red = []
         atom_types = []
-        for site in self.structure.sites:
+        for site in self.structure:
             atom_pos_car.append(site.coords.tolist())
             atom_pos_red.append(site.frac_coords.tolist())
             atom_types.append(site.species_string)
@@ -571,7 +571,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         order[0] = np.array(range(nphonons))
 
         # get the atomic masses
-        atomic_masses = [site.specie.atomic_mass for site in self.structure.sites]
+        atomic_masses = [site.specie.atomic_mass for site in self.structure]
 
         # get order
         for nq in range(1, nqpoints):

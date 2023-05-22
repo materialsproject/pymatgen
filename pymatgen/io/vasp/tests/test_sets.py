@@ -494,16 +494,16 @@ class MITMPRelaxSetTest(PymatgenTest):
         # First test the helper function
         struct = self.structure.copy()
         get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="v")
-        props = [isite.properties for isite in struct.sites]
+        props = [site.properties for site in struct]
         assert props == [{"magmom": [1.0, 1.0, 1.0]}] * len(props)
 
         struct = self.structure.copy()
         get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
-        props = [isite.properties for isite in struct.sites]
+        props = [site.properties for site in struct]
         assert props == [{"magmom": 1.0}] * len(props)
         struct.insert(0, "Li", [0, 0, 0])
         get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="a")
-        props = [isite.properties for isite in struct.sites]
+        props = [site.properties for site in struct]
         assert props == [{"magmom": 1.0}] * len(props)
 
         struct = self.structure.copy()

@@ -358,7 +358,7 @@ CELL_PARAMETERS angstrom
 
         # generate list of coords
         pw_sites = []
-        for site in pwin.structure.sites:
+        for site in pwin.structure:
             pw_sites.append(list(site.coords))
         pw_sites = np.array(pw_sites)
 

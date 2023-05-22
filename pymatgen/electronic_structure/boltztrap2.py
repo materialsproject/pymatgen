@@ -623,7 +623,7 @@ class BztInterpolator:
             n_iter = np.prod(np.sum([np.array(i.shape)[2:] for i in self.data.proj.values()]))
             t = tqdm(total=n_iter * 2)
         for spin, eb in zip(spins, eband_ud):
-            for isite, site in enumerate(self.data.structure.sites):
+            for idx, site in enumerate(self.data.structure):
                 if site not in pdoss:
                     pdoss[site] = {}
                 for iorb, orb in enumerate(Orbital):
@@ -635,7 +635,7 @@ class BztInterpolator:
                     if orb not in pdoss[site]:
                         pdoss[site][orb] = {}
 
-                    self.data.ebands = self.data.proj[spin][:, :, isite, iorb].T
+                    self.data.ebands = self.data.proj[spin][:, :, idx, iorb].T
                     coeffs = fite.fitde3D(self.data, self.equivalences)
                     proj, vvproj, cproj = fite.getBTPbands(self.equivalences, coeffs, self.data.lattvec)
 

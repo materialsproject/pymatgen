@@ -159,7 +159,7 @@ class GetVoronoiNodesTest(unittest.TestCase):
         self.structure = p.structure
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
-        el = [site.species_string for site in self.structure.sites]
+        el = [site.species_string for site in self.structure]
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
         for k, v in valence_dict.items():
@@ -210,7 +210,7 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
         self.structure = p.structure
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
-        el = [site.species_string for site in self.structure.sites]
+        el = [site.species_string for site in self.structure]
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
         for k, v in valence_dict.items():
@@ -240,10 +240,10 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         valences = bv.get_valences(self.structure)
         radii = []
         for idx, valence in enumerate(valences):
-            el = self.structure.sites[idx].specie.symbol
+            el = self.structure[idx].specie.symbol
             radius = Species(el, valence).ionic_radius
             radii.append(radius)
-        el = [site.species_string for site in self.structure.sites]
+        el = [site.species_string for site in self.structure]
         self.rad_dict = dict(zip(el, radii))
         for el in self.rad_dict:
             print((el, self.rad_dict[el].real))

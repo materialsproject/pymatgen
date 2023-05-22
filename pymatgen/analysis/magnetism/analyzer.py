@@ -219,12 +219,12 @@ class CollinearMagneticStructureAnalyzer:
         # round magmoms on magnetic ions below threshold to zero
         # and on non magnetic ions below threshold_nonmag
         magmoms = [
-            m
-            if abs(m) > threshold and a.species_string in self.default_magmoms
-            else m
-            if abs(m) > threshold_nonmag and a.species_string not in self.default_magmoms
+            magmom
+            if abs(magmom) > threshold and site.species_string in self.default_magmoms
+            else magmom
+            if abs(magmom) > threshold_nonmag and site.species_string not in self.default_magmoms
             else 0
-            for (m, a) in zip(magmoms, structure.sites)
+            for magmom, site in zip(magmoms, structure)
         ]
 
         # overwrite existing magmoms with default_magmoms

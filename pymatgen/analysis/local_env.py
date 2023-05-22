@@ -81,9 +81,8 @@ class ValenceIonicRadiusEvaluator:
         """
         List of ionic radii of elements in the order of sites.
         """
-        el = [site.species_string for site in self._structure.sites]
-        radii_dict = dict(zip(el, self._ionic_radii))
-        # print radii_dict
+        elems = [site.species_string for site in self._structure]
+        radii_dict = dict(zip(elems, self._ionic_radii))
         return radii_dict
 
     @property
@@ -91,7 +90,7 @@ class ValenceIonicRadiusEvaluator:
         """
         List of oxidation states of elements in the order of sites.
         """
-        el = [site.species_string for site in self._structure.sites]
+        el = [site.species_string for site in self._structure]
         valence_dict = dict(zip(el, self._valences))
         return valence_dict
 
@@ -122,7 +121,7 @@ class ValenceIonicRadiusEvaluator:
                 return after
             return before
 
-        for i, site in enumerate(self._structure.sites):
+        for i, site in enumerate(self._structure):
             if isinstance(site.specie, Element):
                 radius = site.specie.atomic_radius
                 # Handle elements with no atomic_radius
@@ -186,7 +185,7 @@ class ValenceIonicRadiusEvaluator:
                 valences = bv.get_valences(self._structure)
             except Exception:
                 valences = []
-                for site in self._structure.sites:
+                for site in self._structure:
                     if len(site.specie.common_oxidation_states) > 0:
                         valences.append(site.specie.common_oxidation_states[0])
                     # Handle noble gas species
@@ -199,9 +198,9 @@ class ValenceIonicRadiusEvaluator:
                     self._structure.add_oxidation_state_by_site(valences)
                 # raise
 
-        # el = [site.specie.symbol for site in self._structure.sites]
-        # el = [site.species_string for site in self._structure.sites]
-        # el = [site.specie for site in self._structure.sites]
+        # el = [site.specie.symbol for site in self._structure]
+        # el = [site.species_string for site in self._structure]
+        # el = [site.specie for site in self._structure]
         # valence_dict = dict(zip(el, valences))
         # print valence_dict
         return valences
@@ -2093,7 +2092,7 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10, 
     ops = LocalStructOrderParams(["cn", "tet", "oct", "bcc", "q6", "sq_pyr", "tri_bipyr"])
 
     neighs_cent = get_neighbors_of_site_with_index(struct, n, approach=approach, delta=delta, cutoff=cutoff)
-    neighs_cent.append(struct.sites[n])
+    neighs_cent.append(struct[n])
     opvals = ops.get_order_parameters(
         neighs_cent,
         len(neighs_cent) - 1,

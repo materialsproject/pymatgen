@@ -354,7 +354,7 @@ class VolumetricData(MSONable):
                     f"\t {self.dim[idx]} {lattice_matrix[0]:.6f} {lattice_matrix[1]:.6f} {lattice_matrix[2]:.6f}\n"
                 )
 
-            for site in self.structure.sites:
+            for site in self.structure:
                 file.write(
                     f"\t {Element(site.species_string).Z} 0.000000 "
                     f"{ang_to_bohr * site.coords[0]} "

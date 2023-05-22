@@ -126,9 +126,9 @@ class LMTOCtrl:
         sites = []
         classes = []
         num_atoms = {}
-        for s, site in enumerate(self.structure.sites):
+        for idx, site in enumerate(self.structure):
             atom = site.specie
-            label_index = ineq_sites_index.index(eq_atoms[s])
+            label_index = ineq_sites_index.index(eq_atoms[idx])
             if atom.symbol in num_atoms:
                 if label_index + 1 > sum(num_atoms.values()):
                     num_atoms[atom.symbol] += 1

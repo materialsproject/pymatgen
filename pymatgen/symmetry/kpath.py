@@ -1704,7 +1704,7 @@ class KPathLatimerMunro(KPathBase):
                 "The 'magmom' property is not set in the structure's site properties."
                 "All magnetic moments are being set to zero."
             )
-            struct.add_site_property("magmom", [np.array([0, 0, 0]) for i in range(len(struct.sites))])
+            struct.add_site_property("magmom", [np.array([0, 0, 0]) for _ in range(len(struct))])
 
             return struct
 
@@ -1731,9 +1731,9 @@ class KPathLatimerMunro(KPathBase):
     def _get_magnetic_symmetry_operations(self, struct, grey_ops, atol):
         mag_ops = []
         magmoms = struct.site_properties["magmom"]
-        nonzero_magmom_inds = [i for i in range(len(struct.sites)) if not (magmoms[i] == np.array([0, 0, 0])).all()]
-        init_magmoms = [site.properties["magmom"] for (i, site) in enumerate(struct.sites) if i in nonzero_magmom_inds]
-        sites = [site for (i, site) in enumerate(struct.sites) if i in nonzero_magmom_inds]
+        nonzero_magmom_inds = [idx for idx in range(len(struct)) if not (magmoms[idx] == np.array([0, 0, 0])).all()]
+        init_magmoms = [site.properties["magmom"] for idx, site in enumerate(struct) if idx in nonzero_magmom_inds]
+        sites = [site for idx, site in enumerate(struct) if idx in nonzero_magmom_inds]
         init_site_coords = [site.frac_coords for site in sites]
         for op in grey_ops:
             r = op.rotation_matrix

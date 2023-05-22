@@ -382,7 +382,7 @@ class BoltztrapRunner(MSONable):
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
         for oi, o in enumerate(Orbital):
-            for site_nb in range(0, len(self._bs.structure.sites)):
+            for site_nb in range(len(self._bs.structure)):
                 if oi < len(self._bs.projections[Spin.up][0][0]):
                     with open(output_file_proj + "_" + str(site_nb) + "_" + str(o), "w") as f:
                         f.write(self._bs.structure.composition.formula + "\n")
@@ -424,7 +424,7 @@ class BoltztrapRunner(MSONable):
             )
             i = 1000
             for oi, o in enumerate(Orbital):
-                for site_nb in range(0, len(self._bs.structure.sites)):
+                for site_nb in range(0, len(self._bs.structure)):
                     if oi < len(self._bs.projections[Spin.up][0][0]):
                         f.write(f"{i},'boltztrap.proj_{site_nb}_{o.name}old', 'formatted',0\n")
                         i += 1
