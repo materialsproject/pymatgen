@@ -26,6 +26,7 @@ mcsqs_cmd = which("mcsqs")
 
 try:
     import m3gnet
+    import tensorflow as tf  # noqa: F401
 except ImportError:
     m3gnet = None
 
@@ -1314,13 +1315,13 @@ class StructureTest(PymatgenTest):
         ch4 = ["C", "H", "H", "H", "H"]
 
         species = []
-        allcoords = []
+        all_coords = []
         for vec in ([0, 0, 0], [4, 0, 0], [0, 4, 0], [4, 4, 0]):
             species.extend(ch4)
             for c in coords:
-                allcoords.append(np.array(c) + vec)
+                all_coords.append(np.array(c) + vec)
 
-        structure = Structure(Lattice.cubic(10), species, allcoords, coords_are_cartesian=True)
+        structure = Structure(Lattice.cubic(10), species, all_coords, coords_are_cartesian=True)
 
         for site in structure:
             if site.specie.symbol == "C":
@@ -1346,16 +1347,14 @@ class StructureTest(PymatgenTest):
 
     def test_from_prototype(self):
         for pt in ["bcc", "fcc", "hcp", "diamond"]:
-            s = Structure.from_prototype(pt, ["C"], a=3, c=4)
-            assert isinstance(s, Structure)
+            struct = Structure.from_prototype(pt, ["C"], a=3, c=4)
+            assert isinstance(struct, Structure)
 
         with pytest.raises(ValueError):
             Structure.from_prototype("hcp", ["C"], a=3)
 
-        s = Structure.from_prototype("rocksalt", ["Li", "Cl"], a=2.56)
-        assert (
-            str(s)
-            == """Full Formula (Li4 Cl4)
+        struct = Structure.from_prototype("rocksalt", ["Li", "Cl"], a=2.56)
+        expected_struct_str = """Full Formula (Li4 Cl4)
 Reduced Formula: LiCl
 abc   :   2.560000   2.560000   2.560000
 angles:  90.000000  90.000000  90.000000
@@ -1371,10 +1370,10 @@ Sites (8)
   5  Cl    0    0.5  0.5
   6  Cl    0.5  0.5  0
   7  Cl    0    0    0"""
-        )
+        assert str(struct) == expected_struct_str
         for pt in ("cscl", "fluorite", "antifluorite", "zincblende"):
-            s = Structure.from_prototype(pt, ["Cs", "Cl"], a=5)
-            assert s.lattice.is_orthogonal
+            struct = Structure.from_prototype(pt, ["Cs", "Cl"], a=5)
+            assert struct.lattice.is_orthogonal
 
 
 class IMoleculeTest(PymatgenTest):
