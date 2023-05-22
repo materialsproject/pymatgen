@@ -59,6 +59,7 @@ ignore = [
   "B023",    # Function definition does not bind loop variable
   "B028",    # No explicit stacklevel keyword argument found
   "B904",    # Within an except clause, raise exceptions with ...
+  "C408",    # unnecessary-collection-call
   "D100",    # Missing docstring in public module
   "D104",    # Missing docstring in public package
   "D105",    # Missing docstring in magic method
@@ -99,7 +100,7 @@ isort.split-on-trailing-comma = false
 "dev_scripts/*" = ["D"]
 
 [tool.pytest.ini_options]
-addopts = "-x --durations=30 --quiet -rxXs --color=yes -p no:warnings"
+addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings"
 
 [tool.coverage.run]
 omit = ["pymatgen/cli"]

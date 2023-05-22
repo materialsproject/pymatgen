@@ -724,14 +724,14 @@ class StructureEnvironments(MSONable):
                 ce = self.ce_list[isite][cn][inb_set]
                 if ce is None:
                     continue
-                mingeoms = ce.minimum_geometries(max_csm=max_csm)
-                if len(mingeoms) == 0:
+                min_geoms = ce.minimum_geometries(max_csm=max_csm)
+                if len(min_geoms) == 0:
                     continue
                 wds = nb_set.normalized_distances
                 max_wd = max(max_wd, max(wds))
                 all_wds.append(wds)
                 all_was.append(nb_set.normalized_angles)
-                for mp_symbol, cg_dict in mingeoms:
+                for mp_symbol, cg_dict in min_geoms:
                     csm = cg_dict["other_symmetry_measures"][symmetry_measure_type]
                     subplot.plot(idx, csm, "ob")
                     subplot.annotate(mp_symbol, xy=(idx, csm))
