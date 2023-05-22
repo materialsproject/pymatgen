@@ -91,7 +91,7 @@ jobs:
       - name: pytest split ${{ matrix.split }}
         # to update the test durations, run
         # pytest --store-durations --durations-path test_files/.pytest-split-durations
-        # and commit the results
+        # and commit the results (requires pip install pytest-split)
         run: |
           pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} --durations-path test_files/.pytest-split-durations
       - name: Upload coverage
