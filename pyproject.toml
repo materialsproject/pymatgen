@@ -59,6 +59,7 @@ ignore = [
   "B023",    # Function definition does not bind loop variable
   "B028",    # No explicit stacklevel keyword argument found
   "B904",    # Within an except clause, raise exceptions with ...
+  "C408",    # unnecessary-collection-call
   "D100",    # Missing docstring in public module
   "D104",    # Missing docstring in public package
   "D105",    # Missing docstring in magic method
