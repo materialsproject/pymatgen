@@ -254,15 +254,15 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
                         isite = isite2
                         break
         # Get the translation between psite and its corresponding site in the unit cell (Translation I)
-        thissite = self.structure_environments.structure[isite]
-        dthissite = psite.frac_coords - thissite.frac_coords
+        this_site = self.structure_environments.structure[isite]
+        dthis_site = psite.frac_coords - this_site.frac_coords
         # Get the translation between the equivalent site for which the neighbors have been computed and the site in
         # the unit cell that corresponds to psite (Translation II)
-        equivsite = self.structure_environments.structure[self.structure_environments.sites_map[isite]].to_unit_cell()
+        equiv_site = self.structure_environments.structure[self.structure_environments.sites_map[isite]].to_unit_cell()
         # equivsite = self.structure_environments.structure[self.structure_environments.sites_map[isite]]
         dequivsite = (
             self.structure_environments.structure[self.structure_environments.sites_map[isite]].frac_coords
-            - equivsite.frac_coords
+            - equiv_site.frac_coords
         )
         found = False
         # Find the symmetry that applies the site in the unit cell to the equivalent site, as well as the translation
@@ -270,41 +270,36 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         # TODO: check that these tolerances are needed, now that the structures are refined before analyzing envs
         tolerances = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4]
         for tolerance in tolerances:
-            for symop in self.symops:
-                newsite = PeriodicSite(
-                    equivsite._species,
-                    symop.operate(equivsite.frac_coords),
-                    equivsite._lattice,
+            for sym_op in self.symops:
+                new_site = PeriodicSite(
+                    equiv_site._species,
+                    sym_op.operate(equiv_site.frac_coords),
+                    equiv_site._lattice,
                 )
-                if newsite.is_periodic_image(thissite, tolerance=tolerance):
-                    mysym = symop
-                    dthissite2 = thissite.frac_coords - newsite.frac_coords
+                if new_site.is_periodic_image(this_site, tolerance=tolerance):
+                    my_sym = sym_op
+                    dthissite2 = this_site.frac_coords - new_site.frac_coords
                     found = True
                     break
             if not found:
-                symops = [SymmOp.from_rotation_and_translation()]
-                for symop in symops:
-                    newsite = PeriodicSite(
-                        equivsite._species,
-                        symop.operate(equivsite.frac_coords),
-                        equivsite._lattice,
+                sym_ops = [SymmOp.from_rotation_and_translation()]
+                for sym_op in sym_ops:
+                    new_site = PeriodicSite(
+                        equiv_site._species,
+                        sym_op.operate(equiv_site.frac_coords),
+                        equiv_site._lattice,
                     )
                     # if newsite.is_periodic_image(thissite):
-                    if newsite.is_periodic_image(thissite, tolerance=tolerance):
-                        mysym = symop
-                        dthissite2 = thissite.frac_coords - newsite.frac_coords
+                    if new_site.is_periodic_image(this_site, tolerance=tolerance):
+                        my_sym = sym_op
+                        dthissite2 = this_site.frac_coords - new_site.frac_coords
                         found = True
                         break
             if found:
                 break
         if not found:
             raise EquivalentSiteSearchError(psite)
-        return [
-            self.structure_environments.sites_map[isite],
-            dequivsite,
-            dthissite + dthissite2,
-            mysym,
-        ]
+        return [self.structure_environments.sites_map[isite], dequivsite, dthis_site + dthissite2, my_sym]
 
     @abc.abstractmethod
     def get_site_neighbors(self, site):

@@ -348,7 +348,7 @@ def linkcode_resolve(domain, info):
         filename = f"pymatgen/core/{rel_path}#L{line_start}-L{line_end}"
     except Exception:
         # no need to be relative to core here as module includes full path.
-        filename = info["module"].replace(".", "/") + ".py"
+        filename = f"{info['module'].replace('.', '/')}.py"
 
     tag = "v" + __version__
     return f"https://github.com/materialsproject/pymatgen/blob/{tag}/{filename}"

@@ -254,16 +254,12 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
                     fp.write(f"{el} {rad_dict[el].real}\n")
 
         atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
-        (
-            vornet,
-            vor_edge_centers,
-            vor_face_centers,
-        ) = atmnet.perform_voronoi_decomposition()
+        vornet, vor_edge_centers, vor_face_centers = atmnet.perform_voronoi_decomposition()
         vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
         voro_out_filename = name + "_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
-    species = ["X"] * len(voro_node_mol.sites)
+    species = ["X"] * len(voro_node_mol)
     coords = []
     prop = []
     for site in voro_node_mol.sites:
@@ -332,7 +328,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
     """
     with ScratchDir("."):
         name = "temp_zeo1"
-        zeo_inp_filename = name + ".cssr"
+        zeo_inp_filename = f"{name}.cssr"
         ZeoCssr(structure).write_file(zeo_inp_filename)
         rad_flag = True
         rad_file = name + ".rad"
@@ -350,7 +346,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         voro_out_filename = name + "_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
-    species = ["X"] * len(voro_node_mol.sites)
+    species = ["X"] * len(voro_node_mol)
     coords = []
     prop = []
     for site in voro_node_mol.sites:

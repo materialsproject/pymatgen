@@ -930,11 +930,13 @@ class MagOrderingTransformation(AbstractTransformation):
         # remove duplicate structures and group according to energy model
         m = StructureMatcher(comparator=SpinComparator())
 
-        def key(x):
-            return SpacegroupAnalyzer(x, 0.1).get_space_group_number()
+        def key(struct: Structure) -> int:
+            print(f"{struct=}")
+            struct.to(filename="LiMnO2.cif")
+            return SpacegroupAnalyzer(struct, 0.1).get_space_group_number()
 
         out = []
-        for _, g in groupby(sorted((d["structure"] for d in alls), key=key), key):
+        for _, g in groupby(sorted((dct["structure"] for dct in alls), key=key), key):
             g = list(g)  # type: ignore
             grouped = m.group_structures(g)
             out.extend([{"structure": g[0], "energy": self.energy_model.get_energy(g[0])} for g in grouped])

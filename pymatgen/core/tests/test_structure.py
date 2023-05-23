@@ -998,14 +998,14 @@ class StructureTest(PymatgenTest):
         self.structure.rotate_sites(
             indices=[1],
             theta=2.0 * np.pi / 3.0,
-            anchor=self.structure.sites[0].coords,
+            anchor=self.structure[0].coords,
             to_unit_cell=False,
         )
         self.assertArrayAlmostEqual(self.structure.frac_coords[1], [-1.25, 1.5, 0.75], decimal=6)
         self.structure.rotate_sites(
             indices=[1],
             theta=2.0 * np.pi / 3.0,
-            anchor=self.structure.sites[0].coords,
+            anchor=self.structure[0].coords,
             to_unit_cell=True,
         )
         self.assertArrayAlmostEqual(self.structure.frac_coords[1], [0.75, 0.5, 0.75], decimal=6)

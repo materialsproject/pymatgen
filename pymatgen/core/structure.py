@@ -436,7 +436,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             (bool) True if SiteCollection does not contain atoms that are too
             close together.
         """
-        if len(self.sites) == 1:
+        if len(self) == 1:
             return True
         all_dists = self.distance_matrix[np.triu_indices(len(self), 1)]
         return bool(np.min(all_dists) > tol)
@@ -480,7 +480,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             values (list): A sequence of values. Must be same length as
                 number of sites.
         """
-        if len(values) != len(self.sites):
+        if len(values) != len(self):
             raise ValueError("Values must be same length as sites.")
         for site, val in zip(self.sites, values):
             site.properties[property_name] = val
@@ -551,8 +551,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             oxidation_states (list): List of oxidation states.
                 E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
         """
-        if len(oxidation_states) != len(self.sites):
-            raise ValueError("Oxidation states of all sites must be specified.")
+        if len(oxidation_states) != len(self):
+            raise ValueError(
+                f"Oxidation states of all sites must be specified, expected {len(self)} values, "
+                f"got {len(oxidation_states)}"
+            )
         for site, ox in zip(self.sites, oxidation_states):
             new_sp = {}
             for el, occu in site.species.items():
@@ -613,8 +616,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             spins (list): List of spins
                 E.g., [+5, -5, 0, 0]
         """
-        if len(spins) != len(self.sites):
-            raise ValueError("Spin of all sites must be specified in the dictionary.")
+        if len(spins) != len(self):
+            raise ValueError(f"Spins for all sites must be specified, expected {len(self)} spins, got {len(spins)}")
 
         for site, spin in zip(self.sites, spins):
             new_sp = {}
