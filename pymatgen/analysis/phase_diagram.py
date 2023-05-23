@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines tools to generate and analyze phase diagrams.
 """
@@ -16,8 +13,7 @@ import os
 import re
 import warnings
 from functools import lru_cache
-from io import StringIO
-from typing import Any, Iterator, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Iterator, Literal, Sequence
 
 import numpy as np
 import plotly.graph_objs as go
@@ -33,7 +29,11 @@ from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from io import StringIO
+
+    from numpy.typing import ArrayLike
 
 logger = logging.getLogger(__name__)
 
@@ -749,11 +749,9 @@ class PhaseDiagram(MSONable):
         except Exception as exc:
             if on_error == "raise":
                 raise ValueError(f"Unable to get decomposition for {entry}") from exc
-            elif on_error == "warn":
+            if on_error == "warn":
                 warnings.warn(f"Unable to get decomposition for {entry}, encountered {exc}")
-                return None, None
-            else:
-                return None, None
+            return None, None
         e_above_hull = entry.energy_per_atom - hull_energy
 
         if allow_negative or e_above_hull >= -PhaseDiagram.numerical_tol:
@@ -762,7 +760,7 @@ class PhaseDiagram(MSONable):
         msg = f"No valid decomposition found for {entry}! (e_h: {e_above_hull})"
         if on_error == "raise":
             raise ValueError(msg)
-        elif on_error == "warn":
+        if on_error == "warn":
             warnings.warn(msg)
         return None, None  # 'ignore' and 'warn' case
 
@@ -771,7 +769,8 @@ class PhaseDiagram(MSONable):
         Provides the energy above convex hull for an entry
 
         Args:
-            entry (PDEntry): A PDEntry like object
+            entry (PDEntry): A PDEntry like object.
+            **kwargs: Passed to get_decomp_and_e_above_hull().
 
         Returns:
             float | None: Energy above convex hull of entry. Stable entries should have
@@ -1154,7 +1153,7 @@ class PhaseDiagram(MSONable):
         if referenced:
             el_energies = {el: self.el_refs[el].energy_per_atom for el in elements}
         else:
-            el_energies = {el: 0.0 for el in elements}
+            el_energies = {el: 0 for el in elements}
 
         chempot_ranges = collections.defaultdict(list)
         vertices = [list(range(len(self.elements)))]
@@ -1927,15 +1926,9 @@ class ReactionDiagram:
                         entry.decomposition = product_entries
                         rxn_entries.append(entry)
                 except np.linalg.LinAlgError:
-                    logger.debug(
-                        "Reactants = "
-                        + ", ".join(
-                            [
-                                entry1.composition.reduced_formula,
-                                entry2.composition.reduced_formula,
-                            ]
-                        )
-                    )
+                    form_1 = entry1.composition.reduced_formula
+                    form_2 = entry2.composition.reduced_formula
+                    logger.debug(f"Reactants = {form_1}, {form_2}")
                     logger.debug(f"Products = {', '.join([e.composition.reduced_formula for e in face_entries])}")
 
         rxn_entries = sorted(rxn_entries, key=lambda e: e.name, reverse=True)
@@ -2393,7 +2386,7 @@ class PDPlotter:
             norm = Normalize(vmin=vmin, vmax=vmax)
             _map = ScalarMappable(norm=norm, cmap=cmap)
             _energies = [self._pd.get_equilibrium_reaction_energy(entry) for coord, entry in labels.items()]
-            energies = [en if en < 0.0 else -0.00000001 for en in _energies]
+            energies = [en if en < 0 else -0.00000001 for en in _energies]
             vals_stable = _map.to_rgba(energies)
             ii = 0
             if process_attributes:
@@ -2541,7 +2534,7 @@ class PDPlotter:
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
         font = FontProperties(weight="bold", size=13)
-        (lines, labels, unstable) = self.pd_plot_data
+        lines, labels, unstable = self.pd_plot_data
         count = 1
         newlabels = []
         for x, y, z in lines:
@@ -3017,17 +3010,12 @@ class PDPlotter:
                 elif self._dim == 4:
                     z.append(coord[2])
 
-            return {
-                "x": x,
-                "y": y,
-                "z": z,
-                "texts": texts,
-                "energies": energies,
-                "uncertainties": uncertainties,
-            }
+            return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
 
-        stable_coords, stable_entries = zip(*self.pd_plot_data[1].items())
-        unstable_entries, unstable_coords = zip(*self.pd_plot_data[2].items())
+        stable_coords = list(self.pd_plot_data[1])
+        stable_entries = self.pd_plot_data[1].values()
+        unstable_entries = list(self.pd_plot_data[2])
+        unstable_coords = self.pd_plot_data[2].values()
 
         stable_props = get_marker_props(stable_coords, stable_entries)
 
@@ -3326,7 +3314,7 @@ def tet_coord(coord):
         [
             [1, 0, 0],
             [0.5, math.sqrt(3) / 2, 0],
-            [0.5, 1.0 / 3.0 * math.sqrt(3) / 2, math.sqrt(6) / 3],
+            [0.5, 1 / 3 * math.sqrt(3) / 2, math.sqrt(6) / 3],
         ]
     )
     result = np.dot(np.array(coord), unitvec)
@@ -3387,14 +3375,14 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
             # The coordinates were already in the user ordering
             return lines, stable_entries, unstable_entries
 
-        newlines = [[np.array(1.0 - x), y] for x, y in lines]
-        newstable_entries = {(1.0 - c[0], c[1]): entry for c, entry in stable_entries.items()}
-        newunstable_entries = {entry: (1.0 - c[0], c[1]) for entry, c in unstable_entries.items()}
+        newlines = [[np.array(1 - x), y] for x, y in lines]
+        newstable_entries = {(1 - c[0], c[1]): entry for c, entry in stable_entries.items()}
+        newunstable_entries = {entry: (1 - c[0], c[1]) for entry, c in unstable_entries.items()}
         return newlines, newstable_entries, newunstable_entries
     if nameup == ordering[1]:
         if nameleft == ordering[2]:
-            c120 = np.cos(2.0 * np.pi / 3.0)
-            s120 = np.sin(2.0 * np.pi / 3.0)
+            c120 = np.cos(2 * np.pi / 3.0)
+            s120 = np.sin(2 * np.pi / 3.0)
             newlines = []
             for x, y in lines:
                 newx = np.zeros_like(x)
@@ -3418,8 +3406,8 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 for entry, c in unstable_entries.items()
             }
             return newlines, newstable_entries, newunstable_entries
-        c120 = np.cos(2.0 * np.pi / 3.0)
-        s120 = np.sin(2.0 * np.pi / 3.0)
+        c120 = np.cos(2 * np.pi / 3.0)
+        s120 = np.sin(2 * np.pi / 3.0)
         newlines = []
         for x, y in lines:
             newx = np.zeros_like(x)
@@ -3445,8 +3433,8 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
         return newlines, newstable_entries, newunstable_entries
     if nameup == ordering[2]:
         if nameleft == ordering[0]:
-            c240 = np.cos(4.0 * np.pi / 3.0)
-            s240 = np.sin(4.0 * np.pi / 3.0)
+            c240 = np.cos(4 * np.pi / 3.0)
+            s240 = np.sin(4 * np.pi / 3.0)
             newlines = []
             for x, y in lines:
                 newx = np.zeros_like(x)
@@ -3470,8 +3458,8 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 for entry, c in unstable_entries.items()
             }
             return newlines, newstable_entries, newunstable_entries
-        c240 = np.cos(4.0 * np.pi / 3.0)
-        s240 = np.sin(4.0 * np.pi / 3.0)
+        c240 = np.cos(4 * np.pi / 3.0)
+        s240 = np.sin(4 * np.pi / 3.0)
         newlines = []
         for x, y in lines:
             newx = np.zeros_like(x)

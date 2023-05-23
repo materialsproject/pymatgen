@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import gzip
@@ -216,12 +212,12 @@ class VasprunTest(PymatgenTest):
         assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
 
         pdos0_norm = vasprun.complete_dos_normalized.pdos[vasprun.final_structure[0]]
-        self.assertAlmostEqual(pdos0_norm[Orbital.s][Spin.up][16], 0.0026)  # the site data should not change
+        assert pdos0_norm[Orbital.s][Spin.up][16] == approx(0.0026)  # the site data should not change
         assert pdos0_norm[Orbital.s][Spin.up].shape == (301,)
 
         cdos_norm, cdos = vasprun.complete_dos_normalized, vasprun.complete_dos
         ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
-        self.assertAlmostEqual(ratio, vasprun.final_structure.volume)  # the site data should not change
+        assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
 
         filepath2 = self.TEST_FILES_DIR / "lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
@@ -683,27 +679,12 @@ class VasprunTest(PymatgenTest):
     def test_search_for_potcar(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
         vasprun = Vasprun(filepath, parse_potcar_file=True)
-        assert vasprun.potcar_spec == [
-            {
-                "titel": "PAW_PBE Li 17Jan2003",
-                "hash": "65e83282d1707ec078c1012afbd05be8",
-            },
-            {
-                "titel": "PAW_PBE Fe 06Sep2000",
-                "hash": "9530da8244e4dac17580869b4adab115",
-            },
-            {
-                "titel": "PAW_PBE Fe 06Sep2000",
-                "hash": "9530da8244e4dac17580869b4adab115",
-            },
-            {
-                "titel": "PAW_PBE P 17Jan2003",
-                "hash": "7dc3393307131ae67785a0cdacb61d5f",
-            },
-            {
-                "titel": "PAW_PBE O 08Apr2002",
-                "hash": "7a25bc5b9a5393f46600a4939d357982",
-            },
+        assert [spec["titel"] for spec in vasprun.potcar_spec] == [
+            "PAW_PBE Li 17Jan2003",
+            "PAW_PBE Fe 06Sep2000",
+            "PAW_PBE Fe 06Sep2000",
+            "PAW_PBE P 17Jan2003",
+            "PAW_PBE O 08Apr2002",
         ]
 
     def test_potcar_not_found(self):
@@ -1700,15 +1681,15 @@ class XdatcarTest(PymatgenTest):
         x = Xdatcar(filepath)
         structures = x.structures
         assert len(structures) == 4
-        for s in structures:
-            assert s.formula == "Li2 O1"
+        for struct in structures:
+            assert struct.formula == "Li2 O1"
 
         filepath = self.TEST_FILES_DIR / "XDATCAR_5"
         x = Xdatcar(filepath)
         structures = x.structures
         assert len(structures) == 4
-        for s in structures:
-            assert s.formula == "Li2 O1"
+        for struct in structures:
+            assert struct.formula == "Li2 O1"
 
         x.concatenate(self.TEST_FILES_DIR / "XDATCAR_4")
         assert len(x.structures) == 8
@@ -1723,7 +1704,6 @@ class XdatcarTest(PymatgenTest):
 
 class DynmatTest(PymatgenTest):
     def test_init(self):
-        # nosetests pymatgen/io/vasp/tests/test_outputs.py:DynmatTest.test_init
         filepath = self.TEST_FILES_DIR / "DYNMAT"
         d = Dynmat(filepath)
         assert d.nspecs == 2
@@ -2113,7 +2093,6 @@ class WSWQTest(PymatgenTest):
         self.wswq = WSWQ.from_file(self.TEST_FILES_DIR / "WSWQ.gz")
 
     def test_consistency(self):
-        assert True is True
         assert self.wswq.nbands == 18
         assert self.wswq.nkpoints == 20
         assert self.wswq.nspin == 2

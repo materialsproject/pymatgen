@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to interface with the Materials Project REST
 API v2 to enable the creation of data structures and pymatgen objects using
@@ -24,7 +21,7 @@ import sys
 import warnings
 from enum import Enum, unique
 from time import sleep
-from typing import Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
@@ -40,9 +37,11 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
+    from pymatgen.phonon.dos import CompletePhononDos
 
 logger = logging.getLogger(__name__)
 
@@ -216,44 +215,44 @@ class _MPResterLegacy:
 
             try:
                 with open(MP_LOG_FILE) as f:
-                    d = dict(yaml.load(f))
+                    dct = dict(yaml.load(f))
             except (OSError, TypeError):
                 # TypeError: 'NoneType' object is not iterable occurs if MP_LOG_FILE exists but is empty
-                d = {}
+                dct = {}
 
-            d = d or {}
+            dct = dct or {}
 
-            if "MAPI_DB_VERSION" not in d:
-                d["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
+            if "MAPI_DB_VERSION" not in dct:
+                dct["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
             else:
                 # ensure data is parsed as dict, rather than ordered dict,
                 # due to change in YAML parsing behavior
-                d["MAPI_DB_VERSION"] = dict(d["MAPI_DB_VERSION"])
+                dct["MAPI_DB_VERSION"] = dict(dct["MAPI_DB_VERSION"])
 
-            if "LOG" in d["MAPI_DB_VERSION"]:
-                d["MAPI_DB_VERSION"]["LOG"] = dict(d["MAPI_DB_VERSION"]["LOG"])
+            if "LOG" in dct["MAPI_DB_VERSION"]:
+                dct["MAPI_DB_VERSION"]["LOG"] = dict(dct["MAPI_DB_VERSION"]["LOG"])
 
             # store a log of what database versions are being connected to
-            if db_version not in d["MAPI_DB_VERSION"]["LOG"]:
-                d["MAPI_DB_VERSION"]["LOG"][db_version] = 1
+            if db_version not in dct["MAPI_DB_VERSION"]["LOG"]:
+                dct["MAPI_DB_VERSION"]["LOG"][db_version] = 1
             else:
-                d["MAPI_DB_VERSION"]["LOG"][db_version] += 1
+                dct["MAPI_DB_VERSION"]["LOG"][db_version] += 1
 
             # alert user if db version changed
-            last_accessed = d["MAPI_DB_VERSION"]["LAST_ACCESSED"]
+            last_accessed = dct["MAPI_DB_VERSION"]["LAST_ACCESSED"]
             if last_accessed and last_accessed != db_version:
                 print(
                     f"This database version has changed from the database last accessed ({last_accessed}).\n"
                     f"Please see release notes on materialsproject.org for information about what has changed."
                 )
-            d["MAPI_DB_VERSION"]["LAST_ACCESSED"] = db_version
+            dct["MAPI_DB_VERSION"]["LAST_ACCESSED"] = db_version
 
             # write out new database log if possible
             # base Exception is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
                 with open(MP_LOG_FILE, "w") as f:
-                    yaml.dump(d, f)
+                    yaml.dump(dct, f)
             except Exception:
                 pass
 
@@ -1494,28 +1493,25 @@ class _MPResterLegacy:
         Args:
             material_id (str): Materials Project material_id, e.g., 'mp-129'.
             pretty_formula (str): The formula of metals. e.g., 'Fe'
-            sigma(int): The sigma value of a certain type of grain boundary
-            gb_plane(list of integer): The Miller index of grain
-            boundary plane. e.g., [1, 1, 1]
-            rotation_axis(list of integer): The Miller index of rotation
-            axis. e.g., [1, 0, 0], [1, 1, 0], and [1, 1, 1]
-            Sigma value is determined by the combination of rotation axis and
-            rotation angle. The five degrees of freedom (DOF) of one grain boundary
-            include: rotation axis (2 DOFs), rotation angle (1 DOF), and grain
-            boundary plane (2 DOFs).
+            chemsys (str): The chemical system. e.g., 'Fe-O'
+            sigma (int): The sigma value of a certain type of grain boundary
+            gb_plane (list of integer): The Miller index of grain boundary plane. e.g., [1, 1, 1]
+            rotation_axis (list of integer): The Miller index of rotation axis. e.g.,
+                [1, 0, 0], [1, 1, 0], and [1, 1, 1] Sigma value is determined by the combination of
+                rotation axis and rotation angle. The five degrees of freedom (DOF) of one grain boundary
+                include: rotation axis (2 DOFs), rotation angle (1 DOF), and grain boundary plane (2 DOFs).
             include_work_of_separation (bool): whether to include the work of separation
-            (in unit of (J/m^2)). If you want to query the work of separation, please
-            specify the material_id.
-
+                (in unit of (J/m^2)). If you want to query the work of separation, please
+                specify the material_id.
 
         Returns:
             A list of grain boundaries that satisfy the query conditions (sigma, gb_plane).
             Energies are given in SI units (J/m^2).
         """
         if gb_plane:
-            gb_plane = ",".join(str(i) for i in gb_plane)
+            gb_plane = ",".join(str(plane) for plane in gb_plane)
         if rotation_axis:
-            rotation_axis = ",".join(str(i) for i in rotation_axis)
+            rotation_axis = ",".join(str(ax) for ax in rotation_axis)
 
         payload = {
             "material_id": material_id,
@@ -1534,8 +1530,8 @@ class _MPResterLegacy:
                 surface_energy = self.get_surface_data(material_id=material_id, miller_index=gb_plane_int)[
                     "surface_energy"
                 ]
-                wsep = 2 * surface_energy - gb_energy  # calculate the work of separation
-                gb_dict["work_of_separation"] = wsep
+                work_of_sep = 2 * surface_energy - gb_energy  # calculate the work of separation
+                gb_dict["work_of_separation"] = work_of_sep
             return list_of_gbs
 
         return self._make_request("/grain_boundaries", payload=payload)
@@ -1574,7 +1570,7 @@ class _MPResterLegacy:
                 `pymatgen.analysis.reaction_calculator.Reaction`.
         """
         payload = {
-            "reactants": " ".join([reactant1, reactant2]),
+            "reactants": f"{reactant1} {reactant2}",
             "open_el": open_el,
             "relative_mu": relative_mu,
             "use_hull_energy": use_hull_energy,
@@ -1635,7 +1631,7 @@ class _MPResterLegacy:
                 prefix += f"file_pattern={file_pattern}&"
         prefix += "external_id="
 
-        urls = [prefix + tids for tids in nomad_exist_task_ids]
+        urls = [f"{prefix}{task_ids}" for task_ids in nomad_exist_task_ids]
         return meta, urls
 
     @staticmethod
@@ -1690,7 +1686,7 @@ class _MPResterLegacy:
         Returns:
             A mongo query dict.
         """
-        toks = criteria_string.split()
+        tokens = criteria_string.split()
 
         def parse_sym(sym):
             if sym == "*":
@@ -1705,13 +1701,13 @@ class _MPResterLegacy:
                 return {"task_id": t}
             if "-" in t:
                 elements = [parse_sym(sym) for sym in t.split("-")]
-                chemsyss = []
+                chem_sys_lst = []
                 for cs in itertools.product(*elements):
                     if len(set(cs)) == len(cs):
                         # Check for valid symbols
                         cs = [Element(s).symbol for s in cs]
-                        chemsyss.append("-".join(sorted(cs)))
-                return {"chemsys": {"$in": chemsyss}}
+                        chem_sys_lst.append("-".join(sorted(cs)))
+                return {"chemsys": {"$in": chem_sys_lst}}
             all_formulas = set()
             explicit_els = []
             wild_card_els = []
@@ -1733,30 +1729,29 @@ class _MPResterLegacy:
                     all_formulas.add(c.reduced_formula)
             return {"pretty_formula": {"$in": list(all_formulas)}}
 
-        if len(toks) == 1:
-            return parse_tok(toks[0])
-        return {"$or": list(map(parse_tok, toks))}
+        if len(tokens) == 1:
+            return parse_tok(tokens[0])
+        return {"$or": list(map(parse_tok, tokens))}
 
 
 class MPRester:
     """
     A class to conveniently interface with the new and legacy Materials Project REST
-    interface. The recommended way to use MPRester is with the "with" context
-    manager to ensure that sessions are properly closed after usage::
+    interface. The recommended way to use MPRester is as a context manager to ensure
+    that sessions are properly closed after usage:
 
-        with MPRester("API_KEY") as m:
-            do_something
+        with MPRester("API_KEY") as mpr:
+            docs = mpr.call_some_method()
 
-    MPRester uses the "requests" package, which provides for HTTP connection
+    MPRester uses the "requests" package, which provides HTTP connection
     pooling. All connections are made via https for security.
 
     For more advanced uses of the Materials API, please consult the API
     documentation at https://materialsproject.org/api and https://docs.materialsproject.org.
 
-    Note that this barebones class is to handle transition between the old and new API keys in a transparent manner,
-    providing backwards compatibility. Use it as you would with normal MPRester usage. If a new API key is detected,
-    the _MPResterNew will be initialized. Otherwise, the _MPResterLegacy. Consult the Materials Project documentation
-    at https://docs.materialsproject.org for advice on which API to use.
+    This class handles the transition between old and new MP API, making it easy to switch between them
+    by passing a new (length 32) or old (15 <= length <= 17) API key. See https://docs.materialsproject.org
+    for which API to use.
     """
 
     def __new__(cls, *args, **kwargs):
@@ -1765,20 +1760,19 @@ class MPRester:
            *args: Pass through to either legacy or new MPRester.
            **kwargs: Pass through to either legacy or new MPRester.
         """
-        if len(args) > 0:
-            api_key = args[0]
-        else:
+        api_key = args[0] if len(args) > 0 else None
+
+        if api_key is None:
             api_key = kwargs.get("api_key", SETTINGS.get("PMG_MAPI_KEY"))
             kwargs["api_key"] = api_key
 
         if not api_key:
             raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
 
-        return (_MPResterNew if len(api_key) == 32 else _MPResterLegacy)(*args, **kwargs)
+        rester = _MPResterNew if len(api_key) == 32 else _MPResterLegacy
+
+        return rester(*args, **kwargs)
 
 
 class MPRestError(Exception):
-    """
-    Exception class for legacy MPRestAdaptor.
-    Raised when the query has problems, e.g., bad query format.
-    """
+    """Exception class for legacy MPRestAdaptor. Raised when query is malformed."""

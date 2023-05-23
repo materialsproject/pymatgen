@@ -131,7 +131,7 @@ class CorrectionCalculator:
 
             allow = True
 
-            compound = self.calc_compounds.get(name, None)
+            compound = self.calc_compounds.get(name)
             if not compound:
                 warnings.warn(f"Compound {name} is not found in provided computed entries and is excluded from the fit")
                 continue
@@ -437,7 +437,7 @@ class CorrectionCalculator:
         contents["Corrections"].yaml_set_start_comment("Energy corrections in eV/atom", indent=2)
         contents["Corrections"]["GGAUMixingCorrections"].yaml_set_start_comment(
             "Composition-based corrections applied to transition metal oxides\nand fluorides to "
-            + 'make GGA and GGA+U energies compatible\nwhen compat_type = "Advanced" (default)',
+            'make GGA and GGA+U energies compatible\nwhen compat_type = "Advanced" (default)',
             indent=4,
         )
         contents["Corrections"]["CompositionCorrections"].yaml_set_start_comment(

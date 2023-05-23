@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines utility classes and functions.
 """
@@ -260,7 +257,7 @@ class PackmolRunner:
         for idx, mol in enumerate(self.mols):
             length = max(np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3)) + 2.0
             net_volume += (length**3.0) * float(self.param_list[idx]["number"])
-        length = net_volume ** (1.0 / 3.0)
+        length = net_volume ** (1 / 3)
         for idx, _mol in enumerate(self.mols):
             self.param_list[idx]["inside box"] = f"0.0 0.0 0.0 {length} {length} {length}"
 
@@ -416,9 +413,8 @@ class PackmolRunner:
         Returns:
             Molecule
         """
-        # only for pdb
-        if not self.control_params["filetype"] == "pdb":
-            raise ValueError()
+        if not self.control_params["filetype"] == "pdb":  # only for pdb
+            raise ValueError("site properties can only be restored for pdb files.")
 
         filename = filename or self.control_params["output"]
         bma = BabelMolAdaptor.from_file(filename, "pdb")

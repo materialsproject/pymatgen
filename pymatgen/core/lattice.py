@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Defines the classes relating to 3D lattices.
 """
@@ -13,7 +10,7 @@ import math
 import warnings
 from fractions import Fraction
 from functools import reduce
-from typing import Iterator, Sequence
+from typing import TYPE_CHECKING, Iterator, Sequence
 
 import numpy as np
 from monty.dev import deprecated
@@ -23,7 +20,9 @@ from numpy.linalg import inv
 
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.num import abs_cap
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -90,7 +89,7 @@ class Lattice(MSONable):
         for i in range(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
-            angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
+            angles[i] = abs_cap(np.dot(m[j], m[k]) / (lengths[j] * lengths[k]))
         angles = np.arccos(angles) * 180.0 / pi
         return tuple(angles.tolist())  # type: ignore
 
@@ -161,7 +160,7 @@ class Lattice(MSONable):
         """
         The metric tensor of the lattice.
         """
-        return dot(self._matrix, self._matrix.T)
+        return np.dot(self._matrix, self._matrix.T)
 
     def get_cartesian_coords(self, fractional_coords: ArrayLike) -> np.ndarray:
         """
@@ -173,7 +172,7 @@ class Lattice(MSONable):
         Returns:
             Cartesian coordinates
         """
-        return dot(fractional_coords, self._matrix)
+        return np.dot(fractional_coords, self._matrix)
 
     def get_fractional_coords(self, cart_coords: ArrayLike) -> np.ndarray:
         """
@@ -185,7 +184,7 @@ class Lattice(MSONable):
         Returns:
             Fractional coordinates.
         """
-        return dot(cart_coords, self.inv_matrix)
+        return np.dot(cart_coords, self.inv_matrix)
 
     def get_vector_along_lattice_directions(self, cart_coords: ArrayLike) -> np.ndarray:
         """
@@ -219,7 +218,7 @@ class Lattice(MSONable):
         """
         gstar = self.reciprocal_lattice_crystallographic.metric_tensor
         hkl = np.array(miller_index)
-        return 1 / ((dot(dot(hkl, gstar), hkl.T)) ** (1 / 2))
+        return 1 / ((np.dot(np.dot(hkl, gstar), hkl.T)) ** (1 / 2))
 
     @staticmethod
     def cubic(a: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Lattice:
@@ -457,10 +456,10 @@ class Lattice(MSONable):
     @property
     def volume(self) -> float:
         """
-        Volume of the unit cell.
+        Volume of the unit cell in Angstrom^3.
         """
-        m = self._matrix
-        return float(abs(dot(np.cross(m[0], m[1]), m[2])))
+        matrix = self._matrix
+        return float(abs(np.dot(np.cross(matrix[0], matrix[1]), matrix[2])))
 
     @property
     def parameters(self) -> tuple[float, float, float, float, float, float]:
@@ -1073,6 +1072,8 @@ class Lattice(MSONable):
                 this one.
             ltol (float): Tolerance for matching lengths. Defaults to 1e-5.
             atol (float): Tolerance for matching angles. Defaults to 1.
+            skip_rotation_matrix (bool): Whether to skip calculation of the rotation matrix.
+                Defaults to False.
 
         Returns:
             (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
@@ -1251,7 +1252,7 @@ class Lattice(MSONable):
                 k = -1 if n == -1 else 1
                 M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
                 G = dot(transpose(M), dot(G, M))
-            elif ll * m * n == 0 or ll * m * n == -1:
+            elif ll * m * n in (0, -1):
                 # A4
                 i = -1 if ll == 1 else 1
                 j = -1 if m == 1 else 1
@@ -1363,8 +1364,8 @@ class Lattice(MSONable):
         vec3 = self._matrix[2]
 
         list_k_points = []
-        for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
-            list_k_points.append(i * vec1 + j * vec2 + k * vec3)
+        for ii, jj, kk in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
+            list_k_points.append(ii * vec1 + jj * vec2 + kk * vec3)
         # pylint: disable=C0415
         from scipy.spatial import Voronoi
 
@@ -1394,7 +1395,8 @@ class Lattice(MSONable):
         Compute the scalar product of vector(s).
 
         Args:
-            coords_a, coords_b: Array-like objects with the coordinates.
+            coords_a: Array-like coordinates.
+            coords_b: Array-like coordinates.
             frac_coords (bool): Boolean stating whether the vector
                 corresponds to fractional or Cartesian coordinates.
 

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -74,6 +71,28 @@ EPS=12
         assert gau.functional == "HF"
         assert gau.input_parameters["EPS"] == "12"
 
+    def test_from_cart_coords(self):
+        answer = """#P HF/6-31G(d) SCF=Tight SP
+
+H4 C1
+
+0 1
+C 0.000000 0.000000 0.000000
+H 0.000000 0.000000 1.089000
+H 1.026719 0.000000 -0.363000
+H -0.513360 -0.889165 -0.363000
+H -0.513360 0.889165 -0.363000
+
+EPS=12
+
+"""
+        assert self.gau.to_string(cart_coords=True) == answer
+        gau = GaussianInput.from_string(answer)
+        assert gau.functional == "HF"
+        assert gau.charge == 0
+        assert gau.spin_multiplicity == 1
+        assert gau.input_parameters["EPS"] == "12"
+
     def test_from_file(self):
         filepath = os.path.join(test_dir, "MethylPyrrolidine_drawn.gjf")
         gau = GaussianInput.from_file(filepath)
@@ -108,6 +127,7 @@ Sites (6)
         gau_str = """%mem=5000000
         %chk=filename
         # mp2/6-31g* scf=direct
+        opt freq
 
         SIH4+ H2---SIH2+ CS //MP2(full)/6-31G* MP2=-290.9225259
 
@@ -130,6 +150,7 @@ Sites (6)
 
         gau = GaussianInput.from_string(gau_str)
         assert gau.molecule.composition.reduced_formula == "X3SiH4"
+        assert set(gau.route_parameters) == {"opt", "freq", "scf"}
 
     def test_gen_basis(self):
         gau_str = """#N B3LYP/Gen Pseudo=Read
@@ -230,7 +251,7 @@ H 0
 
 
 class GaussianOutputTest(unittest.TestCase):
-    # todo: Add unittest for PCM type output.
+    # TODO: Add unittest for PCM type output.
 
     def setUp(self):
         self.gauout = GaussianOutput(os.path.join(test_dir, "methane.log"))
@@ -433,6 +454,27 @@ class GaussianOutputTest(unittest.TestCase):
         assert gout.basis_set == "6-31+G**"
         assert gout.route_parameters == route
         assert gout.title == "L-cysteine neutral"
+        assert gout.charge == 0
+        assert gout.spin_multiplicity == 1
+
+    def test_multiple_parameters_with_multiple_completed_lines(self):
+        """
+        This test makes sure that input files with multi-parameter keywords
+        and route cards with multiple completed lines which are split by line break parse correctly.
+        """
+        filepath = os.path.join(test_dir, "EC.log.gz")
+        route_params = {
+            "opt": {"loose": None, "maxcyc": "400"},
+            "freq": None,
+            "SCRF": "(SMD,READ)",
+            "EmpiricalDispersion": "GD3BJ",
+        }
+        gout = GaussianOutput(filepath)
+        assert gout.dieze_tag == "#N"
+        assert gout.functional == "B3LYP"
+        assert gout.basis_set == "6-311++G(2d,p)"
+        assert gout.route_parameters == route_params
+        assert gout.title == "H4 C3 O3"
         assert gout.charge == 0
         assert gout.spin_multiplicity == 1
 

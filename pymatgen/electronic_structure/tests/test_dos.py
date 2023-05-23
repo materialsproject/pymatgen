@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import json
@@ -17,12 +13,7 @@ from pytest import approx
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
-from pymatgen.electronic_structure.dos import (
-    DOS,
-    CompleteDos,
-    FermiDos,
-    LobsterCompleteDos,
-)
+from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -282,7 +273,7 @@ class CompleteDosTest(unittest.TestCase):
         dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
         dos_fp2 = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
         similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True)
-        assert similarity_index == 1
+        assert similarity_index == approx(1)
 
     def test_dos_fp_exceptions(self):
         dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
@@ -304,10 +295,10 @@ class CompleteDosTest(unittest.TestCase):
 
 class DOSTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
-            d = json.load(f)
-            y = list(zip(d["densities"]["1"], d["densities"]["-1"]))
-            self.dos = DOS(d["energies"], y, d["efermi"])
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as file:
+            dct = json.load(file)
+            y = list(zip(dct["densities"]["1"], dct["densities"]["-1"]))
+            self.dos = DOS(dct["energies"], y, dct["efermi"])
 
     def test_get_gap(self):
         dos = self.dos

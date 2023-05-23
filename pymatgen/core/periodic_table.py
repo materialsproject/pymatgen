@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """Module contains classes presenting Element and Species (Element + oxidation state) and PeriodicTable."""
 
 from __future__ import annotations
@@ -14,7 +11,7 @@ from collections import Counter
 from enum import Enum
 from itertools import combinations, product
 from pathlib import Path
-from typing import Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -22,18 +19,27 @@ from monty.json import MSONable
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
 from pymatgen.util.string import Stringify, formula_double_format
 
+if TYPE_CHECKING:
+    from pymatgen.util.typing import SpeciesLike
+
 # Loads element data from json file
-with open(str(Path(__file__).absolute().parent / "periodic_table.json")) as f:
-    _pt_data = json.load(f)
+with open(Path(__file__).absolute().parent / "periodic_table.json") as ptable_json:
+    _pt_data = json.load(ptable_json)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
 
 @functools.total_ordering
 class ElementBase(Enum):
-    """Element class defined without any enum values so it can be subclassed."""
+    """Element class defined without any enum values so it can be subclassed.
 
-    def __init__(self, symbol: str):
+    This class is needed to get nested (as|from)_dict to work properly. All emmet classes that had
+    Element classes required custom construction whereas this definition behaves more like dataclasses
+    so serialization is less troublesome. There were many times where objects in as_dict serialized
+    only when they were top level. See https://github.com/materialsproject/pymatgen/issues/2999.
+    """
+
+    def __init__(self, symbol: SpeciesLike):
         """
         Basic immutable element object with all relevant properties.
 
@@ -186,7 +192,7 @@ class ElementBase(Enum):
             energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
             ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
         """
-        self.symbol = symbol
+        self.symbol = str(symbol)
         d = _pt_data[symbol]
 
         # Store key variables for quick access
@@ -272,7 +278,7 @@ class ElementBase(Enum):
             "ionization_energies",
         ]:
             kstr = item.capitalize().replace("_", " ")
-            val = self._data.get(kstr, None)
+            val = self._data.get(kstr)
             if str(val).startswith("no data"):
                 val = None
             elif isinstance(val, (list, dict)):
@@ -1047,45 +1053,47 @@ class Species(MSONable, Stringify):
 
     def __init__(
         self,
-        symbol: str,
-        oxidation_state: float | None = 0.0,
+        symbol: SpeciesLike,
+        oxidation_state: float | None = None,
         properties: dict | None = None,
-    ):
+    ) -> None:
         """
         Initializes a Species.
 
         Args:
-            symbol (str): Element symbol, e.g., Fe
-            oxidation_state (float): Oxidation state of element, e.g., 2 or -2
+            symbol (str): Element symbol optionally incl. oxidation state. E.g. Fe, Fe2+, O2-.
+            oxidation_state (float): Explicit oxidation state of element, e.g. -2, -1, 0, 1, 2, ...
+                If oxidation state is present in symbol, this argument is ignored.
             properties: Properties associated with the Species, e.g.,
                 {"spin": 5}. Defaults to None. Properties must be one of the
                 Species supported_properties.
 
-        .. attribute:: oxi_state
-
-            Oxidation state associated with Species
-
-        .. attribute:: ionic_radius
-
-            Ionic radius of Species (with specific oxidation state).
-
-        .. versionchanged:: 2.6.7
-
-            Properties are now checked when comparing two Species for equality.
+        Raises:
+            ValueError: If oxidation state passed both in symbol and via oxidation_state kwarg.
         """
+        if oxidation_state is not None and isinstance(symbol, str) and symbol[-1] in {"+", "-"}:
+            raise ValueError(
+                f"Oxidation state should be specified either in {symbol=} or as {oxidation_state=}, not both."
+            )
+        if isinstance(symbol, str) and symbol[-1] in {"+", "-"}:
+            # Extract oxidation state from symbol
+            symbol, oxi = re.match(r"([A-Za-z]+)([0-9]*[\+\-])", symbol).groups()  # type: ignore[union-attr]
+            self._oxi_state: float | None = (1 if "+" in oxi else -1) * float(oxi[:-1] or 1)
+        else:
+            self._oxi_state = oxidation_state
+
         self._el = Element(symbol)
-        self._oxi_state = oxidation_state
         self._properties = properties or {}
-        for k, _ in self._properties.items():
-            if k not in Species.supported_properties:
-                raise ValueError(f"{k} is not a supported property")
+        for key in self._properties:
+            if key not in Species.supported_properties:
+                raise ValueError(f"{key} is not a supported property")
 
     def __getattr__(self, a):
         # overriding getattr doesn't play nice with pickle, so we
         # can't use self._properties
-        p = object.__getattribute__(self, "_properties")
-        if a in p:
-            return p[a]
+        props = object.__getattribute__(self, "_properties")
+        if a in props:
+            return props[a]
         return getattr(self._el, a)
 
     def __eq__(self, other: object) -> bool:
@@ -1316,31 +1324,31 @@ class Species(MSONable, Stringify):
         elec = self.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation.")
-        nelectrons = elec[-1][2] + elec[-2][2] - self.oxi_state
-        if nelectrons < 0 or nelectrons > 10:
+        n_electrons = elec[-1][2] + elec[-2][2] - self.oxi_state
+        if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {self.oxi_state} for element {self.symbol}")
         if spin_config == "high":
-            if nelectrons <= 5:
-                return nelectrons
-            return 10 - nelectrons
+            if n_electrons <= 5:
+                return n_electrons
+            return 10 - n_electrons
         if spin_config == "low":
             if coordination == "oct":
-                if nelectrons <= 3:
-                    return nelectrons
-                if nelectrons <= 6:
-                    return 6 - nelectrons
-                if nelectrons <= 8:
-                    return nelectrons - 6
-                return 10 - nelectrons
+                if n_electrons <= 3:
+                    return n_electrons
+                if n_electrons <= 6:
+                    return 6 - n_electrons
+                if n_electrons <= 8:
+                    return n_electrons - 6
+                return 10 - n_electrons
             if coordination == "tet":
-                if nelectrons <= 2:
-                    return nelectrons
-                if nelectrons <= 4:
-                    return 4 - nelectrons
-                if nelectrons <= 7:
-                    return nelectrons - 4
-                return 10 - nelectrons
-        raise RuntimeError()
+                if n_electrons <= 2:
+                    return n_electrons
+                if n_electrons <= 4:
+                    return 4 - n_electrons
+                if n_electrons <= 7:
+                    return n_electrons - 4
+                return 10 - n_electrons
+        raise RuntimeError(f"should not reach here, {spin_config=}, {coordination=}")
 
     def __deepcopy__(self, memo):
         return Species(self.symbol, self.oxi_state, self._properties)
@@ -1365,7 +1373,7 @@ class Species(MSONable, Stringify):
         :param d: Dict representation.
         :return: Species.
         """
-        return cls(d["element"], d["oxidation_state"], d.get("properties", None))
+        return cls(d["element"], d["oxidation_state"], d.get("properties"))
 
 
 @functools.total_ordering
@@ -1397,7 +1405,7 @@ class DummySpecies(Species):
         symbol: str = "X",
         oxidation_state: float | None = 0,
         properties: dict | None = None,
-    ):
+    ) -> None:
         """
         Args:
             symbol (str): An assigned symbol for the dummy specie. Strict
@@ -1406,25 +1414,24 @@ class DummySpecies(Species):
                 constitute an Element symbol. Otherwise, a composition may
                 be parsed wrongly. E.g., "X" is fine, but "Vac" is not
                 because Vac contains V, a valid Element.
-            oxidation_state (float): Oxidation state for dummy specie.
-                Defaults to zero.
+            oxidation_state (float): Oxidation state for dummy specie. Defaults to 0.
+            properties (dict): Arbitrary properties associated with dummy specie.
         """
         # enforce title case to match other elements, reduces confusion
         # when multiple DummySpecies in a "formula" string
         symbol = symbol.title()
 
-        for i in range(1, min(2, len(symbol)) + 1):
-            if Element.is_valid_symbol(symbol[:i]):
-                raise ValueError(f"{symbol} contains {symbol[:i]}, which is a valid element symbol.")
+        for idx in range(1, min(2, len(symbol)) + 1):
+            if Element.is_valid_symbol(symbol[:idx]):
+                raise ValueError(f"{symbol} contains {symbol[:idx]}, which is a valid element symbol.")
 
         # Set required attributes for DummySpecies to function like a Species in
         # most instances.
         self._symbol = symbol
         self._oxi_state = oxidation_state
         self._properties = properties or {}
-        for k, _ in self._properties.items():
-            if k not in Species.supported_properties:
-                raise ValueError(f"{k} is not a supported property")
+        if invalid := set(self._properties) - set(Species.supported_properties):
+            raise ValueError(f"Invalid properties: {invalid}")
 
     def __getattr__(self, a):
         # overriding getattr doesn't play nice with pickle, so we
@@ -1514,7 +1521,7 @@ class DummySpecies(Species):
 
     def as_dict(self) -> dict:
         """
-        :return: MSONAble dict representation.
+        :return: MSONable dict representation.
         """
         d = {
             "@module": type(self).__module__,
@@ -1532,7 +1539,7 @@ class DummySpecies(Species):
         :param d: Dict representation
         :return: DummySpecies
         """
-        return cls(d["element"], d["oxidation_state"], d.get("properties", None))
+        return cls(d["element"], d["oxidation_state"], d.get("properties"))
 
     def __repr__(self):
         return f"DummySpecies {self}"

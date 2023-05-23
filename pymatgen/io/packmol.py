@@ -19,7 +19,6 @@ executable to the PATH environment variable.
 
 from __future__ import annotations
 
-import abc
 import os
 import subprocess
 from pathlib import Path
@@ -92,7 +91,6 @@ class PackmolSet(InputSet):
             os.chdir(wd)
 
     @classmethod
-    @abc.abstractmethod
     def from_directory(cls, directory: str | Path):
         """
         Construct an InputSet from a directory of one or more files.
@@ -169,7 +167,7 @@ class PackmolBoxGen(InputGenerator):
             if isinstance(v, list):
                 file_contents += f"{k} {' '.join(str(x) for x in v)}\n"
             else:
-                file_contents += f"{k} {str(v)}\n"
+                file_contents += f"{k} {v!s}\n"
         file_contents += f"seed {self.seed}\n"
         file_contents += f"tolerance {self.tolerance}\n\n"
 
@@ -196,7 +194,7 @@ class PackmolBoxGen(InputGenerator):
                     + self.tolerance
                 )
                 net_volume += (length**3.0) * float(d["number"])
-            box_length = net_volume ** (1.0 / 3.0)
+            box_length = net_volume ** (1 / 3)
             print(f"Auto determined box size is {box_length:.1f} Å per side.")
             box_list = f"0.0 0.0 0.0 {box_length:.1f} {box_length:.1f} {box_length:.1f}"
 
@@ -216,7 +214,7 @@ class PackmolBoxGen(InputGenerator):
                 # fmt: on
             else:
                 file_contents += f"structure {fname}\n"
-            file_contents += f"  number {str(d['number'])}\n"
+            file_contents += f"  number {d['number']!s}\n"
             file_contents += f"  inside box {box_list}\n"
             file_contents += "end structure\n\n"
 

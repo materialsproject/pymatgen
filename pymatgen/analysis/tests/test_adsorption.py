@@ -4,12 +4,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen.analysis.adsorption import (
-    AdsorbateSiteFinder,
-    generate_all_slabs,
-    get_rot,
-    reorient_z,
-)
+from pymatgen.analysis.adsorption import AdsorbateSiteFinder, generate_all_slabs, get_rot, reorient_z
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

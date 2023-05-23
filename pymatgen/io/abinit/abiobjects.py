@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 #
 # pylint: disable=no-member, chained-comparison
 """
@@ -38,8 +36,8 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
     kwargs.update(dict(*args))
     d = kwargs
 
-    rprim = d.get("rprim", None)
-    angdeg = d.get("angdeg", None)
+    rprim = d.get("rprim")
+    angdeg = d.get("angdeg")
     acell = d["acell"]
 
     if rprim is not None:
@@ -54,9 +52,9 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         angdeg = np.reshape(angdeg, 3)
 
         if np.any(angdeg <= 0.0):
-            raise ValueError(f"Angles must be > 0 but got {str(angdeg)}")
+            raise ValueError(f"Angles must be > 0 but got {angdeg!s}")
         if angdeg.sum() >= 360.0:
-            raise ValueError(f"The sum of angdeg must be lower that 360, angdeg {str(angdeg)}")
+            raise ValueError(f"The sum of angdeg must be lower that 360, angdeg {angdeg!s}")
 
         # This code follows the implementation in ingeo.F90
         # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
@@ -127,20 +125,20 @@ def structure_from_abivars(cls=None, *args, **kwargs):
 
     # lattice = Lattice.from_dict(d, fmt="abivars")
     lattice = lattice_from_abivars(**d)
-    coords, coords_are_cartesian = d.get("xred", None), False
+    coords, coords_are_cartesian = d.get("xred"), False
 
     if coords is None:
-        coords = d.get("xcart", None)
+        coords = d.get("xcart")
         if coords is not None:
             if "xangst" in d:
                 raise ValueError("xangst and xcart are mutually exclusive")
             coords = ArrayWithUnit(coords, "bohr").to("ang")
         else:
-            coords = d.get("xangst", None)
+            coords = d.get("xangst")
         coords_are_cartesian = True
 
     if coords is None:
-        raise ValueError(f"Cannot extract coordinates from:\n {str(d)}")
+        raise ValueError(f"Cannot extract coordinates from:\n {d!s}")
 
     coords = np.reshape(coords, (-1, 3))
 
@@ -376,7 +374,7 @@ class SpinMode(
         try:
             return _mode2spinvars[obj]
         except KeyError:
-            raise KeyError(f"Wrong value for spin_mode: {str(obj)}")
+            raise KeyError(f"Wrong value for spin_mode: {obj!s}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
@@ -499,7 +497,7 @@ class Smearing(AbivarAble, MSONable):
         return {"occopt": self.occopt, "tsmear": self.tsmear}
 
     def as_dict(self):
-        """json friendly dict representation of Smearing"""
+        """JSON-friendly dict representation of Smearing"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -601,18 +599,18 @@ class Electrons(AbivarAble, MSONable):
         return self.spin_mode.nspden
 
     def as_dict(self):
-        """json friendly dict representation"""
-        d = {}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["spin_mode"] = self.spin_mode.as_dict()
-        d["smearing"] = self.smearing.as_dict()
-        d["algorithm"] = self.algorithm.as_dict() if self.algorithm else None
-        d["nband"] = self.nband
-        d["fband"] = self.fband
-        d["charge"] = self.charge
-        d["comment"] = self.comment
-        return d
+        """Json friendly dict representation"""
+        dct = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["spin_mode"] = self.spin_mode.as_dict()
+        dct["smearing"] = self.smearing.as_dict()
+        dct["algorithm"] = self.algorithm.as_dict() if self.algorithm else None
+        dct["nband"] = self.nband
+        dct["fband"] = self.fband
+        dct["charge"] = self.charge
+        dct["comment"] = self.comment
+        return dct
 
     @classmethod
     def from_dict(cls, d):
@@ -1219,7 +1217,7 @@ class PPModel(AbivarAble, MSONable):
         return self.mode != PPModelModes.noppmodel
 
     def __repr__(self):
-        return f"<{type(self).__name__} at {id(self)}, mode = {str(self.mode)}>"
+        return f"<{type(self).__name__} at {id(self)}, mode = {self.mode!s}>"
 
     def to_abivars(self):
         """Return dictionary with Abinit variables."""
@@ -1543,7 +1541,7 @@ class SelfEnergy(AbivarAble):
             # "bdgw"     : self.bdgw,
         }
 
-        # FIXME: problem with the spin
+        # TODO: problem with the spin
         # assert len(self.bdgw) == self.nkptgw
 
         # ppmodel variables
@@ -1684,7 +1682,6 @@ class ExcHamiltonian(AbivarAble):
         }
 
         if self.use_haydock:
-            # FIXME
             abivars.update(
                 bs_haydock_niter=100,  # No. of iterations for Haydock
                 bs_hayd_term=0,  # No terminator
@@ -1692,7 +1689,7 @@ class ExcHamiltonian(AbivarAble):
             )
 
         elif self.use_direct_diago or self.use_cg:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         else:
             raise ValueError(f"Unknown algorithm for EXC: {self.algo}")

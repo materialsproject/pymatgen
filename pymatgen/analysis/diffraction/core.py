@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements core classes for calculation of diffraction patterns.
 """
@@ -9,12 +6,15 @@ from __future__ import annotations
 
 import abc
 import collections
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.core.spectrum import Spectrum
-from pymatgen.core.structure import Structure
 from pymatgen.util.plotting import add_fig_kwargs
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 class DiffractionPattern(Spectrum):

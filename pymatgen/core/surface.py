@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements representations of slabs and surfaces, as well as
 algorithms for generating them. If you use this module, please consider
@@ -132,6 +129,7 @@ class Slab(Structure):
                 that are less than 0.01 Ang apart. Defaults to False.
             reconstruction (str): Type of reconstruction. Defaults to None if
                 the slab is not reconstructed.
+            to_unit_cell (bool): Translates fractional coordinates into the unit cell. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
@@ -498,7 +496,7 @@ class Slab(Structure):
 
     def as_dict(self):
         """
-        :return: MSONAble dict
+        :return: MSONable dict
         """
         d = super().as_dict()
         d["@module"] = type(self).__module__
@@ -799,7 +797,7 @@ class SlabGenerator:
             in_unit_planes (bool): Whether to set min_slab_size and min_vac_size
                 in units of hkl planes (True) or Angstrom (False/default).
                 Setting in units of planes is useful for ensuring some slabs
-                have a certain nlayer of atoms. e.g. for Cs (100), a 10 Ang
+                have a certain n_layer of atoms. e.g. for Cs (100), a 10 Ang
                 slab will result in a slab with only 2 layer of atoms, whereas
                 Fe (100) will have more layer of atoms. By using units of hkl
                 planes instead, we ensure both slabs
@@ -1384,8 +1382,7 @@ class ReconstructionGenerator:
                 unit cell structure.
             min_slab_size (float): In Angstroms
             min_vacuum_size (float): In Angstroms
-
-            reconstruction (str): Name of the dict containing the instructions
+            reconstruction_name (str): Name of the dict containing the instructions
                 for building a reconstructed slab. The dictionary can contain
                 any item the creator deems relevant, however any instructions
                 archived in pymatgen for public use needs to contain the
@@ -1675,6 +1672,10 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
     # First we get a list of all hkls for conventional (including equivalent)
     conv_hkl_list = [miller for miller in itertools.product(r, r, r) if any(i != 0 for i in miller)]
 
+    # Sort by the maximum of the absolute values of individual Miller indices so that
+    # low-index planes are first. This is important for trigonal systems.
+    conv_hkl_list = sorted(conv_hkl_list, key=lambda x: max(np.abs(x)))
+
     sg = SpacegroupAnalyzer(structure)
     # Get distinct hkl planes from the rhombohedral setting if trigonal
     if sg.get_crystal_system() == "trigonal":
@@ -1810,7 +1811,19 @@ def generate_all_slabs(
         repair (bool): Whether to repair terminations with broken bonds
             or just omit them
         include_reconstructions (bool): Whether to include reconstructed
-            slabs available in the reconstructions_archive.json file.
+            slabs available in the reconstructions_archive.json file. Defaults to False.
+        in_unit_planes (bool): Whether to generate slabs in units of the primitive
+            cell's c lattice vector. This is useful for generating slabs with
+            a specific number of layers, as the number of layers will be
+            independent of the Miller index. Defaults to False.
+        in_unit_planes (bool): Whether to set min_slab_size and min_vac_size
+            in units of hkl planes (True) or Angstrom (False, the default). Setting in
+            units of planes is useful for ensuring some slabs have a certain n_layer of
+            atoms. e.g. for Cs (100), a 10 Ang slab will result in a slab with only 2
+            layer of atoms, whereas Fe (100) will have more layer of atoms. By using units
+            of hkl planes instead, we ensure both slabs have the same number of atoms. The
+            slab thickness will be in min_slab_size/math.ceil(self._proj_height/dhkl)
+            multiples of oriented unit cells.
     """
     all_slabs = []
 

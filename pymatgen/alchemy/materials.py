@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides various representations of transformed structures. A
 TransformedStructure is a structure that has been modified by undergoing a
@@ -13,18 +10,20 @@ import datetime
 import json
 import os
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from warnings import warn
 
 from monty.json import MSONable, jsanitize
 
-from pymatgen.alchemy.filters import AbstractStructureFilter
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.sets import MPRelaxSet, VaspInputSet
-from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.util.provenance import StructureNL
+
+if TYPE_CHECKING:
+    from pymatgen.alchemy.filters import AbstractStructureFilter
+    from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 
 class TransformedStructure(MSONable):
@@ -191,12 +190,13 @@ class TransformedStructure(MSONable):
         Returns VASP input as a dict of VASP objects.
 
         Args:
-            vasp_input_set (pymatgen.io.vaspio_set.VaspInputSet): input set
-                to create vasp input files from structures
+            vasp_input_set (pymatgen.io.vasp.sets.VaspInputSet): input set
+                to create VASP input files from structures
+            **kwargs: All keyword args supported by the VASP input set.
         """
-        d = vasp_input_set(self.final_structure, **kwargs).get_vasp_input()
-        d["transformations.json"] = json.dumps(self.as_dict())
-        return d
+        dct = vasp_input_set(self.final_structure, **kwargs).get_vasp_input()
+        dct["transformations.json"] = json.dumps(self.as_dict())
+        return dct
 
     def write_vasp_input(
         self,
@@ -209,7 +209,7 @@ class TransformedStructure(MSONable):
         Writes VASP input to an output_dir.
 
         Args:
-            vasp_input_set: pymatgen.io.vaspio_set.VaspInputSet like object that creates vasp input files from
+            vasp_input_set: pymatgen.io.vasp.sets.VaspInputSet like object that creates vasp input files from
                 structures.
             output_dir: Directory to output files
             create_directory: Create the directory if not present. Defaults to
@@ -348,7 +348,7 @@ class TransformedStructure(MSONable):
         Creates a TransformedStructure from a dict.
         """
         struct = Structure.from_dict(d)
-        return cls(struct, history=d["history"], other_parameters=d.get("other_parameters", None))
+        return cls(struct, history=d["history"], other_parameters=d.get("other_parameters"))
 
     def to_snl(self, authors, **kwargs) -> StructureNL:
         """

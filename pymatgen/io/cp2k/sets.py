@@ -233,7 +233,7 @@ class DftSet(Cp2kInput):
         self.insert(g)
 
         # Build the QS Section
-        qs = QS(method=self.qs_method, eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb", None))
+        qs = QS(method=self.qs_method, eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb"))
         max_scf = max_scf if max_scf else 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
@@ -401,11 +401,11 @@ class DftSet(Cp2kInput):
             possible_potentials = []
             basis, aux_basis, potential = None, None, None
             desired_basis, desired_aux_basis, desired_potential = None, None, None
-            have_element_file = os.path.exists(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR"), el))
+            have_element_file = os.path.exists(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el))
 
             # Necessary if matching data to cp2k data files
             if have_element_file:
-                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR"), el)) as f:
+                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el)) as f:
                     yaml = YAML(typ="unsafe", pure=True)
                     DATA = yaml.load(f)
                     if not DATA.get("basis_sets"):
@@ -497,6 +497,7 @@ class DftSet(Cp2kInput):
                 for p in possible_potentials:
                     if x.info.electrons == p.info.electrons:
                         return p
+                return None
 
             for b in possible_basis_sets:
                 fb = match_elecs(b)
@@ -521,7 +522,7 @@ class DftSet(Cp2kInput):
             if potential is None:
                 if basis_and_potential.get(el, {}).get("potential"):
                     warnings.warn(
-                        f"Unable to validate potential for {el}. " " Exact name provided will be put in input file."
+                        f"Unable to validate potential for {el}. Exact name provided will be put in input file."
                     )
                     potential = basis_and_potential.get(el, {}).get("potential")
                 else:
@@ -559,8 +560,7 @@ class DftSet(Cp2kInput):
                 max_lshell = max(shell for shell in b.lmax)
                 exponent = np.log(radius**max_lshell / threshold) / radius**2
                 return [[exponent]]
-            else:
-                return b.exponents
+            return b.exponents
 
         exponents = [get_soft_exponents(b) for b in basis_sets if b.exponents]
         exponents = list(itertools.chain.from_iterable(exponents))

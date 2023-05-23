@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import copy
@@ -30,11 +27,7 @@ from pymatgen.entries.compatibility import (
     MITAqueousCompatibility,
     MITCompatibility,
 )
-from pymatgen.entries.computed_entries import (
-    ComputedEntry,
-    ComputedStructureEntry,
-    ConstantEnergyAdjustment,
-)
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -1944,29 +1937,18 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
             [0.666665, 0.666684, 0.149189],
         ]
         struct = Structure(latt, elts, coords)
-        li2o2_entry = ComputedStructureEntry(
-            struct,
-            -3,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        cse_params = {
+            "is_hubbard": False,
+            "hubbards": None,
+            "run_type": "GGA",
+            "potcar_spec": [
+                {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+            ],
+        }
+        li2o2_entry = ComputedStructureEntry(struct, -3, parameters=cse_params)
 
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
-        with pytest.raises(AssertionError):
-            self.assertAlmostEqual(*(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4))
         assert li2o2_entry_corrected.energy == pytest.approx(-3 - 0.66975 * 4)
 
     def test_ozonide(self):

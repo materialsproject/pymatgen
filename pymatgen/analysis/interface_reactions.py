@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides a class to predict and analyze interfacial reactions between two
 solids, with or without an open element (e.g., flowing O2).
@@ -269,7 +266,7 @@ class InterfacialReactivity(MSONable):
             return 1
         c1_coeff = reaction.get_coeff(self.c1_original) if self.c1_original in reaction.reactants else 0
         c2_coeff = reaction.get_coeff(self.c2_original) if self.c2_original in reaction.reactants else 0
-        return c1_coeff * 1.0 / (c1_coeff + c2_coeff)
+        return c1_coeff * 1 / (c1_coeff + c2_coeff)
 
     def _get_energy(self, x):
         """
@@ -589,9 +586,9 @@ class InterfacialReactivity(MSONable):
         """
         Returns a dictionary containing kink information:
         {index: 'x= mixing_ratio energy= reaction_energy reaction_equation'}.
-        E.g., {1: 'x= 0.0 energy = 0.0 Mn -> Mn',
-               2: 'x= 0.5 energy = -15.0 O2 + Mn -> MnO2',
-               3: 'x= 1.0 energy = 0.0 O2 -> O2'}.
+        E.g., {1: 'x= 0 energy = 0 Mn -> Mn',
+               2: 'x= 0.5 energy = -15 O2 + Mn -> MnO2',
+               3: 'x= 1 energy = 0 O2 -> O2'}.
         """
         return {
             j: "x= " + str(round(x, 4)) + " energy in eV/atom = " + str(round(energy, 4)) + " " + str(reaction)
@@ -663,6 +660,8 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         """
         if not isinstance(grand_pd, GrandPotentialPhaseDiagram):
             raise ValueError("Please use the InterfacialReactivity class if using a regular phase diagram!")
+        if not isinstance(pd_non_grand, PhaseDiagram):
+            raise ValueError("Please provide non-grand phase diagram to compute no_mixing_energy!")
 
         super().__init__(
             c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy, bypass_grand_warning=True

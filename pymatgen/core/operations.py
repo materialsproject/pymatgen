@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes that operate on points or vectors in 3D space.
 """
@@ -12,14 +9,16 @@ import string
 import typing
 import warnings
 from math import cos, pi, sin, sqrt
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.string import transformation_to_string
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 
@@ -430,7 +429,7 @@ class SymmOp(MSONable):
 
     def as_dict(self) -> dict[str, Any]:
         """
-        :return: MSONAble dict.
+        :return: MSONable dict.
         """
         return {
             "@module": type(self).__module__,
@@ -609,7 +608,7 @@ class MagSymmOp(SymmOp):
     def from_xyzt_string(xyzt_string: str) -> MagSymmOp:
         """
         Args:
-            xyz_string: string of the form 'x, y, z, +1', '-x, -y, z, -1',
+            xyzt_string (str): of the form 'x, y, z, +1', '-x, -y, z, -1',
                 '-2y+1/2, 3x+1/2, z-y+1/2, +1', etc.
 
         Returns:

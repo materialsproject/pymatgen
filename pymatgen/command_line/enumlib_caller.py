@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements an interface to enumlib, Gus Hart's excellent Fortran
 code for enumerating derivative structures.
@@ -30,12 +27,12 @@ Sci. 136 144-149 (May 2017)
 from __future__ import annotations
 
 import fractions
-import glob
 import itertools
 import logging
 import math
 import re
 import subprocess
+from glob import glob
 from shutil import which
 from threading import Timer
 
@@ -284,7 +281,7 @@ class EnumlibAdaptor:
                 min_conc = int(math.floor(conc * base))
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
         output.append("")
-        logger.debug("Generated input file:\n{}".format("\n".join(output)))
+        logger.debug("Generated input file:\n" + "\n".join(output))
         with open("struct_enum.in", "w") as f:
             f.write("\n".join(output))
 
@@ -367,7 +364,7 @@ class EnumlibAdaptor:
             ordered_structure = None  # to fix pylint E0601
             inv_org_latt = None
 
-        for file in glob.glob("vasp.*"):
+        for file in glob("vasp.*"):
             with open(file) as f:
                 data = f.read()
                 data = re.sub(r"scale factor", "1", data)

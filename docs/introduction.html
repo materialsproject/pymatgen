@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; pymatgen 2023.3.10 documentation</title>
+  <title>Introduction &mdash; pymatgen 2023.5.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.3.10
+                2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -55,7 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2023-3-10">v2023.3.10</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2023-5-10">v2023.5.10</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -95,8 +95,8 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Introduction</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Introduction</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/introduction.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -188,7 +188,7 @@ demonstrates some of the basic functionality of pymatgen, as well as a
 One of the ways you can contribute is to fork the matgenb repo and add your own examples.</p>
 <p>Below are a quick look at some of the graphical output possible.</p>
 <figure class="align-center" id="id2">
-<a class="reference internal image-reference" href="_images/examples.png"><img alt="Examples" src="_images/examples.png" style="width: 100%;" /></a>
+<a class="reference internal image-reference" href="_images/phase_diagram.png"><img alt="Examples" src="_images/phase_diagram.png" style="width: 100%;" /></a>
 <figcaption>
 <p><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
 Bottom left: Calculated bandstructure plot using pymatgen’s parsing and
@@ -227,11 +227,11 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h2>
-<section id="v2023-3-10">
-<h3>v2023.3.10<a class="headerlink" href="#v2023-3-10" title="Permalink to this heading"></a></h3>
+<section id="v2023-5-10">
+<h3>v2023.5.10<a class="headerlink" href="#v2023-5-10" title="Permalink to this heading"></a></h3>
 <ul class="simple">
-<li><p>PR #2882 substrate-optimizations for speed up (&#64;mkhorton)</p></li>
-<li><p>Fix very fragile POTCAR parsing.</p></li>
+<li><p>Fix mem leak in pbc_shortest_vector cython code. (&#64;stichri)</p></li>
+<li><p>Set all cython code to language level 3.</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>
@@ -319,13 +319,13 @@ molecule input files, Materials Project, etc.) into Python objects using pymatge
 perform further structure manipulation or analyses.</p>
 <p id="quick-start">Here are some quick examples of the core capabilities and objects:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pymatgen.core</span> <span class="k">as</span> <span class="nn">mg</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span><span class="o">.</span><span class="n">atomic_mass</span>
 <span class="go">28.0855</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">melting_point</span><span class="p">)</span>
 <span class="go">1687.0 K</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">weight</span>
 <span class="go">159.6882</span>
@@ -342,18 +342,18 @@ perform further structure manipulation or analyses.</p>
 <span class="go">74.088000000000008</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># You can create a Structure using spacegroup symmetry as well.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">li2o</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_spacegroup</span><span class="p">(</span><span class="s2">&quot;Fm-3m&quot;</span><span class="p">,</span> <span class="n">mg</span><span class="o">.</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
 <span class="go">                                        [&quot;Li&quot;, &quot;O&quot;],</span>
 <span class="go">                                        [[0.25, 0.25, 0.25], [0, 0, 0]])</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Integrated symmetry analysis tools from spglib.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">finder</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">()</span>
 <span class="go">&#39;Pm-3m&#39;</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Convenient IO to various formats. You can specify various formats.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Without a filename, a string is returned. Otherwise,</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># the output is written to the file. If only the filenmae is provided,</span>
@@ -361,17 +361,17 @@ perform further structure manipulation or analyses.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;poscar&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Reading a structure is similarly easy.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;cif&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Reading and writing a molecule from a file. Supports XYZ and</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Gaussian input and output by default. Support for many other</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># formats via the optional openbabel dependency (if installed).</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">methane</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;methane.xyz&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;methane.gjf&quot;</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Pythonic API for editing Structures and Molecules (v2.9.1 onwards)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Changing the specie of a site.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span>
@@ -383,7 +383,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 Cs     0.000000     0.000000     0.000000</span>
 <span class="go">2 F     0.500000     0.500000     0.500000</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Changes species and coordinates (fractional assumed for structures)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
@@ -394,7 +394,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 Cs     0.000000     0.000000     0.000000</span>
 <span class="go">2 Cl     0.510000     0.510000     0.510000</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Replaces all Cs in the structure with K</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="s2">&quot;Cs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;K&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
@@ -405,7 +405,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 K     0.000000     0.000000     0.000000</span>
 <span class="go">2 Cl     0.510000     0.510000     0.510000</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Replaces all K in the structure with K: 0.5, Na: 0.5, i.e.,</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># a disordered structure is created.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="s2">&quot;K&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;K0.5Na0.5&quot;</span>
@@ -419,7 +419,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">---  -----------------  ---  ---  ---</span>
 <span class="go">  0  K:0.500, Na:0.500  0    0    0</span>
 <span class="go">  1  Cl                 0.5  0.5  0.5</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Because structure is like a list, it supports most list-like methods</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># such as sort, reverse, etc.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
@@ -431,12 +431,12 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 Cl     0.510000     0.510000     0.510000</span>
 <span class="go">2 Cs     0.000000     0.000000     0.000000</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Molecules function similarly, but with Site and Cartesian coords.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># The following changes the C in CH4 to an N and displaces it by 0.01A</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># in the x-direction.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">methane</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 </pre></div>
 </div>
 <p>The above illustrates only the most basic capabilities of pymatgen. Users are
@@ -574,12 +574,6 @@ entire pymatgen Development Team. If individual contributors want to maintain a
 record of what changes/contributions they have specific copyright on, they
 should indicate their copyright in the commit message of the change, when
 they commit the change to one of the pymatgen repositories.</p>
-<p>With this in mind, the following banner should be used in any source code file
-to indicate the copyright and license terms:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copyright (c) Pymatgen Development Team.</span>
-<span class="c1"># Distributed under the terms of the MIT License.</span>
-</pre></div>
-</div>
 </section>
 <section id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h2>

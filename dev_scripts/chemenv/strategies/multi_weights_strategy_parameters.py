@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Script to visualize the model coordination environments
 """
@@ -23,9 +20,7 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     NormalizedAngleDistanceNbSetWeight,
     SelfCSMNbSetWeight,
 )
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,

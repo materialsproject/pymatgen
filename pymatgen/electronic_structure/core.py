@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.

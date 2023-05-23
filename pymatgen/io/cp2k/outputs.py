@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the Cp2k output parser along with a few other functions for parsing cp2k-related
 outputs.
@@ -9,11 +6,11 @@ outputs.
 
 from __future__ import annotations
 
-import glob
 import logging
 import os
 import re
 import warnings
+from glob import glob
 from itertools import chain
 
 import numpy as np
@@ -24,10 +21,7 @@ from monty.re import regrep
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructure,
-    BandStructureSymmLine,
-)
+from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.io.cp2k.inputs import Keyword
@@ -112,7 +106,7 @@ class Cp2kOutput:
         """
         The cp2k version used in the calculation
         """
-        return self.data.get("cp2k_version", None)[0][0]
+        return self.data.get("cp2k_version")[0][0]
 
     @property
     def completed(self):
@@ -161,8 +155,8 @@ class Cp2kOutput:
         }
 
         functional = self.data.get("dft", {}).get("functional", [None])
-        ip = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential", None)
-        frac = self.data.get("dft", {}).get("hfx", {}).get("FRACTION", None)
+        ip = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential")
+        frac = self.data.get("dft", {}).get("hfx", {}).get("FRACTION")
 
         if len(functional) > 1:
             rt = "Mixed: " + ", ".join(functional)
@@ -193,30 +187,27 @@ class Cp2kOutput:
         return rt
 
     @property
-    def project_name(self):
+    def project_name(self) -> str:
         """
         What project name was used for this calculation
         """
         return self.data.get("global").get("project_name")
 
     @property
-    def spin_polarized(self):
-        """
-        Was the calculation spin polarized
-        """
-        if ("UKS" or "UNRESTRICTED_KOHN_SHAM" or "LSD" or "SPIN_POLARIZED") in self.data["dft"].values():
-            return True
-        return False
+    def spin_polarized(self) -> bool:
+        """Was the calculation spin polarized"""
+        keys = ("UKS", "UNRESTRICTED_KOHN_SHAM", "LSD", "SPIN_POLARIZED")
+        return any(key in self.data["dft"].values() for key in keys)
 
     @property
-    def charge(self):
+    def charge(self) -> float:
         """Get charge from the input file"""
         return self.input["FORCE_EVAL"]["DFT"].get("CHARGE", Keyword("", 0)).values[0]
 
     @property
-    def multiplicity(self):
+    def multiplicity(self) -> int:
         """Get the spin multiplicity from input file"""
-        return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("", None)).values[0]
+        return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("")).values[0]
 
     @property
     def is_molecule(self) -> bool:
@@ -252,8 +243,8 @@ class Cp2kOutput:
         Identify files present in the directory with the cp2k output file. Looks for trajectories,
         dos, and cubes
         """
-        self.filenames["DOS"] = glob.glob(os.path.join(self.dir, "*.dos*"))
-        pdos = glob.glob(os.path.join(self.dir, "*pdos*"))
+        self.filenames["DOS"] = glob(os.path.join(self.dir, "*.dos*"))
+        pdos = glob(os.path.join(self.dir, "*pdos*"))
         self.filenames["PDOS"] = []
         self.filenames["LDOS"] = []
         for p in pdos:
@@ -261,22 +252,22 @@ class Cp2kOutput:
                 self.filenames["LDOS"].append(p)
             else:
                 self.filenames["PDOS"].append(p)
-        self.filenames["band_structure"] = glob.glob(os.path.join(self.dir, "*BAND.bs*"))
-        self.filenames["trajectory"] = glob.glob(os.path.join(self.dir, "*pos*.xyz*"))
-        self.filenames["forces"] = glob.glob(os.path.join(self.dir, "*frc*.xyz*"))
-        self.filenames["stress"] = glob.glob(os.path.join(self.dir, "*stress*"))
-        self.filenames["cell"] = glob.glob(os.path.join(self.dir, "*.cell*"))
-        self.filenames["ener"] = glob.glob(os.path.join(self.dir, "*.ener*"))
-        self.filenames["electron_density"] = glob.glob(os.path.join(self.dir, "*ELECTRON_DENSITY*.cube*"))
-        self.filenames["spin_density"] = glob.glob(os.path.join(self.dir, "*SPIN_DENSITY*.cube*"))
-        self.filenames["v_hartree"] = glob.glob(os.path.join(self.dir, "*hartree*.cube*"))
-        self.filenames["hyperfine_tensor"] = glob.glob(os.path.join(self.dir, "*HYPERFINE*eprhyp*"))
-        self.filenames["g_tensor"] = glob.glob(os.path.join(self.dir, "*GTENSOR*data*"))
-        self.filenames["spinspin_tensor"] = glob.glob(os.path.join(self.dir, "*K*data*"))
-        self.filenames["chi_tensor"] = glob.glob(os.path.join(self.dir, "*CHI*data*"))
-        self.filenames["nmr_shift"] = glob.glob(os.path.join(self.dir, "*SHIFT*data*"))
-        self.filenames["raman"] = glob.glob(os.path.join(self.dir, "*raman*data*"))
-        restart = glob.glob(os.path.join(self.dir, "*restart*"))
+        self.filenames["band_structure"] = glob(os.path.join(self.dir, "*BAND.bs*"))
+        self.filenames["trajectory"] = glob(os.path.join(self.dir, "*pos*.xyz*"))
+        self.filenames["forces"] = glob(os.path.join(self.dir, "*frc*.xyz*"))
+        self.filenames["stress"] = glob(os.path.join(self.dir, "*stress*"))
+        self.filenames["cell"] = glob(os.path.join(self.dir, "*.cell*"))
+        self.filenames["ener"] = glob(os.path.join(self.dir, "*.ener*"))
+        self.filenames["electron_density"] = glob(os.path.join(self.dir, "*ELECTRON_DENSITY*.cube*"))
+        self.filenames["spin_density"] = glob(os.path.join(self.dir, "*SPIN_DENSITY*.cube*"))
+        self.filenames["v_hartree"] = glob(os.path.join(self.dir, "*hartree*.cube*"))
+        self.filenames["hyperfine_tensor"] = glob(os.path.join(self.dir, "*HYPERFINE*eprhyp*"))
+        self.filenames["g_tensor"] = glob(os.path.join(self.dir, "*GTENSOR*data*"))
+        self.filenames["spinspin_tensor"] = glob(os.path.join(self.dir, "*K*data*"))
+        self.filenames["chi_tensor"] = glob(os.path.join(self.dir, "*CHI*data*"))
+        self.filenames["nmr_shift"] = glob(os.path.join(self.dir, "*SHIFT*data*"))
+        self.filenames["raman"] = glob(os.path.join(self.dir, "*raman*data*"))
+        restart = glob(os.path.join(self.dir, "*restart*"))
         self.filenames["restart.bak"] = []
         self.filenames["restart"] = []
         for r in restart:
@@ -285,7 +276,7 @@ class Cp2kOutput:
             else:
                 self.filenames["restart"].append(r)
 
-        wfn = glob.glob(os.path.join(self.dir, "*.wfn*")) + glob.glob(os.path.join(self.dir, "*.kp*"))
+        wfn = glob(os.path.join(self.dir, "*.wfn*")) + glob(os.path.join(self.dir, "*.kp*"))
         self.filenames["wfn.bak"] = []
         for w in wfn:
             if "bak" in w.split("/")[-1]:
@@ -777,7 +768,7 @@ class Cp2kOutput:
             ]
 
         warnings.warn(
-            "Input file lost. Reading cell params from summary at top of output. " "Precision errors may result."
+            "Input file lost. Reading cell params from summary at top of output. Precision errors may result."
         )
         cell_volume = re.compile(r"\s+CELL\|\sVolume.*\s(\d+\.\d+)")
         vectors = re.compile(r"\s+CELL\| Vector.*\s(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)")
@@ -901,15 +892,15 @@ class Cp2kOutput:
         """
         Parse the SCF cycles (not usually important)
         """
-        header = r"Step\s+Update method\s+Time\s+Convergence\s+Total energy\s+Change" + r"\s+\-+"
+        header = r"Step\s+Update method\s+Time\s+Convergence\s+Total energy\s+Change\s+\-+"
         row = (
             r"(\d+)"
-            + r"\s+([A-Za-z\./_]+\s?[A-Za-z\./]+)"
-            + r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
-            + r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
-            + r"(\s+-?\d+\.\d+(?:[eE][+\-]?\d+)?)?"
-            + r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
-            + r"(\s+-?\d+\.\d+(?:[eE][+\-]?\d+)?)?"
+            r"\s+([A-Za-z\./_]+\s?[A-Za-z\./]+)"
+            r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
+            r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
+            r"(\s+-?\d+\.\d+(?:[eE][+\-]?\d+)?)?"
+            r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)"
+            r"(\s+-?\d+\.\d+(?:[eE][+\-]?\d+)?)?"
         )
 
         footer = r"^$"
@@ -934,9 +925,7 @@ class Cp2kOutput:
         """
         Parse the timing info (how long did the run take).
         """
-        header = (
-            r"SUBROUTINE\s+CALLS\s+ASD\s+SELF TIME\s+TOTAL TIME" + r"\s+MAXIMUM\s+AVERAGE\s+MAXIMUM\s+AVERAGE\s+MAXIMUM"
-        )
+        header = r"SUBROUTINE\s+CALLS\s+ASD\s+SELF TIME\s+TOTAL TIME\s+MAXIMUM\s+AVERAGE\s+MAXIMUM\s+AVERAGE\s+MAXIMUM"
         row = r"(\w+)\s+(.+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
         footer = r"\-+"
 
@@ -1053,7 +1042,7 @@ class Cp2kOutput:
         else:
             pattern = (
                 r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+"
-                + r"(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
+                r"(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
             )
             d = self.read_table_pattern(
                 header_pattern=header,
@@ -1436,7 +1425,7 @@ class Cp2kOutput:
             if self.filenames["hyperfine_tensor"]:
                 hyperfine_filename = self.filenames["hyperfine_tensor"][0]
             else:
-                return
+                return None
 
         with zopen(hyperfine_filename, "rt") as f:
             lines = [line for line in f.read().split("\n") if line]
@@ -1459,7 +1448,7 @@ class Cp2kOutput:
             if self.filenames["g_tensor"]:
                 gtensor_filename = self.filenames["g_tensor"][0]
             else:
-                return
+                return None
 
         with zopen(gtensor_filename, "rt") as f:
             lines = [line for line in f.read().split("\n") if line]
@@ -1498,7 +1487,7 @@ class Cp2kOutput:
             if self.filenames["chi_tensor"]:
                 chi_filename = self.filenames["chi_tensor"][0]
             else:
-                return
+                return None
 
         with zopen(chi_filename, "rt") as f:
             lines = [line for line in f.read().split("\n") if line]
@@ -1707,13 +1696,13 @@ class Cp2kOutput:
         d["total_time"] = self.timing["CP2K"]["total_time"]["maximum"]
         d["run_type"] = self.run_type
         d["input"]["global"] = self.data.get("global")
-        d["input"]["dft"] = self.data.get("dft", None)
-        d["input"]["scf"] = self.data.get("scf", None)
-        d["input"]["qs"] = self.data.get("QS", None)
+        d["input"]["dft"] = self.data.get("dft")
+        d["input"]["scf"] = self.data.get("scf")
+        d["input"]["qs"] = self.data.get("QS")
         d["input"]["run_type"] = self.run_type
         d["input"]["calculation_type"] = self.calculation_type
         d["input"]["structure"] = self.initial_structure.as_dict()
-        d["input"]["atomic_kind_info"] = self.data.get("atomic_kind_info", None)
+        d["input"]["atomic_kind_info"] = self.data.get("atomic_kind_info")
         d["input"]["cp2k_input"] = self.input.as_dict()
         d["ran_successfully"] = self.completed
         d["cp2k_version"] = self.cp2k_version
@@ -1747,12 +1736,12 @@ def parse_energy_file(energy_file):
         "conserved_quantity",
         "used_time",
     ]
-    df = pd.read_table(energy_file, skiprows=1, names=columns, sep=r"\s+")
+    df = pd.read_csv(energy_file, skiprows=1, names=columns, sep=r"\s+")
     df["kinetic_energy"] = df["kinetic_energy"] * Ha_to_eV
     df["potential_energy"] = df["potential_energy"] * Ha_to_eV
     df["conserved_quantity"] = df["conserved_quantity"] * Ha_to_eV
     df.astype(float)
-    d = {c: df[c].values for c in columns}
+    d = {c: df[c].to_numpy() for c in columns}
     return d
 
 

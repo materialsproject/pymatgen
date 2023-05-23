@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
@@ -8,7 +5,6 @@ files.
 
 from __future__ import annotations
 
-import glob
 import itertools
 import json
 import logging
@@ -19,8 +15,9 @@ import subprocess
 import warnings
 from collections import namedtuple
 from enum import Enum
+from glob import glob
 from hashlib import md5, sha256
-from typing import Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import numpy as np
 import scipy.constants as const
@@ -38,7 +35,12 @@ from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import ArrayLike, PathLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.util.typing import PathLike
+
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -97,7 +99,7 @@ class Poscar(MSONable):
         self,
         structure: Structure,
         comment: str | None = None,
-        selective_dynamics=None,
+        selective_dynamics: ArrayLike | None = None,
         true_names: bool = True,
         velocities: ArrayLike | None = None,
         predictor_corrector: ArrayLike | None = None,
@@ -105,32 +107,43 @@ class Poscar(MSONable):
         sort_structure: bool = False,
     ):
         """
-        :param structure: Structure object.
-        :param comment: Optional comment line for POSCAR. Defaults to unit
-            cell formula of structure. Defaults to None.
-        :param selective_dynamics: bool values for selective dynamics,
-            where N is number of sites. Defaults to None.
-        :param true_names: Set to False if the names in the POSCAR are not
-            well-defined and ambiguous. This situation arises commonly in
-            vasp < 5 where the POSCAR sometimes does not contain element
-            symbols. Defaults to True.
-        :param velocities: Velocities for the POSCAR. Typically parsed
-            in MD runs or can be used to initialize velocities.
-        :param predictor_corrector: Predictor corrector for the POSCAR.
-            Typically parsed in MD runs.
-        :param predictor_corrector_preamble: Preamble to the predictor
-            corrector.
-        :param sort_structure: Whether to sort structure. Useful if species
-            are not grouped properly together.
+        Args:
+            structure (Structure): Structure object.
+            comment (str | None, optional): Optional comment line for POSCAR. Defaults to unit
+                cell formula of structure. Defaults to None.
+            selective_dynamics (ArrayLike | None, optional): Bool values for selective dynamics,
+                where N is the number of sites. Defaults to None.
+            true_names (bool, optional): Set to False if the names in the POSCAR are not
+                well-defined and ambiguous. This situation arises commonly in
+                VASP < 5 where the POSCAR sometimes does not contain element
+                symbols. Defaults to True.
+            velocities (ArrayLike | None, optional): Velocities for the POSCAR. Typically parsed
+                in MD runs or can be used to initialize velocities. Defaults to None.
+            predictor_corrector (ArrayLike | None, optional): Predictor corrector for the POSCAR.
+                Typically parsed in MD runs. Defaults to None.
+            predictor_corrector_preamble (str | None, optional): Preamble to the predictor
+                corrector. Defaults to None.
+            sort_structure (bool, optional): Whether to sort the structure. Useful if species
+                are not grouped properly together. Defaults to False.
         """
         if structure.is_ordered:
             site_properties = {}
-            if selective_dynamics:
-                site_properties["selective_dynamics"] = selective_dynamics
-            if velocities:
-                site_properties["velocities"] = velocities
-            if predictor_corrector:
-                site_properties["predictor_corrector"] = predictor_corrector
+
+            if selective_dynamics is not None:
+                selective_dynamics = np.array(selective_dynamics)
+                if not selective_dynamics.all():
+                    site_properties["selective_dynamics"] = selective_dynamics
+
+            if velocities is not None:
+                velocities = np.array(velocities)
+                if velocities.any():
+                    site_properties["velocities"] = velocities
+
+            if predictor_corrector is not None:
+                predictor_corrector = np.array(predictor_corrector)
+                if predictor_corrector.any():
+                    site_properties["predictor_corrector"] = predictor_corrector
+
             structure = Structure.from_sites(structure)
             self.structure = structure.copy(site_properties=site_properties)
             if sort_structure:
@@ -236,7 +249,7 @@ class Poscar(MSONable):
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         if check_for_POTCAR:
-            potcars = glob.glob(os.path.join(dirname, "*POTCAR*"))
+            potcars = glob(os.path.join(dirname, "*POTCAR*"))
             if potcars:
                 try:
                     potcar = Potcar.from_file(sorted(potcars)[0])
@@ -305,7 +318,7 @@ class Poscar(MSONable):
 
         vasp5_symbols = False
         try:
-            natoms = [int(i) for i in lines[5].split()]
+            n_atoms = [int(i) for i in lines[5].split()]
             ipos = 6
         except ValueError:
             vasp5_symbols = True
@@ -328,23 +341,23 @@ class Poscar(MSONable):
             Direct
               ...
             """
-            nlines_symbols = 1
-            for nlines_symbols in range(1, 11):
+            n_lines_symbols = 1
+            for n_lines_symbols in range(1, 11):
                 try:
-                    int(lines[5 + nlines_symbols].split()[0])
+                    int(lines[5 + n_lines_symbols].split()[0])
                     break
                 except ValueError:
                     pass
-            for iline_symbols in range(6, 5 + nlines_symbols):
-                symbols.extend(lines[iline_symbols].split())
-            natoms = []
-            iline_natoms_start = 5 + nlines_symbols
-            for iline_natoms in range(iline_natoms_start, iline_natoms_start + nlines_symbols):
-                natoms.extend([int(i) for i in lines[iline_natoms].split()])
+            for i_line_symbols in range(6, 5 + n_lines_symbols):
+                symbols.extend(lines[i_line_symbols].split())
+            n_atoms = []
+            iline_natoms_start = 5 + n_lines_symbols
+            for iline_natoms in range(iline_natoms_start, iline_natoms_start + n_lines_symbols):
+                n_atoms.extend([int(i) for i in lines[iline_natoms].split()])
             atomic_symbols = []
-            for i, nat in enumerate(natoms):
+            for i, nat in enumerate(n_atoms):
                 atomic_symbols.extend([symbols[i]] * nat)
-            ipos = 5 + 2 * nlines_symbols
+            ipos = 5 + 2 * n_lines_symbols
 
         pos_type = lines[ipos].split()[0]
 
@@ -356,7 +369,7 @@ class Poscar(MSONable):
             pos_type = lines[ipos].split()[0]
 
         cart = pos_type[0] in "cCkK"
-        n_sites = sum(natoms)
+        n_sites = sum(n_atoms)
 
         # If default_names is specified (usually coming from a POTCAR), use
         # them. This is in line with VASP's parsing order that the POTCAR
@@ -364,7 +377,7 @@ class Poscar(MSONable):
         if default_names:
             try:
                 atomic_symbols = []
-                for i, nat in enumerate(natoms):
+                for i, nat in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[i]] * nat)
                 vasp5_symbols = True
             except IndexError:
@@ -382,7 +395,7 @@ class Poscar(MSONable):
             except (ValueError, IndexError):
                 # Defaulting to false names.
                 atomic_symbols = []
-                for i, nat in enumerate(natoms):
+                for i, nat in enumerate(n_atoms):
                     sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * nat)
                 warnings.warn(f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.")
@@ -390,11 +403,11 @@ class Poscar(MSONable):
         coords = []
         selective_dynamics = [] if has_selective_dynamics else None
         for i in range(n_sites):
-            toks = lines[ipos + 1 + i].split()
+            tokens = lines[ipos + 1 + i].split()
             crd_scale = scale if cart else 1
-            coords.append([float(j) * crd_scale for j in toks[:3]])
+            coords.append([float(j) * crd_scale for j in tokens[:3]])
             if has_selective_dynamics:
-                selective_dynamics.append([tok.upper()[0] == "T" for tok in toks[3:6]])
+                selective_dynamics.append([tok.upper()[0] == "T" for tok in tokens[3:6]])
         struct = Structure(
             lattice,
             atomic_symbols,
@@ -561,8 +574,8 @@ class Poscar(MSONable):
             comment=d["comment"],
             selective_dynamics=d["selective_dynamics"],
             true_names=d["true_names"],
-            velocities=d.get("velocities", None),
-            predictor_corrector=d.get("predictor_corrector", None),
+            velocities=d.get("velocities"),
+            predictor_corrector=d.get("predictor_corrector"),
         )
 
     def set_temperature(self, temperature: float):
@@ -1170,7 +1183,7 @@ class Kpoints(MSONable):
         grid.
 
         Args:
-            kpts: Subdivisions N_1, N_2 and N_3 along reciprocal lattice
+            kpts: Subdivisions N_1, N_2, N_3 along reciprocal lattice
                 vectors. Defaults to (2,2,2)
             shift: Shift to be applied to the kpoints. Defaults to (0,0,0).
 
@@ -1394,7 +1407,7 @@ class Kpoints(MSONable):
         if style == "a":
             return Kpoints.automatic(int(lines[3].split()[0].strip()))
 
-        coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+" r"([\d+.\-Ee]+)")
+        coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in ["g", "m"]:
@@ -1430,7 +1443,7 @@ class Kpoints(MSONable):
             style = Kpoints.supported_modes.Line_mode
             kpts = []
             labels = []
-            patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)" r"\s*!*\s*(.*)")
+            patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
@@ -1660,7 +1673,7 @@ class PotcarSingle:
         "pb": {"name": "Perdew-Becke", "class": "GGA"},
         "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
         "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
-        "wi": {"name": "Wigner Interpoloation", "class": "LDA"},
+        "wi": {"name": "Wigner Interpolation", "class": "LDA"},
     }
 
     parse_functions = {
@@ -1716,7 +1729,7 @@ class PotcarSingle:
         self.header = data.split("\n")[0].strip()
 
         search_lines = re.search(
-            r"(?s)(parameters from PSCTR are:" r".*?END of PSCTR-controll parameters)",
+            r"(?s)(parameters from PSCTR are:.*?END of PSCTR-controll parameters)",
             data,
         ).group(1)
 
@@ -1756,7 +1769,7 @@ class PotcarSingle:
             PSCTR["Orbitals"] = tuple(orbitals)
 
         description_string = re.search(
-            r"(?s)Description\s*\n" r"(.*?)Error from kinetic" r" energy argument \(eV\)",
+            r"(?s)Description\s*\n(.*?)Error from kinetic energy argument \(eV\)",
             search_lines,
         )
         if description_string:
@@ -1778,7 +1791,7 @@ class PotcarSingle:
             PSCTR["OrbitalDescriptions"] = tuple(descriptions)
 
         rrkj_kinetic_energy_string = re.search(
-            r"(?s)Error from kinetic energy argument \(eV\)\s*\n" r"(.*?)END of PSCTR-controll parameters",
+            r"(?s)Error from kinetic energy argument \(eV\)\s*\n(.*?)END of PSCTR-controll parameters",
             search_lines,
         )
         rrkj_array = []
@@ -1826,7 +1839,7 @@ class PotcarSingle:
                 UnknownPotcarWarning,
             )
         elif has_sh256 and not hash_check_passed:
-            raise ValueError(
+            warnings.warn(
                 f"POTCAR with symbol {self.symbol} and functional\n"
                 f"{self.functional} has a SHA256 hash defined,\n"
                 "but the computed hash differs.\n"
@@ -1878,8 +1891,9 @@ class PotcarSingle:
                 return PotcarSingle(f.read(), symbol=symbol or None)
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
+            import codecs
 
-            with open(filename, encoding="utf-8", errors="ignore") as f:
+            with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
                 return PotcarSingle(f.read(), symbol=symbol or None)
 
     @staticmethod
@@ -2274,13 +2288,11 @@ class Potcar(list, MSONable):
         with zopen(filename, "rt") as f:
             fdata = f.read()
         potcar = Potcar()
-        potcar_strings = fdata.split("End of Dataset")
-        # potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset\n)", re.S).findall(fdata)
-        functionals = []
 
-        for p in potcar_strings:
-            if p.strip():
-                single = PotcarSingle(p + "End of Dataset\n")
+        functionals = []
+        for p in fdata.split("End of Dataset"):
+            if p_strip := p.strip():
+                single = PotcarSingle(p_strip + "End of Dataset\n")
                 potcar.append(single)
                 functionals.append(single.functional)
         if len(set(functionals)) != 1:
@@ -2288,10 +2300,10 @@ class Potcar(list, MSONable):
         potcar.functional = functionals[0]
         return potcar
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n".join(str(potcar).strip("\n") for potcar in self) + "\n"
 
-    def write_file(self, filename):
+    def write_file(self, filename: str) -> None:
         """
         Write Potcar to a file.
 

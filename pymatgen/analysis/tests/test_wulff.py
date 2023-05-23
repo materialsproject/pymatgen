@@ -4,6 +4,7 @@ import json
 import os
 import unittest
 
+from mpl_toolkits.mplot3d import Axes3D
 from pytest import approx
 
 from pymatgen.analysis.wulff import WulffShape
@@ -70,14 +71,13 @@ class WulffShapeTest(PymatgenTest):
 
         self.surface_properties = surface_properties
 
-    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plot(self):
-        # Basic test, not really a unittest.
-        self.wulff_Ti.get_plot()
-        self.wulff_Nb.get_plot()
-        self.wulff_Ir.get_plot()
+        # Basic test to check figure contains a single Axes3D object
+        for wulff in (self.wulff_Nb, self.wulff_Ir, self.wulff_Ti):
+            plt = wulff.get_plot()
+            assert len(plt.gcf().get_axes()) == 1
+            assert isinstance(plt.gcf().get_axes()[0], Axes3D)
 
-    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plotly(self):
         # Basic test, not really a unittest.
         self.wulff_Ti.get_plotly()
@@ -104,8 +104,7 @@ class WulffShapeTest(PymatgenTest):
                 symm_point = op.operate(point)
                 if in_coord_list(wulff_vertices, symm_point):
                     continue
-                else:
-                    return False
+                return False
         return True
 
     def consistency_tests(self):

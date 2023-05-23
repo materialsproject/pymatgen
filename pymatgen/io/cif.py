@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Wrapper classes for Cif input and output from Structures.
 """
@@ -256,7 +253,7 @@ class CifFile:
         :param string: String representation.
         :return: CifFile
         """
-        d = {}
+        dct = {}
         for x in re.split(r"^\s*data_", "x\n" + string, flags=re.MULTILINE | re.DOTALL)[1:]:
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in
@@ -266,8 +263,8 @@ class CifFile:
             if "powder_pattern" in re.split(r"\n", x, 1)[0]:
                 continue
             c = CifBlock.from_string("data_" + x)
-            d[c.header] = c
-        return cls(d, string)
+            dct[c.header] = c
+        return cls(dct, string)
 
     @classmethod
     def from_file(cls, filename):
@@ -753,14 +750,15 @@ class CifParser:
         Separate function since additional operation for time reversal symmetry
         (which changes magnetic moments on sites) needs to be returned.
         """
-        magsymmops = []
+        mag_symm_ops = []
+        bns_name = data.data.get("_space_group_magn.name_BNS")  # get BNS label for MagneticSpaceGroup()
+        bns_num = data.data.get("_space_group_magn.number_BNS")  # get BNS number for MagneticSpaceGroup()
 
         # check to see if magCIF file explicitly contains magnetic symmetry operations
-        if data.data.get("_space_group_symop_magn_operation.xyz"):
-            xyzt = data.data.get("_space_group_symop_magn_operation.xyz")
+        if xyzt := data.data.get("_space_group_symop_magn_operation.xyz"):
             if isinstance(xyzt, str):
                 xyzt = [xyzt]
-            magsymmops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
+            mag_symm_ops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
             if data.data.get("_space_group_symop_magn_centering.xyz"):
                 xyzt = data.data.get("_space_group_symop_magn_centering.xyz")
@@ -769,7 +767,7 @@ class CifParser:
                 centering_symops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
                 all_ops = []
-                for op in magsymmops:
+                for op in mag_symm_ops:
                     for centering_op in centering_symops:
                         new_translation = [
                             i - np.floor(i) for i in op.translation_vector + centering_op.translation_vector
@@ -782,37 +780,30 @@ class CifParser:
                                 time_reversal=new_time_reversal,
                             )
                         )
-                magsymmops = all_ops
+                mag_symm_ops = all_ops
 
         # else check to see if it specifies a magnetic space group
-        elif data.data.get("_space_group_magn.name_BNS") or data.data.get("_space_group_magn.number_BNS"):
-            if data.data.get("_space_group_magn.name_BNS"):
-                # get BNS label for MagneticSpaceGroup()
-                id = data.data.get("_space_group_magn.name_BNS")
-            else:
-                # get BNS number for MagneticSpaceGroup()
-                # by converting string to list of ints
-                id = list(map(int, (data.data.get("_space_group_magn.number_BNS").split("."))))
+        elif bns_name or bns_num:
+            label = bns_name if bns_name else list(map(int, (bns_num.split("."))))
 
-            if data.data.get("_space_group_magn.transform_BNS_Pp_abc"):
-                if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
-                    jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
-                    msg = MagneticSpaceGroup(id, jf)
+            if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
+                jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
+                msg = MagneticSpaceGroup(label, jf)
 
             elif data.data.get("_space_group_magn.transform_BNS_Pp"):
                 return NotImplementedError("Incomplete specification to implement.")
             else:
-                msg = MagneticSpaceGroup(id)
+                msg = MagneticSpaceGroup(label)
 
-            magsymmops = msg.symmetry_ops
+            mag_symm_ops = msg.symmetry_ops
 
-        if not magsymmops:
+        if not mag_symm_ops:
             msg = "No magnetic symmetry detected, using primitive symmetry."
             warnings.warn(msg)
             self.warnings.append(msg)
-            magsymmops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
+            mag_symm_ops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
 
-        return magsymmops
+        return mag_symm_ops
 
     @staticmethod
     def parse_oxi_states(data):
@@ -1103,6 +1094,7 @@ class CifParser:
                 struct = struct.get_reduced_structure()
 
             return struct
+        return None
 
     def get_structures(self, primitive=True, symmetrized=False):
         """
@@ -1144,7 +1136,7 @@ class CifParser:
                 self.warnings.append(str(exc))
                 warnings.warn(f"No structure parsed for {i + 1} structure in CIF. Section of CIF file below.")
                 warnings.warn(str(d))
-                warnings.warn(f"Error is {str(exc)}.")
+                warnings.warn(f"Error is {exc!s}.")
 
         if self.warnings:
             warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
@@ -1223,12 +1215,12 @@ class CifParser:
         """
         :return: MSONable dict
         """
-        d = {}
+        dct = {}
         for k, v in self._cif.data.items():
-            d[k] = {}
+            dct[k] = {}
             for k2, v2 in v.data.items():
-                d[k][k2] = v2
-        return d
+                dct[k][k2] = v2
+        return dct
 
     @property
     def has_errors(self):
@@ -1419,9 +1411,9 @@ class CifWriter:
                     "_atom_site_moment_crystalaxis_z",
                 ]
             )
-        d = {}
-        d[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
-        self._cf = CifFile(d)
+        dct = {}
+        dct[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
+        self._cf = CifFile(dct)
 
     @property
     def ciffile(self):

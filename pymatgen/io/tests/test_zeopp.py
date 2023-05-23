@@ -1,11 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import os
-import re
 import unittest
 
 from pytest import approx
@@ -13,14 +8,12 @@ from pytest import approx
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.zeopp import (
     ZeoCssr,
     ZeoVoronoiXYZ,
     get_free_sphere_params,
     get_high_accuracy_voronoi_nodes,
-    get_void_volume_surfarea,
     get_voronoi_nodes,
 )
 from pymatgen.util.testing import PymatgenTest
@@ -166,7 +159,7 @@ class GetVoronoiNodesTest(unittest.TestCase):
         self.structure = p.structure
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
-        el = [site.species_string for site in self.structure.sites]
+        el = [site.species_string for site in self.structure]
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
         for k, v in valence_dict.items():
@@ -217,7 +210,7 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
         self.structure = p.structure
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
-        el = [site.species_string for site in self.structure.sites]
+        el = [site.species_string for site in self.structure]
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
         for k, v in valence_dict.items():
@@ -247,10 +240,10 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         valences = bv.get_valences(self.structure)
         radii = []
         for idx, valence in enumerate(valences):
-            el = self.structure.sites[idx].specie.symbol
+            el = self.structure[idx].specie.symbol
             radius = Species(el, valence).ionic_radius
             radii.append(radius)
-        el = [site.species_string for site in self.structure.sites]
+        el = [site.species_string for site in self.structure]
         self.rad_dict = dict(zip(el, radii))
         for el in self.rad_dict:
             print((el, self.rad_dict[el].real))
@@ -262,29 +255,6 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
         assert isinstance(vor_face_center_struct, Structure)
-
-
-@unittest.skip("The function is deprecated")
-class GetVoidVolumeSurfaceTest(unittest.TestCase):
-    def setUp(self):
-        filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif")
-        p = CifParser(filepath1).get_structures(False)[0]
-        bv = BVAnalyzer()
-        valences = bv.get_valences(p)
-        el = [site.species_string for site in p.sites]
-        val_dict = dict(zip(el, valences))
-        self._radii = {}
-        for k, v in val_dict.items():
-            k1 = re.sub(r"[1-9,+,\-]", "", k)
-            self._radii[k1] = float(Species(k1, v).ionic_radius)
-        p.remove(0)
-        self._vac_struct = p
-
-    def test_void_volume_surface_area(self):
-        vol, sa = get_void_volume_surfarea(self._vac_struct, self._radii)
-        # print "vol:  ", vol, "sa:  ", sa
-        assert isinstance(vol, float)
-        assert isinstance(sa, float)
 
 
 if __name__ == "__main__":

@@ -58,7 +58,6 @@ Submodules
    pymatgen.analysis.reaction_calculator
    pymatgen.analysis.structure_analyzer
    pymatgen.analysis.structure_matcher
-   pymatgen.analysis.substrate_analyzer
    pymatgen.analysis.surface_analysis
    pymatgen.analysis.thermochemistry
    pymatgen.analysis.transition_state

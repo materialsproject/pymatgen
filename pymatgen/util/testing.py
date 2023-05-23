@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Common test support for pymatgen test scripts.
 
@@ -20,6 +17,7 @@ import numpy.testing as nptu
 from monty.dev import requires
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
+from pytest import approx
 
 from pymatgen.core import SETTINGS, Structure
 from pymatgen.ext.matproj import _MPResterLegacy as MPRester
@@ -99,7 +97,7 @@ class PymatgenTest(unittest.TestCase):
                 nptu.assert_almost_equal(v, v2, decimal, err_msg, verbose)
                 return True
             elif isinstance(v, (int, float)):
-                PymatgenTest().assertAlmostEqual(v, v2)  # pylint: disable=E1120
+                assert v == approx(v2, abs=decimal)
             else:
                 assert v == v2
         return True

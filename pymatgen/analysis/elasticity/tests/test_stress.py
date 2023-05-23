@@ -19,7 +19,7 @@ class StressTest(PymatgenTest):
     def test_properties(self):
         # mean_stress
         assert self.rand_stress.mean_stress == pytest.approx(
-            1.0 / 3.0 * (self.rand_stress[0, 0] + self.rand_stress[1, 1] + self.rand_stress[2, 2])
+            (self.rand_stress[0, 0] + self.rand_stress[1, 1] + self.rand_stress[2, 2]) / 3
         )
         assert self.symm_stress.mean_stress == pytest.approx(3.66)
         # deviator_stress
@@ -29,11 +29,7 @@ class StressTest(PymatgenTest):
         )
         self.assertArrayAlmostEqual(
             self.non_symm.deviator_stress,
-            [
-                [-0.2666666667, 0.2, 0.3],
-                [0.4, 0.133333333, 0.6],
-                [0.2, 0.5, 0.133333333],
-            ],
+            [[-0.2666666667, 0.2, 0.3], [0.4, 0.133333333, 0.6], [0.2, 0.5, 0.133333333]],
         )
         # deviator_principal_invariants
         self.assertArrayAlmostEqual(self.symm_stress.dev_principal_invariants, [0, 44.2563, 111.953628])

@@ -34,17 +34,17 @@ def parse_oxi_state():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
     with open("oxidation_states.txt") as f:
-        oxidata = f.read()
-    oxidata = re.sub("[\n\r]", "", oxidata)
+        oxi_data = f.read()
+    oxi_data = re.sub("[\n\r]", "", oxi_data)
     patt = re.compile("<tr>(.*?)</tr>", re.MULTILINE)
 
-    for m in patt.finditer(oxidata):
+    for m in patt.finditer(oxi_data):
         line = m.group(1)
         line = re.sub("</td>", "", line)
         line = re.sub("(<td>)+", "<td>", line)
         line = re.sub("</*a[^>]*>", "", line)
         el = None
-        oxistates = []
+        oxi_states = []
         common_oxi = []
         for tok in re.split("<td>", line.strip()):
             m2 = re.match(r"<b>([A-Z][a-z]*)</b>", tok)
@@ -53,7 +53,7 @@ def parse_oxi_state():
             else:
                 m3 = re.match(r"(<b>)*([\+\-]\d)(</b>)*", tok)
                 if m3:
-                    oxistates.append(int(m3.group(2)))
+                    oxi_states.append(int(m3.group(2)))
                     if m3.group(1):
                         common_oxi.append(int(m3.group(2)))
         if el in data:
@@ -61,7 +61,7 @@ def parse_oxi_state():
             del data[el]["Min oxidation state"]
             del data[el]["Oxidation_states"]
             del data[el]["Common_oxidation_states"]
-            data[el]["Oxidation states"] = oxistates
+            data[el]["Oxidation states"] = oxi_states
             data[el]["Common oxidation states"] = common_oxi
         else:
             print(el)
@@ -73,11 +73,11 @@ def parse_ionic_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
     with open("ionic_radii.csv") as f:
-        radiidata = f.read()
-    radiidata = radiidata.split("\r")
-    header = radiidata[0].split(",")
-    for i in range(1, len(radiidata)):
-        line = radiidata[i]
+        radii_data = f.read()
+    radii_data = radii_data.split("\r")
+    header = radii_data[0].split(",")
+    for idx in range(1, len(radii_data)):
+        line = radii_data[idx]
         toks = line.strip().split(",")
         suffix = ""
         name = toks[1]
@@ -274,7 +274,7 @@ def add_electron_affinities():
     print(ea)
     pt = loadfn("../pymatgen/core/periodic_table.json")
     for k, v in pt.items():
-        v["Electron affinity"] = ea.get(Element(k).Z, None)
+        v["Electron affinity"] = ea.get(Element(k).Z)
     dumpfn(pt, "../pymatgen/core/periodic_table.json")
 
 

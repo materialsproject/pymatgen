@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements a FloatWithUnit, which is a subclass of float. It
 also defines supported units for some commonly used units for energy, length,
@@ -15,6 +12,7 @@ from __future__ import annotations
 import collections
 import numbers
 from functools import partial
+from typing import Any
 
 import numpy as np
 import scipy.constants as const
@@ -238,9 +236,6 @@ class Unit(collections.abc.Mapping):
             [f"{k}^{self._unit[k]}" if self._unit[k] != 1 else k for k in sorted_keys if self._unit[k] != 0]
         )
 
-    def __str__(self):
-        return self.__repr__()
-
     @property
     def as_base_units(self):
         """
@@ -318,8 +313,9 @@ class FloatWithUnit(float):
 
     @classmethod
     def from_string(cls, s):
-        """
-        Initialize a FloatWithUnit from a string. Example Memory.from_string("1. Mb")
+        """Parse string to FloatWithUnit.
+
+        Example: Memory.from_string("1. Mb")
         """
         # Extract num and unit string.
         s = s.strip()
@@ -407,8 +403,7 @@ class FloatWithUnit(float):
 
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
-        # FIXME
-        # There's a problem with _unit_type if we try to unpickle objects from file.
+        # TODO There's a problem with _unit_type if we try to unpickle objects from file.
         # since self._unit_type might not be defined. I think this is due to
         # the use of decorators (property and unitized). In particular I have problems with "amu"
         # likely due to weight in core.composition
@@ -484,7 +479,7 @@ class FloatWithUnit(float):
 
 class ArrayWithUnit(np.ndarray):
     """
-    Subclasses `numpy.ndarray` to attach a unit type. Typically, you should
+    Subclasses numpy.ndarray to attach a unit type. Typically, you should
     use the pre-defined unit type subclasses such as EnergyArray,
     LengthArray, etc. instead of using ArrayWithFloatWithUnit directly.
 
@@ -576,8 +571,7 @@ class ArrayWithUnit(np.ndarray):
         return self.__class__(np.array(self) - np.array(other), unit_type=self.unit_type, unit=self.unit)
 
     def __mul__(self, other):
-        # FIXME
-        # Here we have the most important difference between FloatWithUnit and
+        # TODO Here we have the most important difference between FloatWithUnit and
         # ArrayWithFloatWithUnit:
         # If other does not have units, I return an object with the same units
         # as self.
@@ -766,21 +760,22 @@ Args:
 """
 
 
-def obj_with_unit(obj, unit):
+def obj_with_unit(obj: Any, unit: str) -> FloatWithUnit | ArrayWithUnit | dict[str, FloatWithUnit | ArrayWithUnit]:
     """
-    Returns a `FloatWithUnit` instance if obj is scalar, a dictionary of
+    Returns a FloatWithUnit instance if obj is scalar, a dictionary of
     objects with units if obj is a dict, else an instance of
-    `ArrayWithFloatWithUnit`.
+    ArrayWithFloatWithUnit.
 
     Args:
-        unit: Specific units (eV, Ha, m, ang, etc.).
+        obj (Any): Object to be given a unit.
+        unit (str): Specific units (eV, Ha, m, ang, etc.).
     """
     unit_type = _UNAME2UTYPE[unit]
 
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
     if isinstance(obj, collections.abc.Mapping):
-        return {k: obj_with_unit(v, unit) for k, v in obj.items()}
+        return {k: obj_with_unit(v, unit) for k, v in obj.items()}  # type: ignore
     return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
 
@@ -825,7 +820,7 @@ def unitized(unit):
             elif val is None:
                 pass
             else:
-                raise TypeError(f"Don't know how to assign units to {str(val)}")
+                raise TypeError(f"Don't know how to assign units to {val!s}")
             return val
 
         return wrapped_f

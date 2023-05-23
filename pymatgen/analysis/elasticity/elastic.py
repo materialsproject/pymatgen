@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides a class used to describe the elastic tensor,
 including methods used to fit the elastic tensor from linear response
@@ -11,6 +8,7 @@ from __future__ import annotations
 
 import itertools
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 import sympy as sp
@@ -20,15 +18,12 @@ from scipy.special import factorial
 
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.analysis.elasticity.stress import Stress
-from pymatgen.core.structure import Structure
-from pymatgen.core.tensors import (
-    DEFAULT_QUAD,
-    SquareTensor,
-    Tensor,
-    TensorCollection,
-    get_uvec,
-)
+from pymatgen.core.tensors import DEFAULT_QUAD, SquareTensor, Tensor, TensorCollection, get_uvec
 from pymatgen.core.units import Unit
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
+
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -311,7 +306,7 @@ class ElasticTensor(NthOrderElasticTensor):
             0.38483
             * avg_mass
             * ((self.long_v(structure) + 2.0 * self.trans_v(structure)) / 3.0) ** 3.0
-            / (300.0 * num_density ** (-2.0 / 3.0) * nsites ** (1.0 / 3.0))
+            / (300.0 * num_density ** (-2.0 / 3.0) * nsites ** (1 / 3))
         )
 
     @raise_error_if_unphysical
@@ -332,7 +327,7 @@ class ElasticTensor(NthOrderElasticTensor):
             * (self.long_v(structure) + 2.0 * self.trans_v(structure))
             / 3.0
             / num_density ** (-2.0 / 3.0)
-            * (1 - nsites ** (-1.0 / 3.0))
+            * (1 - nsites ** (-1 / 3))
         )
 
     @raise_error_if_unphysical
@@ -394,8 +389,8 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         v0 = structure.volume * 1e-30 / structure.num_sites
         vl, vt = self.long_v(structure), self.trans_v(structure)
-        vm = 3 ** (1.0 / 3.0) * (1 / vl**3 + 2 / vt**3) ** (-1.0 / 3.0)
-        td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1.0 / 3.0)
+        vm = 3 ** (1 / 3) * (1 / vl**3 + 2 / vt**3) ** (-1 / 3)
+        td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1 / 3)
         return td
 
     @property

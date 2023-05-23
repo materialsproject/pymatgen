@@ -6,12 +6,7 @@ import warnings
 import numpy as np
 import pytest
 
-from pymatgen.analysis.elasticity.strain import (
-    Deformation,
-    DeformedStructureSet,
-    Strain,
-    convert_strain_to_deformation,
-)
+from pymatgen.analysis.elasticity.strain import Deformation, DeformedStructureSet, Strain, convert_strain_to_deformation
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor

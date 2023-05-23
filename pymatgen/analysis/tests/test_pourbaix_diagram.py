@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import logging
@@ -11,18 +7,11 @@ import unittest
 import warnings
 
 import numpy as np
-import pytest
 from monty.serialization import dumpfn, loadfn
 from monty.tempfile import ScratchDir
 from pytest import approx
 
-from pymatgen.analysis.pourbaix_diagram import (
-    IonEntry,
-    MultiEntry,
-    PourbaixDiagram,
-    PourbaixEntry,
-    PourbaixPlotter,
-)
+from pymatgen.analysis.pourbaix_diagram import IonEntry, MultiEntry, PourbaixDiagram, PourbaixEntry, PourbaixPlotter
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import PymatgenTest
@@ -90,7 +79,7 @@ class PourbaixEntryTest(unittest.TestCase):
         self.PxSol.energy_at_conditions(np.array([1, 2, 3]), np.array([1, 2, 3]))
 
     def test_multi_entry(self):
-        # TODO: More robust multientry test
+        # TODO: More robust multi-entry test
         m_entry = MultiEntry([self.PxSol, self.PxIon])
         for attr in ["energy", "composition", "nPhi"]:
             assert getattr(m_entry, attr) == getattr(self.PxSol, attr) + getattr(self.PxIon, attr)
@@ -102,9 +91,9 @@ class PourbaixEntryTest(unittest.TestCase):
 
     def test_get_elt_fraction(self):
         entry = ComputedEntry("Mn2Fe3O3", 49)
-        pbentry = PourbaixEntry(entry)
-        assert pbentry.get_element_fraction("Fe") == approx(0.6)
-        assert pbentry.get_element_fraction("Mn") == approx(0.4)
+        pb_entry = PourbaixEntry(entry)
+        assert pb_entry.get_element_fraction("Fe") == approx(0.6)
+        assert pb_entry.get_element_fraction("Mn") == approx(0.4)
 
 
 class PourbaixDiagramTest(unittest.TestCase):
@@ -165,7 +154,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         test_entry = pd_binary.find_stable_entry(8, 2)
         assert "mp-499" in test_entry.entry_id
 
-        # Find a specific multientry to test
+        # Find a specific multi-entry to test
         assert pd_binary.get_decomposition_energy(test_entry, 8, 2) == 0
 
         pd_ternary = PourbaixDiagram(self.test_data["Ag-Te-N"], filter_solids=True)
@@ -251,8 +240,8 @@ class PourbaixDiagramTest(unittest.TestCase):
         assert oxidized_phase.name == "ZnO(s)"
 
     def test_serialization(self):
-        d = self.pbx.as_dict()
-        new = PourbaixDiagram.from_dict(d)
+        dct = self.pbx.as_dict()
+        new = PourbaixDiagram.from_dict(dct)
         assert {e.name for e in new.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
@@ -263,9 +252,8 @@ class PourbaixDiagramTest(unittest.TestCase):
 
         # Test with unstable solid entries included (filter_solids=False), this should result in the
         # previously filtered entries being included
-        with pytest.warns(DeprecationWarning, match="The include_unprocessed_entries kwarg is deprecated!"):
-            d = self.pbx_nofilter.as_dict(include_unprocessed_entries=True)
-        new = PourbaixDiagram.from_dict(d)
+        dct = self.pbx_nofilter.as_dict()
+        new = PourbaixDiagram.from_dict(dct)
         assert {e.name for e in new.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes for representing species substitution
 probabilities.
@@ -157,7 +154,7 @@ class SubstitutionProbability:
 
     def as_dict(self):
         """
-        Returns: MSONAble dict
+        Returns: MSONable dict
         """
         return {
             "name": type(self).__name__,
@@ -168,15 +165,15 @@ class SubstitutionProbability:
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d(dict): Dict representation
+            dct (dict): Dict representation
 
         Returns:
             Class
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class SubstitutionPredictor:

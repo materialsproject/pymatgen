@@ -204,7 +204,7 @@ html_context = {
 
 # -- Options for LaTeX output ------------------------------------------------
 
-latex_elements = {
+latex_elements: dict[str, str] = {
     # The paper size ('letterpaper' or 'a4paper').
     # 'papersize': 'letterpaper',
     # The font size ('10pt', '11pt' or '12pt').
@@ -321,8 +321,9 @@ epub_copyright = copyright
 
 
 def linkcode_resolve(domain, info):
-    # Resolve function for the linkcode extension.
-    # Thanks to https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py
+    """Resolve function for the linkcode extension.
+    Thanks to https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py
+    """
 
     def find_source():
         # try to find the file and line number, based on code from numpy:

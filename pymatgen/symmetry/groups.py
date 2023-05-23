@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
 Shyue Ping Ong thanks Marc De Graef for his generous sharing of his
@@ -26,9 +23,11 @@ from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
     # don't import at runtime to avoid circular import
+    from numpy.typing import ArrayLike
+
     from pymatgen.core.lattice import Lattice
-    from pymatgen.core.operations import SymmOp
-    from pymatgen.util.typing import ArrayLike
+    from pymatgen.core.operations import SymmOp  # noqa: TCH004
+
 
 SYMM_DATA = None
 
@@ -479,14 +478,13 @@ class SpaceGroup(SymmetryGroup):
         return "cubic"
 
     def is_subgroup(self, supergroup: SymmetryGroup) -> bool:
-        """
-        True if this space group is a subgroup of the supplied group.
+        """Check if space group is a subgroup of the supplied symmetry group.
 
         Args:
-            group (Spacegroup): Supergroup to test.
+            supergroup (Spacegroup): Supergroup to test.
 
         Returns:
-            True if this space group is a subgroup of the supplied group.
+            bool: True if this space group is a subgroup of the supplied group.
         """
         if not isinstance(supergroup, SpaceGroup):
             return NotImplemented
@@ -591,9 +589,8 @@ def in_array_list(array_list: list[np.ndarray] | np.ndarray, arr: np.ndarray, to
 
     Args:
         array_list ([array]): A list of arrays to compare to.
-        a (array): The test array for comparison.
-        tol (float): The tolerance. Defaults to 1e-5. If 0, an exact match is
-            done.
+        arr (array): The test array for comparison.
+        tol (float): The tolerance. Defaults to 1e-5. If 0, an exact match is done.
 
     Returns:
         (bool)

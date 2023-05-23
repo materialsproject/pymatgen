@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to identify optimal substrates for film growth
 """
@@ -8,14 +5,14 @@ This module provides classes to identify optimal substrates for film growth
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from pymatgen.analysis.elasticity.strain import Deformation, Strain
 from pymatgen.analysis.interfaces.zsl import ZSLGenerator, ZSLMatch, reduce_vectors
-from pymatgen.core import Structure
-from pymatgen.core.surface import (
-    SlabGenerator,
-    get_symmetrically_distinct_miller_indices,
-)
+from pymatgen.core.surface import SlabGenerator, get_symmetrically_distinct_miller_indices
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 @dataclass
@@ -88,7 +85,7 @@ class SubstrateMatch(ZSLMatch):
 class SubstrateAnalyzer(ZSLGenerator):
     """
     This class applies a set of search criteria to identify suitable
-    substrates for film growth. It first uses a topoplogical search by Zur
+    substrates for film growth. It first uses a topological search by Zur
     and McGill to identify matching super-lattices on various faces of the
     two materials. Additional criteria can then be used to identify the most
     suitable substrate. Currently, the only additional criteria is the

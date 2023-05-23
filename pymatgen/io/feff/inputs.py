@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines classes for reading/manipulating/writing the main sections
 of FEFF input file(feff.inp), namely HEADER, ATOMS, POTENTIAL and the program

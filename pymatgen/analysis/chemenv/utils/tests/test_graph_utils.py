@@ -4,11 +4,7 @@ import numpy as np
 import pytest
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.analysis.chemenv.utils.graph_utils import (
-    MultiGraphCycle,
-    SimpleGraphCycle,
-    get_delta,
-)
+from pymatgen.analysis.chemenv.utils.graph_utils import MultiGraphCycle, SimpleGraphCycle, get_delta
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
@@ -80,17 +76,12 @@ class GraphUtilsTest(PymatgenTest):
         assert np.allclose(get_delta(n1, n2, edge_data), [2, 6, 4])
         edge_data = {"start": 7, "end": 3, "delta": [2, 6, 4]}
         assert np.allclose(get_delta(n1, n2, edge_data), [-2, -6, -4])
-        with pytest.raises(
-            ValueError,
-            match="Trying to find a delta between two nodes with an edge that seems not to link these nodes.",
-        ):
-            edge_data = {"start": 6, "end": 3, "delta": [2, 6, 4]}
+        edge_data = {"start": 6, "end": 3, "delta": [2, 6, 4]}
+        err_msg = "Trying to find a delta between two nodes with an edge that seems not to link these nodes."
+        with pytest.raises(ValueError, match=err_msg):
             get_delta(n1, n2, edge_data)
-        with pytest.raises(
-            ValueError,
-            match="Trying to find a delta between two nodes with an edge that seems not to link these nodes.",
-        ):
-            edge_data = {"start": 7, "end": 2, "delta": [2, 6, 4]}
+        edge_data = {"start": 7, "end": 2, "delta": [2, 6, 4]}
+        with pytest.raises(ValueError, match=err_msg):
             get_delta(n1, n2, edge_data)
 
     def test_simple_graph_cycle(self):
@@ -153,21 +144,21 @@ class GraphUtilsTest(PymatgenTest):
         assert sg_cycle == SimpleGraphCycle([2, 7, 4, 5, 0])
 
         #   two identical 3-nodes cycles
+        edges = [(0, 2), (4, 2), (0, 4), (0, 2), (4, 2), (0, 4)]
         with pytest.raises(ValueError, match="SimpleGraphCycle is not valid : Duplicate nodes."):
-            edges = [(0, 2), (4, 2), (0, 4), (0, 2), (4, 2), (0, 4)]
             SimpleGraphCycle.from_edges(edges=edges, edges_are_ordered=False)
 
         #   two cycles in from_edges
+        edges = [(0, 2), (4, 2), (0, 4), (1, 3), (6, 7), (3, 6), (1, 7)]
         with pytest.raises(ValueError, match="Could not construct a cycle from edges."):
-            edges = [(0, 2), (4, 2), (0, 4), (1, 3), (6, 7), (3, 6), (1, 7)]
             SimpleGraphCycle.from_edges(edges=edges, edges_are_ordered=False)
 
+        edges = [(0, 2), (4, 6), (2, 7), (4, 5), (5, 0)]
         with pytest.raises(ValueError, match="Could not construct a cycle from edges."):
-            edges = [(0, 2), (4, 6), (2, 7), (4, 5), (5, 0)]
             SimpleGraphCycle.from_edges(edges=edges, edges_are_ordered=False)
 
+        edges = [(0, 2), (4, 7), (2, 7), (4, 10), (5, 0)]
         with pytest.raises(ValueError, match="Could not construct a cycle from edges."):
-            edges = [(0, 2), (4, 7), (2, 7), (4, 10), (5, 0)]
             SimpleGraphCycle.from_edges(edges=edges, edges_are_ordered=False)
 
         # Test as_dict from_dict and len method
@@ -221,10 +212,8 @@ class GraphUtilsTest(PymatgenTest):
             validate=False,
             ordered=False,
         )
-        with pytest.raises(
-            ValueError,
-            match="SimpleGraphCycle is not valid : " "The list of nodes in the cycle cannot be strictly ordered.",
-        ):
+        expected_err_msg = "SimpleGraphCycle is not valid : The list of nodes in the cycle cannot be strictly ordered."
+        with pytest.raises(ValueError, match=expected_err_msg):
             sgc.validate(check_strict_ordering=True)
 
         # Check the order method
@@ -240,10 +229,7 @@ class GraphUtilsTest(PymatgenTest):
         )
         sgc.order(raise_on_fail=False)
         assert not sgc.ordered
-        with pytest.raises(
-            ValueError,
-            match="SimpleGraphCycle is not valid : " "The list of nodes in the cycle cannot be strictly ordered.",
-        ):
+        with pytest.raises(ValueError, match=expected_err_msg):
             sgc.order(raise_on_fail=True)
 
         sgc = SimpleGraphCycle(
@@ -358,14 +344,14 @@ class GraphUtilsTest(PymatgenTest):
         assert msg == ""
         with pytest.raises(
             ValueError,
-            match="MultiGraphCycle is not valid : " "Number of nodes different from number of " "edge indices.",
+            match="MultiGraphCycle is not valid : Number of nodes different from number of edge indices.",
         ):
             MultiGraphCycle([0, 2, 4], [0, 0])  # number of nodes is different from number of edge_indices
         with pytest.raises(ValueError, match="MultiGraphCycle is not valid : Duplicate nodes."):
             MultiGraphCycle([0, 2, 4, 3, 2], [0, 0, 0, 0, 0])  # duplicated nodes
         with pytest.raises(
             ValueError,
-            match="MultiGraphCycle is not valid : " "Cycles with two nodes cannot use the same " "edge for the cycle.",
+            match="MultiGraphCycle is not valid : Cycles with two nodes cannot use the same edge for the cycle.",
         ):
             MultiGraphCycle([3, 5], [1, 1])  # number of nodes is different from number of edge_indices
 
@@ -448,7 +434,7 @@ class GraphUtilsTest(PymatgenTest):
         assert not mgc.ordered
         with pytest.raises(
             ValueError,
-            match="MultiGraphCycle is not valid : " "Number of nodes different from " "number of edge indices.",
+            match="MultiGraphCycle is not valid : Number of nodes different from number of edge indices.",
         ):
             mgc.validate(check_strict_ordering=False)
 
@@ -476,7 +462,7 @@ class GraphUtilsTest(PymatgenTest):
         )
         with pytest.raises(
             ValueError,
-            match="MultiGraphCycle is not valid : " "Cycles with two nodes cannot use the same edge for the cycle.",
+            match="MultiGraphCycle is not valid : Cycles with two nodes cannot use the same edge for the cycle.",
         ):
             mgc.validate()
 
@@ -505,10 +491,8 @@ class GraphUtilsTest(PymatgenTest):
             validate=False,
             ordered=False,
         )
-        with pytest.raises(
-            ValueError,
-            match="MultiGraphCycle is not valid : " "The list of nodes in the cycle cannot be strictly ordered.",
-        ):
+        expected_err_msg = "MultiGraphCycle is not valid : The list of nodes in the cycle cannot be strictly ordered."
+        with pytest.raises(ValueError, match=expected_err_msg):
             mgc.validate(check_strict_ordering=True)
 
         # Check the order method
@@ -525,10 +509,7 @@ class GraphUtilsTest(PymatgenTest):
         )
         mgc.order(raise_on_fail=False)
         assert not mgc.ordered
-        with pytest.raises(
-            ValueError,
-            match="MultiGraphCycle is not valid : " "The list of nodes in the cycle cannot be strictly ordered.",
-        ):
+        with pytest.raises(ValueError, match=expected_err_msg):
             mgc.order(raise_on_fail=True)
 
         mgc = MultiGraphCycle(
@@ -638,7 +619,7 @@ class GraphUtilsTest(PymatgenTest):
         # Testing all cases for a length-4 cycle
         nodes_ref = tuple(FakeNodeWithEqLtMethods(inode) for inode in range(4))
         edges_ref = (3, 6, 9, 12)
-        for inodes, iedges in [
+        for i_nodes, i_edges in [
             ((0, 1, 2, 3), (3, 6, 9, 12)),
             ((1, 2, 3, 0), (6, 9, 12, 3)),
             ((2, 3, 0, 1), (9, 12, 3, 6)),
@@ -649,12 +630,12 @@ class GraphUtilsTest(PymatgenTest):
             ((0, 3, 2, 1), (12, 9, 6, 3)),
         ]:
             mgc = MultiGraphCycle(
-                [FakeNodeWithEqLtMethods(inode) for inode in inodes],
-                edge_indices=list(iedges),
+                [FakeNodeWithEqLtMethods(inode) for inode in i_nodes],
+                edge_indices=list(i_edges),
             )
-            strnodes = ", ".join(str(i) for i in inodes)
-            assert mgc.nodes == nodes_ref, f"Nodes not equal for inodes = ({', '.join([str(i) for i in inodes])})"
-            assert mgc.edge_indices == edges_ref, f"Edges not equal for inodes = ({strnodes})"
+            str_nodes = ", ".join(str(i) for i in i_nodes)
+            assert mgc.nodes == nodes_ref, f"Nodes not equal for inodes = ({', '.join([str(i) for i in i_nodes])})"
+            assert mgc.edge_indices == edges_ref, f"Edges not equal for inodes = ({str_nodes})"
 
 
 class EnvironmentNodesGraphUtilsTest(PymatgenTest):

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to perform fitting of structures.
 """
@@ -511,11 +508,13 @@ class StructureMatcher(MSONable):
         fractional translation vector to minimize RMS distance
 
         Args:
-            s1, s2: numpy arrays of fractional coordinates. len(s1) >= len(s2)
+            s1: numpy array of fractional coordinates.
+            s2: numpy array of fractional coordinates. len(s1) >= len(s2)
             avg_lattice: Lattice on which to calculate distances
             mask: numpy array of booleans. mask[i, j] = True indicates
                 that s2[i] cannot be matched to s1[j]
             normalization (float): inverse normalization length
+            lll_frac_tol (float): tolerance for Lenstra-Lenstra-Lovász lattice basis reduction algorithm
 
         Returns:
             Distances from s2 to s1, normalized by (V/atom) ^ 1/3
@@ -995,7 +994,7 @@ class StructureMatcher(MSONable):
 
         return None, None
 
-    def get_best_electronegativity_anonymous_mapping(self, struct1, struct2):
+    def get_best_electronegativity_anonymous_mapping(self, struct1: Structure, struct2: Structure) -> dict | None:
         """
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. E.g., to compare if the Li2O and Na2O
@@ -1017,13 +1016,13 @@ class StructureMatcher(MSONable):
 
         if matches:
             min_X_diff = np.inf
-            for m in matches:
+            for match in matches:
                 X_diff = 0
-                for k, v in m[0].items():
-                    X_diff += struct1.composition[k] * (k.X - v.X) ** 2
+                for key, val in match[0].items():
+                    X_diff += struct1.composition[key] * (key.X - val.X) ** 2
                 if X_diff < min_X_diff:
                     min_X_diff = X_diff
-                    best = m[0]
+                    best = match[0]
             return best
 
         return None
@@ -1059,9 +1058,8 @@ class StructureMatcher(MSONable):
         self, struct1: Structure, struct2: Structure, niggli: bool = True, skip_structure_reduction: bool = False
     ) -> bool:
         """
-        Performs an anonymous fitting, which allows distinct species in one
-        structure to map to another. E.g., to compare if the Li2O and Na2O
-        structures are similar.
+        Performs an anonymous fitting, which allows distinct species in one structure to map
+        to another. E.g., to compare if the Li2O and Na2O structures are similar.
 
         Args:
             struct1 (Structure): 1st structure

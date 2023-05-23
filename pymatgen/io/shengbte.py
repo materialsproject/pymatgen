@@ -1,4 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License
 
 """
@@ -270,7 +269,7 @@ class Control(MSONable, dict):
 
     def as_dict(self):
         """
-        Returns: MSONAble dict
+        Returns: MSONable dict
         """
         return dict(self)
 

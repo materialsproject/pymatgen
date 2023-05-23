@@ -8,19 +8,11 @@ import networkx as nx
 import numpy as np
 import pytest
 
-from pymatgen.analysis.chemenv.connectivity.connected_components import (
-    ConnectedComponent,
-)
-from pymatgen.analysis.chemenv.connectivity.connectivity_finder import (
-    ConnectivityFinder,
-)
+from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
+from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    SimplestChemenvStrategy,
-)
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
-    LocalGeometryFinder,
-)
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
     StructureEnvironments,
@@ -158,7 +150,7 @@ class ConnectedComponentTest(PymatgenTest):
         assert key == "3"
         with pytest.raises(
             RuntimeError,
-            match=r"Cannot pass an edge key which is a str " r"representation of an int\x2E",
+            match=r"Cannot pass an edge key which is a str representation of an int\x2E",
         ):
             key = ConnectedComponent._edgekey_to_edgedictkey("5")
         key = ConnectedComponent._edgekey_to_edgedictkey("mykey")
@@ -283,7 +275,7 @@ class ConnectedComponentTest(PymatgenTest):
         cc = ConnectedComponent(graph=graph)
         with pytest.raises(
             ValueError,
-            match=r"There should not be self loops with the same " r"\x28or opposite\x29 delta image\x2E",
+            match=r"There should not be self loops with the same \x28or opposite\x29 delta image\x2E",
         ):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
@@ -308,7 +300,7 @@ class ConnectedComponentTest(PymatgenTest):
         cc = ConnectedComponent(graph=graph)
         with pytest.raises(
             ValueError,
-            match=r"There should not be self loops with the same " r"\x28or opposite\x29 delta image\x2E",
+            match=r"There should not be self loops with the same \x28or opposite\x29 delta image\x2E",
         ):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
@@ -325,7 +317,7 @@ class ConnectedComponentTest(PymatgenTest):
         cc = ConnectedComponent(graph=graph)
         with pytest.raises(
             ValueError,
-            match=r"There should not be self loops with delta image = " r"\x280, 0, 0\x29\x2E",
+            match=r"There should not be self loops with delta image = \x280, 0, 0\x29\x2E",
         ):
             cc.compute_periodicity_all_simple_paths_algorithm()
 

@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 Utilities for generating nicer plots.
 """
@@ -648,9 +646,7 @@ def add_fig_kwargs(func):
         return fig
 
     # Add docstring to the decorated method.
-    s = (
-        "\n\n"
-        + """\
+    s = """\n\n
         Keyword arguments controlling the display of the figure:
 
         ================  ====================================================
@@ -670,7 +666,6 @@ def add_fig_kwargs(func):
         ================  ====================================================
 
 """
-    )
 
     if wrapper.__doc__ is not None:
         # Add s at the end of the docstring.

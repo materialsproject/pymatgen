@@ -11,11 +11,9 @@ REM entries.
 
 from __future__ import annotations
 
-import datetime
 import re
-from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 import dateutil.parser  # type: ignore
 from monty.io import zopen
@@ -26,6 +24,10 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from datetime import date
 
 __all__ = ["ResProvider", "AirssProvider", "ResIO", "ResWriter", "ParseError", "ResError"]
 
@@ -72,10 +74,15 @@ class Ion:
     specie_num: int
     pos: tuple[float, float, float]
     occupancy: float
+    spin: float | None
 
     def __str__(self) -> str:
-        ion_fmt = "{:<7s}{:<2d} {:.8f} {:.8f} {:.8f} {:f}"
-        return ion_fmt.format(self.specie, self.specie_num, *self.pos, self.occupancy)
+        if self.spin is None:
+            ion_fmt = "{:<7s}{:<2d} {:.8f} {:.8f} {:.8f} {:f}"
+            return ion_fmt.format(self.specie, self.specie_num, *self.pos, self.occupancy)
+
+        ion_fmt = "{:<7s}{:<2d} {:.8f} {:.8f} {:.8f} {:f} {:5.2f}"
+        return ion_fmt.format(self.specie, self.specie_num, *self.pos, self.occupancy, self.spin)
 
 
 @dataclass(frozen=True)
@@ -84,17 +91,14 @@ class ResSFAC:
     ions: list[Ion]
 
     def __str__(self) -> str:
-        sfac_fmt = "SFAC {species}\n" "{ions}\n" "END"
-        return sfac_fmt.format(
-            species=" ".join(f"{specie:<2s}" for specie in self.species), ions="\n".join(map(str, self.ions))
-        )
+        species = " ".join(f"{specie:<2s}" for specie in self.species)
+        ions = "\n".join(map(str, self.ions))
+        return f"SFAC {species}\n{ions}\nEND"
 
 
 @dataclass(frozen=True)
 class Res:
-    """
-    Representation for the data in a res file.
-    """
+    """Representation for the data in a res file."""
 
     TITL: AirssTITL | None
     REMS: list[str]
@@ -156,10 +160,9 @@ class ResParser:
             return AirssTITL(
                 seed, float(pressure), float(volume), float(energy), float(spin), float(abs_spin), spg, int(nap)
             )
-        else:
-            # there should at least be the first 6 fields if it's an AIRSS res file
-            # if it doesn't have them, then just stop looking
-            return None
+        # there should at least be the first 6 fields if it's an AIRSS res file
+        # if it doesn't have them, then just stop looking
+        return None
 
     def _parse_cell(self, line: str) -> ResCELL:
         """Parses the CELL entry."""
@@ -172,12 +175,16 @@ class ResParser:
     def _parse_ion(self, line: str) -> Ion:
         """Parses entries in the SFAC block."""
         fields = line.split()
-        if len(fields) != 6:
-            raise ParseError(f"Failed to parse ion entry {line}, expected 6 fields.")
+        if len(fields) == 6:
+            spin = None
+        elif len(fields) == 7:
+            spin = float(fields[-1])
+        else:
+            raise ParseError(f"Failed to parse ion entry {line}, expected 6 or 7 fields.")
         specie = fields[0]
         specie_num = int(fields[1])
-        x, y, z, occ = map(float, fields[2:])
-        return Ion(specie, specie_num, (x, y, z), occ)
+        x, y, z, occ = map(float, fields[2:6])
+        return Ion(specie, specie_num, (x, y, z), occ, spin)
 
     def _parse_sfac(self, line: str, it: Iterator[str]) -> ResSFAC:
         """Parses the SFAC block."""
@@ -210,7 +217,7 @@ class ResParser:
                 splits = len(split)
                 if splits == 0:
                     continue
-                elif splits == 1:
+                if splits == 1:
                     first, rest = *split, ""
                 else:
                     first, rest = split
@@ -268,7 +275,9 @@ class ResWriter:
             for specie, occ in site.species.items():
                 i += 1
                 x, y, z = map(float, site.frac_coords)
-                ions.append(Ion(specie, i, (x, y, z), occ))
+                spin = site.properties.get("magmom")
+                spin = spin and float(spin)
+                ions.append(Ion(specie, i, (x, y, z), occ, spin))
         return ions
 
     @classmethod
@@ -318,10 +327,9 @@ class ResWriter:
         return str(self)
 
     def write(self, filename: str) -> None:
-        """Write the res datat to a file."""
+        """Write the res data to a file."""
         with zopen(filename, "w") as file:
             file.write(str(self))
-        return None
 
 
 class ResProvider(MSONable):
@@ -332,6 +340,13 @@ class ResProvider(MSONable):
     def __init__(self, res: Res) -> None:
         """The :func:`from_str` and :func:`from_file` methods should be used instead of constructing this directly."""
         self._res = res
+
+    @classmethod
+    def _site_spin(cls, spin: float | None) -> dict[str, float] | None:
+        """Check and return a dict with the site spin. Return None if spin is None."""
+        if spin is None:
+            return None
+        return {"magmom": spin}
 
     @classmethod
     def from_str(cls, string: str) -> ResProvider:
@@ -358,7 +373,10 @@ class ResProvider(MSONable):
     def sites(self) -> list[PeriodicSite]:
         """Construct a list of PeriodicSites from the res file."""
         sfac_tag = self._res.SFAC
-        return [PeriodicSite(ion.specie, ion.pos, self.lattice) for ion in sfac_tag.ions]
+        return [
+            PeriodicSite(ion.specie, ion.pos, self.lattice, properties=self._site_spin(ion.spin))
+            for ion in sfac_tag.ions
+        ]
 
     @property
     def structure(self) -> Structure:
@@ -382,7 +400,7 @@ class AirssProvider(ResProvider):
     The :attr:`parse_rems` attribute controls whether functions that fail to retrieve information
     from the REM entries should return ``None``. If this is set to ``"strict"``,
     then a :class:`ParseError` may be raised, but the return value will not be ``None``.
-    If it is set to anything else then ``None`` will be returned instead of raising an
+    If it is set to ``"gentle"``, then ``None`` will be returned instead of raising an
     exception. This setting applies to all methods of this class that are typed to return
     an Optional type. Default is ``"gentle"``.
     """
@@ -410,7 +428,7 @@ class AirssProvider(ResProvider):
         return cls(ResParser._parse_file(filename), parse_rems)
 
     @classmethod
-    def _parse_date(cls, string: str) -> datetime.date:
+    def _parse_date(cls, string: str) -> date:
         """Parses a date from a string where the date is in the format typically used by CASTEP."""
         match = cls._date_fmt.search(string)
         if match is None:
@@ -423,7 +441,7 @@ class AirssProvider(ResProvider):
             return None
         raise err
 
-    def get_run_start_info(self) -> tuple[datetime.date, str] | None:
+    def get_run_start_info(self) -> tuple[date, str] | None:
         """
         Retrieves the run start date and the path it was started in from the REM entries.
 
@@ -494,7 +512,7 @@ class AirssProvider(ResProvider):
                 return (p, q, r), (po, qo, ro), int(srem[11]), float(srem[13])
         return self._raise_or_none(ParseError("Could not find line with MP grid."))  # type: ignore
 
-    def get_airss_version(self) -> tuple[str, datetime.date] | None:
+    def get_airss_version(self) -> tuple[str, date] | None:
         """
         Retrieves the version of AIRSS that was used along with the build date (not compile date).
 
@@ -509,13 +527,13 @@ class AirssProvider(ResProvider):
         return self._raise_or_none(ParseError("Could not find line with AIRSS version."))  # type: ignore
 
     def _get_compiler(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _get_compile_options(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _get_rng_seeds(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_pspots(self) -> dict[str, str]:
         """

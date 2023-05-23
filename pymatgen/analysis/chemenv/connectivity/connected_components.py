@@ -724,13 +724,12 @@ class ConnectedComponent(MSONable):
                             if edata["delta"] == (0, 0, 0):
                                 already_inside = True
                                 thisdelta = edata["delta"]
+                            elif edata["start"] == node.isite and edata["end"] != node.isite:
+                                thisdelta = edata["delta"]
+                            elif edata["end"] == node.isite:
+                                thisdelta = tuple(-dd for dd in edata["delta"])
                             else:
-                                if edata["start"] == node.isite and edata["end"] != node.isite:
-                                    thisdelta = edata["delta"]
-                                elif edata["end"] == node.isite:
-                                    thisdelta = tuple(-dd for dd in edata["delta"])
-                                else:
-                                    raise ValueError("Should not be here ...")
+                                raise ValueError("Should not be here ...")
                             ddeltas.append(thisdelta)
                     logging.debug(
                         "        ddeltas : " + ", ".join(f"({', '.join(str(ddd) for ddd in dd)})" for dd in ddeltas)
@@ -748,7 +747,7 @@ class ConnectedComponent(MSONable):
                         nbunch=[node_neighbor], data=True, keys=True
                     )
                     logging.debug(
-                        f"            Delta image from node {str(node)} to neighbor {str(node_neighbor)} : "
+                        f"            Delta image from node {node!s} to neighbor {node_neighbor!s} : "
                         f"({', '.join(map(str, myddelta))})"
                     )
                     # Loop on the edges of this neighbor

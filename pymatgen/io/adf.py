@@ -359,7 +359,7 @@ class AdfKey(MSONable):
             An AdfKey object recovered from the JSON dict ``d``.
         """
         key = d.get("name")
-        options = d.get("options", None)
+        options = d.get("options")
         subkey_list = d.get("subkeys", [])
         subkeys = [AdfKey.from_dict(k) for k in subkey_list] if len(subkey_list) > 0 else None
         return cls(key, options, subkeys)
@@ -559,11 +559,11 @@ class AdfTask(MSONable):
 
     def __str__(self):
         s = f"""TITLE {self.title}\n
-{str(self.units)}
-{str(self.xc)}
-{str(self.basis_set)}
-{str(self.scf)}
-{str(self.geo)}"""
+{self.units!s}
+{self.xc!s}
+{self.basis_set!s}
+{self.scf!s}
+{self.geo!s}"""
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Tests for the Materials Project DFT mixing scheme
 
@@ -115,11 +112,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import Compatibility, CompatibilityError
-from pymatgen.entries.computed_entries import (
-    CompositionEnergyAdjustment,
-    ComputedEntry,
-    ComputedStructureEntry,
-)
+from pymatgen.entries.computed_entries import CompositionEnergyAdjustment, ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
 from pymatgen.util.testing import PymatgenTest
 
@@ -165,7 +158,7 @@ class MixingState:
         return self.gga_entries + self.scan_entries
 
 
-@pytest.fixture
+@pytest.fixture()
 def mixing_scheme_no_compat():
     """
     Return an instance of MaterialsProjectDFTMixingScheme with no additional
@@ -215,7 +208,7 @@ lattice_br_r2scan = Lattice.from_dict(
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_complete():
     """
     Mixing state where we have R2SCAN for all GGA
@@ -386,7 +379,7 @@ def ms_complete():
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_scan_only(ms_complete):
     """
     Mixing state with only R2SCAN entries
@@ -411,7 +404,7 @@ def ms_scan_only(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_only(ms_complete):
     """
     Mixing state with only GGA entries
@@ -436,7 +429,7 @@ def ms_gga_only(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_1_scan(ms_complete):
     """
     Mixing state with all GGA entries and one R2SCAN, corresponding to the GGA
@@ -460,7 +453,7 @@ def ms_gga_1_scan(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_1_scan_novel(ms_complete):
     """
     Mixing state with all GGA entries and 1 R2SCAN, corresponding to a composition
@@ -501,7 +494,7 @@ def ms_gga_1_scan_novel(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_2_scan_same(ms_complete):
     """
     Mixing state with all GGA entries and 2 R2SCAN, corresponding to the GGA
@@ -525,7 +518,7 @@ def ms_gga_2_scan_same(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_2_scan_diff_match(ms_complete):
     """
     Mixing state with all GGA entries and 2 R2SCAN entries corresponding to
@@ -551,7 +544,7 @@ def ms_gga_2_scan_diff_match(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_2_scan_diff_no_match(ms_complete):
     """
     Mixing state with all GGA entries and 2 R2SCAN, corresponding to the GGA
@@ -595,7 +588,7 @@ def ms_gga_2_scan_diff_no_match(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_all_gga_scan_gs(ms_complete):
     """
     Mixing state with all GGA entries and R2SCAN entries corresponding to all GGA
@@ -619,7 +612,7 @@ def ms_all_gga_scan_gs(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_all_gga_scan_gs_plus_novel(ms_all_gga_scan_gs):
     """
     Mixing state with all GGA entries and R2SCAN entries corresponding to all GGA
@@ -662,7 +655,7 @@ def ms_all_gga_scan_gs_plus_novel(ms_all_gga_scan_gs):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_all_scan_novel(ms_complete):
     """
     Mixing state with all GGA entries and all R2SCAN, with an additional unstable
@@ -705,7 +698,7 @@ def ms_all_scan_novel(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_incomplete_gga_all_scan(ms_complete):
     """
     Mixing state with an incomplete GGA phase diagram
@@ -729,7 +722,7 @@ def ms_incomplete_gga_all_scan(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_scan_chemsys_superset(ms_complete):
     """
     Mixing state where we have R2SCAN for all GGA, and there is an additional R2SCAN
@@ -760,7 +753,7 @@ def ms_scan_chemsys_superset(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_complete_duplicate_structs(ms_complete):
     """
     Mixing state where we have R2SCAN for all GGA, plus extra entries that duplicate
@@ -1239,7 +1232,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="not found in the mixing state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_complete_duplicate_structs.state_data)
                 continue
-            elif e.entry_id in ["gga-1", "gga-3", "gga-4"]:
+            if e.entry_id in ["gga-1", "gga-3", "gga-4"]:
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_complete_duplicate_structs.state_data)
             else:
@@ -1280,7 +1273,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 assert compat.get_adjustments(e, state_data)[0].value == -6
                 continue
 
-            elif e.entry_id in ["gga-1", "gga-3", "gga-4"]:
+            if e.entry_id in ["gga-1", "gga-3", "gga-4"]:
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     compat.get_adjustments(e, ms_complete.state_data)
             else:
@@ -1359,7 +1352,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         In this case, the mixing scheme should not do anything
         """
-        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_only.all_entries, verbose=True)
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_only.all_entries)
         pd.testing.assert_frame_equal(state_data, ms_scan_only.state_data)
 
         for e in ms_scan_only.all_entries:

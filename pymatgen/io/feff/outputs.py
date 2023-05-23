@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines classes for parsing the FEFF output files.
 
@@ -228,7 +225,7 @@ class LDos(MSONable):
         return cht
 
     def charge_transfer_to_string(self):
-        """returns shrage transfer as string"""
+        """Returns charge transfer as string"""
         ch = self.charge_transfer
         chts = ["\nCharge Transfer\n\nabsorbing atom"]
         for i in range(len(ch)):

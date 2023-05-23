@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -10,11 +7,7 @@ import warnings
 import numpy as np
 from pytest import approx
 
-from pymatgen.command_line.bader_caller import (
-    BaderAnalysis,
-    bader_analysis_from_path,
-    which,
-)
+from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path, which
 from pymatgen.util.testing import PymatgenTest
 
 

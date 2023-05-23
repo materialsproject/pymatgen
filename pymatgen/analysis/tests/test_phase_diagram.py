@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import collections
@@ -324,13 +321,12 @@ class PhaseDiagramTest(unittest.TestCase):
                 assert (
                     self.pd.get_phase_separation_energy(entry) >= 0
                 ), "Unstable entries should have positive decomposition energy!"
-            else:
-                if entry.is_element:
-                    el_ref = self.pd.el_refs[entry.composition.elements[0]]
-                    e_d = entry.energy_per_atom - el_ref.energy_per_atom
-                    assert self.pd.get_phase_separation_energy(entry) == pytest.approx(e_d)
-                # NOTE the remaining materials would require explicit tests as they
-                # could be either positive or negative
+            elif entry.is_element:
+                el_ref = self.pd.el_refs[entry.composition.elements[0]]
+                e_d = entry.energy_per_atom - el_ref.energy_per_atom
+                assert self.pd.get_phase_separation_energy(entry) == pytest.approx(e_d)
+            # NOTE the remaining materials would require explicit tests as they
+            # could be either positive or negative
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
@@ -343,9 +339,7 @@ class PhaseDiagramTest(unittest.TestCase):
                 ), "Stable entries should have negative decomposition energy!"
                 assert self.pd.get_phase_separation_energy(entry, stable_only=True) == pytest.approx(
                     self.pd.get_equilibrium_reaction_energy(entry)
-                ), (
-                    "Using `stable_only=True` should give decomposition energy equal to " "equilibrium reaction energy!"
-                )
+                ), "Using `stable_only=True` should give decomposition energy equal to equilibrium reaction energy!"
 
         # Test that we get correct behavior with a polymorph
         toy_entries = {
@@ -392,13 +386,14 @@ class PhaseDiagramTest(unittest.TestCase):
             ), "Stable composition should have only 1 decomposition!"
         dim = len(self.pd.elements)
         for entry in self.pd.all_entries:
-            ndecomp = len(self.pd.get_decomposition(entry.composition))
+            n_decomp = len(self.pd.get_decomposition(entry.composition))
+            assert n_decomp > 0
             assert (
-                ndecomp > 0 and ndecomp <= dim
+                n_decomp <= dim
             ), "The number of decomposition phases can at most be equal to the number of components."
 
         # Just to test decomposition for a fictitious composition
-        ansdict = {
+        ans_dict = {
             entry.composition.formula: amt for entry, amt in self.pd.get_decomposition(Composition("Li3Fe7O11")).items()
         }
         expected_ans = {
@@ -407,7 +402,7 @@ class PhaseDiagramTest(unittest.TestCase):
             "Fe6 O8": 0.33333333333333393,
         }
         for k, v in expected_ans.items():
-            assert ansdict[k] == pytest.approx(v)
+            assert ans_dict[k] == pytest.approx(v)
 
     def test_get_transition_chempots(self):
         for el in self.pd.elements:
@@ -880,6 +875,13 @@ class PDPlotterTest(unittest.TestCase):
         self.pd_quaternary = PhaseDiagram(entries)
         self.plotter_quaternary_mpl = PDPlotter(self.pd_quaternary, backend="matplotlib")
         self.plotter_quaternary_plotly = PDPlotter(self.pd_quaternary, backend="plotly")
+
+    def test_plot_pd_with_no_unstable(self):
+        # https://github.com/materialsproject/pymatgen/issues/2885
+        pd_entries = [PDEntry(comp, 0) for comp in ["Li", "Co", "O"]]
+        pd = PhaseDiagram(pd_entries)
+        plotter = PDPlotter(pd, backend="plotly", show_unstable=False)
+        plotter.get_plot()
 
     def test_pd_plot_data(self):
         lines, labels, unstable_entries = self.plotter_ternary_mpl.pd_plot_data

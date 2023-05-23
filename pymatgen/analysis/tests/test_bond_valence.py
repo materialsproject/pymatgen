@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -8,11 +5,7 @@ import unittest
 
 import pytest
 
-from pymatgen.analysis.bond_valence import (
-    BVAnalyzer,
-    calculate_bv_sum,
-    calculate_bv_sum_unordered,
-)
+from pymatgen.analysis.bond_valence import BVAnalyzer, calculate_bv_sum, calculate_bv_sum_unordered
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure

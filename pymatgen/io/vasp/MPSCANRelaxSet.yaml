@@ -15,9 +15,9 @@ INCAR:
   LASPH: True
   LREAL: Auto
   LMIXTAU: True
-  LCHARG: True  # Output CHGCAR
-  LAECHG: True  # Output AECCAR
-  LELF: True  # Output ELFCAR
+  LCHARG: True # Output CHGCAR
+  LAECHG: True # Output AECCAR
+  LELF: True # Output ELFCAR
   LWAVE: False # Don't output WAVECAR
   LVTOT: True # Output LOCPOT
   METAGGA: R2SCAN
@@ -120,6 +120,8 @@ POTCAR:
   W: W_sv
   Xe: Xe
   Y: Y_sv
-  Yb: Yb_2
+  # 2023-05-02: change Yb_2 to Yb_3 as Yb_2 gives incorrect thermodynamics for most systems with Yb3+
+  # https://github.com/materialsproject/pymatgen/issues/2968
+  Yb: Yb_3
   Zn: Zn
   Zr: Zr_sv

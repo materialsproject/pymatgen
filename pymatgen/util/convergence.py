@@ -1,4 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.import string
 
 """
@@ -540,33 +539,28 @@ def determine_convergence(xs, ys, name, tol: float = 0.0001, extra="", verbose=F
                         popt, pcov, func = multi_reciprocal_extra(xs, ys)
                     else:
                         print(xs, ys)
-                        popt, pcov = None, None  # type: ignore
+                        popt, pcov = None, None  # type: ignore[assignment]
                 elif mode == "extra_noise":
                     popt, pcov, func = multi_reciprocal_extra(xs, ys, noise=True)
                 else:
                     raise NotImplementedError("unknown mode for test conv")
                 if func[1] > abs(tol):
-                    print(
-                        "warning function ",
-                        func[0],
-                        " as the best fit but not a good fit: ",
-                        func[1],
-                    )
-                # todo print this to file via a method in helper, as dict
+                    print(f"warning function {func[0]} as the best fit but not a good fit: {func[1]}")
+                # TODO print this to file via a method in helper, as dict
                 if plots:
-                    with open(name + ".fitdat", mode="a") as f:
+                    with open(f"{name}.fitdat", mode="a") as f:
                         f.write("{")
-                        f.write('"popt": ' + str(popt) + ", ")
-                        f.write('"pcov": ' + str(pcov) + ", ")
+                        f.write(f'"popt": {popt}, ')
+                        f.write(f'"pcov": {pcov}, ')
                         f.write('"data": [')
                         for n in range(0, len(ys), 1):
-                            f.write("[" + str(xs[n]) + " " + str(ys[n]) + "]")
+                            f.write(f"[{xs[n]} {ys[n]}]")
                         f.write("]}\n")
 
                     print_plot_line(func[0], popt, xs, ys, name, tol=tol, extra=extra)
 
         except ImportError:
-            popt, pcov = None, None  # type: ignore
+            popt, pcov = None, None  # type: ignore[assignment]
         for n in range(0, len(ds), 1):
             if verbose:
                 print(n, ys[n])

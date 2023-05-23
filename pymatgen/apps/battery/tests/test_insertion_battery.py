@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import json
@@ -11,10 +7,7 @@ import unittest
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 
-from pymatgen.apps.battery.insertion_battery import (
-    InsertionElectrode,
-    InsertionVoltagePair,
-)
+from pymatgen.apps.battery.insertion_battery import InsertionElectrode, InsertionVoltagePair
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import PymatgenTest
 

@@ -6,9 +6,7 @@ import unittest
 import numpy as np
 import pytest
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -242,8 +240,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             get_from_hints=True,
         )
         with pytest.raises(KeyError):
-            abc = se_nohints.ce_list[0][12]
-            abc.minimum_geometries()
+            se_nohints.ce_list[0][12]
         assert se_hints.ce_list[0][13][0] == se_nohints.ce_list[0][13][0]
         assert set(se_nohints.ce_list[0]).issubset(set(se_hints.ce_list[0]))
 

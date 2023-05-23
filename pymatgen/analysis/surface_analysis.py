@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines tools to analyze surface and adsorption related
 quantities as well as related plots. If you use this module, please
@@ -41,6 +38,7 @@ import copy
 import itertools
 import random
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 from sympy import Symbol
@@ -48,12 +46,14 @@ from sympy.solvers import linsolve, solve
 
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.vasp.outputs import Locpot, Outcar, Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.plotting import pretty_plot
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -1227,8 +1227,8 @@ class SurfaceEnergyPlotter:
         delu_dict = delu_dict or {}
         plt = plt if plt else pretty_plot(12, 8)
         el1, el2 = str(elements[0]), str(elements[1])
-        delu1 = Symbol(f"delu_{str(elements[0])}")
-        delu2 = Symbol(f"delu_{str(elements[1])}")
+        delu1 = Symbol(f"delu_{elements[0]!s}")
+        delu2 = Symbol(f"delu_{elements[1]!s}")
         range1 = ranges[0]
         range2 = ranges[1]
 

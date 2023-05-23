@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module define a WulffShape class to generate the Wulff shape from
 a lattice, a list of indices and their corresponding surface energies,
@@ -22,15 +19,18 @@ from __future__ import annotations
 import itertools
 import logging
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 import plotly.graph_objs as go
 from scipy.spatial import ConvexHull
 
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_angle
 from pymatgen.util.string import unicodeify_spacegroup
+
+if TYPE_CHECKING:
+    from pymatgen.core.lattice import Lattice
 
 __author__ = "Zihan Xu, Richard Tran, Shyue Ping Ong"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -425,11 +425,10 @@ class WulffShape:
         """
         import matplotlib as mpl
         import matplotlib.pyplot as plt
-        import mpl_toolkits.mplot3d as mpl3
+        from mpl_toolkits.mplot3d import Axes3D, art3d
 
-        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = self._get_colors(
-            color_set, alpha, off_color, custom_colors=custom_colors or {}
-        )
+        colors = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})
+        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = colors
 
         if not direction:
             # If direction is not specified, use the miller indices of
@@ -442,7 +441,8 @@ class WulffShape:
 
         wulff_pt_list = self.wulff_pt_list
 
-        ax = mpl3.Axes3D(fig, azim=azim, elev=elev)
+        ax = Axes3D(fig, azim=azim, elev=elev)
+        fig.add_axes(ax)
 
         for plane in self.facets:
             # check whether [pts] is empty
@@ -454,7 +454,7 @@ class WulffShape:
             plane_color = color_list[plane.index]
             pt = self.get_line_in_facet(plane)
             # plot from the sorted pts from [simpx]
-            tri = mpl3.art3d.Poly3DCollection([pt])
+            tri = art3d.Poly3DCollection([pt])
             tri.set_color(plane_color)
             tri.set_edgecolor("#808080")
             ax.add_collection3d(tri)
@@ -488,11 +488,9 @@ class WulffShape:
                     fancybox=True,
                     shadow=False,
                 )
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.set_zlabel("z")
+        ax.set(xlabel="x", ylabel="y", zlabel="z")
 
-        # Add colorbar
+        # Add color bar
         if bar_on:
             cmap = plt.get_cmap(color_set)
             cmap.set_over("0.25")
@@ -506,7 +504,7 @@ class WulffShape:
                 ax1,
                 cmap=cmap,
                 norm=norm,
-                boundaries=[0, *bounds] + [10],
+                boundaries=[0, *bounds, 10],
                 extend="both",
                 ticks=bounds[:-1],
                 spacing="proportional",
@@ -604,7 +602,10 @@ class WulffShape:
             )
 
             # normalize surface energy from a scale of 0 to 1 for colorbar
-            norm_e = (plane.e_surf - min(e_surf_on_wulff)) / (max(e_surf_on_wulff) - min(e_surf_on_wulff))
+            if max(e_surf_on_wulff) == min(e_surf_on_wulff):
+                norm_e = 1
+            else:
+                norm_e = (plane.e_surf - min(e_surf_on_wulff)) / (max(e_surf_on_wulff) - min(e_surf_on_wulff))
             c = [norm_e, color]
             if c not in color_scale:
                 color_scale.append(c)

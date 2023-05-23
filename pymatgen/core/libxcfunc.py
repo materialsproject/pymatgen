@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 Enumerator with the libxc identifiers.
 This is a low level object, client code should not interact with LibxcFunc directly
@@ -407,11 +405,10 @@ class LibxcFunc(Enum):
 
     # end_include_dont_touch
 
-    def __init__(self, num):
+    def __init__(self, _num):
         """
-        Init.
-
-        :param num: Number for the xc.
+        Args:
+            num: Number for the xc.
         """
         info = _all_xcfuncs[self.value]
         self.kind = info["Kind"]

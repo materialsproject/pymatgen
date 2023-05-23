@@ -1,7 +1,7 @@
 Change log
 ==========
 
-v2023.3.10
+v2023.5.10
 ----------
-* PR #2882 substrate-optimizations for speed up (@mkhorton)
-* Fix very fragile POTCAR parsing.
+* Fix mem leak in pbc_shortest_vector cython code. (@stichri)
+* Set all cython code to language level 3.

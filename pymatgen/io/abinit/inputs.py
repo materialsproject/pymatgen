@@ -248,7 +248,7 @@ def _get_shifts(shift_mode, structure):
             return shifts
         return ((0, 0, 0),)
 
-    raise ValueError(f"invalid shift_mode: `{str(shift_mode)}`")
+    raise ValueError(f"invalid shift_mode: `{shift_mode!s}`")
 
 
 def gs_input(
@@ -362,7 +362,7 @@ def ebands_input(
     )
 
     if scf_electrons.nband is None:
-        scf_electrons.nband = _find_scf_nband(structure, multi.pseudos, scf_electrons, multi[0].get("spinat", None))
+        scf_electrons.nband = _find_scf_nband(structure, multi.pseudos, scf_electrons, multi[0].get("spinat"))
 
     multi[0].set_vars(scf_ksampling.to_abivars())
     multi[0].set_vars(scf_electrons.to_abivars())
@@ -456,7 +456,7 @@ def ion_ioncell_relax_input(
     )
 
     if electrons.nband is None:
-        electrons.nband = _find_scf_nband(structure, multi.pseudos, electrons, multi[0].get("spinat", None))
+        electrons.nband = _find_scf_nband(structure, multi.pseudos, electrons, multi[0].get("spinat"))
 
     ion_relax = aobj.RelaxationMethod.atoms_only(atoms_constraints=None)
     ioncell_relax = aobj.RelaxationMethod.atoms_and_cell(atoms_constraints=None)
@@ -803,12 +803,12 @@ class BasicAbinitInput(AbstractInput, MSONable):
         This function receive a list of ``AbiVarable`` objects and add
         the corresponding variables to the input.
         """
-        d = {}
+        dct = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
-                raise TypeError(f"type {type(obj)}: {repr(obj)} does not have `to_abivars` method")
-            d.update(self.set_vars(obj.to_abivars()))
-        return d
+                raise TypeError(f"type {type(obj)}: {obj!r} does not have `to_abivars` method")
+            dct.update(self.set_vars(obj.to_abivars()))
+        return dct
 
     def __setitem__(self, key, value):
         if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
@@ -1106,7 +1106,7 @@ class BasicMultiDataset:
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:
-                raise self.Error(f"Cannot find the following pseudopotential files:\n{str(missing)}")
+                raise self.Error(f"Cannot find the following pseudopotential files:\n{missing!s}")
 
             pseudos = PseudoTable(pseudo_paths)
 
@@ -1176,7 +1176,7 @@ class BasicMultiDataset:
         return on_all
 
     def __add__(self, other):
-        """self + other"""
+        """Self + other"""
         if isinstance(other, BasicAbinitInput):
             new_mds = BasicMultiDataset.from_inputs(self)
             new_mds.append(other)

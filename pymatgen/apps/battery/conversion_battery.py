@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains the classes to build a ConversionElectrode.
 """
@@ -8,7 +5,7 @@ This module contains the classes to build a ConversionElectrode.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
 from scipy.constants import N_A
 
@@ -18,7 +15,9 @@ from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltage
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
-from pymatgen.entries.computed_entries import ComputedEntry
+
+if TYPE_CHECKING:
+    from pymatgen.entries.computed_entries import ComputedEntry
 
 
 @dataclass
@@ -26,7 +25,7 @@ class ConversionElectrode(AbstractElectrode):
     """
     Class representing a ConversionElectrode, since it is dataclass
     this object can be constructed for the attributes.
-    However, it is usually easier to construct a ConversionElectrode using one of the classmethods
+    However, it is usually easier to construct a ConversionElectrode using one of the classmethod
     constructors provided.
 
     Attribute:
@@ -218,9 +217,6 @@ class ConversionElectrode(AbstractElectrode):
     def __hash__(self):
         return 7
 
-    def __str__(self):
-        return self.__repr__()
-
     def __repr__(self):
         output = [
             f"Conversion electrode with formula {self.initial_comp.reduced_formula} and nsteps {self.num_steps}",
@@ -398,6 +394,3 @@ class ConversionVoltagePair(AbstractVoltagePair):
             f"vol_charge = {self.vol_charge}, vol_discharge = {self.vol_discharge}",
         ]
         return "\n".join(output)
-
-    def __str__(self):
-        return self.__repr__()

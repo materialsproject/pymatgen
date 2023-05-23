@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Classes and methods related to the Structure Notation Language (SNL)
 """
@@ -244,7 +241,7 @@ class StructureNL:
             raise ValueError("Invalid format for SNL reference! Should be BibTeX string.")
         if len(references) > MAX_BIBTEX_CHARS:
             raise ValueError(
-                f"The BibTeX string must be fewer than {MAX_BIBTEX_CHARS} chars " f", you have {len(references)}"
+                f"The BibTeX string must be fewer than {MAX_BIBTEX_CHARS} chars, you have {len(references)}"
             )
 
         self.references = references
@@ -321,11 +318,11 @@ class StructureNL:
         return cls(
             structure,
             a["authors"],
-            projects=a.get("projects", None),
+            projects=a.get("projects"),
             references=a.get("references", ""),
-            remarks=a.get("remarks", None),
+            remarks=a.get("remarks"),
             data=data,
-            history=a.get("history", None),
+            history=a.get("history"),
             created_at=created_at,
         )
 

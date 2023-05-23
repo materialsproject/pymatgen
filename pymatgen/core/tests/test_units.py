@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import pytest
@@ -110,10 +106,10 @@ class FloatWithUnitTest(PymatgenTest):
 
         @unitized("pm")
         def h():
-            d = {}
+            dct = {}
             for i in range(3):
-                d[i] = i * 20
-            return d
+                dct[i] = i * 20
+            return dct
 
         assert str(h()[1]) == "20.0 pm"
         assert isinstance(h(), dict)

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to define a phonon band structure.
 """
@@ -330,8 +327,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient
             has_nac: specify if the band structure has been produced taking into account
-                non-analytical corrections at Gamma. If True frequenciens at Gamma from
-                diffent directions will be stored in naf. Default False.
+                non-analytical corrections at Gamma. If True frequencies at Gamma from
+                different directions will be stored in naf. Default False.
             eigendisplacements: the phonon eigendisplacements associated to the
                 frequencies in Cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
@@ -487,36 +484,36 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         Return a dictionary with the phononwebsite format:
         http://henriquemiranda.github.io/phononwebsite
         """
-        d = {}
+        dct = {}
 
         # define the lattice
-        d["lattice"] = self.structure.lattice._matrix.tolist()
+        dct["lattice"] = self.structure.lattice._matrix.tolist()
 
         # define atoms
         atom_pos_car = []
         atom_pos_red = []
         atom_types = []
-        for site in self.structure.sites:
+        for site in self.structure:
             atom_pos_car.append(site.coords.tolist())
             atom_pos_red.append(site.frac_coords.tolist())
             atom_types.append(site.species_string)
 
         # default for now
-        d["repetitions"] = get_reasonable_repetitions(len(atom_pos_car))
+        dct["repetitions"] = get_reasonable_repetitions(len(atom_pos_car))
 
-        d["natoms"] = len(atom_pos_car)
-        d["atom_pos_car"] = atom_pos_car
-        d["atom_pos_red"] = atom_pos_red
-        d["atom_types"] = atom_types
-        d["atom_numbers"] = self.structure.atomic_numbers
-        d["formula"] = self.structure.formula
-        d["name"] = self.structure.formula
+        dct["natoms"] = len(atom_pos_car)
+        dct["atom_pos_car"] = atom_pos_car
+        dct["atom_pos_red"] = atom_pos_red
+        dct["atom_types"] = atom_types
+        dct["atom_numbers"] = self.structure.atomic_numbers
+        dct["formula"] = self.structure.formula
+        dct["name"] = self.structure.formula
 
         # get qpoints
         qpoints = []
         for q in self.qpoints:
             qpoints.append(list(q.frac_coords))
-        d["qpoints"] = qpoints
+        dct["qpoints"] = qpoints
 
         # get labels
         hsq_dict = {}
@@ -543,14 +540,14 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 dist += np.linalg.norm(q1 - q2)
             distances.append(dist)
         line_breaks.append((nqstart, len(qpoints)))
-        d["distances"] = distances
-        d["line_breaks"] = line_breaks
-        d["highsym_qpts"] = list(hsq_dict.items())
+        dct["distances"] = distances
+        dct["line_breaks"] = line_breaks
+        dct["highsym_qpts"] = list(hsq_dict.items())
 
         # eigenvalues
         thz2cm1 = 33.35641
         bands = self.bands.copy() * thz2cm1
-        d["eigenvalues"] = bands.T.tolist()
+        dct["eigenvalues"] = bands.T.tolist()
 
         # eigenvectors
         eigenvectors = self.eigendisplacements.copy()
@@ -558,9 +555,9 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         eigenvectors = eigenvectors.swapaxes(0, 1)
         eigenvectors = np.array([eigenvectors.real, eigenvectors.imag])
         eigenvectors = np.rollaxis(eigenvectors, 0, 5)
-        d["vectors"] = eigenvectors.tolist()
+        dct["vectors"] = eigenvectors.tolist()
 
-        return d
+        return dct
 
     def band_reorder(self):
         """
@@ -574,7 +571,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         order[0] = np.array(range(nphonons))
 
         # get the atomic masses
-        atomic_masses = [site.specie.atomic_mass for site in self.structure.sites]
+        atomic_masses = [site.specie.atomic_mass for site in self.structure]
 
         # get order
         for nq in range(1, nqpoints):

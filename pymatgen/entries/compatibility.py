@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 This module implements Compatibility corrections for mixing runs of different
 functionals.
@@ -157,11 +155,10 @@ class PotcarCorrection(Correction):
                 psp_settings = {d.get("hash") for d in entry.parameters["potcar_spec"] if d}
             else:
                 raise ValueError("Cannot check hash without potcar_spec field")
+        elif entry.parameters.get("potcar_spec"):
+            psp_settings = {d.get("titel").split()[1] for d in entry.parameters["potcar_spec"] if d}
         else:
-            if entry.parameters.get("potcar_spec"):
-                psp_settings = {d.get("titel").split()[1] for d in entry.parameters["potcar_spec"] if d}
-            else:
-                psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
+            psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
 
         if {self.valid_potcars.get(str(el)) for el in entry.composition.elements} != psp_settings:
             raise CompatibilityError("Incompatible potcar")
@@ -200,7 +197,7 @@ class GasCorrection(Correction):
         # set error to 0 because old MPCompatibility doesn't have errors
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         rform = entry.composition.reduced_formula
@@ -247,7 +244,7 @@ class AnionCorrection(Correction):
         correction = ufloat(0.0, 0.0)
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         # Check for sulfide corrections
@@ -348,7 +345,7 @@ class AqueousCorrection(Correction):
         cpd_energies = self.cpd_energies
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         correction = ufloat(0.0, 0.0)
@@ -477,7 +474,7 @@ class UCorrection(Correction):
                 f"Entry {entry.entry_id} has invalid run type {entry.parameters.get('run_type')}. Discarding."
             )
 
-        calc_u = entry.parameters.get("hubbards", None)
+        calc_u = entry.parameters.get("hubbards")
         calc_u = defaultdict(int) if calc_u is None else calc_u
         comp = entry.composition
 
@@ -486,7 +483,7 @@ class UCorrection(Correction):
         correction = ufloat(0.0, 0.0)
 
         # only correct GGA or GGA+U entries
-        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             return ufloat(0.0, 0.0)
 
         u_corr = self.u_corrections.get(most_electroneg, {})
@@ -543,6 +540,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         Args:
             entry: A ComputedEntry object.
+            **kwargs: Will be passed to process_entries().
 
         Returns:
             An adjusted entry if entry is compatible, else None.
@@ -566,15 +564,14 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         restored by setting entry.energy_adjustments = [].
 
         Args:
-            entries list[ComputedEntry | ComputedStructureEntry]: A sequence of
+            entries (AnyComputedEntry | list[AnyComputedEntry]): A sequence of
                 Computed(Structure)Entry objects.
             clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
-                Default is True.
+                Defaults to True.
             verbose (bool): Whether to display progress bar for processing multiple entries.
-                Default is False.
-            inplace (bool): Whether to adjust input entries in place.
-                Default is True.
+                Defaults to False.
+            inplace (bool): Whether to adjust input entries in place. Defaults to True.
 
         Returns:
             list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
@@ -773,7 +770,7 @@ class MaterialsProjectCompatibility(CorrectionsList):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
-    MaterialsProject parameters (see pymatgen.io.vaspio_set.MPVaspInputSet).
+    MaterialsProject parameters (see pymatgen.io.vasp.sets.MPVaspInputSet).
     Using this compatibility scheme on runs with different parameters is not
     valid.
     """
@@ -1103,7 +1100,7 @@ class MITCompatibility(CorrectionsList):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
-    MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using
+    MIT parameters (see pymatgen.io.vasp.sets MITVaspInputSet). Using
     this compatibility scheme on runs with different parameters is not valid.
     """
 
@@ -1144,7 +1141,7 @@ class MITAqueousCompatibility(CorrectionsList):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
-    MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using
+    MIT parameters (see pymatgen.io.vasp.sets MITVaspInputSet). Using
     this compatibility scheme on runs with different parameters is not valid.
     """
 
@@ -1409,6 +1406,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 Default is False.
             verbose (bool): Whether to display progress bar for processing multiple entries.
                 Default is False.
+            inplace (bool): Whether to modify the entries in place. If False, a copy of the
+                entries is made and processed. Default is True.
 
         Returns:
             list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with

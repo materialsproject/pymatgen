@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import pickle
@@ -131,7 +127,7 @@ class PeriodicSiteTest(PymatgenTest):
         assert round(abs(distance - 19.461500456028563), 5) == 0
         # Test that old and new distance algo give the same ans for
         # "standard lattices"
-        lattice = Lattice(np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
+        lattice = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
         assert round(abs(get_distance_and_image_old(site1, site2)[0] - site1.distance_and_image(site2)[0]), 7) == 0

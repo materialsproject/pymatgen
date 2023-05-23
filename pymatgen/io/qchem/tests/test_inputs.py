@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import logging
@@ -1158,10 +1154,10 @@ $end
         ]
 
         parsed = QCInput.read_cdft(str_cdft)
-        self.assertDictEqual(parsed[0][0], result[0][0])
-        self.assertDictEqual(parsed[0][1], result[0][1])
-        self.assertDictEqual(parsed[1][0], result[1][0])
-        self.assertDictEqual(parsed[1][1], result[1][1])
+        assert parsed[0][0] == result[0][0]
+        assert parsed[0][1] == result[0][1]
+        assert parsed[1][0] == result[1][0]
+        assert parsed[1][1] == result[1][1]
 
     def test_read_almo(self):
         str_almo = """I remain resolute in trying to break you!

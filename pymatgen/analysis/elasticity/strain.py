@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes and methods used to describe deformations and
 strains, including applying those deformations to structure objects and
@@ -11,15 +8,18 @@ from __future__ import annotations
 
 import collections
 import itertools
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import scipy
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.core.structure import Structure
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -259,11 +259,11 @@ def convert_strain_to_deformation(strain, shape: Literal["upper", "lower", "symm
             'symmetric' produces a symmetric defo
     """
     strain = SquareTensor(strain)
-    ftdotf = 2 * strain + np.eye(3)
+    ft_dot_f = 2 * strain + np.eye(3)
     if shape == "upper":
-        result = scipy.linalg.cholesky(ftdotf)
+        result = scipy.linalg.cholesky(ft_dot_f)
     elif shape == "symmetric":
-        result = scipy.linalg.sqrtm(ftdotf)
+        result = scipy.linalg.sqrtm(ft_dot_f)
     else:
         raise ValueError('shape must be "upper" or "symmetric"')
     return Deformation(result)

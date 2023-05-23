@@ -10,10 +10,7 @@ from pandas import DataFrame
 from plotly.graph_objects import Figure as plotly_figure
 from scipy.spatial import ConvexHull
 
-from pymatgen.analysis.interface_reactions import (
-    GrandPotentialInterfacialReactivity,
-    InterfacialReactivity,
-)
+from pymatgen.analysis.interface_reactions import GrandPotentialInterfacialReactivity, InterfacialReactivity
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition, Element
@@ -145,36 +142,35 @@ class InterfaceReactionTest(unittest.TestCase):
             norm=True,
             use_hull_energy=False,
         )
-        with pytest.raises(Exception) as context1:
+        with pytest.raises(Exception) as exc_info:
             _ = InterfacialReactivity(Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True)
-            assert (
-                str(context1.exception) == "Please use the GrandPotentialInterfacialReactivity "
-                "class for interfacial reactions with open elements!"
-            )
-        with pytest.raises(Exception) as context2:
+        assert (
+            str(exc_info.value) == "Please use the GrandPotentialInterfacialReactivity "
+            "class for interfacial reactions with open elements!"
+        )
+        with pytest.raises(Exception) as exc_info:
             _ = GrandPotentialInterfacialReactivity(
                 Composition("O2"),
                 Composition("Mn"),
                 grand_pd=self.gpd,
                 pd_non_grand=None,
-                norm=False,
-                include_no_mixing_energy=True,
+                # norm=False,
+                # include_no_mixing_energy=True,
             )
-            assert str(context2.exception) == "Please provide non-grand phase diagram to compute no_mixing_energy!"
+        assert str(exc_info.value) == "Please provide non-grand phase diagram to compute no_mixing_energy!"
 
         self.ir = [ir_0, ir_1, ir_2, ir_3, ir_4, ir_5, ir_6, ir_7, ir_8, ir_9, ir_10, ir_11, ir_12]
 
     def test_get_entry_energy(self):
         comp = Composition("MnO3")
-        with warnings.catch_warnings(record=True) as w:
+        with warnings.catch_warnings(record=True) as record:
             warnings.simplefilter("always")
             energy = InterfacialReactivity._get_entry_energy(self.pd, comp)
-            assert len(w) == 1
+            assert len(record) == 1
             assert (
-                "The reactant MnO3 has no matching entry with"
-                " negative formation energy, instead convex "
-                "hull energy for this composition will be used"
-                " for reaction energy calculation." in str(w[-1].message)
+                "The reactant MnO3 has no matching entry with negative formation energy, "
+                "instead convex hull energy for this composition will be used"
+                " for reaction energy calculation." in str(record[-1].message)
             )
         test1 = np.isclose(energy, -30, atol=1e-03)
         assert test1, f"_get_entry_energy: energy for {comp.reduced_formula} is wrong!"
@@ -347,11 +343,10 @@ class InterfaceReactionTest(unittest.TestCase):
                 relative_vectors_2 = [(x - x_kink[-1], e - energy_kink[-1]) for x, e in points]
                 relative_vectors = zip(relative_vectors_1, relative_vectors_2)
                 positions = [np.cross(v1, v2) for v1, v2 in relative_vectors]
-                test1 = np.all(np.array(positions) <= 0)
+                assert np.all(np.array(positions) <= 0)
 
                 hull = ConvexHull(points)
-                test2 = len(hull.vertices) == len(points)
-                assert test1 and test2, "Error: Generating non-convex plot!"
+                assert len(hull.vertices) == len(points), "Error: Generating non-convex plot!"
 
         for ir in self.ir:
             test_convexity_helper(ir)

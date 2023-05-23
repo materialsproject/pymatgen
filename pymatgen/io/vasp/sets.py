@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters developed and tested by the core team
@@ -41,13 +38,13 @@ The above are recommendations. The following are UNBREAKABLE rules:
 from __future__ import annotations
 
 import abc
-import glob
 import itertools
 import os
 import re
 import shutil
 import warnings
 from copy import deepcopy
+from glob import glob
 from itertools import chain
 from pathlib import Path
 from zipfile import ZipFile
@@ -137,12 +134,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         Returns:
             VaspInput
         """
-        return VaspInput(
-            incar=self.incar,
-            kpoints=self.kpoints,
-            poscar=self.poscar,
-            potcar=self.potcar,
-        )
+        return VaspInput(incar=self.incar, kpoints=self.kpoints, poscar=self.poscar, potcar=self.potcar)
 
     def write_input(
         self,
@@ -220,7 +212,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
 
 def _load_yaml_config(fname):
-    config = loadfn(str(MODULE_DIR / (f"{fname}.yaml")))
+    config = loadfn(MODULE_DIR / (f"{fname}.yaml"))
     if "PARENT" in config:
         parent_config = _load_yaml_config(config["PARENT"])
         for k, v in parent_config.items():
@@ -343,6 +335,15 @@ class DictSet(VaspInputSet):
             validate_magmom (bool): Ensure that the missing magmom values are filled
                 in with the VASP default value of 1.0
         """
+        struct_has_Yb = any(specie.symbol == "Yb" for site in structure for specie in site.species)
+        uses_Yb_2_psp = self.CONFIG["POTCAR"]["Yb"] == "Yb_2"
+        if struct_has_Yb and uses_Yb_2_psp:
+            warnings.warn(
+                "The structure contains Ytterbium (Yb) and this InputSet uses the Yb_2 PSP.\n"
+                "Yb_2 is known to often give bad results since Yb has oxidation state 3+ in most compounds.\n"
+                "See https://github.com/materialsproject/pymatgen/issues/2968 for details.",
+                BadInputSetWarning,
+            )
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
@@ -389,9 +390,8 @@ class DictSet(VaspInputSet):
 
         if potcar_functional is not None and user_potcar_functional is not None:
             raise ValueError(
-                "Received both 'potcar_functional' and "
-                "'user_potcar_functional arguments. 'potcar_functional "
-                "is deprecated."
+                "Received both 'potcar_functional' and 'user_potcar_functional arguments. "
+                "'potcar_functional is deprecated."
             )
         if potcar_functional:
             warnings.warn(
@@ -634,10 +634,8 @@ class DictSet(VaspInputSet):
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the kpoints automatically
         if (
-            self.user_incar_settings.get("KSPACING")
-            or self._config_dict["INCAR"].get("KSPACING")
-            and self.user_kpoints_settings == {}
-        ):
+            self.user_incar_settings.get("KSPACING") or self._config_dict["INCAR"].get("KSPACING")
+        ) and self.user_kpoints_settings == {}:
             return None
 
         settings = self.user_kpoints_settings or self._config_dict.get("KPOINTS")
@@ -1114,7 +1112,7 @@ class MPStaticSet(MPRelaxSet):
         for k in ["MAGMOM", "NUPDOWN", *self.user_incar_settings]:
             # For these parameters as well as user specified settings, override
             # the incar settings.
-            if parent_incar.get(k, None) is not None:
+            if parent_incar.get(k) is not None:
                 incar[k] = parent_incar[k]
             else:
                 incar.pop(k, None)
@@ -1145,7 +1143,7 @@ class MPStaticSet(MPRelaxSet):
         kpoints = super().kpoints
 
         # Prefer to use k-point scheme from previous run
-        # except for when lepsilon = True is specified
+        # unless lepsilon = True is specified
         if kpoints is not None and self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
             if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
                 k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
@@ -1264,7 +1262,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         for k in list(self.user_incar_settings):
             # For user specified settings, override
             # the incar settings.
-            if parent_incar.get(k, None) is not None:
+            if parent_incar.get(k) is not None:
                 incar[k] = parent_incar[k]
             else:
                 incar.pop(k, None)
@@ -1459,7 +1457,7 @@ class MPHSEBSSet(MPHSERelaxSet):
 
         files_to_transfer = {}
         if self.copy_chgcar:
-            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
+            chgcars = sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -1685,7 +1683,7 @@ class MPNonSCFSet(MPRelaxSet):
         files_to_transfer = {}
 
         if self.copy_chgcar:
-            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
+            chgcars = sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -1834,7 +1832,7 @@ class MPSOCSet(MPStaticSet):
 
         files_to_transfer = {}
         if self.copy_chgcar:
-            chgcars = sorted(glob.glob(str(Path(prev_calc_dir) / "CHGCAR*")))
+            chgcars = sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
@@ -1914,9 +1912,7 @@ class MPNMRSet(MPStaticSet):
         elif self.mode.lower() == "efg":
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
 
-            quad_efg = [
-                float(Species(p).get_nmr_quadrupole_moment(isotopes.get(p, None))) for p in self.poscar.site_symbols
-            ]
+            quad_efg = [float(Species(p).get_nmr_quadrupole_moment(isotopes.get(p))) for p in self.poscar.site_symbols]
 
             incar.update(
                 {
@@ -2102,7 +2098,7 @@ class MVLGWSet(DictSet):
         files_to_transfer = {}
         if self.copy_wavecar:
             for fname in ("WAVECAR", "WAVEDER", "WFULL"):
-                w = sorted(glob.glob(str(Path(prev_calc_dir) / (fname + "*"))))
+                w = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
                 if w:
                     if fname == "WFULL":
                         for f in w:
@@ -2236,7 +2232,7 @@ class MVLSlabSet(MPRelaxSet):
     def as_dict(self, verbosity=2):
         """
         :param verbosity: Verbosity of dict. E.g., whether to include Structure.
-        :return: MSONAble dict
+        :return: MSONable dict
         """
         d = MSONable.as_dict(self)
         if verbosity == 1:
@@ -2798,12 +2794,11 @@ class LobsterSet(MPRelaxSet):
                 self.reciprocal_density = 310
             else:
                 self.reciprocal_density = reciprocal_density or self.user_kpoints_settings["reciprocal_density"]
+        elif not reciprocal_density:
+            # test, if this is okay
+            self.reciprocal_density = 310
         else:
-            if not reciprocal_density:
-                # test, if this is okay
-                self.reciprocal_density = 310
-            else:
-                self.reciprocal_density = reciprocal_density
+            self.reciprocal_density = reciprocal_density
 
         self._config_dict["POTCAR"].update({"W": "W_sv"})
         self.isym = isym
@@ -2854,8 +2849,8 @@ def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     :return:
     """
     path = Path(path)
-    vruns = list(glob.glob(str(path / "vasprun.xml*")))
-    outcars = list(glob.glob(str(path / "OUTCAR*")))
+    vruns = list(glob(str(path / "vasprun.xml*")))
+    outcars = list(glob(str(path / "OUTCAR*")))
 
     if len(vruns) == 0 or len(outcars) == 0:
         raise ValueError(f"Unable to get vasprun.xml/OUTCAR from prev calculation in {path}")
@@ -3042,16 +3037,16 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     default_values = {"s": 1.0, "v": [1.0, 1.0, 1.0], "n": None}
     if spin_mode[0].lower() == "a":
         mode = "n"
-        for isite in structure.sites:
-            if "magmom" not in isite.properties or isite.properties["magmom"] is None:
+        for site in structure:
+            if "magmom" not in site.properties or site.properties["magmom"] is None:
                 pass
-            elif isinstance(isite.properties["magmom"], (float, int)):
+            elif isinstance(site.properties["magmom"], (float, int)):
                 if mode == "v":
                     raise TypeError("Magmom type conflict")
                 mode = "s"
-                if isinstance(isite.properties["magmom"], int):
-                    isite.properties["magmom"] = float(isite.properties["magmom"])
-            elif len(isite.properties["magmom"]) == 3:
+                if isinstance(site.properties["magmom"], int):
+                    site.properties["magmom"] = float(site.properties["magmom"])
+            elif len(site.properties["magmom"]) == 3:
                 if mode == "s":
                     raise TypeError("Magmom type conflict")
                 mode = "v"
@@ -3061,12 +3056,12 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
         mode = spin_mode[0].lower()
 
     new_struct = structure.copy() if not inplace else structure
-    for isite in new_struct.sites:
+    for site in new_struct:
         if mode == "n":
-            if "magmom" in isite.properties:
-                isite.properties.pop("magmom")
-        elif "magmom" not in isite.properties or isite.properties["magmom"] is None:
-            isite.properties["magmom"] = default_values[mode]
+            if "magmom" in site.properties:
+                site.properties.pop("magmom")
+        elif "magmom" not in site.properties or site.properties["magmom"] is None:
+            site.properties["magmom"] = default_values[mode]
 
     if not inplace:
         return new_struct
@@ -3234,7 +3229,7 @@ class MPAbsorptionSet(MPRelaxSet):
         files_to_transfer = {}
         if self.copy_wavecar:
             for fname in ("WAVECAR", "WAVEDER"):
-                w = sorted(glob.glob(str(Path(prev_calc_dir) / (fname + "*"))))
+                w = sorted(glob(str(Path(prev_calc_dir) / (fname + "*"))))
                 if w:
                     files_to_transfer[fname] = str(w[-1])
 

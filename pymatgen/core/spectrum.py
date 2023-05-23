@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
@@ -8,7 +5,7 @@ x y value pairs.
 
 from __future__ import annotations
 
-from typing import Callable, Literal
+from typing import TYPE_CHECKING, Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -16,7 +13,9 @@ from scipy import stats
 from scipy.ndimage import convolve1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
@@ -70,7 +69,7 @@ class Spectrum(MSONable):
             return self.x
         if item == self.YLABEL.lower():
             return self.y
-        raise AttributeError(f"Invalid attribute name {str(item)}")
+        raise AttributeError(f"Invalid attribute name {item!s}")
 
     def __len__(self):
         return self.ydim[0]

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements a EnergyModel abstract class and some basic
 implementations. Basically, an EnergyModel is any model that returns an
@@ -33,12 +30,15 @@ class EnergyModel(MSONable, metaclass=abc.ABCMeta):
         return 0.0
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
-        :param d: Dict representation
-        :return: EnergyModel
+        Args:
+            dct (dict): Dict representation
+
+        Returns:
+            EnergyModel
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class EwaldElectrostaticModel(EnergyModel):

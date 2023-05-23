@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -10,10 +7,7 @@ import warnings
 import pytest
 from pytest import approx
 
-from pymatgen.analysis.structure_prediction.volume_predictor import (
-    DLSVolumePredictor,
-    RLSVolumePredictor,
-)
+from pymatgen.analysis.structure_prediction.volume_predictor import DLSVolumePredictor, RLSVolumePredictor
 from pymatgen.core import Structure
 from pymatgen.util.testing import PymatgenTest
 

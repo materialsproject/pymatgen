@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to perform analyses of
 the local environments (e.g., finding near neighbors)
@@ -13,22 +10,21 @@ import collections
 import copy
 import math
 import os
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
-    LocalGeometryFinder,
-)
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
-    LightStructureEnvironments,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
 from pymatgen.analysis.local_env import NearNeighbors
-from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import CompleteCohp
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.plotter import CohpPlotter
 from pymatgen.io.lobster import Charge, Icohplist
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -535,12 +531,11 @@ class LobsterNeighbors(NearNeighbors):
                             self._split_string(atompair[1])[0],
                         ):
                             present = True
-                    else:
-                        if (
-                            atomtype == self._split_string(atompair[0])[0]
-                            and atomtype == self._split_string(atompair[1])[0]
-                        ):
-                            present = True
+                    elif (
+                        atomtype == self._split_string(atompair[0])[0]
+                        and atomtype == self._split_string(atompair[1])[0]
+                    ):
+                        present = True
 
                 if present:
                     new_labels.append(label)
@@ -657,26 +652,25 @@ class LobsterNeighbors(NearNeighbors):
                                             ]
                                         )
 
-                                else:
-                                    if not done:
-                                        icohp_trans = -np.asarray(
-                                            [icohp._translation[0], icohp._translation[1], icohp._translation[2]]
-                                        )
+                                elif not done:
+                                    icohp_trans = -np.asarray(
+                                        [icohp._translation[0], icohp._translation[1], icohp._translation[2]]
+                                    )
 
-                                        if (np.all(np.asarray(translation) == np.asarray(icohp._translation))) or (
-                                            np.all(np.asarray(translation) == icohp_trans)
-                                        ):
-                                            summed_icohps += icohp.summed_icohp
-                                            list_icohps.append(icohp.summed_icohp)
-                                            number_bonds += 1
-                                            label_list.append(label)
-                                            atoms_list.append(
-                                                [
-                                                    self.Icohpcollection._list_atom1[int(label) - 1],
-                                                    self.Icohpcollection._list_atom2[int(label) - 1],
-                                                ]
-                                            )
-                                            done = True
+                                    if (np.all(np.asarray(translation) == np.asarray(icohp._translation))) or (
+                                        np.all(np.asarray(translation) == icohp_trans)
+                                    ):
+                                        summed_icohps += icohp.summed_icohp
+                                        list_icohps.append(icohp.summed_icohp)
+                                        number_bonds += 1
+                                        label_list.append(label)
+                                        atoms_list.append(
+                                            [
+                                                self.Icohpcollection._list_atom1[int(label) - 1],
+                                                self.Icohpcollection._list_atom2[int(label) - 1],
+                                            ]
+                                        )
+                                        done = True
 
         return summed_icohps, list_icohps, number_bonds, label_list, atoms_list
 
@@ -1144,76 +1138,75 @@ class LobsterNeighbors(NearNeighbors):
         # TODO: make it work for COOPs
         if not adapt_extremum_to_add_cond or additional_condition == 0:
             extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
-        else:
-            if additional_condition == 1:
-                # only cation anion bonds
-                list_icohps = []
-                for value in icohpcollection._icohplist.values():
-                    atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
-                    atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
+        elif additional_condition == 1:
+            # only cation anion bonds
+            list_icohps = []
+            for value in icohpcollection._icohplist.values():
+                atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
+                atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
 
-                    val1 = self.valences[atomnr1]
-                    val2 = self.valences[atomnr2]
-                    if (val1 < 0.0 < val2) or (val2 < 0.0 < val1):
-                        list_icohps.append(value.summed_icohp)
+                val1 = self.valences[atomnr1]
+                val2 = self.valences[atomnr2]
+                if (val1 < 0.0 < val2) or (val2 < 0.0 < val1):
+                    list_icohps.append(value.summed_icohp)
 
-                extremum_based = min(list_icohps) * percentage
+            extremum_based = min(list_icohps) * percentage
 
-            elif additional_condition == 2:
-                # NO_ELEMENT_TO_SAME_ELEMENT_BONDS
-                list_icohps = []
-                for value in icohpcollection._icohplist.values():
-                    if value._atom1.rstrip("0123456789") != value._atom2.rstrip("0123456789"):
-                        list_icohps.append(value.summed_icohp)
-                extremum_based = min(list_icohps) * percentage
+        elif additional_condition == 2:
+            # NO_ELEMENT_TO_SAME_ELEMENT_BONDS
+            list_icohps = []
+            for value in icohpcollection._icohplist.values():
+                if value._atom1.rstrip("0123456789") != value._atom2.rstrip("0123456789"):
+                    list_icohps.append(value.summed_icohp)
+            extremum_based = min(list_icohps) * percentage
 
-            elif additional_condition == 3:
-                # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
-                list_icohps = []
-                for value in icohpcollection._icohplist.values():
-                    atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
-                    atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
-                    val1 = self.valences[atomnr1]
-                    val2 = self.valences[atomnr2]
+        elif additional_condition == 3:
+            # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
+            list_icohps = []
+            for value in icohpcollection._icohplist.values():
+                atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
+                atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
+                val1 = self.valences[atomnr1]
+                val2 = self.valences[atomnr2]
 
-                    if (
-                        (val1 < 0.0 < val2)
-                        or (val2 < 0.0 < val1)
-                        and value._atom1.rstrip("0123456789") != value._atom2.rstrip("0123456789")
-                    ):
-                        list_icohps.append(value.summed_icohp)
-                extremum_based = min(list_icohps) * percentage
-            elif additional_condition == 4:
-                list_icohps = []
-                for value in icohpcollection._icohplist.values():
-                    if value._atom1.rstrip("0123456789") == "O" or value._atom2.rstrip("0123456789") == "O":
-                        list_icohps.append(value.summed_icohp)
-                extremum_based = min(list_icohps) * percentage
-            elif additional_condition == 5:
-                # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
-                list_icohps = []
-                for value in icohpcollection._icohplist.values():
-                    atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
-                    atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
-                    val1 = self.valences[atomnr1]
-                    val2 = self.valences[atomnr2]
+                if (
+                    (val1 < 0.0 < val2)
+                    or (val2 < 0.0 < val1)
+                    and value._atom1.rstrip("0123456789") != value._atom2.rstrip("0123456789")
+                ):
+                    list_icohps.append(value.summed_icohp)
+            extremum_based = min(list_icohps) * percentage
+        elif additional_condition == 4:
+            list_icohps = []
+            for value in icohpcollection._icohplist.values():
+                if value._atom1.rstrip("0123456789") == "O" or value._atom2.rstrip("0123456789") == "O":
+                    list_icohps.append(value.summed_icohp)
+            extremum_based = min(list_icohps) * percentage
+        elif additional_condition == 5:
+            # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
+            list_icohps = []
+            for value in icohpcollection._icohplist.values():
+                atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
+                atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
+                val1 = self.valences[atomnr1]
+                val2 = self.valences[atomnr2]
 
-                    if (val1 > 0.0 and val2 > 0.0) or (val1 < 0.0 and val2 < 0.0):
-                        list_icohps.append(value.summed_icohp)
-                extremum_based = min(list_icohps) * percentage
+                if (val1 > 0.0 and val2 > 0.0) or (val1 < 0.0 and val2 < 0.0):
+                    list_icohps.append(value.summed_icohp)
+            extremum_based = min(list_icohps) * percentage
 
-            elif additional_condition == 6:
-                # ONLY_CATION_CATION_BONDS=6
-                list_icohps = []
-                for value in icohpcollection._icohplist.values():
-                    atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
-                    atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
-                    val1 = self.valences[atomnr1]
-                    val2 = self.valences[atomnr2]
+        elif additional_condition == 6:
+            # ONLY_CATION_CATION_BONDS=6
+            list_icohps = []
+            for value in icohpcollection._icohplist.values():
+                atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
+                atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
+                val1 = self.valences[atomnr1]
+                val2 = self.valences[atomnr2]
 
-                    if val1 > 0.0 and val2 > 0.0:
-                        list_icohps.append(value.summed_icohp)
-                extremum_based = min(list_icohps) * percentage
+                if val1 > 0.0 and val2 > 0.0:
+                    list_icohps.append(value.summed_icohp)
+            extremum_based = min(list_icohps) * percentage
 
         # if not self.are_coops:
         max_here = min(extremum_based, -0.1)
