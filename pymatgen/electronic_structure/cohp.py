@@ -796,7 +796,7 @@ class CompleteCohp(Cohp):
         bond_dict = {
             label: {
                 "length": v["length"],
-                "sites": [structure.sites[site] for site in v["sites"]],
+                "sites": [structure[site] for site in v["sites"]],
             }
             for label, v in cohp_data.items()
         }

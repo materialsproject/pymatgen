@@ -290,7 +290,7 @@ class ResWriter:
     @classmethod
     def _res_from_structure(cls, structure: Structure) -> Res:
         """Produce a res file structure from a pymatgen Structure."""
-        return Res(None, [], cls._cell_from_lattice(structure.lattice), cls._sfac_from_sites(list(structure.sites)))
+        return Res(None, [], cls._cell_from_lattice(structure.lattice), cls._sfac_from_sites(list(structure)))
 
     @classmethod
     def _res_from_entry(cls, entry: ComputedStructureEntry) -> Res:
@@ -305,7 +305,7 @@ class ResWriter:
             AirssTITL(seed, pres, entry.structure.volume, entry.energy, isd, iasd, spg, 1),
             rems,
             cls._cell_from_lattice(entry.structure.lattice),
-            cls._sfac_from_sites(list(entry.structure.sites)),
+            cls._sfac_from_sites(list(entry.structure)),
         )
 
     def __init__(self, entry: Structure | ComputedStructureEntry):
@@ -438,7 +438,7 @@ class AirssProvider(ResProvider):
 
     def _raise_or_none(self, err: ParseError) -> None:
         if self.parse_rems != "strict":
-            return None
+            return
         raise err
 
     def get_run_start_info(self) -> tuple[date, str] | None:

@@ -822,10 +822,10 @@ class LobsterNeighbors(NearNeighbors):
         list_icohps = []
         list_lengths = []
         list_keys = []
-        for isite in range(len(self.structure)):
+        for idx in range(len(self.structure)):
             icohps = self._get_icohps(
                 icohpcollection=self.Icohpcollection,
-                isite=isite,
+                isite=idx,
                 lowerlimit=lowerlimit,
                 upperlimit=upperlimit,
                 only_bonds_to=only_bonds_to,
@@ -836,10 +836,10 @@ class LobsterNeighbors(NearNeighbors):
                 lengths_from_ICOHPs,
                 neighbors_from_ICOHPs,
                 selected_ICOHPs,
-            ) = self._find_relevant_atoms_additional_condition(isite, icohps, additional_condition)
+            ) = self._find_relevant_atoms_additional_condition(idx, icohps, additional_condition)
 
             if len(neighbors_from_ICOHPs) > 0:
-                centralsite = self.structure.sites[isite]
+                centralsite = self.structure[idx]
 
                 neighbors_by_distance_start = self.structure.get_sites_in_sphere(
                     pt=centralsite.coords,

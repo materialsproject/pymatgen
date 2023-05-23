@@ -95,7 +95,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         assert len(pb.Molecule(mol_0d).atoms) == 2
         adaptor = BabelMolAdaptor(mol_0d)
         adaptor.add_hydrogen()
-        assert len(adaptor.pymatgen_mol.sites) == 14
+        assert len(adaptor.pymatgen_mol) == 14
 
     def test_rotor_search_wrs(self):
         mol = copy.deepcopy(self.mol)

@@ -295,7 +295,7 @@ class BVAnalyzer:
                 # recurses to find permutations of valences based on whether a
                 # charge balanced assignment can still be found
                 if self._n > self.max_permutations:
-                    return None
+                    return
                 if assigned is None:
                     assigned = []
 
@@ -312,16 +312,16 @@ class BVAnalyzer:
 
                 if highest < 0 or lowest > 0:
                     self._n += 1
-                    return None
+                    return
 
                 if i == len(valences):
                     evaluate_assignment(assigned)
                     self._n += 1
-                    return None
+                    return
                 for v in valences[i]:
                     new_assigned = list(assigned)
                     _recurse([*new_assigned, v])
-                return None
+                return
 
         else:
             n_sites = np.array([len(i) for i in equi_sites])
@@ -373,7 +373,7 @@ class BVAnalyzer:
                 # recurses to find permutations of valences based on whether a
                 # charge balanced assignment can still be found
                 if self._n > self.max_permutations:
-                    return None
+                    return
                 if assigned is None:
                     assigned = []
 
@@ -392,18 +392,18 @@ class BVAnalyzer:
 
                 if highest < -self.charge_neutrality_tolerance or lowest > self.charge_neutrality_tolerance:
                     self._n += 1
-                    return None
+                    return
 
                 if i == len(new_valences):
                     evaluate_assignment(assigned)
                     self._n += 1
-                    return None
+                    return
 
                 for v in new_valences[i]:
                     new_assigned = list(assigned)
                     _recurse([*new_assigned, v])
 
-                return None
+                return
 
         _recurse()
 

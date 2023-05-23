@@ -52,7 +52,7 @@ class SubstrateMatch(ZSLMatch):
         if elasticity_tensor is not None:
             energy_density = elasticity_tensor.energy_density(strain)
 
-            elastic_energy = film.volume * energy_density / len(film.sites)
+            elastic_energy = film.volume * energy_density / len(film)
         else:
             elastic_energy = 0
 

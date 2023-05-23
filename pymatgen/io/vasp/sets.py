@@ -349,7 +349,7 @@ class DictSet(VaspInputSet):
         if sort_structure:
             structure = structure.get_sorted_structure()
         if validate_magmom:
-            get_valid_magmom_struct(structure, spin_mode="auto", inplace=True)
+            get_valid_magmom_struct(structure, spin_mode="auto", inplace=True)  # noqa: PD002
 
         self._structure = structure
         self._config_dict = deepcopy(config_dict)

@@ -80,7 +80,7 @@ class InsertSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -132,7 +132,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -176,7 +176,7 @@ class RemoveSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -534,7 +534,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -573,7 +573,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:

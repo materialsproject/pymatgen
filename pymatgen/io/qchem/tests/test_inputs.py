@@ -1181,15 +1181,14 @@ $end"""
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol)
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test.qin"))
-        test_file = open(os.path.join(os.path.dirname(__file__), "test.qin"))
-        ref_file = open(os.path.join(os.path.dirname(__file__), "test_ref.qin"))
+        test_path = os.path.join(os.path.dirname(__file__), "test.qin")
+        ref_path = os.path.join(os.path.dirname(__file__), "test_ref.qin")
 
-        for l_test, l_ref in zip(test_file, ref_file):
-            # By default, if this statement fails the offending line will be printed
-            assert l_test == l_ref
+        with open(ref_path) as ref_file, open(test_path) as test_file:
+            for l_test, l_ref in zip(test_file, ref_file):
+                # By default, if this statement fails the offending line will be printed
+                assert l_test == l_ref
 
-        test_file.close()
-        ref_file.close()
         os.remove(os.path.join(os.path.dirname(__file__), "test.qin"))
 
     def test_write_file_from_OptSet_with_vdw(self):
@@ -1199,29 +1198,27 @@ $end"""
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol, overwrite_inputs={"van_der_waals": {"16": 3.14159}})
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
-        test_file = open(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
-        ref_file = open(os.path.join(os.path.dirname(__file__), "test_ref_vdw.qin"))
+        test_path = os.path.join(os.path.dirname(__file__), "test_vdw.qin")
+        ref_path = os.path.join(os.path.dirname(__file__), "test_ref_vdw.qin")
 
-        for l_test, l_ref in zip(test_file, ref_file):
-            # By default, if this statement fails the offending line will be printed
-            assert l_test == l_ref
+        with open(ref_path) as ref_file, open(test_path) as test_file:
+            for l_test, l_ref in zip(test_file, ref_file):
+                # By default, if this statement fails the offending line will be printed
+                assert l_test == l_ref
 
-        test_file.close()
-        ref_file.close()
         os.remove(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
 
     def test_read_write_nbo7(self):
         qcinp = QCInput.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin"))
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_nbo7.qin"))
-        test_file = open(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin"))
-        ref_file = open(os.path.join(os.path.dirname(__file__), "test_nbo7.qin"))
+        test_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin")
+        ref_path = os.path.join(os.path.dirname(__file__), "test_nbo7.qin")
 
-        for l_test, l_ref in zip(test_file, ref_file):
-            # By default, if this statement fails the offending line will be printed
-            assert l_test == l_ref
+        with open(ref_path) as ref_file, open(test_path) as test_file:
+            for l_test, l_ref in zip(test_file, ref_file):
+                # By default, if this statement fails the offending line will be printed
+                assert l_test == l_ref
 
-        test_file.close()
-        ref_file.close()
         os.remove(os.path.join(os.path.dirname(__file__), "test_nbo7.qin"))
 
     def test_read_write_nbo_e2pert(self):
@@ -1229,14 +1226,13 @@ $end"""
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "e2pert.qin")
         )
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_e2pert.qin"))
-        test_file = open(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "e2pert.qin"))
-        ref_file = open(os.path.join(os.path.dirname(__file__), "test_e2pert.qin"))
+        test_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "e2pert.qin")
+        ref_path = os.path.join(os.path.dirname(__file__), "test_e2pert.qin")
 
-        for l_test, l_ref in zip(test_file, ref_file):
-            assert l_test == l_ref
+        with open(ref_path) as ref_file, open(test_path) as test_file:
+            for l_test, l_ref in zip(test_file, ref_file):
+                assert l_test == l_ref
 
-        test_file.close()
-        ref_file.close()
         os.remove(os.path.join(os.path.dirname(__file__), "test_e2pert.qin"))
 
     def test_read_write_custom_smd(self):
@@ -1244,14 +1240,13 @@ $end"""
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "custom_smd.qin")
         )
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_custom_smd.qin"))
-        test_file = open(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "custom_smd.qin"))
-        ref_file = open(os.path.join(os.path.dirname(__file__), "test_custom_smd.qin"))
+        test_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "custom_smd.qin")
+        ref_path = os.path.join(os.path.dirname(__file__), "test_custom_smd.qin")
 
-        for l_test, l_ref in zip(test_file, ref_file):
-            assert l_test == l_ref
+        with open(ref_path) as ref_file, open(test_path) as test_file:
+            for l_test, l_ref in zip(test_file, ref_file):
+                assert l_test == l_ref
 
-        test_file.close()
-        ref_file.close()
         os.remove(os.path.join(os.path.dirname(__file__), "test_custom_smd.qin"))
 
 

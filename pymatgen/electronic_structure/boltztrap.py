@@ -1639,14 +1639,15 @@ class BoltztrapAnalyzer:
                 raise BoltztrapError("Dos merging error: spin component are the same")
 
         for s in self._dos_partial:
-            if structure.sites[int(s)] not in pdoss:
-                pdoss[structure.sites[int(s)]] = {}
+            idx = int(s)
+            if structure[idx] not in pdoss:
+                pdoss[structure[idx]] = {}
             for o in self._dos_partial[s]:
-                if Orbital[o] not in pdoss[structure.sites[int(s)]]:
-                    pdoss[structure.sites[int(s)]][Orbital[o]] = {}
-                pdoss[structure.sites[int(s)]][Orbital[o]][spin_1] = self._dos_partial[s][o]
+                if Orbital[o] not in pdoss[structure[idx]]:
+                    pdoss[structure[idx]][Orbital[o]] = {}
+                pdoss[structure[idx]][Orbital[o]][spin_1] = self._dos_partial[s][o]
                 if analyzer_for_second_spin:
-                    pdoss[structure.sites[int(s)]][Orbital[o]][spin_2] = analyzer_for_second_spin._dos_partial[s][o]
+                    pdoss[structure[idx]][Orbital[o]][spin_2] = analyzer_for_second_spin._dos_partial[s][o]
         if analyzer_for_second_spin:
             tdos = Dos(
                 self.dos.efermi,
