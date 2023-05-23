@@ -3310,7 +3310,7 @@ class LocalStructOrderParams:
                                 qsp_theta[i][j][k] = (
                                     qsp_theta[i][j][k] / norms[i][j][k] if norms[i][j][k] > 1.0e-12 else 0.0
                                 )
-                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], max(qsp_theta[i][j]))
+                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], *qsp_theta[i][j])
                 elif t == "bcc":
                     ops[i] = 0.0
                     for j in range(nneigh):
@@ -3327,7 +3327,7 @@ class LocalStructOrderParams:
                             tmp = self._params[i][2] * (d - dmean)
                             acc = acc + exp(-0.5 * tmp * tmp)
                         for j in range(nneigh):
-                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], max(qsp_theta[i][j]))
+                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], *qsp_theta[i][j])
                         ops[i] = acc * ops[i] / float(nneigh)
                         # nneigh * (nneigh - 1))
                     else:

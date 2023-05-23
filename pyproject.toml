@@ -77,7 +77,6 @@ ignore = [
   "PLR2004", # Magic number
   "PLW0603", # Using the global statement to update variables is discouraged
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
-  "PLW3301", # TODO: remove once https://github.com/charliermarsh/ruff/pull/4412 released
   "PT011",   # pytest-raises-too-broad
   "PT013",   # pytest-incorrect-pytest-import
   "RET504",  # unnecessary-assign

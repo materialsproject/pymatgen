@@ -728,7 +728,7 @@ class StructureEnvironments(MSONable):
                 if len(min_geoms) == 0:
                     continue
                 wds = nb_set.normalized_distances
-                max_wd = max(max_wd, max(wds))
+                max_wd = max(max_wd, *wds)
                 all_wds.append(wds)
                 all_was.append(nb_set.normalized_angles)
                 for mp_symbol, cg_dict in min_geoms:
