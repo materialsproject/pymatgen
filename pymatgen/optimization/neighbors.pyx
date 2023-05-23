@@ -48,8 +48,8 @@ def find_points_in_spheres(
         const double tol=1e-8,
         const double min_r=1.0):
     """
-    For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
-    cutoff radius `r`. All the coordinates should be in Cartesian.
+    For each point in `center_coords`, get all the neighboring points in `all_coords`
+    that are within the cutoff radius `r`. All the coordinates should be Cartesian.
 
     Args:
         all_coords: (np.ndarray[double, dim=2]) all available points.
@@ -87,13 +87,21 @@ def find_points_in_spheres(
         int n_center = center_coords.shape[0]
         int n_total = all_coords.shape[0]
         long nlattice = 1
-        long count = 0
+
         long[3] max_bounds = [1, 1, 1]
         long[3] min_bounds = [0, 0, 0]
-        double [:, ::1] frac_coords =  <double[:n_center, :3]> safe_malloc(n_center * 3 * sizeof(double))
-        double[:, ::1] all_fcoords = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
-        double[:, ::1] coords_in_cell = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
-        double[:, ::1] offset_correction = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
+        double [:, ::1] frac_coords =  <double[:n_center, :3]> safe_malloc(
+            n_center * 3 * sizeof(double)
+        )
+        double[:, ::1] all_fcoords = <double[:n_total, :3]> safe_malloc(
+            n_total * 3 * sizeof(double)
+        )
+        double[:, ::1] coords_in_cell = <double[:n_total, :3]> safe_malloc(
+            n_total * 3 * sizeof(double)
+        )
+        double[:, ::1] offset_correction = <double[:n_total, :3]> safe_malloc(
+            n_total * 3 * sizeof(double)
+        )
         double[3][3] inv_lattice_arr
         double[:, ::1] inv_lattice = inv_lattice_arr
         double[3][3] reciprocal_lattice_arr = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -101,12 +109,16 @@ def find_points_in_spheres(
 
         long natoms = n_total
         double *offsets_p_temp = <double*> safe_malloc(natoms * 3 * sizeof(double))
-        double *expanded_coords_p_temp = <double*> safe_malloc(natoms * 3 * sizeof(double))
+        double *expanded_coords_p_temp = <double*> safe_malloc(
+            natoms * 3 * sizeof(double)
+        )
         long *indices_p_temp = <long*> safe_malloc(natoms * sizeof(long))
         double coord_temp[3]
         long ncube[3]
 
-        long[:, ::1] center_indices3 = <long[:n_center, :3]> safe_malloc(n_center*3*sizeof(long))
+        long[:, ::1] center_indices3 = <long[:n_center, :3]> safe_malloc(
+            n_center*3*sizeof(long)
+        )
         long[::1] center_indices1 = <long[:n_center]> safe_malloc(n_center*sizeof(long))
 
         int malloc_chunk = 10000  # size of memory chunks to re-allocate dynamically
@@ -141,11 +153,11 @@ def find_points_in_spheres(
                 all_fcoords[i, j] = offset_correction[i, j]
                 offset_correction[i, j] = 0
 
-    # computes reciprocal lattice in place
+    # compute the reciprocal lattice in place
     get_reciprocal_lattice(lattice, reciprocal_lattice)
     get_max_r(reciprocal_lattice, maxr, r)
 
-    # Get fractional coordinates of center points
+    # Get fractional coordinates of center points in place
     get_frac_coords(lattice, inv_lattice, center_coords, frac_coords)
     get_bounds(frac_coords, maxr, &pbc[0], max_bounds, min_bounds)
 
@@ -160,11 +172,18 @@ def find_points_in_spheres(
             for k in range(min_bounds[2], max_bounds[2]):
                 for l in range(n_total):
                     for m in range(3):
-                        coord_temp[m] = <double>i * lattice[0, m] + <double>j * lattice[1, m] + \
-                            <double>k * lattice[2, m] + coords_in_cell[l, m]
-                    if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
-                        (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
-                        (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):
+                        coord_temp[m] = <double>i * lattice[0, m] + \
+                                        <double>j * lattice[1, m] + \
+                                        <double>k * lattice[2, m] + \
+                                        coords_in_cell[l, m]
+                    if (
+                            (coord_temp[0] > valid_min[0]) &
+                            (coord_temp[0] < valid_max[0]) &
+                            (coord_temp[1] > valid_min[1]) &
+                            (coord_temp[1] < valid_max[1]) &
+                            (coord_temp[2] > valid_min[2]) &
+                            (coord_temp[2] < valid_max[2])
+                    ):
                         offsets_p_temp[3*count] = i
                         offsets_p_temp[3*count+1] = j
                         offsets_p_temp[3*count+2] = k
@@ -175,10 +194,20 @@ def find_points_in_spheres(
                         count += 1
                         if count >= natoms:  # exceeding current memory
                             natoms += natoms
-                            offsets_p_temp = <double*> realloc(offsets_p_temp, natoms * 3 * sizeof(double))
-                            expanded_coords_p_temp = <double*> realloc(expanded_coords_p_temp, natoms * 3 * sizeof(double))
-                            indices_p_temp = <long*> realloc(indices_p_temp, natoms * sizeof(long))
-                        if offset_final == NULL or expanded_coords_p_temp == NULL or indices_p_temp == NULL:
+                            offsets_p_temp = <double*> realloc(
+                                offsets_p_temp, natoms * 3 * sizeof(double)
+                            )
+                            expanded_coords_p_temp = <double*> realloc(
+                                expanded_coords_p_temp, natoms * 3 * sizeof(double)
+                            )
+                            indices_p_temp = <long*> realloc(
+                                indices_p_temp, natoms * sizeof(long)
+                            )
+                        if (
+                                offset_final is NULL or
+                                expanded_coords_p_temp is NULL or
+                                indices_p_temp is NULL
+                        ):
                             failed_malloc = 1
                             break
                 else:
@@ -220,17 +249,27 @@ def find_points_in_spheres(
     natoms = count
     cdef:
         # Delete those beyond (min_center_coords - r, max_center_coords + r)
-        double *offsets_p = <double*> safe_realloc(offsets_p_temp, count * 3 * sizeof(double))
-        double *expanded_coords_p = <double*> safe_realloc(expanded_coords_p_temp, count * 3 * sizeof(double))
-        long *indices_p = <long*> safe_realloc(indices_p_temp, count * sizeof(long))
+        double *offsets_p = <double*> safe_realloc(
+            offsets_p_temp, count * 3 * sizeof(double)
+        )
+        double *expanded_coords_p = <double*> safe_realloc(
+            expanded_coords_p_temp, count * 3 * sizeof(double)
+        )
+        long *indices_p = <long*> safe_realloc(
+            indices_p_temp, count * sizeof(long)
+        )
 
         double[:, ::1] offsets = <double[:count, :3]> offsets_p
         double[:, ::1] expanded_coords = <double[:count, :3]> expanded_coords_p
         long[::1] indices = <long[:count]> indices_p
 
         # Construct linked cell list
-        long[:, ::1] all_indices3 = <long[:natoms, :3]> safe_malloc(natoms * 3 * sizeof(long))
-        long[::1] all_indices1 = <long[:natoms]> safe_malloc(natoms * sizeof(long))
+        long[:, ::1] all_indices3 = <long[:natoms, :3]> safe_malloc(
+            natoms * 3 * sizeof(long)
+        )
+        long[::1] all_indices1 = <long[:natoms]> safe_malloc(
+            natoms * sizeof(long)
+        )
 
     for i in range(3):
         ncube[i] = <long>(ceil((valid_max[i] - valid_min[i]) / ledge))
@@ -242,7 +281,9 @@ def find_points_in_spheres(
         long nb_cubes = ncube[0] * ncube[1] * ncube[2]
         long *head = <long*> safe_malloc(nb_cubes*sizeof(long))
         long *atom_indices = <long*> safe_malloc(natoms*sizeof(long))
-        long[:, ::1] neighbor_map = <long[:nb_cubes, :27]> safe_malloc(nb_cubes * 27 * sizeof(long))
+        long[:, ::1] neighbor_map = <long[:nb_cubes, :27]> safe_malloc(
+            nb_cubes * 27 * sizeof(long)
+        )
 
     memset(<void*>head, -1, nb_cubes*sizeof(long))
     memset(<void*>atom_indices, -1, natoms*sizeof(long))
@@ -281,9 +322,16 @@ def find_points_in_spheres(
                         malloc_chunk += malloc_chunk  # double the size
                         index_1 = <long*> realloc(index_1, malloc_chunk * sizeof(long))
                         index_2 = <long*> realloc(index_2, malloc_chunk*sizeof(long))
-                        offset_final = <double*> realloc(offset_final, 3*malloc_chunk*sizeof(double))
-                        distances = <double*> realloc(distances, malloc_chunk*sizeof(double))
-                        if index_1 == NULL or index_2 == NULL or offset_final == NULL or distances == NULL:
+                        offset_final = <double*> realloc(
+                            offset_final, 3*malloc_chunk*sizeof(double)
+                        )
+                        distances = <double*> realloc(
+                            distances, malloc_chunk*sizeof(double)
+                        )
+                        if (
+                                index_1 is NULL or index_2 is NULL or
+                                offset_final is NULL or distances is NULL
+                        ):
                             failed_malloc = 1
                             break
                 link_index = atom_indices[link_index]
@@ -351,11 +399,14 @@ cdef void get_cube_neighbors(long[3] ncube, long[:, ::1] neighbor_map):
         int count = 0
         long ncubes = ncube[0] * ncube[1] * ncube[2]
         long[::1] counts = <long[:ncubes]> safe_malloc(ncubes * sizeof(long))
-        long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> safe_malloc(ncubes*3*sizeof(long))
+        long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> safe_malloc(
+            ncubes*3*sizeof(long)
+        )
         long[::1] cube_indices_1d = <long[:ncubes]> safe_malloc(ncubes*sizeof(long))
 
-        # creating the memviews of c-arrays once subtantially improves speed
-        # but for some reason it makes the increases the scaling with the number of atoms
+        # creating the memviews of c-arrays once substantially improves speed
+        # but for some reason it makes the runtime scaling with the number of
+        # atoms worse
         long[1][3] index3_arr
         long[:, ::1] index3 = index3_arr
         long[1] index1_arr
@@ -391,8 +442,14 @@ cdef void get_cube_neighbors(long[3] ncube, long[:, ::1] neighbor_map):
             index3[0, 0] = ovectors[j, 0] + cube_indices_3d[i, 0]
             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]
             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
-            if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \
-                (index3[0, 1] >= 0) & (index3[0, 2] < ncube[2]) & (index3[0, 2] >= 0):
+            if (
+                    (index3[0, 0] < ncube[0]) &
+                    (index3[0, 0] >= 0) &
+                    (index3[0, 1] < ncube[1]) &
+                    (index3[0, 1] >= 0) &
+                    (index3[0, 2] < ncube[2]) &
+                    (index3[0, 2] >= 0)
+            ):
                 three_to_one(index3, ncube[1], ncube[2], index1)
                 neighbor_map[i, counts[i]] = index1[0]
                 counts[i] += 1
@@ -439,7 +496,8 @@ cdef double distance2(
         long size
     ) nogil:
     """
-    Faster way to compute the distance squared by not using slice but providing indices in each matrix
+    Faster way to compute the distance squared by not using slice but providing indices
+    in each matrix
     """
     cdef:
         int i
@@ -458,8 +516,8 @@ cdef void get_bounds(
         long[3] min_bounds
     ) nogil:
     """
-    Given the fractional coordinates and the number of repeation needed in each direction, maxr,
-    compute the translational bounds in each dimension
+    Given the fractional coordinates and the number of repeation needed in each
+    direction, maxr, compute the translational bounds in each dimension
     """
     cdef:
         int i
@@ -555,7 +613,11 @@ cdef void get_reciprocal_lattice(
     """
     cdef int i
     for i in range(3):
-        recip_component(lattice[i, :], lattice[(i+1)%3, :], lattice[(i+2)%3, :], reciprocal_lattice[i, :])
+        recip_component(
+            lattice[i, :], lattice[(i+1)%3, :],
+            lattice[(i+2)%3, :],
+            reciprocal_lattice[i, :]
+        )
 
 cdef void recip_component(
         const double[::1] a1,
@@ -640,7 +702,9 @@ cdef void compute_cube_index(
     cdef int i, j
     for i in range(coords.shape[0]):
         for j in range(coords.shape[1]):
-            return_indices[i, j] = <long>(floor((coords[i, j] - global_min[j] + 1e-8) / radius))
+            return_indices[i, j] = <long>(
+                floor((coords[i, j] - global_min[j] + 1e-8) / radius)
+            )
 
 
 cdef void three_to_one(
