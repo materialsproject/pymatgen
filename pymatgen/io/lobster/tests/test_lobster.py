@@ -700,28 +700,22 @@ class NcicobilistTest(unittest.TestCase):
         )
 
     def test_ncicobilist(self):
-        self.assertTrue(self.ncicobi.is_spin_polarized)
-        self.assertFalse(self.ncicobinospin.is_spin_polarized)
-        self.assertTrue(self.ncicobiwo.is_spin_polarized)
-        self.assertFalse(self.ncicobinospinwo.is_spin_polarized)
-        self.assertTrue(self.ncicobi.orbitalwise)
-        self.assertTrue(self.ncicobinospin.orbitalwise)
-        self.assertFalse(self.ncicobiwo.orbitalwise)
-        self.assertFalse(self.ncicobinospinwo.orbitalwise)
-        self.assertEqual(len(self.ncicobi.ncicobilist), 2)
-        self.assertEqual(self.ncicobi.ncicobilist["2"]["number_of_atoms"], 3)
+        assert self.ncicobi.is_spin_polarized
+        assert not self.ncicobinospin.is_spin_polarized
+        assert self.ncicobiwo.is_spin_polarized
+        assert not self.ncicobinospinwo.is_spin_polarized
+        assert self.ncicobi.orbitalwise
+        assert self.ncicobinospin.orbitalwise
+        assert not self.ncicobiwo.orbitalwise
+        assert not self.ncicobinospinwo.orbitalwise
+        assert len(self.ncicobi.ncicobilist) == 2
+        assert self.ncicobi.ncicobilist["2"]["number_of_atoms"] == 3
         self.assertAlmostEqual(self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up], 0.00009, places=5)
         self.assertAlmostEqual(self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.down], 0.00009, places=5)
-        self.assertEqual(self.ncicobi.ncicobilist["2"]["interaction_type"], "[X22[0,0,0]->Xs42[0,0,0]->X31[0,0,0]]")
-        self.assertEqual(
-            self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up], self.ncicobiwo.ncicobilist["2"]["ncicobi"][Spin.up]
-        )
-        self.assertEqual(
-            self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up], self.ncicobigz.ncicobilist["2"]["ncicobi"][Spin.up]
-        )
-        self.assertEqual(
-            self.ncicobi.ncicobilist["2"]["interaction_type"], self.ncicobigz.ncicobilist["2"]["interaction_type"]
-        )
+        assert self.ncicobi.ncicobilist["2"]["interaction_type"] == "[X22[0,0,0]->Xs42[0,0,0]->X31[0,0,0]]"
+        assert self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up] == self.ncicobiwo.ncicobilist["2"]["ncicobi"][Spin.up]
+        assert self.ncicobi.ncicobilist["2"]["ncicobi"][Spin.up] == self.ncicobigz.ncicobilist["2"]["ncicobi"][Spin.up]
+        assert self.ncicobi.ncicobilist["2"]["interaction_type"] == self.ncicobigz.ncicobilist["2"]["interaction_type"]
         self.assertAlmostEqual(
             sum(list(self.ncicobi.ncicobilist["2"]["ncicobi"].values())),
             self.ncicobinospin.ncicobilist["2"]["ncicobi"][Spin.up],

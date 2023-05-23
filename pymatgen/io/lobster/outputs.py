@@ -487,9 +487,8 @@ class Ncicobilist:
         if self.orbitalwise:
             data_without_orbitals = []
             for line in data:
-                if "_" not in str(line.split()[3:]):
-                    if "s]" not in str(line.split()[3:]):
-                        data_without_orbitals.append(line)
+                if "_" not in str(line.split()[3:]) and "s]" not in str(line.split()[3:]):
+                    data_without_orbitals.append(line)
         else:
             data_without_orbitals = data
 
