@@ -438,7 +438,7 @@ class AirssProvider(ResProvider):
 
     def _raise_or_none(self, err: ParseError) -> None:
         if self.parse_rems != "strict":
-            return None
+            return
         raise err
 
     def get_run_start_info(self) -> tuple[date, str] | None:

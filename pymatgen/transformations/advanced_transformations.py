@@ -95,7 +95,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -158,7 +158,7 @@ class SuperTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -265,7 +265,7 @@ class MultipleSubstitutionTransformation:
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -506,7 +506,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -576,7 +576,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -954,7 +954,7 @@ class MagOrderingTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1186,7 +1186,7 @@ class DopingTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1272,7 +1272,7 @@ class SlabTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1334,7 +1334,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1536,7 +1536,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1682,7 +1682,7 @@ class CubicSupercellTransformation(AbstractTransformation):
         Returns:
             None
         """
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1775,7 +1775,7 @@ class AddAdsorbateTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1934,7 +1934,7 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -2193,7 +2193,7 @@ class SQSTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Returns: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -2282,7 +2282,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         """
         Returns: None
         """
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:

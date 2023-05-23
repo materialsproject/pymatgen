@@ -80,7 +80,6 @@ ignore = [
   "PLW3301", # TODO: remove once https://github.com/charliermarsh/ruff/pull/4412 released
   "PT011",   # pytest-raises-too-broad
   "PT013",   # pytest-incorrect-pytest-import
-  "RET501",  # unnecessary-return-none
   "RET504",  # unnecessary-assign
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
 ]

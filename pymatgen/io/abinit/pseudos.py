@@ -1301,12 +1301,12 @@ class PawXmlSetup(Pseudo, PawPseudo):
     def l_max(self):
         """Maximum angular momentum."""
         # TODO return an actual value
-        return None
+        return
 
     @property
     def l_local(self):
         """Angular momentum used for the local part."""
-        return None
+        return
 
     @property
     def summary(self):

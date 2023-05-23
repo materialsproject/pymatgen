@@ -677,12 +677,12 @@ class StructureEnvironments(MSONable):
             import matplotlib.pyplot as plt
         except ImportError:
             print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
-            return None
+            return
         fig = self.get_csm_and_maps(isite=isite, max_csm=max_csm)
         if fig is None:
-            return None
+            return
         plt.show()
-        return None
+        return
 
     def get_csm_and_maps(self, isite, max_csm=8.0, figsize=None, symmetry_measure_type=None):
         """
