@@ -63,9 +63,10 @@ class TransformedStructureTest(PymatgenTest):
         assert self.trans.final_structure.composition.reduced_formula == "NaFePO4"
 
     def test_from_dict(self):
-        d = json.load(open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json")))
-        d["other_parameters"] = {"tags": ["test"]}
-        ts = TransformedStructure.from_dict(d)
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json")) as file:
+            dct = json.load(file)
+        dct["other_parameters"] = {"tags": ["test"]}
+        ts = TransformedStructure.from_dict(dct)
         ts.other_parameters["author"] = "Will"
         ts.append_transformation(SubstitutionTransformation({"Fe": "Mn"}))
         assert ts.final_structure.composition.reduced_formula == "MnPO4"
