@@ -783,10 +783,10 @@ class LammpsData(MSONable):
                     topo_labels[k].extend([tuple(topo.type_by_sites[j] for j in t) for t in v])
             if isinstance(v_collector, list):
                 v_collector.append(topo.velocities)
-            mol_ids.extend([i + 1] * len(topo))
+            mol_ids.extend([i + 1] * len(topo.sites))
             labels.extend(topo.type_by_sites)
             coords.append(topo.sites.cart_coords)
-            q = [0.0] * len(topo) if not topo.charges else topo.charges
+            q = [0.0] * len(topo.sites) if not topo.charges else topo.charges
             charges.extend(q)
 
         atoms = pd.DataFrame(np.concatenate(coords), columns=["x", "y", "z"])
