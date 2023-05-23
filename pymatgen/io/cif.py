@@ -41,17 +41,6 @@ space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # t
 
 space_groups.update({sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]})  # type: ignore
 
-_COD_DATA = None
-
-
-def _get_cod_data():
-    global _COD_DATA
-
-    if _COD_DATA is None:
-        _COD_DATA = loadfn(os.path.join(os.path.dirname(os.path.dirname(__file__)), "symmetry", "symm_ops.json"))
-
-    return _COD_DATA
-
 
 class CifBlock:
     """
@@ -707,7 +696,10 @@ class CifParser:
                         pass
 
                     try:
-                        for d in _get_cod_data():
+                        cod_data = loadfn(
+                            os.path.join(os.path.dirname(os.path.dirname(__file__)), "symmetry", "symm_ops.json")
+                        )
+                        for d in cod_data:
                             if sg == re.sub(r"\s+", "", d["hermann_mauguin"]):
                                 xyz = d["symops"]
                                 symops = [SymmOp.from_xyz_string(s) for s in xyz]

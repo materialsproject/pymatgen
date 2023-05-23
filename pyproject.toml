@@ -75,7 +75,6 @@ ignore = [
   "PLC1901", # compare-to-empty-string
   "PLR",     # pylint refactor
   "PLR2004", # Magic number
-  "PLW0603", # Using the global statement to update variables is discouraged
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT011",   # pytest-raises-too-broad
   "PT013",   # pytest-incorrect-pytest-import

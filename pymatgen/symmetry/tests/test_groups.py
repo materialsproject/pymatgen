@@ -8,7 +8,7 @@ import pytest
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
-from pymatgen.symmetry.groups import PointGroup, SpaceGroup, _get_symm_data
+from pymatgen.symmetry.groups import SYMM_DATA, PointGroup, SpaceGroup
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Virtual Lab"
@@ -80,7 +80,7 @@ class SpaceGroupTest(unittest.TestCase):
             sg = SpaceGroup.from_int_number(i)
             assert hasattr(sg, "point_group")
 
-        for symbol in _get_symm_data("space_group_encoding"):
+        for symbol in SYMM_DATA["space_group_encoding"]:
             sg = SpaceGroup(symbol)
             assert hasattr(sg, "point_group")
 
