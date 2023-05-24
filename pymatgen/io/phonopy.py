@@ -669,7 +669,6 @@ def get_thermal_displacement_matrices(
         structure_path: path to POSCAR
 
     Returns:
-
     """
     thermal_displacements_dict = loadfn(thermal_displacements_yaml)
 

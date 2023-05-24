@@ -1080,7 +1080,7 @@ class ForceField(MSONable):
 
         self.topo_coeffs = topo_coeffs
         if self.topo_coeffs:
-            self.topo_coeffs = {k: v for k, v in self.topo_coeffs.items() if k in SECTION_KEYWORDS["ff"][2:]}
+            self.topo_coeffs = {key: v for key, v in self.topo_coeffs.items() if key in SECTION_KEYWORDS["ff"][2:]}
             for k in self.topo_coeffs:
                 coeffs, mapper = self._process_topo(k)
                 ff_dfs.update(coeffs)
@@ -1091,20 +1091,20 @@ class ForceField(MSONable):
     def _process_nonbond(self):
         pair_df = pd.DataFrame(self.nonbond_coeffs)
         assert self._is_valid(pair_df), "Invalid nonbond coefficients with rows varying in length"
-        npair, ncoeff = pair_df.shape
-        pair_df.columns = [f"coeff{i}" for i in range(1, ncoeff + 1)]
+        n_pair, n_coeff = pair_df.shape
+        pair_df.columns = [f"coeff{i}" for i in range(1, n_coeff + 1)]
         nm = len(self.mass_info)
-        ncomb = int(nm * (nm + 1) / 2)
-        if npair == nm:
+        n_comb = int(nm * (nm + 1) / 2)
+        if n_pair == nm:
             kw = "Pair Coeffs"
             pair_df.index = range(1, nm + 1)
-        elif npair == ncomb:
+        elif n_pair == n_comb:
             kw = "PairIJ Coeffs"
             ids = list(itertools.combinations_with_replacement(range(1, nm + 1), 2))
             id_df = pd.DataFrame(ids, columns=["id1", "id2"])
             pair_df = pd.concat([id_df, pair_df], axis=1)
         else:
-            raise ValueError(f"Expecting {nm} Pair Coeffs or {ncomb} PairIJ Coeffs for {nm} atom types, got {npair}")
+            raise ValueError(f"Expecting {nm} Pair Coeffs or {n_comb} PairIJ Coeffs for {nm} atom types, got {n_pair}")
         return {kw: pair_df}
 
     def _process_topo(self, kw):
@@ -1113,7 +1113,7 @@ class ForceField(MSONable):
                 label_arr = np.array(label)
                 seqs = [[0, 1, 2, 3], [0, 2, 1, 3], [3, 1, 2, 0], [3, 2, 1, 0]]
                 return [tuple(label_arr[s]) for s in seqs]
-            return [label] + [label[::-1]]
+            return [label, label[::-1]]
 
         main_data, distinct_types = [], []
         class2_data = {k: [] for k in self.topo_coeffs[kw][0] if k in CLASS2_KEYWORDS.get(kw, [])}

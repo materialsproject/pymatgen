@@ -4677,29 +4677,21 @@ class Wavecar:
                     np.fromfile(f, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
 
                     if self.vasp_type is None:
-                        (
-                            self.Gpoints[ink],
-                            extra_gpoints,
-                            extra_coeff_inds,
-                        ) = self._generate_G_points(kpoint, gamma=True)
+                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(kpoint, gamma=True)
                         if len(self.Gpoints[ink]) == nplane:
                             self.vasp_type = "gam"
                         else:
-                            (
-                                self.Gpoints[ink],
-                                extra_gpoints,
-                                extra_coeff_inds,
-                            ) = self._generate_G_points(kpoint, gamma=False)
+                            self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(
+                                kpoint, gamma=False
+                            )
                             self.vasp_type = "std" if len(self.Gpoints[ink]) == nplane else "ncl"
 
                         if verbose:
-                            print("\ndetermined vasp_type =", self.vasp_type, "\n")
+                            print(f"\ndetermined {self.vasp_type = }\n")
                     else:
-                        (
-                            self.Gpoints[ink],
-                            extra_gpoints,
-                            extra_coeff_inds,
-                        ) = self._generate_G_points(kpoint, gamma=self.vasp_type.lower()[0] == "g")
+                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(
+                            kpoint, gamma=self.vasp_type.lower()[0] == "g"
+                        )
 
                     if len(self.Gpoints[ink]) != nplane and 2 * len(self.Gpoints[ink]) != nplane:
                         raise ValueError(

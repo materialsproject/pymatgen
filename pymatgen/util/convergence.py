@@ -37,7 +37,6 @@ def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
         chars ():
 
     Returns:
-
     """
     return "".join(random.choice(chars) for _ in range(size))
 
@@ -103,7 +102,6 @@ def print_and_raise_error(xs, ys, name):
         name ():
 
     Returns:
-
     """
     print("Index error in", name)
     print("ys: ", ys)
@@ -168,7 +166,6 @@ def p0_exponential(xs, ys):
         ys ():
 
     Returns:
-
     """
     n0 = 1.005
     b0 = (n0 ** -xs[-1] - n0 ** -xs[1]) / (ys[-1] - ys[1])
@@ -200,7 +197,6 @@ def p0_single_reciprocal(xs, ys):
         ys ():
 
     Returns:
-
     """
     c = 1
     b = (1 / (xs[-1] - c) - 1 / (xs[1] - c)) / (ys[-1] - ys[1])
@@ -230,7 +226,6 @@ def p0_simple_reciprocal(xs, ys):
         ys ():
 
     Returns:
-
     """
     b = (ys[-1] - ys[-2]) / (1 / (xs[-1]) - 1 / (xs[-2]))
     a = ys[-2] - b / (xs[-2])
@@ -260,7 +255,6 @@ def p0_simple_2reciprocal(xs, ys):
         ys ():
 
     Returns:
-
     """
     c = 2
     b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
@@ -291,7 +285,6 @@ def p0_simple_4reciprocal(xs, ys):
         ys ():
 
     Returns:
-
     """
     c = 4
     b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
@@ -321,7 +314,6 @@ def p0_simple_5reciprocal(xs, ys):
         ys ():
 
     Returns:
-
     """
     c = 0.5
     b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
@@ -337,7 +329,6 @@ def extrapolate_simple_reciprocal(xs, ys):
         ys ():
 
     Returns:
-
     """
     b = (ys[-2] - ys[-1]) / (1 / (xs[-2]) - 1 / (xs[-1]))
     a = ys[-1] - b / (xs[-1])
@@ -383,7 +374,7 @@ def measure(function, xs, ys, popt, weights):
                 raise NotImplementedError
             n += 1
         except IndexError:
-            raise RuntimeError("y does not exist for x = ", x, " this should not happen")
+            raise RuntimeError(f"y does not exist for {x = }, this should not happen")
 
     return m
 
@@ -396,7 +387,6 @@ def get_weights(xs, ys, mode=2):
         mode ():
 
     Returns:
-
     """
     ds = get_derivatives(xs, ys, fd=True)
     if mode == 1:
@@ -407,10 +397,10 @@ def get_weights(xs, ys, mode=2):
         for d in ds:
             weights.append(abs(mind / d))
     if mode == 2:
-        maxxs = max(xs) ** 2
+        x_max = max(xs) ** 2
         weights = []
         for x in xs:
-            weights.append(x**2 / maxxs)
+            weights.append(x**2 / x_max)
     else:
         weights = [1] * len(xs)
     return weights
