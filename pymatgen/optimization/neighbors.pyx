@@ -106,7 +106,8 @@ def find_points_in_spheres(
         double[3][3] reciprocal_lattice_arr = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         double[:, ::1] reciprocal_lattice = reciprocal_lattice_arr
 
-        long natoms = n_total
+        int count = 0
+        int natoms = n_total
         double *offsets_p_temp = <double*> safe_malloc(natoms * 3 * sizeof(double))
         double *expanded_coords_p_temp = <double*> safe_malloc(
             natoms * 3 * sizeof(double)
@@ -165,7 +166,6 @@ def find_points_in_spheres(
     matmul(all_fcoords, lattice, coords_in_cell)
 
     # Get translated images, coordinates and indices
-    count = 0
     for i in range(min_bounds[0], max_bounds[0]):
         for j in range(min_bounds[1], max_bounds[1]):
             for k in range(min_bounds[2], max_bounds[2]):
