@@ -14,14 +14,12 @@ from pymatgen.core.structure import Molecule, Structure
 
 try:
     from ase import Atoms
+    from ase.calculators.singlepoint import SinglePointDFTCalculator
+    from ase.constraints import FixAtoms
 
     ase_loaded = True
 except ImportError:
     ase_loaded = False
-
-if ase_loaded:
-    from ase.calculators.singlepoint import SinglePointDFTCalculator
-    from ase.constraints import FixAtoms
 
 __author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -52,18 +50,16 @@ class AseAtomsAdaptor:
             raise ValueError("ASE Atoms only supports ordered structures")
         if not ase_loaded:
             raise ImportError(
-                "AseAtomsAdaptor requires the ASE package.\nUse `pip install ase` or `conda install ase -c conda-forge`"
+                "AseAtomsAdaptor requires the ASE package.\n"
+                "Use `pip install ase` or `conda install ase -c conda-forge`"
             )
 
         # Construct the base ASE Atoms object
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
-        if hasattr(structure, "lattice"):
-            cell = structure.lattice.matrix
-            pbc = True
-        else:
-            cell = None
-            pbc = None
+        is_struct = hasattr(structure, "lattice")
+        pbc = True if is_struct else None
+        cell = structure.lattice.matrix if is_struct else None
 
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
 
