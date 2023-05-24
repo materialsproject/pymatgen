@@ -3,7 +3,7 @@
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: nonecheck=False
-# cython: cdivision=True
+# cython: cdivision=False
 # cython: profile=False
 # distutils: language = c
 
@@ -13,7 +13,6 @@ import numpy as np
 
 cimport numpy as np
 
-# from cython.parallel import prange
 from libc.stdlib cimport free, malloc, realloc
 from libc.math cimport ceil, floor, pi, sqrt
 from libc.string cimport memset
