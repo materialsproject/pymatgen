@@ -423,26 +423,17 @@ class LammpsData(MSONable):
 
         section_template = "{kw}\n\n{df}\n"
         parts = []
-        for k, v in body_dict.items():
-            index = k != "PairIJ Coeffs"
-            if (
-                k
-                in [
-                    "Bond Coeffs",
-                    "Angle Coeffs",
-                    "Dihedral Coeffs",
-                    "Improper Coeffs",
-                ]
-                and hybrid
-            ):
-                listofdf = np.array_split(v, len(v.index))
+        for key, val in body_dict.items():
+            index = key != "PairIJ Coeffs"
+            if hybrid and key in ["Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs", "Improper Coeffs"]:
+                dfs = np.array_split(val, len(val.index))
                 df_string = ""
-                for i, df in enumerate(listofdf):
+                for idx, df in enumerate(dfs):
                     if isinstance(df.iloc[0]["coeff1"], str):
                         try:
                             formatters = {
                                 **default_formatters,
-                                **coeffs[k][df.iloc[0]["coeff1"]],
+                                **coeffs[key][df.iloc[0]["coeff1"]],
                             }
                         except KeyError:
                             formatters = default_formatters
@@ -454,23 +445,19 @@ class LammpsData(MSONable):
                             na_rep="",
                         )
                     else:
-                        line_string = v.to_string(
+                        line_string = val.to_string(
                             header=False,
                             formatters=default_formatters,
                             index_names=False,
                             index=index,
                             na_rep="",
-                        ).splitlines()[i]
+                        ).splitlines()[idx]
                     df_string += line_string.replace("nan", "").rstrip() + "\n"
             else:
-                df_string = v.to_string(
-                    header=False,
-                    formatters=default_formatters,
-                    index_names=False,
-                    index=index,
-                    na_rep="",
+                df_string = val.to_string(
+                    header=False, formatters=default_formatters, index_names=False, index=index, na_rep=""
                 )
-            parts.append(section_template.format(kw=k, df=df_string))
+            parts.append(section_template.format(kw=key, df=df_string))
         body = "\n".join(parts)
 
         return file_template.format(stats=stats, box=box, body=body)
