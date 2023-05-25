@@ -25,7 +25,7 @@ from pymatgen.transformations.advanced_transformations import MagOrderingTransfo
 from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
 
 if TYPE_CHECKING:
-    from pymatgen.util.typing import VectorLike
+    from numpy.typing import ArrayLike
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -294,7 +294,7 @@ class CollinearMagneticStructureAnalyzer:
         self.structure = structure
 
     @staticmethod
-    def _round_magmoms(magmoms: VectorLike, round_magmoms_mode: int | float) -> np.ndarray:
+    def _round_magmoms(magmoms: ArrayLike, round_magmoms_mode: int | float) -> np.ndarray:
         """If round_magmoms_mode is an integer, simply round to that number
         of decimal places, else if set to a float will try and round
         intelligently by grouping magmoms.
