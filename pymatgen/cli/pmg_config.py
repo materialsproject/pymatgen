@@ -108,6 +108,95 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     print("\n Start a new terminal to ensure that your environment variables are properly set.")
 
 
+def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
+    """Setup CP2K basis and potential data directory"""
+    data_dir, target_dir = (os.path.abspath(dir) for dir in cp2k_data_dirs)
+    try:
+        os.mkdir(target_dir)
+    except OSError:
+        reply = input("Destination directory exists. Continue (y/n)?")
+        if reply != "y":
+            print("Exiting ...")
+            raise SystemExit(0)
+    print("Generating pymatgen resource directory for CP2K...")
+
+    import glob
+
+    from monty.json import jsanitize
+    from ruamel import yaml
+
+    from pymatgen.core import Element
+    from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
+    from pymatgen.io.cp2k.utils import chunk
+
+    basis_files = glob.glob(os.path.join(data_dir, "*BASIS*"))
+    potential_files = glob.glob(os.path.join(data_dir, "*POTENTIAL*"))
+
+    settings: dict[str, dict] = {str(el): {"potentials": {}, "basis_sets": {}} for el in Element}
+
+    for potential_file in potential_files:
+        print(f"Processing... {potential_file}")
+        with open(potential_file) as file:
+            try:
+                chunks = chunk(file.read())
+            except IndexError:
+                continue
+        for chk in chunks:
+            try:
+                potential = GthPotential.from_string(chk)
+                potential.filename = os.path.basename(potential_file)
+                potential.version = None
+                settings[potential.element.symbol]["potentials"][potential.get_hash()] = jsanitize(
+                    potential, strict=True
+                )
+            except ValueError:
+                # Chunk was readable, but the element is not pmg recognized
+                continue
+            except IndexError:
+                # Chunk was readable, but invalid. Mostly likely "N/A" for this potential
+                continue
+
+    for basis_file in basis_files:
+        print(f"Processing... {basis_file}")
+        with open(basis_file) as file:
+            try:
+                chunks = chunk(file.read())
+            except IndexError:
+                continue
+        for chk in chunks:
+            try:
+                basis = GaussianTypeOrbitalBasisSet.from_string(chk)
+                basis.filename = os.path.basename(basis_file)
+                settings[basis.element.symbol]["basis_sets"][basis.get_hash()] = jsanitize(  # type: ignore
+                    basis, strict=True
+                )
+            except ValueError:
+                # Chunk was readable, but the element is not pmg recognized
+                continue
+            except IndexError:
+                # Chunk was readable, but invalid. Mostly likely "N/A" for this potential
+                continue
+
+    print("Done processing cp2k data files")
+
+    for el in settings:
+        print(f"Writing {el} settings file")
+        with open(os.path.join(target_dir, el), "w") as file:
+            yaml.dump(settings.get(el), file, default_flow_style=False)
+
+    print(
+        "\n CP2K resource directory generated. It is recommended that you run:"
+        f"\n  'pmg config --add PMG_CP2K_DATA_DIR {os.path.abspath(target_dir)}' "
+    )
+    print(
+        "\n It is also recommended that you set the following (with example values):"
+        "\n  'pmg config --add PMG_DEFAULT_CP2K_FUNCTIONAL PBE' "
+        "\n  'pmg config --add PMG_DEFAULT_CP2K_BASIS_TYPE TZVP-MOLOPT' "
+        "\n  'pmg config --add PMG_DEFAULT_CP2K_AUX_BASIS_TYPE pFIT' "
+    )
+    print("\n Start a new terminal to ensure that your environment variables are properly set.")
+
+
 def setup_potcars(potcar_dirs: list[str]):
     """Setup POTCAR directories."""
     psp_dir, target_dir = (os.path.abspath(d) for d in potcar_dirs)

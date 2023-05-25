@@ -1380,12 +1380,13 @@ class IStructure(SiteCollection, MSONable):
             site_coords = np.array([site.coords for site in sites], dtype=float)
             cart_coords = np.ascontiguousarray(np.array(self.cart_coords), dtype=float)
             lattice_matrix = np.ascontiguousarray(np.array(self.lattice.matrix), dtype=float)
+            pbc = np.ascontiguousarray(self.pbc, dtype=int)
             r = float(r)
             center_indices, points_indices, images, distances = find_points_in_spheres(
                 cart_coords,
                 site_coords,
                 r=r,
-                pbc=np.array(self.pbc, dtype=int),
+                pbc=pbc,
                 lattice=lattice_matrix,
                 tol=numerical_tol,
             )

@@ -1482,16 +1482,16 @@ class Lattice(MSONable):
         except ImportError:
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
         else:
-            frac_points = np.ascontiguousarray(frac_points, dtype=np.float_)
+            frac_points = np.ascontiguousarray(frac_points, dtype=float)
+            lattice_matrix = np.ascontiguousarray(self.matrix, dtype=float)
+            cart_coords = np.ascontiguousarray(self.get_cartesian_coords(frac_points), dtype=float)
+            pbc = np.ascontiguousarray(self.pbc, dtype=int)
             r = float(r)
-            lattice_matrix = np.array(self.matrix)
-            lattice_matrix = np.ascontiguousarray(lattice_matrix)
-            cart_coords = self.get_cartesian_coords(frac_points)
             _, indices, images, distances = find_points_in_spheres(
                 all_coords=cart_coords,
                 center_coords=np.ascontiguousarray([center], dtype=float),
                 r=r,
-                pbc=np.array(self.pbc, dtype=int),
+                pbc=pbc,
                 lattice=lattice_matrix,
                 tol=1e-8,
             )
