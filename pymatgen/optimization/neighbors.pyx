@@ -9,6 +9,10 @@
 
 # isort: dont-add-imports
 
+# Setting cdivision=True gives a small speed improvement, but the code is currently
+# written based on Python division so using cdivision may result in missing neighbors
+# in some off cases. See https://github.com/materialsproject/pymatgen/issues/2226
+
 import numpy as np
 
 cimport numpy as np
