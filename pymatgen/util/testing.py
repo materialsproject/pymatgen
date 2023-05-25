@@ -63,14 +63,6 @@ class PymatgenTest(unittest.TestCase):
         return nptu.assert_almost_equal(actual, desired, decimal, err_msg, verbose)
 
     @staticmethod
-    def assertArrayEqual(actual, desired, err_msg="", verbose=True):
-        """
-        Tests if two arrays are equal. The CamelCase naming is so that it is
-         consistent with standard unittest methods.
-        """
-        return nptu.assert_equal(actual, desired, err_msg=err_msg, verbose=verbose)
-
-    @staticmethod
     def assertStrContentEqual(actual, desired, err_msg="", verbose=True):
         """
         Tests if two strings are equal, ignoring things like trailing spaces, etc.
