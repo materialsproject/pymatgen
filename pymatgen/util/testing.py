@@ -13,9 +13,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import numpy.testing as nptu
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
+from numpy.testing import assert_allclose
 
 from pymatgen.core import SETTINGS, Structure
 
@@ -49,18 +49,21 @@ class PymatgenTest(unittest.TestCase):
         """
         Get a structure from the template directories.
 
-        :param name: Name of a structure.
-        :return: Structure
+        Args:
+            name (str): Name of structure file.
+
+        Returns:
+            Structure
         """
         return cls.TEST_STRUCTURES[name].copy()
 
     @staticmethod
-    def assertArrayAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True):
+    def assert_all_close(actual, desired, decimal=7, err_msg="", verbose=True):
         """
-        Tests if two arrays are almost equal to a tolerance. The CamelCase
-        naming is so that it is consistent with standard unittest methods.
+        Tests if two arrays are almost equal up to some relative or absolute tolerance.
         """
-        return nptu.assert_almost_equal(actual, desired, decimal, err_msg, verbose)
+        # TODO (janosh): replace the decimal kwarg with assert_allclose() atol and rtol kwargs
+        return assert_allclose(actual, desired, atol=10**-decimal, err_msg=err_msg, verbose=verbose)
 
     @staticmethod
     def assertStrContentEqual(actual, desired, err_msg="", verbose=True):

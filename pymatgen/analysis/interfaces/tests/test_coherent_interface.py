@@ -21,9 +21,9 @@ class InterfaceBuilderTest(PymatgenTest):
         cls.sio2_conventional = SpacegroupAnalyzer(sio2_struct).get_conventional_standard_structure()
 
     def test_utils(self):
-        self.assertArrayAlmostEqual(from_2d_to_3d([[1, 2], [3, 4]]), [[1, 2, 0], [3, 4, 0], [0, 0, 1]])
-        self.assertArrayAlmostEqual(get_2d_transform([[1, 0], [0, 1]], [[1, 2], [3, 4]]), [[1, 2], [3, 4]])
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(from_2d_to_3d([[1, 2], [3, 4]]), [[1, 2, 0], [3, 4, 0], [0, 0, 1]])
+        self.assert_all_close(get_2d_transform([[1, 0], [0, 1]], [[1, 2], [3, 4]]), [[1, 2], [3, 4]])
+        self.assert_all_close(
             get_rot_3d_for_2d([[1, 0, 0], [0, 1, 0]], [[1, 1, 0], [0, 1, 1]]),
             [
                 [0.78867513, -0.21132487, 0.57735027],

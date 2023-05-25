@@ -876,7 +876,7 @@ class CompleteCohpTest(PymatgenTest):
         # with a very small number of matrix elements, which would cause the
         # test to fail
         for key in ["COHP", "ICOHP"]:
-            self.assertArrayAlmostEqual(
+            self.assert_all_close(
                 self.cohp_lmto.as_dict()[key]["average"]["1"],
                 self.cohp_lmto_dict.as_dict()[key]["average"]["1"],
                 5,
@@ -1111,12 +1111,12 @@ class CompleteCohpTest(PymatgenTest):
         # the total COHP calculated by LOBSTER. Due to numerical errors in
         # the LOBSTER calculation, the precision is not very high though.
 
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             self.cohp_orb.all_cohps["1"].cohp[Spin.up],
             self.cohp_notot.all_cohps["1"].cohp[Spin.up],
             decimal=3,
         )
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             self.cohp_orb.all_cohps["1"].icohp[Spin.up],
             self.cohp_notot.all_cohps["1"].icohp[Spin.up],
             decimal=3,

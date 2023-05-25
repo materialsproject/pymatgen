@@ -181,13 +181,13 @@ class PeriodicSiteTest(PymatgenTest):
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
         site.to_unit_cell(in_place=True)
         val = [0.25, 0.35, 0.46]
-        self.assertArrayAlmostEqual(site.frac_coords, val)
+        self.assert_all_close(site.frac_coords, val)
 
         lattice_pbc = Lattice(self.lattice.matrix, pbc=(True, True, False))
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), lattice_pbc)
         site.to_unit_cell(in_place=True)
         val = [0.25, 0.35, 4.46]
-        self.assertArrayAlmostEqual(site.frac_coords, val)
+        self.assert_all_close(site.frac_coords, val)
 
     def test_setters(self):
         site = self.propertied_site
@@ -209,9 +209,9 @@ class PeriodicSiteTest(PymatgenTest):
             set_bad_species()
 
         site.frac_coords = [0, 0, 0.1]
-        self.assertArrayAlmostEqual(site.coords, [0, 0, 10])
+        self.assert_all_close(site.coords, [0, 0, 10])
         site.coords = [1.5, 3.25, 5]
-        self.assertArrayAlmostEqual(site.frac_coords, [0.015, 0.0325, 0.05])
+        self.assert_all_close(site.frac_coords, [0.015, 0.0325, 0.05])
 
     def test_repr(self):
         assert repr(self.propertied_site) == "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]"

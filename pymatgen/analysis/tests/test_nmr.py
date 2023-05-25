@@ -24,7 +24,7 @@ class TestChemicalShieldingNotation(PymatgenTest):
         assert_array_equal(cs.principal_axis_system, cs)
 
         cs = ChemicalShielding(np.arange(9).reshape((3, 3)))
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             np.diag(cs.principal_axis_system),
             [-1.74596669e00, -1.53807726e-15, 1.37459667e01],
             decimal=5,
@@ -61,7 +61,7 @@ class TestElectricFieldGradient(PymatgenTest):
         assert_array_equal(efg.principal_axis_system, efg)
 
         efg = ElectricFieldGradient(np.arange(9).reshape((3, 3)))
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             np.diag(efg.principal_axis_system),
             [-1.3484692e00, -1.1543332e-15, 1.3348469e01],
             decimal=5,

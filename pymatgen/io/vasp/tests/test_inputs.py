@@ -182,7 +182,7 @@ cart
 """
         p = Poscar.from_string(poscar_string)
         site = p.structure[1]
-        self.assertArrayAlmostEqual(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
+        self.assert_all_close(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
     def test_significant_figures(self):
         si = 14
@@ -283,9 +283,9 @@ direct
         p.write_file(tempfname)
         p3 = Poscar.from_file(tempfname)
 
-        self.assertArrayAlmostEqual(p.structure.lattice.abc, p3.structure.lattice.abc, 5)
-        self.assertArrayAlmostEqual(p.velocities, p3.velocities, 5)
-        self.assertArrayAlmostEqual(p.predictor_corrector, p3.predictor_corrector, 5)
+        self.assert_all_close(p.structure.lattice.abc, p3.structure.lattice.abc, 5)
+        self.assert_all_close(p.velocities, p3.velocities, 5)
+        self.assert_all_close(p.predictor_corrector, p3.predictor_corrector, 5)
         assert p.predictor_corrector_preamble == p3.predictor_corrector_preamble
         tempfname.unlink()
 
@@ -369,7 +369,7 @@ direct
         tempfname = Path("POSCAR.testing")
         poscar.write_file(tempfname)
         p = Poscar.from_file(tempfname)
-        self.assertArrayAlmostEqual(poscar.structure.lattice.abc, p.structure.lattice.abc, 5)
+        self.assert_all_close(poscar.structure.lattice.abc, p.structure.lattice.abc, 5)
         tempfname.unlink()
 
     def test_selective_dynamics(self):
@@ -820,7 +820,7 @@ G
 0.5 0.5 0.5
 """
         )
-        self.assertArrayAlmostEqual(kpoints.kpts_shift, [0.5, 0.5, 0.5])
+        self.assert_all_close(kpoints.kpts_shift, [0.5, 0.5, 0.5])
 
     def test_as_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
@@ -862,7 +862,7 @@ direct
 0.000000 0.000000 0.000000 Al"""
         )
         kpoints = Kpoints.automatic_density(p.structure, 1000)
-        self.assertArrayAlmostEqual(kpoints.kpts[0], [10, 10, 10])
+        self.assert_all_close(kpoints.kpts[0], [10, 10, 10])
 
 
 class PotcarSingleTest(PymatgenTest):

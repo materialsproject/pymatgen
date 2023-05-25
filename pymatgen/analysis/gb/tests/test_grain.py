@@ -51,11 +51,11 @@ class TestGrainBoundary(PymatgenTest):
         assert self.Cu_GB1.rotation_angle == approx(123.74898859588858)
         assert self.Cu_GB1.vacuum_thickness == approx(1.5)
         assert self.Cu_GB2.rotation_axis == [1, 2, 3]
-        self.assertArrayAlmostEqual(np.array(self.Cu_GB1.ab_shift), np.array([0.0, 0.0]))
-        self.assertArrayAlmostEqual(np.array(self.Cu_GB2.ab_shift), np.array([0.2, 0.2]))
+        self.assert_all_close(np.array(self.Cu_GB1.ab_shift), np.array([0.0, 0.0]))
+        self.assert_all_close(np.array(self.Cu_GB2.ab_shift), np.array([0.2, 0.2]))
         assert self.Cu_GB1.gb_plane == [1, 3, 1]
         assert self.Cu_GB2.gb_plane == [1, 2, 3]
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             np.array(self.Cu_GB1.init_cell.lattice.matrix),
             np.array(self.Cu_conv.lattice.matrix),
         )
@@ -66,12 +66,12 @@ class TestGrainBoundary(PymatgenTest):
         assert Cu_GB1_copy.rotation_angle == approx(self.Cu_GB1.rotation_angle)
         assert Cu_GB1_copy.rotation_axis == self.Cu_GB1.rotation_axis
         assert Cu_GB1_copy.gb_plane == self.Cu_GB1.gb_plane
-        self.assertArrayAlmostEqual(Cu_GB1_copy.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(Cu_GB1_copy.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
+        self.assert_all_close(
             Cu_GB1_copy.oriented_unit_cell.lattice.matrix,
             self.Cu_GB1.oriented_unit_cell.lattice.matrix,
         )
-        self.assertArrayAlmostEqual(Cu_GB1_copy.lattice.matrix, self.Cu_GB1.lattice.matrix)
+        self.assert_all_close(Cu_GB1_copy.lattice.matrix, self.Cu_GB1.lattice.matrix)
 
     def test_sigma(self):
         assert self.Cu_GB1.sigma == approx(9)
@@ -79,11 +79,11 @@ class TestGrainBoundary(PymatgenTest):
 
     def test_top_grain(self):
         assert self.Cu_GB1.num_sites == approx(self.Cu_GB1.top_grain.num_sites * 2)
-        self.assertArrayAlmostEqual(self.Cu_GB1.lattice.matrix, self.Cu_GB1.top_grain.lattice.matrix)
+        self.assert_all_close(self.Cu_GB1.lattice.matrix, self.Cu_GB1.top_grain.lattice.matrix)
 
     def test_bottom_grain(self):
         assert self.Cu_GB1.num_sites == approx(self.Cu_GB1.bottom_grain.num_sites * 2)
-        self.assertArrayAlmostEqual(self.Cu_GB1.lattice.matrix, self.Cu_GB1.bottom_grain.lattice.matrix)
+        self.assert_all_close(self.Cu_GB1.lattice.matrix, self.Cu_GB1.bottom_grain.lattice.matrix)
 
     def test_coincidents(self):
         assert self.Cu_GB1.num_sites / self.Cu_GB1.sigma == approx(len(self.Cu_GB1.coincidents))
@@ -98,22 +98,22 @@ class TestGrainBoundary(PymatgenTest):
         assert Cu_GB1_new.rotation_angle == approx(self.Cu_GB1.rotation_angle)
         assert Cu_GB1_new.rotation_axis == self.Cu_GB1.rotation_axis
         assert Cu_GB1_new.gb_plane == self.Cu_GB1.gb_plane
-        self.assertArrayAlmostEqual(Cu_GB1_new.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(Cu_GB1_new.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
+        self.assert_all_close(
             Cu_GB1_new.oriented_unit_cell.lattice.matrix,
             self.Cu_GB1.oriented_unit_cell.lattice.matrix,
         )
-        self.assertArrayAlmostEqual(Cu_GB1_new.lattice.matrix, self.Cu_GB1.lattice.matrix)
+        self.assert_all_close(Cu_GB1_new.lattice.matrix, self.Cu_GB1.lattice.matrix)
         assert Cu_GB2_new.sigma == approx(self.Cu_GB2.sigma)
         assert Cu_GB2_new.rotation_angle == approx(self.Cu_GB2.rotation_angle)
         assert Cu_GB2_new.rotation_axis == self.Cu_GB2.rotation_axis
         assert Cu_GB2_new.gb_plane == self.Cu_GB2.gb_plane
-        self.assertArrayAlmostEqual(Cu_GB2_new.init_cell.lattice.matrix, self.Cu_GB2.init_cell.lattice.matrix)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(Cu_GB2_new.init_cell.lattice.matrix, self.Cu_GB2.init_cell.lattice.matrix)
+        self.assert_all_close(
             Cu_GB2_new.oriented_unit_cell.lattice.matrix,
             self.Cu_GB2.oriented_unit_cell.lattice.matrix,
         )
-        self.assertArrayAlmostEqual(Cu_GB2_new.lattice.matrix, self.Cu_GB2.lattice.matrix)
+        self.assert_all_close(Cu_GB2_new.lattice.matrix, self.Cu_GB2.lattice.matrix)
 
 
 class GrainBoundaryGeneratorTest(PymatgenTest):
@@ -342,10 +342,10 @@ class GrainBoundaryGeneratorTest(PymatgenTest):
     def test_get_rotation_angle_from_sigma(self):
         true_angle = [12.680383491819821, 167.3196165081802]
         angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(41, [1, 0, 0], lat_type="o", ratio=[270, 30, 29])
-        self.assertArrayAlmostEqual(true_angle, angle)
+        self.assert_all_close(true_angle, angle)
         close_angle = [36.86989764584403, 143.13010235415598]
         angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(6, [1, 0, 0], lat_type="o", ratio=[270, 30, 29])
-        self.assertArrayAlmostEqual(close_angle, angle)
+        self.assert_all_close(close_angle, angle)
 
 
 if __name__ == "__main__":

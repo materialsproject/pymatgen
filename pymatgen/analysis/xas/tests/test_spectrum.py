@@ -60,7 +60,7 @@ class XASTest(PymatgenTest):
 
     def test_to_from_dict(self):
         s = XAS.from_dict(self.k_xanes.as_dict())
-        self.assertArrayAlmostEqual(s.y, self.k_xanes.y)
+        self.assert_all_close(s.y, self.k_xanes.y)
 
     def test_attributes(self):
         assert_array_equal(self.k_xanes.energy, self.k_xanes.x)

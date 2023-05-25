@@ -23,7 +23,7 @@ from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
 
-se_files_dir = os.path.join(
+struct_env_files_dir = os.path.join(
     PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "structure_environments_files",
@@ -33,7 +33,7 @@ se_files_dir = os.path.join(
 class StructureEnvironmentsTest(PymatgenTest):
     def test_structure_environments(self):
         with ScratchDir("."):
-            with open(f"{se_files_dir}/se_mp-7000.json") as f:
+            with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
                 dd = json.load(f)
 
             se = StructureEnvironments.from_dict(dd)
@@ -155,7 +155,7 @@ class StructureEnvironmentsTest(PymatgenTest):
 
     def test_light_structure_environments(self):
         with ScratchDir("."):
-            with open(f"{se_files_dir}/se_mp-7000.json") as f:
+            with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
                 dd = json.load(f)
 
             se = StructureEnvironments.from_dict(dd)
@@ -198,20 +198,20 @@ class StructureEnvironmentsTest(PymatgenTest):
             stats = lse.get_statistics()
 
             neighbors = lse.strategy.get_site_neighbors(site=lse.structure[isite])
-            self.assertArrayAlmostEqual(neighbors[0].coords, np.array([0.2443798, 1.80409653, -1.13218359]))
-            self.assertArrayAlmostEqual(neighbors[1].coords, np.array([1.44020353, 1.11368738, 1.13218359]))
-            self.assertArrayAlmostEqual(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
-            self.assertArrayAlmostEqual(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
+            self.assert_all_close(neighbors[0].coords, np.array([0.2443798, 1.80409653, -1.13218359]))
+            self.assert_all_close(neighbors[1].coords, np.array([1.44020353, 1.11368738, 1.13218359]))
+            self.assert_all_close(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
+            self.assert_all_close(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
 
             equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
             assert equiv_site_index_and_transform[0] == 0
-            self.assertArrayAlmostEqual(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
-            self.assertArrayAlmostEqual(equiv_site_index_and_transform[2], [0.0, 0.0, -1.0])
+            self.assert_all_close(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
+            self.assert_all_close(equiv_site_index_and_transform[2], [0.0, 0.0, -1.0])
 
             equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[1])
             assert equiv_site_index_and_transform[0] == 3
-            self.assertArrayAlmostEqual(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
-            self.assertArrayAlmostEqual(equiv_site_index_and_transform[2], [0.0, 0.0, 0.0])
+            self.assert_all_close(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
+            self.assert_all_close(equiv_site_index_and_transform[2], [0.0, 0.0, 0.0])
 
             assert stats["atom_coordination_environments_present"] == {"Si": {"T:4": 3.0}}
             assert stats["coordination_environments_atom_present"] == {"T:4": {"Si": 3.0}}

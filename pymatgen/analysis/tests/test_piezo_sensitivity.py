@@ -70,15 +70,15 @@ class PiezoSensitivityTest(PymatgenTest):
 
     def test_BornEffectiveChargeTensor(self):
         bec = BornEffectiveCharge(self.piezo_struc, self.BEC, self.pointops)
-        self.assertArrayAlmostEqual(self.BEC, bec.bec)
+        self.assert_all_close(self.BEC, bec.bec)
 
     def test_InternalStrainTensor(self):
         ist = InternalStrainTensor(self.piezo_struc, self.IST, self.pointops)
-        self.assertArrayAlmostEqual(ist.ist, self.IST)
+        self.assert_all_close(ist.ist, self.IST)
 
     def test_ForceConstantMatrix(self):
         fcmt = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
-        self.assertArrayAlmostEqual(fcmt.fcm, self.FCM)
+        self.assert_all_close(fcmt.fcm, self.FCM)
 
     def test_get_BEC_operations(self):
         bec = BornEffectiveCharge(self.piezo_struc, self.BEC, self.pointops)

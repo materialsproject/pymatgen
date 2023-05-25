@@ -36,7 +36,7 @@ class SetTest(PymatgenTest):
     def energy_force(self):
         """Can get energy and forces"""
         assert self.out.final_energy == -197.40000341992783
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             self.out.data["forces"][0], [[-0.00000001, -0.00000001, -0.00000001], [0.00000002, 0.00000002, 0.00000002]]
         )
 
@@ -58,16 +58,16 @@ class SetTest(PymatgenTest):
         assert self.out.data["PV3"][0] == approx(0.4582)
         assert self.out.data["ISO"][0] == approx(0.3584)
         assert self.out.data["ANISO"][0] == approx(0.1498)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             self.out.data["chi_soft"][0],
             [[5.9508, -1.6579, -1.6579], [-1.6579, 5.9508, -1.6579], [-1.6579, -1.6579, 5.9508]],
         )
-        self.assertArrayAlmostEqual(self.out.data["chi_local"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(self.out.data["chi_local"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        self.assert_all_close(
             self.out.data["chi_total"][0],
             [[5.9508, -1.6579, -1.6579], [-1.6579, 5.9508, -1.6579], [-1.6579, -1.6579, 5.9508]],
         )
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             self.out.data["chi_total_ppm_cgs"][0],
             [[0.3584, -0.0998, -0.0998], [-0.0998, 0.3584, -0.0998], [-0.0998, -0.0998, 0.3584]],
         )
@@ -75,18 +75,18 @@ class SetTest(PymatgenTest):
     def test_gtensor(self):
         self.out.parse_gtensor()
         assert len(self.out.data["gtensor_total"]) == 1
-        self.assertArrayAlmostEqual(self.out.data["gmatrix_zke"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
-        self.assertArrayAlmostEqual(self.out.data["gmatrix_so"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
-        self.assertArrayAlmostEqual(self.out.data["gmatrix_soo"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(self.out.data["gmatrix_zke"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        self.assert_all_close(self.out.data["gmatrix_so"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        self.assert_all_close(self.out.data["gmatrix_soo"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        self.assert_all_close(
             self.out.data["gmatrix_total"][0],
             [[2.0023193044, 0.0, 0.0], [0.0, 2.0023193044, 0.0], [0.0, 0.0, 2.0023193044]],
         )
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             self.out.data["gtensor_total"][0],
             [[2.0023193044, 0.0, 0.0], [0.0, 2.0023193044, 0.0], [0.0, 0.0, 2.0023193044]],
         )
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             self.out.data["delta_g"][0],
             [
                 [0.7158445077, -0.6982592888, 0.0007786468],
@@ -110,7 +110,7 @@ class SetTest(PymatgenTest):
                 [-0.0000001288, -0.0000001288, 0.0000000000],
             ],
         ]
-        self.assertArrayAlmostEqual(dat[0], ref)
+        self.assert_all_close(dat[0], ref)
 
 
 if __name__ == "__main__":

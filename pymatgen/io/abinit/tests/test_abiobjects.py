@@ -50,7 +50,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
             )
             * bohr_to_ang
         )
-        self.assertArrayAlmostEqual(l2.matrix, abi_rprimd)
+        self.assert_all_close(l2.matrix, abi_rprimd)
 
         l3 = lattice_from_abivars(acell=[3, 6, 9], angdeg=(30, 40, 50))
         abi_rprimd = (
@@ -70,7 +70,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
             )
             * bohr_to_ang
         )
-        self.assertArrayAlmostEqual(l3.matrix, abi_rprimd)
+        self.assert_all_close(l3.matrix, abi_rprimd)
 
         with pytest.raises(ValueError):
             lattice_from_abivars(acell=[1, 1, 1], angdeg=(90, 90, 90), rprim=np.eye(3))
