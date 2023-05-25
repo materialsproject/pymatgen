@@ -10,7 +10,7 @@ import os
 import warnings
 from collections import namedtuple
 from enum import Enum, unique
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, no_type_check
 
 import numpy as np
 from monty.serialization import loadfn
@@ -293,6 +293,7 @@ class CollinearMagneticStructureAnalyzer:
 
         self.structure = structure
 
+    @no_type_check  # ignore seemingly false mypy errors
     @staticmethod
     def _round_magmoms(magmoms: ArrayLike, round_magmoms_mode: int | float) -> np.ndarray:
         """If round_magmoms_mode is an integer, simply round to that number
