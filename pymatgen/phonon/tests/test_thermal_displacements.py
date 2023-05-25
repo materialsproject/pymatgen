@@ -306,11 +306,11 @@ class ThermalDisplacementTest(PymatgenTest):
     def test_visualization_directionality_criterion(self):
         # test file creation for VESTA
         printed = False
-        with tempfile.TemporaryDirectory() as tmpdirname:
+        with tempfile.TemporaryDirectory() as tmp_dir:
             self.thermal.visualize_directionality_quality_criterion(
-                filename=os.path.join(tmpdirname, "U.vesta"), other=self.thermal, which_structure=0
+                filename=os.path.join(tmp_dir, "U.vesta"), other=self.thermal, which_structure=0
             )
-            with open(os.path.join(tmpdirname, "U.vesta")) as file:
+            with open(os.path.join(tmp_dir, "U.vesta")) as file:
                 file.seek(0)  # set position to start of file
                 lines = file.read().splitlines()  # now we won't have those newlines
                 if "VECTR" in lines:
@@ -318,9 +318,9 @@ class ThermalDisplacementTest(PymatgenTest):
         assert printed
 
     def test_from_cif_P1(self):
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            self.thermal.write_cif(os.path.join(tmpdirname, "U.cif"))
-            new_thermals = ThermalDisplacementMatrices.from_cif_P1(os.path.join(tmpdirname, "U.cif"))
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            self.thermal.write_cif(os.path.join(tmp_dir, "U.cif"))
+            new_thermals = ThermalDisplacementMatrices.from_cif_P1(os.path.join(tmp_dir, "U.cif"))
             self.assertArrayAlmostEqual(new_thermals[0].thermal_displacement_matrix_cif_matrixform, self.thermal.Ucif)
             self.assertArrayAlmostEqual(new_thermals[0].structure.frac_coords, self.thermal.structure.frac_coords)
             self.assertArrayAlmostEqual(new_thermals[0].structure.lattice.volume, self.thermal.structure.lattice.volume)

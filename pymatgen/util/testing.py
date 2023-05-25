@@ -14,13 +14,11 @@ import unittest
 from pathlib import Path
 
 import numpy.testing as nptu
-from monty.dev import requires
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
 from pytest import approx
 
 from pymatgen.core import SETTINGS, Structure
-from pymatgen.ext.matproj import _MPResterLegacy as MPRester
 
 
 class PymatgenTest(unittest.TestCase):
@@ -56,18 +54,6 @@ class PymatgenTest(unittest.TestCase):
         :return: Structure
         """
         return cls.TEST_STRUCTURES[name].copy()
-
-    @classmethod
-    @requires(SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY needs to be set.")
-    def get_mp_structure(cls, mpid: str) -> Structure:
-        """
-        Get a structure from MP.
-
-        :param mpid: Materials Project id.
-        :return: Structure
-        """
-        m = MPRester()
-        return m.get_structure_by_material_id(mpid)
 
     @staticmethod
     def assertArrayAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True):
@@ -197,11 +183,10 @@ class PymatgenTest(unittest.TestCase):
 
     def assertMSONable(self, obj, test_if_subclass=True):
         """
-        Tests if obj is MSONable and tries to verify whether the contract is
-        fulfilled.
+        Test if obj is MSONable and verify the contract is fulfilled.
 
         By default, the method tests whether obj is an instance of MSONable.
-        This check can be deactivated by setting test_if_subclass to False.
+        This check can be deactivated by setting test_if_subclass=False.
         """
         if test_if_subclass:
             assert isinstance(obj, MSONable)
