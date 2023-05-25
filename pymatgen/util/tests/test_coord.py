@@ -4,6 +4,7 @@ import random
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.lattice import Lattice
@@ -78,7 +79,7 @@ class CoordUtilsTest(PymatgenTest):
         assert coord.find_in_coord_list(coords, test_coord, atol=0.15)[0] == 0
         assert coord.find_in_coord_list([0.99, 0.99, 0.99], test_coord, atol=0.15).size == 0
         coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0.1, 0.1, 0.1]]
-        self.assertArrayEqual(coord.find_in_coord_list(coords, test_coord, atol=0.15), [0, 2])
+        assert_array_equal(coord.find_in_coord_list(coords, test_coord, atol=0.15), [0, 2])
 
     def test_all_distances(self):
         coords1 = [[0, 0, 0], [0.5, 0.5, 0.5]]

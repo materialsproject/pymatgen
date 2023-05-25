@@ -8,6 +8,7 @@ import warnings
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Structure
@@ -853,11 +854,11 @@ class ChargeTest(PymatgenTest):
         atomlist = ["O1", "Mn2"]
         types = ["O", "Mn"]
         num_atoms = 2
-        self.assertArrayEqual(charge_Mulliken, self.charge2.Mulliken)
-        self.assertArrayEqual(charge_Loewdin, self.charge2.Loewdin)
-        self.assertArrayEqual(atomlist, self.charge2.atomlist)
-        self.assertArrayEqual(types, self.charge2.types)
-        self.assertArrayEqual(num_atoms, self.charge2.num_atoms)
+        assert_array_equal(charge_Mulliken, self.charge2.Mulliken)
+        assert_array_equal(charge_Loewdin, self.charge2.Loewdin)
+        assert_array_equal(atomlist, self.charge2.atomlist)
+        assert_array_equal(types, self.charge2.types)
+        assert_array_equal(num_atoms, self.charge2.num_atoms)
 
     def test_get_structure_with_charges(self):
         structure_dict2 = {
@@ -2450,7 +2451,7 @@ class WavefunctionTest(PymatgenTest):
                 "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             )
         )
-        self.assertArrayEqual([41, 41, 41], grid)
+        assert_array_equal([41, 41, 41], grid)
         assert points[4][0] == approx(0.0000)
         assert points[4][1] == approx(0.0000)
         assert points[4][2] == approx(0.4000)

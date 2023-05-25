@@ -4,6 +4,7 @@ import os
 import unittest
 
 import numpy as np
+from numpy.testing import assert_array_equal
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ry_to_eV
@@ -92,11 +93,11 @@ class CoplTest(PymatgenTest):
             [round_to_sigfigs(energy, 5) for energy in self.copl_bise.energies * Ry_to_eV],
             dtype=float,
         )
-        self.assertArrayEqual(ener_eV, self.copl_bise_eV.energies)
+        assert_array_equal(ener_eV, self.copl_bise_eV.energies)
         copl_icohp = self.copl_bise.cohp_data["Bi1-Se7"]["ICOHP"][Spin.up]
         icohp = np.array([round_to_sigfigs(i, 5) for i in copl_icohp * Ry_to_eV], dtype=float)
         icohp_eV = self.copl_bise_eV.cohp_data["Bi1-Se7"]["ICOHP"][Spin.up]
-        self.assertArrayEqual(icohp, icohp_eV)
+        assert_array_equal(icohp, icohp_eV)
 
 
 if __name__ == "__main__":

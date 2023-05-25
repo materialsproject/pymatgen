@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 import numpy as np
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.nmr import ChemicalShielding, ElectricFieldGradient
@@ -16,11 +17,11 @@ class TestChemicalShieldingNotation(PymatgenTest):
 
         cs = ChemicalShielding([1, 2, 3])
         assert cs.shape == (3, 3)
-        self.assertArrayEqual(np.diag(cs), [1, 2, 3])
+        assert_array_equal(np.diag(cs), [1, 2, 3])
 
     def test_principal_axis_system(self):
         cs = ChemicalShielding([1, 2, 3])
-        self.assertArrayEqual(cs.principal_axis_system, cs)
+        assert_array_equal(cs.principal_axis_system, cs)
 
         cs = ChemicalShielding(np.arange(9).reshape((3, 3)))
         self.assertArrayAlmostEqual(
@@ -57,7 +58,7 @@ class TestElectricFieldGradient(PymatgenTest):
 
     def test_principal_axis_system(self):
         efg = ElectricFieldGradient([1, 2, 3])
-        self.assertArrayEqual(efg.principal_axis_system, efg)
+        assert_array_equal(efg.principal_axis_system, efg)
 
         efg = ElectricFieldGradient(np.arange(9).reshape((3, 3)))
         self.assertArrayAlmostEqual(

@@ -4,6 +4,7 @@ import os
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Structure
@@ -87,17 +88,17 @@ class LatticeFromAbivarsTest(PymatgenTest):
         # By default, znucl is filled using the first new type found in sites.
         def_vars = structure_to_abivars(gan)
         def_znucl = def_vars["znucl"]
-        self.assertArrayEqual(def_znucl, [31, 7])
+        assert_array_equal(def_znucl, [31, 7])
         def_typat = def_vars["typat"]
-        self.assertArrayEqual(def_typat, [1, 1, 2, 2])
+        assert_array_equal(def_typat, [1, 1, 2, 2])
 
         # But it's possible to enforce a particular value of typat and znucl.
         enforce_znucl = [7, 31]
         enforce_typat = [2, 2, 1, 1]
         enf_vars = structure_to_abivars(gan, enforce_znucl=enforce_znucl, enforce_typat=enforce_typat)
-        self.assertArrayEqual(enf_vars["znucl"], enforce_znucl)
-        self.assertArrayEqual(enf_vars["typat"], enforce_typat)
-        self.assertArrayEqual(def_vars["xred"], enf_vars["xred"])
+        assert_array_equal(enf_vars["znucl"], enforce_znucl)
+        assert_array_equal(enf_vars["typat"], enforce_typat)
+        assert_array_equal(def_vars["xred"], enf_vars["xred"])
 
         assert [s.symbol for s in species_by_znucl(gan)] == ["Ga", "N"]
 

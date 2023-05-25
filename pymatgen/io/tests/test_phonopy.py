@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from monty.tempfile import ScratchDir
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.periodic_table import Element
@@ -46,14 +47,14 @@ class PhonopyParserTest(PymatgenTest):
 
         assert ph_bs.bands[1][10] == approx(0.7753555184)
         assert ph_bs.bands[5][100] == approx(5.2548379776)
-        self.assertArrayEqual(ph_bs.bands.shape, (6, 204))
-        self.assertArrayEqual(ph_bs.eigendisplacements.shape, (6, 204, 2, 3))
+        assert_array_equal(ph_bs.bands.shape, (6, 204))
+        assert_array_equal(ph_bs.eigendisplacements.shape, (6, 204, 2, 3))
         self.assertArrayAlmostEqual(
             ph_bs.eigendisplacements[3][50][0],
             [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],
         )
         assert ph_bs.has_eigendisplacements, True
-        self.assertArrayEqual(ph_bs.min_freq()[0].frac_coords, [0, 0, 0])
+        assert_array_equal(ph_bs.min_freq()[0].frac_coords, [0, 0, 0])
         assert ph_bs.min_freq()[1] == approx(-0.03700895020)
         assert ph_bs.has_imaginary_freq()
         assert not ph_bs.has_imaginary_freq(tol=0.5)

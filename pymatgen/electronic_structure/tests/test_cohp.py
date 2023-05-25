@@ -5,6 +5,7 @@ import os
 import unittest
 
 import pytest
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.electronic_structure.cohp import (
@@ -1035,13 +1036,13 @@ class CompleteCohpTest(PymatgenTest):
         )
         cohp_label3 = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "1"], ["4px-4pz", "4s-4px"])
 
-        self.assertArrayEqual(cohp_label.cohp[Spin.up], ref["COHP"][Spin.up])
-        self.assertArrayEqual(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up] * 2.0)
-        self.assertArrayEqual(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up])
-        self.assertArrayEqual(cohp_label.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        self.assertArrayEqual(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
-        self.assertArrayEqual(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        self.assertArrayEqual(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
+        assert_array_equal(cohp_label.cohp[Spin.up], ref["COHP"][Spin.up])
+        assert_array_equal(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up] * 2.0)
+        assert_array_equal(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up])
+        assert_array_equal(cohp_label.icohp[Spin.up], ref["ICOHP"][Spin.up])
+        assert_array_equal(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
+        assert_array_equal(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
+        assert_array_equal(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
         with pytest.raises(ValueError):
             self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1"], ["4px-4pz", "4s-4px"])
         with pytest.raises(ValueError):
@@ -1063,13 +1064,13 @@ class CompleteCohpTest(PymatgenTest):
             ["1", "1"], ["4px-4pz", "4s-4px"], summed_spin_channels=True
         )
 
-        self.assertArrayEqual(cohp_label.cohp[Spin.up], ref["COHP"][Spin.up])
-        self.assertArrayEqual(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up] * 2.0)
-        self.assertArrayEqual(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up])
-        self.assertArrayEqual(cohp_label.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        self.assertArrayEqual(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
-        self.assertArrayEqual(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        self.assertArrayEqual(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
+        assert_array_equal(cohp_label.cohp[Spin.up], ref["COHP"][Spin.up])
+        assert_array_equal(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up] * 2.0)
+        assert_array_equal(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up])
+        assert_array_equal(cohp_label.icohp[Spin.up], ref["ICOHP"][Spin.up])
+        assert_array_equal(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
+        assert_array_equal(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
+        assert_array_equal(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
         with pytest.raises(ValueError):
             self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(
                 ["1"], ["4px-4pz", "4s-4px"], summed_spin_channels=True

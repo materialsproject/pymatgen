@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 import numpy as np
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
@@ -122,7 +123,7 @@ class BasisAndPotentialTest(PymatgenTest):
         assert kw.values[0] == "SZV-MOLOPT-GTH"
         molopt.info.admm = True
         kw = molopt.get_keyword()
-        self.assertArrayEqual(kw.values, ["AUX_FIT", "SZV-MOLOPT-GTH"])
+        assert_array_equal(kw.values, ["AUX_FIT", "SZV-MOLOPT-GTH"])
         molopt.info.admm = False
 
     def test_potentials(self):

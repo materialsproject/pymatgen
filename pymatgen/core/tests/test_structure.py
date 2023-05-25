@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from monty.tempfile import ScratchDir
+from numpy.testing import assert_array_equal
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -311,14 +312,14 @@ class IStructureTest(PymatgenTest):
         for s in int_s:
             assert s is not None, "Interpolation Failed!"
             assert int_s[0].lattice == s.lattice
-        self.assertArrayEqual(int_s[1][1].frac_coords, [0.725, 0.5, 0.725])
+        assert_array_equal(int_s[1][1].frac_coords, [0.725, 0.5, 0.725])
 
         # test ximages
         int_s = struct.interpolate(struct2, nimages=np.linspace(0.0, 1.0, 3))
         for s in int_s:
             assert s is not None, "Interpolation Failed!"
             assert int_s[0].lattice == s.lattice
-        self.assertArrayEqual(int_s[1][1].frac_coords, [0.625, 0.5, 0.625])
+        assert_array_equal(int_s[1][1].frac_coords, [0.625, 0.5, 0.625])
 
         badlattice = [[1, 0.00, 0.00], [0, 1, 0.00], [0.00, 0, 1]]
         struct2 = IStructure(badlattice, ["Si"] * 2, coords2)
@@ -725,10 +726,10 @@ Direct
             assert struct.formula == "Ni32 O32"
 
     def test_pbc(self):
-        self.assertArrayEqual(self.struct.pbc, (True, True, True))
+        assert_array_equal(self.struct.pbc, (True, True, True))
         assert self.struct.is_3d_periodic
         struct_pbc = Structure(self.lattice_pbc, ["Si"] * 2, self.struct.frac_coords)
-        self.assertArrayEqual(struct_pbc.pbc, (True, True, False))
+        assert_array_equal(struct_pbc.pbc, (True, True, False))
         assert not struct_pbc.is_3d_periodic
 
 
@@ -1662,7 +1663,7 @@ class MoleculeTest(PymatgenTest):
 
     def test_translate_sites(self):
         self.mol.translate_sites([0, 1], [0.5, 0.5, 0.5])
-        self.assertArrayEqual(self.mol.cart_coords[0], [0.5, 0.5, 0.5])
+        assert_array_equal(self.mol.cart_coords[0], [0.5, 0.5, 0.5])
 
     def test_rotate_sites(self):
         self.mol.rotate_sites(theta=np.radians(30))

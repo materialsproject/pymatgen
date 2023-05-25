@@ -46,7 +46,7 @@ class StressTest(PymatgenTest):
             [[0.377226, 2.1358, 2.2679], [2.1358, 5.14, 5.07], [2.2679, 5.07, 5.33]],
         )
         # voigt
-        self.assertArrayEqual(self.symm_stress.voigt, [0.51, 5.14, 5.33, 5.07, 2.42, 2.29])
+        assert list(self.symm_stress.voigt) == [0.51, 5.14, 5.33, 5.07, 2.42, 2.29]
         # with warnings.catch_warnings(record=True) as w:
         #     self.non_symm.voigt
         #     self.assertEqual(len(w), 1)

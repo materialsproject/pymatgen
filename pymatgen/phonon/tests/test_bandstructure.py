@@ -4,6 +4,7 @@ import json
 import os
 import unittest
 
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
@@ -29,15 +30,15 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
     def test_basic(self):
         assert self.bs.bands[1][10] == approx(0.7753555184)
         assert self.bs.bands[5][100] == approx(5.2548379776)
-        self.assertArrayEqual(self.bs.bands.shape, (6, 204))
-        self.assertArrayEqual(self.bs.eigendisplacements.shape, (6, 204, 2, 3))
+        assert_array_equal(self.bs.bands.shape, (6, 204))
+        assert_array_equal(self.bs.eigendisplacements.shape, (6, 204, 2, 3))
         self.assertArrayAlmostEqual(
             self.bs.eigendisplacements[3][50][0],
             [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],
         )
         assert self.bs.has_eigendisplacements, True
 
-        self.assertArrayEqual(self.bs.min_freq()[0].frac_coords, [0, 0, 0])
+        assert_array_equal(self.bs.min_freq()[0].frac_coords, [0, 0, 0])
         assert self.bs.min_freq()[1] == approx(-0.03700895020)
         assert self.bs.has_imaginary_freq()
         assert not self.bs.has_imaginary_freq(tol=0.5)

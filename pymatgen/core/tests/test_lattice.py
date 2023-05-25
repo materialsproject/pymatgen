@@ -4,6 +4,7 @@ import itertools
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
@@ -61,14 +62,14 @@ class LatticeTestCase(PymatgenTest):
         a = 9.026
         lattice = Lattice.cubic(a)
         assert lattice is not None, "Initialization from new_cubic failed"
-        self.assertArrayEqual(lattice.pbc, (True, True, True))
+        assert_array_equal(lattice.pbc, (True, True, True))
         lattice2 = Lattice([[a, 0, 0], [0, a, 0], [0, 0, a]])
         for i in range(0, 3):
             for j in range(0, 3):
                 assert (
                     round(abs(lattice.matrix[i][j] - lattice2.matrix[i][j]), 5) == 0
                 ), "Inconsistent matrix from two inits!"
-        self.assertArrayEqual(self.cubic_partial_pbc.pbc, (True, True, False))
+        assert_array_equal(self.cubic_partial_pbc.pbc, (True, True, False))
 
     def test_copy(self):
         cubic_copy = self.cubic.copy()
@@ -98,13 +99,13 @@ class LatticeTestCase(PymatgenTest):
         from_direct = lattice.get_fractional_coords(cart_coord) * lattice.lengths
         self.assertArrayAlmostEqual(lattice.get_vector_along_lattice_directions(cart_coord), from_direct)
         self.assertArrayAlmostEqual(lattice.get_vector_along_lattice_directions(cart_coord), latt_coord)
-        self.assertArrayEqual(
+        assert_array_equal(
             lattice.get_vector_along_lattice_directions(cart_coord).shape,
             [
                 3,
             ],
         )
-        self.assertArrayEqual(
+        assert_array_equal(
             lattice.get_vector_along_lattice_directions(cart_coord.reshape([1, 3])).shape,
             [1, 3],
         )
@@ -381,7 +382,7 @@ class LatticeTestCase(PymatgenTest):
         assert np.isclose(dists, 0.2).sum() == 6  # 6 are at 0.2
         assert np.isclose(dists, 0).sum() == 1  # 1 is at 0
         assert len(set(inds)) == 7  # They have unique indices
-        self.assertArrayEqual(images[np.isclose(dists, 0)], [[0, 0, 0]])
+        assert_array_equal(images[np.isclose(dists, 0)], [[0, 0, 0]])
 
         # More complicated case, using the zip output
         result = latt.get_points_in_sphere(pts, [0.5, 0.5, 0.5], 1.0001)

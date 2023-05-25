@@ -8,6 +8,7 @@ import warnings
 import numpy as np
 import pytest
 from monty.serialization import MontyDecoder, loadfn
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.operations import SymmOp
@@ -158,7 +159,7 @@ class TensorTest(PymatgenTest):
         )
 
     def test_rotate(self):
-        self.assertArrayEqual(self.vec.rotate([[0, -1, 0], [1, 0, 0], [0, 0, 1]]), [0, 1, 0])
+        assert_array_equal(self.vec.rotate([[0, -1, 0], [1, 0, 0], [0, 0, 1]]), [0, 1, 0])
         self.assertArrayAlmostEqual(
             self.non_symm.rotate(self.rotation),
             SquareTensor([[0.531, 0.485, 0.271], [0.700, 0.5, 0.172], [0.171, 0.233, 0.068]]),

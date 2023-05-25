@@ -8,6 +8,7 @@ from shutil import which
 
 import numpy as np
 from monty.serialization import loadfn
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.energy_models import IsingModel
@@ -715,7 +716,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
             [3.69130000e-02, 4.09320200e-02, 5.90830153e01],
         )
         assert superstructure.num_sites == 448
-        self.assertArrayEqual(
+        assert_array_equal(
             supercell_generator.transformation_matrix,
             np.array([[4, 0, 0], [1, 4, -4], [0, 0, 1]]),
         )
@@ -731,7 +732,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
             force_diagonal=True,
         )
         _ = diagonal_supercell_generator.apply_transformation(structure2)
-        self.assertArrayEqual(diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4)
+        assert_array_equal(diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4)
 
         # test force_90_degrees
         structure2 = self.get_structure("Si")
