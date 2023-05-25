@@ -224,7 +224,7 @@ def find_points_in_spheres(
         break
 
     if failed_malloc:
-        raise MemoryError(f"A realloc of memory of failed!")
+        raise MemoryError("A realloc of memory of failed!")
     else:
         failed_malloc = 0
 
@@ -346,14 +346,14 @@ def find_points_in_spheres(
         break
 
     if failed_malloc:
-        raise MemoryError(f"A realloc of memory of failed!")
+        raise MemoryError("A realloc of memory of failed!")
     else:
         failed_malloc = 0
 
     if count == 0:
         py_index_1 = np.array([], dtype=int)
         py_index_2 = np.array([], dtype=int)
-        py_offset = np.array([[], [], []], dtype=float).T
+        py_offsets = np.array([[], [], []], dtype=float).T
         py_distances = np.array([], dtype=float)
     else:
         # resize to the actual size
