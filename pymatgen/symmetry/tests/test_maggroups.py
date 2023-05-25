@@ -109,7 +109,7 @@ x+1/2, -y+5/4, -z+3/4, -1
 -x+5/4, y+1/2, -z+3/4, -1
 -x+1/2, y+3/4, z+1/4, -1
 x+3/4, -y+1/2, z+1/4, -1"""
-        self.assertStrContentEqual(msg_1_symmops, msg_1_symmops_ref)
+        self.assert_str_content_equal(msg_1_symmops, msg_1_symmops_ref)
 
         msg_2_symmops = "\n".join(map(str, self.msg_2.symmetry_ops))
         msg_2_symmops_ref = """x, y, z, +1
@@ -120,7 +120,7 @@ x+1/2, -y+1/2, -z+1/2, -1
 -x+1/2, -y, z+1/2, -1
 -x+1/2, y+1/2, z+1/2, -1
 x+1/2, y, -z+1/2, -1"""
-        self.assertStrContentEqual(msg_2_symmops, msg_2_symmops_ref)
+        self.assert_str_content_equal(msg_2_symmops, msg_2_symmops_ref)
 
         msg_3_symmops = "\n".join(map(str, self.msg_3.symmetry_ops))
         msg_3_symmops_ref = """x, y, z, +1
@@ -200,8 +200,8 @@ Wyckoff Positions (OG): (1,0,0)+ (0,2,0)+ (0,0,1)+
 2b  (0,y,1/2;mx,0,mz) (0,y+1,-1/2;-mx,0,-mz)
 2a  (0,y,0;mx,0,mz) (0,y+1,0;-mx,0,-mz)"""
 
-        self.assertStrContentEqual(str(msg), ref_string)
-        self.assertStrContentEqual(msg.data_str(), ref_string_all)
+        self.assert_str_content_equal(str(msg), ref_string)
+        self.assert_str_content_equal(msg.data_str(), ref_string_all)
 
 
 if __name__ == "__main__":

@@ -66,7 +66,7 @@ class PymatgenTest(unittest.TestCase):
         return assert_allclose(actual, desired, atol=10**-decimal, err_msg=err_msg, verbose=verbose)
 
     @staticmethod
-    def assertStrContentEqual(actual, desired, err_msg="", verbose=True):
+    def assert_str_content_equal(actual, desired, err_msg="", verbose=True):
         """
         Tests if two strings are equal, ignoring things like trailing spaces, etc.
         """
