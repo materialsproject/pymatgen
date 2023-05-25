@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 import numpy as np
+from numpy.testing import assert_array_almost_equal
 from pytest import approx
 
 from pymatgen.analysis.eos import EOS, NumericalEOS
@@ -129,7 +130,7 @@ class EOSTest(PymatgenTest):
             for param in ("b0", "b1", "e0", "b0"):
                 # TODO: solutions only stable to 2 decimal places
                 # between different machines, this seems far too low?
-                self.assertArrayAlmostEqual(_.results[param], test_output[eos_name][param], decimal=1)
+                self.assert_all_close(_.results[param], test_output[eos_name][param], decimal=1)
 
     def test_fitting(self):
         # courtesy of @katherinelatimer2013
@@ -218,7 +219,7 @@ class EOSTest(PymatgenTest):
 
         fit = eos.fit(mp153_volumes, mp153_energies)
 
-        np.testing.assert_array_almost_equal(fit.func(mp153_volumes), mp153_known_energies_vinet, decimal=5)
+        assert_array_almost_equal(fit.func(mp153_volumes), mp153_known_energies_vinet, decimal=5)
 
         assert mp153_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp153_known_v0_vinet == approx(fit.v0, abs=1e-4)
@@ -309,7 +310,7 @@ class EOSTest(PymatgenTest):
 
         fit = eos.fit(mp149_volumes, mp149_energies)
 
-        np.testing.assert_array_almost_equal(fit.func(mp149_volumes), mp149_known_energies_vinet, decimal=5)
+        assert_array_almost_equal(fit.func(mp149_volumes), mp149_known_energies_vinet, decimal=5)
 
         assert mp149_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp149_known_v0_vinet == approx(fit.v0, abs=1e-4)
@@ -400,7 +401,7 @@ class EOSTest(PymatgenTest):
 
         fit = eos.fit(mp72_volumes, mp72_energies)
 
-        np.testing.assert_array_almost_equal(fit.func(mp72_volumes), mp72_known_energies_vinet, decimal=5)
+        assert_array_almost_equal(fit.func(mp72_volumes), mp72_known_energies_vinet, decimal=5)
 
         assert mp72_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp72_known_v0_vinet == approx(fit.v0, abs=1e-4)
@@ -417,7 +418,7 @@ class EOSTest(PymatgenTest):
         assert float(numerical_eos.v0) == approx(self.num_eos_fit.v0, abs=1e-3)
         assert float(numerical_eos.b0) == approx(self.num_eos_fit.b0, abs=1e-3)
         assert float(numerical_eos.b1) == approx(self.num_eos_fit.b1, abs=1e-3)
-        self.assertArrayAlmostEqual(numerical_eos.eos_params, self.num_eos_fit.eos_params)
+        self.assert_all_close(numerical_eos.eos_params, self.num_eos_fit.eos_params)
 
     def test_numerical_eos_values(self):
         np.testing.assert_almost_equal(self.num_eos_fit.e0, -10.84749, decimal=3)

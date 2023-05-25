@@ -14,25 +14,25 @@ class SymmOpTestCase(PymatgenTest):
     def test_properties(self):
         rot = self.op.rotation_matrix
         vec = self.op.translation_vector
-        self.assertArrayAlmostEqual(rot, [[0.8660254, -0.5, 0.0], [0.5, 0.8660254, 0.0], [0.0, 0.0, 1.0]], 2)
-        self.assertArrayAlmostEqual(vec, [0, 0, 1], 2)
+        self.assert_all_close(rot, [[0.8660254, -0.5, 0.0], [0.5, 0.8660254, 0.0], [0.0, 0.0, 1.0]], 2)
+        self.assert_all_close(vec, [0, 0, 1], 2)
 
     def test_operate(self):
         point = np.array([1, 2, 3])
         newcoord = self.op.operate(point)
-        self.assertArrayAlmostEqual(newcoord, [-0.1339746, 2.23205081, 4.0], 2)
+        self.assert_all_close(newcoord, [-0.1339746, 2.23205081, 4.0], 2)
 
     def test_operate_multi(self):
         point = np.array([1, 2, 3])
         newcoords = self.op.operate_multi([point, point])
-        self.assertArrayAlmostEqual(newcoords, [[-0.1339746, 2.23205081, 4.0]] * 2, 2)
+        self.assert_all_close(newcoords, [[-0.1339746, 2.23205081, 4.0]] * 2, 2)
         newcoords = self.op.operate_multi([[point, point]] * 2)
-        self.assertArrayAlmostEqual(newcoords, [[[-0.1339746, 2.23205081, 4.0]] * 2] * 2, 2)
+        self.assert_all_close(newcoords, [[[-0.1339746, 2.23205081, 4.0]] * 2] * 2, 2)
 
     def test_inverse(self):
         point = np.random.rand(3)
         newcoord = self.op.operate(point)
-        self.assertArrayAlmostEqual(self.op.inverse.operate(newcoord), point, 2)
+        self.assert_all_close(self.op.inverse.operate(newcoord), point, 2)
 
     def test_reflection(self):
         normal = np.random.rand(3)
@@ -47,13 +47,13 @@ class SymmOpTestCase(PymatgenTest):
         point = np.random.rand(3)
         newcoord = self.op.operate(point)
         rotate_only = self.op.apply_rotation_only(point)
-        self.assertArrayAlmostEqual(rotate_only + self.op.translation_vector, newcoord, 2)
+        self.assert_all_close(rotate_only + self.op.translation_vector, newcoord, 2)
 
     def test_transform_tensor(self):
         # Rank 2
         tensor = np.arange(0, 9).reshape(3, 3)
         new_tensor = self.op.transform_tensor(tensor)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             new_tensor,
             [
                 [-0.73205, -1.73205, -0.76794],
@@ -66,7 +66,7 @@ class SymmOpTestCase(PymatgenTest):
         # Rank 3
         tensor = np.arange(0, 27).reshape(3, 3, 3)
         new_tensor = self.op.transform_tensor(tensor)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             new_tensor,
             [
                 [
@@ -90,7 +90,7 @@ class SymmOpTestCase(PymatgenTest):
         # Rank 4
         tensor = np.arange(0, 81).reshape(3, 3, 3, 3)
         new_tensor = self.op.transform_tensor(tensor)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             new_tensor,
             [
                 [
@@ -184,7 +184,7 @@ class SymmOpTestCase(PymatgenTest):
         op = SymmOp.inversion(origin)
         pt = np.random.rand(3)
         inv_pt = op.operate(pt)
-        self.assertArrayAlmostEqual(pt - origin, origin - inv_pt)
+        self.assert_all_close(pt - origin, origin - inv_pt)
 
     def test_xyz(self):
         op = SymmOp([[1, -1, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
@@ -224,9 +224,9 @@ class SymmOpTestCase(PymatgenTest):
         # self.assertWarns(UserWarning, self.op.as_xyz_string)
 
         o = SymmOp.from_xyz_string("0.5+x, 0.25+y, 0.75+z")
-        self.assertArrayAlmostEqual(o.translation_vector, [0.5, 0.25, 0.75])
+        self.assert_all_close(o.translation_vector, [0.5, 0.25, 0.75])
         o = SymmOp.from_xyz_string("x + 0.5, y + 0.25, z + 0.75")
-        self.assertArrayAlmostEqual(o.translation_vector, [0.5, 0.25, 0.75])
+        self.assert_all_close(o.translation_vector, [0.5, 0.25, 0.75])
 
 
 class MagSymmOpTestCase(PymatgenTest):

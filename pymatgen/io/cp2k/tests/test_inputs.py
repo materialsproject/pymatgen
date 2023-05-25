@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 import numpy as np
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
@@ -104,7 +105,7 @@ class BasisAndPotentialTest(PymatgenTest):
         # Basis file can read from strings
         bf = BasisFile.from_string(basis)
         for obj in [molopt, bf.objects[0]]:
-            self.assertArrayAlmostEqual(
+            self.assert_all_close(
                 obj.exponents[0],
                 [
                     11.478000339908,
@@ -122,7 +123,7 @@ class BasisAndPotentialTest(PymatgenTest):
         assert kw.values[0] == "SZV-MOLOPT-GTH"
         molopt.info.admm = True
         kw = molopt.get_keyword()
-        self.assertArrayEqual(kw.values, ["AUX_FIT", "SZV-MOLOPT-GTH"])
+        assert_array_equal(kw.values, ["AUX_FIT", "SZV-MOLOPT-GTH"])
         molopt.info.admm = False
 
     def test_potentials(self):
@@ -133,7 +134,7 @@ class BasisAndPotentialTest(PymatgenTest):
         assert pot.potential == "Pseudopotential"
         assert pot.r_loc == approx(0.2)
         assert pot.nexp_ppl == approx(2)
-        self.assertArrayAlmostEqual(pot.c_exp_ppl, [-4.17890044, 0.72446331])
+        self.assert_all_close(pot.c_exp_ppl, [-4.17890044, 0.72446331])
 
         # Basis file can read from strings
         pf = PotentialFile.from_string(pot_H)
@@ -161,7 +162,7 @@ class InputTest(PymatgenTest):
         ci = Cp2kInput.from_string(s)
         assert ci["GLOBAL"]["RUN_TYPE"] == Keyword("RUN_TYPE", "energy")
         assert ci["GLOBAL"]["PROJECT_NAME"].description == "default name"
-        self.assertMSONable(ci)
+        self.assert_msonable(ci)
 
     def test_sectionlist(self):
         s1 = Section("TEST")

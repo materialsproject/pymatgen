@@ -13,14 +13,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import numpy.testing as nptu
-from monty.dev import requires
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
-from pytest import approx
+from numpy.testing import assert_allclose
 
 from pymatgen.core import SETTINGS, Structure
-from pymatgen.ext.matproj import _MPResterLegacy as MPRester
 
 
 class PymatgenTest(unittest.TestCase):
@@ -52,66 +49,24 @@ class PymatgenTest(unittest.TestCase):
         """
         Get a structure from the template directories.
 
-        :param name: Name of a structure.
-        :return: Structure
+        Args:
+            name (str): Name of structure file.
+
+        Returns:
+            Structure
         """
         return cls.TEST_STRUCTURES[name].copy()
 
-    @classmethod
-    @requires(SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY needs to be set.")
-    def get_mp_structure(cls, mpid: str) -> Structure:
+    @staticmethod
+    def assert_all_close(actual, desired, decimal=7, err_msg="", verbose=True):
         """
-        Get a structure from MP.
-
-        :param mpid: Materials Project id.
-        :return: Structure
+        Tests if two arrays are almost equal up to some relative or absolute tolerance.
         """
-        m = MPRester()
-        return m.get_structure_by_material_id(mpid)
+        # TODO (janosh): replace the decimal kwarg with assert_allclose() atol and rtol kwargs
+        return assert_allclose(actual, desired, atol=10**-decimal, err_msg=err_msg, verbose=verbose)
 
     @staticmethod
-    def assertArrayAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True):
-        """
-        Tests if two arrays are almost equal to a tolerance. The CamelCase
-        naming is so that it is consistent with standard unittest methods.
-        """
-        return nptu.assert_almost_equal(actual, desired, decimal, err_msg, verbose)
-
-    @staticmethod
-    def assertDictsAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True) -> bool:
-        """
-        Tests if two arrays are almost equal to a tolerance. The CamelCase
-        naming is so that it is consistent with standard unittest methods.
-        """
-        for k, v in actual.items():
-            if k not in desired:
-                return False
-            v2 = desired[k]
-            if isinstance(v, dict):
-                pass_test = PymatgenTest.assertDictsAlmostEqual(
-                    v, v2, decimal=decimal, err_msg=err_msg, verbose=verbose
-                )
-                if not pass_test:
-                    return False
-            elif isinstance(v, (list, tuple)):
-                nptu.assert_almost_equal(v, v2, decimal, err_msg, verbose)
-                return True
-            elif isinstance(v, (int, float)):
-                assert v == approx(v2, abs=decimal)
-            else:
-                assert v == v2
-        return True
-
-    @staticmethod
-    def assertArrayEqual(actual, desired, err_msg="", verbose=True):
-        """
-        Tests if two arrays are equal. The CamelCase naming is so that it is
-         consistent with standard unittest methods.
-        """
-        return nptu.assert_equal(actual, desired, err_msg=err_msg, verbose=verbose)
-
-    @staticmethod
-    def assertStrContentEqual(actual, desired, err_msg="", verbose=True):
+    def assert_str_content_equal(actual, desired, err_msg="", verbose=True):
         """
         Tests if two strings are equal, ignoring things like trailing spaces, etc.
         """
@@ -195,13 +150,12 @@ class PymatgenTest(unittest.TestCase):
             return [o[0] for o in objects_by_protocol]
         return objects_by_protocol
 
-    def assertMSONable(self, obj, test_if_subclass=True):
+    def assert_msonable(self, obj, test_if_subclass=True):
         """
-        Tests if obj is MSONable and tries to verify whether the contract is
-        fulfilled.
+        Test if obj is MSONable and verify the contract is fulfilled.
 
         By default, the method tests whether obj is an instance of MSONable.
-        This check can be deactivated by setting test_if_subclass to False.
+        This check can be deactivated by setting test_if_subclass=False.
         """
         if test_if_subclass:
             assert isinstance(obj, MSONable)

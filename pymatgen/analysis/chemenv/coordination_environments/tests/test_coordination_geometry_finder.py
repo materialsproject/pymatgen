@@ -39,9 +39,9 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         cg_ts3 = self.lgf.allcg["TS:3"]
         cg_tet = self.lgf.allcg["T:4"]
         abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="central_site")
-        self.assertArrayAlmostEqual(abstract_geom.centre, [0.0, 0.0, 0.0])
+        self.assert_all_close(abstract_geom.centre, [0.0, 0.0, 0.0])
         abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="centroid")
-        self.assertArrayAlmostEqual(abstract_geom.centre, [0.0, 0.0, 0.33333333333])
+        self.assert_all_close(abstract_geom.centre, [0.0, 0.0, 0.33333333333])
         with pytest.raises(ValueError) as exc_info:
             AbstractGeometry.from_cg(
                 cg=cg_ts3,
@@ -55,7 +55,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         abstract_geom = AbstractGeometry.from_cg(
             cg=cg_ts3, centering_type="centroid", include_central_site_in_centroid=True
         )
-        self.assertArrayAlmostEqual(abstract_geom.centre, [0.0, 0.0, 0.25])
+        self.assert_all_close(abstract_geom.centre, [0.0, 0.0, 0.25])
 
         # WHY ARE WE TESTING STRINGS????
         # self.assertEqual(str(abstract_geom)),

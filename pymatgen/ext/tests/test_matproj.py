@@ -371,7 +371,7 @@ class MPResterOldTest(PymatgenTest):
         data = self.rester.get_surface_data("mp-126")  # Pt
         one_surf = self.rester.get_surface_data("mp-129", miller_index=[-2, -3, 1])
         assert one_surf["surface_energy"] == pytest.approx(2.99156963)
-        self.assertArrayAlmostEqual(one_surf["miller_index"], [3, 2, 1])
+        self.assert_all_close(one_surf["miller_index"], [3, 2, 1])
         assert "surfaces" in data
         surfaces = data["surfaces"]
         assert len(surfaces) > 0
@@ -403,7 +403,7 @@ class MPResterOldTest(PymatgenTest):
         )
         assert len(mo_s3_112) == 1
         gb_f = mo_s3_112[0]["final_structure"]
-        self.assertArrayAlmostEqual(gb_f.rotation_axis, [1, 1, 0])
+        self.assert_all_close(gb_f.rotation_axis, [1, 1, 0])
         assert gb_f.rotation_angle == pytest.approx(109.47122)
         assert mo_s3_112[0]["gb_energy"] == pytest.approx(0.47965, rel=1e-4)
         assert mo_s3_112[0]["work_of_separation"] == pytest.approx(6.318144)

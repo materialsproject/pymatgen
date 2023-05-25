@@ -34,7 +34,7 @@ class DosTest(PymatgenTest):
     def test_dict_methods(self):
         s = json.dumps(self.dos.as_dict())
         assert s is not None
-        self.assertMSONable(self.dos)
+        self.assert_msonable(self.dos)
 
     def test_thermodynamic_functions(self):
         assert self.dos.cv(300, structure=self.structure) == approx(48.049366665412485, abs=1e-4)
@@ -62,13 +62,13 @@ class CompleteDosTest(PymatgenTest):
         assert Element.Cl in self.cdos.get_element_dos()
 
         sum_dos = self.cdos.get_element_dos()[Element.Na] + self.cdos.get_element_dos()[Element.Cl]
-        self.assertArrayAlmostEqual(sum_dos.frequencies, self.cdos.frequencies)
-        self.assertArrayAlmostEqual(sum_dos.densities, self.cdos.densities)
+        assert sum_dos.frequencies == approx(self.cdos.frequencies)
+        assert sum_dos.densities == approx(self.cdos.densities)
 
     def test_dict_methods(self):
         s = json.dumps(self.cdos.as_dict())
         assert s is not None
-        self.assertMSONable(self.cdos)
+        self.assert_msonable(self.cdos)
 
     def test_str(self):
         assert str(self.cdos) is not None

@@ -30,7 +30,7 @@ class ExcitingInputTest(PymatgenTest):
         lattice = [[0.0, 2.81, 2.81], [2.81, 0.0, 2.81], [2.81, 2.81, 0.0]]
         atoms = ["Na", "Cl"]
         fraccoords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-        self.assertArrayAlmostEqual(lattice, excin.structure.lattice.matrix.tolist())
+        self.assert_all_close(lattice, excin.structure.lattice.matrix.tolist())
         assert atoms == [site.specie.symbol for site in excin.structure]
         assert fraccoords == [site.frac_coords.tolist() for site in excin.structure]
 

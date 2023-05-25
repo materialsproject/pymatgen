@@ -3,7 +3,6 @@ Created on Nov 10, 2012
 
 @author: Shyue Ping Ong
 """
-
 from __future__ import annotations
 
 import random
@@ -262,7 +261,7 @@ class CompositionTest(PymatgenTest):
             82.41634,
         ]
         all_weights = [c.weight for c in self.comp]
-        self.assertArrayAlmostEqual(all_weights, correct_weights, 5)
+        self.assert_all_close(all_weights, correct_weights, 5)
 
     def test_get_atomic_fraction(self):
         correct_at_frac = {"Li": 0.15, "Fe": 0.1, "P": 0.15, "O": 0.6}

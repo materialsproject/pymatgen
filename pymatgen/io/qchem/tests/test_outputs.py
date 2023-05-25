@@ -4,6 +4,7 @@ import os
 import unittest
 
 from monty.serialization import dumpfn, loadfn
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
@@ -279,7 +280,7 @@ class TestQCOutput(PymatgenTest):
                 assert outdata.get(key) == single_job_dict[name].get(key)
             except ValueError:
                 try:
-                    self.assertArrayEqual(outdata.get(key), single_job_dict[name].get(key))
+                    assert_array_equal(outdata.get(key), single_job_dict[name].get(key))
                 except AssertionError:
                     raise RuntimeError("Issue with file: " + name + " Exiting...")
             except AssertionError:
@@ -289,7 +290,7 @@ class TestQCOutput(PymatgenTest):
                 try:
                     assert sub_output.data.get(key) == multi_job_dict[name][ii].get(key)
                 except ValueError:
-                    self.assertArrayEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
+                    assert_array_equal(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
 
     @unittest.skipIf(openbabel is None, "OpenBabel not installed.")
     def test_all(self):

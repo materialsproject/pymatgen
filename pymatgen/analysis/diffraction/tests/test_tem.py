@@ -224,7 +224,7 @@ class TEMCalculatorTest(PymatgenTest):
         # Test if x * p1 + y * p2 yields p3.
         c = TEMCalculator()
         coeffs = c.get_plot_coeffs((1, 1, 0), (1, -1, 0), (2, 0, 0))
-        self.assertArrayAlmostEqual(np.array([1.0, 1.0]), coeffs)
+        self.assert_all_close(np.array([1.0, 1.0]), coeffs)
 
     def test_get_positions(self):
         c = TEMCalculator()
@@ -234,7 +234,7 @@ class TEMCalculatorTest(PymatgenTest):
         assert [0, 0] == positions[(0, 0, 0)].tolist()
         # Test silicon diffraction data spot rough positions:
         # see https://www.doitpoms.ac.uk/tlplib/diffraction-patterns/printall.php
-        self.assertArrayAlmostEqual([1, 0], positions[(-1, 0, 0)], 0)
+        self.assert_all_close([1, 0], positions[(-1, 0, 0)], 0)
 
     def test_TEM_dots(self):
         # All dependencies in TEM_dots method are tested. Only make sure each object created is

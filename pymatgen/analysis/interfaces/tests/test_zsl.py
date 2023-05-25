@@ -4,6 +4,7 @@ import unittest
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 
 from pymatgen.analysis.interfaces.zsl import (
     ZSLGenerator,
@@ -35,14 +36,12 @@ class ZSLGenTest(PymatgenTest):
         ).get_conventional_standard_structure()
 
     def test_zsl(self):
-        z = ZSLGenerator()
+        zsl_gen = ZSLGenerator()
 
         assert fast_norm(np.array([3.0, 2.0, 1.0])) == pytest.approx(3.74165738)
-        self.assertArrayEqual(
-            reduce_vectors(np.array([1.0, 0.0, 0.0]), np.array([2.0, 2.0, 0.0])), [[1, 0, 0], [0, 2, 0]]
-        )
+        assert_array_equal(reduce_vectors(np.array([1.0, 0.0, 0.0]), np.array([2.0, 2.0, 0.0])), [[1, 0, 0], [0, 2, 0]])
         assert vec_area(np.array([1.0, 0.0, 0.0]), np.array([0.0, 2.0, 0.0])) == 2
-        self.assertArrayEqual(list(get_factors(18)), [1, 2, 3, 6, 9, 18])
+        assert_array_equal(list(get_factors(18)), [1, 2, 3, 6, 9, 18])
         assert is_same_vectors(
             np.array([[1.01, 0, 0], [0, 2, 0]], dtype=float), np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float)
         )
@@ -50,7 +49,7 @@ class ZSLGenTest(PymatgenTest):
             np.array([[1.01, 2, 0], [0, 2, 0]], dtype=float), np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float)
         )
 
-        matches = list(z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
+        matches = list(zsl_gen(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
         assert len(matches) == 8
 
     def test_bidirectional(self):

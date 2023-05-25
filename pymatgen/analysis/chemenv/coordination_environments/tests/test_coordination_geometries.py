@@ -106,7 +106,7 @@ class CoordinationGeometriesTest(PymatgenTest):
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        self.assertArrayAlmostEqual(cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces)
+        self.assert_all_close(cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces)
 
         faces = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
@@ -118,7 +118,7 @@ class CoordinationGeometriesTest(PymatgenTest):
             [[0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             [[0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, -1.0, 0.0]],
         ]
-        self.assertArrayAlmostEqual(cg_oct.faces(sites=sites), faces)
+        self.assert_all_close(cg_oct.faces(sites=sites), faces)
 
         edges = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
@@ -134,7 +134,7 @@ class CoordinationGeometriesTest(PymatgenTest):
             [[0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        self.assertArrayAlmostEqual(cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges)
+        self.assert_all_close(cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges)
 
         edges = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
@@ -150,9 +150,9 @@ class CoordinationGeometriesTest(PymatgenTest):
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0]],
         ]
-        self.assertArrayAlmostEqual(cg_oct.edges(sites=sites), edges)
+        self.assert_all_close(cg_oct.edges(sites=sites), edges)
 
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             cg_oct.solid_angles(),
             [2.0943951, 2.0943951, 2.0943951, 2.0943951, 2.0943951, 2.0943951],
         )

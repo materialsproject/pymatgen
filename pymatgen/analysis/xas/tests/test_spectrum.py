@@ -8,6 +8,7 @@ import warnings
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
@@ -59,11 +60,11 @@ class XASTest(PymatgenTest):
 
     def test_to_from_dict(self):
         s = XAS.from_dict(self.k_xanes.as_dict())
-        self.assertArrayAlmostEqual(s.y, self.k_xanes.y)
+        self.assert_all_close(s.y, self.k_xanes.y)
 
     def test_attributes(self):
-        self.assertArrayEqual(self.k_xanes.energy, self.k_xanes.x)
-        self.assertArrayEqual(self.k_xanes.intensity, self.k_xanes.y)
+        assert_array_equal(self.k_xanes.energy, self.k_xanes.x)
+        assert_array_equal(self.k_xanes.intensity, self.k_xanes.y)
 
     def test_str(self):
         assert str(self.k_xanes) is not None

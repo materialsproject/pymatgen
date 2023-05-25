@@ -7,6 +7,7 @@ import unittest
 import numpy as np
 import pytest
 from monty.tempfile import ScratchDir
+from numpy.testing import assert_array_almost_equal
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     MultiWeightsChemenvStrategy,
@@ -23,7 +24,7 @@ from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
 
-se_files_dir = os.path.join(
+struct_env_files_dir = os.path.join(
     PymatgenTest.TEST_FILES_DIR,
     "chemenv",
     "structure_environments_files",
@@ -33,24 +34,18 @@ se_files_dir = os.path.join(
 class StructureEnvironmentsTest(PymatgenTest):
     def test_structure_environments(self):
         with ScratchDir("."):
-            with open(f"{se_files_dir}/se_mp-7000.json") as f:
+            with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
                 dd = json.load(f)
 
             se = StructureEnvironments.from_dict(dd)
             isite = 6
             csm_and_maps_fig, csm_and_maps_subplot = se.get_csm_and_maps(isite=isite)
-            np.testing.assert_array_almost_equal(
-                csm_and_maps_subplot.lines[0].get_xydata().flatten(), [0.0, 0.53499332]
-            )
-            np.testing.assert_array_almost_equal(
-                csm_and_maps_subplot.lines[1].get_xydata().flatten(), [1.0, 0.47026441]
-            )
-            np.testing.assert_array_almost_equal(
-                csm_and_maps_subplot.lines[2].get_xydata().flatten(), [2.0, 0.00988778]
-            )
+            assert_array_almost_equal(csm_and_maps_subplot.lines[0].get_xydata().flatten(), [0.0, 0.53499332])
+            assert_array_almost_equal(csm_and_maps_subplot.lines[1].get_xydata().flatten(), [1.0, 0.47026441])
+            assert_array_almost_equal(csm_and_maps_subplot.lines[2].get_xydata().flatten(), [2.0, 0.00988778])
 
             environments_figure, environments_subplot = se.get_environments_figure(isite=isite)
-            np.testing.assert_array_almost_equal(
+            assert_array_almost_equal(
                 np.array(environments_subplot.patches[0].get_xy()),
                 [
                     [1.0, 1.0],
@@ -60,7 +55,7 @@ class StructureEnvironmentsTest(PymatgenTest):
                     [1.0, 1.0],
                 ],
             )
-            np.testing.assert_array_almost_equal(
+            assert_array_almost_equal(
                 np.array(environments_subplot.patches[1].get_xy()),
                 [
                     [1.0, 0.99301365],
@@ -70,7 +65,7 @@ class StructureEnvironmentsTest(PymatgenTest):
                     [1.0, 0.99301365],
                 ],
             )
-            np.testing.assert_array_almost_equal(
+            assert_array_almost_equal(
                 np.array(environments_subplot.patches[2].get_xy()),
                 [
                     [1.00179228, 1.0],
@@ -80,7 +75,7 @@ class StructureEnvironmentsTest(PymatgenTest):
                     [1.00179228, 1.0],
                 ],
             )
-            np.testing.assert_array_almost_equal(
+            assert_array_almost_equal(
                 np.array(environments_subplot.patches[3].get_xy()),
                 [
                     [1.00179228, 0.99301365],
@@ -92,7 +87,7 @@ class StructureEnvironmentsTest(PymatgenTest):
                     [1.00179228, 0.99301365],
                 ],
             )
-            np.testing.assert_array_almost_equal(
+            assert_array_almost_equal(
                 np.array(environments_subplot.patches[4].get_xy()),
                 [
                     [2.22376156, 0.0060837],
@@ -118,7 +113,7 @@ class StructureEnvironmentsTest(PymatgenTest):
             assert symbol == "T:4"
             assert min_geometry["symmetry_measure"] == pytest.approx(0.00988778424054)
 
-            np.testing.assert_array_almost_equal(
+            assert_array_almost_equal(
                 min_geometry["other_symmetry_measures"]["rotation_matrix_wcs_csc"],
                 [
                     [-0.8433079817973094, -0.19705747216466898, 0.5000000005010193],
@@ -155,7 +150,7 @@ class StructureEnvironmentsTest(PymatgenTest):
 
     def test_light_structure_environments(self):
         with ScratchDir("."):
-            with open(f"{se_files_dir}/se_mp-7000.json") as f:
+            with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
                 dd = json.load(f)
 
             se = StructureEnvironments.from_dict(dd)
@@ -175,13 +170,13 @@ class StructureEnvironmentsTest(PymatgenTest):
             neighb_indices = [0, 3, 5, 1]
             neighb_images = [[0, 0, -1], [0, 0, 0], [0, 0, -1], [0, 0, 0]]
 
-            np.testing.assert_array_almost_equal(neighb_coords, nb_set.neighb_coords)
-            np.testing.assert_array_almost_equal(neighb_coords, [s.coords for s in nb_set.neighb_sites])
+            assert_array_almost_equal(neighb_coords, nb_set.neighb_coords)
+            assert_array_almost_equal(neighb_coords, [s.coords for s in nb_set.neighb_sites])
             nb_sai = nb_set.neighb_sites_and_indices
-            np.testing.assert_array_almost_equal(neighb_coords, [sai["site"].coords for sai in nb_sai])
-            np.testing.assert_array_almost_equal(neighb_indices, [sai["index"] for sai in nb_sai])
+            assert_array_almost_equal(neighb_coords, [sai["site"].coords for sai in nb_sai])
+            assert_array_almost_equal(neighb_indices, [sai["index"] for sai in nb_sai])
             nb_iai = nb_set.neighb_indices_and_images
-            np.testing.assert_array_almost_equal(neighb_indices, [iai["index"] for iai in nb_iai])
+            assert_array_almost_equal(neighb_indices, [iai["index"] for iai in nb_iai])
             np.testing.assert_array_equal(neighb_images, [iai["image_cell"] for iai in nb_iai])
 
             assert len(nb_set) == 4
@@ -198,28 +193,28 @@ class StructureEnvironmentsTest(PymatgenTest):
             stats = lse.get_statistics()
 
             neighbors = lse.strategy.get_site_neighbors(site=lse.structure[isite])
-            self.assertArrayAlmostEqual(neighbors[0].coords, np.array([0.2443798, 1.80409653, -1.13218359]))
-            self.assertArrayAlmostEqual(neighbors[1].coords, np.array([1.44020353, 1.11368738, 1.13218359]))
-            self.assertArrayAlmostEqual(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
-            self.assertArrayAlmostEqual(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
+            self.assert_all_close(neighbors[0].coords, np.array([0.2443798, 1.80409653, -1.13218359]))
+            self.assert_all_close(neighbors[1].coords, np.array([1.44020353, 1.11368738, 1.13218359]))
+            self.assert_all_close(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
+            self.assert_all_close(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
 
             equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
             assert equiv_site_index_and_transform[0] == 0
-            self.assertArrayAlmostEqual(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
-            self.assertArrayAlmostEqual(equiv_site_index_and_transform[2], [0.0, 0.0, -1.0])
+            self.assert_all_close(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
+            self.assert_all_close(equiv_site_index_and_transform[2], [0.0, 0.0, -1.0])
 
             equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[1])
             assert equiv_site_index_and_transform[0] == 3
-            self.assertArrayAlmostEqual(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
-            self.assertArrayAlmostEqual(equiv_site_index_and_transform[2], [0.0, 0.0, 0.0])
+            self.assert_all_close(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
+            self.assert_all_close(equiv_site_index_and_transform[2], [0.0, 0.0, 0.0])
 
             assert stats["atom_coordination_environments_present"] == {"Si": {"T:4": 3.0}}
             assert stats["coordination_environments_atom_present"] == {"T:4": {"Si": 3.0}}
             assert stats["fraction_atom_coordination_environments_present"] == {"Si": {"T:4": 1.0}}
 
             site_info_ce = lse.get_site_info_for_specie_ce(specie=Species("Si", 4), ce_symbol="T:4")
-            np.testing.assert_array_almost_equal(site_info_ce["fractions"], [1.0, 1.0, 1.0])
-            np.testing.assert_array_almost_equal(
+            assert_array_almost_equal(site_info_ce["fractions"], [1.0, 1.0, 1.0])
+            assert_array_almost_equal(
                 site_info_ce["csms"],
                 [0.009887784240541068, 0.009887786546730826, 0.009887787384385317],
             )

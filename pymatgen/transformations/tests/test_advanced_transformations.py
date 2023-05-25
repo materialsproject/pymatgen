@@ -8,6 +8,7 @@ from shutil import which
 
 import numpy as np
 from monty.serialization import loadfn
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.energy_models import IsingModel
@@ -371,8 +372,8 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation({"Ni": 5})
         alls = trans.apply_transformation(self.NiO.get_primitive_structure(), return_ranked_list=10)
 
-        self.assertArrayAlmostEqual(self.NiO_AFM_111.lattice.parameters, alls[0]["structure"].lattice.parameters)
-        self.assertArrayAlmostEqual(self.NiO_AFM_001.lattice.parameters, alls[1]["structure"].lattice.parameters)
+        self.assert_all_close(self.NiO_AFM_111.lattice.parameters, alls[0]["structure"].lattice.parameters)
+        self.assert_all_close(self.NiO_AFM_001.lattice.parameters, alls[1]["structure"].lattice.parameters)
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
@@ -611,16 +612,16 @@ class SlabTransformationTest(PymatgenTest):
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
         slab_from_gen = gen.get_slab(0.25)
         slab_from_trans = trans.apply_transformation(s)
-        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix, slab_from_trans.lattice.matrix)
-        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
+        self.assert_all_close(slab_from_gen.lattice.matrix, slab_from_trans.lattice.matrix)
+        self.assert_all_close(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
 
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         trans = SlabTransformation([1, 1, 1], 10, 10)
         slab_from_trans = trans.apply_transformation(fcc)
         gen = SlabGenerator(fcc, [1, 1, 1], 10, 10)
         slab_from_gen = gen.get_slab()
-        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix, slab_from_trans.lattice.matrix)
-        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
+        self.assert_all_close(slab_from_gen.lattice.matrix, slab_from_trans.lattice.matrix)
+        self.assert_all_close(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
 
 
 class GrainBoundaryTransformationTest(PymatgenTest):
@@ -641,8 +642,8 @@ class GrainBoundaryTransformationTest(PymatgenTest):
             gb_from_generator = gbg.gb_from_parameters(**gb_gen_params_s5)
             gbt_s5 = GrainBoundaryTransformation(**gb_gen_params_s5)
             gb_from_trans = gbt_s5.apply_transformation(Al_bulk)
-            self.assertArrayAlmostEqual(gb_from_generator.lattice.matrix, gb_from_trans.lattice.matrix)
-            self.assertArrayAlmostEqual(gb_from_generator.cart_coords, gb_from_trans.cart_coords)
+            self.assert_all_close(gb_from_generator.lattice.matrix, gb_from_trans.lattice.matrix)
+            self.assert_all_close(gb_from_generator.cart_coords, gb_from_trans.cart_coords)
 
 
 class DisorderedOrderedTransformationTest(PymatgenTest):
@@ -705,17 +706,17 @@ class CubicSupercellTransformationTest(PymatgenTest):
         num_atoms = superstructure.num_sites
         assert num_atoms >= min_atoms
         assert num_atoms <= max_atoms
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             superstructure.lattice.matrix[0],
             [1.49656087e01, -1.11448000e-03, 9.04924836e00],
         )
-        self.assertArrayAlmostEqual(superstructure.lattice.matrix[1], [-0.95005506, 14.95766342, 10.01819773])
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(superstructure.lattice.matrix[1], [-0.95005506, 14.95766342, 10.01819773])
+        self.assert_all_close(
             superstructure.lattice.matrix[2],
             [3.69130000e-02, 4.09320200e-02, 5.90830153e01],
         )
         assert superstructure.num_sites == 448
-        self.assertArrayEqual(
+        assert_array_equal(
             supercell_generator.transformation_matrix,
             np.array([[4, 0, 0], [1, 4, -4], [0, 0, 1]]),
         )
@@ -731,7 +732,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
             force_diagonal=True,
         )
         _ = diagonal_supercell_generator.apply_transformation(structure2)
-        self.assertArrayEqual(diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4)
+        assert_array_equal(diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4)
 
         # test force_90_degrees
         structure2 = self.get_structure("Si")
@@ -744,7 +745,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
             force_90_degrees=True,
         )
         transformed_structure = diagonal_supercell_generator.apply_transformation(structure2)
-        self.assertArrayAlmostEqual(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
+        self.assert_all_close(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
 
         structure = self.get_structure("BaNiO3")
         min_atoms = 100
@@ -755,7 +756,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
             min_atoms=min_atoms, max_atoms=max_atoms, min_length=10.0, force_90_degrees=True
         )
         transformed_structure = supercell_generator.apply_transformation(structure)
-        self.assertArrayAlmostEqual(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
+        self.assert_all_close(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
 
 
 class AddAdsorbateTransformationTest(PymatgenTest):

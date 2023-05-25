@@ -949,8 +949,8 @@ class OutcarTest(PymatgenTest):
         )
 
         plasma_freq = outcar.plasma_frequencies
-        self.assertArrayAlmostEqual(plasma_freq["intraband"], np.zeros((3, 3)))
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(plasma_freq["intraband"], np.zeros((3, 3)))
+        self.assert_all_close(
             plasma_freq["interband"],
             [
                 [367.49, 63.939, 11.976],
@@ -1110,7 +1110,7 @@ class OutcarTest(PymatgenTest):
 
         assert len(outcar.data["chemical_shielding"]["valence_only"][20:28]) == approx(len(expected_chemical_shielding))
 
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             outcar.data["chemical_shielding"]["valence_and_core"][20:28],
             expected_chemical_shielding,
             decimal=5,
@@ -1200,7 +1200,7 @@ class OutcarTest(PymatgenTest):
 
         assert len(outcar.data["unsym_efg_tensor"][2:10]) == len(exepected_tensors)
         for e1, e2 in zip(outcar.data["unsym_efg_tensor"][2:10], exepected_tensors):
-            self.assertArrayAlmostEqual(e1, e2)
+            self.assert_all_close(e1, e2)
 
     def test_read_fermi_contact_shift(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR_fc"
@@ -1565,10 +1565,10 @@ class ChgcarTest(PymatgenTest):
         import h5py
 
         with h5py.File("chgcar_test.hdf5", "r") as f:
-            self.assertArrayAlmostEqual(np.array(f["vdata"]["total"]), chgcar.data["total"])
-            self.assertArrayAlmostEqual(np.array(f["vdata"]["diff"]), chgcar.data["diff"])
-            self.assertArrayAlmostEqual(np.array(f["lattice"]), chgcar.structure.lattice.matrix)
-            self.assertArrayAlmostEqual(np.array(f["fcoords"]), chgcar.structure.frac_coords)
+            self.assert_all_close(np.array(f["vdata"]["total"]), chgcar.data["total"])
+            self.assert_all_close(np.array(f["vdata"]["diff"]), chgcar.data["diff"])
+            self.assert_all_close(np.array(f["lattice"]), chgcar.structure.lattice.matrix)
+            self.assert_all_close(np.array(f["fcoords"]), chgcar.structure.frac_coords)
             for z in f["Z"]:
                 assert z in [Element.Ni.Z, Element.O.Z]
 
@@ -1576,7 +1576,7 @@ class ChgcarTest(PymatgenTest):
                 assert sp in [b"Ni", b"O"]
 
         chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
-        self.assertArrayAlmostEqual(chgcar2.data["total"], chgcar.data["total"])
+        self.assert_all_close(chgcar2.data["total"], chgcar.data["total"])
         os.remove("chgcar_test.hdf5")
 
     def test_spin_data(self):
@@ -1585,7 +1585,7 @@ class ChgcarTest(PymatgenTest):
 
     def test_add(self):
         chgcar_sum = self.chgcar_spin + self.chgcar_spin
-        self.assertArrayAlmostEqual(chgcar_sum.data["total"], self.chgcar_spin.data["total"] * 2)
+        self.assert_all_close(chgcar_sum.data["total"], self.chgcar_spin.data["total"] * 2)
         chgcar_copy = self.chgcar_spin.copy()
         chgcar_copy.structure = self.get_structure("Li2O")
         with warnings.catch_warnings(record=True) as w:
@@ -1604,8 +1604,8 @@ class ChgcarTest(PymatgenTest):
     def test_as_dict_and_from_dict(self):
         d = self.chgcar_NiO_SOC.as_dict()
         chgcar_from_dict = Chgcar.from_dict(d)
-        self.assertArrayAlmostEqual(self.chgcar_NiO_SOC.data["total"], chgcar_from_dict.data["total"])
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(self.chgcar_NiO_SOC.data["total"], chgcar_from_dict.data["total"])
+        self.assert_all_close(
             self.chgcar_NiO_SOC.structure.lattice.matrix,
             chgcar_from_dict.structure.lattice.matrix,
         )

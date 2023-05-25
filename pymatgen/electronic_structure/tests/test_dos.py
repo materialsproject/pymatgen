@@ -305,16 +305,16 @@ class DOSTest(PymatgenTest):
         assert dos.get_gap() == approx(2.0589, abs=1e-4)
         assert len(dos.x) == 301
         assert dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(2.16815942458015, abs=1e-7)
-        self.assertArrayAlmostEqual(dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
+        self.assert_all_close(dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
 
         assert dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, abs=1e-7)
         assert dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(ValueError):
             dos.get_interpolated_value(1000)
 
-        self.assertArrayAlmostEqual(dos.get_cbm_vbm(spin=Spin.up), (3.8729, 1.2992999999999999))
+        self.assert_all_close(dos.get_cbm_vbm(spin=Spin.up), (3.8729, 1.2992999999999999))
 
-        self.assertArrayAlmostEqual(dos.get_cbm_vbm(spin=Spin.down), (4.645, 1.8140000000000001))
+        self.assert_all_close(dos.get_cbm_vbm(spin=Spin.down), (4.645, 1.8140000000000001))
 
 
 class SpinPolarizationTest(unittest.TestCase):

@@ -81,8 +81,8 @@ class BandStructureSymmLineTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_basic(self):
-        self.assertArrayAlmostEqual(self.bs.projections[Spin.up][10][12][0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(self.bs.projections[Spin.up][10][12][0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        self.assert_all_close(
             self.bs.projections[Spin.up][25][0][Orbital.dyz.value],
             [0.0, 0.0, 0.0011, 0.0219, 0.0219, 0.069],
         )

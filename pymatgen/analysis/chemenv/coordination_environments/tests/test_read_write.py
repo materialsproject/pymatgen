@@ -7,6 +7,7 @@ import unittest
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_almost_equal
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AngleNbSetWeight,
@@ -115,8 +116,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         neighb_coords = nb_set.coords
 
-        np.testing.assert_array_almost_equal(coords, neighb_coords[1:])
-        np.testing.assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
+        assert_array_almost_equal(coords, neighb_coords[1:])
+        assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
 
         norm_dist = nb_set.normalized_distances
         assert sorted(norm_dist) == pytest.approx(sorted([1.001792, 1.001792, 1, 1.0]))
