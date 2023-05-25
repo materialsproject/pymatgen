@@ -79,8 +79,8 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
         s = self.bs2.as_phononwebsite()
         assert s is not None
         assert json.dumps(s) is not None
-        self.assertMSONable(self.bs)
-        self.assertMSONable(self.bs2)
+        self.assert_msonable(self.bs)
+        self.assert_msonable(self.bs2)
 
     def test_write_methods(self):
         self.bs2.write_phononwebsite("test.json")

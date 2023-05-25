@@ -1705,7 +1705,7 @@ class MoleculeTest(PymatgenTest):
         d = self.mol.as_dict()
         mol2 = Molecule.from_dict(d)
         assert isinstance(mol2, Molecule)
-        self.assertMSONable(self.mol)
+        self.assert_msonable(self.mol)
 
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)

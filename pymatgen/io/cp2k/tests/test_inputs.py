@@ -162,7 +162,7 @@ class InputTest(PymatgenTest):
         ci = Cp2kInput.from_string(s)
         assert ci["GLOBAL"]["RUN_TYPE"] == Keyword("RUN_TYPE", "energy")
         assert ci["GLOBAL"]["PROJECT_NAME"].description == "default name"
-        self.assertMSONable(ci)
+        self.assert_msonable(ci)
 
     def test_sectionlist(self):
         s1 = Section("TEST")

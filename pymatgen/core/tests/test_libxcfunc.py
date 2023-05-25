@@ -24,4 +24,4 @@ class LibxcFuncTest(PymatgenTest):
         self.serialize_with_pickle(xc, test_eq=True)
 
         # Test if object supports MSONable
-        self.assertMSONable(xc, test_if_subclass=False)
+        self.assert_msonable(xc, test_if_subclass=False)

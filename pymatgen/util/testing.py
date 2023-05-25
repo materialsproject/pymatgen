@@ -150,7 +150,7 @@ class PymatgenTest(unittest.TestCase):
             return [o[0] for o in objects_by_protocol]
         return objects_by_protocol
 
-    def assertMSONable(self, obj, test_if_subclass=True):
+    def assert_msonable(self, obj, test_if_subclass=True):
         """
         Test if obj is MSONable and verify the contract is fulfilled.
 
