@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 import numpy as np
+from numpy.testing import assert_array_almost_equal
 from pytest import approx
 
 from pymatgen.analysis.eos import EOS, NumericalEOS
@@ -218,7 +219,7 @@ class EOSTest(PymatgenTest):
 
         fit = eos.fit(mp153_volumes, mp153_energies)
 
-        np.testing.assert_array_almost_equal(fit.func(mp153_volumes), mp153_known_energies_vinet, decimal=5)
+        assert_array_almost_equal(fit.func(mp153_volumes), mp153_known_energies_vinet, decimal=5)
 
         assert mp153_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp153_known_v0_vinet == approx(fit.v0, abs=1e-4)
@@ -309,7 +310,7 @@ class EOSTest(PymatgenTest):
 
         fit = eos.fit(mp149_volumes, mp149_energies)
 
-        np.testing.assert_array_almost_equal(fit.func(mp149_volumes), mp149_known_energies_vinet, decimal=5)
+        assert_array_almost_equal(fit.func(mp149_volumes), mp149_known_energies_vinet, decimal=5)
 
         assert mp149_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp149_known_v0_vinet == approx(fit.v0, abs=1e-4)
@@ -400,7 +401,7 @@ class EOSTest(PymatgenTest):
 
         fit = eos.fit(mp72_volumes, mp72_energies)
 
-        np.testing.assert_array_almost_equal(fit.func(mp72_volumes), mp72_known_energies_vinet, decimal=5)
+        assert_array_almost_equal(fit.func(mp72_volumes), mp72_known_energies_vinet, decimal=5)
 
         assert mp72_known_e0_vinet == approx(fit.e0, abs=1e-4)
         assert mp72_known_v0_vinet == approx(fit.v0, abs=1e-4)

@@ -4,7 +4,7 @@ import itertools
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
@@ -582,17 +582,17 @@ class LatticeTestCase(PymatgenTest):
 
     def test_selling_vector(self):
         a1 = 10
-        np.testing.assert_array_almost_equal(
+        assert_array_almost_equal(
             Lattice.cubic(a1).selling_vector.round(4),
             np.array([0, 0, 0, -(a1**2), -(a1**2), -(a1**2)]),
         )
         a2, c2 = 5, 8
-        np.testing.assert_array_almost_equal(
+        assert_array_almost_equal(
             Lattice.tetragonal(a2, c2).selling_vector.round(4),
             np.array([0, 0, 0, -(a2**2), -(a2**2), -(c2**2)]),
         )
         a3, b3, c3 = 4, 6, 7
-        np.testing.assert_array_almost_equal(
+        assert_array_almost_equal(
             Lattice.orthorhombic(a3, b3, c3).selling_vector.round(4),
             np.array([0, 0, 0, -(a3**2), -(b3**2), -(c3**2)]),
         )
