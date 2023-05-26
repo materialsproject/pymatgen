@@ -776,7 +776,11 @@ class MaterialsProjectCompatibility(CorrectionsList):
     """
 
     def __init__(
-        self, compat_type: str = "Advanced", correct_peroxide: bool = True, check_potcar_hash: bool = False
+        self,
+        compat_type: str = "Advanced",
+        correct_peroxide: bool = True,
+        check_potcar_hash: bool = False,
+        silence_deprecation: bool = False,
     ) -> None:
         """
         Args:
@@ -790,7 +794,15 @@ class MaterialsProjectCompatibility(CorrectionsList):
             correct_peroxide: Specify whether peroxide/superoxide/ozonide
                 corrections are to be applied or not.
             check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
+            silence_deprecation (bool): Silence deprecation warning. Defaults to False.
         """
+        # deprecation warning
+        if not silence_deprecation:
+            warnings.warn(
+                "MaterialsProjectCompatibility is deprecated, Materials Project formation energies "
+                "use the newer MaterialsProject2020Compatibility scheme.",
+                DeprecationWarning,
+            )
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
