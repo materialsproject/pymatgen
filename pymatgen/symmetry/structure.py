@@ -95,6 +95,9 @@ class SymmetrizedStructure(Structure):
         raise ValueError("Site not in structure")
 
     def __repr__(self) -> str:
+        return str(self)
+
+    def __str__(self) -> str:
         outs = [
             "SymmetrizedStructure",
             f"Full Formula ({self.composition.formula})",
