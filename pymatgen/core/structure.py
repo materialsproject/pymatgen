@@ -2357,7 +2357,7 @@ class IStructure(SiteCollection, MSONable):
             return [run_mcsqs(self, **kwargs).bestsqs]
         raise ValueError("Invalid mode!")
 
-    def as_dict(self, verbosity=1, fmt=None, **kwargs):
+    def as_dict(self, verbosity=1, fmt=None, **kwargs) -> dict[str, Any]:
         """
         Dict representation of Structure.
 
@@ -2386,21 +2386,21 @@ class IStructure(SiteCollection, MSONable):
         latt_dict = self._lattice.as_dict(verbosity=verbosity)
         del latt_dict["@module"]
         del latt_dict["@class"]
-
-        d = {
+        sites = []
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "charge": self.charge,
             "lattice": latt_dict,
-            "sites": [],
         }
         for site in self:
-            site_dict = site.as_dict(verbosity=verbosity)
+            site_dict = site.as_dict(verbosity=verbosity)  # type: ignore[call-arg]
             del site_dict["lattice"]
             del site_dict["@module"]
             del site_dict["@class"]
-            d["sites"].append(site_dict)
-        return d
+            sites.append(site_dict)
+        dct["sites"] = sites
+        return dct
 
     def as_dataframe(self):
         """

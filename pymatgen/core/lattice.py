@@ -971,7 +971,7 @@ class Lattice(MSONable):
             verbosity (int): Verbosity level. Default of 0 only includes the
                 matrix representation. Set to 1 for more details.
         """
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "matrix": self._matrix.tolist(),
@@ -979,9 +979,9 @@ class Lattice(MSONable):
         }
         if verbosity > 0:
             keys = ["a", "b", "c", "alpha", "beta", "gamma", "volume"]
-            d.update(dict(zip(keys, [*self.parameters, self.volume])))
+            dct.update(dict(zip(keys, [*self.parameters, self.volume])))
 
-        return d
+        return dct
 
     def find_all_mappings(
         self,

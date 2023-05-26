@@ -4,12 +4,15 @@ This module implements symmetry-related structure forms.
 
 from __future__ import annotations
 
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
 from tabulate import tabulate
 
 from pymatgen.core.structure import PeriodicSite, Structure
+
+if TYPE_CHECKING:
+    from pymatgen.symmetry.analyzer import SpacegroupOperations
 
 
 class SymmetrizedStructure(Structure):
@@ -27,17 +30,16 @@ class SymmetrizedStructure(Structure):
     def __init__(
         self,
         structure: Structure,
-        spacegroup,
+        spacegroup: SpacegroupOperations,
         equivalent_positions: Sequence[int],
         wyckoff_letters: Sequence[str],
-    ):
+    ) -> None:
         """
         Args:
             structure (Structure): Original structure
-            spacegroup (SpacegroupOperations): An input SpacegroupOperations from
-                SpacegroupAnalyzer.
-            equivalent_positions: Equivalent positions from SpacegroupAnalyzer.
-            wyckoff_letters: Wyckoff letters
+            spacegroup (SpacegroupOperations): An input SpacegroupOperations from SpacegroupAnalyzer.
+            equivalent_positions (list[int]): Equivalent positions from SpacegroupAnalyzer.
+            wyckoff_letters (list[str]): Wyckoff letters
         """
         self.spacegroup = spacegroup
         u, inv = np.unique(equivalent_positions, return_inverse=True)
@@ -73,12 +75,15 @@ class SymmetrizedStructure(Structure):
             wyckoff_letters=self.wyckoff_letters,
         )
 
-    def find_equivalent_sites(self, site) -> list[PeriodicSite]:
+    def find_equivalent_sites(self, site: PeriodicSite) -> list[PeriodicSite]:
         """
         Finds all symmetrically equivalent sites for a particular site
 
         Args:
             site (PeriodicSite): A site in the structure
+
+        Raises:
+            ValueError: if site is not in the structure.
 
         Returns:
             ([PeriodicSite]): List of all symmetrically equivalent sites.
@@ -89,10 +94,10 @@ class SymmetrizedStructure(Structure):
 
         raise ValueError("Site not in structure")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         outs = [
             "SymmetrizedStructure",
             f"Full Formula ({self.composition.formula})",
@@ -100,11 +105,11 @@ class SymmetrizedStructure(Structure):
             f"Spacegroup: {self.spacegroup.int_symbol} ({self.spacegroup.int_number})",
         ]
 
-        def to_s(x):
+        def to_str(x):
             return f"{x:0.6f}"
 
-        outs.append("abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc))
-        outs.append("angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles))
+        outs.append("abc   : " + " ".join(to_str(i).rjust(10) for i in self.lattice.abc))
+        outs.append("angles: " + " ".join(to_str(i).rjust(10) for i in self.lattice.angles))
         if self._charge:
             if self._charge >= 0:
                 outs.append(f"Overall Charge: +{self._charge}")
@@ -114,13 +119,13 @@ class SymmetrizedStructure(Structure):
         data = []
         props = self.site_properties
         keys = sorted(props)
-        for i, sites in enumerate(self.equivalent_sites):
+        for idx, sites in enumerate(self.equivalent_sites):
             site = sites[0]
-            row = [str(i), site.species_string]
-            row.extend([to_s(j) for j in site.frac_coords])
-            row.append(self.wyckoff_symbols[i])
+            row = [str(idx), site.species_string]
+            row.extend([to_str(j) for j in site.frac_coords])
+            row.append(self.wyckoff_symbols[idx])
             for k in keys:
-                row.append(props[k][i])
+                row.append(props[k][idx])
             data.append(row)
         outs.append(
             tabulate(

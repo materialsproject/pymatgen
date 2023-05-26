@@ -790,7 +790,13 @@ class MaterialsProjectCompatibility(CorrectionsList):
             correct_peroxide: Specify whether peroxide/superoxide/ozonide
                 corrections are to be applied or not.
             check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
+            silence_deprecation (bool): Silence deprecation warning. Defaults to False.
         """
+        warnings.warn(  # added by @janosh on 2023-05-25
+            "MaterialsProjectCompatibility is deprecated, Materials Project formation energies "
+            "use the newer MaterialsProject2020Compatibility scheme.",
+            DeprecationWarning,
+        )
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
