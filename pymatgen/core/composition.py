@@ -1231,10 +1231,10 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
         syms = sorted(syms, key=lambda x: [get_el_sp(x).iupac_ordering, x])
 
     reduced_form = []
-    for s in syms:
-        norm_amt = sym_amt[s] * 1.0 / factor
-        reduced_form.append(s)
-        reduced_form.append(formula_double_format(norm_amt))
+    for sym in syms:
+        norm_amt = sym_amt[sym] * 1.0 / factor
+        reduced_form.append(sym)
+        reduced_form.append(str(formula_double_format(norm_amt)))
 
     reduced_form = "".join(reduced_form + polyanion)  # type: ignore
     return reduced_form, factor  # type: ignore

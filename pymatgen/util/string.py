@@ -436,6 +436,6 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
             if fmt != "plain":
                 disordered_formula.append(sub_end)
     disordered_formula.append(" ")
-    disordered_formula += [f"{k}={formula_double_format(v)} " for k, v in variable_map.items()]
+    disordered_formula += [f"{key}={formula_double_format(val)} " for key, val in variable_map.items()]
 
     return "".join(map(str, disordered_formula))[0:-1]
