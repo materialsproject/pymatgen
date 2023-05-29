@@ -135,8 +135,8 @@ def formula_double_format(afloat, ignore_ones=True, tol: float = 1e-8):
     if ignore_ones and afloat == 1:
         return ""
     if abs(afloat - int(afloat)) < tol:
-        return str(int(afloat))
-    return str(round(afloat, 8))
+        return int(afloat)
+    return round(afloat, 8)
 
 
 def charge_string(charge, brackets=True, explicit_one=True):
@@ -404,7 +404,7 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     factor = factor_comp.get_reduced_formula_and_factor()[1]
 
     total_disordered_occu /= factor
-    remainder = formula_double_format(total_disordered_occu, ignore_ones=False) + "-" + "-".join(symbols)
+    remainder = f"{formula_double_format(total_disordered_occu, ignore_ones=False)}-{'-'.join(symbols)}"
 
     for sp, occu in comp:
         species = str(sp)
