@@ -3275,7 +3275,7 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return plt
 
-    def plot_zt_temp(self, doping="all", output="average", relaxation_time=1e-14):
+    def plot_zt_temp(self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
         """
         Plot the figure of merit zT in function of temperature for different doping levels.
 
@@ -3286,13 +3286,15 @@ class BoltztrapPlotter:
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
 
+        Raises:
+            ValueError: if output is not 'average' or 'eigs'
+
         Returns:
             a matplotlib object
         """
-        if output == "average":
-            zt = self._bz.get_zt(relaxation_time=relaxation_time, output="average")
-        elif output == "eigs":
-            zt = self._bz.get_zt(relaxation_time=relaxation_time, output="eigs")
+        if output not in ("average", "eigs"):
+            raise ValueError(f"{output=} must be 'average' or 'eigs'")
+        zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output)
 
         plt = pretty_plot(22, 14)
         tlist = sorted(zt["n"])

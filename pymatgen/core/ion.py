@@ -327,5 +327,6 @@ class Ion(Composition, MSONable, Stringify):
         :return: Pretty string with proper superscripts.
         """
         str_ = super().reduced_formula
-        str_ += f"^{formula_double_format(self.charge, False):+}"
+        if val := formula_double_format(self.charge, False):
+            str_ += f"^{val:+}"
         return str_
