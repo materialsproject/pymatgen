@@ -1236,8 +1236,7 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
         reduced_form.append(sym)
         reduced_form.append(str(formula_double_format(norm_amt)))
 
-    reduced_form = "".join(reduced_form + polyanion)  # type: ignore
-    return reduced_form, factor  # type: ignore
+    return "".join([*reduced_form, *polyanion]), factor
 
 
 class ChemicalPotential(dict, MSONable):
