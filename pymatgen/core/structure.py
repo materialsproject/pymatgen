@@ -2285,7 +2285,7 @@ class IStructure(SiteCollection, MSONable):
 
         outs.append("abc   : " + " ".join(to_str(i) for i in self.lattice.abc))
         outs.append("angles: " + " ".join(to_str(i) for i in self.lattice.angles))
-        outs.append("pbc   : " + " ".join(str(p) for p in self.lattice.pbc))
+        outs.append("pbc   : " + " ".join(str(p).rjust(10) for p in self.lattice.pbc))
         if self._charge:
             outs.append(f"Overall Charge: {self._charge:+}")
         outs.append(f"Sites ({len(self)})")

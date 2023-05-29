@@ -1347,8 +1347,8 @@ class StructureTest(PymatgenTest):
             assert len(getattr(trajectory, key)) == {"atoms": 2}.get(key, 1)
 
     def test_from_prototype(self):
-        for pt in ["bcc", "fcc", "hcp", "diamond"]:
-            struct = Structure.from_prototype(pt, ["C"], a=3, c=4)
+        for prototype in ["bcc", "fcc", "hcp", "diamond"]:
+            struct = Structure.from_prototype(prototype, ["C"], a=3, c=4)
             assert isinstance(struct, Structure)
 
         with pytest.raises(ValueError):
@@ -1372,8 +1372,8 @@ Sites (8)
   6  Cl    0.5  0.5  0
   7  Cl    0    0    0"""
         assert str(struct) == expected_struct_str
-        for pt in ("cscl", "fluorite", "antifluorite", "zincblende"):
-            struct = Structure.from_prototype(pt, ["Cs", "Cl"], a=5)
+        for prototype in ("cscl", "fluorite", "antifluorite", "zincblende"):
+            struct = Structure.from_prototype(prototype, ["Cs", "Cl"], a=5)
             assert struct.lattice.is_orthogonal
 
 
