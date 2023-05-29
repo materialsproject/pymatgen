@@ -2333,7 +2333,7 @@ class PDPlotter:
         plt=None,
     ):
         """
-        Shows the plot using pylab. Contains import statements since matplotlib is a
+        Shows the plot using pyplot. Contains import statements since matplotlib is a
         fairly extensive library to load.
         """
         if plt is None:
@@ -2524,7 +2524,7 @@ class PDPlotter:
 
     def _get_3d_plot(self, label_stable=True):
         """
-        Shows the plot using pylab. Usually I won"t do imports in methods,
+        Shows the plot using pyplot. Usually I won"t do imports in methods,
         but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
         """

@@ -599,7 +599,7 @@ class SurfaceEnergyPlotter:
                 of intersection. Defaults to 10 points.
 
         Returns:
-            (Pylab): Plot of area frac on the Wulff shape
+            (pyplot): Plot of area frac on the Wulff shape
                 for each facet vs chemical potential.
         """
         delu_dict = delu_dict or {}
@@ -1514,7 +1514,7 @@ class WorkFunctionAnalyzer:
             label_energies (bool): Whether to label relevant energy
                 quantities such as the work function, Fermi energy,
                 vacuum locpot, bulk-like locpot
-            plt (plt): Matplotlib pylab object
+            plt (plt): Matplotlib pyplot object
             label_fontsize (float): Fontsize of labels
 
         Returns plt of the locpot vs c axis
@@ -1881,7 +1881,7 @@ class NanoscaleStability:
             label (str): Label of the plot for legend
             increments (int): Number of plot points
             delu_default (float): Default value for all unset chemical potentials
-            plt (pylab): Plot
+            plt (pyplot): Plot
             from_sphere_area (bool): There are two ways to calculate the bulk
                 formation energy. Either by treating the volume and thus surface
                 area of the particle as a perfect sphere, or as a Wulff shape.
@@ -1942,7 +1942,7 @@ class NanoscaleStability:
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials
-            plt (pylab): Plot
+            plt (pyplot): Plot
             labels (list): List of labels for each plot, corresponds to the
                 list of se_analyzers
             from_sphere_area (bool): There are two ways to calculate the bulk

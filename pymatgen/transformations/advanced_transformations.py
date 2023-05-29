@@ -931,7 +931,6 @@ class MagOrderingTransformation(AbstractTransformation):
         m = StructureMatcher(comparator=SpinComparator())
 
         def key(struct: Structure) -> int:
-            print(f"{struct=}")
             struct.to(filename="LiMnO2.cif")
             return SpacegroupAnalyzer(struct, 0.1).get_space_group_number()
 
