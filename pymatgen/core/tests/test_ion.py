@@ -165,7 +165,7 @@ class IonTest(unittest.TestCase):
             other_z = random.randint(1, 92)
         comp2 = Ion(Composition({fixed_el: 1, Element.from_Z(other_z): 0}), 1)
         assert comp1 == comp2, f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
-        assert hash(comp1) == hash(comp2), "Hashcode equality test failed!"
+        assert hash(comp1) == hash(comp2), "Hash equality test failed!"
 
     def test_equality(self):
         assert self.comp[0] == (self.comp[0])

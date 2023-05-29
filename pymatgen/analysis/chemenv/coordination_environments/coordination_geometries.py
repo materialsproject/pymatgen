@@ -337,7 +337,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         Returns: a SeparationPlane algorithm.
         """
         eop = (
-            [np.array(eoperm) for eoperm in dd["explicit_optimized_permutations"]]
+            [np.array(eo_perm) for eo_perm in dd["explicit_optimized_permutations"]]
             if ("explicit_optimized_permutations" in dd and dd["explicit_optimized_permutations"] is not None)
             else None
         )
@@ -356,9 +356,9 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
     def __str__(self):
         out = "Separation plane algorithm with the following reference separation :\n"
-        out += f"[{'-'.join(str(pp) for pp in [self.point_groups[0]])}] | "
-        out += f"[{'-'.join(str(pp) for pp in [self.plane_points])}] | "
-        out += f"[{'-'.join(str(pp) for pp in [self.point_groups[1]])}]"
+        out += f"[{'-'.join(map(str, [self.point_groups[0]]))}] | "
+        out += f"[{'-'.join(map(str, [self.plane_points]))}] | "
+        out += f"[{'-'.join(map(str, [self.point_groups[1]]))}]"
         return out
 
 
@@ -451,11 +451,7 @@ class CoordinationGeometry:
             new_site_voronoi_indices2.remove(second_cap_voronoi_index)
             new_site_voronoi_indices3.remove(first_cap_voronoi_index)
             new_site_voronoi_indices3.remove(second_cap_voronoi_index)
-            return [
-                new_site_voronoi_indices1,
-                new_site_voronoi_indices2,
-                new_site_voronoi_indices3,
-            ]
+            return new_site_voronoi_indices1, new_site_voronoi_indices2, new_site_voronoi_indices3
 
         def triple_cap_hints(self, hints_info):
             """

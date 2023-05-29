@@ -45,10 +45,14 @@ class SymmOp(MSONable):
             affine_transformation_matrix (4x4 array): Representing an
                 affine transformation.
             tol (float): Tolerance for determining if matrices are equal.
+
+        Raises:
+            ValueError: if matrix is not 4x4.
         """
         affine_transformation_matrix = np.array(affine_transformation_matrix)
-        if affine_transformation_matrix.shape != (4, 4):
-            raise ValueError("Affine Matrix must be a 4x4 numpy array!")
+        shape = affine_transformation_matrix.shape
+        if shape != (4, 4):
+            raise ValueError(f"Affine Matrix must be a 4x4 numpy array, got {shape=}")
         self.affine_matrix = affine_transformation_matrix
         self.tol = tol
 

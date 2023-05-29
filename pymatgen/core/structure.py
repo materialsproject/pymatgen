@@ -2269,12 +2269,9 @@ class IStructure(SiteCollection, MSONable):
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]
         if self._charge:
-            if self._charge >= 0:
-                outs.append(f"Overall Charge: +{self._charge}")
-            else:
-                outs.append(f"Overall Charge: -{self._charge}")
-        for s in self:
-            outs.append(repr(s))
+            outs.append(f"Overall Charge: {self._charge:+}")
+        for site in self:
+            outs.append(repr(site))
         return "\n".join(outs)
 
     def __str__(self):
@@ -2283,24 +2280,21 @@ class IStructure(SiteCollection, MSONable):
             f"Reduced Formula: {self.composition.reduced_formula}",
         ]
 
-        def to_s(x):
-            return f"{x:0.6f}"
+        def to_str(x):
+            return f"{x:>10.6f}"
 
-        outs.append("abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc))
-        outs.append("angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles))
+        outs.append("abc   : " + " ".join(to_str(i) for i in self.lattice.abc))
+        outs.append("angles: " + " ".join(to_str(i) for i in self.lattice.angles))
         outs.append("pbc   : " + " ".join(str(p).rjust(10) for p in self.lattice.pbc))
         if self._charge:
-            if self._charge >= 0:
-                outs.append(f"Overall Charge: +{self._charge}")
-            else:
-                outs.append(f"Overall Charge: -{self._charge}")
+            outs.append(f"Overall Charge: {self._charge:+}")
         outs.append(f"Sites ({len(self)})")
         data = []
         props = self.site_properties
         keys = sorted(props)
         for i, site in enumerate(self):
             row = [str(i), site.species_string]
-            row.extend([to_s(j) for j in site.frac_coords])
+            row.extend([to_str(j) for j in site.frac_coords])
             for k in keys:
                 row.append(props[k][i])
             data.append(row)

@@ -42,7 +42,7 @@ class SymmetrizedStructure(Structure):
             wyckoff_letters (list[str]): Wyckoff letters
         """
         self.spacegroup = spacegroup
-        u, inv = np.unique(equivalent_positions, return_inverse=True)
+        uniq, inverse = np.unique(equivalent_positions, return_inverse=True)
         self.site_labels = equivalent_positions
 
         super().__init__(
@@ -52,17 +52,17 @@ class SymmetrizedStructure(Structure):
             site_properties=structure.site_properties,
         )
 
-        equivalent_indices = [[] for _ in range(len(u))]  # type: ignore
-        equivalent_sites = [[] for _ in range(len(u))]  # type: ignore
-        wyckoff_symbols = [[] for _ in range(len(u))]  # type: ignore
-        for i, inv_ in enumerate(inv):
-            equivalent_indices[inv_].append(i)
-            equivalent_sites[inv_].append(self.sites[i])
-            wyckoff_symbols[inv_].append(wyckoff_letters[i])
-        self.equivalent_indices: list[int] = equivalent_indices  # type: ignore
-        self.equivalent_sites: list[PeriodicSite] = equivalent_sites  # type: ignore
+        equivalent_indices: list[list[int]] = [[] for _ in range(len(uniq))]
+        equivalent_sites: list[list[PeriodicSite]] = [[] for _ in range(len(uniq))]
+        wyckoff_symbols: list[list[str]] = [[] for _ in range(len(uniq))]
+        for idx, inv_ in enumerate(inverse):
+            equivalent_indices[inv_].append(idx)
+            equivalent_sites[inv_].append(self.sites[idx])
+            wyckoff_symbols[inv_].append(wyckoff_letters[idx])
+        self.equivalent_indices = equivalent_indices
+        self.equivalent_sites = equivalent_sites
         self.wyckoff_letters = wyckoff_letters
-        self.wyckoff_symbols = [f"{len(w)}{w[0]}" for w in wyckoff_symbols]
+        self.wyckoff_symbols = [f"{len(symb)}{symb[0]}" for symb in wyckoff_symbols]
 
     def copy(self):
         """
@@ -106,15 +106,12 @@ class SymmetrizedStructure(Structure):
         ]
 
         def to_str(x):
-            return f"{x:0.6f}"
+            return f"{x:>10.6f}"
 
-        outs.append("abc   : " + " ".join(to_str(i).rjust(10) for i in self.lattice.abc))
-        outs.append("angles: " + " ".join(to_str(i).rjust(10) for i in self.lattice.angles))
+        outs.append(f"abc   : {' '.join(to_str(val) for val in self.lattice.abc)}")
+        outs.append(f"angles: {' '.join(to_str(val) for val in self.lattice.angles)}")
         if self._charge:
-            if self._charge >= 0:
-                outs.append(f"Overall Charge: +{self._charge}")
-            else:
-                outs.append(f"Overall Charge: -{self._charge}")
+            outs.append(f"Overall Charge: {self._charge:+}")
         outs.append(f"Sites ({len(self)})")
         data = []
         props = self.site_properties
@@ -127,12 +124,7 @@ class SymmetrizedStructure(Structure):
             for k in keys:
                 row.append(props[k][idx])
             data.append(row)
-        outs.append(
-            tabulate(
-                data,
-                headers=["#", "SP", "a", "b", "c", "Wyckoff", *keys],
-            )
-        )
+        outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c", "Wyckoff", *keys]))
         return "\n".join(outs)
 
     def as_dict(self):
@@ -148,14 +140,14 @@ class SymmetrizedStructure(Structure):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         :param d: Dict representation
         :return: SymmetrizedStructure
         """
         return cls(
-            Structure.from_dict(d["structure"]),
-            spacegroup=d["spacegroup"],
-            equivalent_positions=d["equivalent_positions"],
-            wyckoff_letters=d["wyckoff_letters"],
+            Structure.from_dict(dct["structure"]),
+            spacegroup=dct["spacegroup"],
+            equivalent_positions=dct["equivalent_positions"],
+            wyckoff_letters=dct["wyckoff_letters"],
         )

@@ -67,7 +67,7 @@ class SpacegroupAnalyzer:
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
-        self._siteprops = structure.site_properties
+        self._site_props = structure.site_properties
         unique_species: list[Element | Species] = []
         zs = []
         magmoms = []
@@ -336,7 +336,7 @@ class SpacegroupAnalyzer:
         species = [self._unique_species[i - 1] for i in numbers]
         if keep_site_properties:
             site_properties = {}
-            for k, v in self._siteprops.items():
+            for k, v in self._site_props.items():
                 site_properties[k] = [v[i - 1] for i in numbers]
         else:
             site_properties = None
@@ -365,7 +365,7 @@ class SpacegroupAnalyzer:
         species = [self._unique_species[i - 1] for i in numbers]
         if keep_site_properties:
             site_properties = {}
-            for k, v in self._siteprops.items():
+            for k, v in self._site_props.items():
                 site_properties[k] = [v[i - 1] for i in numbers]
         else:
             site_properties = None
