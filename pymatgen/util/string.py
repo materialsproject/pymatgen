@@ -150,12 +150,7 @@ def charge_string(charge, brackets=True, explicit_one=True):
         explicit_one: whether to include the number one for monovalent ions, e.g.
             +1 rather than +. Default: True
     """
-    if charge > 0:
-        chg_str = f"+{formula_double_format(charge, False)}"
-    elif charge < 0:
-        chg_str = f"-{formula_double_format(abs(charge), False)}"
-    else:
-        chg_str = "(aq)"
+    chg_str = "(aq)" if charge == 0 else f"{formula_double_format(charge, False):+}"
 
     if chg_str in ["+1", "-1"] and not explicit_one:
         chg_str = chg_str.replace("1", "")

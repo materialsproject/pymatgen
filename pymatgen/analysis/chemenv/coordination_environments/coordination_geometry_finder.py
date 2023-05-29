@@ -1031,16 +1031,16 @@ class LocalGeometryFinder:
             RR = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
         else:
             RR = random_rotation
-        newcoords = []
+        new_coords = []
         for cc in coords:
             newcc = np.dot(RR, cc).T
-            newcoords.append(newcc.ravel())
-        coords = newcoords
-        newcoords = []
+            new_coords.append(newcc.ravel())
+        coords = new_coords
+        new_coords = []
         for cc in neighb_coords:
             newcc = np.dot(RR, cc.T)
-            newcoords.append(newcc.ravel())
-        neighb_coords = newcoords
+            new_coords.append(newcc.ravel())
+        neighb_coords = new_coords
 
         # Translating the test environment
         if random_translation == "RANDOM":

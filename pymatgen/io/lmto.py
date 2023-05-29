@@ -378,19 +378,14 @@ class LMTOCopl:
 
             # This takes care of duplicate labels
             if label in cohp_data:
-                i = 1
-                lab = f"{label}-{i}"
+                idx = 1
+                lab = f"{label}-{idx}"
                 while lab in cohp_data:
-                    i += 1
-                    lab = f"{label}-{i}"
+                    idx += 1
+                    lab = f"{label}-{idx}"
                 label = lab
 
-            cohp_data[label] = {
-                "COHP": cohp,
-                "ICOHP": icohp,
-                "length": length,
-                "sites": sites,
-            }
+            cohp_data[label] = {"COHP": cohp, "ICOHP": icohp, "length": length, "sites": sites}
         self.cohp_data = cohp_data
 
     @staticmethod

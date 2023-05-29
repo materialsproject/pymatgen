@@ -2989,7 +2989,7 @@ class PDPlotter:
                     e_above_hull = round(self._pd.get_e_above_hull(entry), 3)
                     if e_above_hull > self.show_unstable:
                         continue
-                    label += f" (+{e_above_hull} eV/atom)"
+                    label += f" ({e_above_hull:+} eV/atom)"
                     energies.append(e_above_hull)
                 else:
                     uncertainty = 0

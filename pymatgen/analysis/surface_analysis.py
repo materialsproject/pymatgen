@@ -347,7 +347,7 @@ class SlabEntry(ComputedStructureEntry):
 
         if self.adsorbates:
             for ads in ads_strs:
-                label += f"+{ads}"
+                label += f"{ads:+}"
             label += f", {self.get_monolayer:.3f} ML"
         return label
 
