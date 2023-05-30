@@ -353,6 +353,10 @@ class DictSet(VaspInputSet):
         if validate_magmom:
             get_valid_magmom_struct(structure, spin_mode="auto", inplace=True)  # noqa: PD002
 
+        if user_potcar_functional == "PBE_54":
+            # when using 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
+            user_potcar_settings = {"W": "W_sv"}.update(user_potcar_settings or {})
+
         self._structure = structure
         self._config_dict = deepcopy(config_dict)
         self.files_to_transfer = files_to_transfer or {}
@@ -928,10 +932,6 @@ class MPScanRelaxSet(DictSet):
         user_potcar_functional = kwargs.setdefault("user_potcar_functional", "PBE_54")
         if user_potcar_functional not in ("PBE_52", "PBE_54"):
             raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
-
-        if user_potcar_functional == "PBE_54":
-            # if user sets 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
-            kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
 
         super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
         self.bandgap = bandgap
@@ -2347,10 +2347,6 @@ class MVLRelax52Set(DictSet):
         if user_potcar_functional not in ("PBE_52", "PBE_54"):
             raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
 
-        if user_potcar_functional == "PBE_54":
-            # if user sets 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
-            kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
-
         super().__init__(structure, MVLRelax52Set.CONFIG, **kwargs)
 
         self.kwargs = kwargs
@@ -2704,10 +2700,6 @@ class MVLScanRelaxSet(MPRelaxSet):
         if user_potcar_functional not in ("PBE_52", "PBE_54"):
             raise ValueError(f"Invalid {user_potcar_functional=}, SCAN calculations require PBE_52 or PBE_54")
 
-        if user_potcar_functional == "PBE_54":
-            # if user sets 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
-            kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
-
         super().__init__(structure, **kwargs)
 
         if self.potcar_functional not in ("PBE_52", "PBE_54"):
@@ -2774,10 +2766,6 @@ class LobsterSet(MPRelaxSet):
         user_potcar_functional = kwargs.setdefault("user_potcar_functional", "PBE_54")
         if user_potcar_functional not in ("PBE_52", "PBE_54"):
             raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
-
-        if user_potcar_functional == "PBE_54":
-            # if user sets 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
-            kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
 
         super().__init__(structure, **kwargs)
 
