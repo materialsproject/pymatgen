@@ -1,4 +1,47 @@
 {
+  "default_unary_layout": {
+    "autosize": true,
+    "width": 200,
+    "height": 500,
+    "xaxis": {
+      "range": [
+        -0.1,
+        0.1
+      ],
+      "visible": false,
+      "showgrid": false,
+      "zeroline": false
+    },
+    "yaxis": {
+      "title": "Formation energy (eV/atom)",
+      "anchor": "x",
+      "mirror": "ticks",
+      "showgrid": true,
+      "showline": true,
+      "side": "left",
+      "tickfont": {
+        "size": 16.0
+      },
+      "ticks": "inside",
+      "titlefont": {
+        "color": "#000000",
+        "size": 20.0
+      },
+      "type": "linear",
+      "gridcolor": "rgba(0,0,0,0.1)"
+    },
+    "hovermode": "closest",
+    "paper_bgcolor": "rgba(0,0,0,0)",
+    "plot_bgcolor": "rgba(0,0,0,0)",
+    "showlegend": false,
+    "margin": {
+      "b": 20,
+      "l": 10,
+      "pad": 20,
+      "t": 20,
+      "r": 10
+    }
+  },
   "default_binary_layout": {
     "autosize": true,
     "height": 700,
@@ -60,7 +103,7 @@
       "r": 10
     }
   },
-  "default_ternary_layout": {
+  "default_ternary_3d_layout": {
     "autosize": true,
     "height": 700,
     "hovermode": "closest",
@@ -231,7 +274,6 @@
       "#ffffff"
     ]
   ],
-
   "unstable_colorscale": [
     [
       0.0,
@@ -246,7 +288,6 @@
       "#ff0000"
     ]
   ],
-
   "stable_markers_colorscale": [
     [
       0.0,
