@@ -47,6 +47,7 @@ from copy import deepcopy
 from glob import glob
 from itertools import chain
 from pathlib import Path
+from typing import Any, Literal
 from zipfile import ZipFile
 
 import numpy as np
@@ -250,24 +251,25 @@ class DictSet(VaspInputSet):
 
     def __init__(
         self,
-        structure,
-        config_dict,
+        structure: Structure,
+        config_dict: dict[str, Any],
         files_to_transfer=None,
         user_incar_settings=None,
         user_kpoints_settings=None,
         user_potcar_settings=None,
-        constrain_total_magmom=False,
-        sort_structure=True,
-        potcar_functional=None,
-        user_potcar_functional=None,
-        force_gamma=False,
+        constrain_total_magmom: bool = False,
+        sort_structure: bool = True,
+        user_potcar_functional: Literal[
+            "PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"
+        ] = None,
+        force_gamma: bool = False,
         reduce_structure=None,
         vdw=None,
-        use_structure_charge=False,
-        standardize=False,
+        use_structure_charge: bool = False,
+        standardize: bool = False,
         sym_prec=0.1,
-        international_monoclinic=True,
-        validate_magmom=True,
+        international_monoclinic: bool = True,
+        validate_magmom: bool = True,
     ):
         """
         Args:
@@ -385,22 +387,8 @@ class DictSet(VaspInputSet):
                 raise KeyError(
                     f"Invalid or unsupported van-der-Waals functional. Supported functionals are {', '.join(vdw_par)}."
                 )
-        # read the POTCAR_FUNCTIONAL from the .yaml
-        self.potcar_functional = self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
-
-        if potcar_functional is not None and user_potcar_functional is not None:
-            raise ValueError(
-                "Received both 'potcar_functional' and 'user_potcar_functional arguments. "
-                "'potcar_functional is deprecated."
-            )
-        if potcar_functional:
-            warnings.warn(
-                "'potcar_functional' argument is deprecated. Use 'user_potcar_functional' instead.",
-                FutureWarning,
-            )
-            self.potcar_functional = potcar_functional
-        elif user_potcar_functional:
-            self.potcar_functional = user_potcar_functional
+        # 'or' case reads the POTCAR_FUNCTIONAL from the .yaml
+        self.potcar_functional = user_potcar_functional or self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
 
         # warn if a user is overriding POTCAR_FUNCTIONAL
         if self.potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL"):
