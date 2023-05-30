@@ -930,7 +930,7 @@ class MPScanRelaxSet(DictSet):
             raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
 
         if user_potcar_functional == "PBE_54":
-            # if user sets 5.4 VASP POTCARs, use default Tungsten to W_Sv but still allow user to override
+            # if user sets 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
             kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
 
         super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
@@ -2348,7 +2348,7 @@ class MVLRelax52Set(DictSet):
             raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
 
         if user_potcar_functional == "PBE_54":
-            # if user sets 5.4 VASP POTCARs, use default Tungsten to W_Sv but still allow user to override
+            # if user sets 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
             kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
 
         super().__init__(structure, MVLRelax52Set.CONFIG, **kwargs)
@@ -2705,7 +2705,7 @@ class MVLScanRelaxSet(MPRelaxSet):
             raise ValueError(f"Invalid {user_potcar_functional=}, SCAN calculations require PBE_52 or PBE_54")
 
         if user_potcar_functional == "PBE_54":
-            # if user sets 5.4 VASP POTCARs, use default Tungsten to W_Sv but still allow user to override
+            # if user sets 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
             kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
 
         super().__init__(structure, **kwargs)
@@ -2776,7 +2776,7 @@ class LobsterSet(MPRelaxSet):
             raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
 
         if user_potcar_functional == "PBE_54":
-            # if user sets 5.4 VASP POTCARs, use default Tungsten to W_Sv but still allow user to override
+            # if user sets 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
             kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
 
         super().__init__(structure, **kwargs)
