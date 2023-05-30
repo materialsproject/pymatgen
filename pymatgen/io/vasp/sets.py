@@ -206,10 +206,10 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         Returns:
             MSONable dict
         """
-        d = MSONable.as_dict(self)
+        dct = MSONable.as_dict(self)
         if verbosity == 1:
-            d.pop("structure", None)
-        return d
+            dct.pop("structure", None)
+        return dct
 
 
 def _load_yaml_config(fname):
@@ -626,7 +626,7 @@ class DictSet(VaspInputSet):
         ) and self.user_kpoints_settings == {}:
             return None
 
-        settings = self.user_kpoints_settings or self._config_dict.get("KPOINTS")
+        settings = self.user_kpoints_settings or self._config_dict.get("KPOINTS") or {}
 
         if isinstance(settings, Kpoints):
             return settings
@@ -924,12 +924,18 @@ class MPScanRelaxSet(DictSet):
             generalized Monkhorst-Pack grids through the use of informatics,
             Phys. Rev. B. 93 (2016) 1-10. doi:10.1103/PhysRevB.93.155109.
         """
+
+        user_potcar_functional = kwargs.setdefault("user_potcar_functional", "PBE_54")
+        if user_potcar_functional not in ("PBE_52", "PBE_54"):
+            raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
+
+        if user_potcar_functional == "PBE_54":
+            # if user sets 5.4 VASP POTCARs, use default Tungsten to W_Sv but still allow user to override
+            kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
+
         super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
         self.bandgap = bandgap
         self.kwargs = kwargs
-
-        if self.potcar_functional not in ["PBE_52", "PBE_54"]:
-            raise ValueError("SCAN calculations require PBE_52 or PBE_54!")
 
         # self.kwargs.get("user_incar_settings", {
         updates = {}
@@ -2295,15 +2301,7 @@ class MVLGBSet(MPRelaxSet):
         # The default incar setting is used for metallic system, for
         # insulator or semiconductor, ISMEAR need to be changed.
         incar.update(
-            {
-                "LCHARG": False,
-                "NELM": 60,
-                "PREC": "Normal",
-                "EDIFFG": -0.02,
-                "ICHARG": 0,
-                "NSW": 200,
-                "EDIFF": 0.0001,
-            }
+            {"LCHARG": False, "NELM": 60, "PREC": "Normal", "EDIFFG": -0.02, "ICHARG": 0, "NSW": 200, "EDIFF": 0.0001}
         )
 
         if self.is_metal:
@@ -2338,19 +2336,22 @@ class MVLRelax52Set(DictSet):
 
     CONFIG = _load_yaml_config("MVLRelax52Set")
 
-    def __init__(self, structure: Structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs) -> None:
         """
         Args:
             structure (Structure): input structure.
-            potcar_functional (str): choose from "PBE_52" and "PBE_54".
+            user_potcar_functional (str): choose from "PBE_52" and "PBE_54".
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
-        if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
-            super().__init__(structure, MVLRelax52Set.CONFIG, **kwargs)
-        else:
-            super().__init__(structure, MVLRelax52Set.CONFIG, user_potcar_functional="PBE_52", **kwargs)
-        if self.potcar_functional not in ["PBE_52", "PBE_54"]:
-            raise ValueError("Please select from PBE_52 and PBE_54!")
+        user_potcar_functional = kwargs.setdefault("user_potcar_functional", "PBE_52")
+        if user_potcar_functional not in ("PBE_52", "PBE_54"):
+            raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
+
+        if user_potcar_functional == "PBE_54":
+            # if user sets 5.4 VASP POTCARs, use default Tungsten to W_Sv but still allow user to override
+            kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
+
+        super().__init__(structure, MVLRelax52Set.CONFIG, **kwargs)
 
         self.kwargs = kwargs
 
@@ -2382,13 +2383,7 @@ class MITNEBSet(MITRelaxSet):
             self._config_dict["INCAR"]["EDIFF"] = self._config_dict["INCAR"].pop("EDIFF_PER_ATOM")
 
         # NEB specific defaults
-        defaults = {
-            "IMAGES": len(structures) - 2,
-            "IBRION": 1,
-            "ISYM": 0,
-            "LCHARG": False,
-            "LDAU": False,
-        }
+        defaults = {"IMAGES": len(structures) - 2, "IBRION": 1, "ISYM": 0, "LCHARG": False, "LDAU": False}
         self._config_dict["INCAR"].update(defaults)
 
     @property
@@ -2705,12 +2700,17 @@ class MVLScanRelaxSet(MPRelaxSet):
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
         # choose PBE_52 unless the user specifies something else
-        if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
-            super().__init__(structure, **kwargs)
-        else:
-            super().__init__(structure, user_potcar_functional="PBE_52", **kwargs)
+        user_potcar_functional = kwargs.setdefault("user_potcar_functional", "PBE_52")
+        if user_potcar_functional not in ("PBE_52", "PBE_54"):
+            raise ValueError(f"Invalid {user_potcar_functional=}, SCAN calculations require PBE_52 or PBE_54")
 
-        if self.potcar_functional not in ["PBE_52", "PBE_54"]:
+        if user_potcar_functional == "PBE_54":
+            # if user sets 5.4 VASP POTCARs, use default Tungsten to W_Sv but still allow user to override
+            kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
+
+        super().__init__(structure, **kwargs)
+
+        if self.potcar_functional not in ("PBE_52", "PBE_54"):
             raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
 
         updates = {
@@ -2744,7 +2744,6 @@ class LobsterSet(MPRelaxSet):
         reciprocal_density: int | None = None,
         address_basis_file: str | None = None,
         user_supplied_basis: dict | None = None,
-        user_potcar_settings: dict | None = None,
         **kwargs,
     ):
         """
@@ -2757,6 +2756,8 @@ class LobsterSet(MPRelaxSet):
                 e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}; if not supplied, a standard basis is used
             address_basis_file (str): address to a file similar to "BASIS_PBE_54_standaard.yaml"
                 in pymatgen.io.lobster.lobster_basis
+            user_potcar_settings (dict): dict including potcar settings for all elements in structure,
+                e.g. {"Fe": "Fe_pv", "O": "O"}; if not supplied, a standard basis is used.
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
         from pymatgen.io.lobster import Lobsterin
@@ -2770,10 +2771,15 @@ class LobsterSet(MPRelaxSet):
 
         # newest potcars are preferred
         # Choose PBE_54 unless the user specifies a different potcar_functional
-        if kwargs.get("potcar_functional") or kwargs.get("user_potcar_functional"):
-            super().__init__(structure, **kwargs)
-        else:
-            super().__init__(structure, user_potcar_functional="PBE_54", user_potcar_settings={"W": "W_sv"}, **kwargs)
+        user_potcar_functional = kwargs.setdefault("user_potcar_functional", "PBE_54")
+        if user_potcar_functional not in ("PBE_52", "PBE_54"):
+            raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
+
+        if user_potcar_functional == "PBE_54":
+            # if user sets 5.4 VASP POTCARs, use default Tungsten to W_Sv but still allow user to override
+            kwargs["user_potcar_settings"] = {"W": "W_sv"}.update(kwargs.get("user_potcar_settings", {}))
+
+        super().__init__(structure, **kwargs)
 
         # reciprocal density
         if self.user_kpoints_settings is not None:
