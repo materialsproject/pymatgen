@@ -313,9 +313,9 @@ class LammpsData(MSONable):
         latt = self.box.to_lattice()
         site_properties = {}
         if "q" in atoms:
-            site_properties["charge"] = atoms["q"].values
+            site_properties["charge"] = atoms["q"].to_numpy()
         if self.velocities is not None:
-            site_properties["velocities"] = self.velocities.values
+            site_properties["velocities"] = self.velocities.to_numpy()
         return Structure(
             latt,
             species,
@@ -605,7 +605,7 @@ class LammpsData(MSONable):
             species = masses.loc[type_ids, "element"]
             labels = masses.loc[type_ids, "label"]
             coords = atoms[["x", "y", "z"]]
-            m = Molecule(species.values, coords.values, site_properties={ff_label: labels.values})
+            m = Molecule(species.values, coords.values, site_properties={ff_label: labels.to_numpy()})
             charges = atoms.get("q")
             velocities = atoms[["vx", "vy", "vz"]] if "vx" in atoms.columns else None
             topologies = {}
@@ -870,7 +870,7 @@ class LammpsData(MSONable):
         for iat, q in charges.items():
             if isinstance(iat, str):
                 mass_iat = Element(iat).atomic_mass
-                iat = self.masses.loc[self.masses["mass"] == mass_iat].index.values[0]
+                iat = self.masses.loc[self.masses["mass"] == mass_iat].index[0]
             self.atoms.loc[self.atoms["type"] == iat, "q"] = q
 
 
@@ -1009,7 +1009,7 @@ class ForceField(MSONable):
 
     @staticmethod
     def _is_valid(df):
-        return not pd.isna(df).values.any()
+        return not pd.isna(df).to_numpy().any()
 
     def __init__(self, mass_info, nonbond_coeffs=None, topo_coeffs=None):
         """
