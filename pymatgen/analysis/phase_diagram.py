@@ -2115,20 +2115,21 @@ class PDPlotter:
         # note: palettable imports matplotlib
         from palettable.colorbrewer.qualitative import Set1_3
 
-        self._pd = phasediagram
-        self._dim = len(self._pd.elements)  # type: ignore
-        if self._dim > 4:
+        dim = len(phasediagram.elements)
+        if dim >= 5:
             raise ValueError("Only 1-4 components supported!")
+
+        self._pd = phasediagram
         self.show_unstable = show_unstable
         self.backend = backend
+        self.ternary_style = ternary_style
 
-        self.ternary_style = self.ternary_style
-        self.lines = uniquelines(self._pd.facets) if self._dim > 1 else [[self._pd.facets[0][0], self._pd.facets[0][0]]]
+        self.lines = uniquelines(self._pd.facets) if dim > 1 else [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self._min_energy = min(self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries)
+        self._dim = dim
 
-        colors = Set1_3.mpl_colors
         self.plotkwargs = plotkwargs or {
-            "markerfacecolor": colors[2],
+            "markerfacecolor": Set1_3.mpl_colors[2],
             "markersize": 10,
             "linewidth": 3,
         }
@@ -2165,19 +2166,20 @@ class PDPlotter:
         if self.backend == "plotly":
             data = [self._create_plotly_lines()]
 
-            if self._dim == 3:
-                data.append(self._create_plotly_ternary_support_lines())
-                data.append(self._create_plotly_ternary_hull())
+            if self._dim == 2 and label_uncertainties:
+                data.append(self._create_plotly_uncertainty_shading(stable_marker_plot))
+            elif self._dim == 3:
+                data.extend(self._create_plotly_fill())
+
+                if self.ternary_style == "3d":
+                    data.append(self._create_plotly_ternary_support_lines())
 
             stable_labels_plot = self._create_plotly_stable_labels(label_stable)
             stable_marker_plot, unstable_marker_plot = self._create_plotly_markers(label_uncertainties)
 
-            if self._dim == 2 and label_uncertainties:
-                data.append(self._create_plotly_uncertainty_shading(stable_marker_plot))
-
-            data.append(stable_labels_plot)
-            data.append(unstable_marker_plot)
-            data.append(stable_marker_plot)
+            # data.append(stable_labels_plot)
+            # data.append(unstable_marker_plot)
+            # data.append(stable_marker_plot)
 
             fig = go.Figure(data=data)
             fig.layout = self._create_plotly_figure_layout()
@@ -2540,7 +2542,7 @@ class PDPlotter:
             layout["annotations"] = annotations_list
         elif self._dim == 3 and self.ternary_style == "2d":
             layout = plotly_layouts["default_ternary_2d_layout"].copy()
-            layout["scene"].update({"annotations": annotations_list})
+            # layout["scene"].update({"annotations": annotations_list})
         elif self._dim == 3 and self.ternary_style == "3d":
             layout = plotly_layouts["default_ternary_3d_layout"].copy()
             layout["scene"].update({"annotations": annotations_list})
@@ -2552,7 +2554,7 @@ class PDPlotter:
 
     def _create_plotly_lines(self):
         """
-        Create Plotly scatter plots containing outlines of phase diagram facets.
+        Create Plotly scatter plots containing line traces of phase diagram facets.
 
         Returns:
             Either a go.Scatter (binary), go.Scatterternary (ternary_2d), or
@@ -2561,11 +2563,13 @@ class PDPlotter:
         line_plot = None
         x, y, z, energies = [], [], [], []
 
+        pd = self._pd
+
         if self._dim == 3 and self.ternary_style == "2d":
-            el_a, el_b, el_c = self._pd.elements
-            for line in uniquelines(self._pd.facets):
-                e0 = phasediagram.qhull_entries[line[0]]
-                e1 = phasediagram.qhull_entries[line[1]]
+            el_a, el_b, el_c = pd.elements
+            for line in uniquelines(pd.facets):
+                e0 = pd.qhull_entries[line[0]]
+                e1 = pd.qhull_entries[line[1]]
 
                 x += [e0.composition[el_a], e1.composition[el_a], None]
                 y += [e0.composition[el_b], e1.composition[el_b], None]
@@ -2607,6 +2611,78 @@ class PDPlotter:
             line_plot = go.Scatter3d(x=x, y=y, z=z, **plot_args)
 
         return line_plot
+
+    def _create_plotly_fill(self):
+        """
+        Creates shaded mesh traces for coloring the hull.
+
+        For tenrary_3d plots, the color shading is based on formation energy.
+
+        Returns:
+            go.Mesh3d plot
+        """
+        traces = []
+
+        pd = self._pd
+        if self._dim == 3 and self.ternary_style == "2d":
+            el_a, el_b, el_c = pd.elements
+
+            for _idx, facet in enumerate(pd.facets):
+                a = []
+                b = []
+                c = []
+
+                e0, e1, e2 = sorted(
+                    (pd.qhull_entries[facet[idx]] for idx in range(3)), key=lambda x: x.composition.reduced_formula
+                )
+                a = [e0.composition[el_a], e1.composition[el_a], e2.composition[el_a]]
+                b = [e0.composition[el_b], e1.composition[el_b], e2.composition[el_b]]
+                c = [e0.composition[el_c], e1.composition[el_c], e2.composition[el_c]]
+
+                name = f"{htmlify(e0.composition.reduced_formula)}–{htmlify(e1.composition.reduced_formula)}–{htmlify(e2.composition.reduced_formula)}"
+
+                traces += [
+                    go.Scatterternary(
+                        a=a,
+                        b=b,
+                        c=c,
+                        mode="lines",
+                        fill="toself",
+                        line={"width": 0},
+                        opacity=0.6,
+                        name=name,
+                        showlegend=False,
+                    )
+                ]
+
+        if self._dim == 3 and self.ternary_style == "3d":
+            facets = np.array(self._pd.facets)
+            coords = np.array(
+                [triangular_coord(c) for c in zip(self._pd.qhull_data[:-1, 0], self._pd.qhull_data[:-1, 1])]
+            )
+            energies = np.array([self._pd.get_form_energy_per_atom(e) for e in self._pd.qhull_entries])
+
+            traces.append(
+                go.Mesh3d(
+                    x=list(coords[:, 1]),
+                    y=list(coords[:, 0]),
+                    z=list(energies),
+                    i=list(facets[:, 1]),
+                    j=list(facets[:, 0]),
+                    k=list(facets[:, 2]),
+                    opacity=0.8,
+                    intensity=list(energies),
+                    colorscale=plotly_layouts["stable_colorscale"],
+                    colorbar={"title": "Formation energy<br>(eV/atom)", "x": 0.9, "len": 0.75},
+                    hoverinfo="none",
+                    lighting={"diffuse": 0.0, "ambient": 1.0},
+                    name="Convex Hull (shading)",
+                    flatshading=True,
+                    showlegend=True,
+                )
+            )
+
+        return traces
 
     def _create_plotly_stable_labels(self, label_stable=True):
         """
@@ -3029,35 +3105,6 @@ class PDPlotter:
             hoverinfo="none",
             line={"color": "rgba (0, 0, 0, 0.4)", "dash": "solid", "width": 1.0},
             showlegend=False,
-        )
-
-    def _create_plotly_ternary_hull(self):
-        """
-        Creates shaded mesh plot for coloring the ternary hull by formation energy.
-
-        Returns:
-            go.Mesh3d plot
-        """
-        facets = np.array(self._pd.facets)
-        coords = np.array([triangular_coord(c) for c in zip(self._pd.qhull_data[:-1, 0], self._pd.qhull_data[:-1, 1])])
-        energies = np.array([self._pd.get_form_energy_per_atom(e) for e in self._pd.qhull_entries])
-
-        return go.Mesh3d(
-            x=list(coords[:, 1]),
-            y=list(coords[:, 0]),
-            z=list(energies),
-            i=list(facets[:, 1]),
-            j=list(facets[:, 0]),
-            k=list(facets[:, 2]),
-            opacity=0.8,
-            intensity=list(energies),
-            colorscale=plotly_layouts["stable_colorscale"],
-            colorbar={"title": "Formation energy<br>(eV/atom)", "x": 0.9, "len": 0.75},
-            hoverinfo="none",
-            lighting={"diffuse": 0.0, "ambient": 1.0},
-            name="Convex Hull (shading)",
-            flatshading=True,
-            showlegend=True,
         )
 
     def _get_matplotlib_2d_plot(

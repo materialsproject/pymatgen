@@ -103,6 +103,32 @@
       "r": 10
     }
   },
+  "default_ternary_2d_layout": {
+    "ternary": {
+      "sum": 1,
+      "aaxis": {
+        "showgrid": true,
+        "ticks": "",
+        "showticklabels": false,
+        "layer": "below traces"
+      },
+      "baxis": {
+        "min": 0,
+        "showgrid": true,
+        "ticks": "",
+        "showticklabels": false,
+        "layer": "below traces"
+      },
+      "caxis": {
+        "min": 0,
+        "showgrid": true,
+        "ticks": "",
+        "showticklabels": false,
+        "layer": "below traces"
+      }
+    },
+    "showlegend": true
+  },
   "default_ternary_3d_layout": {
     "autosize": true,
     "height": 700,
