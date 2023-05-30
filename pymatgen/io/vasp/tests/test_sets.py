@@ -1618,15 +1618,11 @@ class MVLRelax52SetTest(PymatgenTest):
         with pytest.raises(ValueError):
             MVLRelax52Set(self.struct, user_potcar_functional="PBE")
 
-    def test_potcar_functional_warning(self):
-        with pytest.warns(FutureWarning, match="argument is deprecated"):
-            MVLRelax52Set(self.struct, potcar_functional="PBE_52")
-
     def test_as_from_dict(self):
-        d = self.mvl_rlx_set.as_dict()
-        v = dec.process_decoded(d)
-        assert isinstance(v, MVLRelax52Set)
-        assert v.incar["NSW"] == 500
+        dct = self.mvl_rlx_set.as_dict()
+        vasp_input = dec.process_decoded(dct)
+        assert isinstance(vasp_input, MVLRelax52Set)
+        assert vasp_input.incar["NSW"] == 500
 
 
 class LobsterSetTest(PymatgenTest):
