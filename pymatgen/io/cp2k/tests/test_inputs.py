@@ -100,11 +100,11 @@ class BasisAndPotentialTest(PymatgenTest):
 
     def test_basis(self):
         # Ensure cp2k formatted string can be read for data correctly
-        molopt = GaussianTypeOrbitalBasisSet.from_string(basis)
-        assert molopt.nexp == [7]
+        mol_opt = GaussianTypeOrbitalBasisSet.from_string(basis)
+        assert mol_opt.nexp == [7]
         # Basis file can read from strings
         bf = BasisFile.from_string(basis)
-        for obj in [molopt, bf.objects[0]]:
+        for obj in [mol_opt, bf.objects[0]]:
             self.assert_all_close(
                 obj.exponents[0],
                 [
@@ -119,12 +119,12 @@ class BasisAndPotentialTest(PymatgenTest):
             )
 
         # Ensure keyword can be properly generated
-        kw = molopt.get_keyword()
-        assert kw.values[0] == "SZV-MOLOPT-GTH"
-        molopt.info.admm = True
-        kw = molopt.get_keyword()
+        kw = mol_opt.get_keyword()
+        assert kw.values[0] == "SZV-MOLOPT-GTH"  # noqa: PD011
+        mol_opt.info.admm = True
+        kw = mol_opt.get_keyword()
         assert_array_equal(kw.values, ["AUX_FIT", "SZV-MOLOPT-GTH"])
-        molopt.info.admm = False
+        mol_opt.info.admm = False
 
     def test_potentials(self):
         # Ensure cp2k formatted string can be read for data correctly
@@ -142,9 +142,9 @@ class BasisAndPotentialTest(PymatgenTest):
 
         # Ensure keyword can be properly generated
         kw = pot.get_keyword()
-        assert kw.values[0] == "GTH-PBE-q1"
+        assert kw.values[0] == "GTH-PBE-q1"  # noqa: PD011
         kw = all.get_keyword()
-        assert kw.values[0] == "ALL"
+        assert kw.values[0] == "ALL"  # noqa: PD011
 
 
 class InputTest(PymatgenTest):
@@ -177,9 +177,9 @@ class InputTest(PymatgenTest):
 
     def test_basic_keywords(self):
         kwd = Keyword("TEST1", 1, 2)
-        assert kwd.values == (1, 2)
+        assert kwd.values == (1, 2)  # noqa: PD011
         kwd = Keyword("TEST2", [1, 2, 3])
-        assert kwd.values == ([1, 2, 3],)
+        assert kwd.values == ([1, 2, 3],)  # noqa: PD011
         kwd = Keyword("TEST3", "xyz", description="testing", units="Ha")
         assert kwd.description == "testing"
         assert "[Ha]" in kwd.get_string()
@@ -197,9 +197,9 @@ class InputTest(PymatgenTest):
 
     def test_ci_file(self):
         # proper type retrieval
-        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["NGRIDS"].values[0], int)
-        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["UKS"].values[0], bool)
-        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float)
+        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["NGRIDS"].values[0], int)  # noqa: PD011
+        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["UKS"].values[0], bool)  # noqa: PD011
+        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float)  # noqa: PD011
 
         # description retrieval
         assert self.ci["FORCE_EVAL"]["SUBSYS"]["CELL"].description == "Input parameters needed to set up the CELL."
