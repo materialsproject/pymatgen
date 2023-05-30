@@ -68,7 +68,6 @@ ignore = [
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
   "D415",    # First line should end with a period, question mark, or exclamation point
-  "PD011",   # pandas-use-of-dot-values
   "PD901",   # pandas-df-variable-name
   "PLC0414", # useless-import-alias
   "PLC1901", # compare-to-empty-string
