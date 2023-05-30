@@ -1332,7 +1332,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             adjustments.append(
                 ConstantEnergyAdjustment(
                     (self.fit_h2_energy - self.h2_energy) * comp.num_atoms,
-                    uncertainty=np.nan,
+                    uncertainty=None,
                     name="MP Aqueous H2 / H2O referencing",
                     cls=self.as_dict(),
                     description="Adjusts the H2 energy to reproduce the experimental "
@@ -1349,7 +1349,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                     -self.cpd_entropies[rform] / 298,
                     298,
                     comp.num_atoms,
-                    uncertainty_per_deg=np.nan,
+                    uncertainty_per_deg=None,
                     name="Compound entropy at room temperature",
                     cls=self.as_dict(),
                     description="Adds the entropy (T delta S) to energies of compounds that "
@@ -1387,7 +1387,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                     CompositionEnergyAdjustment(
                         hydrate_adjustment,
                         nH2O,
-                        uncertainty_per_atom=np.nan,
+                        uncertainty_per_atom=None,
                         name="MP Aqueous hydrate",
                         cls=self.as_dict(),
                         description="Adjust the energy of solid hydrate compounds (compounds "
