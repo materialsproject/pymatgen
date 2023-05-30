@@ -3261,6 +3261,204 @@ class PDPlotter:
             showlegend=True,
         )
 
+    def create_plotly_ternary_2d(phasediagram, show_unstable=0.2, fill=True):
+        """Create a two-dimensional ternary phase diagram.
+
+        :param phasediagram: PhaseDiagram
+        :param show_unstable: cut-off for unstable entries
+        :param fill: whether to fill colors
+        :return:
+        """
+        el_a, el_b, el_c = phasediagram.elements
+        traces = []
+
+        def create_fill_traces(pd):
+            fill_traces = []
+
+            for _idx, facet in enumerate(pd.facets):
+                a = []
+                b = []
+                c = []
+
+                e0, e1, e2 = (
+                    pd.qhull_entries[facet[0]],
+                    pd.qhull_entries[facet[1]],
+                    pd.qhull_entries[facet[2]],
+                )
+                a = [e0.composition[el_a], e1.composition[el_a], e2.composition[el_a]]
+                b = [e0.composition[el_b], e1.composition[el_b], e2.composition[el_b]]
+                c = [e0.composition[el_c], e1.composition[el_c], e2.composition[el_c]]
+
+                name = f"{htmlify(e0.composition.reduced_formula)}–{htmlify(e1.composition.reduced_formula)}–{htmlify(e2.composition.reduced_formula)} facet"
+
+                fill_traces += [
+                    go.Scatterternary(
+                        a=a,
+                        b=b,
+                        c=c,
+                        mode="lines",
+                        fill="toself",
+                        line={"width": 0},
+                        opacity=0.7,
+                        name=name,
+                        showlegend=False,
+                    )
+                ]
+
+            return fill_traces
+
+        def create_unstable_points_traces(pd):
+            a = []
+            b = []
+            c = []
+            text = []
+            color = []
+
+            for entry in pd.all_entries:
+                hull = pd.get_e_above_hull(entry)
+
+                if hull <= show_unstable:
+                    energy = round(pd.get_form_energy_per_atom(entry), 3)
+
+                    entry_id = getattr(entry, "entry_id", "no ID")
+                    formula = entry.composition.reduced_formula
+                    label = f"{htmlify(formula)} ({entry_id}) <br> Formation energy: {energy} eV/atom <br> Energy above hull: {hull} eV/atom"
+
+                    a.append(entry.composition[el_a])
+                    b.append(entry.composition[el_b])
+                    c.append(entry.composition[el_c])
+
+                    text.append(label)
+                    color.append(hull)
+
+            return go.Scatterternary(
+                {
+                    "mode": "markers",
+                    "a": a,
+                    "b": b,
+                    "c": c,
+                    "text": text,
+                    "marker": {
+                        "color": color,
+                        "colorscale": plotly_layouts["unstable_colorscale"],
+                        "size": 6,
+                        "line": {"width": 1},
+                        "symbol": "diamond",
+                        "colorbar": {
+                            "title": "Energy Above Hull<br>(eV/atom)",
+                            "x": 0.05,
+                            "len": 0.5,
+                        },
+                    },
+                    "cliponaxis": False,
+                    "name": "Unstable Materials",
+                }
+            )
+
+        def create_stable_points_traces(pd):
+            a = []
+            b = []
+            c = []
+            text = []
+
+            for entry in phasediagram.all_entries:
+                hull = phasediagram.get_e_above_hull(entry)
+
+                if hull == 0:
+                    energy = round(phasediagram.get_form_energy_per_atom(entry), 3)
+
+                    entry_id = getattr(entry, "entry_id", "no ID")
+                    formula = entry.composition.reduced_formula
+                    label = f"{htmlify(formula)} ({entry_id}) <br> Formation energy: {energy} eV/atom <br> Energy above hull: {hull} eV/atom"
+
+                    a.append(entry.composition[el_a])
+                    b.append(entry.composition[el_b])
+                    c.append(entry.composition[el_c])
+
+                    text.append(label)
+
+            return go.Scatterternary(
+                {
+                    "mode": "markers",
+                    "a": a,
+                    "b": b,
+                    "c": c,
+                    "text": text,
+                    "marker": {
+                        "color": "green",
+                        "size": 10,
+                        "line": {"width": 2},
+                    },
+                    "cliponaxis": False,
+                    "name": "Stable Materials",
+                }
+            )
+
+        def create_lines_trace(pd):
+            a_lines = []
+            b_lines = []
+            c_lines = []
+
+            for line in uniquelines(pd.facets):
+                e0 = phasediagram.qhull_entries[line[0]]
+                e1 = phasediagram.qhull_entries[line[1]]
+
+                # None introduces a line break
+                a_lines += [e0.composition[el_a], e1.composition[el_a], None]
+                b_lines += [e0.composition[el_b], e1.composition[el_b], None]
+                c_lines += [e0.composition[el_c], e1.composition[el_c], None]
+
+            return go.Scatterternary(
+                {
+                    "mode": "lines",
+                    "a": a_lines,
+                    "b": b_lines,
+                    "c": c_lines,
+                    "line": {"width": 1, "color": "black"},
+                    "showlegend": False,
+                }
+            )
+
+        if fill:
+            traces += create_fill_traces(phasediagram)
+        traces.append(create_lines_trace(phasediagram))
+        traces.append(create_unstable_points_traces(phasediagram))
+        traces.append(create_stable_points_traces(phasediagram))
+
+        layout = go.Layout(
+            {
+                "ternary": {
+                    "sum": 1,
+                    "aaxis": {
+                        "title": {"text": str(el_a), "font": {"size": 20}},
+                        "showgrid": True,
+                        "ticks": "",
+                        "showticklabels": False,
+                        "layer": "below traces",
+                    },
+                    "baxis": {
+                        "title": {"text": str(el_b), "font": {"size": 20}},
+                        "min": 0,
+                        "showgrid": True,
+                        "ticks": "",
+                        "showticklabels": False,
+                        "layer": "below traces",
+                    },
+                    "caxis": {
+                        "title": {"text": str(el_c), "font": {"size": 20}},
+                        "min": 0,
+                        "showgrid": True,
+                        "ticks": "",
+                        "showticklabels": False,
+                        "layer": "below traces",
+                    },
+                },
+                "showlegend": True,
+            }
+        )
+
+        return go.Figure(data=traces, layout=layout)
+
 
 def uniquelines(q):
     """
