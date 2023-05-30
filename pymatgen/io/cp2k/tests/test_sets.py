@@ -118,7 +118,7 @@ class SetTest(PymatgenTest):
 
         ss = DftSet(molecule, basis_and_potential=basis_and_potential, xc_functionals="PBE")
         assert ss.check("force_eval/dft/poisson")
-        assert ss["force_eval"]["dft"]["poisson"].get("periodic").values()[0].upper() == "NONE"
+        assert ss["force_eval"]["dft"]["poisson"].get("periodic").values[0].upper() == "NONE"  # noqa: PD011
 
 
 if __name__ == "__main__":
