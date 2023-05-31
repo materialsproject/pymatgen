@@ -362,9 +362,9 @@ class DictSet(VaspInputSet):
         if validate_magmom:
             get_valid_magmom_struct(structure, spin_mode="auto")
 
-        if user_potcar_functional == "PBE_54":
+        if user_potcar_functional == "PBE_54" and "W" in structure.symbol_set:
             # when using 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
-            user_potcar_settings = {"W": "W_sv"}.update(user_potcar_settings or {})
+            user_potcar_settings = {"W": "W_sv", **(user_potcar_settings or {})}
 
         self._structure = structure
         self._config_dict = deepcopy(config_dict)

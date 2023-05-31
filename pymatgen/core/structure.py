@@ -273,9 +273,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     def group_by_types(self) -> Iterator[Site | PeriodicSite]:
         """Iterate over species grouped by type"""
-        for t in self.types_of_species:
+        for sp_typ in self.types_of_species:
             for site in self:
-                if site.specie == t:
+                if site.specie == sp_typ:
                     yield site
 
     def indices_from_symbol(self, symbol: str) -> tuple[int, ...]:
