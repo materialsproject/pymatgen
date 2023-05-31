@@ -47,7 +47,7 @@ from copy import deepcopy
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Sequence
 from zipfile import ZipFile
 
 import numpy as np
@@ -65,6 +65,10 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 MODULE_DIR = Path(__file__).resolve().parent
+# TODO (janosh): replace with following line once PMG is py3.9+ only
+# which guarantees absolute path to __file__
+# reason: faster and shorter than pathlib (slow import and less OOP overhead)
+# MODULE_DIR = os.path.dirname(__file__)
 
 
 class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
@@ -73,6 +77,8 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
     supplied as init parameters. Typically, you should not inherit from this
     class. Start from DictSet or MPRelaxSet or MITRelaxSet.
     """
+
+    _valid_potcars: Sequence[str] | None = None
 
     @property
     @abc.abstractmethod
@@ -175,12 +181,12 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                     with zopen(os.path.join(output_dir, key), "wt") as file:
                         file.write(str(val))
         else:
-            vinput = self.get_vasp_input()
-            vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
+            vasp_input = self.get_vasp_input()
+            vasp_input.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
 
         cif_name = ""
         if include_cif:
-            s = vinput["POSCAR"].structure
+            s = vasp_input["POSCAR"].structure
             cif_name = f"{output_dir}/{s.formula.replace(' ', '')}.cif"
             s.to(filename=cif_name)
 
@@ -337,6 +343,9 @@ class DictSet(VaspInputSet):
             validate_magmom (bool): Ensure that the missing magmom values are filled
                 in with the VASP default value of 1.0
         """
+        if (valid_potcars := self._valid_potcars) and user_potcar_functional not in valid_potcars:
+            raise ValueError(f"Invalid {user_potcar_functional=}, must be one of {valid_potcars}")
+
         struct_has_Yb = any(specie.symbol == "Yb" for site in structure for specie in site.species)
         uses_Yb_2_psp = self.CONFIG["POTCAR"]["Yb"] == "Yb_2"
         if struct_has_Yb and uses_Yb_2_psp:
@@ -351,7 +360,7 @@ class DictSet(VaspInputSet):
         if sort_structure:
             structure = structure.get_sorted_structure()
         if validate_magmom:
-            get_valid_magmom_struct(structure, spin_mode="auto", inplace=True)  # noqa: PD002
+            get_valid_magmom_struct(structure, spin_mode="auto")
 
         if user_potcar_functional == "PBE_54":
             # when using 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
@@ -600,15 +609,15 @@ class DictSet(VaspInputSet):
         """
         Gets the default number of electrons for a given structure.
         """
-        nelectrons_by_element = {p.element: p.nelectrons for p in self.potcar}
-        nelect = sum(
-            num_atoms * nelectrons_by_element[str(el)]
+        n_electrons_by_element = {p.element: p.nelectrons for p in self.potcar}
+        n_elect = sum(
+            num_atoms * n_electrons_by_element[str(el)]
             for el, num_atoms in self.structure.composition.element_composition.items()
         )
 
         if self.use_structure_charge:
-            return nelect - self.structure.charge
-        return nelect
+            return n_elect - self.structure.charge
+        return n_elect
 
     @property
     def kpoints(self) -> Kpoints | None:
@@ -742,7 +751,6 @@ class DictSet(VaspInputSet):
 
         _RYTOEV = 13.605826
         _AUTOA = 0.529177249
-        _PI = 3.141592653589793238
 
         # TODO Only do this for VASP 6 for now. Older version require more advanced logic
 
@@ -753,7 +761,7 @@ class DictSet(VaspInputSet):
             encut = max(i_species.enmax for i_species in self.get_vasp_input()["POTCAR"])
 
         _CUTOF = [
-            np.sqrt(encut / _RYTOEV) / (2 * _PI / (anorm / _AUTOA)) for anorm in self.poscar.structure.lattice.abc
+            np.sqrt(encut / _RYTOEV) / (2 * np.pi / (anorm / _AUTOA)) for anorm in self.poscar.structure.lattice.abc
         ]
 
         _PREC = "Normal"  # VASP default
@@ -898,6 +906,7 @@ class MPScanRelaxSet(DictSet):
     """
 
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
+    _valid_potcars = ("PBE_52", "PBE_54")
 
     def __init__(self, structure: Structure, bandgap=0, **kwargs):
         """
@@ -929,9 +938,7 @@ class MPScanRelaxSet(DictSet):
             Phys. Rev. B. 93 (2016) 1-10. doi:10.1103/PhysRevB.93.155109.
         """
 
-        user_potcar_functional = kwargs.setdefault("user_potcar_functional", "PBE_54")
-        if user_potcar_functional not in ("PBE_52", "PBE_54"):
-            raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
+        kwargs.setdefault("user_potcar_functional", "PBE_54")
 
         super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
         self.bandgap = bandgap
@@ -2335,6 +2342,7 @@ class MVLRelax52Set(DictSet):
     """
 
     CONFIG = _load_yaml_config("MVLRelax52Set")
+    _valid_potcars = ("PBE_52", "PBE_54")
 
     def __init__(self, structure: Structure, **kwargs) -> None:
         """
@@ -2343,9 +2351,7 @@ class MVLRelax52Set(DictSet):
             user_potcar_functional (str): choose from "PBE_52" and "PBE_54".
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
-        user_potcar_functional = kwargs.setdefault("user_potcar_functional", "PBE_52")
-        if user_potcar_functional not in ("PBE_52", "PBE_54"):
-            raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
+        kwargs.setdefault("user_potcar_functional", "PBE_52")
 
         super().__init__(structure, MVLRelax52Set.CONFIG, **kwargs)
 
@@ -2686,6 +2692,8 @@ class MVLScanRelaxSet(MPRelaxSet):
             kinetic energy density (partial)
     """
 
+    _valid_potcars = ("PBE_52", "PBE_54")
+
     def __init__(self, structure: Structure, **kwargs):
         """
         Args:
@@ -2696,9 +2704,7 @@ class MVLScanRelaxSet(MPRelaxSet):
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
         # choose PBE_52 unless the user specifies something else
-        user_potcar_functional = kwargs.setdefault("user_potcar_functional", "PBE_52")
-        if user_potcar_functional not in ("PBE_52", "PBE_54"):
-            raise ValueError(f"Invalid {user_potcar_functional=}, SCAN calculations require PBE_52 or PBE_54")
+        kwargs.setdefault("user_potcar_functional", "PBE_52")
 
         super().__init__(structure, **kwargs)
 
@@ -2727,6 +2733,7 @@ class LobsterSet(MPRelaxSet):
     """
 
     CONFIG = _load_yaml_config("MPRelaxSet")
+    _valid_potcars = ("PBE_52", "PBE_54")
 
     def __init__(
         self,
@@ -2763,9 +2770,7 @@ class LobsterSet(MPRelaxSet):
 
         # newest potcars are preferred
         # Choose PBE_54 unless the user specifies a different potcar_functional
-        user_potcar_functional = kwargs.setdefault("user_potcar_functional", "PBE_54")
-        if user_potcar_functional not in ("PBE_52", "PBE_54"):
-            raise ValueError(f"Invalid {user_potcar_functional=}, must be PBE_52 or PBE_54")
+        kwargs.setdefault("user_potcar_functional", "PBE_54")
 
         super().__init__(structure, **kwargs)
 
