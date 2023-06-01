@@ -346,15 +346,6 @@ class DictSet(VaspInputSet):
         if (valid_potcars := self._valid_potcars) and user_potcar_functional not in valid_potcars:
             raise ValueError(f"Invalid {user_potcar_functional=}, must be one of {valid_potcars}")
 
-        struct_has_Yb = any(specie.symbol == "Yb" for site in structure for specie in site.species)
-        uses_Yb_2_psp = self.CONFIG["POTCAR"]["Yb"] == "Yb_2"
-        if struct_has_Yb and uses_Yb_2_psp:
-            warnings.warn(
-                "The structure contains Ytterbium (Yb) and this InputSet uses the Yb_2 PSP.\n"
-                "Yb_2 is known to often give bad results since Yb has oxidation state 3+ in most compounds.\n"
-                "See https://github.com/materialsproject/pymatgen/issues/2968 for details.",
-                BadInputSetWarning,
-            )
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
@@ -365,6 +356,19 @@ class DictSet(VaspInputSet):
         if user_potcar_functional == "PBE_54" and "W" in structure.symbol_set:
             # when using 5.4 POTCARs, default Tungsten POTCAR to W_Sv but still allow user to override
             user_potcar_settings = {"W": "W_sv", **(user_potcar_settings or {})}
+
+        struct_has_Yb = any(specie.symbol == "Yb" for site in structure for specie in site.species)
+        potcar_settings = config_dict.get("POTCAR", {})
+        if user_potcar_settings:
+            potcar_settings.update(user_potcar_settings)
+        uses_Yb_2_psp = potcar_settings.get("Yb", None) == "Yb_2"
+        if struct_has_Yb and uses_Yb_2_psp:
+            warnings.warn(
+                "The structure contains Ytterbium (Yb) and this InputSet uses the Yb_2 PSP.\n"
+                "Yb_2 is known to often give bad results since Yb has oxidation state 3+ in most compounds.\n"
+                "See https://github.com/materialsproject/pymatgen/issues/2968 for details.",
+                BadInputSetWarning,
+            )
 
         self._structure = structure
         self._config_dict = deepcopy(config_dict)
@@ -404,7 +408,7 @@ class DictSet(VaspInputSet):
         self.potcar_functional = user_potcar_functional or self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
 
         # warn if a user is overriding POTCAR_FUNCTIONAL
-        if self.potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL"):
+        if self.potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL", "PBE"):
             warnings.warn(
                 "Overriding the POTCAR functional is generally not recommended "
                 " as it significantly affect the results of calculations and "
