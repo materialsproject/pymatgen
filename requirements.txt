@@ -10,7 +10,7 @@ palettable==3.3.0
 spglib==2.0.2
 pandas==2.0.1
 networkx==2.8.8
-plotly==5.11.0
+plotly==5.14.1
 beautifulsoup4==4.12.2
 uncertainties==3.1.7
 Cython==0.29.32
