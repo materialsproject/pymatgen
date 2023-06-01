@@ -96,10 +96,10 @@
       "tracegroupgap": 7
     },
     "margin": {
-      "b": 20,
+      "b": 10,
       "l": 10,
-      "pad": 20,
-      "t": 20,
+      "pad": 0,
+      "t": 0,
       "r": 10
     }
   },
@@ -108,10 +108,10 @@
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
     "margin": {
-      "b": 50,
-      "l": 30,
-      "t": 50,
-      "r": 30
+      "b": 40,
+      "l": 20,
+      "t": 40,
+      "r": 20
     },
     "ternary": {
       "sum": 1,
@@ -149,16 +149,15 @@
   },
   "default_ternary_3d_layout": {
     "autosize": true,
-    "height": 700,
     "hovermode": "closest",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
     "margin": {
       "b": 10,
-      "l": 0,
+      "l": 5,
       "pad": 0,
-      "t": 0,
-      "r": 0
+      "t": 10,
+      "r": 5
     },
     "showlegend": true,
     "legend": {
@@ -307,11 +306,11 @@
   "stable_colorscale": [
     [
       0.0,
-      "#084a01"
+      "#0d7002"
     ],
     [
       0.5,
-      "#8ed687"
+      "#c1ffba"
     ],
     [
       1.0,

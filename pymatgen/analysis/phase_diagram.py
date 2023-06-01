@@ -1288,6 +1288,38 @@ class PhaseDiagram(MSONable):
         res[open_elt] = (min_open, max_open)
         return res
 
+    def get_plot(
+        self,
+        show_unstable: bool = True,
+        backend: Literal["plotly", "matplotlib"] = "plotly",
+        ternary_style: Literal["2d", "3d"] = "2d",
+        label_stable: bool = True,
+        label_unstable: bool = True,
+        ordering=None,
+        energy_colormap: bool = None,
+        process_attributes: bool = False,
+        plt=None,
+        label_uncertainties: bool = False,
+        fill: bool = True,
+        **plotkwargs,
+    ) -> Union[go.Figure, plt.Figure]:
+        """
+        Wrapper for PDPlotter. Initializes a PDPlotter object with provided
+        arguments and calls get_plot(). See PDPlotter for more details.
+        """
+        plotter = PDPlotter(self, show_unstable=show_unstable, backend=backend, ternary_style=ternary_style)
+        return plotter.get_plot(
+            label_stable=label_stable,
+            label_unstable=label_unstable,
+            ordering=ordering,
+            energy_colormap=energy_colormap,
+            process_attributes=process_attributes,
+            plt=plt,
+            label_uncertainties=label_uncertainties,
+            fill=fill,
+            **plotkwargs,
+        )
+
 
 class GrandPotentialPhaseDiagram(PhaseDiagram):
     """
@@ -2104,17 +2136,15 @@ class PDPlotter:
                 two-dimensions (2d), but can be plotted in three dimensions (3d) to visualize
                 the depth of the hull. This argument only applies when backend="plotly".
                 Defaults to "2d".
-            **plotkwargs (dict): Keyword args passed to matplotlib.pyplot.plot. Can
-                be used to customize markers etc. If not set, the default is
-                {
-                    "markerfacecolor": (0.2157, 0.4941, 0.7216),
-                    "markersize": 10,
-                    "linewidth": 3
-                }
+            **plotkwargs (dict): Keyword args passed to matplotlib.pyplot.plot (only
+                applies when backend="matplotlib"). Can be used to customize markers
+                etc. If not set, the default is:
+                    {
+                        "markerfacecolor": (0.2157, 0.4941, 0.7216),
+                        "markersize": 10,
+                        "linewidth": 3
+                    }
         """
-        # note: palettable imports matplotlib
-        from palettable.colorbrewer.qualitative import Set1_3
-
         dim = len(phasediagram.elements)
         if dim >= 5:
             raise ValueError("Only 1-4 components supported!")
@@ -2129,7 +2159,7 @@ class PDPlotter:
         self._dim = dim
 
         self.plotkwargs = plotkwargs or {
-            "markerfacecolor": Set1_3.mpl_colors[2],
+            "markerfacecolor": "#4daf4a",
             "markersize": 10,
             "linewidth": 3,
         }
@@ -2143,7 +2173,7 @@ class PDPlotter:
         process_attributes: bool = False,
         plt=None,
         label_uncertainties: bool = False,
-        fill=True,
+        fill: bool = True,
     ) -> Union[go.Figure, plt.Figure]:
         """
         Args:
@@ -2158,6 +2188,9 @@ class PDPlotter:
             label_uncertainties: Whether to add error bars to the hull (plotly
                 backend only). For binaries, this also shades the hull with the
                 uncertainty window.
+            fill: Whether to shade the hull. For ternary_2d and quaternary plots, this
+                colors facets arbitrarily for visual clarity. For ternary_3d plots, this
+                shades the hull by formation energy (plotly backend only).
 
         Returns:
             go.Figure (backend="plotly") or matplotlib.pyplot (backend="matplotlib")
@@ -2684,7 +2717,19 @@ class PDPlotter:
                     opacity=0.8,
                     intensity=list(energies),
                     colorscale=plotly_layouts["stable_colorscale"],
-                    colorbar={"title": "Formation energy<br>(eV/atom)", "x": 0.9, "len": 0.75},
+                    colorbar={
+                        "title": "Formation energy<br>(eV/atom)",
+                        "x": 0.9,
+                        "len": 0.75,
+                        "x": 0.9,
+                        "y": 1,
+                        "yanchor": "top",
+                        "xpad": 0,
+                        "ypad": 0,
+                        "thickness": 0.02,
+                        "thicknessmode": "fraction",
+                        "len": 0.5,
+                    },
                     hoverinfo="none",
                     lighting={"diffuse": 0.0, "ambient": 1.0},
                     name="Convex Hull (shading)",
@@ -2806,7 +2851,8 @@ class PDPlotter:
 
     def _create_plotly_element_annotations(self):
         """
-        Creates terminal element annotations for Plotly phase diagrams.
+        Creates terminal element annotations for Plotly phase diagrams. This method does
+        not apply to ternary_2d plots.
 
         Returns:
             list of annotation dicts.
@@ -3028,10 +3074,9 @@ class PDPlotter:
                     "z": list(stable_props["z"]),
                     "name": "Stable",
                     "marker": {
-                        "color": "black",
-                        "size": 12,
-                        "opacity": 0.8,
-                        "line": {"color": "black", "width": 3},
+                        "color": "#1e1e1f",
+                        "size": 11,
+                        "opacity": 0.95,
                     },
                     "hovertext": stable_props["texts"],
                     "error_z": {
@@ -3049,14 +3094,26 @@ class PDPlotter:
                     "y": unstable_props["x"],
                     "z": unstable_props["z"],
                     "name": "Above Hull",
+                    "hovertext": unstable_props["texts"],
                     "marker": {
                         "color": unstable_props["energies"],
                         "colorscale": plotly_layouts["unstable_colorscale"],
-                        "size": 6,
+                        "size": 4,
+                        "line": {"color": "black", "width": 1},
                         "symbol": "diamond",
-                        "colorbar": {"title": "Energy Above Hull<br>(eV/atom)", "x": 0.05, "len": 0.75},
+                        "opacity": 0.7,
+                        "colorbar": {
+                            "title": "Energy Above Hull<br>(eV/atom)",
+                            "x": 0,
+                            "y": 1,
+                            "yanchor": "top",
+                            "xpad": 0,
+                            "ypad": 0,
+                            "thickness": 0.02,
+                            "thicknessmode": "fraction",
+                            "len": 0.5,
+                        },
                     },
-                    "hovertext": unstable_props["texts"],
                 }
             )
 
