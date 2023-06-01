@@ -2246,7 +2246,7 @@ class PDPlotter:
             if self._dim == 3 and self.ternary_style == "3d":
                 data.append(self._create_plotly_ternary_support_lines())
 
-            if not (self._dim in [1, 3] and self.ternary_style == "2d"):
+            if not self._dim == 1 and not (self._dim == 3 and self.ternary_style == "2d"):
                 data.append(self._create_plotly_stable_labels(label_stable))
 
             if fill and self._dim in [3, 4]:
@@ -2855,7 +2855,7 @@ class PDPlotter:
                     x_coord += offset_3d
                 else:
                     x_coord -= offset_3d
-                if coords[1] > 0.866 / 2:  # top half of plot
+                if coords[1] > 0.866 / 2:  # top half of plot (highest point is 0.866)
                     y_coord -= offset_3d
                 else:
                     y_coord += offset_3d
