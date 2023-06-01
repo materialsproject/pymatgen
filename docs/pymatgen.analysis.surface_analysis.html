@@ -36,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -99,7 +103,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
@@ -216,7 +220,7 @@ batteries. Nano Letters, 14(2), 1016-1020.
 constant. Note the key should be a sympy Symbol object of the
 format: Symbol(“delu_el”) where el is the name of the element.</p></li>
 <li><p><strong>delu_default</strong> (<em>float</em>) – Default value for all unset chemical potentials</p></li>
-<li><p><strong>plt</strong> (<em>pylab</em>) – Plot</p></li>
+<li><p><strong>plt</strong> (<em>pyplot</em>) – Plot</p></li>
 <li><p><strong>labels</strong> (<em>list</em>) – List of labels for each plot, corresponds to the
 list of se_analyzers</p></li>
 <li><p><strong>from_sphere_area</strong> (<em>bool</em>) – There are two ways to calculate the bulk
@@ -246,7 +250,7 @@ format: Symbol(“delu_el”) where el is the name of the element.</p></li>
 <li><p><strong>label</strong> (<em>str</em>) – Label of the plot for legend</p></li>
 <li><p><strong>increments</strong> (<em>int</em>) – Number of plot points</p></li>
 <li><p><strong>delu_default</strong> (<em>float</em>) – Default value for all unset chemical potentials</p></li>
-<li><p><strong>plt</strong> (<em>pylab</em>) – Plot</p></li>
+<li><p><strong>plt</strong> (<em>pyplot</em>) – Plot</p></li>
 <li><p><strong>from_sphere_area</strong> (<em>bool</em>) – There are two ways to calculate the bulk
 formation energy. Either by treating the volume and thus surface
 area of the particle as a perfect sphere, or as a Wulff shape.</p></li>
@@ -442,7 +446,7 @@ clean slab</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.surface_analysis.SlabEntry.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/surface_analysis.py#L295-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/surface_analysis.py#L295-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.from_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a SlabEntry by reading in an dictionary</p>
 </dd></dl>
 
@@ -464,7 +468,7 @@ unit area of the primitive slab system.</p>
 <dt class="sig sig-object py" id="pymatgen.analysis.surface_analysis.SlabEntry.gibbs_binding_energy">
 <span class="sig-name descname"><span class="pre">gibbs_binding_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/surface_analysis.py#L163-L176"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry.gibbs_binding_energy" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
-<dt>Returns the adsorption energy or Gibb’s binding energy</dt><dd><p>of an adsorbate on a surface</p>
+<dt>Returns the adsorption energy or Gibbs binding energy</dt><dd><p>of an adsorbate on a surface</p>
 </dd>
 </dl>
 <dl class="field-list simple">
@@ -658,7 +662,7 @@ of intersection. Defaults to 10 points.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(Pylab)</p>
+<dd class="field-odd"><p>(pyplot)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1120,7 +1124,7 @@ Used to handle pbc for noncontiguous slab layers</p></li>
 <li><p><strong>label_energies</strong> (<em>bool</em>) – Whether to label relevant energy
 quantities such as the work function, Fermi energy,
 vacuum locpot, bulk-like locpot</p></li>
-<li><p><strong>plt</strong> (<em>plt</em>) – Matplotlib pylab object</p></li>
+<li><p><strong>plt</strong> (<em>plt</em>) – Matplotlib pyplot object</p></li>
 <li><p><strong>label_fontsize</strong> (<em>float</em>) – Fontsize of labels</p></li>
 </ul>
 </dd>

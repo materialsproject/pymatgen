@@ -36,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -99,7 +103,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.apps.html">pymatgen.apps package</a></li>
@@ -220,10 +224,10 @@ Defaults to just the typical “log” extension.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../apps/borg/hive.py#L424-L433"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../apps/borg/hive.py#L424-L433"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict Representation</p>
+<dd class="field-odd"><p><strong>dct</strong> (<em>dict</em>) – Dict Representation</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>GaussianToComputedEntryDrone</p>
@@ -285,10 +289,10 @@ ComputedEntries. Structure will be parsed from the CONTCAR.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../apps/borg/hive.py#L299-L308"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../apps/borg/hive.py#L299-L308"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict Representation</p>
+<dd class="field-odd"><p><strong>dct</strong> (<em>dict</em>) – Dict Representation</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>SimpleVaspToComputedEntryDrone</p>
@@ -349,10 +353,10 @@ supported by the Vasprun object.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../apps/borg/hive.py#L186-L195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../apps/borg/hive.py#L186-L195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict Representation</p>
+<dd class="field-odd"><p><strong>dct</strong> (<em>dict</em>) – Dict Representation</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>VaspToComputedEntryDrone</p>

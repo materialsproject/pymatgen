@@ -36,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -99,7 +103,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
@@ -118,7 +122,7 @@
 <p>Wrapper classes for Cif input and output from Structures.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifBlock">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CifBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L56-L225"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifBlock" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CifBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L45-L214"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifBlock" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object for storing cif data. All data is stored in a single dictionary.
 Data inside loops are stored in lists in the data dictionary, and
@@ -136,7 +140,7 @@ or lists of these if the key is in a loop</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifBlock.from_string">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L182-L225"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifBlock.from_string" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L171-L214"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifBlock.from_string" title="Permalink to this definition"></a></dt>
 <dd><p>Reads CifBlock from string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -157,7 +161,7 @@ or lists of these if the key is in a loop</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifFile">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CifFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orig_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L228-L278"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CifFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orig_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L217-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Reads and parses CifBlocks from a .cif file or string</p>
 <dl class="field-list simple">
@@ -171,7 +175,7 @@ or lists of these if the key is in a loop</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifFile.from_file">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L269-L278"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile.from_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L258-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile.from_file" title="Permalink to this definition"></a></dt>
 <dd><p>Reads CifFile from a filename.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -185,7 +189,7 @@ or lists of these if the key is in a loop</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifFile.from_string">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L248-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile.from_string" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L237-L256"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile.from_string" title="Permalink to this definition"></a></dt>
 <dd><p>Reads CifFile from a string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -201,7 +205,7 @@ or lists of these if the key is in a loop</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifParser">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CifParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupancy_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L281-L1236"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CifParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupancy_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L270-L1222"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will
 issue warnings if corrections applied. These are also stored in the
@@ -222,7 +226,7 @@ However, for very large CIF files, this may need to be set to 0.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifParser.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1220-L1229"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1206-L1215"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.as_dict" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>MSONable dict</p>
@@ -232,7 +236,7 @@ However, for very large CIF files, this may need to be set to 0.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifParser.from_string">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cif_string</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L357-L370"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.from_string" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cif_string</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L346-L359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.from_string" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a CifParser from a string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -249,7 +253,7 @@ However, for very large CIF files, this may need to be set to 0.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifParser.get_bibtex_string">
-<span class="sig-name descname"><span class="pre">get_bibtex_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1153-L1218"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_bibtex_string" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_bibtex_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1139-L1204"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_bibtex_string" title="Permalink to this definition"></a></dt>
 <dd><p>Get BibTeX reference from CIF file.
 :param data:
 :return: BibTeX string</p>
@@ -257,7 +261,7 @@ However, for very large CIF files, this may need to be set to 0.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifParser.get_lattice">
-<span class="sig-name descname"><span class="pre">get_lattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_strings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('a',</span> <span class="pre">'b',</span> <span class="pre">'c')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_strings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('alpha',</span> <span class="pre">'beta',</span> <span class="pre">'gamma')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L593-L627"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_lattice" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_lattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_strings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('a',</span> <span class="pre">'b',</span> <span class="pre">'c')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_strings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('alpha',</span> <span class="pre">'beta',</span> <span class="pre">'gamma')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L582-L616"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_lattice" title="Permalink to this definition"></a></dt>
 <dd><p>Generate the lattice from the provided lattice parameters. In
 the absence of all six lattice parameters, the crystal system
 and necessary parameters are parsed</p>
@@ -265,7 +269,7 @@ and necessary parameters are parsed</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifParser.get_lattice_no_exception">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_lattice_no_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_strings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('a',</span> <span class="pre">'b',</span> <span class="pre">'c')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_strings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('alpha',</span> <span class="pre">'beta',</span> <span class="pre">'gamma')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L629-L649"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_lattice_no_exception" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_lattice_no_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_strings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('a',</span> <span class="pre">'b',</span> <span class="pre">'c')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_strings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('alpha',</span> <span class="pre">'beta',</span> <span class="pre">'gamma')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L618-L638"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_lattice_no_exception" title="Permalink to this definition"></a></dt>
 <dd><p>Take a dictionary of CIF data and returns a pymatgen Lattice object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -284,7 +288,7 @@ and necessary parameters are parsed</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifParser.get_magsymops">
-<span class="sig-name descname"><span class="pre">get_magsymops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L747-L812"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_magsymops" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_magsymops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L739-L798"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_magsymops" title="Permalink to this definition"></a></dt>
 <dd><p>Equivalent to get_symops except for magnetic symmetry groups.
 Separate function since additional operation for time reversal symmetry
 (which changes magnetic moments on sites) needs to be returned.</p>
@@ -292,7 +296,7 @@ Separate function since additional operation for time reversal symmetry
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifParser.get_structures">
-<span class="sig-name descname"><span class="pre">get_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetrized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1105-L1151"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetrized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1091-L1137"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_structures" title="Permalink to this definition"></a></dt>
 <dd><p>Return list of structures in CIF file. primitive boolean sets whether a
 conventional cell structure or primitive cell structure is returned.</p>
 <dl class="field-list simple">
@@ -319,7 +323,7 @@ notated as “Not Parsed” or -1 respectively.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifParser.get_symops">
-<span class="sig-name descname"><span class="pre">get_symops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L651-L745"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_symops" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_symops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L640-L737"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_symops" title="Permalink to this definition"></a></dt>
 <dd><p>In order to generate symmetry equivalent positions, the symmetry
 operations are parsed. If the symops are not present, the space
 group symbol is parsed, and symops are generated.</p>
@@ -338,13 +342,13 @@ group symbol is parsed, and symops are generated.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifParser.parse_magmoms">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_magmoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L833-L853"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.parse_magmoms" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_magmoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L819-L839"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.parse_magmoms" title="Permalink to this definition"></a></dt>
 <dd><p>Parse atomic magnetic moments from data dictionary</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifParser.parse_oxi_states">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_oxi_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L814-L831"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.parse_oxi_states" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_oxi_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L800-L817"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.parse_oxi_states" title="Permalink to this definition"></a></dt>
 <dd><p>Parse oxidation states from data dictionary</p>
 </dd></dl>
 
@@ -352,7 +356,7 @@ group symbol is parsed, and symops are generated.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifWriter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CifWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_magmoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">significant_figures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_struct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1239-L1442"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifWriter" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CifWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_magmoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">significant_figures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine_struct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1225-L1428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifWriter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A wrapper around CifFile to write CIF files from pymatgen structures.</p>
 <dl class="field-list simple">
@@ -387,7 +391,7 @@ is invoked to convert input structure from primitive to conventional.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.cif.CifWriter.write_file">
-<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1437-L1442"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifWriter.write_file" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1423-L1428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.CifWriter.write_file" title="Permalink to this definition"></a></dt>
 <dd><p>Write the cif file.</p>
 </dd></dl>
 
@@ -395,7 +399,7 @@ is invoked to convert input structure from primitive to conventional.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.io.cif.str2float">
-<span class="sig-name descname"><span class="pre">str2float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1445-L1460"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.str2float" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">str2float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/cif.py#L1431-L1446"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cif.str2float" title="Permalink to this definition"></a></dt>
 <dd><p>Remove uncertainty brackets from strings and return the float.</p>
 </dd></dl>
 

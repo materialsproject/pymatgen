@@ -36,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -99,7 +103,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.core.html">pymatgen.core package</a></li>
@@ -119,7 +123,7 @@
 and a ChemicalPotential class to represent potentials.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.core.composition.ChemicalPotential">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChemicalPotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/composition.py#L1243-L1300"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.composition.ChemicalPotential" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChemicalPotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/composition.py#L1242-L1299"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.composition.ChemicalPotential" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Class to represent set of chemical potentials. Can be: multiplied/divided by a Number
 multiplied by a Composition (returns an energy) added/subtracted with other ChemicalPotentials.</p>
@@ -133,7 +137,7 @@ multiplied by a Composition (returns an energy) added/subtracted with other Chem
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.composition.ChemicalPotential.get_energy">
-<span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><span class="pre">Composition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/composition.py#L1286-L1297"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.composition.ChemicalPotential.get_energy" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><span class="pre">Composition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/composition.py#L1285-L1296"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.composition.ChemicalPotential.get_energy" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the energy of a composition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -359,7 +363,7 @@ element.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.composition.Composition.elements">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elements</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><span class="pre">Species</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.DummySpecies" title="pymatgen.core.periodic_table.DummySpecies"><span class="pre">DummySpecies</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/composition.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.elements" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elements</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><span class="pre">pymatgen.core.periodic_table.Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><span class="pre">pymatgen.core.periodic_table.Species</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.DummySpecies" title="pymatgen.core.periodic_table.DummySpecies"><span class="pre">pymatgen.core.periodic_table.DummySpecies</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/composition.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.elements" title="Permalink to this definition"></a></dt>
 <dd><p>Returns view of elements in Composition.</p>
 </dd></dl>
 
@@ -745,14 +749,14 @@ False if the Composition contains any dummy species.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="pymatgen.core.composition.CompositionError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CompositionError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/composition.py#L1303-L1304"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.composition.CompositionError" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CompositionError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/composition.py#L1302-L1303"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.composition.CompositionError" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for composition errors</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.core.composition.reduce_formula">
-<span class="sig-name descname"><span class="pre">reduce_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sym_amt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iupac_ordering</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/composition.py#L1192-L1240"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.composition.reduce_formula" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reduce_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sym_amt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iupac_ordering</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/composition.py#L1192-L1239"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.composition.reduce_formula" title="Permalink to this definition"></a></dt>
 <dd><p>Helper method to reduce a sym_amt dict to a reduced formula and factor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
