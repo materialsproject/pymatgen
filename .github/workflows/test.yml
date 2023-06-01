@@ -151,7 +151,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.12.3
+        uses: pypa/cibuildwheel@v2.13.0
         env:
           CIBW_BUILD: cp${{ matrix.python-version }}-*
       - uses: actions/upload-artifact@v3
