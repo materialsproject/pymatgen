@@ -104,6 +104,16 @@
     }
   },
   "default_ternary_2d_layout": {
+    "autosize": true,
+    "paper_bgcolor": "rgba(0,0,0,0)",
+    "plot_bgcolor": "rgba(0,0,0,0)",
+    "margin": {
+      "b": 20,
+      "l": 10,
+      "pad": 20,
+      "t": 20,
+      "r": 10
+    },
     "ternary": {
       "sum": 1,
       "aaxis": {
@@ -341,15 +351,47 @@
     },
     "showlegend": true
   },
-  "default_ternary_marker_settings": {
+  "default_ternary_2d_marker_settings": {
     "mode": "markers",
-    "marker": {
-      "size": 7,
-      "line": {
-        "width": 4,
-        "color": "black"
+    "hoverinfo": "text",
+    "hoverlabel": {
+      "font": {
+        "size": 14
       }
     },
+    "showlegend": true,
+    "cliponaxis": false
+  },
+  "default_ternary_2d_fill_colors": [
+    "#AA0DFE",
+    "#3283FE",
+    "#85660D",
+    "#782AB6",
+    "#565656",
+    "#1C8356",
+    "#16FF32",
+    "#F7E1A0",
+    "#E2E2E2",
+    "#1CBE4F",
+    "#C4451C",
+    "#DEA0FD",
+    "#FE00FA",
+    "#325A9B",
+    "#FEAF16",
+    "#F8A19F",
+    "#90AD1C",
+    "#F6222E",
+    "#1CFFCE",
+    "#2ED9FF",
+    "#B10DA1",
+    "#C075A6",
+    "#FC1CBF",
+    "#B00068",
+    "#FBE426",
+    "#FA0087"
+  ],
+  "default_ternary_3d_marker_settings": {
+    "mode": "markers",
     "hoverinfo": "text",
     "hoverlabel": {
       "font": {

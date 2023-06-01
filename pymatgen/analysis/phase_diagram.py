@@ -2080,8 +2080,8 @@ class PDPlotter:
     """
     A plotting class for compositional phase diagrams.
 
-    To use, initialize this class with a PhaseDiagram object and call get_plot() or
-    show().
+    To use, initialize this class with a PhaseDiagram object containing 1-4 components
+    and call get_plot() or show().
     """
 
     def __init__(
@@ -2102,7 +2102,7 @@ class PDPlotter:
                 Defaults to "plotly".
             ternary_style ("2d" | "3d"): Ternary phase diagrams are typically plotted in
                 two-dimensions (2d), but can be plotted in three dimensions (3d) to visualize
-                the depth of the hull. This argument only paplies when backend="plotly".
+                the depth of the hull. This argument only applies when backend="plotly".
                 Defaults to "2d".
             **plotkwargs (dict): Keyword args passed to matplotlib.pyplot.plot. Can
                 be used to customize markers etc. If not set, the default is
@@ -2122,7 +2122,7 @@ class PDPlotter:
         self._pd = phasediagram
         self.show_unstable = show_unstable
         self.backend = backend
-        self.ternary_style = ternary_style
+        self.ternary_style = ternary_style.lower()
 
         self.lines = uniquelines(self._pd.facets) if dim > 1 else [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self._min_energy = min(self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries)
@@ -2174,12 +2174,11 @@ class PDPlotter:
                 if self.ternary_style == "3d":
                     data.append(self._create_plotly_ternary_support_lines())
 
-            stable_labels_plot = self._create_plotly_stable_labels(label_stable)
-            stable_marker_plot, unstable_marker_plot = self._create_plotly_markers(label_uncertainties)
+            if self._dim != 3 and self.ternary_style != "2d":
+                data.append(self._create_plotly_stable_labels(label_stable))
 
-            # data.append(stable_labels_plot)
-            # data.append(unstable_marker_plot)
-            # data.append(stable_marker_plot)
+            stable_marker_plot, unstable_marker_plot = self._create_plotly_markers(label_uncertainties)
+            data.extend([stable_marker_plot, unstable_marker_plot])
 
             fig = go.Figure(data=data)
             fig.layout = self._create_plotly_figure_layout()
@@ -2542,7 +2541,12 @@ class PDPlotter:
             layout["annotations"] = annotations_list
         elif self._dim == 3 and self.ternary_style == "2d":
             layout = plotly_layouts["default_ternary_2d_layout"].copy()
-            # layout["scene"].update({"annotations": annotations_list})
+            el_a, el_b, el_c = self._pd.elements
+            for el, axis in zip(self._pd.elements, ["a", "b", "c"]):
+                layout["ternary"][axis + "axis"]["title"] = {
+                    "text": str(el),
+                    "font": {"size": 20},
+                }
         elif self._dim == 3 and self.ternary_style == "3d":
             layout = plotly_layouts["default_ternary_3d_layout"].copy()
             layout["scene"].update({"annotations": annotations_list})
@@ -2565,7 +2569,15 @@ class PDPlotter:
 
         pd = self._pd
 
+        plot_args = {
+            "mode": "lines",
+            "hoverinfo": "none",
+            "line": {"color": "rgba(0,0,0,1.0)", "width": 7.0},
+            "showlegend": False,
+        }
+
         if self._dim == 3 and self.ternary_style == "2d":
+            plot_args["line"]["width"] = 1.0
             el_a, el_b, el_c = pd.elements
             for line in uniquelines(pd.facets):
                 e0 = pd.qhull_entries[line[0]]
@@ -2594,13 +2606,6 @@ class PDPlotter:
                     energies += [*form_enes, None]
                     z += [*line[2], None]
 
-        plot_args = {
-            "mode": "lines",
-            "hoverinfo": "none",
-            "line": {"color": "rgba(0,0,0,1.0)", "width": 7.0},
-            "showlegend": False,
-        }
-
         if self._dim == 2:
             line_plot = go.Scatter(x=x, y=y, **plot_args)
         elif self._dim == 3 and self.ternary_style == "2d":
@@ -2625,6 +2630,7 @@ class PDPlotter:
 
         pd = self._pd
         if self._dim == 3 and self.ternary_style == "2d":
+            fillcolors = itertools.cycle(plotly_layouts["default_ternary_2d_fill_colors"])
             el_a, el_b, el_c = pd.elements
 
             for _idx, facet in enumerate(pd.facets):
@@ -2639,7 +2645,8 @@ class PDPlotter:
                 b = [e0.composition[el_b], e1.composition[el_b], e2.composition[el_b]]
                 c = [e0.composition[el_c], e1.composition[el_c], e2.composition[el_c]]
 
-                name = f"{htmlify(e0.composition.reduced_formula)}–{htmlify(e1.composition.reduced_formula)}–{htmlify(e2.composition.reduced_formula)}"
+                e0_str, e1_str, e2_str = (htmlify(e.composition.reduced_formula) for e in (e0, e1, e2))
+                name = f"{e0_str}-{e1_str}-{e2_str}"
 
                 traces += [
                     go.Scatterternary(
@@ -2649,13 +2656,14 @@ class PDPlotter:
                         mode="lines",
                         fill="toself",
                         line={"width": 0},
-                        opacity=0.6,
+                        fillcolor=fillcolors.__next__(),
+                        opacity=0.2,
+                        hovertemplate="<extra></extra>",  # removes secondary hover box
                         name=name,
                         showlegend=False,
                     )
                 ]
-
-        if self._dim == 3 and self.ternary_style == "3d":
+        elif self._dim == 3 and self.ternary_style == "3d":
             facets = np.array(self._pd.facets)
             coords = np.array(
                 [triangular_coord(c) for c in zip(self._pd.qhull_data[:-1, 0], self._pd.qhull_data[:-1, 1])]
@@ -2681,13 +2689,35 @@ class PDPlotter:
                     showlegend=True,
                 )
             )
+        elif self._dim == 4:
+            all_data = np.array(pd.qhull_data)
+            for _idx, facet in enumerate(pd.facets):
+                xs, ys, zs = [], [], []
+                for v in facet:
+                    x, y, z = tet_coord(all_data[v, 0:3])
+                    xs.append(x)
+                    ys.append(y)
+                    zs.append(z)
+
+                traces += [
+                    go.Mesh3d(
+                        x=xs,
+                        y=ys,
+                        z=zs,
+                        opacity=0.1,
+                        alphahull=-1,
+                        flatshading=True,
+                        hoverinfo="skip",
+                    )
+                ]
 
         return traces
 
     def _create_plotly_stable_labels(self, label_stable=True):
         """
         Creates a (hidable) scatter trace containing labels of stable phases.
-        Contains some functionality for creating sensible label positions.
+        Contains some functionality for creating sensible label positions. This method
+        does not apply to 2D ternary plots (stable labels are turned off).
 
         Returns:
             go.Scatter (or go.Scatter3d) plot
@@ -2718,7 +2748,7 @@ class PDPlotter:
                 else:
                     x_coord -= offset_2d
                 y_coord -= offset_2d
-            elif self._dim == 3:
+            elif self._dim == 3 and self.ternary_style == "3d":
                 textposition = "middle center"
                 if coords[0] > 0.5:
                     x_coord += offset_3d
@@ -2730,7 +2760,6 @@ class PDPlotter:
                     y_coord += offset_3d
 
                 z.append(self._pd.get_form_energy_per_atom(entry) + energy_offset)
-
             elif self._dim == 4:
                 x_coord = x_coord - offset_3d
                 y_coord = y_coord - offset_3d
@@ -2765,7 +2794,7 @@ class PDPlotter:
 
         if self._dim == 2:
             stable_labels_plot = go.Scatter(x=x, y=y, **plot_args)
-        elif self._dim == 3:
+        elif self._dim == 3 and self.ternary_style == "3d":
             stable_labels_plot = go.Scatter3d(x=y, y=x, z=z, **plot_args)
         elif self._dim == 4:
             stable_labels_plot = go.Scatter3d(x=x, y=y, z=z, **plot_args)
@@ -2836,7 +2865,8 @@ class PDPlotter:
         Creates stable and unstable marker plots for overlaying on the phase diagram.
 
         Returns:
-            Tuple of Plotly go.Scatter (or go.Scatter3d) objects in order:
+            Tuple of Plotly go.Scatter (unary, binary), go.Scatterternary(ternary_2d),
+            or go.Scatter3d (ternary_3d, quaternray) objects in order:
             (stable markers, unstable markers)
         """
 
@@ -2868,6 +2898,7 @@ class PDPlotter:
                     energies.append(e_above_hull)
                 else:
                     uncertainty = 0
+                    label += " (Stable)"
                     if hasattr(entry, "correction_uncertainty_per_atom") and label_uncertainties:
                         uncertainty = round(entry.correction_uncertainty_per_atom, 4)
                         label += f"<br> (Error: +/- {uncertainty} eV/atom)"
@@ -2877,29 +2908,32 @@ class PDPlotter:
 
                 texts.append(label)
 
-                x.append(coord[0])
-                y.append(coord[1])
+                if self._dim == 3 and self.ternary_style == "2d":
+                    for el, axis in zip(self._pd.elements, [x, y, z]):
+                        axis.append(entry.composition[el])
+                else:
+                    x.append(coord[0])
+                    y.append(coord[1])
 
-                if self._dim == 3:
-                    z.append(energy)
-                elif self._dim == 4:
-                    z.append(coord[2])
+                    if self._dim == 3:
+                        z.append(energy)
+                    elif self._dim == 4:
+                        z.append(coord[2])
 
             return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
 
-        stable_coords = list(self.pd_plot_data[1])
-        stable_entries = self.pd_plot_data[1].values()
-        unstable_entries = list(self.pd_plot_data[2])
-        unstable_coords = self.pd_plot_data[2].values()
+        stable_coords, unstable_coords = list(self.pd_plot_data[1]), self.pd_plot_data[2].values()
+        stable_entries, unstable_entries = self.pd_plot_data[1].values(), list(self.pd_plot_data[2])
 
         stable_props = get_marker_props(stable_coords, stable_entries)
-
         unstable_props = get_marker_props(unstable_coords, unstable_entries, stable=False)
 
         stable_markers, unstable_markers = {}, {}
 
         if self._dim == 2:
             stable_markers = plotly_layouts["default_binary_marker_settings"].copy()
+            unstable_markers = plotly_layouts["default_binary_marker_settings"].copy()
+
             stable_markers.update(
                 {
                     "x": list(stable_props["x"]),
@@ -2917,8 +2951,6 @@ class PDPlotter:
                     },
                 }
             )
-
-            unstable_markers = plotly_layouts["default_binary_marker_settings"].copy()
             unstable_markers.update(
                 {
                     "x": list(unstable_props["x"]),
@@ -2934,8 +2966,47 @@ class PDPlotter:
                 }
             )
 
-        elif self._dim == 3:
-            stable_markers = plotly_layouts["default_ternary_marker_settings"].copy()
+        elif self._dim == 3 and self.ternary_style == "2d":
+            stable_markers = plotly_layouts["default_ternary_2d_marker_settings"].copy()
+            unstable_markers = plotly_layouts["default_ternary_2d_marker_settings"].copy()
+
+            stable_markers.update(
+                {
+                    "a": list(stable_props["x"]),
+                    "b": list(stable_props["y"]),
+                    "c": list(stable_props["z"]),
+                    "name": "Stable",
+                    "hovertext": stable_props["texts"],
+                    "marker": {
+                        "color": "green",
+                        "line": {"width": 1.5, "color": "black"},
+                        "symbol": "circle",
+                        "size": 14,
+                    },
+                }
+            )
+            unstable_markers.update(
+                {
+                    "a": unstable_props["x"],
+                    "b": unstable_props["y"],
+                    "c": unstable_props["z"],
+                    "name": "Above Hull",
+                    "hovertext": unstable_props["texts"],
+                    "marker": {
+                        "color": unstable_props["energies"],
+                        "colorscale": plotly_layouts["unstable_colorscale"],
+                        "line": {"width": 0.5, "color": "black"},
+                        "size": 7,
+                        "symbol": "diamond",
+                        "colorbar": {"title": "Energy Above Hull<br>(eV/atom)", "x": 0.05, "len": 0.75},
+                    },
+                }
+            )
+
+        elif self._dim == 3 and self.ternary_style == "3d":
+            stable_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
+            unstable_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
+
             stable_markers.update(
                 {
                     "x": list(stable_props["y"]),
@@ -2958,8 +3029,6 @@ class PDPlotter:
                     },
                 }
             )
-
-            unstable_markers = plotly_layouts["default_ternary_marker_settings"].copy()
             unstable_markers.update(
                 {
                     "x": unstable_props["y"],
@@ -3013,9 +3082,14 @@ class PDPlotter:
                     "visible": "legendonly",
                 }
             )
-
-        stable_marker_plot = go.Scatter(**stable_markers) if self._dim == 2 else go.Scatter3d(**stable_markers)
-        unstable_marker_plot = go.Scatter(**unstable_markers) if self._dim == 2 else go.Scatter3d(**unstable_markers)
+        if self._dim == 2:
+            stable_marker_plot, unstable_marker_plot = go.Scatter(**stable_markers), go.Scatter(**unstable_markers)
+        elif self._dim == 3 and self.ternary_style == "2d":
+            stable_marker_plot, unstable_marker_plot = go.Scatterternary(**stable_markers), go.Scatterternary(
+                **unstable_markers
+            )
+        else:
+            stable_marker_plot, unstable_marker_plot = go.Scatter3d(**stable_markers), go.Scatter3d(**unstable_markers)
 
         return stable_marker_plot, unstable_marker_plot
 
