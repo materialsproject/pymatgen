@@ -2227,7 +2227,8 @@ class PDPlotter:
             fill: Whether to shade the hull. For ternary_2d and quaternary plots, this
                 colors facets arbitrarily for visual clarity. For ternary_3d plots, this
                 shades the hull by formation energy (plotly only).
-            highlight_entries: Entries to highlight in the plot (plotly only).
+            highlight_entries: Entries to highlight in the plot (plotly only). This will
+                create a new marker trace that is separate from the other entries.
 
         Returns:
             go.Figure (backend="plotly") or matplotlib.pyplot (backend="matplotlib")
@@ -3123,10 +3124,10 @@ class PDPlotter:
                         "y": list(highlight_props["x"]),
                         "name": "Highlighted",
                         "marker": {
-                            "color": "fuchsia",
-                            "size": 24,
+                            "color": "mediumvioletred",
+                            "size": 22,
                             "line": {"color": "black", "width": 2},
-                            "symbol": "star",
+                            "symbol": "square",
                         },
                         "opacity": 0.9,
                         "hovertext": highlight_props["texts"],
@@ -3185,10 +3186,10 @@ class PDPlotter:
                         "y": list(highlight_props["y"]),
                         "name": "Highlighted",
                         "marker": {
-                            "color": "fuchsia",
-                            "size": 20,
+                            "color": "mediumvioletred",
+                            "size": 16,
                             "line": {"color": "black", "width": 2},
-                            "symbol": "star",
+                            "symbol": "square",
                         },
                         "opacity": 0.99,
                         "hovertext": highlight_props["texts"],
@@ -3259,10 +3260,10 @@ class PDPlotter:
                         "name": "Highlighted",
                         "hovertext": highlight_props["texts"],
                         "marker": {
-                            "color": "fuchsia",
+                            "color": "mediumvioletred",
                             "line": {"width": 2.0, "color": "black"},
-                            "symbol": "star",
-                            "size": 18,
+                            "symbol": "square",
+                            "size": 16,
                         },
                     }
                 )
@@ -3330,10 +3331,10 @@ class PDPlotter:
                         "name": "Highlighted",
                         "marker": {
                             "color": "#1e1e1f",
-                            "size": 14,
+                            "size": 12,
                             "opacity": 0.99,
                             "symbol": "square",
-                            "color": "fuchsia",
+                            "color": "mediumvioletred",
                         },
                         "hovertext": highlight_props["texts"],
                         "error_z": {
@@ -3401,10 +3402,10 @@ class PDPlotter:
                         "z": highlight_props["z"],
                         "name": "Highlighted",
                         "marker": {
-                            "size": 10,
+                            "size": 9,
                             "opacity": 0.99,
                             "symbol": "square",
-                            "color": "fuchsia",
+                            "color": "mediumvioletred",
                             "line": {"color": "black", "width": 1},
                         },
                         "hovertext": highlight_props["texts"],
