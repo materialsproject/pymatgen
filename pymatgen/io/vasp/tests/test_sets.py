@@ -69,6 +69,8 @@ skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set
     [MPRelaxSet, MPHSERelaxSet, MVLRelax52Set, MPAbsorptionSet],
 )
 def test_Yb_2_warning(input_set: VaspInputSet) -> None:
+    # https://github.com/materialsproject/pymatgen/pull/2972
+
     structure = Structure(
         lattice=Lattice.cubic(5),
         species=("Yb", "O"),
@@ -176,11 +178,11 @@ class MITMPRelaxSetTest(PymatgenTest):
             ]
         )
         structure = Structure(lattice, ["P", "Fe", "O"], coords)
-        mitparamset = MITRelaxSet(structure)
-        syms = mitparamset.potcar_symbols
+        mit_param_set = MITRelaxSet(structure)
+        syms = mit_param_set.potcar_symbols
         assert syms == ["Fe", "P", "O"]
-        paramset = MPRelaxSet(structure, sort_structure=False)
-        syms = paramset.potcar_symbols
+        param_set = MPRelaxSet(structure, sort_structure=False)
+        syms = param_set.potcar_symbols
         assert syms == ["P", "Fe_pv", "O"]
 
     def test_potcar_validation(self):
@@ -192,6 +194,20 @@ class MITMPRelaxSetTest(PymatgenTest):
             with pytest.warns(BadInputSetWarning, match="not known by pymatgen"):
                 MITRelaxSet(structure).potcar
 
+    def test_potcar_special_defaults(self):
+        # https://github.com/materialsproject/pymatgen/pull/3022
+        for user_potcar_settings in [{"Fe": "Fe_pv"}, {"W": "W_pv"}, None]:
+            for species in [("W", "W"), ("Fe", "W"), ("Fe", "Fe")]:
+                struct = Structure(lattice=Lattice.cubic(3), species=species, coords=[[0, 0, 0], [0.5, 0.5, 0.5]])
+                relax_set = MPRelaxSet(
+                    structure=struct, user_potcar_functional="PBE_54", user_potcar_settings=user_potcar_settings
+                )
+                expected = {  # noqa: SIM222
+                    **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
+                    **(user_potcar_settings or {}),
+                } or None
+                assert relax_set.user_potcar_settings == expected
+
     @skip_if_no_psp_dir
     def test_lda_potcar(self):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
@@ -202,28 +218,28 @@ class MITMPRelaxSetTest(PymatgenTest):
     def test_nelect(self):
         coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
         lattice = Lattice.cubic(4)
-        s = Structure(lattice, ["Si", "Si", "Fe"], coords)
-        assert MITRelaxSet(s).nelect == approx(16)
+        struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
+        assert MITRelaxSet(struct).nelect == approx(16)
 
         # Test estimate of number of bands (function of nelect) with nmag>0
-        assert MITRelaxSet(s).estimate_nbands() == approx(13)
-        assert MPRelaxSet(s).estimate_nbands() == approx(17)
+        assert MITRelaxSet(struct).estimate_nbands() == approx(13)
+        assert MPRelaxSet(struct).estimate_nbands() == approx(17)
 
         # Test estimate of number of bands (function of nelect) with nmag==0
-        s = Structure(lattice, ["Si", "Si", "Si"], coords)
-        assert MITRelaxSet(s).estimate_nbands() == approx(11)
-        assert MPRelaxSet(s).estimate_nbands() == approx(11)
+        struct = Structure(lattice, ["Si", "Si", "Si"], coords)
+        assert MITRelaxSet(struct).estimate_nbands() == approx(11)
+        assert MPRelaxSet(struct).estimate_nbands() == approx(11)
 
         # Check that it works even when oxidation states are present. Was a bug
         # previously.
-        s = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
-        assert MITRelaxSet(s).nelect == approx(16)
-        assert MPRelaxSet(s).nelect == approx(22)
+        struct = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
+        assert MITRelaxSet(struct).nelect == approx(16)
+        assert MPRelaxSet(struct).nelect == approx(22)
 
         # Check that it works for disordered structure. Was a bug previously
-        s = Structure(lattice, ["Si4+", "Fe2+", "Si4+"], coords)
-        assert MITRelaxSet(s).nelect == approx(16)
-        assert MPRelaxSet(s).nelect == approx(22)
+        struct = Structure(lattice, ["Si4+", "Fe2+", "Si4+"], coords)
+        assert MITRelaxSet(struct).nelect == approx(16)
+        assert MPRelaxSet(struct).nelect == approx(22)
 
     @skip_if_no_psp_dir
     def test_get_incar(self):
@@ -661,11 +677,6 @@ class MPStaticSetTest(PymatgenTest):
             assert spec == "Si"
 
         os.remove("MPStaticSet.zip")
-
-    def test_conflicting_arguments(self):
-        si = self.get_structure("Si")
-        with pytest.raises(ValueError, match="deprecated"):
-            MPStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
 
     def test_grid_size_from_struct(self):
         # TODO grab a bunch_of_calculations store as a list of tuples
@@ -1327,6 +1338,21 @@ class MVLScanRelaxSetTest(PymatgenTest):
         with pytest.raises(ValueError):
             MVLScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
+        # https://github.com/materialsproject/pymatgen/pull/3022
+        # same test also in MITMPRelaxSetTest above (for redundancy,
+        # should apply to all classes inheriting from DictSet)
+        for user_potcar_settings in [{"Fe": "Fe_pv"}, {"W": "W_pv"}, None]:
+            for species in [("W", "W"), ("Fe", "W"), ("Fe", "Fe")]:
+                struct = Structure(lattice=Lattice.cubic(3), species=species, coords=[[0, 0, 0], [0.5, 0.5, 0.5]])
+                relax_set = MPRelaxSet(
+                    structure=struct, user_potcar_functional="PBE_54", user_potcar_settings=user_potcar_settings
+                )
+                expected = {  # noqa: SIM222
+                    **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
+                    **(user_potcar_settings or {}),
+                } or None
+                assert relax_set.user_potcar_settings == expected
+
     def test_as_from_dict(self):
         d = self.mvl_scan_set.as_dict()
         v = dec.process_decoded(d)
@@ -1544,11 +1570,6 @@ class MPScanStaticSetTest(PymatgenTest):
         assert lepsilon_vis.incar.get("NSW") is None
         assert lepsilon_vis.incar.get("NPAR") is None
 
-    def test_conflicting_arguments(self):
-        si = self.get_structure("Si")
-        with pytest.raises(ValueError, match="deprecated"):
-            MPScanStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
-
     def tearDown(self):
         shutil.rmtree(self.tmp)
         warnings.simplefilter("default")
@@ -1628,15 +1649,11 @@ class MVLRelax52SetTest(PymatgenTest):
         with pytest.raises(ValueError):
             MVLRelax52Set(self.struct, user_potcar_functional="PBE")
 
-    def test_potcar_functional_warning(self):
-        with pytest.warns(FutureWarning, match="argument is deprecated"):
-            MVLRelax52Set(self.struct, potcar_functional="PBE_52")
-
     def test_as_from_dict(self):
-        d = self.mvl_rlx_set.as_dict()
-        v = dec.process_decoded(d)
-        assert isinstance(v, MVLRelax52Set)
-        assert v.incar["NSW"] == 500
+        dct = self.mvl_rlx_set.as_dict()
+        vasp_input = dec.process_decoded(dct)
+        assert isinstance(vasp_input, MVLRelax52Set)
+        assert vasp_input.incar["NSW"] == 500
 
 
 class LobsterSetTest(PymatgenTest):
