@@ -1290,7 +1290,7 @@ class PhaseDiagram(MSONable):
 
     def get_plot(
         self,
-        show_unstable: bool = True,
+        show_unstable: float = 0.2,
         backend: Literal["plotly", "matplotlib"] = "plotly",
         ternary_style: Literal["2d", "3d"] = "2d",
         label_stable: bool = True,
@@ -1304,8 +1304,44 @@ class PhaseDiagram(MSONable):
         **plotkwargs,
     ) -> Union[go.Figure, plt.Figure]:
         """
-        Wrapper for PDPlotter. Initializes a PDPlotter object with provided
-        arguments and calls get_plot(). See PDPlotter for more details.
+        Convenient wrapper for PDPlotter. Initializes a PDPlotter object and calls
+        get_plot() with provided combined arguments.
+
+        Plotting is only supported for phase diagrams with 4 or fewer elements (unary,
+        binary, ternary, or quaternary systems).
+
+        Args:
+            show_unstable (float): Whether unstable (above the hull) phases will be
+                plotted. If a number > 0 is entered, all phases with
+                e_hull < show_unstable (eV/atom) will be shown.
+            backend ("plotly" | "matplotlib"): Python package to use for plotting.
+                Defaults to "plotly".
+            ternary_style ("2d" | "3d"): Ternary phase diagrams are typically plotted in
+                two-dimensions (2d), but can be plotted in three dimensions (3d) to visualize
+                the depth of the hull. This argument only applies when backend="plotly".
+                Defaults to "2d".
+            label_stable: Whether to label stable compounds.
+            label_unstable: Whether to label unstable compounds.
+            ordering: Ordering of vertices (matplotlib backend only).
+            energy_colormap: Colormap for coloring energy (matplotlib backend only).
+            process_attributes: Whether to process the attributes (matplotlib
+                backend only).
+            plt: Existing plt object if plotting multiple phase diagrams (
+                matplotlib backend only).
+            label_uncertainties: Whether to add error bars to the hull (plotly
+                backend only). For binaries, this also shades the hull with the
+                uncertainty window.
+            fill: Whether to shade the hull. For ternary_2d and quaternary plots, this
+                colors facets arbitrarily for visual clarity. For ternary_3d plots, this
+                shades the hull by formation energy (plotly backend only).
+            **plotkwargs (dict): Keyword args passed to matplotlib.pyplot.plot (only
+                applies when backend="matplotlib"). Can be used to customize markers
+                etc. If not set, the default is:
+                    {
+                        "markerfacecolor": "#4daf4a",
+                        "markersize": 10,
+                        "linewidth": 3
+                    }
         """
         plotter = PDPlotter(self, show_unstable=show_unstable, backend=backend, ternary_style=ternary_style)
         return plotter.get_plot(
@@ -2140,7 +2176,7 @@ class PDPlotter:
                 applies when backend="matplotlib"). Can be used to customize markers
                 etc. If not set, the default is:
                     {
-                        "markerfacecolor": (0.2157, 0.4941, 0.7216),
+                        "markerfacecolor": "#4daf4a",
                         "markersize": 10,
                         "linewidth": 3
                     }
@@ -2247,7 +2283,9 @@ class PDPlotter:
 
     def write_image(self, stream: str | StringIO, image_format: str = "svg", **kwargs) -> None:
         """
-        Writes the phase diagram to an image in a stream.
+        Matplotlib backend only: writes the phase diagram to an image in a stream.
+
+        For saving plotly images, call write_image() from plotly Figure object.
 
         Args:
             stream (str | StringIO): stream to write to. Can be a file stream or a StringIO stream.
