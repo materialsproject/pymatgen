@@ -13,7 +13,7 @@ import os
 import re
 import warnings
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, Iterator, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Collection, Iterator, Literal, Sequence
 
 import numpy as np
 import plotly.graph_objs as go
@@ -2210,23 +2210,24 @@ class PDPlotter:
         plt=None,
         label_uncertainties: bool = False,
         fill: bool = True,
-    ) -> Union[go.Figure, plt.Figure]:
+        highlight_entries: Collection[PDEntry] | None = None,
+    ) -> Union[go.Figure, plt]:
         """
         Args:
             label_stable: Whether to label stable compounds.
             label_unstable: Whether to label unstable compounds.
-            ordering: Ordering of vertices (matplotlib backend only).
-            energy_colormap: Colormap for coloring energy (matplotlib backend only).
-            process_attributes: Whether to process the attributes (matplotlib
-                backend only).
-            plt: Existing plt object if plotting multiple phase diagrams (
-                matplotlib backend only).
-            label_uncertainties: Whether to add error bars to the hull (plotly
-                backend only). For binaries, this also shades the hull with the
-                uncertainty window.
+            ordering: Ordering of vertices (matplotlib only).
+            energy_colormap: Colormap for coloring energy (matplotlib only).
+            process_attributes: Whether to process the attributes (matplotlib only).
+            plt: Existing plt object if plotting multiple phase diagrams (matplotlib
+                only).
+            label_uncertainties: Whether to add error bars to the hull.
+                For binaries, this also shades the hull with the uncertainty window.
+                (plotly only).
             fill: Whether to shade the hull. For ternary_2d and quaternary plots, this
                 colors facets arbitrarily for visual clarity. For ternary_3d plots, this
-                shades the hull by formation energy (plotly backend only).
+                shades the hull by formation energy (plotly only).
+            highlight_entries: Entries to highlight in the plot (plotly only).
 
         Returns:
             go.Figure (backend="plotly") or matplotlib.pyplot (backend="matplotlib")
@@ -2250,8 +2251,14 @@ class PDPlotter:
             if fill and self._dim in [3, 4]:
                 data.extend(self._create_plotly_fill())
 
-            stable_marker_plot, unstable_marker_plot = self._create_plotly_markers(label_uncertainties)
+            stable_marker_plot, unstable_marker_plot, highlight_plot = self._create_plotly_markers(
+                highlight_entries,
+                label_uncertainties,
+            )
             data.extend([stable_marker_plot, unstable_marker_plot])
+
+            if highlight_plot is not None:
+                data.append(highlight_plot)
 
             fig = go.Figure(data=data)
             fig.layout = self._create_plotly_figure_layout()
@@ -2272,10 +2279,10 @@ class PDPlotter:
 
         return fig
 
-    def show(self, *args, **kwargs):
+    def show(self, *args, **kwargs) -> None:
         """
-        Draw the phase diagram and show it. Note that the backend used
-        (matplotlib/plotly) is configured in PDPlotter initialization.
+        Draw the phase diagram with the provided arguments and display it. This shows
+        the figure but does not return it.
 
         Args:
             *args: Passed to get_plot.
@@ -2285,22 +2292,24 @@ class PDPlotter:
 
     def write_image(self, stream: str | StringIO, image_format: str = "svg", **kwargs) -> None:
         """
-        Matplotlib backend only: writes the phase diagram to an image in a stream.
-
-        For saving plotly images, call write_image() from plotly Figure object.
+        Directly save the plot to a file. This is a wrapper for calling plt.savefig() or
+        fig.write_image(), depending on the backend. For more customization, it is
+        recommended to call those methods directly.
 
         Args:
-            stream (str | StringIO): stream to write to. Can be a file stream or a StringIO stream.
-            image_format (str): format for image. Can be any of matplotlib supported formats.
-                Defaults to 'svg' for best results for vector graphics.
-            **kwargs: Pass through to get_plot function.
+            stream (str | StringIO): Filename or StringIO stream.
+            image_format (str): Can be any supported image format for the plotting backend.
+                Defaults to 'svg' (vector graphics).
+            **kwargs: Optinoal kwargs passed to the get_plot function.
         """
-        plt = self.get_plot(**kwargs)
-
-        f = plt.gcf()
-        f.set_size_inches((12, 10))
-
-        plt.savefig(stream, format=image_format)
+        if self.backend == "matplotlib":
+            plt = self.get_plot(**kwargs)
+            f = plt.gcf()
+            f.set_size_inches((12, 10))
+            plt.savefig(stream, format=image_format)
+        elif self.backend == "plotly":
+            fig = self.get_plot(**kwargs)
+            fig.write_image(stream, format=image_format)
 
     def plot_element_profile(self, element, comp, show_label_index=None, xlim=5):
         """
@@ -2613,6 +2622,7 @@ class PDPlotter:
             layout = plotly_layouts["default_unary_layout"].copy()
         if self._dim == 2:
             layout = plotly_layouts["default_binary_layout"].copy()
+            layout["xaxis"]["title"] = f"Composition (Fraction {self._pd.elements[1]})"
             layout["annotations"] = annotations_list
         elif self._dim == 3 and self.ternary_style == "2d":
             layout = plotly_layouts["default_ternary_2d_layout"].copy()
@@ -2647,7 +2657,7 @@ class PDPlotter:
         plot_args = {
             "mode": "lines",
             "hoverinfo": "none",
-            "line": {"color": "rgba(0,0,0,1.0)", "width": 7.0},
+            "line": {"color": "black", "width": 4.0},
             "showlegend": False,
         }
 
@@ -2688,6 +2698,7 @@ class PDPlotter:
         elif self._dim == 3 and self.ternary_style == "3d":
             line_plot = go.Scatter3d(x=y, y=x, z=z, **plot_args)
         elif self._dim == 4:
+            plot_args["line"]["width"] = 1.5
             line_plot = go.Scatter3d(x=x, y=y, z=z, **plot_args)
 
         return line_plot
@@ -2705,7 +2716,7 @@ class PDPlotter:
 
         pd = self._pd
         if self._dim == 3 and self.ternary_style == "2d":
-            fillcolors = itertools.cycle(plotly_layouts["default_ternary_2d_fill_colors"])
+            fillcolors = itertools.cycle(plotly_layouts["default_fill_colors"])
             el_a, el_b, el_c = pd.elements
 
             for _idx, facet in enumerate(pd.facets):
@@ -2753,7 +2764,7 @@ class PDPlotter:
                     i=list(facets[:, 1]),
                     j=list(facets[:, 0]),
                     k=list(facets[:, 2]),
-                    opacity=0.8,
+                    opacity=0.7,
                     intensity=list(energies),
                     colorscale=plotly_layouts["stable_colorscale"],
                     colorbar={
@@ -2778,6 +2789,7 @@ class PDPlotter:
             )
         elif self._dim == 4:
             all_data = np.array(pd.qhull_data)
+            fillcolors = itertools.cycle(plotly_layouts["default_fill_colors"])
             for _idx, facet in enumerate(pd.facets):
                 xs, ys, zs = [], [], []
                 for v in facet:
@@ -2791,10 +2803,11 @@ class PDPlotter:
                         x=xs,
                         y=ys,
                         z=zs,
-                        opacity=0.1,
+                        opacity=0.05,
                         alphahull=-1,
                         flatshading=True,
                         hoverinfo="skip",
+                        color=fillcolors.__next__(),
                     )
                 ]
 
@@ -2812,10 +2825,10 @@ class PDPlotter:
         x, y, z, text, textpositions = [], [], [], [], []
         stable_labels_plot = None
         min_energy_x = None
-        offset_2d = 0.005  # extra distance to offset label position for clarity
+        offset_2d = 0.008  # extra distance to offset label position for clarity
         offset_3d = 0.01
 
-        energy_offset = -0.1 * self._min_energy
+        energy_offset = -0.05 * self._min_energy  # 5% above points
 
         if self._dim == 2:
             min_energy_x = min(list(self.pd_plot_data[1]), key=lambda c: c[1])[0]
@@ -2834,14 +2847,14 @@ class PDPlotter:
                     x_coord += offset_2d
                 else:
                     x_coord -= offset_2d
-                y_coord -= offset_2d
+                y_coord -= offset_2d + 0.005
             elif self._dim == 3 and self.ternary_style == "3d":
                 textposition = "middle center"
-                if coords[0] > 0.5:
+                if coords[0] > 0.5:  # right half of plot
                     x_coord += offset_3d
                 else:
                     x_coord -= offset_3d
-                if coords[1] > 0.866 / 2:
+                if coords[1] > 0.866 / 2:  # top half of plot
                     y_coord -= offset_3d
                 else:
                     y_coord += offset_3d
@@ -2919,6 +2932,24 @@ class PDPlotter:
                 font_dict = {"color": "#000000", "size": 24.0}
                 opacity = 1.0
 
+            if self._dim == 2:
+                offset = 0.03
+            else:
+                offset = 0.06
+
+            if x < 0.4:
+                x -= offset
+            elif x > 0.6:
+                x += offset
+            if y < 0.1:
+                y -= offset
+            elif y > 0.8:
+                y += offset
+
+            if self._dim == 4:
+                if z > 0.8:
+                    z += offset
+
             annotation = plotly_layouts["default_annotation_layout"].copy()
             annotation.update(
                 {
@@ -2948,7 +2979,7 @@ class PDPlotter:
 
         return annotations_list
 
-    def _create_plotly_markers(self, label_uncertainties=False):
+    def _create_plotly_markers(self, highlight_entries=None, label_uncertainties=False):
         """
         Creates stable and unstable marker plots for overlaying on the phase diagram.
 
@@ -2958,13 +2989,15 @@ class PDPlotter:
             (stable markers, unstable markers)
         """
 
-        def get_marker_props(coords, entries, stable=True):
+        def get_marker_props(coords, entries):
             """Method for getting marker locations, hovertext, and error bars
             from pd_plot_data
             """
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 
-            for coord, entry in zip(coords, entries):
+            is_stable = [True if entry in self._pd.stable_entries else False for entry in entries]
+
+            for coord, entry, stable in zip(coords, entries, is_stable):
                 energy = round(self._pd.get_form_energy_per_atom(entry), 3)
 
                 entry_id = getattr(entry, "entry_id", "no ID")
@@ -3010,13 +3043,34 @@ class PDPlotter:
 
             return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
 
-        stable_coords, unstable_coords = list(self.pd_plot_data[1]), self.pd_plot_data[2].values()
-        stable_entries, unstable_entries = self.pd_plot_data[1].values(), list(self.pd_plot_data[2])
+        if highlight_entries is None:
+            highlight_entries = []
+
+        stable_coords, stable_entries = [], []
+        unstable_coords, unstable_entries = [], []
+        highlight_coords, highlight_ents = [], []
+
+        for coord, entry in zip(list(self.pd_plot_data[1]), self.pd_plot_data[1].values()):
+            if entry in highlight_entries:
+                highlight_coords.append(coord)
+                highlight_ents.append(entry)
+            else:
+                stable_coords.append(coord)
+                stable_entries.append(entry)
+
+        for coord, entry in zip(self.pd_plot_data[2].values(), list(self.pd_plot_data[2])):
+            if entry in highlight_entries:
+                highlight_coords.append(coord)
+                highlight_ents.append(entry)
+            else:
+                unstable_coords.append(coord)
+                unstable_entries.append(entry)
 
         stable_props = get_marker_props(stable_coords, stable_entries)
-        unstable_props = get_marker_props(unstable_coords, unstable_entries, stable=False)
+        unstable_props = get_marker_props(unstable_coords, unstable_entries)
+        highlight_props = get_marker_props(highlight_coords, highlight_entries)
 
-        stable_markers, unstable_markers = {}, {}
+        stable_markers, unstable_markers, highlight_markers = {}, {}, {}
 
         if self._dim == 1:
             stable_markers = plotly_layouts["default_unary_marker_settings"].copy()
@@ -3061,6 +3115,30 @@ class PDPlotter:
                     "opacity": 0.9,
                 }
             )
+            if highlight_entries:
+                highlight_markers = plotly_layouts["default_unary_marker_settings"].copy()
+                highlight_markers.update(
+                    {
+                        "x": [0] * len(highlight_props["y"]),
+                        "y": list(highlight_props["x"]),
+                        "name": "Highlighted",
+                        "marker": {
+                            "color": "fuchsia",
+                            "size": 24,
+                            "line": {"color": "black", "width": 2},
+                            "symbol": "star",
+                        },
+                        "opacity": 0.9,
+                        "hovertext": highlight_props["texts"],
+                        "error_y": {
+                            "array": list(highlight_props["uncertainties"]),
+                            "type": "data",
+                            "color": "gray",
+                            "thickness": 2.5,
+                            "width": 5,
+                        },
+                    }
+                )
 
         if self._dim == 2:
             stable_markers = plotly_layouts["default_binary_marker_settings"].copy()
@@ -3071,8 +3149,8 @@ class PDPlotter:
                     "x": list(stable_props["x"]),
                     "y": list(stable_props["y"]),
                     "name": "Stable",
-                    "marker": {"color": "darkgreen", "size": 11, "line": {"color": "black", "width": 2}},
-                    "opacity": 0.9,
+                    "marker": {"color": "darkgreen", "size": 16, "line": {"color": "black", "width": 2}},
+                    "opacity": 0.99,
                     "hovertext": stable_props["texts"],
                     "error_y": {
                         "array": list(stable_props["uncertainties"]),
@@ -3091,12 +3169,38 @@ class PDPlotter:
                     "marker": {
                         "color": unstable_props["energies"],
                         "colorscale": plotly_layouts["unstable_colorscale"],
-                        "size": 6,
+                        "size": 7,
                         "symbol": "diamond",
+                        "line": {"color": "black", "width": 1},
+                        "opacity": 0.8,
                     },
                     "hovertext": unstable_props["texts"],
                 }
             )
+            if highlight_entries:
+                highlight_markers = plotly_layouts["default_binary_marker_settings"].copy()
+                highlight_markers.update(
+                    {
+                        "x": list(highlight_props["x"]),
+                        "y": list(highlight_props["y"]),
+                        "name": "Highlighted",
+                        "marker": {
+                            "color": "fuchsia",
+                            "size": 20,
+                            "line": {"color": "black", "width": 2},
+                            "symbol": "star",
+                        },
+                        "opacity": 0.99,
+                        "hovertext": highlight_props["texts"],
+                        "error_y": {
+                            "array": list(highlight_props["uncertainties"]),
+                            "type": "data",
+                            "color": "gray",
+                            "thickness": 2.5,
+                            "width": 5,
+                        },
+                    }
+                )
 
         elif self._dim == 3 and self.ternary_style == "2d":
             stable_markers = plotly_layouts["default_ternary_2d_marker_settings"].copy()
@@ -3145,6 +3249,23 @@ class PDPlotter:
                     },
                 }
             )
+            if highlight_entries:
+                highlight_markers = plotly_layouts["default_ternary_2d_marker_settings"].copy()
+                highlight_markers.update(
+                    {
+                        "a": list(highlight_props["x"]),
+                        "b": list(highlight_props["y"]),
+                        "c": list(highlight_props["z"]),
+                        "name": "Highlighted",
+                        "hovertext": highlight_props["texts"],
+                        "marker": {
+                            "color": "fuchsia",
+                            "line": {"width": 2.0, "color": "black"},
+                            "symbol": "star",
+                            "size": 18,
+                        },
+                    }
+                )
 
         elif self._dim == 3 and self.ternary_style == "3d":
             stable_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
@@ -3159,7 +3280,7 @@ class PDPlotter:
                     "marker": {
                         "color": "#1e1e1f",
                         "size": 11,
-                        "opacity": 0.95,
+                        "opacity": 0.99,
                     },
                     "hovertext": stable_props["texts"],
                     "error_z": {
@@ -3181,7 +3302,7 @@ class PDPlotter:
                     "marker": {
                         "color": unstable_props["energies"],
                         "colorscale": plotly_layouts["unstable_colorscale"],
-                        "size": 4,
+                        "size": 5,
                         "line": {"color": "black", "width": 1},
                         "symbol": "diamond",
                         "opacity": 0.7,
@@ -3199,9 +3320,35 @@ class PDPlotter:
                     },
                 }
             )
+            if highlight_entries:
+                highlight_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
+                highlight_markers.update(
+                    {
+                        "x": list(highlight_props["y"]),
+                        "y": list(highlight_props["x"]),
+                        "z": list(highlight_props["z"]),
+                        "name": "Highlighted",
+                        "marker": {
+                            "color": "#1e1e1f",
+                            "size": 14,
+                            "opacity": 0.99,
+                            "symbol": "square",
+                            "color": "fuchsia",
+                        },
+                        "hovertext": highlight_props["texts"],
+                        "error_z": {
+                            "array": list(highlight_props["uncertainties"]),
+                            "type": "data",
+                            "color": "darkgray",
+                            "width": 10,
+                            "thickness": 5,
+                        },
+                    }
+                )
 
         elif self._dim == 4:
             stable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
+            unstable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
             stable_markers.update(
                 {
                     "x": stable_props["x"],
@@ -3209,16 +3356,14 @@ class PDPlotter:
                     "z": stable_props["z"],
                     "name": "Stable",
                     "marker": {
-                        "color": stable_props["energies"],
-                        "colorscale": plotly_layouts["stable_markers_colorscale"],
-                        "size": 8,
-                        "opacity": 0.9,
+                        "size": 7,
+                        "opacity": 0.99,
+                        "color": "darkgreen",
+                        "line": {"color": "black", "width": 1},
                     },
                     "hovertext": stable_props["texts"],
                 }
             )
-
-            unstable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
             unstable_markers.update(
                 {
                     "x": unstable_props["x"],
@@ -3230,22 +3375,64 @@ class PDPlotter:
                         "colorscale": plotly_layouts["unstable_colorscale"],
                         "size": 5,
                         "symbol": "diamond",
-                        "colorbar": {"title": "Energy Above Hull<br>(eV/atom)", "x": 0.05, "len": 0.75},
+                        "line": {"color": "black", "width": 1},
+                        "colorbar": {
+                            "title": "Energy Above Hull<br>(eV/atom)",
+                            "x": 0,
+                            "y": 1,
+                            "yanchor": "top",
+                            "xpad": 0,
+                            "ypad": 0,
+                            "thickness": 0.02,
+                            "thicknessmode": "fraction",
+                            "len": 0.5,
+                        },
                     },
                     "hovertext": unstable_props["texts"],
                     "visible": "legendonly",
                 }
             )
-        if self._dim in [1, 2]:
-            stable_marker_plot, unstable_marker_plot = go.Scatter(**stable_markers), go.Scatter(**unstable_markers)
-        elif self._dim == 3 and self.ternary_style == "2d":
-            stable_marker_plot, unstable_marker_plot = go.Scatterternary(**stable_markers), go.Scatterternary(
-                **unstable_markers
-            )
-        else:
-            stable_marker_plot, unstable_marker_plot = go.Scatter3d(**stable_markers), go.Scatter3d(**unstable_markers)
+            if highlight_entries:
+                highlight_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
+                highlight_markers.update(
+                    {
+                        "x": highlight_props["x"],
+                        "y": highlight_props["y"],
+                        "z": highlight_props["z"],
+                        "name": "Highlighted",
+                        "marker": {
+                            "size": 10,
+                            "opacity": 0.99,
+                            "symbol": "square",
+                            "color": "fuchsia",
+                            "line": {"color": "black", "width": 1},
+                        },
+                        "hovertext": highlight_props["texts"],
+                    }
+                )
 
-        return stable_marker_plot, unstable_marker_plot
+        highlight_marker_plot = None
+
+        if self._dim in [1, 2]:
+            stable_marker_plot, unstable_marker_plot = [
+                go.Scatter(**markers) for markers in [stable_markers, unstable_markers]
+            ]
+            if highlight_entries:
+                highlight_marker_plot = go.Scatter(**highlight_markers)
+        elif self._dim == 3 and self.ternary_style == "2d":
+            stable_marker_plot, unstable_marker_plot = [
+                go.Scatterternary(**markers) for markers in [stable_markers, unstable_markers]
+            ]
+            if highlight_entries:
+                highlight_marker_plot = go.Scatterternary(**highlight_markers)
+        else:
+            stable_marker_plot, unstable_marker_plot = [
+                go.Scatter3d(**markers) for markers in [stable_markers, unstable_markers]
+            ]
+            if highlight_entries:
+                highlight_marker_plot = go.Scatter3d(**highlight_markers)
+
+        return stable_marker_plot, unstable_marker_plot, highlight_marker_plot
 
     def _create_plotly_uncertainty_shading(self, stable_marker_plot):
         """
@@ -3580,78 +3767,6 @@ class PDPlotter:
         ax.set_ylim(0, 0.66)
         ax.set_zlim(0, 0.56)  # pylint: disable=E1101
         return plt
-
-    def create_plotly_unary(
-        self, pd: PhaseDiagram, show_unstable=0.2, energy_colormap=None, highlight_entry=None
-    ) -> go.Figure:
-        """Create a simple 1D plot based on structure energies."""
-        if energy_colormap:
-            unstable_colorscale = energy_colormap
-        else:
-            unstable_colorscale = plotly_layouts["unstable_colorscale"]
-
-        x = []
-        y = []
-        text = []
-        color = []
-
-        for entry in pd.all_entries:
-            hull = pd.get_e_above_hull(entry)
-
-            if hull <= show_unstable:
-                energy = round(pd.get_form_energy_per_atom(entry), 3)
-
-                entry_id = getattr(entry, "entry_id", "no ID")
-                formula = entry.composition.reduced_formula
-                label = f"{unicodeify(formula)} ({entry_id}) <br> {energy} eV/atom"
-
-                x.append(0)
-                y.append(energy)
-                text.append(label)
-                color.append(hull)
-
-        traces = [
-            go.Scatter(
-                x=x,
-                y=y,
-                text=text,
-                mode="markers",
-                marker={
-                    "color": color,
-                    "colorscale": unstable_colorscale,
-                    "size": 20,
-                    "symbol": "line-ew",
-                    "line": {"width": 2, "color": y, "colorscale": unstable_colorscale},
-                },
-                hoverinfo="text",
-            )
-        ]
-
-        if highlight_entry:
-            energy = round(pd.get_form_energy_per_atom(highlight_entry), 3)
-
-            entry_id = getattr(highlight_entry, "entry_id", "no ID")
-            formula = highlight_entry.composition.reduced_formula
-            label = f"{unicodeify(formula)} ({entry_id}) <br> {energy} eV/atom"
-
-            star_trace = go.Scatter(
-                x=[0],
-                y=[energy],
-                text=[label],
-                mode="markers",
-                marker={
-                    "color": "#fffacd",
-                    "size": 20,
-                    "symbol": "star",
-                    "line": {"width": 2, "color": "black"},
-                },
-                hoverinfo="text",
-            )
-            traces.append(star_trace)
-
-        fig = go.Figure(data=traces, layout=layout)
-
-        return fig
 
 
 def uniquelines(q):

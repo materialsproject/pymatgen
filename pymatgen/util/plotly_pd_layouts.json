@@ -43,7 +43,7 @@
   "default_binary_layout": {
     "autosize": true,
     "xaxis": {
-      "title": "Fraction",
+      "title": "Composition (Fraction)",
       "anchor": "y",
       "mirror": "ticks",
       "nticks": 8,
@@ -167,14 +167,14 @@
     },
     "scene_camera": {
       "center": {
-        "x": -0.1,
+        "x": 0,
         "y": 0,
-        "z": -0.15
+        "z": 0
       },
       "eye": {
-        "x": -0.1,
+        "x": 0,
         "y": 0,
-        "z": 2.5
+        "z": 5
       },
       "projection": {
         "type": "orthographic"
@@ -219,21 +219,20 @@
       }
     },
     "scene_aspectratio": {
-      "x": 1.7,
-      "y": 1.7,
-      "z": 1.2
+      "x": 2.0,
+      "y": 2.0,
+      "z": 1.0
     }
   },
   "default_quaternary_layout": {
     "autosize": true,
-    "height": 700,
     "hovermode": "closest",
     "margin": {
       "b": 10,
-      "l": 0,
+      "l": 5,
       "pad": 0,
-      "t": 0,
-      "r": 0
+      "t": 10,
+      "r": 5
     },
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -285,19 +284,24 @@
       }
     },
     "scene_camera": {
+      "eye": {
+        "x": 2,
+        "y": 5,
+        "z": 3
+      },
       "center": {
         "x": 0,
-        "y": -0.08,
-        "z": 0
+        "y": -0.2,
+        "z": -0.2
       },
       "projection": {
         "type": "orthographic"
       }
     },
     "scene_aspectratio": {
-      "x": 1.4,
-      "y": 1.4,
-      "z": 1.4
+      "x": 1.5,
+      "y": 1.5,
+      "z": 1.5
     }
   },
   "stable_colorscale": [
@@ -383,7 +387,7 @@
     "showlegend": true,
     "cliponaxis": false
   },
-  "default_ternary_2d_fill_colors": [
+  "default_fill_colors": [
     "#2E91E5",
     "#E15F99",
     "#1CA71C",
@@ -444,10 +448,6 @@
     "align": "center",
     "opacity": 0.7,
     "showarrow": false,
-    "xanchor": "right",
-    "yanchor": "auto",
-    "xshift": -10,
-    "yshift": -10,
     "xref": "x",
     "yref": "y"
   },
