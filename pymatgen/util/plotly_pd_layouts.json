@@ -108,32 +108,40 @@
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
     "margin": {
-      "b": 20,
-      "l": 10,
-      "pad": 20,
-      "t": 20,
-      "r": 10
+      "b": 50,
+      "l": 20,
+      "t": 50,
+      "r": 20
     },
     "ternary": {
       "sum": 1,
       "aaxis": {
         "showgrid": true,
-        "ticks": "",
-        "showticklabels": false,
+        "tickfont": {
+          "size": 6,
+          "color": "rgba(0,0,0,0)"
+        },
+        "showticklabels": true,
         "layer": "below traces"
       },
       "baxis": {
         "min": 0,
         "showgrid": true,
-        "ticks": "",
-        "showticklabels": false,
+        "tickfont": {
+          "size": 6,
+          "color": "rgba(0,0,0,0)"
+        },
+        "showticklabels": true,
         "layer": "below traces"
       },
       "caxis": {
         "min": 0,
         "showgrid": true,
-        "ticks": "",
-        "showticklabels": false,
+        "tickfont": {
+          "size": 6,
+          "color": "rgba(0,0,0,0)"
+        },
+        "showticklabels": true,
         "layer": "below traces"
       }
     },
@@ -299,11 +307,11 @@
   "stable_colorscale": [
     [
       0.0,
-      "#0c8c00"
+      "#084a01"
     ],
     [
       0.5,
-      "#d8ffd4"
+      "#8ed687"
     ],
     [
       1.0,
@@ -313,15 +321,11 @@
   "unstable_colorscale": [
     [
       0.0,
-      "#fad393"
-    ],
-    [
-      0.5,
-      "#ff813d"
+      "#f7e3c1"
     ],
     [
       1.0,
-      "#ff0000"
+      "#a10303"
     ]
   ],
   "stable_markers_colorscale": [
