@@ -2232,9 +2232,11 @@ class PDPlotter:
             go.Figure (backend="plotly") or matplotlib.pyplot (backend="matplotlib")
         """
         fig = None
+        data = []
 
         if self.backend == "plotly":
-            data = [self._create_plotly_lines()]
+            if self._dim != 1:
+                data.append(self._create_plotly_lines())
 
             if self._dim == 2 and label_uncertainties:
                 data.append(self._create_plotly_uncertainty_shading(stable_marker_plot))
@@ -2242,10 +2244,10 @@ class PDPlotter:
             if self._dim == 3 and self.ternary_style == "3d":
                 data.append(self._create_plotly_ternary_support_lines())
 
-            if not (self._dim == 3 and self.ternary_style == "2d"):
+            if not (self._dim in [1, 3] and self.ternary_style == "2d"):
                 data.append(self._create_plotly_stable_labels(label_stable))
 
-            if fill and self._dim == 3 or self._dim == 4:
+            if fill and self._dim in [3, 4]:
                 data.extend(self._create_plotly_fill())
 
             stable_marker_plot, unstable_marker_plot = self._create_plotly_markers(label_uncertainties)
@@ -2609,7 +2611,6 @@ class PDPlotter:
 
         if self._dim == 1:
             layout = plotly_layouts["default_unary_layout"].copy()
-            layout["annotations"] = annotations_list
         if self._dim == 2:
             layout = plotly_layouts["default_binary_layout"].copy()
             layout["annotations"] = annotations_list
@@ -3017,6 +3018,50 @@ class PDPlotter:
 
         stable_markers, unstable_markers = {}, {}
 
+        if self._dim == 1:
+            stable_markers = plotly_layouts["default_unary_marker_settings"].copy()
+            unstable_markers = plotly_layouts["default_unary_marker_settings"].copy()
+
+            stable_markers.update(
+                {
+                    "x": [0] * len(stable_props["y"]),
+                    "y": list(stable_props["x"]),
+                    "name": "Stable",
+                    "marker": {
+                        "color": "darkgreen",
+                        "size": 20,
+                        "line": {"color": "black", "width": 2},
+                        "symbol": "star",
+                    },
+                    "opacity": 0.9,
+                    "hovertext": stable_props["texts"],
+                    "error_y": {
+                        "array": list(stable_props["uncertainties"]),
+                        "type": "data",
+                        "color": "gray",
+                        "thickness": 2.5,
+                        "width": 5,
+                    },
+                }
+            )
+            unstable_colors = plotly_layouts["unstable_colorscale"].copy()
+            unstable_markers.update(
+                {
+                    "x": [0] * len(unstable_props["y"]),
+                    "y": list(unstable_props["x"]),
+                    "name": "Above Hull",
+                    "marker": {
+                        "color": unstable_props["energies"],
+                        "colorscale": plotly_layouts["unstable_colorscale"],
+                        "size": 16,
+                        "symbol": "diamond-wide",
+                        "line": {"color": "black", "width": 2},
+                    },
+                    "hovertext": unstable_props["texts"],
+                    "opacity": 0.9,
+                }
+            )
+
         if self._dim == 2:
             stable_markers = plotly_layouts["default_binary_marker_settings"].copy()
             unstable_markers = plotly_layouts["default_binary_marker_settings"].copy()
@@ -3191,7 +3236,7 @@ class PDPlotter:
                     "visible": "legendonly",
                 }
             )
-        if self._dim == 2:
+        if self._dim in [1, 2]:
             stable_marker_plot, unstable_marker_plot = go.Scatter(**stable_markers), go.Scatter(**unstable_markers)
         elif self._dim == 3 and self.ternary_style == "2d":
             stable_marker_plot, unstable_marker_plot = go.Scatterternary(**stable_markers), go.Scatterternary(
@@ -3537,14 +3582,9 @@ class PDPlotter:
         return plt
 
     def create_plotly_unary(
-        pd: PhaseDiagram, show_unstable=0.2, energy_colormap=None, highlight_entry=None
+        self, pd: PhaseDiagram, show_unstable=0.2, energy_colormap=None, highlight_entry=None
     ) -> go.Figure:
-        """Create a simple 1D plot based on structure energies.
-
-        :param pd: PhaseDiagram
-
-        :return: go.Figure
-        """
+        """Create a simple 1D plot based on structure energies."""
         if energy_colormap:
             unstable_colorscale = energy_colormap
         else:

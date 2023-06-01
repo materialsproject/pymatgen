@@ -1,8 +1,6 @@
 {
   "default_unary_layout": {
     "autosize": true,
-    "width": 200,
-    "height": 500,
     "xaxis": {
       "range": [
         -0.1,
@@ -44,7 +42,6 @@
   },
   "default_binary_layout": {
     "autosize": true,
-    "height": 700,
     "xaxis": {
       "title": "Fraction",
       "anchor": "y",
@@ -341,6 +338,23 @@
       "#7ce371"
     ]
   ],
+  "default_unary_marker_settings": {
+    "mode": "markers",
+    "marker": {
+      "size": 8,
+      "line": {
+        "width": 4,
+        "color": "black"
+      }
+    },
+    "hoverinfo": "text",
+    "hoverlabel": {
+      "font": {
+        "size": 14
+      }
+    },
+    "showlegend": true
+  },
   "default_binary_marker_settings": {
     "mode": "markers",
     "marker": {
