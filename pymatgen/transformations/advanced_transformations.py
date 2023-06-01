@@ -1972,7 +1972,6 @@ class SQSTransformation(AbstractTransformation):
     ):
         """
         Args:
-            structure (Structure): Disordered pymatgen Structure object
             scaling (int or list): Scaling factor to determine supercell. Two options are possible:
                     a. (preferred) Scales number of atoms, e.g., for a structure with 8 atoms,
                        scaling=4 would lead to a 32 atom supercell
