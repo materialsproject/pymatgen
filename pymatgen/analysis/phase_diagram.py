@@ -2580,7 +2580,7 @@ class PDPlotter:
         }
 
         if self._dim == 3 and self.ternary_style == "2d":
-            plot_args["line"]["width"] = 1.0
+            plot_args["line"]["width"] = 1.5
             el_a, el_b, el_c = pd.elements
             for line in uniquelines(pd.facets):
                 e0 = pd.qhull_entries[line[0]]
@@ -2982,9 +2982,9 @@ class PDPlotter:
                     "hovertext": stable_props["texts"],
                     "marker": {
                         "color": "green",
-                        "line": {"width": 1.5, "color": "black"},
+                        "line": {"width": 2.0, "color": "black"},
                         "symbol": "circle",
-                        "size": 14,
+                        "size": 15,
                     },
                 }
             )
@@ -2997,8 +2997,9 @@ class PDPlotter:
                     "hovertext": unstable_props["texts"],
                     "marker": {
                         "color": unstable_props["energies"],
+                        "opacity": 0.8,
                         "colorscale": plotly_layouts["unstable_colorscale"],
-                        "line": {"width": 0.5, "color": "black"},
+                        "line": {"width": 1, "color": "black"},
                         "size": 7,
                         "symbol": "diamond",
                         "colorbar": {

@@ -109,9 +109,9 @@
     "plot_bgcolor": "rgba(0,0,0,0)",
     "margin": {
       "b": 50,
-      "l": 20,
+      "l": 30,
       "t": 50,
-      "r": 20
+      "r": 30
     },
     "ternary": {
       "sum": 1,
@@ -321,11 +321,15 @@
   "unstable_colorscale": [
     [
       0.0,
-      "#f7e3c1"
+      "#fff5e3"
+    ],
+    [
+      0.5,
+      "#f24324"
     ],
     [
       1.0,
-      "#a10303"
+      "#c40000"
     ]
   ],
   "stable_markers_colorscale": [
@@ -367,32 +371,30 @@
     "cliponaxis": false
   },
   "default_ternary_2d_fill_colors": [
-    "#AA0DFE",
-    "#3283FE",
-    "#85660D",
-    "#782AB6",
-    "#565656",
-    "#1C8356",
-    "#16FF32",
-    "#F7E1A0",
-    "#E2E2E2",
-    "#1CBE4F",
-    "#C4451C",
-    "#DEA0FD",
-    "#FE00FA",
-    "#325A9B",
-    "#FEAF16",
-    "#F8A19F",
-    "#90AD1C",
-    "#F6222E",
-    "#1CFFCE",
-    "#2ED9FF",
-    "#B10DA1",
-    "#C075A6",
-    "#FC1CBF",
-    "#B00068",
-    "#FBE426",
-    "#FA0087"
+    "#2E91E5",
+    "#E15F99",
+    "#1CA71C",
+    "#FB0D0D",
+    "#DA16FF",
+    "#222A2A",
+    "#B68100",
+    "#750D86",
+    "#EB663B",
+    "#511CFB",
+    "#00A08B",
+    "#FB00D1",
+    "#FC0080",
+    "#B2828D",
+    "#6C7C32",
+    "#778AAE",
+    "#862A16",
+    "#A777F1",
+    "#620042",
+    "#1616A7",
+    "#DA60CA",
+    "#6C4516",
+    "#0D2A63",
+    "#AF0038"
   ],
   "default_ternary_3d_marker_settings": {
     "mode": "markers",
