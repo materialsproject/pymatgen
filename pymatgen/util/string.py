@@ -6,18 +6,7 @@ from __future__ import annotations
 import re
 from fractions import Fraction
 
-SUBSCRIPT_UNICODE = {
-    "0": "₀",
-    "1": "₁",
-    "2": "₂",
-    "3": "₃",
-    "4": "₄",
-    "5": "₅",
-    "6": "₆",
-    "7": "₇",
-    "8": "₈",
-    "9": "₉",
-}
+SUBSCRIPT_UNICODE = {"0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄", "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉"}
 
 SUPERSCRIPT_UNICODE = {
     "0": "⁰",
@@ -113,10 +102,10 @@ def str_delimited(results, header=None, delimiter="\t"):
     Returns:
         Aligned string output in a table-like format.
     """
-    returnstr = ""
+    out = ""
     if header is not None:
-        returnstr += delimiter.join(header) + "\n"
-    return returnstr + "\n".join(delimiter.join([str(m) for m in result]) for result in results)
+        out += delimiter.join(header) + "\n"
+    return out + "\n".join(delimiter.join([str(m) for m in result]) for result in results)
 
 
 def formula_double_format(afloat, ignore_ones=True, tol: float = 1e-8):
