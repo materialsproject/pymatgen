@@ -27,11 +27,7 @@ from pymatgen.entries.compatibility import (
     MITAqueousCompatibility,
     MITCompatibility,
 )
-from pymatgen.entries.computed_entries import (
-    ComputedEntry,
-    ComputedStructureEntry,
-    ConstantEnergyAdjustment,
-)
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.util.testing import PymatgenTest
 
 
