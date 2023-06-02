@@ -283,7 +283,8 @@ class AbinitTimerParser(collections.abc.Iterable):
                 ctime_peff = n * [-1]
                 wtime_peff = n * [-1]
 
-            assert sect_name not in peff
+            if sect_name in peff:
+                raise AssertionError
             peff[sect_name] = {}
             peff[sect_name]["cpu_time"] = ctime_peff
             peff[sect_name]["wall_time"] = wtime_peff
@@ -519,7 +520,8 @@ class ParallelEfficiency(dict):
                 values = peff[key][:]
                 if len(values) > 1:
                     ref_value = values.pop(self._ref_idx)
-                    assert ref_value == 1.0
+                    if ref_value != 1.0:
+                        raise AssertionError
 
                 data.append((sect_name, self.estimator(values)))
 
@@ -668,7 +670,8 @@ class AbinitTimer:
         """Return section associated to `section_name`."""
         idx = self.section_names.index(section_name)
         sect = self.sections[idx]
-        assert sect.name == section_name
+        if sect.name != section_name:
+            raise AssertionError
         return sect
 
     def to_csv(self, fileobj=sys.stdout):
