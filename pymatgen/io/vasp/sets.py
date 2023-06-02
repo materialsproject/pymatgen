@@ -119,18 +119,17 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         Potcar object.
         """
-        # pylint: disable=E1101
-        potcar = Potcar(self.potcar_symbols, functional=self.potcar_functional)
+        user_potcar_functional = self.user_potcar_functional
+        potcar = Potcar(self.potcar_symbols, functional=user_potcar_functional)
 
-        # warn if the selected POTCARs do not correspond to the chosen
-        # potcar_functional
-        for psingle in potcar:
-            if self.potcar_functional not in psingle.identify_potcar()[0]:
+        # warn if the selected POTCARs do not correspond to the chosen user_potcar_functional
+        for p_single in potcar:
+            if user_potcar_functional not in p_single.identify_potcar()[0]:
                 warnings.warn(
-                    f"POTCAR data with symbol {psingle.symbol} is not known by pymatgen to\
-                    correspond with the selected potcar_functional {self.potcar_functional}. This POTCAR\
-                    is known to correspond with functionals {psingle.identify_potcar(mode='data')[0]}. "
-                    f"Please verify that you are using the right POTCARs!",
+                    f"POTCAR data with symbol {p_single.symbol} is not known by pymatgen to "
+                    f"correspond with the selected {user_potcar_functional=}. This POTCAR "
+                    f"is known to correspond with functionals {p_single.identify_potcar(mode='data')[0]}. "
+                    "Please verify that you are using the right POTCARs!",
                     BadInputSetWarning,
                 )
 
