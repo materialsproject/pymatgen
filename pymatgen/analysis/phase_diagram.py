@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json")) as f:
+with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json"), encoding="utf8") as f:
     plotly_layouts = json.load(f)
 
 
@@ -1302,7 +1302,7 @@ class PhaseDiagram(MSONable):
         label_uncertainties: bool = False,
         fill: bool = True,
         **plotkwargs,
-    ) -> Union[go.Figure, plt.Figure]:
+    ) -> go.Figure | plt.Figure:
         """
         Convenient wrapper for PDPlotter. Initializes a PDPlotter object and calls
         get_plot() with provided combined arguments.
@@ -2211,7 +2211,7 @@ class PDPlotter:
         label_uncertainties: bool = False,
         fill: bool = True,
         highlight_entries: Collection[PDEntry] | None = None,
-    ) -> Union[go.Figure, plt]:
+    ):
         """
         Args:
             label_stable: Whether to label stable compounds.
@@ -2246,7 +2246,7 @@ class PDPlotter:
             if self._dim == 3 and self.ternary_style == "3d":
                 data.append(self._create_plotly_ternary_support_lines())
 
-            if not self._dim == 1 and not (self._dim == 3 and self.ternary_style == "2d"):
+            if self._dim != 1 and not (self._dim == 3 and self.ternary_style == "2d"):
                 data.append(self._create_plotly_stable_labels(label_stable))
 
             if fill and self._dim in [3, 4]:
@@ -2515,7 +2515,7 @@ class PDPlotter:
         entries = pd.qhull_entries
         data = np.array(pd.qhull_data)
 
-        plt = self._get_2d_plot()
+        plt = self._get_matplotlib_2d_plot()
         data[:, 0:2] = triangular_coord(data[:, 0:2]).transpose()
         for i, e in enumerate(entries):
             data[i, 2] = self._pd.get_e_above_hull(e)
@@ -2771,8 +2771,6 @@ class PDPlotter:
                     colorbar={
                         "title": "Formation energy<br>(eV/atom)",
                         "x": 0.9,
-                        "len": 0.75,
-                        "x": 0.9,
                         "y": 1,
                         "yanchor": "top",
                         "xpad": 0,
@@ -2933,10 +2931,7 @@ class PDPlotter:
                 font_dict = {"color": "#000000", "size": 24.0}
                 opacity = 1.0
 
-            if self._dim == 2:
-                offset = 0.03
-            else:
-                offset = 0.06
+            offset = 0.03 if self._dim == 2 else 0.06
 
             if x < 0.4:
                 x -= offset
@@ -2947,9 +2942,8 @@ class PDPlotter:
             elif y > 0.8:
                 y += offset
 
-            if self._dim == 4:
-                if z > 0.8:
-                    z += offset
+            if self._dim == 4 and z > 0.8:
+                z += offset
 
             annotation = plotly_layouts["default_annotation_layout"].copy()
             annotation.update(
@@ -2996,7 +2990,7 @@ class PDPlotter:
             """
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 
-            is_stable = [True if entry in self._pd.stable_entries else False for entry in entries]
+            is_stable = [bool(entry in self._pd.stable_entries) for entry in entries]
 
             for coord, entry, stable in zip(coords, entries, is_stable):
                 energy = round(self._pd.get_form_energy_per_atom(entry), 3)
@@ -3099,7 +3093,7 @@ class PDPlotter:
                     },
                 }
             )
-            unstable_colors = plotly_layouts["unstable_colorscale"].copy()
+            plotly_layouts["unstable_colorscale"].copy()
             unstable_markers.update(
                 {
                     "x": [0] * len(unstable_props["y"]),
@@ -3330,7 +3324,6 @@ class PDPlotter:
                         "z": list(highlight_props["z"]),
                         "name": "Highlighted",
                         "marker": {
-                            "color": "#1e1e1f",
                             "size": 12,
                             "opacity": 0.99,
                             "symbol": "square",
@@ -3415,21 +3408,22 @@ class PDPlotter:
         highlight_marker_plot = None
 
         if self._dim in [1, 2]:
-            stable_marker_plot, unstable_marker_plot = [
+            stable_marker_plot, unstable_marker_plot = (
                 go.Scatter(**markers) for markers in [stable_markers, unstable_markers]
-            ]
+            )
+
             if highlight_entries:
                 highlight_marker_plot = go.Scatter(**highlight_markers)
         elif self._dim == 3 and self.ternary_style == "2d":
-            stable_marker_plot, unstable_marker_plot = [
+            stable_marker_plot, unstable_marker_plot = (
                 go.Scatterternary(**markers) for markers in [stable_markers, unstable_markers]
-            ]
+            )
             if highlight_entries:
                 highlight_marker_plot = go.Scatterternary(**highlight_markers)
         else:
-            stable_marker_plot, unstable_marker_plot = [
+            stable_marker_plot, unstable_marker_plot = (
                 go.Scatter3d(**markers) for markers in [stable_markers, unstable_markers]
-            ]
+            )
             if highlight_entries:
                 highlight_marker_plot = go.Scatter3d(**highlight_markers)
 
