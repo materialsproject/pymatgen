@@ -56,7 +56,6 @@ class AbinitTimerParser(collections.abc.Iterable):
 
     Error = AbinitTimerParserError
 
-    # DEFAULT_MPI_RANK = "0"
 
     @classmethod
     def walk(cls, top=".", ext=".abo"):
@@ -152,7 +151,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         parser_failed = False
         inside, has_timer = 0, False
         for line in fh:
-            # print(line.strip())
             if line.startswith(self.BEGIN_TAG):
                 has_timer = True
                 sections = []
@@ -225,9 +223,6 @@ class AbinitTimerParser(collections.abc.Iterable):
             #     section_names.intersection_update(new_set)
             #     check = check | new_set
 
-        # if check != section_names:
-        #  print("sections", section_names)
-        #  print("check",check)
 
         return section_names
 
@@ -351,7 +346,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         n = len(timers)
         xx = np.arange(n)
 
-        # ax.set_color_cycle(['g', 'b', 'c', 'm', 'y', 'k'])
         ax.set_prop_cycle(color=["g", "b", "c", "m", "y", "k"])
 
         lines, legend_entries = [], []
@@ -359,7 +353,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         if "good" in what:
             good = peff.good_sections(key=key, nmax=nmax)
             for g in good:
-                # print(g, peff[g])
                 yy = peff[g][key]
                 (line,) = ax.plot(xx, yy, "-->", linewidth=lw, markersize=msize)
                 lines.append(line)
@@ -369,7 +362,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         if "bad" in what:
             bad = peff.bad_sections(key=key, nmax=nmax)
             for b in bad:
-                # print(b, peff[b])
                 yy = peff[b][key]
                 (line,) = ax.plot(xx, yy, "-.<", linewidth=lw, markersize=msize)
                 lines.append(line)
@@ -525,7 +517,6 @@ class ParallelEfficiency(dict):
             # Ignore values where we had a division by zero.
             if all(v != -1 for v in peff[key]):
                 values = peff[key][:]
-                # print(sect_name, values)
                 if len(values) > 1:
                     ref_value = values.pop(self._ref_idx)
                     assert ref_value == 1.0
@@ -831,7 +822,6 @@ class AbinitTimer:
         # Add ylable and title
         ax.set_ylabel("Time (s)")
 
-        # plt.title('CPU-time and Wall-time for the different sections of the code')
 
         ticks = self.get_values("name")
         ax.set_xticks(ind + width, ticks)
@@ -904,15 +894,12 @@ class AbinitTimer:
         # the xaxis of axHistx and yaxis of axHisty are shared with axScatter,
         # thus there is no need to manually adjust the xlim and ylim of these axis.
 
-        # axHistx.axis["bottom"].major_ticklabels.set_visible(False)
         for tl in axHistx.get_xticklabels():
             tl.set_visible(False)
             axHistx.set_yticks([0, 50, 100])
 
-            # axHisty.axis["left"].major_ticklabels.set_visible(False)
             for tl in axHisty.get_yticklabels():
                 tl.set_visible(False)
                 axHisty.set_xticks([0, 50, 100])
 
-        # plt.draw()
         return fig
