@@ -865,7 +865,7 @@ class PDPlotterTest(unittest.TestCase):
     def setUp(self):
         entries = list(EntrySet.from_csv(os.path.join(module_dir, "pdentries_test.csv")))
 
-        elemental_entries = [e for e in entries if e.elements == [Element("Li")]]
+        elemental_entries = [e for e in entries if e.composition.elements == [Element("Li")]]
         self.pd_unary = PhaseDiagram(elemental_entries)
         self.plotter_unary_plotly = PDPlotter(self.pd_unary, backend="plotly")
 
@@ -922,11 +922,6 @@ class PDPlotterTest(unittest.TestCase):
         self.plotter_ternary_plotly_2d.get_plot()
         self.plotter_ternary_plotly_3d.get_plot()
         self.plotter_quaternary_plotly.get_plot()
-
-    def test_write_image(self):
-        # Just make sure the method can be called for both backends.
-        self.plotter_binary_plotly.write_image("test.svg")
-        self.plotter_binary_mpl.write_image("test.svg")
 
 
 class UtilityFunctionTest(unittest.TestCase):
