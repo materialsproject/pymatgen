@@ -1130,9 +1130,9 @@ class PhaseDiagram(MSONable):
         Returns a chemical potential range map for each stable entry.
 
         Args:
-            elements: Sequence of elements to be considered as independent
-                variables. E.g., if you want to show the stability ranges
-                of all Li-Co-O phases wrt to uLi and uO, you will supply
+            elements: Sequence of elements to be considered as independent variables.
+                E.g., if you want to show the stability ranges
+                of all Li-Co-O phases with respect to mu_Li and mu_O, you will supply
                 [Element("Li"), Element("O")]
             referenced: If True, gives the results with a reference being the
                 energy of the elemental phase. If False, gives absolute values.

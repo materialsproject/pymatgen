@@ -12,20 +12,14 @@ import pytest
 from monty.serialization import dumpfn, loadfn
 from monty.tempfile import ScratchDir
 
-from pymatgen.analysis.phase_diagram import (
-    CompoundPhaseDiagram,
-    GrandPotentialPhaseDiagram,
-    GrandPotPDEntry,
-    PatchedPhaseDiagram,
-    PDEntry,
-    PDPlotter,
-    PhaseDiagram,
-    ReactionDiagram,
-    TransformedPDEntry,
-    tet_coord,
-    triangular_coord,
-    uniquelines,
-)
+from pymatgen.analysis.phase_diagram import (CompoundPhaseDiagram,
+                                             GrandPotentialPhaseDiagram,
+                                             GrandPotPDEntry,
+                                             PatchedPhaseDiagram, PDEntry,
+                                             PDPlotter, PhaseDiagram,
+                                             ReactionDiagram,
+                                             TransformedPDEntry, tet_coord,
+                                             triangular_coord, uniquelines)
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -866,15 +860,19 @@ class PDPlotterTest(unittest.TestCase):
     def setUp(self):
         entries = list(EntrySet.from_csv(os.path.join(module_dir, "pdentries_test.csv")))
 
-        self.pd_ternary = PhaseDiagram(entries)
-        self.plotter_ternary_mpl = PDPlotter(self.pd_ternary, backend="matplotlib")
-        self.plotter_ternary_plotly_2d = PDPlotter(self.pd_ternary, backend="plotly", ternary_style="2d")
-        self.plotter_ternary_plotly_3d = PDPlotter(self.pd_ternary, backend="plotly", ternary_style="3d")
+        elemental_entries = [e for e in entries if e.elements == [Element("Li")]]
+        self.pd_unary = PhaseDiagram(elemental_entries)
+        self.plotter_unary_plotly = PDPlotter(self.pd_unary, backend="plotly")
 
         entries_LiO = [e for e in entries if "Fe" not in e.composition]
         self.pd_binary = PhaseDiagram(entries_LiO)
         self.plotter_binary_mpl = PDPlotter(self.pd_binary, backend="matplotlib")
         self.plotter_binary_plotly = PDPlotter(self.pd_binary, backend="plotly")
+
+        self.pd_ternary = PhaseDiagram(entries)
+        self.plotter_ternary_mpl = PDPlotter(self.pd_ternary, backend="matplotlib")
+        self.plotter_ternary_plotly_2d = PDPlotter(self.pd_ternary, backend="plotly", ternary_style="2d")
+        self.plotter_ternary_plotly_3d = PDPlotter(self.pd_ternary, backend="plotly", ternary_style="3d")
 
         entries.append(PDEntry("C", 0))
         self.pd_quaternary = PhaseDiagram(entries)
@@ -914,10 +912,16 @@ class PDPlotterTest(unittest.TestCase):
 
     def test_plotly_plots(self):
         # Also very basic tests. Ensures callability and 2D vs 3D properties.
+        self.plotter_unary_plotly.get_plot()
         self.plotter_binary_plotly.get_plot()
         self.plotter_ternary_plotly_2d.get_plot()
         self.plotter_ternary_plotly_3d.get_plot()
         self.plotter_quaternary_plotly.get_plot()
+
+    def test_write_image(self):
+        # Just make sure the method can be called for both backends.
+        self.plotter_binary_plotly.write_image("test.svg")
+        self.plotter_binary_mpl.write_image("test.svg")
 
 
 class UtilityFunctionTest(unittest.TestCase):
