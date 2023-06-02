@@ -385,6 +385,7 @@ class DictSet(VaspInputSet):
         self.standardize = standardize
         self.sym_prec = sym_prec
         self.international_monoclinic = international_monoclinic
+        self.validate_magmom = validate_magmom
 
         if self.user_incar_settings.get("KSPACING") and user_kpoints_settings is not None:
             warnings.warn(
@@ -405,10 +406,10 @@ class DictSet(VaspInputSet):
                     f"Invalid or unsupported van-der-Waals functional. Supported functionals are {', '.join(vdw_par)}."
                 )
         # 'or' case reads the POTCAR_FUNCTIONAL from the .yaml
-        self.potcar_functional = user_potcar_functional or self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
+        self.user_potcar_functional = user_potcar_functional or self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
 
         # warn if a user is overriding POTCAR_FUNCTIONAL
-        if self.potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL", "PBE"):
+        if self.user_potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL", "PBE"):
             warnings.warn(
                 "Overriding the POTCAR functional is generally not recommended "
                 " as it significantly affect the results of calculations and "
@@ -2712,7 +2713,7 @@ class MVLScanRelaxSet(MPRelaxSet):
 
         super().__init__(structure, **kwargs)
 
-        if self.potcar_functional not in ("PBE_52", "PBE_54"):
+        if self.user_potcar_functional not in ("PBE_52", "PBE_54"):
             raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
 
         updates = {
