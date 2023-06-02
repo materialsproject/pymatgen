@@ -12,7 +12,14 @@ from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.tensors import SquareTensor, Tensor, TensorCollection, TensorMapping, itertools, symmetry_reduce
+from pymatgen.core.tensors import (
+    SquareTensor,
+    Tensor,
+    TensorCollection,
+    TensorMapping,
+    itertools,
+    symmetry_reduce,
+)
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
