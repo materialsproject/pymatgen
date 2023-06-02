@@ -1731,11 +1731,6 @@ class SulfideTypeCorrection2020Test(unittest.TestCase):
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
 
     def test_struct_no_struct(self):
-        # Processing an Entry should produce the same correction whether or not
-        # that entry has a Structure attached to it.
-
-        # Na2S2, entry mp-2400, with and without structure
-        from collections import defaultdict
 
         entry_struct_as_dict = {
             "@module": "pymatgen.entries.computed_entries",

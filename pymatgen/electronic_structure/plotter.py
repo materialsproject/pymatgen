@@ -871,9 +871,6 @@ class BSPlotter:
         """
         warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
 
-        # TODO: add exception if the band structures are not compatible
-        import matplotlib.lines as mlines
-
         plt = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
@@ -1239,7 +1236,6 @@ class BSPlotterProjected(BSPlotter):
         return plt
 
     def _get_projections_by_branches_patom_pmorb(self, dictio, dictpa, sum_atoms, sum_morbs, selected_branches):
-        import copy
 
         setos = {
             "s": 0,
@@ -1620,7 +1616,6 @@ class BSPlotterProjected(BSPlotter):
                 f"The number of sub-figures {number_figs} might be too manny and the implementation might take a long "
                 f"time.\n A smaller number or a plot with selected symmetry lines (selected_branches) might be better."
             )
-        from pymatgen.util.plotting import pretty_plot
 
         band_linewidth = 0.5
         plt = pretty_plot(w_h_size[0], w_h_size[1])
@@ -1874,9 +1869,6 @@ class BSPlotterProjected(BSPlotter):
         return dictio, sum_morbs
 
     def _number_of_subfigures(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from collections import Counter
-
-        from pymatgen.core.periodic_table import Element
 
         if not isinstance(dictpa, dict):
             raise TypeError("The invalid type of 'dictpa' was bound. It should be dict type.")
@@ -2002,7 +1994,6 @@ class BSPlotterProjected(BSPlotter):
         return dictpa, sum_atoms, number_figs
 
     def _summarize_keys_for_plot(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from pymatgen.core.periodic_table import Element
 
         individual_orbs = {
             "p": ["px", "py", "pz"],
@@ -2295,7 +2286,6 @@ class BSDOSPlotter:
             matplotlib.pyplot object on which you can call commands like show()
             and savefig()
         """
-        import matplotlib.lines as mlines
         import matplotlib.pyplot as plt
         from matplotlib.gridspec import GridSpec
 

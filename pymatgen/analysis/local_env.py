@@ -1656,8 +1656,6 @@ class CovalentBondNN(NearNeighbors):
 
         Returns: a pymatgen.analysis.graphs.MoleculeGraph object
         """
-        # requires optional dependency which is why it's not a top-level import
-        from pymatgen.analysis.graphs import MoleculeGraph
 
         if decorate:
             # Decorate all sites in the underlying structure

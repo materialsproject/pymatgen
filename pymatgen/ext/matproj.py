@@ -1463,7 +1463,6 @@ class _MPResterLegacy:
             pymatgen.analysis.wulff.WulffShape
         """
         from pymatgen.analysis.wulff import WulffShape
-        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         structure = self.get_structure_by_material_id(material_id)
         surfaces = self.get_surface_data(material_id)["surfaces"]

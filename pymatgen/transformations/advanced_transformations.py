@@ -468,7 +468,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
                         potential = Potential(M3GNet.load())
                         m3gnet_model = M3GNetCalculator(potential=potential, stress_weight=0.01)
-                    from pymatgen.io.ase import AseAtomsAdaptor
 
                     atoms = AseAtomsAdaptor().get_atoms(s)
                     m3gnet_model.calculate(atoms)
