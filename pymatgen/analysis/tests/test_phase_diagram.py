@@ -396,12 +396,12 @@ class PhaseDiagramTest(unittest.TestCase):
         ans_dict = {
             entry.composition.formula: amt for entry, amt in self.pd.get_decomposition(Composition("Li3Fe7O11")).items()
         }
-        expected_ans = {
+        expected = {
             "Fe2 O2": 0.0952380952380949,
             "Li1 Fe1 O2": 0.5714285714285714,
             "Fe6 O8": 0.33333333333333393,
         }
-        for k, v in expected_ans.items():
+        for k, v in expected.items():
             assert ans_dict[k] == pytest.approx(v)
 
     def test_get_transition_chempots(self):
@@ -940,7 +940,7 @@ class UtilityFunctionTest(unittest.TestCase):
             [400, 17, 20],
             [21, 17, 400],
         ]
-        expected_ans = {
+        expected = {
             (5, 393),
             (21, 353),
             (353, 400),
@@ -964,7 +964,7 @@ class UtilityFunctionTest(unittest.TestCase):
             (399, 400),
             (20, 400),
         }
-        assert uniquelines(testdata) == expected_ans
+        assert uniquelines(testdata) == expected
 
     def test_triangular_coord(self):
         coord = [0.5, 0.5]
