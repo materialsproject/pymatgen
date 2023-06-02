@@ -83,7 +83,7 @@ if __name__ == "__main__":
                     )
                     found = True
                     break
-                elif n_points == 3:
+                if n_points == 3:
                     if collinear(points_combination[0], points_combination[1], points_combination[2], tolerance=0.25):
                         continue
                     local_plane = Plane.from_3points(
@@ -91,12 +91,11 @@ if __name__ == "__main__":
                     )
                     found = True
                     break
-                elif n_points > 3:
+                if n_points > 3:
                     local_plane = Plane.from_npoints(points_combination, best_fit="least_square_distance")
                     found = True
                     break
-                else:
-                    raise ValueError("Wrong number of points to initialize separation plane")
+                raise ValueError("Wrong number of points to initialize separation plane")
 
         points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
         # Actual test of the permutations
