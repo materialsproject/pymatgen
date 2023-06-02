@@ -562,11 +562,9 @@ class ConnectedComponent(MSONable):
                 plt.savefig(save_file)
             # nx.draw(self._connected_subgraph)
         elif drawing_type == "draw_graphviz":
-            import networkx
 
             networkx.nx_pydot.graphviz_layout(shown_graph)
         elif drawing_type == "draw_random":
-            import networkx
 
             networkx.draw_random(shown_graph)
         if pltshow:

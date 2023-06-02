@@ -332,7 +332,6 @@ def linkcode_resolve(domain, info):
         for part in info["fullname"].split("."):
             obj = getattr(obj, part)
         import inspect
-        import os
 
         fn = inspect.getsourcefile(obj)
         fn = os.path.relpath(fn, start=os.path.dirname(__file__))
