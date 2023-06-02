@@ -12,14 +12,20 @@ import pytest
 from monty.serialization import dumpfn, loadfn
 from monty.tempfile import ScratchDir
 
-from pymatgen.analysis.phase_diagram import (CompoundPhaseDiagram,
-                                             GrandPotentialPhaseDiagram,
-                                             GrandPotPDEntry,
-                                             PatchedPhaseDiagram, PDEntry,
-                                             PDPlotter, PhaseDiagram,
-                                             ReactionDiagram,
-                                             TransformedPDEntry, tet_coord,
-                                             triangular_coord, uniquelines)
+from pymatgen.analysis.phase_diagram import (
+    CompoundPhaseDiagram,
+    GrandPotentialPhaseDiagram,
+    GrandPotPDEntry,
+    PatchedPhaseDiagram,
+    PDEntry,
+    PDPlotter,
+    PhaseDiagram,
+    ReactionDiagram,
+    TransformedPDEntry,
+    tet_coord,
+    triangular_coord,
+    uniquelines,
+)
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -162,8 +168,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_repr(self):
         assert (
-            str(self.pd)
-            == "Li-Fe-O phase diagram\n11 stable phases: \nFe, FeO, "
+            str(self.pd) == "Li-Fe-O phase diagram\n11 stable phases: \nFe, FeO, "
             "Fe2O3, Fe3O4, LiFeO2, Li, Li2O, LiO, Li5FeO4, Li2FeO3, O"
         )
 
@@ -588,7 +593,7 @@ class PhaseDiagramTest(unittest.TestCase):
             assert cp2["FeO-LiFeO2-Fe"][elem] == pytest.approx(energy)
 
     def test_get_plot(self):
-        plot = self.pd.get_plot()  # PDPlotter functionality is tested separately
+        self.pd.get_plot()  # PDPlotter functionality is tested separately
 
     def test_to_from_dict(self):
         # test round-trip for other entry types such as ComputedEntry
