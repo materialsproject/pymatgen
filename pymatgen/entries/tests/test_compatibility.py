@@ -1731,7 +1731,6 @@ class SulfideTypeCorrection2020Test(unittest.TestCase):
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
 
     def test_struct_no_struct(self):
-
         entry_struct_as_dict = {
             "@module": "pymatgen.entries.computed_entries",
             "@class": "ComputedStructureEntry",
