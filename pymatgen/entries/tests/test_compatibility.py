@@ -27,7 +27,11 @@ from pymatgen.entries.compatibility import (
     MITAqueousCompatibility,
     MITCompatibility,
 )
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
+from pymatgen.entries.computed_entries import (
+    ComputedEntry,
+    ComputedStructureEntry,
+    ConstantEnergyAdjustment,
+)
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -1731,7 +1735,6 @@ class SulfideTypeCorrection2020Test(unittest.TestCase):
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
 
     def test_struct_no_struct(self):
-
         entry_struct_as_dict = {
             "@module": "pymatgen.entries.computed_entries",
             "@class": "ComputedStructureEntry",

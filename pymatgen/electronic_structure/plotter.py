@@ -1236,7 +1236,6 @@ class BSPlotterProjected(BSPlotter):
         return plt
 
     def _get_projections_by_branches_patom_pmorb(self, dictio, dictpa, sum_atoms, sum_morbs, selected_branches):
-
         setos = {
             "s": 0,
             "py": 1,
@@ -1869,7 +1868,6 @@ class BSPlotterProjected(BSPlotter):
         return dictio, sum_morbs
 
     def _number_of_subfigures(self, dictio, dictpa, sum_atoms, sum_morbs):
-
         if not isinstance(dictpa, dict):
             raise TypeError("The invalid type of 'dictpa' was bound. It should be dict type.")
         if len(dictpa) == 0:
@@ -1994,7 +1992,6 @@ class BSPlotterProjected(BSPlotter):
         return dictpa, sum_atoms, number_figs
 
     def _summarize_keys_for_plot(self, dictio, dictpa, sum_atoms, sum_morbs):
-
         individual_orbs = {
             "p": ["px", "py", "pz"],
             "d": ["dxy", "dyz", "dxz", "dx2", "dz2"],
