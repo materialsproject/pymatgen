@@ -948,10 +948,9 @@ class MPScanRelaxSet(DictSet):
         self.bandgap = bandgap
         self.kwargs = kwargs
 
-        # self.kwargs.get("user_incar_settings", {
         updates = {}
         # select the KSPACING and smearing parameters based on the bandgap
-        if self.bandgap == 0:
+        if self.bandgap < 1e-4:
             updates["KSPACING"] = 0.22
             updates["SIGMA"] = 0.2
             updates["ISMEAR"] = 2
