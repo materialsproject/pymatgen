@@ -675,10 +675,7 @@ class AbinitTimer:
 
     def get_section(self, section_name):
         """Return section associated to `section_name`."""
-        try:
-            idx = self.section_names.index(section_name)
-        except Exception:
-            raise
+        idx = self.section_names.index(section_name)
         sect = self.sections[idx]
         assert sect.name == section_name
         return sect
