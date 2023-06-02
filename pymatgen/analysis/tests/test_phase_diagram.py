@@ -168,7 +168,8 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_repr(self):
         assert (
-            str(self.pd) == "Li-Fe-O phase diagram\n11 stable phases: \nFe, FeO, "
+            str(self.pd)
+            == "Li-Fe-O phase diagram\n11 stable phases: \nFe, FeO, "
             "Fe2O3, Fe3O4, LiFeO2, Li, Li2O, LiO, Li5FeO4, Li2FeO3, O"
         )
 
@@ -592,6 +593,9 @@ class PhaseDiagramTest(unittest.TestCase):
         for elem, energy in cpresult.items():
             assert cp2["FeO-LiFeO2-Fe"][elem] == pytest.approx(energy)
 
+    def test_get_plot(self):
+        plot = self.pd.get_plot()  # PDPlotter functionality is tested separately
+
     def test_to_from_dict(self):
         # test round-trip for other entry types such as ComputedEntry
         entry = ComputedEntry("H", 0.0, 0.0, entry_id="test")
@@ -864,7 +868,8 @@ class PDPlotterTest(unittest.TestCase):
 
         self.pd_ternary = PhaseDiagram(entries)
         self.plotter_ternary_mpl = PDPlotter(self.pd_ternary, backend="matplotlib")
-        self.plotter_ternary_plotly = PDPlotter(self.pd_ternary, backend="plotly")
+        self.plotter_ternary_plotly_2d = PDPlotter(self.pd_ternary, backend="plotly", ternary_style="2d")
+        self.plotter_ternary_plotly_3d = PDPlotter(self.pd_ternary, backend="plotly", ternary_style="3d")
 
         entries_LiO = [e for e in entries if "Fe" not in e.composition]
         self.pd_binary = PhaseDiagram(entries_LiO)
@@ -910,7 +915,8 @@ class PDPlotterTest(unittest.TestCase):
     def test_plotly_plots(self):
         # Also very basic tests. Ensures callability and 2D vs 3D properties.
         self.plotter_binary_plotly.get_plot()
-        self.plotter_ternary_plotly.get_plot()
+        self.plotter_ternary_plotly_2d.get_plot()
+        self.plotter_ternary_plotly_3d.get_plot()
         self.plotter_quaternary_plotly.get_plot()
 
 

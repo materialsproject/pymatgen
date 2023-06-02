@@ -115,7 +115,7 @@
       "aaxis": {
         "showgrid": true,
         "tickfont": {
-          "size": 6,
+          "size": 7,
           "color": "rgba(0,0,0,0)"
         },
         "showticklabels": true,
@@ -125,7 +125,7 @@
         "min": 0,
         "showgrid": true,
         "tickfont": {
-          "size": 6,
+          "size": 7,
           "color": "rgba(0,0,0,0)"
         },
         "showticklabels": true,
@@ -135,7 +135,7 @@
         "min": 0,
         "showgrid": true,
         "tickfont": {
-          "size": 6,
+          "size": 7,
           "color": "rgba(0,0,0,0)"
         },
         "showticklabels": true,

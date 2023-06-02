@@ -1078,10 +1078,9 @@ class PhaseDiagram(MSONable):
 
     def get_element_profile(self, element, comp, comp_tol=1e-5):
         """
-        Provides the element evolution data for a composition.
-        For example, can be used to analyze Li conversion voltages by varying
-        uLi and looking at the phases formed. Also can be used to analyze O2
-        evolution by varying uO2.
+        Provides the element evolution data for a composition. For example, can be used
+        to analyze Li conversion voltages by varying mu_Li and looking at the phases
+        formed. Also can be used to analyze O2 evolution by varying mu_O2.
 
         Args:
             element: An element. Must be in the phase diagram.
@@ -1295,19 +1294,19 @@ class PhaseDiagram(MSONable):
         ternary_style: Literal["2d", "3d"] = "2d",
         label_stable: bool = True,
         label_unstable: bool = True,
-        ordering=None,
-        energy_colormap: bool = None,
+        ordering: Sequence[str] | None = None,
+        energy_colormap=None,
         process_attributes: bool = False,
         plt=None,
         label_uncertainties: bool = False,
         fill: bool = True,
         **plotkwargs,
-    ) -> go.Figure | plt.Figure:
+    ):
         """
         Convenient wrapper for PDPlotter. Initializes a PDPlotter object and calls
         get_plot() with provided combined arguments.
 
-        Plotting is only supported for phase diagrams with 4 or fewer elements (unary,
+        Plotting is only supported for phase diagrams with <=4 elements (unary,
         binary, ternary, or quaternary systems).
 
         Args:
@@ -2204,8 +2203,8 @@ class PDPlotter:
         self,
         label_stable: bool = True,
         label_unstable: bool = True,
-        ordering=None,
-        energy_colormap: bool = None,
+        ordering: Sequence[str] | None = None,
+        energy_colormap=None,
         process_attributes: bool = False,
         plt=None,
         label_uncertainties: bool = False,
@@ -2216,11 +2215,12 @@ class PDPlotter:
         Args:
             label_stable: Whether to label stable compounds.
             label_unstable: Whether to label unstable compounds.
-            ordering: Ordering of vertices (matplotlib only).
+            ordering: Ordering of vertices, given as a list ['Up',
+                'Left','Right'] (matplotlib only).
             energy_colormap: Colormap for coloring energy (matplotlib only).
             process_attributes: Whether to process the attributes (matplotlib only).
-            plt: Existing plt object if plotting multiple phase diagrams (matplotlib
-                only).
+            plt: Existing matplotlib.pyplot object if plotting multiple phase diagrams
+                (matplotlib only).
             label_uncertainties: Whether to add error bars to the hull.
                 For binaries, this also shades the hull with the uncertainty window.
                 (plotly only).
@@ -2240,6 +2240,11 @@ class PDPlotter:
             if self._dim != 1:
                 data.append(self._create_plotly_lines())
 
+            stable_marker_plot, unstable_marker_plot, highlight_plot = self._create_plotly_markers(
+                highlight_entries,
+                label_uncertainties,
+            )
+
             if self._dim == 2 and label_uncertainties:
                 data.append(self._create_plotly_uncertainty_shading(stable_marker_plot))
 
@@ -2252,10 +2257,6 @@ class PDPlotter:
             if fill and self._dim in [3, 4]:
                 data.extend(self._create_plotly_fill())
 
-            stable_marker_plot, unstable_marker_plot, highlight_plot = self._create_plotly_markers(
-                highlight_entries,
-                label_uncertainties,
-            )
             data.extend([stable_marker_plot, unstable_marker_plot])
 
             if highlight_plot is not None:
@@ -2263,7 +2264,7 @@ class PDPlotter:
 
             fig = go.Figure(data=data)
             fig.layout = self._create_plotly_figure_layout()
-            fig.update_layout(coloraxis_colorbar=dict(yanchor="top", y=0.05, x=1))
+            fig.update_layout(coloraxis_colorbar={"yanchor": "top", "y": 0.05, "x": 1})
 
         elif self.backend == "matplotlib":
             if self._dim <= 3:
@@ -2377,10 +2378,13 @@ class PDPlotter:
 
         return plt
 
-    def plot_chempot_range_map(self, elements, referenced=True):
+    def plot_chempot_range_map(self, elements, referenced=True) -> None:
         """
-        Plot the chemical potential range _map. Currently works only for
-        3-component PDs.
+        Plot the chemical potential range _map using matplotlib. Currently works only for
+        3-component PDs. This shows the plot but does not return it.
+
+        Note: this functionality is now included in the ChemicalPotentialDiagram
+        class (pymatgen.analysis.chempot_diagram).
 
         Args:
             elements: Sequence of elements to be considered as independent
@@ -2530,7 +2534,7 @@ class PDPlotter:
             for j, yval in enumerate(ynew):
                 znew[j, i] = f(xval, yval)
 
-        # pylint: disable=E1101
+        # pylint: disable=no-member
         plt.contourf(xnew, ynew, znew, 1000, cmap=cm.autumn_r)
 
         plt.colorbar()
@@ -2543,7 +2547,7 @@ class PDPlotter:
         Plotting data for phase diagram. Cached for repetitive calls.
 
         2-comp - Full hull with energies
-        3/4-comp - Projection into 2D or 3D Gibbs triangle.
+        3/4-comp - Projection into 2D or 3D Gibbs triangles
 
         Returns:
             A tuple containing three objects (lines, stable_entries, unstable_entries):
@@ -2627,10 +2631,14 @@ class PDPlotter:
             layout["annotations"] = annotations_list
         elif self._dim == 3 and self.ternary_style == "2d":
             layout = plotly_layouts["default_ternary_2d_layout"].copy()
-            el_a, el_b, el_c = self._pd.elements
             for el, axis in zip(self._pd.elements, ["a", "b", "c"]):
+                el_ref = self._pd.el_refs[el]
+                clean_formula = str(el_ref.composition.elements[0])
+                if hasattr(el_ref, "original_entry"):  # for grand potential PDs, etc.
+                    clean_formula = htmlify(el_ref.original_entry.composition.reduced_formula)
+
                 layout["ternary"][axis + "axis"]["title"] = {
-                    "text": str(el),
+                    "text": clean_formula,
                     "font": {"size": 24},
                 }
         elif self._dim == 3 and self.ternary_style == "3d":
@@ -2732,8 +2740,13 @@ class PDPlotter:
                 b = [e0.composition[el_b], e1.composition[el_b], e2.composition[el_b]]
                 c = [e0.composition[el_c], e1.composition[el_c], e2.composition[el_c]]
 
-                e0_str, e1_str, e2_str = (htmlify(e.composition.reduced_formula) for e in (e0, e1, e2))
-                name = f"{e0_str}—{e1_str}—{e2_str}"
+                e_strs = []
+                for e in (e0, e1, e2):
+                    if hasattr(e, "original_entry"):
+                        e = e.original_entry
+                    e_strs.append(htmlify(e.composition.reduced_formula))
+
+                name = f"{e_strs[0]}—{e_strs[1]}—{e_strs[2]}"
 
                 traces += [
                     go.Scatterternary(
@@ -2743,7 +2756,7 @@ class PDPlotter:
                         mode="lines",
                         fill="toself",
                         line={"width": 0},
-                        fillcolor=fillcolors.__next__(),
+                        fillcolor=next(fillcolors),
                         opacity=0.15,
                         hovertemplate="<extra></extra>",  # removes secondary hover box
                         name=name,
@@ -2806,7 +2819,7 @@ class PDPlotter:
                         alphahull=-1,
                         flatshading=True,
                         hoverinfo="skip",
-                        color=fillcolors.__next__(),
+                        color=next(fillcolors),
                     )
                 ]
 
@@ -2905,11 +2918,17 @@ class PDPlotter:
         Creates terminal element annotations for Plotly phase diagrams. This method does
         not apply to ternary_2d plots.
 
+        Functionality is included for phase diagrams with non-elemental endmembers
+        (as is true for grand potential phase diagrams).
+
         Returns:
-            list of annotation dicts.
+            List of annotation dicts.
         """
         annotations_list = []
         x, y, z = None, None, None
+
+        if self._dim == 3 and self.ternary_style == "2d":
+            return None
 
         for coords, entry in self.pd_plot_data[1].items():
             if not entry.composition.is_element:
@@ -2980,13 +2999,14 @@ class PDPlotter:
 
         Returns:
             Tuple of Plotly go.Scatter (unary, binary), go.Scatterternary(ternary_2d),
-            or go.Scatter3d (ternary_3d, quaternray) objects in order:
+            or go.Scatter3d (ternary_3d, quaternary) objects in order:
             (stable markers, unstable markers)
         """
 
         def get_marker_props(coords, entries):
-            """Method for getting marker locations, hovertext, and error bars
-            from pd_plot_data
+            """
+            Method for getting marker locations, hovertext, and error bars
+            from pd_plot_data.
             """
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 
@@ -2999,8 +3019,9 @@ class PDPlotter:
                 comp = entry.composition
 
                 if hasattr(entry, "original_entry"):
-                    comp = entry.original_entry.composition
-                    entry_id = getattr(entry, "attribute", "no ID")
+                    orig_entry = entry.original_entry
+                    comp = orig_entry.composition
+                    entry_id = getattr(orig_entry, "entry_id", "no ID")
 
                 formula = comp.reduced_formula
                 clean_formula = htmlify(formula)
@@ -3732,7 +3753,7 @@ class PDPlotter:
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
         font = FontProperties(weight="bold", size=13)
-        lines, labels, unstable = self.pd_plot_data
+        lines, labels, _ = self.pd_plot_data
         count = 1
         newlabels = []
         for x, y, z in lines:
@@ -3760,7 +3781,7 @@ class PDPlotter:
         ax.axis("off")
         ax.set_xlim(-0.1, 0.72)
         ax.set_ylim(0, 0.66)
-        ax.set_zlim(0, 0.56)  # pylint: disable=E1101
+        ax.set_zlim(0, 0.56)  # pylint: disable=no-member
         return plt
 
 
