@@ -248,9 +248,9 @@ class Slab(Structure):
                     fixed.append(site)
 
             # Sort and group the sites by the species and symmetry equivalence
-            tomove = sorted(tomove, key=lambda s: equi_index(s))
+            tomove = sorted(tomove, key=equi_index)
 
-            grouped = [list(sites) for k, sites in itertools.groupby(tomove, key=lambda s: equi_index(s))]
+            grouped = [list(sites) for k, sites in itertools.groupby(tomove, key=equi_index)]
 
             if len(tomove) == 0 or any(len(g) % 2 != 0 for g in grouped):
                 warnings.warn(
