@@ -101,8 +101,8 @@ class LammpsDataTest(unittest.TestCase):
 
         ethane = self.ethane.structure
         assert_array_almost_equal(ethane.lattice.matrix, np.diag([10.0] * 3))
-        lbounds = np.array(self.ethane.box.bounds)[:, 0]
-        coords = self.ethane.atoms[["x", "y", "z"]].values - lbounds
+        l_bounds = np.array(self.ethane.box.bounds)[:, 0]
+        coords = self.ethane.atoms[["x", "y", "z"]] - l_bounds
         assert_array_almost_equal(ethane.cart_coords, coords)
         assert_array_almost_equal(ethane.site_properties["charge"], self.ethane.atoms["q"])
         tatb = self.tatb.structure
@@ -126,13 +126,13 @@ class LammpsDataTest(unittest.TestCase):
         # internally element:type will be {Fe: 1, S: 2},
         # therefore without sorting the atom types in structure
         # will be [2, 1], i.e., (S, Fe)
-        assert lmp2.atoms["type"].values.tolist() == [2, 1]
+        assert lmp2.atoms["type"].tolist() == [2, 1]
 
         # with sorting the atom types in structures will be [1, 2]
         lmp = LammpsData.from_structure(s, is_sort=True)
         lmp.write_file("test1.data")
         lmp2 = LammpsData.from_file("test1.data", atom_style="charge")
-        assert lmp2.atoms["type"].values.tolist() == [1, 2]
+        assert lmp2.atoms["type"].tolist() == [1, 2]
 
     def test_get_string(self):
         pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
@@ -330,19 +330,19 @@ class LammpsDataTest(unittest.TestCase):
             topo_kw = kw + "s"
             topos_df = c.topology[topo_kw]
             topo_df = topos_df[topos_df["atom1"] >= shift]
-            topo_arr = topo_df.drop("type", axis=1).values
+            topo_arr = topo_df.drop("type", axis=1)
             np.testing.assert_array_equal(topo.topologies[topo_kw], topo_arr - shift, topo_kw)
             sample_topo = random.sample(list(topo_df.itertuples(False, None)), 1)[0]
             topo_type_idx = sample_topo[0] - 1
             topo_type = tuple(atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"])
 
             assert topo_type in ff_coeffs[topo_type_idx]["types"], ff_kw
-        # test no guessing element and pairij as nonbond coeffs
+        # test no guessing element and pairij as non-bond coeffs
         v = self.virus
         _, v_ff, _ = v.disassemble(guess_element=False)
         assert v_ff.maps["Atoms"] == {"Qa1": 1, "Qb1": 2, "Qc1": 3, "Qa2": 4}
-        pairij_coeffs = v.force_field["PairIJ Coeffs"].drop(["id1", "id2"], axis=1)
-        np.testing.assert_array_equal(v_ff.nonbond_coeffs, pairij_coeffs.values)
+        pair_ij_coeffs = v.force_field["PairIJ Coeffs"].drop(["id1", "id2"], axis=1)
+        np.testing.assert_array_equal(v_ff.nonbond_coeffs, pair_ij_coeffs.values)
         # test class2 ff
         _, e_ff, _ = self.ethane.disassemble()
         e_topo_coeffs = e_ff.topo_coeffs
@@ -1032,7 +1032,7 @@ class CombinedDataTest(unittest.TestCase):
         )
         assert li_ec_structure.formula == "Li1 H4 C3 O3"
         lbounds = np.array(self.li_ec.box.bounds)[:, 0]
-        coords = self.li_ec.atoms[["x", "y", "z"]].values - lbounds
+        coords = self.li_ec.atoms[["x", "y", "z"]] - lbounds
         assert_array_almost_equal(li_ec_structure.cart_coords, coords)
         assert_array_almost_equal(li_ec_structure.site_properties["charge"], self.li_ec.atoms["q"])
         frac_coords = li_ec_structure.frac_coords[0]

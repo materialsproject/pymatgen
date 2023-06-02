@@ -661,23 +661,23 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
 @unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
 class SQSTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        pztstructs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs/pztstructs.json"))
+        pzt_structs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs/pztstructs.json"))
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
         # nonsensical example just for testing purposes
         struct = self.get_structure("Pb2TiZrO6").copy()
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
-        struc_out = trans.apply_transformation(struct)
-        matches = [struc_out.matches(s) for s in pztstructs]
+        struct_out = trans.apply_transformation(struct)
+        matches = [struct_out.matches(s) for s in pzt_structs]
         assert True in matches
 
     def test_return_ranked_list(self):
         # list of structures
-        pztstructs2 = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs/pztstructs2.json"))
+        pzt_structs2 = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs/pztstructs2.json"))
         trans = SQSTransformation(scaling=2, search_time=0.01, instances=8, wd=0)
         struct = self.get_structure("Pb2TiZrO6").copy()
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
-        matches = [ranked_list_out[0]["structure"].matches(s) for s in pztstructs2]
+        matches = [ranked_list_out[0]["structure"].matches(s) for s in pzt_structs2]
         assert True in matches
 
     def test_spin(self):
@@ -687,10 +687,10 @@ class SQSTransformationTest(PymatgenTest):
         struct = self.get_structure("Pb2TiZrO6").copy()
         struct.replace_species({"Ti": {"Ti,spin=5": 0.5, "Ti,spin=-5": 0.5}})
 
-        struc_out = trans.apply_transformation(struct)
-        struc_out_specie_strings = [site.species_string for site in struc_out]
-        assert "Ti,spin=-5" in struc_out_specie_strings
-        assert "Ti,spin=5" in struc_out_specie_strings
+        struct_out = trans.apply_transformation(struct)
+        struct_out_specie_strings = [site.species_string for site in struct_out]
+        assert "Ti,spin=-5" in struct_out_specie_strings
+        assert "Ti,spin=5" in struct_out_specie_strings
 
 
 class CubicSupercellTransformationTest(PymatgenTest):

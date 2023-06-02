@@ -997,7 +997,7 @@ class BSPlotterProjected(BSPlotter):
             vbm_cbm_marker: Add markers for the VBM and CBM. Defaults to False.
 
         Returns:
-            a pylab object with different subfigures for each projection
+            a pyplot object with different subfigures for each projection
             The blue and red colors are for spin up and spin down.
             The bigger the red or blue dot in the band structure the higher
             character for the corresponding element and orbital.
@@ -1074,7 +1074,7 @@ class BSPlotterProjected(BSPlotter):
         Method returning a plot composed of subplots along different elements
 
         Returns:
-            a pylab object with different subfigures for each projection
+            a pyplot object with different subfigures for each projection
             The blue and red colors are for spin up and spin down
             The bigger the red or blue dot in the band structure the higher
             character for the corresponding element and orbital
@@ -1162,7 +1162,7 @@ class BSPlotterProjected(BSPlotter):
 
     def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
         """
-        Returns a pylab plot object with one plot where the band structure
+        Returns a pyplot plot object with one plot where the band structure
         line color depends on the character of the band (along different
         elements). Each element is associated with red, green or blue
         and the corresponding rgb color depending on the character of the band
@@ -1177,7 +1177,7 @@ class BSPlotterProjected(BSPlotter):
                 second green, last blue
 
         Returns:
-            a pylab object
+            a pyplot object
         """
         band_linewidth = 3.0
         if len(self._bs.structure.composition.elements) > 3:
@@ -1219,10 +1219,7 @@ class BSPlotterProjected(BSPlotter):
                             sign = "--"
                         plt.plot(
                             [data["distances"][b][j], data["distances"][b][j + 1]],
-                            [
-                                data["energy"][str(s)][b][i][j],
-                                data["energy"][str(s)][b][i][j + 1],
-                            ],
+                            [data["energy"][str(s)][b][i][j], data["energy"][str(s)][b][i][j + 1]],
                             sign,
                             color=color,
                             linewidth=band_linewidth,
@@ -1236,6 +1233,9 @@ class BSPlotterProjected(BSPlotter):
                 plt.ylim(self._bs.efermi + e_min, self._bs.efermi + e_max)
         else:
             plt.ylim(data["vbm"][0][1] - 4.0, data["cbm"][0][1] + 2.0)
+        # https://github.com/materialsproject/pymatgen/issues/562
+        x_max = data["distances"][-1][-1]
+        plt.xlim(0, x_max)
         return plt
 
     def _get_projections_by_branches_patom_pmorb(self, dictio, dictpa, sum_atoms, sum_morbs, selected_branches):
@@ -1601,7 +1601,7 @@ class BSPlotterProjected(BSPlotter):
                 2 columns.
 
         Returns:
-            A pylab object with different subfigures for different projections.
+            A pyplot object with different subfigures for different projections.
             The blue and red colors lines are bands
             for spin up and spin down. The green and cyan dots are projections
             for spin up and spin down. The bigger
@@ -3275,7 +3275,7 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return plt
 
-    def plot_zt_temp(self, doping="all", output="average", relaxation_time=1e-14):
+    def plot_zt_temp(self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
         """
         Plot the figure of merit zT in function of temperature for different doping levels.
 
@@ -3286,13 +3286,15 @@ class BoltztrapPlotter:
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
 
+        Raises:
+            ValueError: if output is not 'average' or 'eigs'
+
         Returns:
             a matplotlib object
         """
-        if output == "average":
-            zt = self._bz.get_zt(relaxation_time=relaxation_time, output="average")
-        elif output == "eigs":
-            zt = self._bz.get_zt(relaxation_time=relaxation_time, output="eigs")
+        if output not in ("average", "eigs"):
+            raise ValueError(f"{output=} must be 'average' or 'eigs'")
+        zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output)
 
         plt = pretty_plot(22, 14)
         tlist = sorted(zt["n"])

@@ -1222,12 +1222,9 @@ class Species(MSONable, Stringify):
     def __str__(self):
         output = self.symbol
         if self.oxi_state is not None:
-            if self.oxi_state >= 0:
-                output += formula_double_format(self.oxi_state) + "+"
-            else:
-                output += formula_double_format(-self.oxi_state) + "-"
-        for p, v in self._properties.items():
-            output += f",{p}={v}"
+            output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
+        for prop, val in self._properties.items():
+            output += f",{prop}={val}"
         return output
 
     def to_pretty_string(self) -> str:
@@ -1236,10 +1233,7 @@ class Species(MSONable, Stringify):
         """
         output = self.symbol
         if self.oxi_state is not None:
-            if self.oxi_state >= 0:
-                output += formula_double_format(self.oxi_state) + "+"
-            else:
-                output += formula_double_format(-self.oxi_state) + "-"
+            output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
         return output
 
     def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:
@@ -1547,12 +1541,9 @@ class DummySpecies(Species):
     def __str__(self):
         output = self.symbol
         if self.oxi_state is not None:
-            if self.oxi_state >= 0:
-                output += formula_double_format(self.oxi_state) + "+"
-            else:
-                output += formula_double_format(-self.oxi_state) + "-"
-        for p, v in self._properties.items():
-            output += f",{p}={v}"
+            output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
+        for prop, val in self._properties.items():
+            output += f",{prop}={val}"
         return output
 
 

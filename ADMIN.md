@@ -16,32 +16,11 @@ steps:
 
 ## Initial setup
 
-Install some `conda` tools first:
-
-```sh
-conda install --yes conda-build anaconda-client
-```
-
-Pymatgen uses [invoke](http://pyinvoke.org) to automate releases.
-You will also need sphinx and doc2dash. Install these using:
+Pymatgen uses [`invoke`](http://pyinvoke.org) to automate releases.
+You will also need `sphinx` and `doc2dash`.
 
 ```sh
 pip install --upgrade invoke sphinx doc2dash
-```
-
-Create environment for py38 using `conda`:
-
-```sh
-conda create --yes -n py38 python=3.8
-```
-
-For each env, install some packages using `conda` followed by dev install
-for `pymatgen`:
-
-```sh
-conda install --yes numpy scipy sympy matplotlib cython
-pip install '.[optional]'
-pip install invoke sphinx doc2dash
 ```
 
 Add your PyPI username and password and GITHUB_RELEASE_TOKEN into your
@@ -58,8 +37,7 @@ these each time.
 
 ### Machine-specific issues
 
-The above instructions are general, but there are some known issues that
-are machine-specific:
+The above instructions are general, but some known issues are machine-specific:
 
 - Installing lxml via pip required <span
   class="title-ref">STATIC_DEPS=true pip install lxml</span> on macOS

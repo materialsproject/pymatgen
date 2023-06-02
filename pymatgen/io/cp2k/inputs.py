@@ -91,7 +91,7 @@ class Keyword(MSONable):
             repeats: Whether or not this keyword may be repeated. Default=False.
         """
         self.name = name
-        self.values = values
+        self.values = values  # noqa: PD011
         self.description = description
         self.repeats = repeats
         self.units = units
@@ -110,8 +110,8 @@ class Keyword(MSONable):
         if not isinstance(other, Keyword):
             return NotImplemented
         if self.name.upper() == other.name.upper():
-            v1 = [_.upper() if isinstance(_, str) else _ for _ in self.values]
-            v2 = [_.upper() if isinstance(_, str) else _ for _ in other.values]
+            v1 = [_.upper() if isinstance(_, str) else _ for _ in self.values]  # noqa: PD011
+            v2 = [_.upper() if isinstance(_, str) else _ for _ in other.values]  # noqa: PD011
             if v1 == v2 and self.units == self.units:
                 return True
         return False
@@ -120,7 +120,7 @@ class Keyword(MSONable):
         return KeywordList(keywords=[self, other])
 
     def __getitem__(self, item):
-        return self.values[item]
+        return self.values[item]  # noqa: PD011
 
     def as_dict(self):
         """
@@ -130,7 +130,7 @@ class Keyword(MSONable):
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         dct["name"] = self.name
-        dct["values"] = self.values
+        dct["values"] = self.values  # noqa: PD011
         dct["description"] = self.description
         dct["repeats"] = self.repeats
         dct["units"] = self.units

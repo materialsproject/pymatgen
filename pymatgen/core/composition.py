@@ -293,7 +293,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
-        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s], False)}" for s in syms]
         return " ".join(formula)
 
     @property
@@ -317,7 +317,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda s: get_el_sp(s).iupac_ordering)
-        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s], False)}" for s in syms]
         return " ".join(formula)
 
     @property
@@ -1231,13 +1231,12 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
         syms = sorted(syms, key=lambda x: [get_el_sp(x).iupac_ordering, x])
 
     reduced_form = []
-    for s in syms:
-        normamt = sym_amt[s] * 1.0 / factor
-        reduced_form.append(s)
-        reduced_form.append(formula_double_format(normamt))
+    for sym in syms:
+        norm_amt = sym_amt[sym] * 1.0 / factor
+        reduced_form.append(sym)
+        reduced_form.append(str(formula_double_format(norm_amt)))
 
-    reduced_form = "".join(reduced_form + polyanion)  # type: ignore
-    return reduced_form, factor  # type: ignore
+    return "".join([*reduced_form, *polyanion]), factor
 
 
 class ChemicalPotential(dict, MSONable):

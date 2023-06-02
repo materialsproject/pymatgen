@@ -857,16 +857,20 @@ class LobsterNeighbors(NearNeighbors):
                     index_here = neigh_new[2]
                     index_here_list.append(index_here)
                     cell_here = neigh_new[3]
-                    newcoords = [
+                    new_coords = [
                         site_here.frac_coords[0] + float(cell_here[0]),
                         site_here.frac_coords[1] + float(cell_here[1]),
                         site_here.frac_coords[2] + float(cell_here[2]),
                     ]
-                    coords.append(site_here.lattice.get_cartesian_coords(newcoords))
+                    coords.append(site_here.lattice.get_cartesian_coords(new_coords))
 
-                    # new_site = PeriodicSite(species=site_here.species_string,
-                    #                         coords=site_here.lattice.get_cartesian_coords(newcoords),
-                    #                         lattice=site_here.lattice, to_unit_cell=False, coords_are_cartesian=True)
+                    # new_site = PeriodicSite(
+                    #     species=site_here.species_string,
+                    #     coords=site_here.lattice.get_cartesian_coords(new_coords),
+                    #     lattice=site_here.lattice,
+                    #     to_unit_cell=False,
+                    #     coords_are_cartesian=True,
+                    # )
                     neighbors_by_distance.append(neigh_new[0])
                     list_distances.append(neigh_new[1])
                 _list_neighsite = []

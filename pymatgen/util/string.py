@@ -135,8 +135,8 @@ def formula_double_format(afloat, ignore_ones=True, tol: float = 1e-8):
     if ignore_ones and afloat == 1:
         return ""
     if abs(afloat - int(afloat)) < tol:
-        return str(int(afloat))
-    return str(round(afloat, 8))
+        return int(afloat)
+    return round(afloat, 8)
 
 
 def charge_string(charge, brackets=True, explicit_one=True):
@@ -150,12 +150,7 @@ def charge_string(charge, brackets=True, explicit_one=True):
         explicit_one: whether to include the number one for monovalent ions, e.g.
             +1 rather than +. Default: True
     """
-    if charge > 0:
-        chg_str = f"+{formula_double_format(charge, False)}"
-    elif charge < 0:
-        chg_str = f"-{formula_double_format(abs(charge), False)}"
-    else:
-        chg_str = "(aq)"
+    chg_str = "(aq)" if charge == 0 else f"{formula_double_format(charge, False):+}"
 
     if chg_str in ["+1", "-1"] and not explicit_one:
         chg_str = chg_str.replace("1", "")
@@ -409,7 +404,7 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     factor = factor_comp.get_reduced_formula_and_factor()[1]
 
     total_disordered_occu /= factor
-    remainder = formula_double_format(total_disordered_occu, ignore_ones=False) + "-" + "-".join(symbols)
+    remainder = f"{formula_double_format(total_disordered_occu, ignore_ones=False)}-{'-'.join(symbols)}"
 
     for sp, occu in comp:
         species = str(sp)
@@ -441,6 +436,6 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
             if fmt != "plain":
                 disordered_formula.append(sub_end)
     disordered_formula.append(" ")
-    disordered_formula += [f"{k}={formula_double_format(v)} " for k, v in variable_map.items()]
+    disordered_formula += [f"{key}={formula_double_format(val)} " for key, val in variable_map.items()]
 
     return "".join(map(str, disordered_formula))[0:-1]

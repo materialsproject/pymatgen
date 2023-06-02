@@ -202,12 +202,12 @@ class Cp2kOutput:
     @property
     def charge(self) -> float:
         """Get charge from the input file"""
-        return self.input["FORCE_EVAL"]["DFT"].get("CHARGE", Keyword("", 0)).values[0]
+        return self.input["FORCE_EVAL"]["DFT"].get("CHARGE", Keyword("", 0)).values[0]  # noqa: PD011
 
     @property
     def multiplicity(self) -> int:
         """Get the spin multiplicity from input file"""
-        return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("")).values[0]
+        return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("")).values[0]  # noqa: PD011
 
     @property
     def is_molecule(self) -> bool:
@@ -757,9 +757,9 @@ class Cp2kOutput:
             cell = self.input["force_eval"]["subsys"]["cell"]
             if cell.get("abc"):
                 return [
-                    [cell["abc"].values[0], 0, 0],
-                    [0, cell["abc"].values[1], 0],
-                    [0, 0, cell["abc"].values[2]],
+                    [cell["abc"].values[0], 0, 0],  # noqa: PD011
+                    [0, cell["abc"].values[1], 0],  # noqa: PD011
+                    [0, 0, cell["abc"].values[2]],  # noqa: PD011
                 ]
             return [
                 list(cell.get("A").values),

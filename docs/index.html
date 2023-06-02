@@ -35,14 +35,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="#" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="#">
+            
           </a>
               <div class="version">
                 2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -73,7 +77,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home"></a></li>
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Introduction</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/index.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -167,13 +171,13 @@ demonstrates some of the basic functionality of pymatgen, as well as a
 <a class="reference external" href="http://matgenb.materialsvirtuallab.org">matgenb repository</a> of Jupyter notebooks for common and advanced use cases.
 One of the ways you can contribute is to fork the matgenb repo and add your own examples.</p>
 <p>Below are a quick look at some of the graphical output possible.</p>
-<figure class="align-center" id="id2">
+<figure class="align-center" id="id30">
 <a class="reference internal image-reference" href="_images/phase_diagram.png"><img alt="Examples" src="_images/phase_diagram.png" style="width: 100%;" /></a>
 <figcaption>
 <p><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
 Bottom left: Calculated bandstructure plot using pymatgen’s parsing and
 plotting utilities. Bottom right: Arrhenius plot using pymatgen’s
-DiffusionAnalyzer.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+DiffusionAnalyzer.</span><a class="headerlink" href="#id30" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -207,11 +211,39 @@ details and examples.</p></li>
 </section>
 <section id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h2>
-<section id="v2023-5-10">
-<h3>v2023.5.10<a class="headerlink" href="#v2023-5-10" title="Permalink to this heading"></a></h3>
+<section id="v2023-5-31">
+<h3>v2023.5.31<a class="headerlink" href="#v2023-5-31" title="Permalink to this heading"></a></h3>
 <ul class="simple">
-<li><p>Fix mem leak in pbc_shortest_vector cython code. (&#64;stichri)</p></li>
-<li><p>Set all cython code to language level 3.</p></li>
+<li><p>Breaking: Default <code class="docutils literal notranslate"><span class="pre">user_potcar_settings</span></code> to <code class="docutils literal notranslate"><span class="pre">{&quot;W&quot;:</span> <span class="pre">&quot;W_sv&quot;}</span></code> in all input sets if <code class="docutils literal notranslate"><span class="pre">user_potcar_functional</span> <span class="pre">==</span> <span class="pre">&quot;PBE_54&quot;</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3022">#3022</a></p></li>
+<li><p>Unignore <code class="docutils literal notranslate"><span class="pre">ruff</span></code> <code class="docutils literal notranslate"><span class="pre">PD011</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3020">#3020</a></p></li>
+<li><p>Tweak variable names <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3019">#3019</a></p></li>
+<li><p>MaterialsProjectCompatibility issue silencable deprecation warning <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3017">#3017</a></p></li>
+<li><p>Optimize cython find_points_in _spheres <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3015">#3015</a></p></li>
+<li><p>Cp2k 2.0 <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2672">#2672</a></p></li>
+<li><p>Added methods to compute and compare DOS fingerprints <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2772">#2772</a></p></li>
+<li><p>Breaking: Overhaul <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">PymatgenTest</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3014">#3014</a></p></li>
+<li><p>Fix <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when <code class="docutils literal notranslate"><span class="pre">structure.selective_dynamics</span></code> has type <code class="docutils literal notranslate"><span class="pre">np.array</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3012">#3012</a></p></li>
+<li><p>Clean up <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3010">#3010</a></p></li>
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">.pytest-split-durations</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3005">#3005</a></p></li>
+<li><p>Lookup <code class="docutils literal notranslate"><span class="pre">MPRester</span></code> API key in settings if <code class="docutils literal notranslate"><span class="pre">None</span></code> provided as arg <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3004">#3004</a></p></li>
+<li><p>Support writing structures to compressed JSON (.json.gz .json.bz2 .json.xz .json.lzma) <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3003">#3003</a></p></li>
+<li><p>Add LightStructureEnvironments.from_structure_environments() fallback value if <code class="docutils literal notranslate"><span class="pre">ce_and_neighbors</span></code> is None <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3002">#3002</a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Species</span></code> parse oxi state from symbol str <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2998">#2998</a></p></li>
+<li><p>Re-export <code class="docutils literal notranslate"><span class="pre">SiteCollection</span></code> + <code class="docutils literal notranslate"><span class="pre">DummySpecies</span></code> from <code class="docutils literal notranslate"><span class="pre">pymatgen.core</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2995">#2995</a></p></li>
+<li><p>Orbital-resolved icohplist <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2993">#2993</a></p></li>
+<li><p>Hide all type-hint-only imports behind <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">TYPE_CHECKING</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2992">#2992</a></p></li>
+<li><p>Add type hints for <code class="docutils literal notranslate"><span class="pre">pymatgen.io.ase</span></code> module <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2991">#2991</a></p></li>
+<li><p>Enable ruff doc rules in CI <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2990">#2990</a></p></li>
+<li><p>Suspected Typo Fix in <code class="docutils literal notranslate"><span class="pre">pymatgen.io.vasp.optics</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2989">#2989</a></p></li>
+<li><p>Doc strings <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2987">#2987</a></p></li>
+<li><p>Fix average error <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2986">#2986</a></p></li>
+<li><p>Drop deprecated SubstrateAnalyzer + ZSLGenerator reexports <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2981">#2981</a></p></li>
+<li><p>Breaking: Default <code class="docutils literal notranslate"><span class="pre">user_potcar_settings</span></code> to <code class="docutils literal notranslate"><span class="pre">{&quot;W&quot;:</span> <span class="pre">&quot;W_sv&quot;}</span></code> in all input sets if <code class="docutils literal notranslate"><span class="pre">user_potcar_functional</span> <span class="pre">==</span> <span class="pre">&quot;PBE_54&quot;</span></code> (#3022) <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3022">#3022</a></p></li>
+<li><p>fix unwanted x margins in get_elt_projected_plots_color (closes #562) <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues/562">#562</a></p></li>
+<li><p>Add LightStructureEnvironments.from_structure_environments() fallback value if <code class="docutils literal notranslate"><span class="pre">ce_and_neighbors</span></code> is None (#3002) <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues/2756">#2756</a></p></li>
+<li><p>add doc str explaining need for class ElementBase (closes #2999) <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues/2999">#2999</a></p></li>
+<li><p>Update docs. <a class="reference external" href="https://github.com/materialsproject/pymatgen/commit/3e3c31c8d342c84f2c6bbb961c321e458b9accb9">3e3c31c</a></p></li>
+<li><p>ruff set isort.split-on-trailing-comma = false <a class="reference external" href="https://github.com/materialsproject/pymatgen/commit/c0ec53452c3dc87c6cca5edc1c6b2b6218f15569">c0ec534</a></p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </section>
@@ -287,10 +319,10 @@ conda install --yes --channel conda-forge pymatgen
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
-<figure class="align-center" id="id3">
+<figure class="align-center" id="id31">
 <a class="reference internal image-reference" href="_images/overview.jpg"><img alt="pymatgen overview" src="_images/overview.jpg" style="width: 100%;" /></a>
 <figcaption>
-<p><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+<p><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id31" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>The figure above provides an overview of the functionality in pymatgen. A typical workflow would involve a user
@@ -299,13 +331,13 @@ molecule input files, Materials Project, etc.) into Python objects using pymatge
 perform further structure manipulation or analyses.</p>
 <p id="quick-start">Here are some quick examples of the core capabilities and objects:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pymatgen.core</span> <span class="k">as</span> <span class="nn">mg</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span><span class="o">.</span><span class="n">atomic_mass</span>
 <span class="go">28.0855</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">melting_point</span><span class="p">)</span>
 <span class="go">1687.0 K</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">weight</span>
 <span class="go">159.6882</span>
@@ -322,18 +354,18 @@ perform further structure manipulation or analyses.</p>
 <span class="go">74.088000000000008</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># You can create a Structure using spacegroup symmetry as well.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">li2o</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_spacegroup</span><span class="p">(</span><span class="s2">&quot;Fm-3m&quot;</span><span class="p">,</span> <span class="n">mg</span><span class="o">.</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
 <span class="go">                                        [&quot;Li&quot;, &quot;O&quot;],</span>
 <span class="go">                                        [[0.25, 0.25, 0.25], [0, 0, 0]])</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Integrated symmetry analysis tools from spglib.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">finder</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">()</span>
 <span class="go">&#39;Pm-3m&#39;</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Convenient IO to various formats. You can specify various formats.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Without a filename, a string is returned. Otherwise,</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># the output is written to the file. If only the filenmae is provided,</span>
@@ -341,17 +373,17 @@ perform further structure manipulation or analyses.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;poscar&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Reading a structure is similarly easy.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;cif&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Reading and writing a molecule from a file. Supports XYZ and</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Gaussian input and output by default. Support for many other</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># formats via the optional openbabel dependency (if installed).</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">methane</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;methane.xyz&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;methane.gjf&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Pythonic API for editing Structures and Molecules (v2.9.1 onwards)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Changing the specie of a site.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span>
@@ -363,7 +395,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 Cs     0.000000     0.000000     0.000000</span>
 <span class="go">2 F     0.500000     0.500000     0.500000</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Changes species and coordinates (fractional assumed for structures)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
@@ -374,7 +406,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 Cs     0.000000     0.000000     0.000000</span>
 <span class="go">2 Cl     0.510000     0.510000     0.510000</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Replaces all Cs in the structure with K</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="s2">&quot;Cs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;K&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
@@ -385,7 +417,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 K     0.000000     0.000000     0.000000</span>
 <span class="go">2 Cl     0.510000     0.510000     0.510000</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Replaces all K in the structure with K: 0.5, Na: 0.5, i.e.,</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># a disordered structure is created.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="s2">&quot;K&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;K0.5Na0.5&quot;</span>
@@ -399,7 +431,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">---  -----------------  ---  ---  ---</span>
 <span class="go">  0  K:0.500, Na:0.500  0    0    0</span>
 <span class="go">  1  Cl                 0.5  0.5  0.5</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Because structure is like a list, it supports most list-like methods</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># such as sort, reverse, etc.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
@@ -411,12 +443,12 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 Cl     0.510000     0.510000     0.510000</span>
 <span class="go">2 Cs     0.000000     0.000000     0.000000</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Molecules function similarly, but with Site and Cartesian coords.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># The following changes the C in CH4 to an N and displaces it by 0.01A</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># in the x-direction.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">methane</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
 </pre></div>
 </div>
 <p>The above illustrates only the most basic capabilities of pymatgen. Users are

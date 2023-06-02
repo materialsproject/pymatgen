@@ -931,7 +931,6 @@ class MagOrderingTransformation(AbstractTransformation):
         m = StructureMatcher(comparator=SpinComparator())
 
         def key(struct: Structure) -> int:
-            print(f"{struct=}")
             struct.to(filename="LiMnO2.cif")
             return SpacegroupAnalyzer(struct, 0.1).get_space_group_number()
 
@@ -1973,7 +1972,6 @@ class SQSTransformation(AbstractTransformation):
     ):
         """
         Args:
-            structure (Structure): Disordered pymatgen Structure object
             scaling (int or list): Scaling factor to determine supercell. Two options are possible:
                     a. (preferred) Scales number of atoms, e.g., for a structure with 8 atoms,
                        scaling=4 would lead to a 32 atom supercell

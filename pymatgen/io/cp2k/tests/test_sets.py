@@ -43,8 +43,8 @@ class SetTest(PymatgenTest):
         basis_and_potential = {"Si": {"basis": "SZV-GTH-q4", "potential": "GTH-PBE-q4", "aux_basis": "cFIT3"}}
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
         basis_sets = ss["force_eval"]["subsys"]["Si_1"].get("basis_set")
-        assert any("AUX_FIT" in b.values for b in basis_sets)
-        assert any("cFIT3" in b.values for b in basis_sets)
+        assert any("AUX_FIT" in b.values for b in basis_sets)  # noqa: PD011
+        assert any("cFIT3" in b.values for b in basis_sets)  # noqa: PD011
 
         # Basis sets / potentials by hash value
         basis_and_potential = {
@@ -118,7 +118,7 @@ class SetTest(PymatgenTest):
 
         ss = DftSet(molecule, basis_and_potential=basis_and_potential, xc_functionals="PBE")
         assert ss.check("force_eval/dft/poisson")
-        assert ss["force_eval"]["dft"]["poisson"].get("periodic").values[0].upper() == "NONE"
+        assert ss["force_eval"]["dft"]["poisson"].get("periodic").values[0].upper() == "NONE"  # noqa: PD011
 
 
 if __name__ == "__main__":
