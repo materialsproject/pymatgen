@@ -1146,7 +1146,7 @@ class PointGroupAnalyzer:
             if len(valid_set) > 0:
                 valid_sets.append(valid_set)
 
-        return min(valid_sets, key=lambda s: len(s))
+        return min(valid_sets, key=len)
 
     def _check_rot_sym(self, axis):
         """Determines the rotational symmetry about supplied axis.
@@ -1228,7 +1228,7 @@ class PointGroupAnalyzer:
         """
         rot_present = defaultdict(bool)
         origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
-        test_set = min(dist_el_sites.values(), key=lambda s: len(s))
+        test_set = min(dist_el_sites.values(), key=len)
         coords = [s.coords for s in test_set]
         for c1, c2, c3 in itertools.combinations(coords, 3):
             for cc1, cc2 in itertools.combinations([c1, c2, c3], 2):

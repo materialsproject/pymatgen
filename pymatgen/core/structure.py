@@ -2108,7 +2108,7 @@ class IStructure(SiteCollection, MSONable):
         # min_vecs are approximate periodicities of the cell. The exact
         # periodicities from the supercell matrices are checked against these
         # first
-        min_fcoords = min(grouped_fcoords, key=lambda x: len(x))
+        min_fcoords = min(grouped_fcoords, key=len)
         min_vecs = min_fcoords - min_fcoords[0]
 
         # fractional tolerance in the supercell
@@ -2131,7 +2131,7 @@ class IStructure(SiteCollection, MSONable):
         # reduction.
         # This reduction is O(n^3) so usually is an improvement. Using double
         # the tolerance because both vectors are approximate
-        for g in sorted(grouped_fcoords, key=lambda x: len(x)):
+        for g in sorted(grouped_fcoords, key=len):
             for f in g:
                 min_vecs = pbc_coord_intersection(min_vecs, g - f, super_ftol_2)
 

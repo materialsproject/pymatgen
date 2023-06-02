@@ -725,7 +725,7 @@ class Incar(dict, MSONable):
                 else:
                     # float() to ensure backwards compatibility between
                     # float magmoms and Magmom objects
-                    for m, g in itertools.groupby(self[k], lambda x: float(x)):
+                    for m, g in itertools.groupby(self[k], float):
                         value.append(f"{len(tuple(g))}*{m}")
 
                 lines.append([k, " ".join(value)])
