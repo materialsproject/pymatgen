@@ -1386,6 +1386,15 @@ class MPScanRelaxSetTest(PymatgenTest):
         assert incar["ISMEAR"] == 2
         assert incar["SIGMA"] == 0.2
 
+        # https://github.com/materialsproject/pymatgen/pull/3036
+        for bandgap in (-1e-12, 1e-5, 1e-3):
+            set_near_0_bandgap = MPScanRelaxSet(self.struct, bandgap=bandgap)
+            expected = (
+                {"KSPACING": 0.22, "SIGMA": 0.2, "ISMEAR": 2} if bandgap < 1e-4 else {"ISMEAR": -5, "SIGMA": 0.05}
+            )
+            for key, val in expected.items():
+                assert set_near_0_bandgap.incar.get(key) == val
+
     def test_scan_substitute(self):
         mp_scan_sub = MPScanRelaxSet(
             self.struct,
