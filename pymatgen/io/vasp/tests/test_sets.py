@@ -127,7 +127,7 @@ class DictSetTest(PymatgenTest):
 
     def test_as_dict(self):
         # https://github.com/materialsproject/pymatgen/pull/3031
-        dict_set = DictSet(self.structure, config_dict={"INCAR": {}})
+        dict_set = DictSet(self.structure, config_dict={"INCAR": {}}, user_potcar_functional="PBE_54")
         assert {*dict_set.as_dict()} >= {
             "structure",
             "config_dict",
@@ -135,6 +135,7 @@ class DictSetTest(PymatgenTest):
             "user_kpoints_settings",
             "user_potcar_settings",
         }
+        assert dict_set.potcar_functional == dict_set.user_potcar_functional
 
 
 class MITMPRelaxSetTest(PymatgenTest):
