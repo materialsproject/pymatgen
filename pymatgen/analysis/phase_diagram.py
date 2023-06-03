@@ -37,8 +37,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json"), encoding="utf8") as f:
-    plotly_layouts = json.load(f)
+with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json")) as file:
+    plotly_layouts = json.load(file)
 
 
 class PDEntry(Entry):
@@ -99,19 +99,19 @@ class PDEntry(Entry):
         return return_dict
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): dictionary representation of PDEntry
+            dct (dict): dictionary representation of PDEntry
 
         Returns:
             PDEntry
         """
         return cls(
-            Composition(d["composition"]),
-            d["energy"],
-            d["name"] if "name" in d else None,
-            d["attribute"] if "attribute" in d else None,
+            Composition(dct["composition"]),
+            dct["energy"],
+            dct.get("name"),
+            dct.get("attribute"),
         )
 
 

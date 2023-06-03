@@ -186,18 +186,18 @@ class Cohp(MSONable):
         return dict_to_return
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Returns a COHP object from a dict representation of the COHP.
         """
-        icohp = {Spin(int(key)): np.array(val) for key, val in d["ICOHP"].items()} if "ICOHP" in d else None
-        are_cobis = False if "are_cobis" not in d else d["are_cobis"]
+        icohp = {Spin(int(key)): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
+        are_cobis = False if "are_cobis" not in dct else dct["are_cobis"]
         return Cohp(
-            d["efermi"],
-            d["energies"],
-            {Spin(int(key)): np.array(val) for key, val in d["COHP"].items()},
+            dct["efermi"],
+            dct["energies"],
+            {Spin(int(key)): np.array(val) for key, val in dct["COHP"].items()},
             icohp=icohp,
-            are_coops=d["are_coops"],
+            are_coops=dct["are_coops"],
             are_cobis=are_cobis,
         )
 

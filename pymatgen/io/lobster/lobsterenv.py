@@ -1356,8 +1356,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
                 for nb_site in self._all_nbs_sites
             ],
             "neighbors_sets": [
-                [nb_set.as_dict() for nb_set in site_nb_sets] if site_nb_sets is not None else None
-                for site_nb_sets in self.neighbors_sets
+                [nb_set.as_dict() for nb_set in site_nb_sets] or None for site_nb_sets in self.neighbors_sets
             ],
             "valences": self.valences,
         }
