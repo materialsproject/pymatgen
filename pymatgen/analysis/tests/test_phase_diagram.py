@@ -393,7 +393,7 @@ class PhaseDiagramTest(unittest.TestCase):
             ), "The number of decomposition phases can at most be equal to the number of components."
 
         # Just to test decomposition for a fictitious composition
-        ans_dict = {
+        actual = {
             entry.composition.formula: amt for entry, amt in self.pd.get_decomposition(Composition("Li3Fe7O11")).items()
         }
         expected = {
@@ -401,8 +401,7 @@ class PhaseDiagramTest(unittest.TestCase):
             "Li1 Fe1 O2": 0.5714285714285714,
             "Fe6 O8": 0.33333333333333393,
         }
-        for k, v in expected.items():
-            assert ans_dict[k] == pytest.approx(v)
+        assert actual == pytest.approx(expected)
 
     def test_get_transition_chempots(self):
         for el in self.pd.elements:
@@ -415,21 +414,9 @@ class PhaseDiagramTest(unittest.TestCase):
                     assert len(self.pd.get_element_profile(el, entry.composition)) <= len(self.pd.facets)
 
         expected = [
-            {
-                "evolution": 1.0,
-                "chempot": -4.2582781416666666,
-                "reaction": "Li2O + 0.5 O2 -> Li2O2",
-            },
-            {
-                "evolution": 0,
-                "chempot": -5.0885906699999968,
-                "reaction": "Li2O -> Li2O",
-            },
-            {
-                "evolution": -1.0,
-                "chempot": -10.487582010000001,
-                "reaction": "Li2O -> 2 Li + 0.5 O2",
-            },
+            {"evolution": 1.0, "chempot": -4.2582781416666666, "reaction": "Li2O + 0.5 O2 -> Li2O2"},
+            {"evolution": 0, "chempot": -5.0885906699999968, "reaction": "Li2O -> Li2O"},
+            {"evolution": -1.0, "chempot": -10.487582010000001, "reaction": "Li2O -> 2 Li + 0.5 O2"},
         ]
         result = self.pd.get_element_profile(Element("O"), Composition("Li2O"))
         for d1, d2 in zip(expected, result):
