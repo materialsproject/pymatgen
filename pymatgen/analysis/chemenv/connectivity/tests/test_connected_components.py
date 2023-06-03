@@ -858,11 +858,11 @@ Node #3 Li (O:6), connected to :
             "structure_environments_files",
             "se_mp-5020.json",
         )
-        with open(BaTiO3_se_fpath) as f:
-            dd = json.load(f)
-        se = StructureEnvironments.from_dict(dd)
+        with open(BaTiO3_se_fpath) as file:
+            dct = json.load(file)
+        struct_envs = StructureEnvironments.from_dict(dct)
         lse = LightStructureEnvironments.from_structure_environments(
-            strategy=SimplestChemenvStrategy(), structure_environments=se
+            strategy=SimplestChemenvStrategy(), structure_environments=struct_envs
         )
         cf = ConnectivityFinder()
         sc = cf.get_structure_connectivity(light_structure_environments=lse)

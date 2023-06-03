@@ -400,7 +400,7 @@ class PhaseDiagram(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> PhaseDiagram:
+    def from_dict(cls, dct: dict[str, Any]) -> PhaseDiagram:
         """
         Args:
             d (dict): dictionary representation of PhaseDiagram
@@ -408,9 +408,9 @@ class PhaseDiagram(MSONable):
         Returns:
             PhaseDiagram
         """
-        entries = [MontyDecoder().process_decoded(dd) for dd in d["all_entries"]]
-        elements = [Element.from_dict(dd) for dd in d["elements"]]
-        computed_data = d.get("computed_data")
+        entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
+        elements = [Element.from_dict(elem) for elem in dct["elements"]]
+        computed_data = dct.get("computed_data")
         return cls(entries, elements, computed_data=computed_data)
 
     def _compute(self) -> dict[str, Any]:
@@ -1698,7 +1698,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
             d (dict): dictionary representation of PatchedPhaseDiagram
@@ -1706,8 +1706,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             PatchedPhaseDiagram
         """
-        entries = [MontyDecoder().process_decoded(dd) for dd in d["all_entries"]]
-        elements = [Element.from_dict(dd) for dd in d["elements"]]
+        entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
+        elements = [Element.from_dict(elem) for elem in dct["elements"]]
         return cls(entries, elements)
 
     # NOTE the following could be inherited unchanged from PhaseDiagram:

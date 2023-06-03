@@ -47,16 +47,16 @@ def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
         if voro is None or voro == "None":
             continue
         voronoi_list[isite] = []
-        for psd, dd in voro:
-            struct_site = structure[dd["index"]]
+        for psd, dct in voro:
+            struct_site = structure[dct["index"]]
             periodic_site = PeriodicSite(
                 struct_site._species,
                 struct_site.frac_coords + psd[1],
                 struct_site._lattice,
                 properties=struct_site.properties,
             )
-            dd["site"] = periodic_site
-            voronoi_list[isite].append(dd)
+            dct["site"] = periodic_site
+            voronoi_list[isite].append(dct)
     return voronoi_list
 
 
