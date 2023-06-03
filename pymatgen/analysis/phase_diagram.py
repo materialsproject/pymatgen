@@ -3066,7 +3066,7 @@ class PDPlotter:
         unstable_coords, unstable_entries = [], []
         highlight_coords, highlight_ents = [], []
 
-        for coord, entry in zip(list(self.pd_plot_data[1]), self.pd_plot_data[1].values()):
+        for coord, entry in zip(self.pd_plot_data[1], self.pd_plot_data[1].values()):
             if entry in highlight_entries:
                 highlight_coords.append(coord)
                 highlight_ents.append(entry)
@@ -3074,7 +3074,7 @@ class PDPlotter:
                 stable_coords.append(coord)
                 stable_entries.append(entry)
 
-        for coord, entry in zip(self.pd_plot_data[2].values(), list(self.pd_plot_data[2])):
+        for coord, entry in zip(self.pd_plot_data[2].values(), self.pd_plot_data[2]):
             if entry in highlight_entries:
                 highlight_coords.append(coord)
                 highlight_ents.append(entry)
