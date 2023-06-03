@@ -1229,6 +1229,9 @@ class StructureTest(PymatgenTest):
         assert sites[-1].specie.symbol == "C"
         self.structure.add_oxidation_state_by_element({"Si": 4, "C": 2})
         assert self.structure.charge == 62
+        species = self.structure.species
+        assert isinstance(species, list)
+        assert len(species) == len(self.structure)
 
     def test_set_item(self):
         s = self.structure.copy()

@@ -47,7 +47,7 @@ from copy import deepcopy
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal, Sequence
+from typing import Any, Literal, Sequence, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -119,18 +119,17 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         Potcar object.
         """
-        # pylint: disable=E1101
-        potcar = Potcar(self.potcar_symbols, functional=self.potcar_functional)
+        user_potcar_functional = self.user_potcar_functional
+        potcar = Potcar(self.potcar_symbols, functional=user_potcar_functional)
 
-        # warn if the selected POTCARs do not correspond to the chosen
-        # potcar_functional
-        for psingle in potcar:
-            if self.potcar_functional not in psingle.identify_potcar()[0]:
+        # warn if the selected POTCARs do not correspond to the chosen user_potcar_functional
+        for p_single in potcar:
+            if user_potcar_functional not in p_single.identify_potcar()[0]:
                 warnings.warn(
-                    f"POTCAR data with symbol {psingle.symbol} is not known by pymatgen to\
-                    correspond with the selected potcar_functional {self.potcar_functional}. This POTCAR\
-                    is known to correspond with functionals {psingle.identify_potcar(mode='data')[0]}. "
-                    f"Please verify that you are using the right POTCARs!",
+                    f"POTCAR data with symbol {p_single.symbol} is not known by pymatgen to "
+                    f"correspond with the selected {user_potcar_functional=}. This POTCAR "
+                    f"is known to correspond with functionals {p_single.identify_potcar(mode='data')[0]}. "
+                    "Please verify that you are using the right POTCARs!",
                     BadInputSetWarning,
                 )
 
@@ -232,6 +231,11 @@ def _load_yaml_config(fname):
     return config
 
 
+UserPotcarFunctional = Union[
+    Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
+]
+
+
 class DictSet(VaspInputSet):
     """
     Concrete implementation of VaspInputSet that is initialized from a dict
@@ -265,9 +269,7 @@ class DictSet(VaspInputSet):
         user_potcar_settings=None,
         constrain_total_magmom: bool = False,
         sort_structure: bool = True,
-        user_potcar_functional: Literal[
-            "PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"
-        ] = None,
+        user_potcar_functional: UserPotcarFunctional = None,
         force_gamma: bool = False,
         reduce_structure=None,
         vdw=None,
@@ -385,6 +387,7 @@ class DictSet(VaspInputSet):
         self.standardize = standardize
         self.sym_prec = sym_prec
         self.international_monoclinic = international_monoclinic
+        self.validate_magmom = validate_magmom
 
         if self.user_incar_settings.get("KSPACING") and user_kpoints_settings is not None:
             warnings.warn(
@@ -405,10 +408,12 @@ class DictSet(VaspInputSet):
                     f"Invalid or unsupported van-der-Waals functional. Supported functionals are {', '.join(vdw_par)}."
                 )
         # 'or' case reads the POTCAR_FUNCTIONAL from the .yaml
-        self.potcar_functional = user_potcar_functional or self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
+        self.user_potcar_functional: UserPotcarFunctional = user_potcar_functional or self._config_dict.get(
+            "POTCAR_FUNCTIONAL", "PBE"
+        )
 
         # warn if a user is overriding POTCAR_FUNCTIONAL
-        if self.potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL", "PBE"):
+        if self.user_potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL", "PBE"):
             warnings.warn(
                 "Overriding the POTCAR functional is generally not recommended "
                 " as it significantly affect the results of calculations and "
@@ -465,7 +470,7 @@ class DictSet(VaspInputSet):
         incar = Incar()
         comp = structure.composition
         elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda e: e.X)
-        most_electroneg = elements[-1].symbol
+        most_electro_neg = elements[-1].symbol
         poscar = Poscar(structure)
         hubbard_u = settings.get("LDAU", False)
 
@@ -500,8 +505,8 @@ class DictSet(VaspInputSet):
                         m = {site.specie.symbol: getattr(site, k.lower()) for site in structure}
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                         # lookup specific LDAU if specified for most_electroneg atom
-                    elif most_electroneg in v and isinstance(v[most_electroneg], dict):
-                        incar[k] = [v[most_electroneg].get(sym, 0) for sym in poscar.site_symbols]
+                    elif most_electro_neg in v and isinstance(v[most_electro_neg], dict):
+                        incar[k] = [v[most_electro_neg].get(sym, 0) for sym in poscar.site_symbols]
                         # else, use fallback LDAU value if it exists
                     else:
                         incar[k] = [
@@ -607,6 +612,10 @@ class DictSet(VaspInputSet):
         :return: Poscar
         """
         return Poscar(self.structure)
+
+    @property
+    def potcar_functional(self) -> UserPotcarFunctional:
+        return self.user_potcar_functional
 
     @property
     def nelect(self) -> float:
@@ -2711,7 +2720,7 @@ class MVLScanRelaxSet(MPRelaxSet):
 
         super().__init__(structure, **kwargs)
 
-        if self.potcar_functional not in ("PBE_52", "PBE_54"):
+        if self.user_potcar_functional not in ("PBE_52", "PBE_54"):
             raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
 
         updates = {

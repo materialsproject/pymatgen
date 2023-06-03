@@ -25,6 +25,7 @@ from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.sets import (
     BadInputSetWarning,
+    DictSet,
     LobsterSet,
     MITMDSet,
     MITNEBSet,
@@ -115,6 +116,26 @@ class SetChangeCheckTest(PymatgenTest):
         assert hashes == known_hashes, msg
         for input_set in hashes:
             assert hashes[input_set] == known_hashes[input_set], msg
+
+
+class DictSetTest(PymatgenTest):
+    @classmethod
+    def setUpClass(cls):
+        filepath = cls.TEST_FILES_DIR / "POSCAR"
+        poscar = Poscar.from_file(filepath)
+        cls.structure = poscar.structure
+
+    def test_as_dict(self):
+        # https://github.com/materialsproject/pymatgen/pull/3031
+        dict_set = DictSet(self.structure, config_dict={"INCAR": {}}, user_potcar_functional="PBE_54")
+        assert {*dict_set.as_dict()} >= {
+            "structure",
+            "config_dict",
+            "user_incar_settings",
+            "user_kpoints_settings",
+            "user_potcar_settings",
+        }
+        assert dict_set.potcar_functional == dict_set.user_potcar_functional
 
 
 class MITMPRelaxSetTest(PymatgenTest):
@@ -1726,7 +1747,7 @@ class LobsterSetTest(PymatgenTest):
     @skip_if_no_psp_dir
     def test_potcar(self):
         # PBE_54 is preferred at the moment
-        assert self.lobsterset1.potcar_functional == "PBE_54"
+        assert self.lobsterset1.user_potcar_functional == "PBE_54"
 
     def test_as_from_dict(self):
         dict_here = self.lobsterset1.as_dict()
@@ -1743,7 +1764,7 @@ class LobsterSetTest(PymatgenTest):
         assert incar1["ALGO"] == "Normal"
         kpoints1 = lobsterset_new.kpoints
         assert kpoints1.comment.split(" ")[6], 6138
-        assert lobsterset_new.potcar_functional == "PBE_54"
+        assert lobsterset_new.user_potcar_functional == "PBE_54"
 
 
 @skip_if_no_psp_dir
