@@ -327,7 +327,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """
         Reconstructs the SeparationPlane algorithm from its JSON-serializable dict representation.
 
@@ -336,22 +336,18 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
         Returns: a SeparationPlane algorithm.
         """
-        eop = (
-            [np.array(eo_perm) for eo_perm in dd["explicit_optimized_permutations"]]
-            if ("explicit_optimized_permutations" in dd and dd["explicit_optimized_permutations"] is not None)
-            else None
-        )
+        eop = [np.array(eo_perm) for eo_perm in dct.get("explicit_optimized_permutations", [])] or None
         return cls(
-            plane_points=dd["plane_points"],
-            mirror_plane=dd["mirror_plane"],
-            ordered_plane=dd["ordered_plane"],
-            point_groups=dd["point_groups"],
-            ordered_point_groups=dd["ordered_point_groups"],
-            explicit_permutations=[np.array(eperm) for eperm in dd["explicit_permutations"]],
+            plane_points=dct["plane_points"],
+            mirror_plane=dct["mirror_plane"],
+            ordered_plane=dct["ordered_plane"],
+            point_groups=dct["point_groups"],
+            ordered_point_groups=dct["ordered_point_groups"],
+            explicit_permutations=[np.array(eperm) for eperm in dct["explicit_permutations"]],
             explicit_optimized_permutations=eop,
-            multiplicity=dd["multiplicity"] if "multiplicity" in dd else None,
-            other_plane_points=dd["other_plane_points"] if "other_plane_points" in dd else None,
-            minimum_number_of_points=dd["minimum_number_of_points"],
+            multiplicity=dct.get("multiplicity"),
+            other_plane_points=dct.get("other_plane_points"),
+            minimum_number_of_points=dct["minimum_number_of_points"],
         )
 
     def __str__(self):
@@ -599,12 +595,12 @@ class CoordinationGeometry:
             "IUCr_symbol": self.IUCrsymbol,
             "coordination": self.coordination,
             "central_site": [float(xx) for xx in self.central_site],
-            "points": [[float(xx) for xx in pp] for pp in self.points] if self.points is not None else None,
-            "solid_angles": [float(ang) for ang in self._solid_angles] if self._solid_angles is not None else None,
+            "points": [[float(xx) for xx in pp] for pp in (self.points or [])] or None,
+            "solid_angles": [float(ang) for ang in (self._solid_angles or [])] or None,
             "deactivate": self.deactivate,
             "_faces": self._faces,
             "_edges": self._edges,
-            "_algorithms": [algo.as_dict for algo in self._algorithms] if self._algorithms is not None else None,
+            "_algorithms": [algo.as_dict for algo in (self._algorithms or [])] or None,
             "equivalent_indices": self.equivalent_indices,
             "neighbors_sets_hints": [nbsh.as_dict() for nbsh in self.neighbors_sets_hints]
             if self.neighbors_sets_hints is not None
@@ -612,37 +608,39 @@ class CoordinationGeometry:
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """
         Reconstructs the CoordinationGeometry from its JSON-serializable dict representation.
 
         Args:
-            dd: a JSON-serializable dict representation of a CoordinationGeometry.
+            dct: a JSON-serializable dict representation of a CoordinationGeometry.
 
         Returns: a CoordinationGeometry.
         """
         dec = MontyDecoder()
         return cls(
-            mp_symbol=dd["mp_symbol"],
-            name=dd["name"],
-            alternative_names=dd["alternative_names"],
-            IUPAC_symbol=dd["IUPAC_symbol"],
-            IUCr_symbol=dd["IUCr_symbol"],
-            coordination=dd["coordination"],
-            central_site=dd["central_site"],
-            points=dd["points"],
+            mp_symbol=dct["mp_symbol"],
+            name=dct["name"],
+            alternative_names=dct["alternative_names"],
+            IUPAC_symbol=dct["IUPAC_symbol"],
+            IUCr_symbol=dct["IUCr_symbol"],
+            coordination=dct["coordination"],
+            central_site=dct["central_site"],
+            points=dct["points"],
             solid_angles=(
-                dd["solid_angles"] if "solid_angles" in dd else [4.0 * np.pi / dd["coordination"]] * dd["coordination"]
+                dct["solid_angles"]
+                if "solid_angles" in dct
+                else [4.0 * np.pi / dct["coordination"]] * dct["coordination"]
             ),
-            deactivate=dd["deactivate"],
-            faces=dd["_faces"],
-            edges=dd["_edges"],
-            algorithms=[dec.process_decoded(algo_d) for algo_d in dd["_algorithms"]]
-            if dd["_algorithms"] is not None
+            deactivate=dct["deactivate"],
+            faces=dct["_faces"],
+            edges=dct["_edges"],
+            algorithms=[dec.process_decoded(algo_d) for algo_d in dct["_algorithms"]]
+            if dct["_algorithms"] is not None
             else None,
-            equivalent_indices=dd["equivalent_indices"] if "equivalent_indices" in dd else None,
-            neighbors_sets_hints=[cls.NeighborsSetsHints.from_dict(nbshd) for nbshd in dd["neighbors_sets_hints"]]
-            if ("neighbors_sets_hints" in dd and dd["neighbors_sets_hints"] is not None)
+            equivalent_indices=dct.get("equivalent_indices"),
+            neighbors_sets_hints=[cls.NeighborsSetsHints.from_dict(nbshd) for nbshd in dct["neighbors_sets_hints"]]
+            if ("neighbors_sets_hints" in dct and dct["neighbors_sets_hints"] is not None)
             else None,
         )
 

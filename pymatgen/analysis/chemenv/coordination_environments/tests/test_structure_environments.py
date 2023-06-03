@@ -37,14 +37,14 @@ class StructureEnvironmentsTest(PymatgenTest):
             with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
                 dd = json.load(f)
 
-            se = StructureEnvironments.from_dict(dd)
+            struct_envs = StructureEnvironments.from_dict(dd)
             isite = 6
-            csm_and_maps_fig, csm_and_maps_subplot = se.get_csm_and_maps(isite=isite)
+            csm_and_maps_fig, csm_and_maps_subplot = struct_envs.get_csm_and_maps(isite=isite)
             assert_array_almost_equal(csm_and_maps_subplot.lines[0].get_xydata().flatten(), [0.0, 0.53499332])
             assert_array_almost_equal(csm_and_maps_subplot.lines[1].get_xydata().flatten(), [1.0, 0.47026441])
             assert_array_almost_equal(csm_and_maps_subplot.lines[2].get_xydata().flatten(), [2.0, 0.00988778])
 
-            environments_figure, environments_subplot = se.get_environments_figure(isite=isite)
+            environments_figure, environments_subplot = struct_envs.get_environments_figure(isite=isite)
             assert_array_almost_equal(
                 np.array(environments_subplot.patches[0].get_xy()),
                 [
@@ -98,14 +98,14 @@ class StructureEnvironmentsTest(PymatgenTest):
                 ],
             )
 
-            se.save_environments_figure(isite=isite, imagename="image.png")
+            struct_envs.save_environments_figure(isite=isite, imagename="image.png")
             assert os.path.exists("image.png")
 
-            assert len(se.differences_wrt(se)) == 0
+            assert len(struct_envs.differences_wrt(struct_envs)) == 0
 
-            assert se == se
+            assert struct_envs == struct_envs
 
-            ce = se.ce_list[isite][4][0]
+            ce = struct_envs.ce_list[isite][4][0]
 
             assert len(ce), 4
 
@@ -140,7 +140,7 @@ class StructureEnvironmentsTest(PymatgenTest):
             min_geoms = ce.minimum_geometries(n=3)
             assert len(min_geoms) == 3
 
-            ce2 = se.ce_list[7][4][0]
+            ce2 = struct_envs.ce_list[7][4][0]
 
             assert ce.is_close_to(ce2, rtol=0.01, atol=1e-4)
             assert not ce.is_close_to(ce2, rtol=0.0, atol=1e-8)
@@ -153,11 +153,11 @@ class StructureEnvironmentsTest(PymatgenTest):
             with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
                 dd = json.load(f)
 
-            se = StructureEnvironments.from_dict(dd)
+            struct_envs = StructureEnvironments.from_dict(dd)
 
             strategy = SimplestChemenvStrategy()
             lse = LightStructureEnvironments.from_structure_environments(
-                structure_environments=se, strategy=strategy, valences="undefined"
+                structure_environments=struct_envs, strategy=strategy, valences="undefined"
             )
             isite = 6
             nb_set = lse.neighbors_sets[isite][0]
@@ -241,7 +241,7 @@ class StructureEnvironmentsTest(PymatgenTest):
             multi_strategy = MultiWeightsChemenvStrategy.stats_article_weights_parameters()
 
             lse_multi = LightStructureEnvironments.from_structure_environments(
-                strategy=multi_strategy, structure_environments=se, valences="undefined"
+                strategy=multi_strategy, structure_environments=struct_envs, valences="undefined"
             )
             assert lse_multi.coordination_environments[isite][0]["csm"] == pytest.approx(0.009887784240541068)
             assert lse_multi.coordination_environments[isite][0]["ce_fraction"] == pytest.approx(1.0)

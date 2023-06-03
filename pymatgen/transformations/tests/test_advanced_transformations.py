@@ -266,22 +266,21 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
     def test_max_disordered_sites(self):
-        latt = Lattice.cubic(4)
         s_orig = Structure(
-            latt,
+            Lattice.cubic(4),
             [{"Li": 0.2, "Na": 0.2, "K": 0.6}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
         est = EnumerateStructureTransformation(max_cell_size=None, max_disordered_sites=5)
-        dd = est.apply_transformation(s_orig, return_ranked_list=100)
-        assert len(dd) == 9
-        for d in dd:
+        lst = est.apply_transformation(s_orig, return_ranked_list=100)
+        assert len(lst) == 9
+        for d in lst:
             assert len(d["structure"]) == 10
 
     def test_to_from_dict(self):
         trans = EnumerateStructureTransformation()
-        d = trans.as_dict()
-        trans = EnumerateStructureTransformation.from_dict(d)
+        dct = trans.as_dict()
+        trans = EnumerateStructureTransformation.from_dict(dct)
         assert trans.symm_prec == 0.1
 
 

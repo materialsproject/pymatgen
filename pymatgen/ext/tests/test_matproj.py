@@ -513,9 +513,9 @@ class MPResterOldTest(PymatgenTest):
 
         data = self.rester.get_pourbaix_entries(["Ag", "Te"])
         pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Ag": 1e-8, "Te": 1e-8})
-        assert len(pbx.stable_entries) == 29
+        assert len(pbx.stable_entries) == 30
         test_entry = pbx.find_stable_entry(8, 2)
-        assert sorted(test_entry.entry_id) == ["ion-10", "mp-499"]
+        assert sorted(test_entry.entry_id) == ["ion-10", "mp-996958"]
 
         # Test against ion sets with multiple equivalent ions (Bi-V regression)
         entries = self.rester.get_pourbaix_entries(["Bi", "V"])

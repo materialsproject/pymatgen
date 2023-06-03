@@ -88,10 +88,10 @@ class ReadWriteChemenvTest(unittest.TestCase):
         with open(f"{se_files_dir}/se_mp-7000.json") as f:
             dd = json.load(f)
 
-        se = StructureEnvironments.from_dict(dd)
+        struct_envs = StructureEnvironments.from_dict(dd)
 
         isite = 6
-        nb_set = se.neighbors_sets[isite][4][0]
+        nb_set = struct_envs.neighbors_sets[isite][4][0]
 
         nb_set_surface_points = [
             [1.0017922780870239, 0.99301365328679292],

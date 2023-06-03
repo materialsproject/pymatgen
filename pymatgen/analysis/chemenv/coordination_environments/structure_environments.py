@@ -1343,7 +1343,7 @@ class StructureEnvironments(MSONable):
         neighbors_sets = [
             {
                 int(cn): [
-                    cls.NeighborsSet.from_dict(dd=nb_set_dict, structure=structure, detailed_voronoi=voronoi)
+                    cls.NeighborsSet.from_dict(nb_set_dict, structure=structure, detailed_voronoi=voronoi)
                     for nb_set_dict in nb_sets
                 ]
                 for cn, nb_sets in site_nbs_sets_dict.items()
@@ -2127,7 +2127,7 @@ class LightStructureEnvironments(MSONable):
             all_nbs_sites.append({"site": site, "index": nb_site["index"], "image_cell": image_cell})
         neighbors_sets = [
             [
-                cls.NeighborsSet.from_dict(dd=nb_set, structure=structure, all_nbs_sites=all_nbs_sites)
+                cls.NeighborsSet.from_dict(nb_set, structure=structure, all_nbs_sites=all_nbs_sites)
                 for nb_set in site_nb_sets
             ]
             if site_nb_sets is not None

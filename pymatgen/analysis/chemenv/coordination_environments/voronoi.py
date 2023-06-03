@@ -47,16 +47,16 @@ def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
         if voro is None or voro == "None":
             continue
         voronoi_list[isite] = []
-        for psd, dd in voro:
-            struct_site = structure[dd["index"]]
+        for psd, dct in voro:
+            struct_site = structure[dct["index"]]
             periodic_site = PeriodicSite(
                 struct_site._species,
                 struct_site.frac_coords + psd[1],
                 struct_site._lattice,
                 properties=struct_site.properties,
             )
-            dd["site"] = periodic_site
-            voronoi_list[isite].append(dd)
+            dct["site"] = periodic_site
+            voronoi_list[isite].append(dct)
     return voronoi_list
 
 
@@ -951,29 +951,29 @@ class DetailedVoronoiContainer(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Reconstructs the VoronoiContainer object from a dict representation of the VoronoiContainer created using
         the as_dict method.
 
         Args:
-            d: dict representation of the VoronoiContainer object.
+            dct: dict representation of the VoronoiContainer object.
 
         Returns:
             VoronoiContainer object.
         """
-        structure = Structure.from_dict(d["structure"])
-        voronoi_list2 = from_bson_voronoi_list2(d["bson_nb_voro_list2"], structure)
-        maximum_distance_factor = d["maximum_distance_factor"] if "maximum_distance_factor" in d else None
-        minimum_angle_factor = d["minimum_angle_factor"] if "minimum_angle_factor" in d else None
+        structure = Structure.from_dict(dct["structure"])
+        voronoi_list2 = from_bson_voronoi_list2(dct["bson_nb_voro_list2"], structure)
+        maximum_distance_factor = dct.get("maximum_distance_factor")
+        minimum_angle_factor = dct.get("minimum_angle_factor")
         return cls(
             structure=structure,
             voronoi_list2=voronoi_list2,
             # neighbors_lists=neighbors_lists,
-            normalized_angle_tolerance=d["normalized_angle_tolerance"],
-            normalized_distance_tolerance=d["normalized_distance_tolerance"],
-            additional_conditions=d["additional_conditions"],
-            valences=d["valences"],
+            normalized_angle_tolerance=dct["normalized_angle_tolerance"],
+            normalized_distance_tolerance=dct["normalized_distance_tolerance"],
+            additional_conditions=dct["additional_conditions"],
+            valences=dct["valences"],
             maximum_distance_factor=maximum_distance_factor,
             minimum_angle_factor=minimum_angle_factor,
         )

@@ -275,26 +275,29 @@ class PhononBandStructure(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
-        :param d: Dict representation
+        :param dct: Dict representation
         :return: PhononBandStructure
         """
-        lattice_rec = Lattice(d["lattice_rec"]["matrix"])
-        eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
+        lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
+        eigendisplacements = (
+            np.array(dct["eigendisplacements"]["real"]) + np.array(dct["eigendisplacements"]["imag"]) * 1j
+        )
         nac_eigendisplacements = [
-            (direction, np.array(e["real"]) + np.array(e["imag"]) * 1j) for direction, e in d["nac_eigendisplacements"]
+            (direction, np.array(e["real"]) + np.array(e["imag"]) * 1j)
+            for direction, e in dct["nac_eigendisplacements"]
         ]
-        nac_frequencies = [(direction, np.array(f)) for direction, f in d["nac_frequencies"]]
-        structure = Structure.from_dict(d["structure"]) if "structure" in d else None
+        nac_frequencies = [(direction, np.array(f)) for direction, f in dct["nac_frequencies"]]
+        structure = Structure.from_dict(dct["structure"]) if "structure" in dct else None
         return cls(
-            d["qpoints"],
-            np.array(d["bands"]),
+            dct["qpoints"],
+            np.array(dct["bands"]),
             lattice_rec,
             nac_frequencies,
             eigendisplacements,
             nac_eigendisplacements,
-            d["labels_dict"],
+            dct["labels_dict"],
             structure=structure,
         )
 
@@ -603,22 +606,24 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d: Dict representation
+            dct: Dict representation
 
-        Returns: PhononBandStructureSummLine
+        Returns: PhononBandStructureSymmLine
         """
-        lattice_rec = Lattice(d["lattice_rec"]["matrix"])
-        eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
-        structure = Structure.from_dict(d["structure"]) if "structure" in d else None
+        lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
+        eigendisplacements = (
+            np.array(dct["eigendisplacements"]["real"]) + np.array(dct["eigendisplacements"]["imag"]) * 1j
+        )
+        structure = Structure.from_dict(dct["structure"]) if "structure" in dct else None
         return cls(
-            d["qpoints"],
-            np.array(d["bands"]),
+            dct["qpoints"],
+            np.array(dct["bands"]),
             lattice_rec,
-            d["has_nac"],
+            dct["has_nac"],
             eigendisplacements,
-            d["labels_dict"],
+            dct["labels_dict"],
             structure=structure,
         )
