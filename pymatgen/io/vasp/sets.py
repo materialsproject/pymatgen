@@ -231,6 +231,9 @@ def _load_yaml_config(fname):
     return config
 
 
+UserPotcarFunctional = Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"] | None
+
+
 class DictSet(VaspInputSet):
     """
     Concrete implementation of VaspInputSet that is initialized from a dict
@@ -264,9 +267,7 @@ class DictSet(VaspInputSet):
         user_potcar_settings=None,
         constrain_total_magmom: bool = False,
         sort_structure: bool = True,
-        user_potcar_functional: Literal[
-            "PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"
-        ] = None,
+        user_potcar_functional: UserPotcarFunctional = None,
         force_gamma: bool = False,
         reduce_structure=None,
         vdw=None,
@@ -405,7 +406,9 @@ class DictSet(VaspInputSet):
                     f"Invalid or unsupported van-der-Waals functional. Supported functionals are {', '.join(vdw_par)}."
                 )
         # 'or' case reads the POTCAR_FUNCTIONAL from the .yaml
-        self.user_potcar_functional = user_potcar_functional or self._config_dict.get("POTCAR_FUNCTIONAL", "PBE")
+        self.user_potcar_functional: UserPotcarFunctional = user_potcar_functional or self._config_dict.get(
+            "POTCAR_FUNCTIONAL", "PBE"
+        )
 
         # warn if a user is overriding POTCAR_FUNCTIONAL
         if self.user_potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL", "PBE"):
@@ -465,7 +468,7 @@ class DictSet(VaspInputSet):
         incar = Incar()
         comp = structure.composition
         elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda e: e.X)
-        most_electroneg = elements[-1].symbol
+        most_electro_neg = elements[-1].symbol
         poscar = Poscar(structure)
         hubbard_u = settings.get("LDAU", False)
 
@@ -500,8 +503,8 @@ class DictSet(VaspInputSet):
                         m = {site.specie.symbol: getattr(site, k.lower()) for site in structure}
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                         # lookup specific LDAU if specified for most_electroneg atom
-                    elif most_electroneg in v and isinstance(v[most_electroneg], dict):
-                        incar[k] = [v[most_electroneg].get(sym, 0) for sym in poscar.site_symbols]
+                    elif most_electro_neg in v and isinstance(v[most_electro_neg], dict):
+                        incar[k] = [v[most_electro_neg].get(sym, 0) for sym in poscar.site_symbols]
                         # else, use fallback LDAU value if it exists
                     else:
                         incar[k] = [
@@ -607,6 +610,10 @@ class DictSet(VaspInputSet):
         :return: Poscar
         """
         return Poscar(self.structure)
+
+    @property
+    def potcar_functional(self) -> UserPotcarFunctional:
+        return self.user_potcar_functional
 
     @property
     def nelect(self) -> float:
