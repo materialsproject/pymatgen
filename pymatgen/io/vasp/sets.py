@@ -47,7 +47,7 @@ from copy import deepcopy
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal, Sequence
+from typing import Any, Literal, Sequence, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -231,7 +231,9 @@ def _load_yaml_config(fname):
     return config
 
 
-UserPotcarFunctional = Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"] | None
+UserPotcarFunctional = Union[
+    Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
+]
 
 
 class DictSet(VaspInputSet):
