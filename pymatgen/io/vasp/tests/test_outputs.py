@@ -1120,11 +1120,9 @@ class OutcarTest(PymatgenTest):
         filename = self.TEST_FILES_DIR / "nmr" / "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         c_vo = outcar.data["chemical_shielding"]["valence_only"][7]
-        for x1, x2 in zip(list(c_vo), [198.7009, 73.7484, 1.0000]):
-            assert x1 == approx(x2)
+        assert list(c_vo) == approx([198.7009, 73.7484, 1])
         c_vc = outcar.data["chemical_shielding"]["valence_and_core"][7]
-        for x1, x2 in zip(list(c_vc), [-1.9406, 73.7484, 1.0000]):
-            assert x1 == approx(x2)
+        assert list(c_vc) == approx([-1.9406, 73.7484, 1])
 
     def test_cs_raw_tensors(self):
         filename = self.TEST_FILES_DIR / "nmr" / "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"

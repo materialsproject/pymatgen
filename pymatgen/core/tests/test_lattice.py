@@ -186,26 +186,24 @@ class LatticeTestCase(PymatgenTest):
         lattice = Lattice([1, 1, 1, -1, 0, 2, 3, 5, 6])
         reduced_latt = lattice.get_lll_reduced_lattice()
 
-        expected_ans = Lattice([[0, 1, 0], [1, 0, 1], [-2, 0, 1]])
-        assert round(abs(np.linalg.det(np.linalg.solve(expected_ans.matrix, reduced_latt.matrix)) - 1), 7) == 0
-        self.assert_all_close(sorted(reduced_latt.abc), sorted(expected_ans.abc))
+        expected = Lattice([[0, 1, 0], [1, 0, 1], [-2, 0, 1]])
+        assert round(abs(np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) - 1), 7) == 0
+        self.assert_all_close(sorted(reduced_latt.abc), sorted(expected.abc))
         assert round(abs(reduced_latt.volume - lattice.volume), 7) == 0
         latt = [7.164750, 2.481942, 0.000000, -4.298850, 2.481942, 0.000000, 0.000000, 0.000000, 14.253000]
-        expected_ans = Lattice(
-            [-4.298850, 2.481942, 0.000000, 2.865900, 4.963884, 0.000000, 0.000000, 0.000000, 14.253000]
-        )
+        expected = Lattice([-4.298850, 2.481942, 0.000000, 2.865900, 4.963884, 0.000000, 0.000000, 0.000000, 14.253000])
         reduced_latt = Lattice(latt).get_lll_reduced_lattice()
-        assert round(abs(np.linalg.det(np.linalg.solve(expected_ans.matrix, reduced_latt.matrix)) - 1), 7) == 0
-        self.assert_all_close(sorted(reduced_latt.abc), sorted(expected_ans.abc))
+        assert round(abs(np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) - 1), 7) == 0
+        self.assert_all_close(sorted(reduced_latt.abc), sorted(expected.abc))
 
-        expected_ans = Lattice([0.0, 10.0, 10.0, 10.0, 10.0, 0.0, 30.0, -30.0, 40.0])
+        expected = Lattice([0.0, 10.0, 10.0, 10.0, 10.0, 0.0, 30.0, -30.0, 40.0])
 
         lattice = np.array([100.0, 0.0, 10.0, 10.0, 10.0, 20.0, 10.0, 10.0, 10.0])
         lattice = lattice.reshape(3, 3)
         lattice = Lattice(lattice.T)
         reduced_latt = lattice.get_lll_reduced_lattice()
-        assert round(abs(np.linalg.det(np.linalg.solve(expected_ans.matrix, reduced_latt.matrix)) - 1), 7) == 0
-        self.assert_all_close(sorted(reduced_latt.abc), sorted(expected_ans.abc))
+        assert round(abs(np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) - 1), 7) == 0
+        self.assert_all_close(sorted(reduced_latt.abc), sorted(expected.abc))
 
         random_latt = Lattice(np.random.random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:

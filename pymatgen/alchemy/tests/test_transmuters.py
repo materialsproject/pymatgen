@@ -26,10 +26,10 @@ class CifTransmuterTest(PymatgenTest):
         trans.append(SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"}))
         tsc = CifTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "MultiStructure.cif")], trans)
         assert len(tsc) == 2
-        expected_ans = {"Mn", "O", "Li", "P"}
+        expected = {"Mn", "O", "Li", "P"}
         for s in tsc:
             els = {el.symbol for el in s.final_structure.composition.elements}
-            assert expected_ans == els
+            assert expected == els
 
 
 class PoscarTransmuterTest(PymatgenTest):
@@ -40,10 +40,10 @@ class PoscarTransmuterTest(PymatgenTest):
             [os.path.join(self.TEST_FILES_DIR, "POSCAR"), os.path.join(self.TEST_FILES_DIR, "POSCAR")], trans
         )
         assert len(tsc) == 2
-        expected_ans = {"Mn", "O", "P"}
+        expected = {"Mn", "O", "P"}
         for s in tsc:
             els = {el.symbol for el in s.final_structure.composition.elements}
-            assert expected_ans == els
+            assert expected == els
 
     def test_transmuter(self):
         tsc = PoscarTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "POSCAR")])
