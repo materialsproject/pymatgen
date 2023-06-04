@@ -463,33 +463,51 @@ class MITMPRelaxSetTest(PymatgenTest):
         self.assert_all_close(kpoints.kpts[0], [5, 5, 5])
 
     def test_as_from_dict(self):
-        mitset = MITRelaxSet(self.structure)
+        mit_set = MITRelaxSet(self.structure)
         mp_set = MPRelaxSet(self.structure)
         mp_user_set = MPRelaxSet(
             self.structure,
             user_incar_settings={"MAGMOM": {"Fe": 10, "S": -5, "Mn3+": 100}},
         )
 
-        d = mitset.as_dict()
-        v = dec.process_decoded(d)
-        assert v._config_dict["INCAR"]["LDAUU"]["O"]["Fe"] == 4
+        dct = mit_set.as_dict()
+        val = dec.process_decoded(dct)
+        assert val._config_dict["INCAR"]["LDAUU"]["O"]["Fe"] == 4
 
-        d = mp_set.as_dict()
-        v = dec.process_decoded(d)
-        assert v._config_dict["INCAR"]["LDAUU"]["O"]["Fe"] == 5.3
+        dct = mp_set.as_dict()
+        val = dec.process_decoded(dct)
+        assert val._config_dict["INCAR"]["LDAUU"]["O"]["Fe"] == 5.3
 
-        d = mp_user_set.as_dict()
-        v = dec.process_decoded(d)
+        dct = mp_user_set.as_dict()
+        val = dec.process_decoded(dct)
         # self.assertEqual(type(v), MPVaspInputSet)
-        assert v.user_incar_settings["MAGMOM"] == {"Fe": 10, "S": -5, "Mn3+": 100}
+        assert val.user_incar_settings["MAGMOM"] == {"Fe": 10, "S": -5, "Mn3+": 100}
 
     def test_hubbard_off_and_ediff_override(self):
-        p = MPRelaxSet(self.structure, user_incar_settings={"LDAU": False, "EDIFF": 1e-10})
-        assert "LDAUU" not in p.incar
-        assert p.incar["EDIFF"] == 1e-10
+        input_set = MPRelaxSet(self.structure, user_incar_settings={"LDAU": False, "EDIFF": 1e-10})
+        assert "LDAUU" not in input_set.incar
+        assert input_set.incar["EDIFF"] == 1e-10
         # after testing, we have determined LMAXMIX should still be 4 for d-block
         # even if U is turned off (thanks Andrew Rosen for reporting)
-        assert p.incar["LMAXMIX"] == 4
+        assert input_set.incar["LMAXMIX"] == 4
+
+    def test_incar_lmaxmix(self):
+        # Test with structure containing neither f- nor d-electrons
+        structure_f = self.get_structure("Si")
+        assert "LMAXMIX" not in MPRelaxSet(structure_f).incar
+
+        # Test with structure containing d-electrons but no f-electrons
+        structure_d = self.get_structure("LiFePO4")
+        assert MPRelaxSet(structure_d).incar["LMAXMIX"] == 4
+
+        structure_f = structure_d.copy()
+        structure_f.replace_species({"Fe": "La"})
+        assert MPRelaxSet(structure_f).incar["LMAXMIX"] == 6
+
+        # Test with explicit LMAXMIX in settings overriding automatic selection
+        structure_override = self.get_structure("Si")  # Iron is in the d-block
+        set_override = MPRelaxSet(structure_override, user_incar_settings={"LMAXMIX": 3})
+        assert set_override.incar["LMAXMIX"] == 3
 
     @skip_if_no_psp_dir
     def test_write_input(self):
