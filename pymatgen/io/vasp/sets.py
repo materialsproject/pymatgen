@@ -526,20 +526,19 @@ class DictSet(VaspInputSet):
                 if key.startswith("LDAU"):
                     del incar[key]
 
-        # Modify LMAXMIX if you have d or f electrons present.
-        # Note that if the user explicitly sets LMAXMIX in settings it will
-        # override this logic.
-        # Previously, this was only set if Hubbard U was enabled as per the
-        # VASP manual but following an investigation it was determined that
-        # this would lead to a significant difference between SCF -> NonSCF
-        # even without Hubbard U enabled. Thanks to Andrew Rosen for
-        # investigating and reporting.
+        # Modify LMAXMIX if you have d or f electrons present. Note that if the user
+        # explicitly sets LMAXMIX in settings it will override this logic.
+        # Previously, this was only set if Hubbard U was enabled as per the VASP manual
+        # but following an investigation it was determined that this would lead to a
+        # significant difference between SCF -> NonSCF even without Hubbard U enabled.
+        # Thanks to Andrew Rosen for investigating and reporting.
         if "LMAXMIX" not in settings:
+            blocks = {site.specie.block for site in structure}
             # contains f-electrons
-            if any(el.Z > 56 for el in structure.composition):
+            if "f" in blocks:
                 incar["LMAXMIX"] = 6
             # contains d-electrons
-            elif any(el.Z > 20 for el in structure.composition):
+            elif "d" in blocks:
                 incar["LMAXMIX"] = 4
 
         # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
@@ -555,8 +554,8 @@ class DictSet(VaspInputSet):
             )
 
         if self.constrain_total_magmom:
-            nupdown = sum(mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"])
-            if abs(nupdown - round(nupdown)) > 1e-5:
+            n_up_down = sum(mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"])
+            if abs(n_up_down - round(n_up_down)) > 1e-5:
                 warnings.warn(
                     "constrain_total_magmom was set to True, but the sum of MAGMOM "
                     "values is not an integer. NUPDOWN is meant to set the spin "
@@ -565,7 +564,7 @@ class DictSet(VaspInputSet):
                     "NUPDOWN directly in your INCAR settings.",
                     UserWarning,
                 )
-            incar["NUPDOWN"] = nupdown
+            incar["NUPDOWN"] = n_up_down
 
         if self.use_structure_charge:
             incar["NELECT"] = self.nelect
@@ -577,13 +576,11 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
-        # Ensure adequate number of KPOINTS are present for the tetrahedron
-        # method (ISMEAR=-5). If KSPACING is in the INCAR file the number
-        # of kpoints is not known before calling VASP, but a warning is raised
-        # when the KSPACING value is > 0.5 (2 reciprocal Angstrom).
-        # An error handler in Custodian is available to
-        # correct overly large KSPACING values (small number of kpoints)
-        # if necessary.
+        # Ensure adequate number of KPOINTS are present for the tetrahedron method
+        # (ISMEAR=-5). If KSPACING is in the INCAR file the number of kpoints is not known
+        # before calling VASP, but a warning is raised when the KSPACING value is > 0.5 (2
+        # reciprocal Angstrom). An error handler in Custodian is available to correct
+        # overly large KSPACING values (small number of kpoints) if necessary.
         # if "KSPACING" not in self.user_incar_settings:
         if self.kpoints is not None and np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
             incar["ISMEAR"] = 0
