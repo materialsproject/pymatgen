@@ -535,10 +535,10 @@ class DictSet(VaspInputSet):
         if "LMAXMIX" not in settings:
             blocks = {site.specie.block for site in structure}
             # contains f-electrons
-            if "d" in blocks:
+            if "f" in blocks:
                 incar["LMAXMIX"] = 6
             # contains d-electrons
-            elif "p" in blocks:
+            elif "d" in blocks:
                 incar["LMAXMIX"] = 4
 
         # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
