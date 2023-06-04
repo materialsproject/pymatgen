@@ -492,19 +492,20 @@ class MITMPRelaxSetTest(PymatgenTest):
         assert input_set.incar["LMAXMIX"] == 4
 
     def test_incar_lmaxmix(self):
-        # Test with structure containing neither f- nor d-electrons
+        # structure containing neither f- nor d-electrons
         structure_f = self.get_structure("Si")
         assert "LMAXMIX" not in MPRelaxSet(structure_f).incar
 
-        # Test with structure containing d-electrons but no f-electrons
+        # structure containing d-electrons but no f-electrons
         structure_d = self.get_structure("LiFePO4")
         assert MPRelaxSet(structure_d).incar["LMAXMIX"] == 4
 
+        # structure containing f-electrons but no d-electrons
         structure_f = structure_d.copy()
         structure_f.replace_species({"Fe": "La"})
         assert MPRelaxSet(structure_f).incar["LMAXMIX"] == 6
 
-        # Test with explicit LMAXMIX in settings overriding automatic selection
+        # explicit LMAXMIX in settings overrides automatic selection
         structure_override = self.get_structure("Si")  # Iron is in the d-block
         set_override = MPRelaxSet(structure_override, user_incar_settings={"LMAXMIX": 3})
         assert set_override.incar["LMAXMIX"] == 3

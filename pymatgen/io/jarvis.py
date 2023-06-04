@@ -53,8 +53,6 @@ class JarvisAtomsAdaptor:
         Returns:
             Equivalent pymatgen.core.structure.Structure
         """
-        elements = atoms.elements
-        coords = atoms.frac_coords
-        lattice_mat = atoms.lattice_mat
-
-        return Structure(lattice_mat, elements, coords, coords_are_cartesian=False)
+        return Structure(
+            lattice=atoms.lattice_mat, species=atoms.elements, coords=atoms.frac_coords, coords_are_cartesian=False
+        )

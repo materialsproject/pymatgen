@@ -9,7 +9,7 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class JarvisAtomsAdaptorTest(unittest.TestCase):
-    @unittest.skipIf(not jio.jarvis_loaded, "JARVIS-tools not loaded.")
+    @unittest.skipIf(not jio.Atoms, "JARVIS-tools not loaded.")
     def test_get_atoms_from_structure(self):
         structure = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")).structure
         atoms = jio.JarvisAtomsAdaptor.get_atoms(structure)
@@ -18,7 +18,7 @@ class JarvisAtomsAdaptorTest(unittest.TestCase):
         assert atoms.lattice_mat is not None
         assert atoms.lattice_mat.any()
 
-    @unittest.skipIf(not jio.jarvis_loaded, "JARVIS-tools not loaded.")
+    @unittest.skipIf(not jio.Atoms, "JARVIS-tools not loaded.")
     def test_get_structure(self):
         structure = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")).structure
         atoms = jio.JarvisAtomsAdaptor.get_atoms(structure)
