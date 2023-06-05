@@ -105,7 +105,7 @@ class AseAtomsAdaptor:
             fix_atoms = []
             for site in structure:
                 selective_dynamics: ArrayLike = site.properties.get("selective_dynamics")  # type: ignore[assignment]
-                if not np.all(selective_dynamics) and np.any(selective_dynamics):
+                if not (np.all(selective_dynamics) or not np.any(selective_dynamics)):
                     # should be [True, True, True] or [False, False, False]
                     raise ValueError(
                         "ASE FixAtoms constraint does not support selective dynamics in only some dimensions. "
