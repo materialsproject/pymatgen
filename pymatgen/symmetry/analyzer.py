@@ -80,11 +80,19 @@ class SpacegroupAnalyzer:
                 unique_species.append(species)
                 zs.extend([len(unique_species)] * len(tuple(group)))
 
+        has_explicit_magmoms = False
+        if "magmom" in structure.site_properties or any(
+            (hasattr(specie, "spin") for specie in structure.types_of_species)
+        ):
+            has_explicit_magmoms = True
+
         for site in structure:
             if hasattr(site, "magmom"):
                 magmoms.append(site.magmom)
             elif site.is_ordered and hasattr(site.specie, "spin"):
                 magmoms.append(site.specie.spin)
+            elif has_explicit_magmoms:  # if any site has a magmom, all sites must have magmoms
+                magmoms.append(0)
 
         self._unique_species = unique_species
         self._numbers = zs
@@ -1591,7 +1599,7 @@ def generate_full_symmops(symmops: Sequence[SymmOp], tol: float) -> Sequence[Sym
             if len(full) > 1000:
                 warnings.warn(
                     f"{len(full)} matrices have been generated. The tol may be too small. Please terminate"
-                    f" and rerun with a different tolerance."
+                    " and rerun with a different tolerance."
                 )
 
     d = np.abs(full - UNIT) < tol
