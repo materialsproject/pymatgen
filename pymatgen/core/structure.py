@@ -17,12 +17,24 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
+from pathlib import Path
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    Literal,
+    Sequence,
+    SupportsIndex,
+    cast,
+)
 
 import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
+from monty.os.path import zpath
 from ruamel.yaml import YAML
 from tabulate import tabulate
 
@@ -38,6 +50,7 @@ from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 
 if TYPE_CHECKING:
+    from ase.calculators.calculator import Calculator
     from m3gnet.models._dynamics import TrajectoryObserver
     from numpy.typing import ArrayLike
 
@@ -3976,12 +3989,14 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def relax(
         self,
-        calculator: str = "m3gnet",
+        calculator: str | Calculator = "m3gnet",
         relax_cell: bool = True,
+        optimizer: str = "FIRE",
         stress_weight: float = 0.01,
         steps: int = 500,
         fmax: float = 0.1,
         return_trajectory: bool = False,
+        opt_kwargs: dict = None,
         verbose: bool = False,
     ) -> Structure | tuple[Structure, TrajectoryObserver]:
         """
@@ -3990,29 +4005,59 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Args:
             calculator: A string or an ASE calculator. Defaults to 'm3gnet', i.e. the M3GNet universal potential.
             relax_cell (bool): whether to relax the lattice cell. Defaults to True.
+            optimizer (str): name of the optimizer class to use
             stress_weight (float): the stress weight for relaxation. Defaults to 0.01.
             steps (int): max number of steps for relaxation. Defaults to 500.
             fmax (float): total force tolerance for relaxation convergence.
                 Here fmax is a sum of force and stress forces. Defaults to 0.1.
             return_trajectory (bool): Whether to return the trajectory of relaxation.
                 Defaults to False.
+            opt_kwargs (dict): kwargs for the ASE optimizer class.
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
         Returns:
-            Structure: IAP-relaxed structure
+            Structure: Relaxed structure
         """
         import contextlib
         import io
         import sys
 
         from ase.constraints import ExpCellFilter
-        from ase.optimize.fire import FIRE
+        from ase.optimize import (
+            BFGS,
+            FIRE,
+            LBFGS,
+            BFGSLineSearch,
+            GPMin,
+            LBFGSLineSearch,
+            MDMin,
+        )
         from m3gnet.models import M3GNet, M3GNetCalculator, Potential
         from m3gnet.models._dynamics import TrajectoryObserver
 
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        if calculator == "m3gnet":
+        opt_kwargs = opt_kwargs or {}
+
+        # Get optimizer
+        if optimizer.lower() == "bfgs":
+            opt_class = BFGS
+        elif optimizer.lower() == "bfgslinesearch":
+            opt_class = BFGSLineSearch
+        elif optimizer.lower() == "lbfgs":
+            opt_class = LBFGS
+        elif optimizer.lower() == "lbfgslinesearch":
+            opt_class = LBFGSLineSearch
+        elif optimizer.lower() == "gpmin":
+            opt_class = GPMin
+        elif optimizer.lower() == "mdmin":
+            opt_class = MDMin
+        elif optimizer.lower() == "fire":
+            opt_class = FIRE
+        else:
+            raise ValueError(f"Unknown optimizer: {optimizer}")
+
+        if calculator.lower() == "m3gnet":
             potential = Potential(M3GNet.load())
             calculator = M3GNetCalculator(potential=potential, stress_weight=stress_weight)
 
@@ -4023,13 +4068,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
             # monitor the relaxation
             traj_observer = TrajectoryObserver(atoms)
 
-        atoms.set_calculator(calculator)
+        atoms.calc = calculator
         stream = sys.stdout if verbose else io.StringIO()
         with contextlib.redirect_stdout(stream):
             if relax_cell:
                 atoms = ExpCellFilter(atoms)
-            optimizer = FIRE(atoms)
-            optimizer.run(fmax=fmax, steps=steps)
+            dyn = opt_class(atoms, **opt_kwargs)
+            dyn.run(fmax=fmax, steps=steps)
         if isinstance(atoms, ExpCellFilter):
             atoms = atoms.atoms
 
@@ -4038,6 +4083,57 @@ class Structure(IStructure, collections.abc.MutableSequence):
             traj_observer()  # save properties of the Atoms during the relaxation
             return struct, traj_observer
         return struct
+
+    def run(
+        self, calculator: str | Calculator = "m3gnet", geom_file: str | Path = None
+    ) -> Structure | tuple[Structure, TrajectoryObserver]:
+        """
+        Performs a crystal structure relaxation using some algorithm.
+
+        Args:
+            calculator: A string or an ASE calculator. Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            geom_file: Path to an optional geometry file to read the output structure from. Defaults to None.
+
+        Returns:
+            Structure: Structure following ASE calculation.
+        """
+
+        from ase.io import read
+        from m3gnet.models import M3GNet, M3GNetCalculator, Potential
+
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        if calculator.lower() == "m3gnet":
+            potential = Potential(M3GNet.load())
+            calculator = M3GNetCalculator(potential=potential)
+
+        adaptor = AseAtomsAdaptor()
+        atoms = adaptor.get_atoms(self)
+
+        atoms.calc = calculator
+
+        atoms.get_potential_energy()
+
+        # Some ASE calculators do not update the atoms object in-place with
+        # a call to .get_potential_energy(). This is a workaround to ensure
+        # that the atoms object is updated with the correct positions, cell,
+        # and magmoms.
+        if geom_file and os.path.exists(zpath(geom_file)):
+            # Note: We have to be careful to make sure we don't lose the
+            # converged magnetic moments, if present. That's why we simply
+            # update the positions and cell in-place.
+            atoms_new = read(zpath(geom_file))
+            if isinstance(atoms_new, list):
+                atoms_new = atoms_new[-1]
+
+            # Make sure the atom indices didn't get updated somehow (sanity check)
+            if np.array_equal(atoms_new.get_atomic_numbers(), atoms.get_atomic_numbers()) is False:
+                raise ValueError("Atomic numbers do not match between atoms and geom_file.")
+
+            atoms.positions = atoms_new.positions
+            atoms.cell = atoms_new.cell
+
+        return adaptor.get_structure(atoms)
 
     @classmethod
     def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Structure:
