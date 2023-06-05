@@ -72,7 +72,7 @@ class Deformation(SquareTensor):
         """
         return Strain.from_deformation(self)
 
-    def apply_to_structure(self, structure):
+    def apply_to_structure(self, structure: Structure):
         """
         Apply the deformation gradient to a structure.
 

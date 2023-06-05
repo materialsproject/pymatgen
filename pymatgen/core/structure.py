@@ -160,11 +160,11 @@ class PeriodicNeighbor(PeriodicSite):
         """
         return 4
 
-    def __getitem__(self, i: int):
+    def __getitem__(self, idx: int | slice):
         """
         Make neighbor Tuple-like to retain backwards compatibility.
         """
-        return (self, self.nn_distance, self.index, self.image)[i]
+        return (self, self.nn_distance, self.index, self.image)[idx]
 
     def as_dict(self) -> dict:  # type: ignore
         """

@@ -441,7 +441,7 @@ class LocalGeometryFinder:
         """
         self.__dict__[parameter] = value
 
-    def setup_structure(self, structure):
+    def setup_structure(self, structure: Structure):
         """
         Sets up the structure for which the coordination geometries have to be identified. The structure is analyzed
         with the space group analyzer and a refined structure is used

@@ -9,6 +9,7 @@ import functools
 import operator
 import os
 from math import exp, sqrt
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.serialization import loadfn
@@ -16,7 +17,8 @@ from monty.serialization import loadfn
 from pymatgen.core.periodic_table import Element, Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-# Let's initialize some module level properties.
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 # List of electronegative elements specified in M. O'Keefe, & N. Brese,
 # JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
@@ -205,7 +207,7 @@ class BVAnalyzer:
                 prob[el] = {key: 0 for key in prob[el]}
         return prob
 
-    def get_valences(self, structure):
+    def get_valences(self, structure: Structure):
         """
         Returns a list of valences for each site in the structure.
 
@@ -428,7 +430,7 @@ class BVAnalyzer:
             return [[int(frac_site) for frac_site in assigned[site]] for site in structure]
         raise ValueError("Valences cannot be assigned!")
 
-    def get_oxi_state_decorated_structure(self, structure):
+    def get_oxi_state_decorated_structure(self, structure: Structure):
         """
         Get an oxidation state decorated structure. This currently works only
         for ordered structures only.

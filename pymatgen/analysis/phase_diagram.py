@@ -134,7 +134,7 @@ class GrandPotPDEntry(PDEntry):
             entry.composition,
             entry.energy,
             name or entry.name,
-            entry.attribute if hasattr(entry, "attribute") else None,
+            getattr(entry, "attribute", None),
         )
         # NOTE if we init GrandPotPDEntry from ComputedEntry _energy is the
         # corrected energy of the ComputedEntry hence the need to keep
@@ -228,7 +228,7 @@ class TransformedPDEntry(PDEntry):
             entry.composition,
             entry.energy,
             name or entry.name,
-            entry.attribute if hasattr(entry, "attribute") else None,
+            getattr(entry, "attribute", None),
         )
         self.original_entry = entry
         self.sp_mapping = sp_mapping

@@ -11,6 +11,7 @@ import logging
 import os
 import sys
 from collections import defaultdict, namedtuple
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
@@ -25,12 +26,11 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
+
 logger = logging.getLogger(__name__)
 
-__all__ = [
-    "Pseudo",
-    "PseudoTable",
-]
 
 __author__ = "Matteo Giantomassi"
 __version__ = "0.1"
@@ -47,19 +47,19 @@ def straceback():
     return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 
 
-def _read_nlines(filename, nlines):
+def _read_nlines(filename: str, n_lines: int) -> list[str]:
     """
     Read at most nlines lines from file filename.
     If nlines is < 0, the entire file is read.
     """
-    if nlines < 0:
+    if n_lines < 0:
         with open(filename) as fh:
             return fh.readlines()
 
     lines = []
     with open(filename) as fh:
         for lineno, line in enumerate(fh):
-            if lineno == nlines:
+            if lineno == n_lines:
                 break
             lines.append(line)
         return lines
@@ -1448,9 +1448,9 @@ class PawXmlSetup(Pseudo, PawPseudo):
         ax.set_xlabel("r [Bohr]")
         # ax.set_ylabel('density')
 
-        for i, den_name in enumerate(["ae_core_density", "pseudo_core_density"]):
-            rden = getattr(self, den_name)
-            label = "$n_c$" if i == 1 else r"$\tilde{n}_c$"
+        for idx, density_name in enumerate(["ae_core_density", "pseudo_core_density"]):
+            rden = getattr(self, density_name)
+            label = "$n_c$" if idx == 1 else r"$\tilde{n}_c$"
             ax.plot(rden.mesh, rden.mesh * rden.values, label=label, lw=2)  # noqa: PD011
 
         ax.legend(loc="best")
@@ -1824,7 +1824,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             return pseudos
         return self.__class__(pseudos)
 
-    def get_pseudos_for_structure(self, structure):
+    def get_pseudos_for_structure(self, structure: Structure):
         """
         Return the list of :class:`Pseudo` objects to be used for this :class:`Structure`.
 

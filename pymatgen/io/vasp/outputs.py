@@ -3882,7 +3882,7 @@ class Procar:
             self.data = data
             self.phase_factors = phase_factors
 
-    def get_projection_on_elements(self, structure):
+    def get_projection_on_elements(self, structure: Structure):
         """
         Method returning a dictionary of projections on elements.
 
@@ -3892,7 +3892,7 @@ class Procar:
         Returns:
             a dictionary in the {Spin.up:[k index][b index][{Element:values}]]
         """
-        dico = {}
+        dico: dict[Spin, list] = {}
         for spin in self.data:
             dico[spin] = [[defaultdict(float) for i in range(self.nkpoints)] for j in range(self.nbands)]
 

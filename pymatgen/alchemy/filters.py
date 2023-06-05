@@ -26,7 +26,7 @@ class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -61,7 +61,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         self._AND = AND
         self._exclude = exclude
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -142,7 +142,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         """
         self.specie_and_min_dist = {get_el_sp(k): v for k, v in specie_and_min_dist_dict.items()}
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -213,7 +213,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         else:
             self.structure_matcher = structure_matcher or StructureMatcher(comparator=ElementComparator())
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Args:
             structure (Structure): Input structure to test
@@ -225,7 +225,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
             self.structure_list[hash].append(structure)
             return True
 
-        def get_spg_num(struct: structure) -> int:
+        def get_spg_num(struct: Structure) -> int:
             finder = SpacegroupAnalyzer(struct, symprec=self.symprec)
             return finder.get_space_group_number()
 
@@ -265,7 +265,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
         else:
             self.structure_matcher = structure_matcher or StructureMatcher(comparator=ElementComparator())
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -315,7 +315,7 @@ class ChargeBalanceFilter(AbstractStructureFilter):
         No args required.
         """
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -349,7 +349,7 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
         self.sp2 = get_el_sp(sp2)
         self.max_dist = max_dist
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 

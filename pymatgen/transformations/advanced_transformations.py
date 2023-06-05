@@ -66,7 +66,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         """
         self.charge_balance_sp = str(charge_balance_sp)
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Applies the transformation.
 
@@ -78,7 +78,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         """
         charge = structure.charge
         specie = get_el_sp(self.charge_balance_sp)
-        num_to_remove = charge / specie.oxi_state
+        num_to_remove = (charge / specie.oxi_state) if specie.oxi_state else 0.0
         num_in_structure = structure.composition[specie]
         removal_fraction = num_to_remove / num_in_structure
         if removal_fraction < 0:
@@ -831,7 +831,7 @@ class MagOrderingTransformation(AbstractTransformation):
         logger.debug(f"Structure with dummy species removed:\n{structure}")
         return structure
 
-    def _add_spin_magnitudes(self, structure):
+    def _add_spin_magnitudes(self, structure: Structure):
         """
         Replaces Spin.up/Spin.down with spin magnitudes specified
         by mag_species_spin.
@@ -1243,7 +1243,7 @@ class SlabTransformation(AbstractTransformation):
         self.shift = shift
         self.tol = tol
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Applies the transformation.
 
@@ -1501,7 +1501,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.rm_ratio = rm_ratio
         self.quick_gen = quick_gen
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Applies the transformation.
 

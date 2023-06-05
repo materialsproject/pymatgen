@@ -25,7 +25,7 @@ class Cssr:
     a Structure to a Cssr file is supported.
     """
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
         Args:
             structure (Structure/IStructure): A structure to create the Cssr object.

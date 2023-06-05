@@ -60,7 +60,7 @@ class ZeoCssr(Cssr):
     of Zeo++ (x-axis) for structural modifications.
     """
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
         Args:
             structure: A structure to create ZeoCssr object
@@ -83,7 +83,7 @@ class ZeoCssr(Cssr):
             f"0 {self.structure.formula}",
         ]
         for idx, site in enumerate(self.structure):
-            charge = site.charge if hasattr(site, "charge") else 0
+            charge = getattr(site, "charge", 0)
             # specie = site.specie.symbol
             specie = site.species_string
             output.append(f"{idx + 1} {specie} {site.c:.4f} {site.a:.4f} {site.b:.4f} 0 0 0 0 0 0 0 0 {charge:.4f}")

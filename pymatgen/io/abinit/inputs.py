@@ -891,7 +891,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """The |Structure| object associated to this input."""
         return self._structure
 
-    def set_structure(self, structure):
+    def set_structure(self, structure: Structure):
         """Set structure."""
         self._structure = as_structure(structure)
 

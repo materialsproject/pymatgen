@@ -67,7 +67,7 @@ class ValenceIonicRadiusEvaluator:
     analyzer
     """
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
         Args:
             structure: pymatgen.core.structure.Structure
@@ -413,7 +413,7 @@ class NearNeighbors:
         """
         raise NotImplementedError("get_nn_info(structure, n) is not defined!")
 
-    def get_all_nn_info(self, structure):
+    def get_all_nn_info(self, structure: Structure):
         """Get a listing of all neighbors for all sites in a structure
 
         Args:
@@ -787,7 +787,7 @@ class VoronoiNN(NearNeighbors):
                 cutoff = min(cutoff * 2, max_cutoff + 0.001)
         return cell_info
 
-    def get_all_voronoi_polyhedra(self, structure):
+    def get_all_voronoi_polyhedra(self, structure: Structure):
         """Get the Voronoi polyhedra for all site in a simulation cell
 
         Args:
@@ -835,9 +835,9 @@ class VoronoiNN(NearNeighbors):
         sites = [sites[i] for i in uniq_inds]
 
         # Sort array such that atoms in the root image are first
-        #   Exploit the fact that the array is sorted by the unique operation such that
-        #   the images associated with atom 0 are first, followed by atom 1, etc.
-        (root_images,) = np.nonzero(np.abs(indices[:, 1:]).max(axis=1) == 0)
+        # Exploit the fact that the array is sorted by the unique operation such that
+        # the images associated with atom 0 are first, followed by atom 1, etc.
+        (root_images,) = np.nonzero(np.abs(indices[:, 1:]).max(axis=1) == 0)  # type: ignore
 
         del indices  # Save memory (tessellations can be costly)
 
@@ -1001,7 +1001,7 @@ class VoronoiNN(NearNeighbors):
         # Extract the NN info
         return self._extract_nn_info(structure, nns)
 
-    def get_all_nn_info(self, structure):
+    def get_all_nn_info(self, structure: Structure):
         """
         Args:
             structure (Structure): input structure.

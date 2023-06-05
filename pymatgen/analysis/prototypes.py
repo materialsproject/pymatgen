@@ -14,10 +14,14 @@ https://doi.org/10.1016/j.commatsci.2017.01.017
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
 from monty.serialization import loadfn
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 AFLOW_PROTOTYPE_LIBRARY = loadfn(os.path.join(os.path.dirname(os.path.abspath(__file__)), "aflow_prototypes.json"))
@@ -63,7 +67,7 @@ class AflowPrototypeMatcher:
                 tags.append(d)
         return tags
 
-    def _match_single_prototype(self, structure):
+    def _match_single_prototype(self, structure: Structure):
         sm = StructureMatcher(
             ltol=self.initial_ltol,
             stol=self.initial_stol,
@@ -79,7 +83,7 @@ class AflowPrototypeMatcher:
                 break
         return tags
 
-    def get_prototypes(self, structure):
+    def get_prototypes(self, structure: Structure):
         """
         Get prototype(s) structures for a given
         input structure. If you use this method in

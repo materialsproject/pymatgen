@@ -287,7 +287,7 @@ class _MPResterLegacy:
             raise MPRestError(f"REST query returned with error status code {response.status_code}")
 
         except Exception as ex:
-            msg = f"{ex}. Content: {response.content}" if hasattr(response, "content") else str(ex)
+            msg = f"{ex}. Content: {getattr(response, 'content', str(ex))}"
             raise MPRestError(msg)
 
     def get_database_version(self):

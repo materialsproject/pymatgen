@@ -42,8 +42,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
         os.makedirs("tmp_dir", exist_ok=True)
 
     def test_read_write_structure_environments(self):
-        with open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json") as f:
-            dd = json.load(f)
+        with open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json") as file:
+            dd = json.load(file)
 
         atom_indices = dd["atom_indices"]
 
@@ -53,11 +53,11 @@ class ReadWriteChemenvTest(unittest.TestCase):
             only_indices=atom_indices, maximum_distance_factor=2.25, get_from_hints=True
         )
 
-        with open("tmp_dir/se.json", "w") as f:
-            json.dump(se.as_dict(), f)
+        with open("tmp_dir/se.json", "w") as file:
+            json.dump(se.as_dict(), file)
 
-        with open("tmp_dir/se.json") as f:
-            dd = json.load(f)
+        with open("tmp_dir/se.json") as file:
+            dd = json.load(file)
 
         se2 = StructureEnvironments.from_dict(dd)
 
@@ -68,11 +68,11 @@ class ReadWriteChemenvTest(unittest.TestCase):
             structure_environments=se, strategy=strategy, valences="undefined"
         )
 
-        with open("tmp_dir/lse.json", "w") as f:
-            json.dump(lse.as_dict(), f, default=lambda o: o.tolist() if hasattr(o, "tolist") else o)
+        with open("tmp_dir/lse.json", "w") as file:
+            json.dump(lse.as_dict(), file, default=lambda obj: getattr(obj, "tolist", lambda: obj)())
 
-        with open("tmp_dir/lse.json") as f:
-            LightStructureEnvironments.from_dict(json.load(f))
+        with open("tmp_dir/lse.json") as file:
+            LightStructureEnvironments.from_dict(json.load(file))
 
         # this_sites = [ss["site"] for ss in lse._all_nbs_sites]
         # print(f"{this_sites=}")

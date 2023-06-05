@@ -247,7 +247,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return self.einsum_sequence([n] * 4)
 
     @raise_error_if_unphysical
-    def trans_v(self, structure):
+    def trans_v(self, structure: Structure):
         """
         Calculates transverse sound velocity (in SI units) using the
         Voigt-Reuss-Hill average bulk modulus
@@ -267,7 +267,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return (1e9 * self.g_vrh / mass_density) ** 0.5
 
     @raise_error_if_unphysical
-    def long_v(self, structure):
+    def long_v(self, structure: Structure):
         """
         Calculates longitudinal sound velocity (in SI units)
         using the Voigt-Reuss-Hill average bulk modulus
@@ -287,7 +287,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return (1e9 * (self.k_vrh + 4.0 / 3.0 * self.g_vrh) / mass_density) ** 0.5
 
     @raise_error_if_unphysical
-    def snyder_ac(self, structure):
+    def snyder_ac(self, structure: Structure):
         """
         Calculates Snyder's acoustic sound velocity (in SI units)
 
@@ -310,7 +310,7 @@ class ElasticTensor(NthOrderElasticTensor):
         )
 
     @raise_error_if_unphysical
-    def snyder_opt(self, structure):
+    def snyder_opt(self, structure: Structure):
         """
         Calculates Snyder's optical sound velocity (in SI units)
 
@@ -331,7 +331,7 @@ class ElasticTensor(NthOrderElasticTensor):
         )
 
     @raise_error_if_unphysical
-    def snyder_total(self, structure):
+    def snyder_total(self, structure: Structure):
         """
         Calculates Snyder's total sound velocity (in SI units)
 
@@ -343,7 +343,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return self.snyder_ac(structure) + self.snyder_opt(structure)
 
     @raise_error_if_unphysical
-    def clarke_thermalcond(self, structure):
+    def clarke_thermalcond(self, structure: Structure):
         """
         Calculates Clarke's thermal conductivity (in SI units)
 
@@ -362,7 +362,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return 0.87 * 1.3806e-23 * avg_mass ** (-2.0 / 3.0) * mass_density ** (1.0 / 6.0) * self.y_mod**0.5
 
     @raise_error_if_unphysical
-    def cahill_thermalcond(self, structure):
+    def cahill_thermalcond(self, structure: Structure):
         """
         Calculates Cahill's thermal conductivity (in SI units)
 
@@ -377,7 +377,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return 1.3806e-23 / 2.48 * num_density ** (2.0 / 3.0) * (self.long_v(structure) + 2 * self.trans_v(structure))
 
     @raise_error_if_unphysical
-    def debye_temperature(self, structure):
+    def debye_temperature(self, structure: Structure):
         """
         Estimates the debye temperature from longitudinal and
         transverse sound velocities
