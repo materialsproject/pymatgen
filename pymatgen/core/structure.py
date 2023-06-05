@@ -4075,7 +4075,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             return struct, traj_observer
         return struct
 
-    def run_calculation(self, calculator: str | Calculator = "m3gnet", geom_file: str | Path | None = None) -> Structure:
+    def run_calculation(
+        self, calculator: str | Calculator = "m3gnet", geom_file: str | Path | None = None
+    ) -> Structure:
         """
         Performs an ASE calculation.
 
@@ -4122,9 +4124,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             atoms.positions = atoms_new.positions
             atoms.cell = atoms_new.cell
 
-        # TODO: Once `Structure.structure_properties` is added, add the following:
-        # Structure.structure_properties["ase"] = {"results": atoms.calc.results,
-        #                                          "parameters": atoms.calc.parameters}
+        # TODO: Once Issue #2884 is addressed, add the following dict to the Structure
+        # object: {"results": atoms.calc.results, "parameters": atoms.calc.parameters}
 
         return adaptor.get_structure(atoms)
 
