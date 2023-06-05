@@ -931,27 +931,26 @@ class MagOrderingTransformation(AbstractTransformation):
         m = StructureMatcher(comparator=SpinComparator())
 
         def key(struct: Structure) -> int:
-            struct.to(filename="LiMnO2.cif")
             return SpacegroupAnalyzer(struct, 0.1).get_space_group_number()
 
         out = []
-        for _, g in groupby(sorted((dct["structure"] for dct in alls), key=key), key):
-            g = list(g)  # type: ignore
-            grouped = m.group_structures(g)
+        for _, group in groupby(sorted((dct["structure"] for dct in alls), key=key), key):
+            group = list(group)  # type: ignore
+            grouped = m.group_structures(group)
             out.extend([{"structure": g[0], "energy": self.energy_model.get_energy(g[0])} for g in grouped])
 
-        self._all_structures = sorted(out, key=lambda d: d["energy"])
+        self._all_structures = sorted(out, key=lambda dct: dct["energy"])
 
         return self._all_structures[0:num_to_return]  # type: ignore
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "MagOrderingTransformation"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
     @property
-    def inverse(self):
+    def inverse(self) -> None:
         """Returns: None"""
         return
 
