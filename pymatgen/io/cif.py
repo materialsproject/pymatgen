@@ -1190,8 +1190,8 @@ class CifParser:
             skip_checks (bool): If True, the occupancy of the periodic sites will
                 not be checked, allowing for aphysical values to be accepted.This
                 is useful for experimental results in which occupancy was allowed
-                to refine to aphysical values to account for some other poperty 
-                otherwise not refinable from diffraction. 
+                to refine to aphysical values to account for some other poperty
+                otherwise not refinable from diffraction.
 
         Returns:
             List of Structures.
