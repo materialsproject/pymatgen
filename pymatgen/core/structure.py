@@ -4014,15 +4014,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         import sys
 
         from ase.constraints import ExpCellFilter
-        from ase.optimize import (
-            BFGS,
-            FIRE,
-            LBFGS,
-            BFGSLineSearch,
-            GPMin,
-            LBFGSLineSearch,
-            MDMin,
-        )
+        from ase.optimize import BFGS, FIRE, LBFGS, BFGSLineSearch, GPMin, LBFGSLineSearch, MDMin
         from m3gnet.models import M3GNet, M3GNetCalculator, Potential
         from m3gnet.models._dynamics import TrajectoryObserver
 
@@ -4088,7 +4080,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Returns:
             Structure: Structure following ASE calculation.
         """
-
         from ase.io import read
         from m3gnet.models import M3GNet, M3GNetCalculator, Potential
 
