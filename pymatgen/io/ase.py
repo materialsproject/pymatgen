@@ -84,14 +84,14 @@ class AseAtomsAdaptor:
             initial_charges = structure.site_properties["charge"]
             atoms.set_initial_charges(initial_charges)
 
-        magmoms = structure.site_properties["final_magmom"] if "final_magmom" in structure.site_properties else None
-        charges = structure.site_properties["final_charge"] if "final_charge" in structure.site_properties else None
+        magmoms = structure.site_properties.get("final_magmom")
+        charges = structure.site_properties.get("final_charge")
         if magmoms or charges:
             if magmoms and charges:
                 calc = SinglePointDFTCalculator(atoms, magmoms=magmoms, charges=charges)
             elif magmoms:
                 calc = SinglePointDFTCalculator(atoms, magmoms=magmoms)
-            elif charges:
+            else:
                 calc = SinglePointDFTCalculator(atoms, charges=charges)
             atoms.calc = calc
 
@@ -105,7 +105,7 @@ class AseAtomsAdaptor:
             fix_atoms = []
             for site in structure:
                 selective_dynamics: ArrayLike = site.properties.get("selective_dynamics")  # type: ignore[assignment]
-                if not (np.all(selective_dynamics) or not np.any(selective_dynamics)):
+                if not np.all(selective_dynamics) and np.any(selective_dynamics):
                     # should be [True, True, True] or [False, False, False]
                     raise ValueError(
                         "ASE FixAtoms constraint does not support selective dynamics in only some dimensions. "
