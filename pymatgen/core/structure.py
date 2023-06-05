@@ -4014,15 +4014,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         import sys
 
         from ase.constraints import ExpCellFilter
-        from ase.optimize import (
-            BFGS,
-            FIRE,
-            LBFGS,
-            BFGSLineSearch,
-            GPMin,
-            LBFGSLineSearch,
-            MDMin,
-        )
+        from ase.optimize import BFGS, FIRE, LBFGS, BFGSLineSearch, GPMin, LBFGSLineSearch, MDMin
         from m3gnet.models import M3GNet, M3GNetCalculator, Potential
         from m3gnet.models._dynamics import TrajectoryObserver
 
@@ -4075,7 +4067,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             return struct, traj_observer
         return struct
 
-    def run_calculation(self, calculator: str | Calculator = "m3gnet", geom_file: str | Path | None = None) -> Structure:
+    def run_calculation(
+        self, calculator: str | Calculator = "m3gnet", geom_file: str | Path | None = None
+    ) -> Structure:
         """
         Performs an ASE calculation.
 
@@ -4086,7 +4080,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Returns:
             Structure: Structure following ASE calculation.
         """
-
         from ase.io import read
         from m3gnet.models import M3GNet, M3GNetCalculator, Potential
 
