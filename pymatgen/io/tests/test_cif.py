@@ -1187,15 +1187,16 @@ loop_
 """
         assert self.mcif_ncl.get_bibtex_string() == ref_bibtex_string
 
+
 class Test_Skip_Checks(PymatgenTest):
     def setUp(self):
-        self.structure = CifParser(self.TEST_FILES_DIR / "Skip_checks_test.cif", 
-                                   occupancy_tolerance=10000000).get_structures(primitive=False, 
-                                                                                symmetrized=True, 
-                                                                                skip_checks=True)[0]     
+        self.structure = CifParser(
+            self.TEST_FILES_DIR / "Skip_checks_test.cif", occupancy_tolerance=10000000
+        ).get_structures(primitive=False, symmetrized=True, skip_checks=True)[0]
 
     def test_skip_checks(self):
-        self.assertEqual(self.structure[0].species.as_dict()["O"], 1.36)
+        assert self.structure[0].species.as_dict()["O"] == 1.36
+
 
 if __name__ == "__main__":
     unittest.main()

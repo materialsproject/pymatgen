@@ -20,7 +20,7 @@ class Test_Skip_Checks(PymatgenTest):
         ]
 
     def test_skip_checks(self):
-        self.assertEqual(self.structures[0][0].species.as_dict()["O"], 1.36)
+        assert self.structures[0][0].species.as_dict()["O"] == 1.36
 
 
 if __name__ == "__main__":
