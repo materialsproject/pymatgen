@@ -15,7 +15,7 @@ from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import PymatgenTest
 
-pytest.importorskip("openbabel", reason="OpenBabel not installed")
+pytest.importorskip("openbabel")
 
 
 class BabelMolAdaptorTest(unittest.TestCase):

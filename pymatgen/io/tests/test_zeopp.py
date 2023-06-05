@@ -75,7 +75,7 @@ class ZeoCssrTest(unittest.TestCase):
         assert isinstance(zeocssr.structure, Structure)
 
 
-# @unittest.skipIf(not zeo, "zeo not present.")
+@unittest.skipIf(not zeo, "zeo not present.")
 class ZeoCssrOxiTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")

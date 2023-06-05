@@ -102,7 +102,7 @@ if __name__ == "__main__":
         # Actual test of the permutations
         cgsm = lgf._cg_csm_separation_plane(
             coordination_geometry=cg,
-            sepplane=sep_plane_algo,
+            sep_plane=sep_plane_algo,
             local_plane=local_plane,
             plane_separations=[],
             dist_tolerances=[0.05, 0.1, 0.2, 0.3],

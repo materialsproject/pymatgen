@@ -21,15 +21,14 @@ from pymatgen.core.structure import Lattice, Molecule, Structure
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import openbabel as ob
-
+    import openbabel
 except (ImportError, RuntimeError):
-    ob = None
+    openbabel = None
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "molecule_matcher")
 
 
-obalign_missing = ob is None or "OBAlign" not in dir(ob)
+ob_align_missing = openbabel is None or "OBAlign" not in dir(openbabel)
 
 
 def rotate(mol, seed):
@@ -151,7 +150,7 @@ def generate_Si2O_cluster():
     XYZ(mol2).write_file(os.path.join(test_dir, "Si2O_cluster_2.xyz"))
 
 
-@unittest.skipIf(obalign_missing, "OBAlign is missing, Skipping")
+@unittest.skipIf(ob_align_missing, "OBAlign is missing, Skipping")
 class MoleculeMatcherTest(unittest.TestCase):
     def test_fit(self):
         self.fit_with_mapper(IsomorphismMolAtomMapper())

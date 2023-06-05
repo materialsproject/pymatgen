@@ -304,7 +304,7 @@ class TestIsayevNN(PymatgenTest):
 
 class OpenBabelNNTest(PymatgenTest):
     def setUp(self):
-        pytest.importorskip("openbabel", reason="OpenBabel not installed")
+        pytest.importorskip("openbabel")
         self.benzene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "benzene.xyz"))
         self.acetylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
 
