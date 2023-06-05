@@ -3987,11 +3987,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
         steps: int = 500,
         fmax: float = 0.1,
         return_trajectory: bool = False,
-        opt_kwargs: Dict = None,
+        opt_kwargs: dict = None,
         verbose: bool = False,
     ) -> Structure | tuple[Structure, TrajectoryObserver]:
         """
-        Performs a crystal structure relaxation using an ASE calculator and optimizer.
+        Performs a crystal structure relaxation using an ASE calculator.
 
         Args:
             calculator: A string or an ASE calculator. Defaults to 'm3gnet', i.e. the M3GNet universal potential.
@@ -4075,9 +4075,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             return struct, traj_observer
         return struct
 
-    def run_calculation(
-        self, calculator: str | Calculator = "m3gnet", geom_file: str | Path | None = None
-    ) -> Structure:
+    def run_calculation(self, calculator: str | Calculator = "m3gnet", geom_file: str | Path | None = None) -> Structure:
         """
         Performs an ASE calculation.
 
@@ -4088,6 +4086,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Returns:
             Structure: Structure following ASE calculation.
         """
+
         from ase.io import read
         from m3gnet.models import M3GNet, M3GNetCalculator, Potential
 
@@ -4123,7 +4122,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             atoms.positions = atoms_new.positions
             atoms.cell = atoms_new.cell
 
-        # TODO: Attach atoms.calc.results dict to the Structure object
+        # TODO: Once `Structure.structure_properties` is added, add the following:
+        # Structure.structure_properties["ase"] = {"results": atoms.calc.results,
+        #                                          "parameters": atoms.calc.parameters}
 
         return adaptor.get_structure(atoms)
 
