@@ -21,6 +21,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     Iterable,
     Iterator,
     Literal,
@@ -3997,11 +3998,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
         steps: int = 500,
         fmax: float = 0.1,
         return_trajectory: bool = False,
-        opt_kwargs: dict = None,
+        opt_kwargs: Dict = None,
         verbose: bool = False,
     ) -> Structure | tuple[Structure, TrajectoryObserver]:
         """
-        Performs a crystal structure relaxation using some algorithm.
+        Performs a crystal structure relaxation using an ASE calculator and optimizer.
 
         Args:
             calculator: A string or an ASE calculator. Defaults to 'm3gnet', i.e. the M3GNet universal potential.
@@ -4024,7 +4025,15 @@ class Structure(IStructure, collections.abc.MutableSequence):
         import sys
 
         from ase.constraints import ExpCellFilter
-        from ase.optimize import BFGS, FIRE, LBFGS, BFGSLineSearch, GPMin, LBFGSLineSearch, MDMin
+        from ase.optimize import (
+            BFGS,
+            FIRE,
+            LBFGS,
+            BFGSLineSearch,
+            GPMin,
+            LBFGSLineSearch,
+            MDMin,
+        )
         from m3gnet.models import M3GNet, M3GNetCalculator, Potential
         from m3gnet.models._dynamics import TrajectoryObserver
 
@@ -4077,11 +4086,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
             return struct, traj_observer
         return struct
 
-    def run(
-        self, calculator: str | Calculator = "m3gnet", geom_file: str | Path = None
-    ) -> Structure | tuple[Structure, TrajectoryObserver]:
+    def run_calculation(
+        self, calculator: str | Calculator = "m3gnet", geom_file: str | Path | None = None
+    ) -> Structure:
         """
-        Performs a crystal structure relaxation using some algorithm.
+        Performs an ASE calculation.
 
         Args:
             calculator: A string or an ASE calculator. Defaults to 'm3gnet', i.e. the M3GNet universal potential.
