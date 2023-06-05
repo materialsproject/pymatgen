@@ -4133,6 +4133,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             atoms.positions = atoms_new.positions
             atoms.cell = atoms_new.cell
 
+        # TODO: Attach atoms.calc.results dict to the Structure object
+
         return adaptor.get_structure(atoms)
 
     @classmethod
