@@ -1154,12 +1154,12 @@ class CifParser:
                             allspecies_noedit[i], allcoords[i], lattice, properties=site_properties, skip_checks=True
                         )
                     return struct_2
-                
+
                 return struct
 
             if skip_checks:
                 return struct_2
-        
+
             struct = struct.get_sorted_structure()
 
             if primitive and self.feature_flags["magcif"]:
