@@ -17,7 +17,6 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -50,6 +49,8 @@ from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from ase.calculators.calculator import Calculator
     from m3gnet.models._dynamics import TrajectoryObserver
     from numpy.typing import ArrayLike
