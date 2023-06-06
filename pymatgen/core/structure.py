@@ -4724,7 +4724,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         mol.calc = calc
 
         return mol
-    
+
+
 class StructureError(Exception):
     """
     Exception class for Structure.
