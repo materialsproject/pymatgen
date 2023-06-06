@@ -753,10 +753,12 @@ class StructureTest(PymatgenTest):
             ]
         )
         self.structure = Structure(lattice, ["Si", "Si"], coords)
+        self.cu_structure = Structure(lattice, ["Cu", "Cu"], coords)
 
     def tearDown(self):
-        if os.path.exists("opt.traj"):
-            os.remove("opt.traj")
+        for f in ["opt.traj", "testing.traj"]:
+            if os.path.exists(f):
+                os.remove(f)
 
     def test_mutable_sequence_methods(self):
         s = self.structure
@@ -1345,29 +1347,68 @@ class StructureTest(PymatgenTest):
 
     @unittest.skipIf(ase is None, "ASE is needed.")
     def test_run_calculation_ase(self):
-        structure = self.get_structure("Si")
-        for i in range(len(structure)):
-            structure[i] = "Cu"
+        structure = self.cu_structure
         new_structure = structure.run_calculation(calculator=EMT(asap_cutoff=True))
         assert new_structure.lattice == structure.lattice
         assert hasattr(new_structure, "calc")
-        assert new_structure.calc.parameters == {"asap_cutoff": True}
         assert new_structure.calc.results.get("energy")
+        assert new_structure.calc.results.get("energies") is not None
+        assert new_structure.calc.results.get("free_energy")
+        assert new_structure.calc.results["energy"] == pytest.approx(1.8260989595697836)
+        assert new_structure.calc.parameters == {"asap_cutoff": True}
+        assert new_structure.volume == pytest.approx(structure.volume)
         assert not hasattr(new_structure, "dynamics")
 
     @unittest.skipIf(ase is None, "ASE is needed.")
-    def test_relax_ase2(self):
-        structure = self.get_structure("Si")
-        for i in range(len(structure)):
-            structure[i] = "Cu"
+    def test_relax_ase(self):
+        structure = self.cu_structure
         relaxed = structure.relax(calculator=EMT(), relax_cell=False, optimizer="BFGS")
         assert relaxed.lattice == structure.lattice
         assert hasattr(relaxed, "calc")
         assert relaxed.calc.results.get("energy")
+        assert relaxed.calc.results.get("energies") is not None
+        assert relaxed.calc.results.get("free_energy")
+        assert relaxed.calc.results["energy"] == pytest.approx(1.825596610330276)
+        assert relaxed.lattice.volume == pytest.approx(structure.lattice.volume)
+        assert relaxed.calc.parameters == {"asap_cutoff": False}
         assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "BFGS"
+
+    @unittest.skipIf(ase is None, "ASE is needed.")
+    def test_relax_ase2(self):
+        structure = self.cu_structure
+        relaxed, traj = structure.relax(calculator=EMT(), fmax=0.01, return_trajectory=True)
+        assert relaxed.lattice != structure.lattice
+        assert hasattr(relaxed, "calc")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.calc.results.get("energies") is not None
+        assert relaxed.calc.results.get("free_energy")
+        assert relaxed.calc.parameters == {"asap_cutoff": False}
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "FIRE"
+        assert len(traj) == 7
+        assert traj[0] != traj[-1]
+
+    @unittest.skipIf(ase is None, "ASE is needed.")
+    def test_relax_ase3(self):
+        structure = self.cu_structure
+        relaxed, traj = structure.relax(
+            calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": "testing.traj"}
+        )
+        assert relaxed.lattice != structure.lattice
+        assert hasattr(relaxed, "calc")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.calc.results.get("energies") is not None
+        assert relaxed.calc.results.get("free_energy")
+        assert relaxed.calc.parameters == {"asap_cutoff": False}
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "FIRE"
+        assert len(traj) == 3  # there is an off-by-one in how ASE counts steps
+        assert traj[0] != traj[-1]
+        assert os.path.exists("testing.traj")
 
     @unittest.skipIf(m3gnet is None, "run_calculation default requires m3gnet.")
-    def test_run_calculation(self):
+    def test_run_calculation_m3gnet(self):
         structure = self.get_structure("Si")
         new_structure = structure.run_calculation()
         assert new_structure.lattice == structure.lattice
@@ -1375,31 +1416,36 @@ class StructureTest(PymatgenTest):
         assert not hasattr(new_structure, "dynamics")
 
     @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
-    def test_relax(self):
+    def test_relax_m3gnet(self):
         structure = self.get_structure("Si")
         relaxed = structure.relax()
         assert relaxed.lattice.a == pytest.approx(3.849563)
         assert hasattr(relaxed, "calc")
         assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
 
     @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
-    def test_relax_fixed_lattice(self):
+    def test_relax_m3gnet_fixed_lattice(self):
         structure = self.get_structure("Si")
-        relaxed = structure.relax(relax_cell=False)
+        relaxed = structure.relax(relax_cell=False, optimizer="BFGS")
         assert relaxed.lattice == structure.lattice
         assert hasattr(relaxed, "calc")
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "BFGS"
 
     @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
-    def test_relax_with_observer(self):
+    def test_relax_m3gnet_with_traj(self):
+        from ase import Atoms
+
         structure = self.get_structure("Si")
+        structure[0] = "Cu"
         relaxed, trajectory = structure.relax(return_trajectory=True)
         assert relaxed.lattice.a == pytest.approx(3.849563)
-        expected_attrs = ["atom_positions", "atoms", "cells", "energies", "forces", "stresses"]
-        assert sorted(trajectory.__dict__) == expected_attrs
+        assert sorted(trajectory[-1].calc.results) == ["energy", "free_energy", "forces", "stress"]
+        assert isinstance(trajectory[-1], Atoms)
         assert hasattr(relaxed, "calc")
-        for key in expected_attrs:
-            # check for 2 atoms in Structure, 1 relax step in all observed trajectory attributes
-            assert len(getattr(trajectory, key)) == {"atoms": 2}.get(key, 1)
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
 
     def test_from_prototype(self):
         for prototype in ["bcc", "fcc", "hcp", "diamond"]:

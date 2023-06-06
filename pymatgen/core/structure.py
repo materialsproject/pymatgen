@@ -4063,16 +4063,18 @@ class Structure(IStructure, collections.abc.MutableSequence):
         with contextlib.redirect_stdout(stream):
             if relax_cell:
                 ecf = ExpCellFilter(atoms)
-            dyn = opt_class(atoms, **opt_kwargs)
+                dyn = opt_class(ecf, **opt_kwargs)
+            else:
+                dyn = opt_class(atoms, **opt_kwargs)
             dyn.run(fmax=fmax, steps=steps)
 
         # Ensure Calculator state is preserved because it contains parameters and results
         calc = atoms.calc
 
         # Get Structure object
-        if relax_cell:
-            atoms = ecf.atoms
         struct = adaptor.get_structure(atoms)
+
+        # Attach important ASE results
         struct.calc = calc
         struct.dynamics = dyn.todict()
 
@@ -4140,7 +4142,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
             atoms.positions = atoms_new.positions
             atoms.cell = atoms_new.cell
 
+        # Get Structure object
         struct = adaptor.get_structure(atoms)
+
+        # Attach import ASE results
         struct.calc = calc
 
         return struct
