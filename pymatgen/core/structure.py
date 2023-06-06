@@ -43,6 +43,7 @@ if TYPE_CHECKING:
 
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
+    from ase.optimize.optimize import Optimizer
     from numpy.typing import ArrayLike
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
@@ -3986,7 +3987,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self,
         calculator: str | Calculator = "m3gnet",
         relax_cell: bool = True,
-        optimizer: str = "FIRE",
+        optimizer: str | Optimizer = "FIRE",
         stress_weight: float = 0.01,
         steps: int = 500,
         fmax: float = 0.1,
