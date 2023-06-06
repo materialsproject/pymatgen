@@ -4611,8 +4611,7 @@ def _relax(
 
     Args:
         calculator: An ASE Calculator or a string from the following options: "M3GNet",
-        "gfn2-xtb".
-            Defaults to 'M3GNet', i.e. the M3GNet universal potential.
+        "gfn2-xtb". Defaults to 'M3GNet', i.e. the M3GNet universal potential.
         relax_cell (bool): whether to relax the lattice cell. Defaults to True.
         optimizer (str): name of the ASE optimizer class to use
         steps (int): max number of steps for relaxation. Defaults to 500.
