@@ -4585,7 +4585,146 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         for site in func_grp[1:]:
             self._sites.append(site)
 
+    def relax(
+        self,
+        calculator: str | Calculator = "m3gnet",
+        optimizer: str | Optimizer = "FIRE",
+        steps: int = 500,
+        fmax: float = 0.1,
+        opt_kwargs: dict = None,
+        return_trajectory: bool = False,
+        verbose: bool = False,
+    ) -> Molecule | tuple[Molecule, TrajectoryObserver | Trajectory]:
+        """
+        Performs a molecule relaxation using an ASE calculator.
 
+        Args:
+            calculator: An ASE Calculator or a string from the following options: "m3gnet.
+                Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            optimizer (str): name of the ASE optimizer class to use
+            steps (int): max number of steps for relaxation. Defaults to 500.
+            fmax (float): total force tolerance for relaxation convergence.
+                Defaults to 0.1 eV/A.
+            opt_kwargs (dict): kwargs for the ASE optimizer class.
+            return_trajectory (bool): Whether to return the trajectory of relaxation.
+                Defaults to False.
+            verbose (bool): whether to print out relaxation steps. Defaults to False.
+
+        Returns:
+            Molecule: Relaxed molecule
+        """
+        import contextlib
+        import io
+        import sys
+
+        from ase import optimize
+        from ase.io import read
+
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        opt_kwargs = opt_kwargs or {}
+        run_m3gnet = bool(isinstance(calculator, str) and calculator.lower() == "m3gnet")
+
+        # Get optimizer
+        try:
+            opt_class = getattr(optimize, optimizer)
+        except AttributeError:
+            raise ValueError(f"Unknown {optimizer=}, must be one of {list(dir(optimize))}")
+
+        # Get Atoms object
+        adaptor = AseAtomsAdaptor()
+        atoms = adaptor.get_atoms(self)
+
+        # Prepare M3GNET
+        if run_m3gnet:
+            from m3gnet.models import M3GNet, M3GNetCalculator, Potential
+            from m3gnet.models._dynamics import TrajectoryObserver
+
+            potential = Potential(M3GNet.load())
+            calculator = M3GNetCalculator(potential=potential)
+
+        # Use a TrajectoryObserver if running m3gnet; otherwise, write a .traj file
+        if return_trajectory:
+            if run_m3gnet:
+                traj = TrajectoryObserver(atoms)
+            elif "trajectory" not in opt_kwargs:
+                opt_kwargs["trajectory"] = "opt.traj"
+
+        # Attach calculator
+        atoms.calc = calculator
+
+        # Run relaxation
+        stream = sys.stdout if verbose else io.StringIO()
+        with contextlib.redirect_stdout(stream):
+            dyn = opt_class(atoms, **opt_kwargs)
+            dyn.run(fmax=fmax, steps=steps)
+
+        # Ensure Calculator state is preserved because it contains parameters and results
+        calc = atoms.calc
+
+        # Get Structure object
+        mol = adaptor.get_molecule(atoms)
+
+        # Attach important ASE results
+        mol.calc = calc
+        mol.dynamics = dyn.todict()
+
+        if return_trajectory:
+            if run_m3gnet:
+                traj()  # save properties of the Atoms during the relaxation
+            else:
+                traj_file = opt_kwargs["trajectory"]
+                traj = read(f"{traj_file}", index=":")
+            return mol, traj
+
+        return mol
+
+    def calculate(
+        self,
+        calculator: str | Calculator = "m3gnet",
+    ) -> Molecule:
+        """
+        Performs an ASE calculation.
+
+        Args:
+            calculator: An ASE Calculator or a string from the following options: "m3gnet.
+                Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+
+        Returns:
+            Molecule: Molecule following ASE calculation.
+        """
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        run_m3gnet = bool(isinstance(calculator, str) and calculator.lower() == "m3gnet")
+
+        # Prepare M3GNET custom calculator
+        if run_m3gnet:
+            from m3gnet.models import M3GNet, M3GNetCalculator, Potential
+
+            potential = Potential(M3GNet.load())
+            calculator = M3GNetCalculator(potential=potential)
+
+        # Get Atoms object
+        adaptor = AseAtomsAdaptor()
+        atoms = adaptor.get_atoms(self)
+
+        # Set calculator
+        atoms.calc = calculator
+
+        # Run calculation
+        atoms.get_potential_energy()
+
+        # Ensure Calculator state is preserved because it contains parameters and results
+        calc = atoms.calc
+
+        # Get Structure object
+        mol = adaptor.get_molecule(atoms)
+
+        # Attach important ASE results
+        mol.calc = calc
+
+        return mol
+    
 class StructureError(Exception):
     """
     Exception class for Structure.
