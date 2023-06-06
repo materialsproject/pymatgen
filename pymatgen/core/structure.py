@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from ase.calculators.calculator import Calculator
-    from m3gnet.models._dynamics import TrajectoryObserver
+    from ase.io.trajectory import Trajectory
     from numpy.typing import ArrayLike
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
@@ -3989,7 +3989,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         opt_kwargs: dict = None,
         return_trajectory: bool = False,
         verbose: bool = False,
-    ) -> Structure | tuple[Structure, TrajectoryObserver]:
+    ) -> Structure | tuple[Structure, Trajectory]:
         """
         Performs a crystal structure relaxation using an ASE calculator.
 
