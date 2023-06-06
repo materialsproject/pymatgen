@@ -1259,6 +1259,8 @@ class LobsterNeighbors(NearNeighbors):
                 min_here = extremum_based
             return min_here, float("inf")
 
+        return None
+
 
 class LobsterLightStructureEnvironments(LightStructureEnvironments):
     """
