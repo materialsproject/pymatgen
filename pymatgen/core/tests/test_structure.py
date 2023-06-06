@@ -1435,17 +1435,14 @@ class StructureTest(PymatgenTest):
 
     @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
     def test_relax_m3gnet_with_traj(self):
-        from ase import Atoms
-
         structure = self.get_structure("Si")
-        structure[0] = "Cu"
         relaxed, trajectory = structure.relax(return_trajectory=True)
         assert relaxed.lattice.a == pytest.approx(3.849563)
-        assert sorted(trajectory[-1].calc.results) == ["energy", "free_energy", "forces", "stress"]
-        assert isinstance(trajectory[-1], Atoms)
-        assert hasattr(relaxed, "calc")
-        assert hasattr(relaxed, "dynamics")
-        assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
+        expected_attrs = ["atom_positions", "atoms", "cells", "energies", "forces", "stresses"]
+        assert sorted(trajectory.__dict__) == expected_attrs
+        for key in expected_attrs:
+            # check for 2 atoms in Structure, 1 relax step in all observed trajectory attributes
+            assert len(getattr(trajectory, key)) == {"atoms": 2}.get(key, 1)
 
     def test_from_prototype(self):
         for prototype in ["bcc", "fcc", "hcp", "diamond"]:

@@ -49,11 +49,10 @@ from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
     from ase.optimize.optimize import Optimizer
+    from m3gnet.models._dynamics import TrajectoryObserver
     from numpy.typing import ArrayLike
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
@@ -4004,7 +4003,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         opt_kwargs: dict = None,
         return_trajectory: bool = False,
         verbose: bool = False,
-    ) -> Structure | tuple[Structure, Trajectory]:
+    ) -> Structure | tuple[Structure, TrajectoryObserver | Trajectory]:
         """
         Performs a crystal structure relaxation using an ASE calculator.
 
@@ -4036,6 +4035,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         from pymatgen.io.ase import AseAtomsAdaptor
 
         opt_kwargs = opt_kwargs or {}
+        run_m3gnet = True if isinstance(calculator, str) and calculator.lower() == "m3gnet" else False
 
         # Get optimizer
         try:
@@ -4047,16 +4047,20 @@ class Structure(IStructure, collections.abc.MutableSequence):
         adaptor = AseAtomsAdaptor()
         atoms = adaptor.get_atoms(self)
 
-        # Write out a trajectory file
-        if "trajectory" not in opt_kwargs:
-            opt_kwargs["trajectory"] = "opt.traj"
-
         # Prepare M3GNET
-        if isinstance(calculator, str) and calculator.lower() == "m3gnet":
+        if run_m3gnet:
             from m3gnet.models import M3GNet, M3GNetCalculator, Potential
-
+            from m3gnet.models._dynamics import TrajectoryObserver
+            
             potential = Potential(M3GNet.load())
             calculator = M3GNetCalculator(potential=potential, stress_weight=stress_weight)
+
+        # Use a TrajectoryObserver if running m3gnet; otherwise, write a .traj file
+        if return_trajectory:
+            if run_m3gnet:
+                traj = TrajectoryObserver(atoms)
+            elif "trajectory" not in opt_kwargs:
+                opt_kwargs["trajectory"] = "opt.traj"
 
         # Attach calculator
         atoms.calc = calculator
@@ -4082,8 +4086,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
         struct.dynamics = dyn.todict()
 
         if return_trajectory:
-            traj_file = opt_kwargs["trajectory"]
-            traj = read(f"{traj_file}", index=":")
+            if run_m3gnet:
+                traj()  # save properties of the Atoms during the relaxation
+            else:
+                traj_file = opt_kwargs["trajectory"]
+                traj = read(f"{traj_file}", index=":")
             return struct, traj
 
         return struct
