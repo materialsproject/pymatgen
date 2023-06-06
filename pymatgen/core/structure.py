@@ -4019,9 +4019,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         import io
         import sys
 
+        from ase import optimize
         from ase.constraints import ExpCellFilter
         from ase.io import read
-        from ase import optimize
 
         from pymatgen.io.ase import AseAtomsAdaptor
 
