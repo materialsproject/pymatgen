@@ -130,6 +130,7 @@ class TestLobsterNeighbors(unittest.TestCase):
             filename_ICOHP=os.path.join(test_dir_env, "ICOOPLIST.lobster.NaCl.gz"),
             structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
             additional_condition=1,
+            noise_cutoff=None,
         )
 
         self.chemenvlobster1_cobi_mp470 = LobsterNeighbors(

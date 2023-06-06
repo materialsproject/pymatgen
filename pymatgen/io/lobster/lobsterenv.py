@@ -52,6 +52,7 @@ class LobsterNeighbors(NearNeighbors):
         additional_condition=0,
         only_bonds_to=None,
         perc_strength_ICOHP=0.15,
+        noise_cutoff=0.1,
         valences_from_charges=False,
         filename_CHARGE=None,
         which_charge="Mulliken",
@@ -109,6 +110,7 @@ class LobsterNeighbors(NearNeighbors):
         self.add_additional_data_sg = add_additional_data_sg
         self.filename_blist_sg1 = filename_blist_sg1
         self.filename_blist_sg2 = filename_blist_sg2
+        self.noise_cutoff = noise_cutoff
 
         allowed_arguments = ["icoop", "icobi"]
         if id_blist_sg1.lower() not in allowed_arguments or id_blist_sg2.lower() not in allowed_arguments:
@@ -363,7 +365,8 @@ class LobsterNeighbors(NearNeighbors):
 
 
         Returns:
-            sum of icohps/icoops/icobis of neighbors to certain sites [given by the id in structure], number of bonds to this site,
+            sum of icohps/icoops/icobis of neighbors to certain sites [given by the id in structure],
+            number of bonds to this site,
             labels (from ICOHPLIST/ICOOPLIST/ICOBILIST) for
             these bonds
             [the latter is useful for plotting summed COHP plots],
@@ -431,7 +434,7 @@ class LobsterNeighbors(NearNeighbors):
         # include COHPPlotter and plot a sum of these COHPs
         # might include option to add Spin channels
         # implement only_bonds_to
-        cp = CohpPlotter()
+        cp = CohpPlotter(are_cobis=self.are_cobis, are_coops=self.are_coops)
 
         plotlabel, summed_cohp = self.get_info_cohps_to_neighbors(
             path_to_COHPCAR,
@@ -493,7 +496,13 @@ class LobsterNeighbors(NearNeighbors):
             self.structure.to(filename=path, fmt="POSCAR")
 
             if not hasattr(self, "completecohp"):
-                self.completecohp = CompleteCohp.from_file(fmt="LOBSTER", filename=path_to_COHPCAR, structure_file=path)
+                self.completecohp = CompleteCohp.from_file(
+                    fmt="LOBSTER",
+                    filename=path_to_COHPCAR,
+                    structure_file=path,
+                    are_coops=self.are_coops,
+                    are_cobis=self.are_cobis,
+                )
 
         # will check that the number of bonds in ICOHPLIST and COHPCAR are identical
         # further checks could be implemented
@@ -1238,11 +1247,17 @@ class LobsterNeighbors(NearNeighbors):
                 extremum_based = max(list_icohps) * percentage
 
         if not self.are_coops and not self.are_cobis:
-            max_here = min(extremum_based, -0.1)
-            return -100000, max_here
+            if self.noise_cutoff is not None:
+                max_here = min(extremum_based, -self.noise_cutoff)
+            else:
+                max_here = extremum_based
+            return -float("inf"), max_here
         if self.are_coops or self.are_cobis:
-            max_here = extremum_based
-            return max_here, 100000
+            if self.noise_cutoff is not None:
+                min_here = max(extremum_based, self.noise_cutoff)
+            else:
+                min_here = extremum_based
+            return min_here, float("inf")
 
 
 class LobsterLightStructureEnvironments(LightStructureEnvironments):
