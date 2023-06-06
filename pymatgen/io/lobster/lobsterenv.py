@@ -1247,16 +1247,10 @@ class LobsterNeighbors(NearNeighbors):
                 extremum_based = max(list_icohps) * percentage
 
         if not self.are_coops and not self.are_cobis:
-            if self.noise_cutoff is not None:
-                max_here = min(extremum_based, -self.noise_cutoff)
-            else:
-                max_here = extremum_based
+            max_here = min(extremum_based, -self.noise_cutoff) if self.noise_cutoff is not None else extremum_based
             return -float("inf"), max_here
         if self.are_coops or self.are_cobis:
-            if self.noise_cutoff is not None:
-                min_here = max(extremum_based, self.noise_cutoff)
-            else:
-                min_here = extremum_based
+            min_here = max(extremum_based, self.noise_cutoff) if self.noise_cutoff is not None else extremum_based
             return min_here, float("inf")
 
         return None
