@@ -236,11 +236,15 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     def species(self) -> list[Element | Species]:
         """
         Only works for ordered structures.
-        Disordered structures will raise an AttributeError.
+
+        Raises:
+            AttributeError: If structure is disordered.
 
         Returns:
             ([Species]) List of species at each site of the structure.
         """
+        if not self.is_ordered:
+            raise AttributeError("species property only supports ordered structures!")
         return [site.specie for site in self]
 
     @property
@@ -287,7 +291,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
         """
-        return tuple((i for i, specie in enumerate(self.species) if specie.symbol == symbol))
+        return tuple((idx for idx, specie in enumerate(self.species) if specie.symbol == symbol))
 
     @property
     def symbol_set(self) -> tuple[str, ...]:

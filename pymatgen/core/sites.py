@@ -249,12 +249,12 @@ class Site(collections.abc.Hashable, MSONable):
         """
         species_list = []
         for spec, occu in self.species.items():
-            d = spec.as_dict()
-            del d["@module"]
-            del d["@class"]
-            d["occu"] = occu
-            species_list.append(d)
-        d = {
+            spec_dct = spec.as_dict()
+            del spec_dct["@module"]
+            del spec_dct["@class"]
+            spec_dct["occu"] = occu
+            species_list.append(spec_dct)
+        dct = {
             "name": self.species_string,
             "species": species_list,
             "xyz": [float(c) for c in self.coords],
@@ -263,16 +263,16 @@ class Site(collections.abc.Hashable, MSONable):
             "@class": type(self).__name__,
         }
         if self.properties:
-            d["properties"] = self.properties
-        return d
+            dct["properties"] = self.properties
+        return dct
 
     @classmethod
-    def from_dict(cls, d: dict) -> Site:
+    def from_dict(cls, dct: dict) -> Site:
         """
         Create Site from dict representation
         """
         atoms_n_occu = {}
-        for sp_occu in d["species"]:
+        for sp_occu in dct["species"]:
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(sp_occu["element"]):
                 sp = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
@@ -280,11 +280,11 @@ class Site(collections.abc.Hashable, MSONable):
             else:
                 sp = Element(sp_occu["element"])  # type: ignore
             atoms_n_occu[sp] = sp_occu["occu"]
-        props = d.get("properties")
+        props = dct.get("properties")
         if props is not None:
             for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
-        return cls(atoms_n_occu, d["xyz"], properties=props)
+        return cls(atoms_n_occu, dct["xyz"], properties=props)
 
 
 class PeriodicSite(Site, MSONable):

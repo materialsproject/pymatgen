@@ -26,8 +26,6 @@ try:
 except Exception:
     BOLTZTRAP2_PRESENT = False
 
-# BOLTZTRAP2_PRESENT = False
-
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap2")
 
 
