@@ -17,7 +17,17 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    Literal,
+    Sequence,
+    SupportsIndex,
+    cast,
+)
 
 import numpy as np
 from monty.dev import deprecated
@@ -4610,6 +4620,7 @@ def _relax(
     Performs a structure relaxation using an ASE calculator.
 
     Args:
+        struct: Structure or Molecule to relax.
         calculator: An ASE Calculator or a string from the following options: "M3GNet",
         "gfn2-xtb".
         relax_cell (bool): whether to relax the lattice cell. Defaults to True.
