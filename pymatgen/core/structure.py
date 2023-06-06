@@ -6,21 +6,22 @@ periodic structure.
 from __future__ import annotations
 
 import collections
+import contextlib
 import functools
+import io
 import itertools
 import json
 import math
 import os
 import random
 import re
+import sys
 import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
-import contextlib
-import io
-import sys
+
 import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
@@ -4561,7 +4562,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         return _calculate(self, calculator, verbose=verbose)
 
 
-def _calculate(struct: Structure | Molecule, calculator: str | Calculator, verbose: bool = False) -> Structure | Molecule:
+def _calculate(
+    struct: Structure | Molecule, calculator: str | Calculator, verbose: bool = False
+) -> Structure | Molecule:
     """
     Performs an ASE calculation.
 
