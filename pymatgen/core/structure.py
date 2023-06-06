@@ -4586,10 +4586,7 @@ def _calculate(struct: Structure | Molecule, calculator: str | Calculator = "m3g
     calc = atoms.calc
 
     # Get Molecule/Structure object
-    if is_molecule:
-        struct = adaptor.get_molecule(atoms)
-    else:
-        struct = adaptor.get_structure(atoms)
+    struct = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
 
     # Attach important ASE results
     struct.calc = calc
@@ -4689,10 +4686,7 @@ def _relax(
     calc = atoms.calc
 
     # Get Structure object
-    if is_molecule:
-        struct = adaptor.get_molecule(atoms)
-    else:
-        struct = adaptor.get_structure(atoms)
+    struct = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
 
     # Attach important ASE results
     struct.calc = calc
@@ -4744,7 +4738,7 @@ def _prep_calculator(calculator: str | Calculator, **params) -> Calculator:
         calculator = TBLite(method="GFN2-xTB", **params)
 
     else:
-        raise ValueError(f"Unknown calculator name")
+        raise ValueError("Unknown calculator name")
 
     return calculator
 
