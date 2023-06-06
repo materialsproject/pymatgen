@@ -1227,7 +1227,7 @@ class StructureTest(PymatgenTest):
         assert self.structure.charge == 62
 
     def test_species(self):
-        assert {*map(str, self.structure.species)} == {"Si4+", "C2+"}
+        assert {*map(str, self.structure.species)} == {"Si"}
         assert len(self.structure.species) == len(self.structure)
 
         with pytest.raises(AttributeError, match="species property only supports ordered structures!"):
