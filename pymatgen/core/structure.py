@@ -4102,17 +4102,21 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         run_m3gnet = bool(isinstance(calculator, str) and calculator.lower() == "m3gnet")
 
+        # Prepare M3GNET custom calculator
         if run_m3gnet:
             from m3gnet.models import M3GNet, M3GNetCalculator, Potential
 
             potential = Potential(M3GNet.load())
             calculator = M3GNetCalculator(potential=potential)
 
+        # Get Atoms object
         adaptor = AseAtomsAdaptor()
         atoms = adaptor.get_atoms(self)
 
+        # Set calculator
         atoms.calc = calculator
 
+        # Run calculation
         atoms.get_potential_energy()
 
         # Ensure Calculator state is preserved because it contains parameters and results
