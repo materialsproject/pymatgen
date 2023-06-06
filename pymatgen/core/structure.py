@@ -3986,9 +3986,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         calculator: str | Calculator = "m3gnet",
         relax_cell: bool = True,
         optimizer: str | Optimizer = "FIRE",
-        stress_weight: float = 0.01,
         steps: int = 500,
         fmax: float = 0.1,
+        stress_weight: float = 0.01,
         opt_kwargs: dict = None,
         return_trajectory: bool = False,
         verbose: bool = False,
@@ -4001,10 +4001,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 Defaults to 'm3gnet', i.e. the M3GNet universal potential.
             relax_cell (bool): whether to relax the lattice cell. Defaults to True.
             optimizer (str): name of the ASE optimizer class to use
-            stress_weight (float): the stress weight for relaxation. Defaults to 0.01.
             steps (int): max number of steps for relaxation. Defaults to 500.
             fmax (float): total force tolerance for relaxation convergence.
                 Here fmax is a sum of force and stress forces. Defaults to 0.1.
+            stress_weight (float): the stress weight for relaxation with M3GNet.
+                Defaults to 0.01.
             opt_kwargs (dict): kwargs for the ASE optimizer class.
             return_trajectory (bool): Whether to return the trajectory of relaxation.
                 Defaults to False.
@@ -4018,9 +4019,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             calculator=calculator,
             relax_cell=relax_cell,
             optimizer=optimizer,
-            stress_weight=stress_weight,
             steps=steps,
             fmax=fmax,
+            stress_weight=stress_weight,
             opt_kwargs=opt_kwargs,
             return_trajectory=return_trajectory,
             verbose=verbose,
@@ -4539,7 +4540,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
     def calculate(
         self,
-        calculator: str | Calculator = "m3gnet",
+        calculator: str | Calculator = "gfn2-xtb",
     ) -> Molecule:
         """
         Performs an ASE calculation.
@@ -4560,23 +4561,16 @@ def _calculate(struct: Structure | Molecule, calculator: str | Calculator = "m3g
 
     Args:
         struct: Structure or Molecule to run ASE calculation on.
-        calculator: An ASE Calculator or a string from the following options: "m3gnet.
-            Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+        calculator: An ASE Calculator or a string from the following options: "m3gnet",
+            "gfn2-xtb". Defaults to 'm3gnet', i.e. the M3GNet universal potential.
 
     Returns:
         Structure: Structure or Molelcule following ASE calculation.
     """
     from pymatgen.io.ase import AseAtomsAdaptor
 
-    run_m3gnet = bool(isinstance(calculator, str) and calculator.lower() == "m3gnet")
     is_molecule = isinstance(struct, Molecule)
-
-    # Prepare M3GNET custom calculator
-    if run_m3gnet:
-        from m3gnet.models import M3GNet, M3GNetCalculator, Potential
-
-        potential = Potential(M3GNet.load())
-        calculator = M3GNetCalculator(potential=potential)
+    calculator = _prep_calculator(calculator)
 
     # Get Atoms object
     adaptor = AseAtomsAdaptor()
@@ -4608,9 +4602,9 @@ def _relax(
     calculator: str | Calculator = "m3gnet",
     relax_cell: bool = True,
     optimizer: str | Optimizer = "FIRE",
-    stress_weight: float = 0.01,
     steps: int = 500,
     fmax: float = 0.1,
+    stress_weight: float = 0.01,
     opt_kwargs: dict = None,
     return_trajectory: bool = False,
     verbose: bool = False,
@@ -4619,14 +4613,16 @@ def _relax(
     Performs a structure relaxation using an ASE calculator.
 
     Args:
-        calculator: An ASE Calculator or a string from the following options: "m3gnet.
-            Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+        calculator: An ASE Calculator or a string from the following options: "M3GNet",
+        "gfn2-xtb".
+            Defaults to 'M3GNet', i.e. the M3GNet universal potential.
         relax_cell (bool): whether to relax the lattice cell. Defaults to True.
         optimizer (str): name of the ASE optimizer class to use
-        stress_weight (float): the stress weight for relaxation. Defaults to 0.01.
         steps (int): max number of steps for relaxation. Defaults to 500.
         fmax (float): total force tolerance for relaxation convergence.
             Here fmax is a sum of force and stress forces. Defaults to 0.1.
+        stress_weight (float): the stress weight for relaxation with M3GNet.
+            Defaults to 0.01.
         opt_kwargs (dict): kwargs for the ASE optimizer class.
         return_trajectory (bool): Whether to return the trajectory of relaxation.
             Defaults to False.
@@ -4646,8 +4642,14 @@ def _relax(
     from pymatgen.io.ase import AseAtomsAdaptor
 
     opt_kwargs = opt_kwargs or {}
-    run_m3gnet = bool(isinstance(calculator, str) and calculator.lower() == "m3gnet")
     is_molecule = isinstance(struct, Molecule)
+    run_m3gnet = bool(isinstance(calculator, str) and calculator.lower() == "m3gnet")
+
+    if isinstance(calculator, str):
+        if run_m3gnet:
+            calculator = _prep_calculator(calculator, stress_weight=stress_weight)
+        else:
+            calculator = _prep_calculator(calculator)
 
     # Get optimizer
     try:
@@ -4659,17 +4661,11 @@ def _relax(
     adaptor = AseAtomsAdaptor()
     atoms = adaptor.get_atoms(struct)
 
-    # Prepare M3GNET
-    if run_m3gnet:
-        from m3gnet.models import M3GNet, M3GNetCalculator, Potential
-        from m3gnet.models._dynamics import TrajectoryObserver
-
-        potential = Potential(M3GNet.load())
-        calculator = M3GNetCalculator(potential=potential, stress_weight=stress_weight)
-
     # Use a TrajectoryObserver if running m3gnet; otherwise, write a .traj file
     if return_trajectory:
         if run_m3gnet:
+            from m3gnet.models._dynamics import TrajectoryObserver
+
             traj = TrajectoryObserver(atoms)
         elif "trajectory" not in opt_kwargs:
             opt_kwargs["trajectory"] = "opt.traj"
@@ -4711,6 +4707,46 @@ def _relax(
         return struct, traj
 
     return struct
+
+
+def _prep_calculator(calculator: str | Calculator, **params) -> Calculator:
+    """
+    Convert a string representation of a special ASE calculator into
+    an ASE calculator object.
+
+    Args:
+        calculator: An ASE Calculator or a string from the following options: "m3gnet",
+            "gfn2-xtb".
+        **params: Parameters for the calculator.
+
+    Returns:
+        Calculator: ASE calculator object.
+    """
+    from ase.calculators.calculator import Calculator
+
+    if isinstance(calculator, Calculator):
+        return calculator
+
+    if calculator.lower() == "m3gnet":
+        try:
+            from m3gnet.models import M3GNet, M3GNetCalculator, Potential
+        except ImportError:
+            raise ImportError("Must install m3gnet. Try pip install m3gnet.")
+        potential = Potential(M3GNet.load())
+        calculator = M3GNetCalculator(potential=potential, **params)
+
+    elif calculator.lower() == "gfn2-xtb":
+        try:
+            from ase.calculators.tblite import TBLite
+        except ImportError:
+            raise ImportError("Must install tblite[ase]. Try pip install tblite[ase].")
+
+        calculator = TBLite(method="GFN2-xTB", **params)
+
+    else:
+        raise ValueError(f"Unknown calculator name")
+
+    return calculator
 
 
 class StructureError(Exception):
