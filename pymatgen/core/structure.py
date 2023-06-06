@@ -4100,7 +4100,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        if isinstance(calculator, str) and calculator.lower() == "m3gnet":
+        run_m3gnet = True if isinstance(calculator, str) and calculator.lower() == "m3gnet" else False
+
+        if run_m3gnet:
             from m3gnet.models import M3GNet, M3GNetCalculator, Potential
 
             potential = Potential(M3GNet.load())
