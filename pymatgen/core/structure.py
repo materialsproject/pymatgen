@@ -18,7 +18,9 @@ from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
-
+import contextlib
+import io
+import sys
 import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
@@ -4030,6 +4032,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
     def calculate(
         self,
         calculator: str | Calculator = "m3gnet",
+        verbose: bool = False,
     ) -> Structure:
         """
         Performs an ASE calculation.
@@ -4037,11 +4040,12 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Args:
             calculator: An ASE Calculator or a string from the following options: "m3gnet.
                 Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            verbose (bool): whether to print stdout. Defaults to False.
 
         Returns:
             Structure: Structure following ASE calculation.
         """
-        return _calculate(self, calculator)
+        return _calculate(self, calculator, verbose=verbose)
 
     @classmethod
     def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Structure:
@@ -4541,6 +4545,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
     def calculate(
         self,
         calculator: str | Calculator = "gfn2-xtb",
+        verbose: bool = False,
     ) -> Molecule:
         """
         Performs an ASE calculation.
@@ -4548,14 +4553,15 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         Args:
             calculator: An ASE Calculator or a string from the following options: "m3gnet.
                 Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            verbose (bool): whether to print stdout. Defaults to False.
 
         Returns:
             Molecule: Molecule following ASE calculation.
         """
-        return _calculate(self, calculator)
+        return _calculate(self, calculator, verbose=verbose)
 
 
-def _calculate(struct: Structure | Molecule, calculator: str | Calculator) -> Structure | Molecule:
+def _calculate(struct: Structure | Molecule, calculator: str | Calculator, verbose: bool = False) -> Structure | Molecule:
     """
     Performs an ASE calculation.
 
@@ -4563,6 +4569,7 @@ def _calculate(struct: Structure | Molecule, calculator: str | Calculator) -> St
         struct: Structure or Molecule to run ASE calculation on.
         calculator: An ASE Calculator or a string from the following options: "m3gnet",
             "gfn2-xtb".
+        verbose (bool): whether to print stdout. Defaults to False.
 
     Returns:
         Structure: Structure or Molelcule following ASE calculation.
@@ -4580,7 +4587,9 @@ def _calculate(struct: Structure | Molecule, calculator: str | Calculator) -> St
     atoms.calc = calculator
 
     # Run calculation
-    atoms.get_potential_energy()
+    stream = sys.stdout if verbose else io.StringIO()
+    with contextlib.redirect_stdout(stream):
+        atoms.get_potential_energy()
 
     # Ensure Calculator state is preserved because it contains parameters and results
     calc = atoms.calc
@@ -4623,15 +4632,11 @@ def _relax(
         opt_kwargs (dict): kwargs for the ASE optimizer class.
         return_trajectory (bool): Whether to return the trajectory of relaxation.
             Defaults to False.
-        verbose (bool): whether to print out relaxation steps. Defaults to False.
+        verbose (bool): whether to print stdout. Defaults to False.
 
     Returns:
         Structure | Molecule: Relaxed structure or molecule
     """
-    import contextlib
-    import io
-    import sys
-
     from ase import optimize
     from ase.constraints import ExpCellFilter
     from ase.io import read
