@@ -17,17 +17,7 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    Iterator,
-    Literal,
-    Sequence,
-    SupportsIndex,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
 
 import numpy as np
 from monty.dev import deprecated
