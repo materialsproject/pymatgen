@@ -44,6 +44,7 @@ class LobsterNeighbors(NearNeighbors):
     def __init__(
         self,
         are_coops=False,
+        are_cobis=False,
         filename_ICOHP=None,
         valences=None,
         limits=None,
@@ -64,11 +65,11 @@ class LobsterNeighbors(NearNeighbors):
         """
 
         Args:
-            are_coops: (bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for
-            ICOHPLIST.lobster so far
-            filename_ICOHP: (str) Path to ICOHPLIST.lobster
+            are_coops: (bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster;
+            are_cobis: (Bool) if True, the file is a ICOBILIST.lobster and not a ICOHPLIST.lobster
+            filename_ICOHP: (str) Path to ICOHPLIST.lobster/ICOOPLIST.lobster/ICOBILIST.lobster
             valences: (list of integers/floats) gives valence/charge for each element
-            limits: limit to decide which ICOHPs should be considered
+            limits: list of limits [lower, upper] to decide which ICOHPs/ICOBI/ICOOP should be considered
             structure: (Structure Object) typically constructed by: Structure.from_file("POSCAR") (Structure object
             from pymatgen.core.structure)
             additional_condition:   Additional condition that decides which kind of bonds will be considered
@@ -82,7 +83,7 @@ class LobsterNeighbors(NearNeighbors):
             only_bonds_to: (list of str) will only consider bonds to certain elements (e.g. ["O"] for oxygen)
             perc_strength_ICOHP: if no limits are given, this will decide which icohps will still be considered (
             relative to
-            the strongest ICOHP)
+            the strongest ICOHP/ICOOP/ICOBI)
             valences_from_charges: if True and path to CHARGE.lobster is provided, will use Lobster charges (
             Mulliken) instead of valences
             filename_CHARGE: (str) Path to Charge.lobster
@@ -97,13 +98,14 @@ class LobsterNeighbors(NearNeighbors):
             id_blist_sg2: (str) Identity of data in filename_blist_sg2,
                 e.g., "icoop" or "icobi"
         """
-        self.ICOHP = Icohplist(are_coops=are_coops, filename=filename_ICOHP)
+        self.ICOHP = Icohplist(are_coops=are_coops, are_cobis=are_cobis, filename=filename_ICOHP)
         self.Icohpcollection = self.ICOHP.icohpcollection
         self.structure = structure
         self.limits = limits
         self.only_bonds_to = only_bonds_to
         self.adapt_extremum_to_add_cond = adapt_extremum_to_add_cond
         self.are_coops = are_coops
+        self.are_cobis = are_cobis
         self.add_additional_data_sg = add_additional_data_sg
         self.filename_blist_sg1 = filename_blist_sg1
         self.filename_blist_sg2 = filename_blist_sg2
@@ -140,9 +142,6 @@ class LobsterNeighbors(NearNeighbors):
                 are_coops=are_coops_id2,
                 are_cobis=are_cobis_id2,
             )
-
-        if are_coops:
-            raise ValueError("Algorithm only works correctly for ICOHPLIST.lobster")
 
         # will check if the additional condition is correctly delivered
         if additional_condition in range(0, 7):
@@ -355,7 +354,8 @@ class LobsterNeighbors(NearNeighbors):
 
     def get_info_icohps_to_neighbors(self, isites=None, onlycation_isites=True):
         """
-        this method Return information of cohps of neighbors
+        this method Return information of cohps/coops/icobis of neighbors depending on input bond list file
+        (could be ICOOPLIST.lobster/ICOHPLIST.lobster/ICOBILIST.lobster)
 
         Args:
             isites: list of site ids, if isite==None, all isites will be used to add the icohps of the neighbors
@@ -363,8 +363,8 @@ class LobsterNeighbors(NearNeighbors):
 
 
         Returns:
-            sum of icohps of neighbors to certain sites [given by the id in structure], number of bonds to this site,
-            labels (from ICOHPLIST) for
+            sum of icohps/icoops/icobis of neighbors to certain sites [given by the id in structure], number of bonds to this site,
+            labels (from ICOHPLIST/ICOOPLIST/ICOBILIST) for
             these bonds
             [the latter is useful for plotting summed COHP plots],
             list of the central isite for each label
@@ -1134,10 +1134,10 @@ class LobsterNeighbors(NearNeighbors):
 
         Args:
             icohpcollection: icohpcollection object
-            percentage: will determine which ICOHPs will be considered (only 0.15 from the maximum value)
+            percentage: will determine which ICOHPs/ICOOP/ICOBI will be considered (only 0.15 from the maximum value)
             adapt_extremum_to_add_cond: should the extrumum be adapted to the additional condition
             additional_condition: additional condition to determine which bonds are relevant
-        Returns: [-100000, min(max_icohp*0.15,-0.1)]
+        Returns: [-100000, min(max_icohp*0.15,-0.1)] / [max_icohp*0.15,100000]
         """
         # TODO: make it work for COOPs
         if not adapt_extremum_to_add_cond or additional_condition == 0:
@@ -1154,7 +1154,10 @@ class LobsterNeighbors(NearNeighbors):
                 if (val1 < 0.0 < val2) or (val2 < 0.0 < val1):
                     list_icohps.append(value.summed_icohp)
 
-            extremum_based = min(list_icohps) * percentage
+            if not self.are_coops and not self.are_cobis:
+                extremum_based = min(list_icohps) * percentage
+            else:
+                extremum_based = max(list_icohps) * percentage
 
         elif additional_condition == 2:
             # NO_ELEMENT_TO_SAME_ELEMENT_BONDS
@@ -1162,7 +1165,11 @@ class LobsterNeighbors(NearNeighbors):
             for value in icohpcollection._icohplist.values():
                 if value._atom1.rstrip("0123456789") != value._atom2.rstrip("0123456789"):
                     list_icohps.append(value.summed_icohp)
-            extremum_based = min(list_icohps) * percentage
+
+            if not self.are_coops and not self.are_cobis:
+                extremum_based = min(list_icohps) * percentage
+            else:
+                extremum_based = max(list_icohps) * percentage
 
         elif additional_condition == 3:
             # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
@@ -1179,13 +1186,23 @@ class LobsterNeighbors(NearNeighbors):
                     and value._atom1.rstrip("0123456789") != value._atom2.rstrip("0123456789")
                 ):
                     list_icohps.append(value.summed_icohp)
-            extremum_based = min(list_icohps) * percentage
+
+            if not self.are_coops and not self.are_cobis:
+                extremum_based = min(list_icohps) * percentage
+            else:
+                extremum_based = max(list_icohps) * percentage
+
         elif additional_condition == 4:
             list_icohps = []
             for value in icohpcollection._icohplist.values():
                 if value._atom1.rstrip("0123456789") == "O" or value._atom2.rstrip("0123456789") == "O":
                     list_icohps.append(value.summed_icohp)
-            extremum_based = min(list_icohps) * percentage
+
+            if not self.are_coops and not self.are_cobis:
+                extremum_based = min(list_icohps) * percentage
+            else:
+                extremum_based = max(list_icohps) * percentage
+
         elif additional_condition == 5:
             # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
             list_icohps = []
@@ -1197,7 +1214,11 @@ class LobsterNeighbors(NearNeighbors):
 
                 if (val1 > 0.0 and val2 > 0.0) or (val1 < 0.0 and val2 < 0.0):
                     list_icohps.append(value.summed_icohp)
-            extremum_based = min(list_icohps) * percentage
+
+            if not self.are_coops and not self.are_cobis:
+                extremum_based = min(list_icohps) * percentage
+            else:
+                extremum_based = max(list_icohps) * percentage
 
         elif additional_condition == 6:
             # ONLY_CATION_CATION_BONDS=6
@@ -1210,13 +1231,18 @@ class LobsterNeighbors(NearNeighbors):
 
                 if val1 > 0.0 and val2 > 0.0:
                     list_icohps.append(value.summed_icohp)
-            extremum_based = min(list_icohps) * percentage
 
-        # if not self.are_coops:
-        max_here = min(extremum_based, -0.1)
-        return -100000, max_here
-        # else:
-        #    return extremum_based, 100000
+            if not self.are_coops and not self.are_cobis:
+                extremum_based = min(list_icohps) * percentage
+            else:
+                extremum_based = max(list_icohps) * percentage
+
+        if not self.are_coops and not self.are_cobis:
+            max_here = min(extremum_based, -0.1)
+            return -100000, max_here
+        if self.are_coops or self.are_cobis:
+            max_here = extremum_based
+            return max_here, 100000
 
 
 class LobsterLightStructureEnvironments(LightStructureEnvironments):
