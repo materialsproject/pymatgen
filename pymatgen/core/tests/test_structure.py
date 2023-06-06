@@ -18,7 +18,14 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.structure import IMolecule, IStructure, Molecule, PeriodicNeighbor, Structure, StructureError
+from pymatgen.core.structure import (
+    IMolecule,
+    IStructure,
+    Molecule,
+    PeriodicNeighbor,
+    Structure,
+    StructureError,
+)
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
 
@@ -30,6 +37,13 @@ try:
     import tensorflow as tf  # noqa: F401
 except ImportError:
     m3gnet = None
+
+try:
+    import ase
+    from ase.calculators.emt import EMT
+
+except ImportError:
+    ase = None
 
 
 class NeighborTest(PymatgenTest):
@@ -1332,11 +1346,40 @@ class StructureTest(PymatgenTest):
                 cluster = Molecule.from_sites(structure.extract_cluster([site]))
                 assert cluster.formula == "H4 C1"
 
+    @unittest.skipIf(ase is None, "ASE is needed.")
+    def test_run_calculation_ase(self):
+        structure = self.get_structure("Si")
+        for i in range(len(structure)):
+            structure[i] = "Cu"
+        new_structure = structure.run_calculation(calculator=EMT(asap_cutoff=True))
+        assert new_structure.lattice == structure.lattice
+        assert hasattr(new_structure, "calc")
+        assert new_structure.calc.parameters == {"asap_cutoff": True}
+        assert new_structure.calc.results.get("energy")
+
+    @unittest.skipIf(ase is None, "ASE is needed.")
+    def test_relax_ase(self):
+        structure = self.get_structure("Si")
+        for i in range(len(structure)):
+            structure[i] = "Cu"
+        relax = structure.relax(calculator=EMT())
+        assert relax.lattice == structure.lattice
+        assert hasattr(relax, "calc")
+        assert relax.calc.results.get("energy")
+
+    @unittest.skipIf(m3gnet is None, "run_calculation default requires m3gnet.")
+    def test_run_calculation(self):
+        structure = self.get_structure("Si")
+        new_structure = structure.run_calculation()
+        assert new_structure.lattice == structure.lattice
+        assert hasattr(new_structure, "calc")
+
     @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
     def test_relax(self):
         structure = self.get_structure("Si")
         relaxed = structure.relax()
         assert relaxed.lattice.a == pytest.approx(3.849563)
+        assert hasattr(relaxed, "calc")
 
     @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
     def test_relax_with_observer(self):
@@ -1345,6 +1388,7 @@ class StructureTest(PymatgenTest):
         assert relaxed.lattice.a == pytest.approx(3.849563)
         expected_attrs = ["atom_positions", "atoms", "cells", "energies", "forces", "stresses"]
         assert sorted(trajectory.__dict__) == expected_attrs
+        assert hasattr(relaxed, "calc")
         for key in expected_attrs:
             # check for 2 atoms in Structure, 1 relax step in all observed trajectory attributes
             assert len(getattr(trajectory, key)) == {"atoms": 2}.get(key, 1)
