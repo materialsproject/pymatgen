@@ -33,7 +33,6 @@ import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
-from monty.os.path import zpath
 from ruamel.yaml import YAML
 from tabulate import tabulate
 
@@ -49,8 +48,6 @@ from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
     from ase.optimize.optimize import Optimizer
