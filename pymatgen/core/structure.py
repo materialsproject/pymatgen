@@ -33,7 +33,6 @@ import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
-from monty.os.path import zpath
 from ruamel.yaml import YAML
 from tabulate import tabulate
 
