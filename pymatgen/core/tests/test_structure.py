@@ -38,6 +38,11 @@ try:
 except ImportError:
     ase = None
 
+try:
+    from tblite.ase import TBLite
+except ImportError:
+    TBLite = None
+
 
 class NeighborTest(PymatgenTest):
     def test_msonable(self):
@@ -1897,6 +1902,70 @@ class MoleculeTest(PymatgenTest):
         mol.set_charge_and_spin(0, 3)
         assert mol.charge == 0
         assert mol.spin_multiplicity == 3
+
+    @unittest.skipIf(ase is None, "ASE is needed.")
+    def test_calculate_ase_mol(self):
+        mol = self.mol
+        mol_copy = mol.copy()
+        new_mol = mol.calculate(calculator=EMT(asap_cutoff=True))
+        assert hasattr(new_mol, "calc")
+        assert new_mol.calc.results.get("energy")
+        assert new_mol.calc.results.get("energies") is not None
+        assert new_mol.calc.results.get("free_energy")
+        assert new_mol.calc.results["energy"] == pytest.approx(1.9957004209048366)
+        assert new_mol.calc.parameters == {"asap_cutoff": True}
+        assert not hasattr(new_mol, "dynamics")
+        assert mol == mol_copy
+
+    @unittest.skipIf(ase is None, "ASE is needed.")
+    def test_relax_ase_mol(self):
+        mol = self.mol
+        relaxed, traj = mol.relax(calculator=EMT(), fmax=0.01, optimizer="BFGS", return_trajectory=True)
+        assert hasattr(relaxed, "calc")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.calc.results.get("energies") is not None
+        assert relaxed.calc.results.get("free_energy")
+        assert relaxed.calc.parameters == {"asap_cutoff": False}
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "BFGS"
+        assert len(traj) == 5
+        assert traj[0] != traj[-1]
+
+    @unittest.skipIf(ase is None, "ASE is needed.")
+    def test_relax_ase2_mol(self):
+        mol = self.mol
+        relaxed, traj = mol.relax(
+            calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": "testing.traj"}
+        )
+        assert hasattr(relaxed, "calc")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.calc.results.get("energies") is not None
+        assert relaxed.calc.results.get("free_energy")
+        assert relaxed.calc.parameters == {"asap_cutoff": False}
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "FIRE"
+        assert len(traj) == 3  # there is an off-by-one in how ASE counts steps
+        assert traj[0] != traj[-1]
+        assert os.path.exists("testing.traj")
+
+    @unittest.skipIf(TBLite is None, "Requires tblite.")
+    def test_calculate_gfnxtb(self):
+        mol = self.mol
+        new_mol = mol.calculate()
+        assert hasattr(new_mol, "calc")
+        assert not hasattr(new_mol, "dynamics")
+        assert new_mol.calc.results["energy"] == pytest.approx(-113.61022434200855)
+        assert isinstance(new_mol, Molecule)
+
+    @unittest.skipIf(TBLite is None, "Requires tblite.")
+    def test_relax_gfnxtb(self):
+        mol = self.mol
+        relaxed = mol.relax()
+        assert hasattr(relaxed, "calc")
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
+        assert relaxed.calc.results["energy"] == pytest.approx(-113.61346199239306)
 
 
 if __name__ == "__main__":

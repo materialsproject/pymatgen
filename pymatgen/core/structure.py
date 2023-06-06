@@ -4510,7 +4510,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
     def relax(
         self,
-        calculator: str | Calculator = "m3gnet",
+        calculator: str | Calculator = "gfn2-xtb",
         optimizer: str | Optimizer = "FIRE",
         steps: int = 500,
         fmax: float = 0.1,
@@ -4741,7 +4741,7 @@ def _prep_calculator(calculator: str | Calculator, **params) -> Calculator:
 
     elif calculator.lower() == "gfn2-xtb":
         try:
-            from ase.calculators.tblite import TBLite
+            from tblite.ase import TBLite
         except ImportError:
             raise ImportError("Must install tblite[ase]. Try pip install tblite[ase].")
 
