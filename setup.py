@@ -82,7 +82,7 @@ setup(
             "netCDF4>=1.5.8",
             "phonopy>=2.4.2",
             "seekpath>=1.9.4",
-            "tblite[ase]>=0.3.0",
+            "tblite[ase]>=0.3.0; platform_system!='Windows'",
         ],
         "numba": [
             "numba",

@@ -1348,6 +1348,7 @@ class StructureTest(PymatgenTest):
     @unittest.skipIf(ase is None, "ASE is needed.")
     def test_calculate_ase(self):
         structure = self.cu_structure
+        structure_copy = structure.copy()
         new_structure = structure.calculate(calculator=EMT(asap_cutoff=True))
         assert new_structure.lattice == structure.lattice
         assert hasattr(new_structure, "calc")
@@ -1358,10 +1359,12 @@ class StructureTest(PymatgenTest):
         assert new_structure.calc.parameters == {"asap_cutoff": True}
         assert new_structure.volume == pytest.approx(structure.volume)
         assert not hasattr(new_structure, "dynamics")
+        assert structure == structure_copy
 
     @unittest.skipIf(ase is None, "ASE is needed.")
     def test_relax_ase(self):
         structure = self.cu_structure
+        structure_copy = structure.copy()
         relaxed = structure.relax(calculator=EMT(), relax_cell=False, optimizer="BFGS")
         assert relaxed.lattice == structure.lattice
         assert hasattr(relaxed, "calc")
@@ -1373,6 +1376,7 @@ class StructureTest(PymatgenTest):
         assert relaxed.calc.parameters == {"asap_cutoff": False}
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics.get("optimizer") == "BFGS"
+        assert structure == structure_copy
 
     @unittest.skipIf(ase is None, "ASE is needed.")
     def test_relax_ase2(self):

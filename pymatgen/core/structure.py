@@ -4014,9 +4014,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Returns:
             Structure: Relaxed structure
         """
-        _relax(
+        return _relax(
             self,
-            calculator=calculator,
+            calculator,
             relax_cell=relax_cell,
             optimizer=optimizer,
             steps=steps,
@@ -4528,7 +4528,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """
         return _relax(
             self,
-            calculator=calculator,
+            calculator,
             relax_cell=False,
             optimizer=optimizer,
             steps=steps,
@@ -4555,14 +4555,14 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         return _calculate(self, calculator)
 
 
-def _calculate(struct: Structure | Molecule, calculator: str | Calculator = "m3gnet") -> Structure | Molecule:
+def _calculate(struct: Structure | Molecule, calculator: str | Calculator) -> Structure | Molecule:
     """
     Performs an ASE calculation.
 
     Args:
         struct: Structure or Molecule to run ASE calculation on.
         calculator: An ASE Calculator or a string from the following options: "m3gnet",
-            "gfn2-xtb". Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            "gfn2-xtb".
 
     Returns:
         Structure: Structure or Molelcule following ASE calculation.
@@ -4596,7 +4596,7 @@ def _calculate(struct: Structure | Molecule, calculator: str | Calculator = "m3g
 
 def _relax(
     struct: Structure | Molecule,
-    calculator: str | Calculator = "m3gnet",
+    calculator: str | Calculator,
     relax_cell: bool = True,
     optimizer: str | Optimizer = "FIRE",
     steps: int = 500,
@@ -4611,7 +4611,7 @@ def _relax(
 
     Args:
         calculator: An ASE Calculator or a string from the following options: "M3GNet",
-        "gfn2-xtb". Defaults to 'M3GNet', i.e. the M3GNet universal potential.
+        "gfn2-xtb".
         relax_cell (bool): whether to relax the lattice cell. Defaults to True.
         optimizer (str): name of the ASE optimizer class to use
         steps (int): max number of steps for relaxation. Defaults to 500.
