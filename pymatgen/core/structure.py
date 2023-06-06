@@ -4048,7 +4048,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if "trajectory" not in opt_kwargs:
             opt_kwargs["trajectory"] = "opt.traj"
 
-        # Prepare M3GNET and trajectory observer
+        # Prepare M3GNET
         if isinstance(calculator, str) and calculator.lower() == "m3gnet":
             from m3gnet.models import M3GNet, M3GNetCalculator, Potential
 
@@ -4066,13 +4066,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
             dyn = opt_class(atoms, **opt_kwargs)
             dyn.run(fmax=fmax, steps=steps)
 
+        # Ensure Calculator state is preserved because it contains parameters and results
+        struct.calc = atoms.calc
+
         # Get Structure object
         if relax_cell:
             atoms = ecf.atoms
         struct = adaptor.get_structure(atoms)
-
-        # Ensure Calculator state is preserved because it contains parameters and results
-        struct.calc = atoms.calc
 
         if return_trajectory:
             traj_file = opt_kwargs["trajectory"]
@@ -4116,6 +4116,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         atoms.get_potential_energy()
 
+        # Ensure Calculator state is preserved because it contains parameters and results
+        calc = atoms.calc
+
         # Some ASE calculators do not update the atoms object in-place with
         # a call to .get_potential_energy(). This is a workaround to ensure
         # that the atoms object is updated with the correct positions, cell,
@@ -4137,8 +4140,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         struct = adaptor.get_structure(atoms)
 
-        # Ensure Calculator state is preserved because it contains parameters and results
-        struct.calc = atoms.calc
+        struct.calc = calc
 
         return struct
 
