@@ -4067,19 +4067,20 @@ class Structure(IStructure, collections.abc.MutableSequence):
             dyn.run(fmax=fmax, steps=steps)
 
         # Ensure Calculator state is preserved because it contains parameters and results
-        struct.calc = atoms.calc
+        calc = atoms.calc
 
         # Get Structure object
         if relax_cell:
             atoms = ecf.atoms
         struct = adaptor.get_structure(atoms)
+        struct.calc = calc
 
         if return_trajectory:
             traj_file = opt_kwargs["trajectory"]
             traj = read(f"{traj_file}", index=":")
             return struct, traj
-        else:
-            return struct
+        
+        return struct
 
     def run_calculation(
         self,
@@ -4139,7 +4140,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
             atoms.cell = atoms_new.cell
 
         struct = adaptor.get_structure(atoms)
-
         struct.calc = calc
 
         return struct
