@@ -4079,7 +4079,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             traj_file = opt_kwargs["trajectory"]
             traj = read(f"{traj_file}", index=":")
             return struct, traj
-        
+
         return struct
 
     def run_calculation(
