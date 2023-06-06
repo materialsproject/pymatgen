@@ -739,13 +739,10 @@ class StructureTest(PymatgenTest):
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
+            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         )
         self.structure = Structure(lattice, ["Si", "Si"], coords)
+        self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
 
     def test_mutable_sequence_methods(self):
         s = self.structure
@@ -854,10 +851,9 @@ class StructureTest(PymatgenTest):
 
     def test_propertied_structure(self):
         # Make sure that site properties are set to None for missing values.
-        s = self.structure
-        s.add_site_property("charge", [4.1, -5])
-        s.append("Li", [0.3, 0.3, 0.3])
-        assert len(s.site_properties["charge"]) == 3
+        self.structure.add_site_property("charge", [4.1, -5])
+        self.structure.append("Li", [0.3, 0.3, 0.3])
+        assert len(self.structure.site_properties["charge"]) == 3
 
     def test_perturb(self):
         d = 0.1
@@ -865,23 +861,23 @@ class StructureTest(PymatgenTest):
         self.structure.perturb(distance=d)
         post_perturbation_sites = self.structure.sites
 
-        for i, x in enumerate(pre_perturbation_sites):
-            assert round(abs(x.distance(post_perturbation_sites[i]) - d), 3) == 0, "Bad perturbation distance"
+        for idx, site in enumerate(pre_perturbation_sites):
+            assert round(abs(site.distance(post_perturbation_sites[idx]) - d), 3) == 0, "Bad perturbation distance"
 
         structure2 = pre_perturbation_sites.copy()
         structure2.perturb(distance=d, min_distance=0)
         post_perturbation_sites2 = structure2.sites
 
-        for i, x in enumerate(pre_perturbation_sites):
-            assert x.distance(post_perturbation_sites2[i]) <= d
-            assert x.distance(post_perturbation_sites2[i]) >= 0
+        for idx, site in enumerate(pre_perturbation_sites):
+            assert site.distance(post_perturbation_sites2[idx]) <= d
+            assert site.distance(post_perturbation_sites2[idx]) >= 0
 
     def test_add_oxidation_states(self):
         oxidation_states = {"Si": -4}
         self.structure.add_oxidation_state_by_element(oxidation_states)
         for site in self.structure:
-            for k in site.species:
-                assert k.oxi_state == oxidation_states[k.symbol], "Wrong oxidation state assigned!"
+            for specie in site.species:
+                assert specie.oxi_state == oxidation_states[specie.symbol], "Wrong oxidation state assigned!"
         oxidation_states = {"Fe": 2}
         with pytest.raises(ValueError):
             self.structure.add_oxidation_state_by_element(oxidation_states)
@@ -1229,9 +1225,13 @@ class StructureTest(PymatgenTest):
         assert sites[-1].specie.symbol == "C"
         self.structure.add_oxidation_state_by_element({"Si": 4, "C": 2})
         assert self.structure.charge == 62
-        species = self.structure.species
-        assert isinstance(species, list)
-        assert len(species) == len(self.structure)
+
+    def test_species(self):
+        assert {*map(str, self.structure.species)} == {"Si"}
+        assert len(self.structure.species) == len(self.structure)
+
+        with pytest.raises(AttributeError, match="species property only supports ordered structures!"):
+            self.disordered.species
 
     def test_set_item(self):
         s = self.structure.copy()
