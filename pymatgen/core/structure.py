@@ -17,7 +17,17 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    Literal,
+    Sequence,
+    SupportsIndex,
+    cast,
+)
 
 import numpy as np
 from monty.dev import deprecated
@@ -4092,8 +4102,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Returns:
             Structure: Structure following ASE calculation.
         """
-        from ase.io import read
-
         from pymatgen.io.ase import AseAtomsAdaptor
 
         if isinstance(calculator, str) and calculator.lower() == "m3gnet":
