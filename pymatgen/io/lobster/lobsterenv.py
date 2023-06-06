@@ -1243,6 +1243,7 @@ class LobsterNeighbors(NearNeighbors):
         if self.are_coops or self.are_cobis:
             max_here = extremum_based
             return max_here, 100000
+        return None
 
 
 class LobsterLightStructureEnvironments(LightStructureEnvironments):
