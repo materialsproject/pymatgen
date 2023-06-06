@@ -17,17 +17,7 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    Iterator,
-    Literal,
-    Sequence,
-    SupportsIndex,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
 
 import numpy as np
 from monty.dev import deprecated
@@ -4034,7 +4024,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         from pymatgen.io.ase import AseAtomsAdaptor
 
         opt_kwargs = opt_kwargs or {}
-        run_m3gnet = True if isinstance(calculator, str) and calculator.lower() == "m3gnet" else False
+        run_m3gnet = bool(isinstance(calculator, str) and calculator.lower() == "m3gnet")
 
         # Get optimizer
         try:
@@ -4050,7 +4040,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if run_m3gnet:
             from m3gnet.models import M3GNet, M3GNetCalculator, Potential
             from m3gnet.models._dynamics import TrajectoryObserver
-            
+
             potential = Potential(M3GNet.load())
             calculator = M3GNetCalculator(potential=potential, stress_weight=stress_weight)
 
