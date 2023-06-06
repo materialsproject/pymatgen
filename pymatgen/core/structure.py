@@ -4074,6 +4074,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             atoms = ecf.atoms
         struct = adaptor.get_structure(atoms)
         struct.calc = calc
+        struct.dynamics = dyn.todict()
 
         if return_trajectory:
             traj_file = opt_kwargs["trajectory"]

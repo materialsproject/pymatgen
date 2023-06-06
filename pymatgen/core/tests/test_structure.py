@@ -754,6 +754,10 @@ class StructureTest(PymatgenTest):
         )
         self.structure = Structure(lattice, ["Si", "Si"], coords)
 
+    def tearDown(self):
+        if os.path.exists("opt.traj"):
+            os.remove("opt.traj")
+
     def test_mutable_sequence_methods(self):
         s = self.structure
         s[0] = "Fe"
@@ -1349,16 +1353,18 @@ class StructureTest(PymatgenTest):
         assert hasattr(new_structure, "calc")
         assert new_structure.calc.parameters == {"asap_cutoff": True}
         assert new_structure.calc.results.get("energy")
+        assert not hasattr(new_structure, "dynamics")
 
     @unittest.skipIf(ase is None, "ASE is needed.")
-    def test_relax_ase(self):
+    def test_relax_ase2(self):
         structure = self.get_structure("Si")
         for i in range(len(structure)):
             structure[i] = "Cu"
-        relax = structure.relax(calculator=EMT())
-        assert relax.lattice == structure.lattice
-        assert hasattr(relax, "calc")
-        assert relax.calc.results.get("energy")
+        relaxed = structure.relax(calculator=EMT(), relax_cell=False, optimizer="BFGS")
+        assert relaxed.lattice == structure.lattice
+        assert hasattr(relaxed, "calc")
+        assert relaxed.calc.results.get("energy")
+        assert hasattr(relaxed, "dynamics")
 
     @unittest.skipIf(m3gnet is None, "run_calculation default requires m3gnet.")
     def test_run_calculation(self):
@@ -1366,12 +1372,21 @@ class StructureTest(PymatgenTest):
         new_structure = structure.run_calculation()
         assert new_structure.lattice == structure.lattice
         assert hasattr(new_structure, "calc")
+        assert not hasattr(new_structure, "dynamics")
 
     @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
     def test_relax(self):
         structure = self.get_structure("Si")
         relaxed = structure.relax()
         assert relaxed.lattice.a == pytest.approx(3.849563)
+        assert hasattr(relaxed, "calc")
+        assert hasattr(relaxed, "dynamics")
+
+    @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
+    def test_relax_fixed_lattice(self):
+        structure = self.get_structure("Si")
+        relaxed = structure.relax(relax_cell=False)
+        assert relaxed.lattice == structure.lattice
         assert hasattr(relaxed, "calc")
 
     @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
