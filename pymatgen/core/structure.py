@@ -17,17 +17,7 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from io import StringIO
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    Iterator,
-    Literal,
-    Sequence,
-    SupportsIndex,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
 
 import numpy as np
 from monty.dev import deprecated
@@ -4026,15 +4016,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         from ase.constraints import ExpCellFilter
         from ase.io import read
-        from ase.optimize import (
-            BFGS,
-            FIRE,
-            LBFGS,
-            BFGSLineSearch,
-            GPMin,
-            LBFGSLineSearch,
-            MDMin,
-        )
+        from ase.optimize import BFGS, FIRE, LBFGS, BFGSLineSearch, GPMin, LBFGSLineSearch, MDMin
 
         from pymatgen.io.ase import AseAtomsAdaptor
 
