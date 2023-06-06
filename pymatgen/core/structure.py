@@ -4081,7 +4081,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
     def calculate(
         self,
         calculator: str | Calculator = "m3gnet",
-        geom_file: str | Path | None = None,
     ) -> Structure:
         """
         Performs an ASE calculation.
@@ -4089,9 +4088,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Args:
             calculator: An ASE Calculator or a string from the following options: "m3gnet.
                 Defaults to 'm3gnet', i.e. the M3GNet universal potential.
-            geom_file: Path to an optional geometry file (e.g. "OUTCAR", "geo_end.gen")
-                to read the output structure from. Defaults to None, in which case
-                the output structure from the ASE calculation is used.
 
         Returns:
             Structure: Structure following ASE calculation.
@@ -4116,29 +4112,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
         # Ensure Calculator state is preserved because it contains parameters and results
         calc = atoms.calc
 
-        # Some ASE calculators do not update the atoms object in-place with
-        # a call to .get_potential_energy(). This is a workaround to ensure
-        # that the atoms object is updated with the correct positions, cell,
-        # and magmoms.
-        if geom_file and os.path.exists(zpath(geom_file)):
-            # Note: We have to be careful to make sure we don't lose the
-            # converged magnetic moments, if present. That's why we simply
-            # update the positions and cell in-place.
-            atoms_new = read(zpath(geom_file))
-            if isinstance(atoms_new, list):
-                atoms_new = atoms_new[-1]
-
-            # Make sure the atom indices didn't get updated somehow (sanity check)
-            if np.array_equal(atoms_new.get_atomic_numbers(), atoms.get_atomic_numbers()) is False:
-                raise ValueError("Atomic numbers do not match between atoms and geom_file.")
-
-            atoms.positions = atoms_new.positions
-            atoms.cell = atoms_new.cell
-
         # Get Structure object
         struct = adaptor.get_structure(atoms)
 
-        # Attach import ASE results
+        # Attach important ASE results
         struct.calc = calc
 
         return struct
