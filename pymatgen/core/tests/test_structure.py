@@ -1346,9 +1346,9 @@ class StructureTest(PymatgenTest):
                 assert cluster.formula == "H4 C1"
 
     @unittest.skipIf(ase is None, "ASE is needed.")
-    def test_run_calculation_ase(self):
+    def test_calculate_ase(self):
         structure = self.cu_structure
-        new_structure = structure.run_calculation(calculator=EMT(asap_cutoff=True))
+        new_structure = structure.calculate(calculator=EMT(asap_cutoff=True))
         assert new_structure.lattice == structure.lattice
         assert hasattr(new_structure, "calc")
         assert new_structure.calc.results.get("energy")
@@ -1407,10 +1407,10 @@ class StructureTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.exists("testing.traj")
 
-    @unittest.skipIf(m3gnet is None, "run_calculation default requires m3gnet.")
-    def test_run_calculation_m3gnet(self):
+    @unittest.skipIf(m3gnet is None, "calculate default requires m3gnet.")
+    def test_calculate_m3gnet(self):
         structure = self.get_structure("Si")
-        new_structure = structure.run_calculation()
+        new_structure = structure.calculate()
         assert new_structure.lattice == structure.lattice
         assert hasattr(new_structure, "calc")
         assert not hasattr(new_structure, "dynamics")

@@ -4020,29 +4020,17 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         from ase.constraints import ExpCellFilter
         from ase.io import read
-        from ase.optimize import BFGS, FIRE, LBFGS, BFGSLineSearch, GPMin, LBFGSLineSearch, MDMin
+        from ase import optimize
 
         from pymatgen.io.ase import AseAtomsAdaptor
 
         opt_kwargs = opt_kwargs or {}
 
         # Get optimizer
-        if optimizer.lower() == "bfgs":
-            opt_class = BFGS
-        elif optimizer.lower() == "bfgslinesearch":
-            opt_class = BFGSLineSearch
-        elif optimizer.lower() == "lbfgs":
-            opt_class = LBFGS
-        elif optimizer.lower() == "lbfgslinesearch":
-            opt_class = LBFGSLineSearch
-        elif optimizer.lower() == "gpmin":
-            opt_class = GPMin
-        elif optimizer.lower() == "mdmin":
-            opt_class = MDMin
-        elif optimizer.lower() == "fire":
-            opt_class = FIRE
-        else:
-            raise ValueError(f"Unknown optimizer: {optimizer}")
+        try:
+            opt_class = getattr(optimize, optimizer)
+        except AttributeError:
+            raise ValueError(f"Unknown {optimizer=}, must be one of {list(dir(optimize))}")
 
         # Get Atoms object
         adaptor = AseAtomsAdaptor()
@@ -4089,7 +4077,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return struct
 
-    def run_calculation(
+    def calculate(
         self,
         calculator: str | Calculator = "m3gnet",
         geom_file: str | Path | None = None,
