@@ -65,7 +65,7 @@ if __name__ == "__main__":
         coordination_geometry=cg, algo=algo, points_perfect=points_perfect
     )
 
-    csms_with_recorded_permutation = []
+    csms_with_recorded_permutation: list[float] = []
     explicit_permutations = []
     for icsm, csm in enumerate(csms):
         found = False
