@@ -1230,6 +1230,7 @@ class StructureTest(PymatgenTest):
         assert {*map(str, self.structure.species)} == {"Si"}
         assert len(self.structure.species) == len(self.structure)
 
+        # https://github.com/materialsproject/pymatgen/issues/3033
         with pytest.raises(AttributeError, match="species property only supports ordered structures!"):
             self.disordered.species
 
