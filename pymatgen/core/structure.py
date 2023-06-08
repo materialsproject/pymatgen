@@ -496,7 +496,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Args:
             property_name (str): The name of the property to remove.
         """
-        for site in self.sites:
+        for site in self:
             del site.properties[property_name]
 
     def replace_species(self, species_mapping: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]]) -> None:
@@ -518,16 +518,16 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 f"substituted = {sp_to_replace}; Species in structure = {sp_in_structure}"
             )
 
-        for site in self.sites:
+        for site in self:
             if sp_to_replace.intersection(site.species):
-                c = Composition()
+                comp = Composition()
                 for sp, amt in site.species.items():
                     new_sp = sp_mapping.get(sp, sp)
                     try:
-                        c += Composition(new_sp) * amt
+                        comp += Composition(new_sp) * amt
                     except Exception:
-                        c += {new_sp: amt}
-                site.species = c
+                        comp += {new_sp: amt}
+                site.species = comp
 
     def add_oxidation_state_by_element(self, oxidation_states: dict[str, float]) -> None:
         """
@@ -573,7 +573,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         Removes oxidation states from a structure.
         """
-        for site in self.sites:
+        for site in self:
             new_sp: dict[Element, float] = collections.defaultdict(float)
             for el, occu in site.species.items():
                 sym = el.symbol
@@ -600,19 +600,15 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             spins (dict): Dict of spins associated with elements or species,
                 e.g. {"Ni":+5} or {"Ni2+":5}
         """
-        for site in self.sites:
-            new_sp = {}
+        for site in self:
+            new_species = {}
             for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[
-                    Species(
-                        sym,
-                        oxidation_state=oxi_state,
-                        properties={"spin": spins.get(str(sp), spins.get(sym))},
-                    )
-                ] = occu
-            site.species = Composition(new_sp)
+                props = {"spin": spins.get(str(sp), spins.get(sym))}
+                species = Species(sym, oxidation_state=oxi_state, properties=props)
+                new_species[species] = occu
+            site.species = Composition(new_species)
 
     def add_spin_by_site(self, spins: list[float]) -> None:
         """
@@ -626,18 +622,18 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             raise ValueError(f"Spins for all sites must be specified, expected {len(self)} spins, got {len(spins)}")
 
         for site, spin in zip(self.sites, spins):
-            new_sp = {}
+            new_species = {}
             for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[Species(sym, oxidation_state=oxi_state, properties={"spin": spin})] = occu
-            site.species = Composition(new_sp)
+                new_species[Species(sym, oxidation_state=oxi_state, properties={"spin": spin})] = occu
+            site.species = Composition(new_species)
 
     def remove_spin(self) -> None:
         """
         Remove spin states from structure.
         """
-        for site in self.sites:
+        for site in self:
             new_sp: dict[Element, float] = collections.defaultdict(float)
             for sp, occu in site.species.items():
                 oxi_state = getattr(sp, "oxi_state", None)
@@ -1217,7 +1213,7 @@ class IStructure(SiteCollection, MSONable):
         Algorithm:
 
         1. place sphere of radius r in crystal and determine minimum supercell
-           (parallelpiped) which would contain a sphere of radius r. for this
+           (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
            determine how many a_1"s it will take to contain the sphere.
@@ -1239,17 +1235,17 @@ class IStructure(SiteCollection, MSONable):
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors: list[PeriodicNeighbor] = []
-        for fcoord, dist, i, img in self._lattice.get_points_in_sphere(site_fcoords, pt, r):
-            nnsite = PeriodicNeighbor(
+        for frac_coord, dist, i, img in self._lattice.get_points_in_sphere(site_fcoords, pt, r):
+            nn_site = PeriodicNeighbor(
                 self[i].species,
-                fcoord,
+                frac_coord,
                 self._lattice,
                 properties=self[i].properties,
                 nn_distance=dist,
                 image=img,  # type: ignore
                 index=i,
             )
-            neighbors.append(nnsite)
+            neighbors.append(nn_site)
         return neighbors
 
     def get_neighbors(
@@ -1384,14 +1380,13 @@ class IStructure(SiteCollection, MSONable):
             if sites is None:
                 sites = self.sites
             site_coords = np.array([site.coords for site in sites], dtype=float)
-            cart_coords = np.ascontiguousarray(np.array(self.cart_coords), dtype=float)
-            lattice_matrix = np.ascontiguousarray(np.array(self.lattice.matrix), dtype=float)
-            pbc = np.ascontiguousarray(self.pbc, dtype=int)
-            r = float(r)
+            cart_coords = np.array(self.cart_coords, dtype=float)
+            lattice_matrix = np.array(self.lattice.matrix, dtype=float)
+            pbc = np.array(self.pbc, dtype=int)
             center_indices, points_indices, images, distances = find_points_in_spheres(
                 cart_coords,
                 site_coords,
-                r=r,
+                r=float(r),
                 pbc=pbc,
                 lattice=lattice_matrix,
                 tol=numerical_tol,
@@ -1400,12 +1395,7 @@ class IStructure(SiteCollection, MSONable):
             if exclude_self:
                 self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
                 cond = ~self_pair
-            return (
-                center_indices[cond],
-                points_indices[cond],
-                images[cond],
-                distances[cond],
-            )
+            return (center_indices[cond], points_indices[cond], images[cond], distances[cond])
 
     def get_symmetric_neighbor_list(
         self,
@@ -1455,9 +1445,8 @@ class IStructure(SiteCollection, MSONable):
         if sg is None:
             ops = SpaceGroup(self.get_space_group_info()[0]).symmetry_ops
         else:
-            try:
-                i = int(sg)
-                sgp = SpaceGroup.from_int_number(i)
+            try:  # first assume sg is int
+                sgp = SpaceGroup.from_int_number(int(sg))
             except ValueError:
                 sgp = SpaceGroup(sg)
             ops = sgp.symmetry_ops
@@ -1505,7 +1494,7 @@ class IStructure(SiteCollection, MSONable):
 
         # Again, compare all neighbors pairwise. For each pair of neighbors, all the symmetry operations of the provided
         # space group are iterated over. If an operation is found that connects the two bonds, it is assigned the same
-        # symmetry index it is compared to, and the symmetry operation that connets the two is saved. To compare two
+        # symmetry index it is compared to, and the symmetry operation that connects the two is saved. To compare two
         # neighbors 'SymmOp.are_symmetrically_related_vectors' is used. It is also checked whether applying the
         # connecting symmetry operation generates the neighbor-pair itself, or the equivalent version with the
         # sites exchanged and R reversed. The output is always reordered such that the former case is true.
@@ -1539,12 +1528,7 @@ class IStructure(SiteCollection, MSONable):
 
         # the bonds are ordered by their symmetry index
         idcs_symid = np.argsort(symmetry_indices)
-        bonds = (
-            bonds[0][idcs_symid],
-            bonds[1][idcs_symid],
-            bonds[2][idcs_symid],
-            bonds[3][idcs_symid],
-        )
+        bonds = (bonds[0][idcs_symid], bonds[1][idcs_symid], bonds[2][idcs_symid], bonds[3][idcs_symid])
         symmetry_indices = symmetry_indices[idcs_symid]
         symmetry_ops = symmetry_ops[idcs_symid]
 
