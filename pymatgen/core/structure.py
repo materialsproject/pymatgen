@@ -750,7 +750,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Args:
             struct: Structure or Molecule to relax.
             calculator: An ASE Calculator or a string from the following options: "M3GNet",
-            "gfn2-xtb".
+                "gfn2-xtb".
             relax_cell (bool): whether to relax the lattice cell. Defaults to True.
             optimizer (str): name of the ASE optimizer class to use
             steps (int): max number of steps for relaxation. Defaults to 500.
