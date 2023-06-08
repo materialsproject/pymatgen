@@ -855,13 +855,6 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             potential = Potential(M3GNet.load())
             calculator = M3GNetCalculator(potential=potential, **params)
 
-        if calculator.lower() == "chgnet":
-            try:
-                from chgnet.model import StructOptimizer
-            except ImportError:
-                raise ImportError("Must install chgnet. Use pip install chgnet.")
-            calculator = StructOptimizer(**params)
-
         elif calculator.lower() == "gfn2-xtb":
             try:
                 from tblite.ase import TBLite
