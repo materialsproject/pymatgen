@@ -829,7 +829,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
         return struct
 
-    def _prep_calculator(calculator: Literal["m3gnet", "gfn2-xtb"] | Calculator, **params) -> Calculator:
+    def _prep_calculator(self, calculator: Literal["m3gnet", "gfn2-xtb"] | Calculator, **params) -> Calculator:
         """
         Convert a string representation of a special ASE calculator into
         an ASE calculator object.
