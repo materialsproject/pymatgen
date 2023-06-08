@@ -859,7 +859,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             try:
                 from tblite.ase import TBLite
             except ImportError:
-                raise ImportError("Must install tblite[ase]. Try pip install tblite[ase].")
+                raise ImportError(
+                    "Must install tblite[ase]. Try `pip install tblite[ase]` (Linux) or `conda install -c conda-forge tblite-python` on (Mac/Linux)."
+                )
 
             calculator = TBLite(method="GFN2-xTB", **params)
 
