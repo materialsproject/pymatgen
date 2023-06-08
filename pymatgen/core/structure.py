@@ -19,10 +19,12 @@ import sys
 import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
+from inspect import isclass
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast, get_args
 
 import numpy as np
+from ase.optimize.optimize import Optimizer
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -43,7 +45,6 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
-    from ase.optimize.optimize import Optimizer
     from m3gnet.models._dynamics import TrajectoryObserver
     from numpy.typing import ArrayLike
 
@@ -4660,7 +4661,10 @@ def _relax(
     try:
         opt_class = getattr(optimize, optimizer)
     except AttributeError:
-        raise ValueError(f"Unknown {optimizer=}, must be one of {list(dir(optimize))}")
+        valid_keys = [
+            key for key in dir(optimize) if isclass(obj := getattr(optimize, key)) and issubclass(obj, Optimizer)
+        ]
+        raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
 
     # Get Atoms object
     adaptor = AseAtomsAdaptor()
@@ -4711,7 +4715,10 @@ def _relax(
     return struct
 
 
-def _prep_calculator(calculator: str | Calculator, **params) -> Calculator:
+KnownCalculators = Literal["m3gnet", "chgnet", "gfn2-xtb"]
+
+
+def _prep_calculator(calculator: KnownCalculators | Calculator, **params) -> Calculator:
     """
     Convert a string representation of a special ASE calculator into
     an ASE calculator object.
@@ -4737,6 +4744,13 @@ def _prep_calculator(calculator: str | Calculator, **params) -> Calculator:
         potential = Potential(M3GNet.load())
         calculator = M3GNetCalculator(potential=potential, **params)
 
+    if calculator.lower() == "chgnet":
+        try:
+            from chgnet.model import StructOptimizer
+        except ImportError:
+            raise ImportError("Must install chgnet. Use pip install chgnet.")
+        calculator = StructOptimizer(**params)
+
     elif calculator.lower() == "gfn2-xtb":
         try:
             from tblite.ase import TBLite
@@ -4746,7 +4760,7 @@ def _prep_calculator(calculator: str | Calculator, **params) -> Calculator:
         calculator = TBLite(method="GFN2-xTB", **params)
 
     else:
-        raise ValueError("Unknown calculator name")
+        raise ValueError(f"Unknown {calculator=}, must be one of {get_args(KnownCalculators)}")
 
     return calculator
 
