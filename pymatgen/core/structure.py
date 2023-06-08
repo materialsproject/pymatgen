@@ -4000,7 +4000,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Performs a crystal structure relaxation using an ASE calculator.
 
         Args:
-            calculator: An ASE Calculator or a string from the following options: "m3gnet.
+            calculator: An ASE Calculator or a string from the following options: "m3gnet".
                 Defaults to 'm3gnet', i.e. the M3GNet universal potential.
             relax_cell (bool): whether to relax the lattice cell. Defaults to True.
             optimizer (str): name of the ASE optimizer class to use
@@ -4039,7 +4039,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Performs an ASE calculation.
 
         Args:
-            calculator: An ASE Calculator or a string from the following options: "m3gnet.
+            calculator: An ASE Calculator or a string from the following options: "m3gnet".
                 Defaults to 'm3gnet', i.e. the M3GNet universal potential.
             verbose (bool): whether to print stdout. Defaults to False.
 
@@ -4517,8 +4517,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         Performs a molecule relaxation using an ASE calculator.
 
         Args:
-            calculator: An ASE Calculator or a string from the following options: "m3gnet.
-                Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            calculator: An ASE Calculator or a string from the following options: "gfn2-xtb".
+                Defaults to 'gfn2-xtb'.
             optimizer (str): name of the ASE optimizer class to use
             steps (int): max number of steps for relaxation. Defaults to 500.
             fmax (float): total force tolerance for relaxation convergence.
@@ -4552,8 +4552,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         Performs an ASE calculation.
 
         Args:
-            calculator: An ASE Calculator or a string from the following options: "m3gnet.
-                Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            calculator: An ASE Calculator or a string from the following options: "gfn2-xtb".
+                Defaults to 'gfn2-xtb'.
             verbose (bool): whether to print stdout. Defaults to False.
 
         Returns:
@@ -4580,6 +4580,8 @@ def _calculate(
     from pymatgen.io.ase import AseAtomsAdaptor
 
     is_molecule = isinstance(struct, Molecule)
+    if is_molecule and calculator == "m3gnet":
+        raise ValueError(f"Can't use {calculator=} for a Molecule.")
     calculator = _prep_calculator(calculator)
 
     # Get Atoms object
