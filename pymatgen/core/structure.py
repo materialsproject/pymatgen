@@ -677,7 +677,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return cluster
 
     def _calculate(
-        struct: Structure | Molecule, calculator: str | Calculator, verbose: bool = False
+        self, struct: Structure | Molecule, calculator: str | Calculator, verbose: bool = False
     ) -> Structure | Molecule:
         """
         Performs an ASE calculation.
@@ -696,7 +696,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         is_molecule = isinstance(struct, Molecule)
         if is_molecule and calculator == "m3gnet":
             raise ValueError(f"Can't use {calculator=} for a Molecule.")
-        calculator = _prep_calculator(calculator)
+        calculator = self._prep_calculator(calculator)
 
         # Get Atoms object
         adaptor = AseAtomsAdaptor()
@@ -722,6 +722,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return struct
 
     def _relax(
+        self,
         struct: Structure | Molecule,
         calculator: str | Calculator,
         relax_cell: bool = True,
@@ -828,9 +829,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
         return struct
 
-    KnownCalculators = Literal["m3gnet", "chgnet", "gfn2-xtb"]
-
-    def _prep_calculator(calculator: KnownCalculators | Calculator, **params) -> Calculator:
+    def _prep_calculator(calculator: Literal["m3gnet", "gfn2-xtb"] | Calculator, **params) -> Calculator:
         """
         Convert a string representation of a special ASE calculator into
         an ASE calculator object.
@@ -872,7 +871,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             calculator = TBLite(method="GFN2-xTB", **params)
 
         else:
-            raise ValueError(f"Unknown {calculator=}, must be one of {get_args(KnownCalculators)}")
+            raise ValueError(f"Unknown {calculator=}.")
 
         return calculator
 
