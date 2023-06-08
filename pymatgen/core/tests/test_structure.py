@@ -872,15 +872,19 @@ class StructureTest(PymatgenTest):
             assert site.distance(post_perturbation_sites2[idx]) <= d
             assert site.distance(post_perturbation_sites2[idx]) >= 0
 
-    def test_add_oxidation_states(self):
+    def test_add_oxidation_states_by_element(self):
         oxidation_states = {"Si": -4}
         self.structure.add_oxidation_state_by_element(oxidation_states)
         for site in self.structure:
             for specie in site.species:
                 assert specie.oxi_state == oxidation_states[specie.symbol], "Wrong oxidation state assigned!"
         oxidation_states = {"Fe": 2}
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as exc_info:
             self.structure.add_oxidation_state_by_element(oxidation_states)
+
+        assert "Oxidation states not specified for all elements, missing={'Si'}" in str(exc_info.value)
+
+    def test_add_oxidation_states_by_site(self):
         self.structure.add_oxidation_state_by_site([2, -4])
         assert self.structure[0].specie.oxi_state == 2
         with pytest.raises(ValueError):
@@ -901,10 +905,11 @@ class StructureTest(PymatgenTest):
         assert s_elem == s_specie, "Oxidation state remover failed"
 
     def test_add_oxidation_states_by_guess(self):
-        s = PymatgenTest.get_structure("Li2O")
-        s.add_oxidation_state_by_guess()
-        for i in s:
-            assert i.specie in [Species("Li", 1), Species("O", -2)]
+        struct = PymatgenTest.get_structure("Li2O")
+        struct.add_oxidation_state_by_guess()
+        expected = [Species("Li", 1), Species("O", -2)]
+        for site in struct:
+            assert site.specie in expected
 
     def test_add_remove_spin_states(self):
         latt = Lattice.cubic(4.17)
