@@ -687,7 +687,6 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             others = new_others
         return cluster
 
-
     def _calculate(
         struct: Structure | Molecule, calculator: str | Calculator, verbose: bool = False
     ) -> Structure | Molecule:
@@ -732,8 +731,6 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         struct.calc = calc
 
         return struct
-
-
 
     def _relax(
         struct: Structure | Molecule,
@@ -781,9 +778,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
         if isinstance(calculator, str):
             if run_m3gnet:
-                calculator = _prep_calculator(calculator, stress_weight=stress_weight)
+                calculator = self._prep_calculator(calculator, stress_weight=stress_weight)
             else:
-                calculator = _prep_calculator(calculator)
+                calculator = self._prep_calculator(calculator)
 
         # Get optimizer
         try:
@@ -842,9 +839,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
         return struct
 
-
     KnownCalculators = Literal["m3gnet", "chgnet", "gfn2-xtb"]
-
 
     def _prep_calculator(calculator: KnownCalculators | Calculator, **params) -> Calculator:
         """
