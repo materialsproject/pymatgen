@@ -1431,7 +1431,7 @@ class StructureTest(PymatgenTest):
     def test_relax_matgl(self):
         structure = self.get_structure("Si")
         relaxed = structure.relax()
-        assert relaxed.lattice.a == pytest.approx(3.849563)
+        assert relaxed.lattice.a == pytest.approx(3.857781624313035)
         assert hasattr(relaxed, "calc")
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
@@ -1449,7 +1449,7 @@ class StructureTest(PymatgenTest):
     def test_relax_matgl_with_traj(self):
         structure = self.get_structure("Si")
         relaxed, trajectory = structure.relax(return_trajectory=True)
-        assert relaxed.lattice.a == pytest.approx(3.849563)
+        assert relaxed.lattice.a == pytest.approx(3.857781624313035)
         expected_attrs = ["atom_positions", "atoms", "cells", "energies", "forces", "stresses"]
         assert sorted(trajectory.__dict__) == expected_attrs
         for key in expected_attrs:

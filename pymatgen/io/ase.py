@@ -66,7 +66,7 @@ class AseAtomsAdaptor:
         positions = [site.coords for site in structure]
         if hasattr(structure, "lattice"):
             pbc = True
-            cell = getattr(structure, "lattice", None)
+            cell = structure.lattice.matrix
         else:  #  Molecule without lattice
             pbc = None
             cell = None

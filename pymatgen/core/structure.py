@@ -21,7 +21,7 @@ from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from inspect import isclass
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Self, Sequence, SupportsIndex, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
 
 import numpy as np
 from ase.optimize.optimize import Optimizer
@@ -845,7 +845,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 from matgl.ext.ase import M3GNetCalculator
             except ImportError:
                 raise ImportError("matgl not installed. Try `pip install matgl`.")
-            potential = matgl.load("M3GNet-MP-2021.2.8-PES")
+            potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
             return M3GNetCalculator(potential=potential, **params)
 
         if calculator.lower() == "gfn2-xtb":
@@ -4208,7 +4208,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self,
         calculator: str | Calculator = "m3gnet",
         verbose: bool = False,
-    ) -> Self:
+    ):
         """
         Performs an ASE calculation.
 
