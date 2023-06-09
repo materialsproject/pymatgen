@@ -225,7 +225,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         for s in alls:
             assert "energy" not in s
 
-    @unittest.skipIf(m3gnet is None, "m3gnet package not available.")
+    @unittest.skipIf(matgl is None, "matgl package not available.")
     def test_m3gnet(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
@@ -241,10 +241,14 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         # Check ordering of energy/atom
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
+    @unittest.skipIf(matgl is None, "matgl package not available.")
     def test_callable_sort_criteria(self):
-        from m3gnet.models import Relaxer
+        import matgl
+        from matgl.ext.ase import Relaxer
 
-        m3gnet_model = Relaxer(optimizer="BFGS")
+        pot = matgl.load_model("M3GNet-MP-2021.2.8-PES")
+
+        m3gnet_model = Relaxer(potential=pot)
 
         def sort_criteria(s):
             relax_results = m3gnet_model.relax(s)
