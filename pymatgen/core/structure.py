@@ -846,7 +846,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             except ImportError:
                 raise ImportError("matgl not installed. Try `pip install matgl`.")
             potential = matgl.load("M3GNet-MP-2021.2.8-PES")
-            return matgl.M3GNetCalculator(potential=potential, **params)
+            return M3GNetCalculator(potential=potential, **params)
 
         if calculator.lower() == "gfn2-xtb":
             try:
