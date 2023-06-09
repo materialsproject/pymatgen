@@ -759,7 +759,7 @@ class StructureTest(PymatgenTest):
 
     def tearDown(self):
         for f in ["opt.traj", "testing.traj"]:
-            if os.path.exists(f):
+            if os.path.isfile(f):
                 os.remove(f)
 
     def test_mutable_sequence_methods(self):
@@ -1352,39 +1352,37 @@ class StructureTest(PymatgenTest):
 
     @unittest.skipIf(ase is None, "ASE is needed.")
     def test_calculate_ase(self):
-        structure = self.cu_structure
-        structure_copy = structure.copy()
-        new_structure = structure.calculate(calculator=EMT(asap_cutoff=True))
-        assert new_structure.lattice == structure.lattice
-        assert hasattr(new_structure, "calc")
-        assert new_structure.calc.results.get("energy")
-        assert new_structure.calc.results.get("energies") is not None
-        assert new_structure.calc.results.get("free_energy")
-        assert new_structure.calc.results["energy"] == pytest.approx(1.8260989595697836)
-        assert new_structure.calc.parameters == {"asap_cutoff": True}
-        assert new_structure.volume == pytest.approx(structure.volume)
-        assert not hasattr(new_structure, "dynamics")
-        assert structure == structure_copy
+        struct_copy = self.cu_structure.copy()
+        out_struct = self.cu_structure.calculate(calculator=EMT(asap_cutoff=True))
+        assert out_struct.lattice == self.cu_structure.lattice
+        assert hasattr(out_struct, "calc")
+        assert out_struct.calc.results.get("energy")
+        assert out_struct.calc.results.get("energies") is not None
+        assert out_struct.calc.results.get("free_energy")
+        assert out_struct.calc.results["energy"] == pytest.approx(1.82609895)
+        assert out_struct.calc.parameters == {"asap_cutoff": True}
+        assert out_struct.volume == pytest.approx(self.cu_structure.volume)
+        assert not hasattr(out_struct, "dynamics")
+        assert self.cu_structure == struct_copy, "original structure was modified"
 
     @unittest.skipIf(ase is None, "ASE is needed.")
     def test_relax_ase(self):
-        structure = self.cu_structure
-        structure_copy = structure.copy()
-        relaxed = structure.relax(calculator=EMT(), relax_cell=False, optimizer="BFGS")
-        assert relaxed.lattice == structure.lattice
+        struct_copy = self.cu_structure.copy()
+        relaxed = self.cu_structure.relax(calculator=EMT(), relax_cell=False, optimizer="BFGS")
+        assert relaxed.lattice == self.cu_structure.lattice
         assert hasattr(relaxed, "calc")
         assert relaxed.calc.results.get("energy")
         assert relaxed.calc.results.get("energies") is not None
         assert relaxed.calc.results.get("free_energy")
-        assert relaxed.calc.results["energy"] == pytest.approx(1.825596610330276)
-        assert relaxed.lattice.volume == pytest.approx(structure.lattice.volume)
+        assert relaxed.calc.results["energy"] == pytest.approx(1.82559661)
+        assert relaxed.lattice.volume == pytest.approx(self.cu_structure.lattice.volume)
         assert relaxed.calc.parameters == {"asap_cutoff": False}
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics.get("optimizer") == "BFGS"
-        assert structure == structure_copy
+        assert self.cu_structure == struct_copy, "original structure was modified"
 
     @unittest.skipIf(ase is None, "ASE is needed.")
-    def test_relax_ase2(self):
+    def test_relax_ase_return_traj(self):
         structure = self.cu_structure
         relaxed, traj = structure.relax(calculator=EMT(), fmax=0.01, return_trajectory=True)
         assert relaxed.lattice != structure.lattice
@@ -1399,7 +1397,7 @@ class StructureTest(PymatgenTest):
         assert traj[0] != traj[-1]
 
     @unittest.skipIf(ase is None, "ASE is needed.")
-    def test_relax_ase3(self):
+    def test_relax_ase_opt_kwargs(self):
         structure = self.cu_structure
         relaxed, traj = structure.relax(
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": "testing.traj"}
@@ -1414,15 +1412,15 @@ class StructureTest(PymatgenTest):
         assert relaxed.dynamics.get("optimizer") == "FIRE"
         assert len(traj) == 3  # there is an off-by-one in how ASE counts steps
         assert traj[0] != traj[-1]
-        assert os.path.exists("testing.traj")
+        assert os.path.isfile("testing.traj")
 
     @unittest.skipIf(m3gnet is None, "calculate default requires m3gnet.")
     def test_calculate_m3gnet(self):
         structure = self.get_structure("Si")
-        new_structure = structure.calculate()
-        assert new_structure.lattice == structure.lattice
-        assert hasattr(new_structure, "calc")
-        assert not hasattr(new_structure, "dynamics")
+        out_struct = structure.calculate()
+        assert out_struct.lattice == structure.lattice
+        assert hasattr(out_struct, "calc")
+        assert not hasattr(out_struct, "dynamics")
 
     @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
     def test_relax_m3gnet(self):
@@ -1912,7 +1910,7 @@ class MoleculeTest(PymatgenTest):
         assert new_mol.calc.results.get("energy")
         assert new_mol.calc.results.get("energies") is not None
         assert new_mol.calc.results.get("free_energy")
-        assert new_mol.calc.results["energy"] == pytest.approx(1.9957004209048366)
+        assert new_mol.calc.results["energy"] == pytest.approx(1.99570042)
         assert new_mol.calc.parameters == {"asap_cutoff": True}
         assert not hasattr(new_mol, "dynamics")
         assert mol == mol_copy
@@ -1932,7 +1930,7 @@ class MoleculeTest(PymatgenTest):
         assert traj[0] != traj[-1]
 
     @unittest.skipIf(ase is None, "ASE is needed.")
-    def test_relax_ase2_mol(self):
+    def test_relax_ase_mol_return_traj(self):
         mol = self.mol
         relaxed, traj = mol.relax(
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": "testing.traj"}
@@ -1946,7 +1944,7 @@ class MoleculeTest(PymatgenTest):
         assert relaxed.dynamics.get("optimizer") == "FIRE"
         assert len(traj) == 3  # there is an off-by-one in how ASE counts steps
         assert traj[0] != traj[-1]
-        assert os.path.exists("testing.traj")
+        assert os.path.isfile("testing.traj")
 
     @unittest.skipIf(TBLite is None, "Requires tblite.")
     def test_calculate_gfnxtb(self):
