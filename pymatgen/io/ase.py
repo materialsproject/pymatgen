@@ -64,9 +64,12 @@ class AseAtomsAdaptor:
         # Construct the base ASE Atoms object
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
-        is_struct = hasattr(structure, "lattice")
-        pbc = True if is_struct else None
-        cell = structure.lattice.matrix if is_struct else None
+        if hasattr(structure, "lattice"):
+            pbc = True
+            cell = getattr(structure, "lattice", None)
+        else:  #  Molecule without lattice
+            pbc = None
+            cell = None
 
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
 

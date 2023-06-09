@@ -806,7 +806,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             dyn.run(fmax=fmax, steps=steps)
 
         # Get pymatgen Structure or Molecule
-        system = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
+        system: Structure | Molecule = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
 
         # Attach important ASE results
         system.calc = atoms.calc
@@ -4188,7 +4188,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
         Returns:
-            Structure: Relaxed structure
+            Structure | tuple[Structure, Trajectory]: Relaxed structure or 2-tuple of Structure
+                and ASE/M3GNet TrajectoryObserver if return_trajectory=True.
         """
         return self._relax(
             calculator,
@@ -4631,28 +4632,28 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         # Pass value of functional group--either from user-defined or from
         # functional.json
         if isinstance(func_group, Molecule):
-            func_grp = func_group
+            functional_group = func_group
         else:
             # Check to see whether the functional group is in database.
             if func_group not in FunctionalGroups:
                 raise RuntimeError("Can't find functional group in list. Provide explicit coordinate instead")
-            func_grp = FunctionalGroups[func_group]
+            functional_group = FunctionalGroups[func_group]
 
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
-        bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie, bond_order=bond_order)
-        if bl is not None:
-            func_grp = func_grp.copy()
-            vec = func_grp[0].coords - func_grp[1].coords
+        bond_len = get_bond_length(non_terminal_nn.specie, functional_group[1].specie, bond_order=bond_order)
+        if bond_len is not None:
+            functional_group = functional_group.copy()
+            vec = functional_group[0].coords - functional_group[1].coords
             vec /= np.linalg.norm(vec)
-            func_grp[0] = "X", func_grp[1].coords + float(bl) * vec
+            functional_group[0] = "X", functional_group[1].coords + float(bond_len) * vec
 
         # Align X to the origin.
-        x = func_grp[0]
-        func_grp.translate_sites(list(range(len(func_grp))), origin - x.coords)
+        x = functional_group[0]
+        functional_group.translate_sites(list(range(len(functional_group))), origin - x.coords)
 
         # Find angle between the attaching bond and the bond to be replaced.
-        v1 = func_grp[1].coords - origin
+        v1 = functional_group[1].coords - origin
         v2 = self[index].coords - origin
         angle = get_angle(v1, v2)
 
@@ -4662,17 +4663,17 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             # bonds.
             axis = np.cross(v1, v2)
             op = SymmOp.from_origin_axis_angle(origin, axis, angle)
-            func_grp.apply_operation(op)
+            functional_group.apply_operation(op)
         elif abs(abs(angle) - 180) < 1:
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
-            for i, fg in enumerate(func_grp):
-                func_grp[i] = (fg.species, origin - (fg.coords - origin))
+            for i, fg in enumerate(functional_group):
+                functional_group[i] = (fg.species, origin - (fg.coords - origin))
 
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
         del self[index]
-        for site in func_grp[1:]:
+        for site in functional_group[1:]:
             self._sites.append(site)
 
     def relax(
@@ -4701,7 +4702,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
         Returns:
-            Molecule: Relaxed molecule
+            Molecule | tuple[Molecule, Trajectory]: Relaxed Molecule or 2-tuple of Molecule
+                and ASE/M3GNet TrajectoryObserver if return_trajectory=True.
         """
         return self._relax(
             calculator,
