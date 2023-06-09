@@ -494,6 +494,86 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         return
 
 
+class RandomStructureTransformation(AbstractTransformation):
+
+    def __init__(self):
+        pass
+
+    def apply_transformation(self, structure: Structure, num_copies: int):
+        """
+        For this transformation, the apply_transformation method will return
+        a random ordered structure from the given disordered structure.
+        """
+        subl = structure.sublattices
+
+        # fill the sublattice sites with pure-element atoms
+        self.all_structures = []
+
+        for _ in range(num_copies):
+
+            new_structure = structure.copy()
+
+            for subl_comp, subl_indices in subl.items():
+    
+                # convert composition into a dictionary
+                subl_comp_dict = subl_comp.as_dict()
+
+                el_list = list(subl_comp_dict.keys())
+                el_concs = np.array(list(subl_comp_dict.values()))
+
+                # randomly choose site indices for each element present in the sublattice
+
+                el_indices = self.random_assign(sequence = subl_indices,
+                                                lengths = (el_concs * len(subl_indices)).astype(int))
+
+                for i_el, el in enumerate(el_list):
+
+                    new_structure[el_indices[i_el]] = el
+
+            self.all_structures.append(new_structure)
+
+        return self.all_structures
+
+    @property
+    def inverse(self):
+        """
+        Returns: None
+        """
+        return None
+
+    @property
+    def is_one_to_many(self) -> bool:
+        """
+        Returns: True
+        """
+        return True
+
+    def random_assign(self, sequence: list[int], lengths: list[int]) -> list[int]:
+        """
+        Randomly assign sublists in sequence with given lengths
+        """
+        random.shuffle(sequence)
+
+        assignments = []
+
+        start_pos = 0
+
+        for length in lengths:
+
+            end_pos = min(start_pos+length, len(sequence))
+
+            ## check if end_pos is greater than start_pos
+            if end_pos > start_pos:
+                assignments.append(sequence[start_pos : end_pos])
+                start_pos = end_pos
+
+            else:
+                print("Sum of lengths must be equal to the length of the sequence!")
+                return -1
+
+        return assignments
+
+
 class OrderDisorderedStructureTransformation(AbstractTransformation):
     """
     Order a disordered structure. The disordered structure must be oxidation

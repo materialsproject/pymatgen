@@ -397,6 +397,22 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         return all(site.is_ordered for site in self)
 
+    @property
+    def sublattices(self) -> dict[Composition, list]:
+        """
+        Returns a list of lists of atom indices belonging to every unique
+        sublattice.
+        """
+
+        unique_species_and_occu = set(self.species_and_occu)
+
+        sublattices_dict = dict()
+
+        for usp in unique_species_and_occu:
+            sublattices_dict[usp] = [i for i, sp in enumerate(self.species_and_occu) if sp == usp]
+
+        return sublattices_dict
+
     def get_angle(self, i: int, j: int, k: int) -> float:
         """
         Returns angle specified by three sites.
