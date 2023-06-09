@@ -67,7 +67,7 @@ class AseAtomsAdaptor:
         if hasattr(structure, "lattice"):
             pbc = True
             cell = structure.lattice.matrix
-        else:  #  Molecule without lattice
+        else:  # Molecule without lattice
             pbc = None
             cell = None
 

@@ -55,7 +55,6 @@ jobs:
             split: 4
 
     runs-on: ${{ matrix.os }}
-    continue-on-error: true
 
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
