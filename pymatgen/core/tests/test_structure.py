@@ -23,10 +23,9 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import m3gnet
-    import tensorflow as tf  # noqa: F401 # make sure m3gnet wasn't installed without deps
+    import matgl
 except ImportError:
-    m3gnet = None
+    matgl = None
 
 try:
     import ase
@@ -1420,16 +1419,16 @@ class StructureTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile("testing.traj")
 
-    @skipIf(m3gnet is None, "calculate default requires m3gnet.")
-    def test_calculate_m3gnet(self):
+    @skipIf(matgl is None, "calculate default requires matgl.")
+    def test_calculate_matgl(self):
         structure = self.get_structure("Si")
         out_struct = structure.calculate()
         assert out_struct.lattice == structure.lattice
         assert hasattr(out_struct, "calc")
         assert not hasattr(out_struct, "dynamics")
 
-    @skipIf(m3gnet is None, "Relaxation requires m3gnet.")
-    def test_relax_m3gnet(self):
+    @skipIf(matgl is None, "Relaxation requires matgl.")
+    def test_relax_matgl(self):
         structure = self.get_structure("Si")
         relaxed = structure.relax()
         assert relaxed.lattice.a == pytest.approx(3.849563)
@@ -1437,8 +1436,8 @@ class StructureTest(PymatgenTest):
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
 
-    @skipIf(m3gnet is None, "Relaxation requires m3gnet.")
-    def test_relax_m3gnet_fixed_lattice(self):
+    @skipIf(matgl is None, "Relaxation requires matgl.")
+    def test_relax_matgl_fixed_lattice(self):
         structure = self.get_structure("Si")
         relaxed = structure.relax(relax_cell=False, optimizer="BFGS")
         assert relaxed.lattice == structure.lattice
@@ -1446,8 +1445,8 @@ class StructureTest(PymatgenTest):
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics.get("optimizer") == "BFGS"
 
-    @skipIf(m3gnet is None, "Relaxation requires m3gnet.")
-    def test_relax_m3gnet_with_traj(self):
+    @skipIf(matgl is None, "Relaxation requires matgl.")
+    def test_relax_matgl_with_traj(self):
         structure = self.get_structure("Si")
         relaxed, trajectory = structure.relax(return_trajectory=True)
         assert relaxed.lattice.a == pytest.approx(3.849563)
