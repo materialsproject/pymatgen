@@ -73,16 +73,26 @@ class AseAtomsAdaptor:
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between these two when constructing the Structure/Molecule.
         # The mapping selected here is:
-        # ASE initial magmom <--> Pymatgen "magmom"
-        # ASE final magmom <--> Pymatgen "final_magmom"
-        # ASE initial charge <--> Pymatgen "charge"
-        # ASE final charge <--> Pymatgen "final_charge"
+
+        # Site properties:
+        # Atoms.get_initial_magnetic_moments() <--> Structure/Molecule.site_properties["magmom"]
+        # Atoms.get_magnetic_moments() <--> Structure/Molecule.site_properties["final_magmom"]
+        # Atoms.get_initial_charges() <--> Structure/Molecule.site_properties["charge"]
+        # Atoms.get_charges() <--> Structure/Molecule.site_properties["final_charge"]
+
+        # Global properties:
+        # Atoms.charge <--> Molecule.charge
+        # Atoms.spin_multiplicity <--> Molecule.spin_multiplicity
+
         if "magmom" in structure.site_properties:
             initial_magmoms = structure.site_properties["magmom"]
             atoms.set_initial_magnetic_moments(initial_magmoms)
         if "charge" in structure.site_properties:
             initial_charges = structure.site_properties["charge"]
             atoms.set_initial_charges(initial_charges)
+        if isinstance(structure, Molecule):
+            atoms.charge = structure.charge
+            atoms.spin_multiplicity = structure.spin_multiplicity
 
         magmoms = structure.site_properties.get("final_magmom")
         charges = structure.site_properties.get("final_charge")
@@ -91,7 +101,7 @@ class AseAtomsAdaptor:
                 calc = SinglePointDFTCalculator(atoms, magmoms=magmoms, charges=charges)
             elif magmoms:
                 calc = SinglePointDFTCalculator(atoms, magmoms=magmoms)
-            elif charges:
+            else:
                 calc = SinglePointDFTCalculator(atoms, charges=charges)
             atoms.calc = calc
 
@@ -188,10 +198,17 @@ class AseAtomsAdaptor:
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between these two when constructing the Structure/Molecule.
         # The mapping selected here is:
-        # ASE initial magmom <--> Pymatgen "magmom"
-        # ASE final magmom <--> Pymatgen "final_magmom"
-        # ASE initial charge <--> Pymatgen "charge"
-        # ASE final charge <--> Pymatgen "final_charge"
+
+        # Site properties:
+        # Atoms.get_initial_magnetic_moments() <--> Structure/Molecule.site_properties["magmom"]
+        # Atoms.get_magnetic_moments() <--> Structure/Molecule.site_properties["final_magmom"]
+        # Atoms.get_initial_charges() <--> Structure/Molecule.site_properties["charge"]
+        # Atoms.get_charges() <--> Structure/Molecule.site_properties["final_charge"]
+
+        # Global properties:
+        # Atoms.charge <--> Molecule.charge
+        # Atoms.spin_multiplicity <--> Molecule.spin_multiplicity
+
         if magmoms is not None:
             structure.add_site_property("final_magmom", magmoms)
         if initial_magmoms is not None:
@@ -237,8 +254,20 @@ class AseAtomsAdaptor:
             Molecule: Equivalent pymatgen.core.structure.Molecule
         """
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
-        charge = round(np.sum(atoms.get_initial_charges())) if atoms.has("initial_charges") else 0
-        spin_mult = round(np.sum(atoms.get_initial_magnetic_moments())) + 1 if atoms.has("initial_magmoms") else 1
+        charge = (
+            atoms.charge
+            if atoms.has("charge")
+            else round(np.sum(atoms.get_initial_charges()))
+            if atoms.has("initial_charges")
+            else 0
+        )
+        spin_mult = (
+            atoms.spin_multiplicity
+            if atoms.has("spin_multiplicity")
+            else round(np.sum(atoms.get_initial_magnetic_moments())) + 1
+            if atoms.has("initial_magmoms")
+            else 1
+        )
         molecule.set_charge_and_spin(charge, spin_multiplicity=spin_mult)
 
         return molecule
