@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 
@@ -50,7 +48,3 @@ class StressTest(PymatgenTest):
         # with warnings.catch_warnings(record=True) as w:
         #     self.non_symm.voigt
         #     self.assertEqual(len(w), 1)
-
-
-if __name__ == "__main__":
-    unittest.main()

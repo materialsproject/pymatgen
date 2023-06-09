@@ -275,7 +275,3 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         s = json.dumps(btr_dict)
         assert s is not None
         assert btr_dict["bs"] is not None
-
-
-if __name__ == "__main__":
-    unittest.main()

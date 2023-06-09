@@ -1970,7 +1970,3 @@ class MoleculeTest(PymatgenTest):
         assert relaxed.calc.results.get("energy")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
         assert relaxed.calc.results["energy"] == pytest.approx(-113.61346199239306)
-
-
-if __name__ == "__main__":
-    unittest.main()

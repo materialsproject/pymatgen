@@ -66,7 +66,3 @@ class XmuTest(unittest.TestCase):
         x2 = Xmu.from_dict(d)
         data2 = x2.data.tolist()
         assert data == data2, "Xmu to and from dict does not match"
-
-
-if __name__ == "__main__":
-    unittest.main()

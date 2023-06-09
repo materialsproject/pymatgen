@@ -962,7 +962,3 @@ class UtilityFunctionTest(unittest.TestCase):
         coord = [0.5, 0.5, 0.5]
         coord = tet_coord(coord)
         assert np.allclose(coord, [1.0, 0.57735027, 0.40824829])
-
-
-if __name__ == "__main__":
-    unittest.main()

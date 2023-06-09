@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
@@ -202,7 +200,3 @@ Wyckoff Positions (OG): (1,0,0)+ (0,2,0)+ (0,0,1)+
 
         self.assert_str_content_equal(str(msg), ref_string)
         self.assert_str_content_equal(msg.data_str(), ref_string_all)
-
-
-if __name__ == "__main__":
-    unittest.main()

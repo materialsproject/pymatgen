@@ -272,7 +272,3 @@ class TestThermalDisplacementMatrices(PymatgenTest):
 
         assert list_matrices[-1].temperature == approx(300.0)
         assert list_matrices[0].temperature == approx(0.0)
-
-
-if __name__ == "__main__":
-    unittest.main()

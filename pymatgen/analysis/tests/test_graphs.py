@@ -920,7 +920,3 @@ class MoleculeGraphTest(unittest.TestCase):
         assert list(sg.graph.edges) == [(0, 1, 0), (0, 2, 0), (0, 3, 0), (1, 4, 0), (1, 5, 0)]
         sg.sort()
         assert list(sg.graph.edges) == [(4, 5, 0), (0, 4, 0), (1, 4, 0), (2, 5, 0), (3, 5, 0)]
-
-
-if __name__ == "__main__":
-    unittest.main()

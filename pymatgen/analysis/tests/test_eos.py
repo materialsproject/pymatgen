@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 from pytest import approx
@@ -465,7 +463,3 @@ class EOSTest(PymatgenTest):
             "v0": self.num_eos_fit.v0,
         }
         assert self.num_eos_fit.results == d
-
-
-if __name__ == "__main__":
-    unittest.main()

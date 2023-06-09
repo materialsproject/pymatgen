@@ -798,7 +798,3 @@ class LobsterCompleteDosTest(unittest.TestCase):
         assert self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element("F"))[OrbitalType(0)].efermi == approx(
             efermi
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

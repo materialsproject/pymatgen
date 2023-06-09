@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from pymatgen.analysis.interfaces.coherent_interfaces import (
     CoherentInterfaceBuilder,
     from_2d_to_3d,
@@ -44,7 +42,3 @@ class InterfaceBuilderTest(PymatgenTest):
         # SP: I am commenting out this test which is super fragile and the result fluctates between 6 and 30 for
         # no apparent reason. The author should fix this.
         # self.assertEqual(len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))), 30)
-
-
-if __name__ == "__main__":
-    unittest.main()

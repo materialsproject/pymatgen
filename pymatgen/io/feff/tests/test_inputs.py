@@ -390,7 +390,3 @@ class PathsTest(unittest.TestCase):
         ]
         answer = "\n".join(lines)
         assert answer == str(self.paths)
-
-
-if __name__ == "__main__":
-    unittest.main()

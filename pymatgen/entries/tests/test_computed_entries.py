@@ -488,7 +488,3 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             entry = copy.deepcopy(e)
             normed_entry = entry.normalize(mode="atom")
             assert entry.uncorrected_energy == pytest.approx(normed_entry.uncorrected_energy * self.num_atoms)
-
-
-if __name__ == "__main__":
-    unittest.main()

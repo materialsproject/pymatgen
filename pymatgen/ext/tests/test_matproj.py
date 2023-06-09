@@ -530,7 +530,3 @@ class MPResterOldTest(PymatgenTest):
 
         with _MPResterLegacy(api_key=None) as mpr:
             assert mpr.api_key == "foobar"
-
-
-if __name__ == "__main__":
-    unittest.main()

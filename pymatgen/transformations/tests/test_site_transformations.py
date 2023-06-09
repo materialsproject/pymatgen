@@ -344,7 +344,3 @@ class RadialSiteDistortionTransformationTest(PymatgenTest):
         s = t.apply_transformation(self.molecule)
         for c1, c2 in zip(self.molecule[7:], s[7:]):
             assert abs(round(sum(c2.coords - c1.coords), 2)) == 0.33
-
-
-if __name__ == "__main__":
-    unittest.main()

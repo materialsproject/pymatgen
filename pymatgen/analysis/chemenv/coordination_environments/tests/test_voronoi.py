@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import random
-import unittest
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -212,7 +211,3 @@ class VoronoiContainerTest(PymatgenTest):
             assert points[3] == (6, 10)
             assert points[4] == (6, 13)
             assert points[5] == (2, 13)
-
-
-if __name__ == "__main__":
-    unittest.main()

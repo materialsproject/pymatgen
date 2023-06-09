@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 import warnings
 from pathlib import Path
 
@@ -358,7 +357,3 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
             d = self.cpd_ternary_formal.domains[formula]
             d = d.round(6)  # to get rid of numerical errors from qhull
             assert d == pytest.approx(domain, abs=1e-5)
-
-
-if __name__ == "__main__":
-    unittest.main()

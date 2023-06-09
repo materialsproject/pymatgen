@@ -128,7 +128,3 @@ class EwaldMinimizerTest(unittest.TestCase):
         assert approx(ham.total_energy, abs=1e-3) == -1226.3335
         assert approx(ham.get_site_energy(0), abs=1e-3) == -45.8338
         assert approx(ham.get_site_energy(8), abs=1e-3) == -27.2978
-
-
-if __name__ == "__main__":
-    unittest.main()

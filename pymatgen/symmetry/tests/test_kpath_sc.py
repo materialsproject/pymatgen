@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import pytest
 
@@ -107,7 +106,3 @@ class BandStructureSCTest(PymatgenTest):
         assert kpoints["Z"][0] == pytest.approx(0.00000000)
         assert kpoints["Z"][1] == pytest.approx(0.00000000)
         assert kpoints["Z"][2] == pytest.approx(0.50000000)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -70,7 +70,3 @@ class EntrySetTest(unittest.TestCase):
         entry_set = loadfn("temp_entry_set.json")
         assert len(entry_set) == len(self.entry_set)
         os.remove("temp_entry_set.json")
-
-
-if __name__ == "__main__":
-    unittest.main()

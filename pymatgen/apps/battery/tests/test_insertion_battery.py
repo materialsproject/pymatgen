@@ -142,7 +142,3 @@ class InsertionElectrodeTest(unittest.TestCase):
         vols_no_struct = [ient.data["volume"] for ient in ie_LTO_no_struct.get_all_entries()]
         vols_struct = [ient.structure.volume for ient in self.ie_LTO.get_all_entries()]
         assert vols_no_struct == pytest.approx(vols_struct, rel=1e-3)
-
-
-if __name__ == "__main__":
-    unittest.main()

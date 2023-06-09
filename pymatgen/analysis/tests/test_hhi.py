@@ -21,7 +21,3 @@ class HHIModelTest(unittest.TestCase):
         assert hhi.get_hhi_designation(1800) == "medium"
         assert hhi.get_hhi_designation(3000) == "high"
         assert hhi.get_hhi_designation(None) is None
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -49,7 +49,3 @@ class ChemenvConfigTest(unittest.TestCase):
             config = config.auto_load(root_dir="tmp_dir")
 
             assert config.package_options == package_options
-
-
-if __name__ == "__main__":
-    unittest.main()

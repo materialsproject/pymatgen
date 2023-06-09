@@ -208,7 +208,3 @@ class SpaceGroupTest(unittest.TestCase):
         assert sg.to_latex_string() == "P6/mmm"
         sg = SpaceGroup("P4_1")
         assert sg.to_unicode_string() == "P4₁"
-
-
-if __name__ == "__main__":
-    unittest.main()

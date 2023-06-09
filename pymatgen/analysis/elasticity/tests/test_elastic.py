@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 import random
-import unittest
 import warnings
 from copy import deepcopy
 
@@ -478,7 +477,3 @@ class DiffFitTest(PymatgenTest):
             self.assert_all_close(c3.voigt, self.data_dict["C3_raw"], decimal=5)
             self.assert_all_close(c2, c2_red, decimal=0)
             self.assert_all_close(c3, c3_red, decimal=-1)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -143,7 +143,3 @@ class Critic2AnalysisTest(unittest.TestCase):
             "ellipticity",
             "frac_coords",
         }
-
-
-if __name__ == "__main__":
-    unittest.main()

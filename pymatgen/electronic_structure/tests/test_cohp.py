@@ -1417,7 +1417,3 @@ class MethodTest(unittest.TestCase):
         )
 
         assert result == approx(-4.36062)
-
-
-if __name__ == "__main__":
-    unittest.main()

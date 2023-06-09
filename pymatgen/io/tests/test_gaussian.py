@@ -477,7 +477,3 @@ class GaussianOutputTest(unittest.TestCase):
         assert gout.title == "H4 C3 O3"
         assert gout.charge == 0
         assert gout.spin_multiplicity == 1
-
-
-if __name__ == "__main__":
-    unittest.main()

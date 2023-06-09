@@ -541,7 +541,3 @@ class ComputedReactionTest(unittest.TestCase):
             if c > 0:
                 assert e.composition.reduced_formula == "Li2O2"
                 assert e.energy == approx(-959.64693323)
-
-
-if __name__ == "__main__":
-    unittest.main()

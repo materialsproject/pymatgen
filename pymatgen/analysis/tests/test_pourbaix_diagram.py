@@ -315,7 +315,3 @@ class PourbaixPlotterTest(unittest.TestCase):
         binary_plotter = PourbaixPlotter(pd_binary)
         plt = binary_plotter.plot_entry_stability(self.test_data["Ag-Te"][53])
         plt.close()
-
-
-if __name__ == "__main__":
-    unittest.main()

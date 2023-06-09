@@ -793,7 +793,3 @@ class MonteCarloRattleTransformationTest(PymatgenTest):
         mcrt = MonteCarloRattleTransformation(0.01, 2, seed=1)
         s_trans2 = mcrt.apply_transformation(s)
         assert np.allclose(s_trans.cart_coords, s_trans2.cart_coords)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 from unittest import TestCase
 
 from pymatgen.analysis.molecule_structure_comparator import MoleculeStructureComparator
@@ -177,7 +176,3 @@ class TestMoleculeStructureComparator(TestCase):
             (6, 10),
         )
         assert bonds_13 == tuple(ans)
-
-
-if __name__ == "__main__":
-    unittest.main()

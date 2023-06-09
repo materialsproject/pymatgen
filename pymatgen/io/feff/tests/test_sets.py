@@ -253,7 +253,3 @@ TITLE sites: 4
         assert original_mole_shell == output_mole_shell
 
         shutil.rmtree(os.path.join(".", "feff_dist_regen"))
-
-
-if __name__ == "__main__":
-    unittest.main()
