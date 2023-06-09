@@ -45,7 +45,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
-    from m3gnet.models._dynamics import TrajectoryObserver
+    from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
@@ -784,7 +784,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         # Use a TrajectoryObserver if running m3gnet; otherwise, write a .traj file
         if return_trajectory:
             if run_m3gnet:
-                from m3gnet.models._dynamics import TrajectoryObserver
+                from matgl.ext.ase import TrajectoryObserver
 
                 traj_observer = TrajectoryObserver(atoms)
             elif "trajectory" not in opt_kwargs:

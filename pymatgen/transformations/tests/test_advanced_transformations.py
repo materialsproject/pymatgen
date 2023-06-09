@@ -54,9 +54,9 @@ except ImportError:
 
 
 try:
-    import m3gnet
+    import matgl
 except ImportError:
-    m3gnet = None
+    matgl = None
 
 
 def get_table():
