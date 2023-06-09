@@ -841,11 +841,12 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
         if calculator.lower() == "m3gnet":
             try:
-                from m3gnet.models import M3GNet, M3GNetCalculator, Potential
+                import matgl
+                from matgl.ext.ase import M3GNetCalculator
             except ImportError:
-                raise ImportError("Must install m3gnet. Try pip install m3gnet.")
-            potential = Potential(M3GNet.load())
-            return M3GNetCalculator(potential=potential, **params)
+                raise ImportError("matgl not installed. Try `pip install matgl`.")
+            potential = matgl.load("M3GNet-MP-2021.2.8-PES")
+            return matgl.M3GNetCalculator(potential=potential, **params)
 
         if calculator.lower() == "gfn2-xtb":
             try:
