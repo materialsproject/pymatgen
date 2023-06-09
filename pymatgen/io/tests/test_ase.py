@@ -143,6 +143,14 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.calc is None
         assert atoms.get_initial_magnetic_moments().tolist() == initial_mags
 
+        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        molecule.charge = -2
+        molecule.spin_multiplicity = 3
+        assert atoms.calc is None
+        assert atoms.get_initial_magnetic_moments().tolist() == [0] * len(molecule)
+        assert atoms.charge == -2
+        assert atoms.spin_multiplicity == 3
+
     @skip_if_no_ase
     def test_get_atoms_from_molecule_dyn(self):
         molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
@@ -240,6 +248,13 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert molecule.spin_multiplicity == np.sum(initial_mags) + 1
         assert molecule.site_properties.get("charge") == initial_charges
         assert molecule.site_properties.get("magmom") == initial_mags
+
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        atoms.spin_multiplicity = 3
+        atoms.charge = 2
+        molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
+        assert molecule.charge == 2
+        assert molecule.spin_multiplicity == 3
 
     @skip_if_no_ase
     def test_back_forth(self):
