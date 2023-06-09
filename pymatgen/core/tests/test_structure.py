@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 import os
 import random
-import unittest
 import warnings
 from pathlib import Path
 from shutil import which
+from unittest import skipIf
 
 import numpy as np
 import pytest
@@ -22,12 +22,9 @@ from pymatgen.core.structure import IMolecule, IStructure, Molecule, PeriodicNei
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
 
-enum_cmd = which("enum.x") or which("multienum.x")
-mcsqs_cmd = which("mcsqs")
-
 try:
     import m3gnet
-    import tensorflow as tf  # noqa: F401
+    import tensorflow as tf  # noqa: F401 # make sure m3gnet wasn't installed without deps
 except ImportError:
     m3gnet = None
 
@@ -42,6 +39,9 @@ try:
     from tblite.ase import TBLite
 except ImportError:
     TBLite = None
+
+enum_cmd = which("enum.x") or which("multienum.x")
+mcsqs_cmd = which("mcsqs")
 
 
 class NeighborTest(PymatgenTest):
@@ -89,7 +89,7 @@ class IStructureTest(PymatgenTest):
             pbc=(True, True, False),
         )
 
-    @unittest.skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
+    @skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
     def test_get_orderings(self):
         ordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         assert ordered.get_orderings()[0] == ordered
@@ -558,7 +558,7 @@ Direct
         p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
         self.assert_all_close(sorted(c_distances), sorted(p_distances))
 
-    # @unittest.skipIf(not os.getenv("CI"), "Only run this in CI tests.")
+    # @skipIf(not os.getenv("CI"), "Only run this in CI tests.")
     # def test_get_all_neighbors_crosscheck_old(self):
     #     warnings.simplefilter("ignore")
     #     for i in range(100):
@@ -1350,7 +1350,7 @@ class StructureTest(PymatgenTest):
                 cluster = Molecule.from_sites(structure.extract_cluster([site]))
                 assert cluster.formula == "H4 C1"
 
-    @unittest.skipIf(ase is None, "ASE is needed.")
+    @skipIf(ase is None, "ASE is needed.")
     def test_calculate_ase(self):
         struct_copy = self.cu_structure.copy()
         out_struct = self.cu_structure.calculate(calculator=EMT(asap_cutoff=True))
@@ -1365,7 +1365,7 @@ class StructureTest(PymatgenTest):
         assert not hasattr(out_struct, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
 
-    @unittest.skipIf(ase is None, "ASE is needed.")
+    @skipIf(ase is None, "ASE is needed.")
     def test_relax_ase(self):
         struct_copy = self.cu_structure.copy()
         relaxed = self.cu_structure.relax(calculator=EMT(), relax_cell=False, optimizer="BFGS")
@@ -1381,7 +1381,7 @@ class StructureTest(PymatgenTest):
         assert relaxed.dynamics.get("optimizer") == "BFGS"
         assert self.cu_structure == struct_copy, "original structure was modified"
 
-    @unittest.skipIf(ase is None, "ASE is needed.")
+    @skipIf(ase is None, "ASE is needed.")
     def test_relax_ase_return_traj(self):
         structure = self.cu_structure
         relaxed, traj = structure.relax(calculator=EMT(), fmax=0.01, return_trajectory=True)
@@ -1396,7 +1396,7 @@ class StructureTest(PymatgenTest):
         assert len(traj) == 7
         assert traj[0] != traj[-1]
 
-    @unittest.skipIf(ase is None, "ASE is needed.")
+    @skipIf(ase is None, "ASE is needed.")
     def test_relax_ase_opt_kwargs(self):
         structure = self.cu_structure
         relaxed, traj = structure.relax(
@@ -1414,7 +1414,7 @@ class StructureTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile("testing.traj")
 
-    @unittest.skipIf(m3gnet is None, "calculate default requires m3gnet.")
+    @skipIf(m3gnet is None, "calculate default requires m3gnet.")
     def test_calculate_m3gnet(self):
         structure = self.get_structure("Si")
         out_struct = structure.calculate()
@@ -1422,7 +1422,7 @@ class StructureTest(PymatgenTest):
         assert hasattr(out_struct, "calc")
         assert not hasattr(out_struct, "dynamics")
 
-    @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
+    @skipIf(m3gnet is None, "Relaxation requires m3gnet.")
     def test_relax_m3gnet(self):
         structure = self.get_structure("Si")
         relaxed = structure.relax()
@@ -1431,7 +1431,7 @@ class StructureTest(PymatgenTest):
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
 
-    @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
+    @skipIf(m3gnet is None, "Relaxation requires m3gnet.")
     def test_relax_m3gnet_fixed_lattice(self):
         structure = self.get_structure("Si")
         relaxed = structure.relax(relax_cell=False, optimizer="BFGS")
@@ -1440,7 +1440,7 @@ class StructureTest(PymatgenTest):
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics.get("optimizer") == "BFGS"
 
-    @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
+    @skipIf(m3gnet is None, "Relaxation requires m3gnet.")
     def test_relax_m3gnet_with_traj(self):
         structure = self.get_structure("Si")
         relaxed, trajectory = structure.relax(return_trajectory=True)
@@ -1901,7 +1901,7 @@ class MoleculeTest(PymatgenTest):
         assert mol.charge == 0
         assert mol.spin_multiplicity == 3
 
-    @unittest.skipIf(ase is None, "ASE is needed.")
+    @skipIf(ase is None, "ASE is needed.")
     def test_calculate_ase_mol(self):
         mol = self.mol
         mol_copy = mol.copy()
@@ -1915,7 +1915,7 @@ class MoleculeTest(PymatgenTest):
         assert not hasattr(new_mol, "dynamics")
         assert mol == mol_copy
 
-    @unittest.skipIf(ase is None, "ASE is needed.")
+    @skipIf(ase is None, "ASE is needed.")
     def test_relax_ase_mol(self):
         mol = self.mol
         relaxed, traj = mol.relax(calculator=EMT(), fmax=0.01, optimizer="BFGS", return_trajectory=True)
@@ -1929,7 +1929,7 @@ class MoleculeTest(PymatgenTest):
         assert len(traj) == 5
         assert traj[0] != traj[-1]
 
-    @unittest.skipIf(ase is None, "ASE is needed.")
+    @skipIf(ase is None, "ASE is needed.")
     def test_relax_ase_mol_return_traj(self):
         mol = self.mol
         relaxed, traj = mol.relax(
@@ -1946,7 +1946,7 @@ class MoleculeTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile("testing.traj")
 
-    @unittest.skipIf(TBLite is None, "Requires tblite.")
+    @skipIf(TBLite is None, "Requires tblite.")
     def test_calculate_gfnxtb(self):
         mol = self.mol
         new_mol = mol.calculate()
@@ -1955,7 +1955,7 @@ class MoleculeTest(PymatgenTest):
         assert new_mol.calc.results["energy"] == pytest.approx(-113.61022434200855)
         assert isinstance(new_mol, Molecule)
 
-    @unittest.skipIf(TBLite is None, "Requires tblite.")
+    @skipIf(TBLite is None, "Requires tblite.")
     def test_relax_gfnxtb(self):
         mol = self.mol
         relaxed = mol.relax()
