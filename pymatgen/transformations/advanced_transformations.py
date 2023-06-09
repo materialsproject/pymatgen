@@ -458,6 +458,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     if m3gnet_model is None:
                         import matgl
                         from matgl.ext.ase import M3GNetCalculator, Relaxer
+
                         potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
                         m3gnet_model = Relaxer(potential=potential)
                     relax_results = m3gnet_model.relax(s)
