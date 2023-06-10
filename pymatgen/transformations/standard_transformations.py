@@ -12,7 +12,6 @@ import random
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
-import numpy as np
 from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -527,9 +526,7 @@ class RandomStructureTransformation(AbstractTransformation):
 
                 # randomly choose site indices for each element present in the sublattice
 
-                el_indices = self.random_assign(
-                    sequence=subl_indices, lengths=lengths
-                )
+                el_indices = self.random_assign(sequence=subl_indices, lengths=lengths)
 
                 for i_el, el in enumerate(el_list):
                     new_structure[el_indices[i_el]] = el
