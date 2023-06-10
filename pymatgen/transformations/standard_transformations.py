@@ -522,12 +522,13 @@ class RandomStructureTransformation(AbstractTransformation):
                 subl_comp_dict = subl_comp.as_dict()
 
                 el_list = list(subl_comp_dict.keys())
-                el_concs = np.array(list(subl_comp_dict.values()))
+                el_concs = list(subl_comp_dict.values())
+                lengths = [int(el_conc * len(subl_indices)) for el_conc in el_concs]
 
                 # randomly choose site indices for each element present in the sublattice
 
                 el_indices = self.random_assign(
-                    sequence=subl_indices, lengths=(el_concs * len(subl_indices)).astype(int)
+                    sequence=subl_indices, lengths=lengths
                 )
 
                 for i_el, el in enumerate(el_list):
