@@ -24,16 +24,14 @@ from pymatgen.core.structure import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
+import random
+import numpy as np
 
 if TYPE_CHECKING:
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
 
 logger = logging.getLogger(__name__)
-
-import random
-
-import numpy as np
 
 
 class RotationTransformation(AbstractTransformation):
@@ -499,6 +497,10 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
 
 class RandomStructureTransformation(AbstractTransformation):
+    """
+    Transform a disordered structure into a given number of random ordered structures.
+    """
+
     def __init__(self):
         pass
 
