@@ -807,7 +807,3 @@ class TestLobsterNeighbors(unittest.TestCase):
                 only_bonds_to=None,
                 per_bond=False,
             )
-
-
-if __name__ == "__main__":
-    unittest.main()

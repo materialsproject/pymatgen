@@ -136,7 +136,3 @@ class BabelMolAdaptorTest(unittest.TestCase):
         assert len(conformers) >= 1
         if len(conformers) > 1:
             assert MoleculeMatcher().get_rmsd(conformers[0], conformers[1]) != approx(0)
-
-
-if __name__ == "__main__":
-    unittest.main()

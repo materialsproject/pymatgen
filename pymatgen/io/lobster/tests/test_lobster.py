@@ -2565,7 +2565,3 @@ class MadelungEnergiesTest(PymatgenTest):
         assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)
         assert self.madelungenergies.madelungenergies_Mulliken == approx(-40.02)
         assert self.madelungenergies.ewald_splitting == approx(3.14)
-
-
-if __name__ == "__main__":
-    unittest.main()

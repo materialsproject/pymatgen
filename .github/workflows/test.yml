@@ -55,7 +55,6 @@ jobs:
             split: 4
 
     runs-on: ${{ matrix.os }}
-    continue-on-error: true
 
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
@@ -162,6 +161,9 @@ jobs:
     needs: [build_wheels, build_sdist]
     if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
     runs-on: ubuntu-latest
+    permissions:
+      # For pypi trusted publishing
+      id-token: write
     steps:
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
@@ -171,9 +173,8 @@ jobs:
         with:
           name: artifact
           path: dist
-      - name: Release
-        env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-        run: |
-          pipx run twine upload --skip-existing dist/*.whl dist/*.tar.gz
+      - name: Publish to PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+          verbose: true

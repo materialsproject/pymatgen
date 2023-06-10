@@ -201,7 +201,7 @@ class _MPResterLegacy:
             warnings.warn(f"Non-default endpoint used: {self.preamble}")
 
         self.session = requests.Session()
-        self.session.headers = {"x-api-key": self.api_key}  # type: ignore
+        self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
             pymatgen_info = f"pymatgen/{PMG_VERSION}"
             python_info = f"Python/{sys.version.split()[0]}"
@@ -215,12 +215,10 @@ class _MPResterLegacy:
 
             try:
                 with open(MP_LOG_FILE) as f:
-                    dct = dict(yaml.load(f))
+                    dct = dict(yaml.load(f)) or {}
             except (OSError, TypeError):
                 # TypeError: 'NoneType' object is not iterable occurs if MP_LOG_FILE exists but is empty
                 dct = {}
-
-            dct = dct or {}
 
             if "MAPI_DB_VERSION" not in dct:
                 dct["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
@@ -268,9 +266,15 @@ class _MPResterLegacy:
         """
         self.session.close()
 
-    def _make_request(self, sub_url, payload=None, method="GET", mp_decode=True):
+    def _make_request(
+        self,
+        sub_url: str,
+        payload: Any = None,
+        method: Literal["GET", "POST", "PUT", "DELETE"] = "GET",
+        mp_decode: bool = True,
+    ) -> Any:
         response = None
-        url = self.preamble + sub_url
+        url = f"{self.preamble}{sub_url}"
         try:
             if method == "POST":
                 response = self.session.post(url, data=payload, verify=True)
@@ -290,7 +294,7 @@ class _MPResterLegacy:
             msg = f"{ex}. Content: {getattr(response, 'content', str(ex))}"
             raise MPRestError(msg)
 
-    def get_database_version(self):
+    def get_database_version(self) -> str:
         """
         The Materials Project database is periodically updated and has a
         database version associated with it. When the database is updated,
@@ -304,8 +308,8 @@ class _MPResterLegacy:
 
         Returns: database version as a string
         """
-        d = self._make_request("/api_check")
-        return d["version"]["db"]
+        dct = self._make_request("/api_check")
+        return dct["version"]["db"]
 
     def get_materials_id_from_task_id(self, task_id):
         """

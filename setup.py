@@ -49,6 +49,7 @@ setup(
     ],
     extras_require={
         "ase": ["ase>=3.3"],
+        "tblite": ["tblite[ase]>=0.3.0"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
         "relaxation": ["m3gnet"],
@@ -81,6 +82,7 @@ setup(
             "netCDF4>=1.5.8",
             "phonopy>=2.4.2",
             "seekpath>=1.9.4",
+            "tblite[ase]>=0.3.0; platform_system=='Linux'",
         ],
         "numba": [
             "numba",

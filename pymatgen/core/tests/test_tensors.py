@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 import os
-import unittest
 import warnings
 
 import numpy as np
@@ -580,7 +579,3 @@ class SquareTensorTest(PymatgenTest):
             d_vsym = vsym.as_dict(voigt=True)
             new_voigt = Tensor.from_dict(d_vsym)
             self.assert_all_close(vsym, new_voigt)
-
-
-if __name__ == "__main__":
-    unittest.main()

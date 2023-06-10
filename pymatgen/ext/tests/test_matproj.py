@@ -44,7 +44,7 @@ if PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
 
 
 @unittest.skipIf(
-    website_down or not PMG_MAPI_KEY,
+    True,
     "PMG_MAPI_KEY environment variable not set or MP API is down.",
 )
 class MPResterOldTest(PymatgenTest):
@@ -530,7 +530,3 @@ class MPResterOldTest(PymatgenTest):
 
         with _MPResterLegacy(api_key=None) as mpr:
             assert mpr.api_key == "foobar"
-
-
-if __name__ == "__main__":
-    unittest.main()

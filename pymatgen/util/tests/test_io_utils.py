@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 from pymatgen.util.io_utils import micro_pyawk
 from pymatgen.util.testing import PymatgenTest
@@ -20,7 +19,3 @@ class FuncTest(PymatgenTest):
 
         micro_pyawk(filename, [["POTCAR:(.*)", f2, f]])
         assert len(data) == 6
-
-
-if __name__ == "__main__":
-    unittest.main()

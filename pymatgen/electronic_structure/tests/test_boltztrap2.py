@@ -355,7 +355,3 @@ class BztPlotterTest(unittest.TestCase):
         assert fig is not None
         fig = self.bztPlotter.plot_dos()
         assert fig is not None
-
-
-if __name__ == "__main__":
-    unittest.main()

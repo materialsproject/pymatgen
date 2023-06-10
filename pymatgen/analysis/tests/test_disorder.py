@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from pytest import approx
 
 from pymatgen.analysis.disorder import get_warren_cowley_parameters
@@ -27,7 +25,3 @@ class OrderParameterTest(PymatgenTest):
         aij = get_warren_cowley_parameters(struct, r=3.4, dr=0.3)
         assert aij[(Element.Mo, Element.W)] == approx(-0.9453125)
         assert aij[(Element.Mo, Element.W)] == aij[(Element.W, Element.Mo)]
-
-
-if __name__ == "__main__":
-    unittest.main()

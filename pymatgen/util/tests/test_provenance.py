@@ -251,7 +251,3 @@ class StructureNLCase(unittest.TestCase):
         assert snl2.remarks == remarks
         assert snl1.authors == [Author.parse_author(authors)]
         assert snl2.authors == [Author.parse_author(authors)]
-
-
-if __name__ == "__main__":
-    unittest.main()

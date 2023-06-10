@@ -477,7 +477,3 @@ class NwOutputTest(unittest.TestCase):
         assert spectrum.x[0] == approx(1.9291)
         assert spectrum.y[0] == approx(0.0)
         assert spectrum.y[1000] == approx(0.0007423569947114812)
-
-
-if __name__ == "__main__":
-    unittest.main()

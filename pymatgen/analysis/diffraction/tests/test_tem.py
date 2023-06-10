@@ -4,8 +4,6 @@ Unit tests for TEM calculator.
 
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
@@ -265,7 +263,3 @@ class TEMCalculatorTest(PymatgenTest):
         assert width == 121
         height = fig.layout.height
         assert height == 121
-
-
-if __name__ == "__main__":
-    unittest.main()

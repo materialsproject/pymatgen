@@ -86,7 +86,3 @@ class FuncTest(unittest.TestCase):
         with pytest.raises(ValueError):
             get_bond_order("C", "Br", 1.9)
         assert pytest.approx(get_bond_order("N", "N", 1.25) - 2) == 0
-
-
-if __name__ == "__main__":
-    unittest.main()

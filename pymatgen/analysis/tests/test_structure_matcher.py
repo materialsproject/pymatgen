@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 import numpy as np
 import pytest
@@ -811,7 +810,3 @@ class StructureMatcherTest(PymatgenTest):
         assert sm.fit(s1, s2) is False
         assert sm.fit_anonymous(s1, s2) is False
         assert sm.get_mapping(s1, s2) is None
-
-
-if __name__ == "__main__":
-    unittest.main()

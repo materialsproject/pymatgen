@@ -2392,7 +2392,3 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
 
         entry_hydride_corrected = self.compat.process_entry(self.entry_hydride)
         assert entry_hydride_corrected.correction_uncertainty == pytest.approx(0.0013)
-
-
-if __name__ == "__main__":
-    unittest.main()

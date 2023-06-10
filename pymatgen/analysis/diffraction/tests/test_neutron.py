@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import pytest
 
 from pymatgen.analysis.diffraction.neutron import NDCalculator
@@ -73,7 +71,3 @@ class NDCalculatorTest(PymatgenTest):
         s = self.get_structure("Graphite")
         c = NDCalculator(wavelength=1.54184, debye_waller_factors={"C": 1})
         c.get_plot(s, two_theta_range=(0, 90))
-
-
-if __name__ == "__main__":
-    unittest.main()

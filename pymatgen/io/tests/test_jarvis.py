@@ -23,7 +23,3 @@ class JarvisAtomsAdaptorTest(unittest.TestCase):
         structure = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")).structure
         atoms = jio.JarvisAtomsAdaptor.get_atoms(structure)
         assert jio.JarvisAtomsAdaptor.get_structure(atoms).composition.reduced_formula == "FePO4"
-
-
-if __name__ == "__main__":
-    unittest.main()

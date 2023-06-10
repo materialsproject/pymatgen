@@ -555,7 +555,3 @@ class FuncTest(unittest.TestCase):
         assert get_el_sp("U") == Element.U
         assert get_el_sp("X2+") == DummySpecies("X", 2)
         assert get_el_sp("Mn3+") == Species("Mn", 3)
-
-
-if __name__ == "__main__":
-    unittest.main()

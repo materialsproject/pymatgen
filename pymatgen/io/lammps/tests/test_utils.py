@@ -115,7 +115,3 @@ class TestPackmolOutput(unittest.TestCase):
         )
         atoms_ans = [str(site.specie) for site in self.cocktail]
         assert atoms == atoms_ans
-
-
-if __name__ == "__main__":
-    unittest.main()

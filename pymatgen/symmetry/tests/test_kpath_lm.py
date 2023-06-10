@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import numpy as np
 import pytest
@@ -184,7 +183,3 @@ class KPathLatimerMunroTest(PymatgenTest):
             g = True
 
         assert g
-
-
-if __name__ == "__main__":
-    unittest.main()

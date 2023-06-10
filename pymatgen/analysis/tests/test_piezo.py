@@ -3,8 +3,6 @@ Test for the piezo tensor class
 """
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
@@ -65,7 +63,3 @@ class PiezoTest(PymatgenTest):
         with pytest.raises(ValueError):
             PiezoTensor.from_voigt(bad_voigt)
         assert_array_equal(self.voigt_matrix, pt.voigt)
-
-
-if __name__ == "__main__":
-    unittest.main()

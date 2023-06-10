@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
@@ -68,7 +66,3 @@ class ZSLGenTest(PymatgenTest):
         for match in matches:
             assert match is not None
             assert isinstance(match.match_area, float)
-
-
-if __name__ == "__main__":
-    unittest.main()

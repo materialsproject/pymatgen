@@ -243,7 +243,3 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
         assert isinstance(vor_face_center_struct, Structure)
-
-
-if __name__ == "__main__":
-    unittest.main()

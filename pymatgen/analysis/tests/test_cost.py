@@ -34,7 +34,3 @@ class CostDBTest(unittest.TestCase):
     def test_sanity(self):
         ca = CostAnalyzer(CostDBElements())
         assert ca.get_cost_per_kg("PtO") > ca.get_cost_per_kg("MgO")
-
-
-if __name__ == "__main__":
-    unittest.main()

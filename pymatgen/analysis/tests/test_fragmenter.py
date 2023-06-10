@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import pytest
 
@@ -166,7 +165,3 @@ class TestFragmentMolecule(PymatgenTest):
         )
         assert fragEC.new_unique_fragments == 11
         assert fragEC.total_unique_fragments == 509 + 11
-
-
-if __name__ == "__main__":
-    unittest.main()

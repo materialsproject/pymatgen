@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import os
-import unittest
 
 import pytest
 from monty.serialization import loadfn
@@ -1248,7 +1247,3 @@ $end"""
                 assert l_test == l_ref
 
         os.remove(os.path.join(os.path.dirname(__file__), "test_custom_smd.qin"))
-
-
-if __name__ == "__main__":
-    unittest.main()

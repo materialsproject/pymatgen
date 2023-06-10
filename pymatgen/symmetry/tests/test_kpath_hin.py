@@ -129,7 +129,3 @@ class KPathSeekTest(PymatgenTest):
         assert kpoints["G_2"][0] == pytest.approx(0.25308641975308643)
         assert kpoints["G_2"][1] == pytest.approx(0.7469135802469136)
         assert kpoints["G_2"][2] == pytest.approx(-0.5)
-
-
-if __name__ == "__main__":
-    unittest.main()

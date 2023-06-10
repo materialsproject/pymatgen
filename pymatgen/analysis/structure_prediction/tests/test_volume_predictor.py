@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 import warnings
 
 import pytest
@@ -114,7 +113,3 @@ class DLSVolumePredictorTest(PymatgenTest):
         lmpo = PymatgenTest.get_structure("LiFePO4")
         lmpo.replace_species({"Fe": "Mn"})
         assert p.predict(lmpo) == approx(290.795329052)
-
-
-if __name__ == "__main__":
-    unittest.main()

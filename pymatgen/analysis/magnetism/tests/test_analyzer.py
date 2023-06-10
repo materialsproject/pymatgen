@@ -279,7 +279,3 @@ class MagneticDeformationTest(unittest.TestCase):
 
         assert mag_def.type == "NM-FM"
         assert mag_def.deformation == approx(5.0130859485170971)
-
-
-if __name__ == "__main__":
-    unittest.main()

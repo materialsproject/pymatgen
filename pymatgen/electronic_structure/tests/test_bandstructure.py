@@ -465,7 +465,3 @@ class LobsterBandStructureSymmLineTest(PymatgenTest):
     def test_old_format_load(self):
         # this method will use the loading from the old dict
         self.bs_spin.apply_scissor(3.0)
-
-
-if __name__ == "__main__":
-    unittest.main()

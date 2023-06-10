@@ -1155,7 +1155,3 @@ class CombinedDataTest(unittest.TestCase):
         assert ec_fec_lines[112] == "16  multi/harmonic 0.382999522 -1.148998570 0.000000000 1.531998090 0.000000000"
         assert ec_fec_lines[140] == "1  10.5 -1  2"
         assert len(ec_fec_lines) == 99159
-
-
-if __name__ == "__main__":
-    unittest.main()

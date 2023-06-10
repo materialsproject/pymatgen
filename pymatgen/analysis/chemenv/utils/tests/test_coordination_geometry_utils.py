@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import itertools
 import random
-import unittest
 
 import numpy as np
 from pytest import approx
@@ -370,7 +369,3 @@ class PlanesUtilsTest(PymatgenTest):
             norm_xyz_projected = np.linalg.norm(projected_points[i1] - projected_points[i2])
             assert np.isclose(norm_000, norm_mean)
             assert np.isclose(norm_000, norm_xyz_projected)
-
-
-if __name__ == "__main__":
-    unittest.main()

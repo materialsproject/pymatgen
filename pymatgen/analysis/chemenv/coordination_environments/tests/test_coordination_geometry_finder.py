@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import numpy as np
 import pytest
@@ -243,7 +242,3 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             se_nohints.ce_list[0][12]
         assert se_hints.ce_list[0][13][0] == se_nohints.ce_list[0][13][0]
         assert set(se_nohints.ce_list[0]).issubset(set(se_hints.ce_list[0]))
-
-
-if __name__ == "__main__":
-    unittest.main()

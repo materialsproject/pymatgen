@@ -275,11 +275,11 @@ if __name__ == "__main__":
 
     with open("ce_pairs.json") as f:
         ce_pairs = json.load(f)
-    self_weight_max_csms = {}
-    self_weight_max_csms_per_cn = {}
-    allselfmaxcsms = []
-    delta_csm_mins = {}
-    alldeltacsmmins = []
+    self_weight_max_csms: dict[str, list[float]] = {}
+    self_weight_max_csms_per_cn: dict[str, list[float]] = {}
+    all_self_max_csms = []
+    delta_csm_mins: dict[str, list[float]] = {}
+    all_delta_csm_mins = []
     all_cn_pairs = []
     for ii in range(1, 14):
         self_weight_max_csms_per_cn[str(ii)] = []
@@ -293,28 +293,28 @@ if __name__ == "__main__":
         ce2 = ce_pair_dict["expected_final_environment_symbol"]
         cn_pair = f"{ce2.split(':')[1]}_{ce1.split(':')[1]}"
         nb_indices = ce_pair_dict["neighbors_indices"]
-        mindist = ce_pair_dict["dist_factor_min"]
-        maxdist = ce_pair_dict["dist_factor_max"]
+        min_dist = ce_pair_dict["dist_factor_min"]
+        max_dist = ce_pair_dict["dist_factor_max"]
         morph = CoordinationEnvironmentMorphing.simple_expansion(
             initial_environment_symbol=ce1, expected_final_environment_symbol=ce2, neighbors_indices=nb_indices
         )
-        params = morph.estimate_parameters(dist_factor_min=mindist, dist_factor_max=maxdist)
+        params = morph.estimate_parameters(dist_factor_min=min_dist, dist_factor_max=max_dist)
         print(f"For pair {ce1} to {ce2}, parameters are : ")
         print(params)
         self_weight_max_csms[cn_pair].append(params["self_weight_max_csm"])
         delta_csm_mins[cn_pair].append(params["delta_csm_min"])
-        allselfmaxcsms.append(params["self_weight_max_csm"])
-        alldeltacsmmins.append(params["delta_csm_min"])
+        all_self_max_csms.append(params["self_weight_max_csm"])
+        all_delta_csm_mins.append(params["delta_csm_min"])
         self_weight_max_csms_per_cn[ce1.split(":")[1]].append(params["self_weight_max_csm"])
 
     fig = plt.figure(1)
     subplot = fig.add_subplot(111)
 
-    for ipair, cn_pair in enumerate(all_cn_pairs):
+    for idx, cn_pair in enumerate(all_cn_pairs):
         if len(self_weight_max_csms[cn_pair]) == 0:
             continue
-        subplot.plot(ipair * np.ones_like(self_weight_max_csms[cn_pair]), self_weight_max_csms[cn_pair], "rx")
-        subplot.plot(ipair * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
+        subplot.plot(idx * np.ones_like(self_weight_max_csms[cn_pair]), self_weight_max_csms[cn_pair], "rx")
+        subplot.plot(idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
 
     subplot.set_xticks(range(len(all_cn_pairs)))
     subplot.set_xticklabels(all_cn_pairs, rotation="vertical")
@@ -330,16 +330,16 @@ if __name__ == "__main__":
 
     subplot2.set_xticks(range(1, 14))
     fig2.savefig("self_params_per_cn.pdf")
-    print(np.mean(allselfmaxcsms))
-    print(np.mean(alldeltacsmmins))
+    print(np.mean(all_self_max_csms))
+    print(np.mean(all_delta_csm_mins))
 
     fig3 = plt.figure(3, figsize=(24, 12))
     subplot3 = fig3.add_subplot(111)
 
-    for ipair, cn_pair in enumerate(all_cn_pairs):
+    for idx, cn_pair in enumerate(all_cn_pairs):
         if len(delta_csm_mins[cn_pair]) == 0:
             continue
-        subplot3.plot(ipair * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
+        subplot3.plot(idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
 
     subplot3.set_xticks(range(len(all_cn_pairs)))
     subplot3.set_xticklabels(all_cn_pairs, rotation="vertical")
