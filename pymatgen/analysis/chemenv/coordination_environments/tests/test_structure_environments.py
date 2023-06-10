@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 import numpy as np
 import pytest
@@ -258,7 +257,3 @@ class StructureEnvironmentsTest(PymatgenTest):
 
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=envs)
         assert len(lse.coordination_environments) == len(struct)
-
-
-if __name__ == "__main__":
-    unittest.main()

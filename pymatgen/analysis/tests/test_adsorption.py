@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder, generate_all_slabs, get_rot, reorient_z
@@ -178,7 +176,3 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         slab = self.slab_dict["111"]
         get_rot(slab)
         reorient_z(slab)
-
-
-if __name__ == "__main__":
-    unittest.main()

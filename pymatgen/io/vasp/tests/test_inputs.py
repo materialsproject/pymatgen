@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import pickle
-import unittest
 import warnings
 from pathlib import Path
 
@@ -1151,7 +1150,3 @@ class VaspInputTest(PymatgenTest):
         d = vi.as_dict()
         vasp_input = VaspInput.from_dict(d)
         assert "CONTCAR.Li2O" in vasp_input
-
-
-if __name__ == "__main__":
-    unittest.main()

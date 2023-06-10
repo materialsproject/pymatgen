@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 import warnings
 
 from pytest import approx
@@ -464,7 +463,3 @@ def load_O_adsorption():
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = [ads]
 
     return metals_O_entry_dict
-
-
-if __name__ == "__main__":
-    unittest.main()

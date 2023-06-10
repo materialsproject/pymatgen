@@ -362,7 +362,3 @@ class BuckinghamPotentialBushTest(unittest.TestCase):
     def test_spring(self):
         assert self.bpb.spring_dict["Li"] == ""
         assert self.bpb.spring_dict["O"] != ""
-
-
-if __name__ == "__main__":
-    unittest.main()

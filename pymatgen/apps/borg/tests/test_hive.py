@@ -112,7 +112,3 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
         d = self.structure_drone.as_dict()
         drone = GaussianToComputedEntryDrone.from_dict(d)
         assert isinstance(drone, GaussianToComputedEntryDrone)
-
-
-if __name__ == "__main__":
-    unittest.main()

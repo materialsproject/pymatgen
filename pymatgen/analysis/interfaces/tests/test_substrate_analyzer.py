@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from pymatgen.analysis.elasticity.elastic import ElasticTensor
 from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -36,7 +34,3 @@ class SubstrateAnalyzerTest(PymatgenTest):
         for match in matches:
             assert match is not None
             assert isinstance(match.match_area, float)
-
-
-if __name__ == "__main__":
-    unittest.main()

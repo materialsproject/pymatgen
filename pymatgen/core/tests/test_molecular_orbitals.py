@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import pytest
 
 from pymatgen.core.molecular_orbitals import MolecularOrbitals
@@ -42,7 +40,3 @@ class MolecularOrbitalTestCase(PymatgenTest):
     def test_fractional_compositions(self):
         with pytest.raises(ValueError):
             MolecularOrbitals("Na0.5Cl0.5")
-
-
-if __name__ == "__main__":
-    unittest.main()

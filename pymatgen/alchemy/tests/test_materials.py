@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 import warnings
 
 import pytest
@@ -119,7 +118,3 @@ class TransformedStructureTest(PymatgenTest):
         snl = TransformedStructure.from_snl(snl).to_snl([("notwill", "notwill@test.com")])
         assert snl.history == [h]
         assert snl.authors == [("notwill", "notwill@test.com")]
-
-
-if __name__ == "__main__":
-    unittest.main()

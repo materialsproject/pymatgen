@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 import warnings
 
 import numpy as np
@@ -156,7 +155,3 @@ class DeformedStructureSetTest(PymatgenTest):
         # Should be 4 strains for normal, 2 for shear (since +/- shear
         # are symmetrically equivalent)
         assert len(dss_symm) == 6
-
-
-if __name__ == "__main__":
-    unittest.main()

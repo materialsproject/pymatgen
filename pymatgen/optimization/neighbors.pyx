@@ -16,9 +16,8 @@
 import numpy as np
 
 cimport numpy as np
-
-from libc.stdlib cimport free, malloc, realloc
 from libc.math cimport ceil, floor, pi, sqrt
+from libc.stdlib cimport free, malloc, realloc
 from libc.string cimport memset
 
 

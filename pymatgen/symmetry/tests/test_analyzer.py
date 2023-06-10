@@ -712,7 +712,3 @@ class FuncTest(unittest.TestCase):
         o, c = cluster_sites(C2H2F2Br2.get_centered_molecule(), 0.1)
         assert o is None
         assert len(c) == 4
-
-
-if __name__ == "__main__":
-    unittest.main()

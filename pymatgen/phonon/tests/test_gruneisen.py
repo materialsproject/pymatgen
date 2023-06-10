@@ -108,7 +108,3 @@ class GruneisenParameterTest(PymatgenTest):
         assert self.gruneisen_obj_small.acoustic_debye_temp == approx(317.54811309631845)
         assert self.gruneisen_obj.acoustic_debye_temp == approx(342.2046198151735)
         assert self.gruneisen_obj_Si.acoustic_debye_temp == approx(526.0725636300882)
-
-
-if __name__ == "__main__":
-    unittest.main()

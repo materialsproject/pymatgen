@@ -129,7 +129,3 @@ class FuncTest(unittest.TestCase):
         assert formula_plain == "CuxAu1-x x=0.25"
         assert formula_latex == "Cu_{x}Au_{1-x} x=0.25"
         assert formula_html == "Cu<sub>x</sub>Au<sub>1-x</sub> x=0.25"
-
-
-if __name__ == "__main__":
-    unittest.main()

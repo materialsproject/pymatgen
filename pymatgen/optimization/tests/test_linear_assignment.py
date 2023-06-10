@@ -266,7 +266,3 @@ class LinearAssignmentTest(unittest.TestCase):
         # if the input doesn't get converted to a float, the masking
         # doesn't work properly
         assert la.orig_c.dtype == np.float64
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -340,7 +340,7 @@ class BVAnalyzer:
                 for sp, occu in get_z_ordered_elmap(sites[0].species):
                     elements.append(sp.symbol)
                     fractions.append(occu)
-            fractions = np.array(fractions, np.float_)
+            fractions = np.array(fractions, np.float_)  # type: ignore[assignment]
             new_valences = []
             for vals in valences:
                 for val in vals:

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 
@@ -431,7 +429,3 @@ class CoordinationGeometriesTest(PymatgenTest):
             13: {(0, 6, 7): ["SH:13"]},
             20: {(5, 10, 5): ["DD:20"]},
         }
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.fiesta import FiestaInput, FiestaOutput
@@ -88,7 +87,3 @@ class FiestaOutputTest(PymatgenTest):
             "sigma_c_SCF": "0.3900",
             "z": "0.87",
         }
-
-
-if __name__ == "__main__":
-    unittest.main()

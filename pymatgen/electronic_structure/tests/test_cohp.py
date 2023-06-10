@@ -23,21 +23,21 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp")
 
 class CohpTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "cohp.json")) as f:
-            self.cohp = Cohp.from_dict(json.load(f))
+        with open(os.path.join(test_dir, "cohp.json")) as file:
+            self.cohp = Cohp.from_dict(json.load(file))
         self.cohp_only = Cohp(self.cohp.efermi, self.cohp.energies, self.cohp.cohp)
-        with open(os.path.join(test_dir, "coop.json")) as f:
-            self.coop = Cohp.from_dict(json.load(f))
-        with open(os.path.join(test_dir, "cobi.json")) as f:
-            self.cobi = Cohp.from_dict(json.load(f))
+        with open(os.path.join(test_dir, "coop.json")) as file:
+            self.coop = Cohp.from_dict(json.load(file))
+        with open(os.path.join(test_dir, "cobi.json")) as file:
+            self.cobi = Cohp.from_dict(json.load(file))
 
     def test_as_from_dict(self):
-        with open(os.path.join(test_dir, "cohp.json")) as f:
-            cohp_dict = json.load(f)
+        with open(os.path.join(test_dir, "cohp.json")) as file:
+            cohp_dict = json.load(file)
         assert self.cohp.as_dict() == cohp_dict
 
-        with open(os.path.join(test_dir, "cobi.json")) as f:
-            cobi_dict = json.load(f)
+        with open(os.path.join(test_dir, "cobi.json")) as file:
+            cobi_dict = json.load(file)
         assert self.cobi.as_dict() == cobi_dict
 
     def test_attributes(self):
@@ -67,12 +67,17 @@ class CohpTest(unittest.TestCase):
             self.cohp_only.get_interpolated_value(5.0, integrated=True)
 
     def test_str(self):
-        with open(os.path.join(test_dir, "cohp.str")) as f:
-            str_cohp = f.read()
-        with open(os.path.join(test_dir, "coop.str")) as f:
-            str_coop = f.read()
+        header = "#Energy          COOPUp          ICOOPUp        \n"
+
+        with open(os.path.join(test_dir, "cohp.str")) as file:
+            str_cohp = file.read()
         assert str(self.cohp) == str_cohp
+        assert str(self.coop).strip().startswith(header)
+
+        with open(os.path.join(test_dir, "coop.str")) as file:
+            str_coop = file.read()
         assert str(self.coop) == str_coop
+        assert str(self.coop).strip().startswith(header)
 
     def test_antibnd_states_below_efermi(self):
         assert self.cohp.has_antibnd_states_below_efermi(spin=None) == {Spin.up: True, Spin.down: True}
@@ -148,6 +153,16 @@ class IcohpValueTest(unittest.TestCase):
 
         # with spin polarization
         assert self.icohpvalue_sp.summed_icohp == -2.1
+
+    def test_str(self):
+        # without spin polarization
+        assert str(self.icohpvalue) == "ICOHP 1 between K1 and F2 ([-1, 0, 0]): -2.0 eV (Spin up)"
+
+        # with spin polarization
+        assert (
+            str(self.icohpvalue_sp)
+            == "ICOHP 1 between K1 and F2 ([-1, 0, 0]): -1.1 eV (Spin up) and -1.0 eV (Spin down)"
+        )
 
 
 class CombinedIcohpTest(unittest.TestCase):
@@ -1402,7 +1417,3 @@ class MethodTest(unittest.TestCase):
         )
 
         assert result == approx(-4.36062)
-
-
-if __name__ == "__main__":
-    unittest.main()

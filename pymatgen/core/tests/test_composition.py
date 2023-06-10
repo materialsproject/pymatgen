@@ -697,7 +697,3 @@ class ChemicalPotentialTest(unittest.TestCase):
         assert potsx2 - pots == pots
         assert fepot + opot == pots
         assert fepot - opot == pots - opot - opot
-
-
-if __name__ == "__main__":
-    unittest.main()

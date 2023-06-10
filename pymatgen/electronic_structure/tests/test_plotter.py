@@ -578,7 +578,3 @@ class CohpPlotterTest(PymatgenTest):
         assert os.path.isfile("cohpplot.png")
         os.remove("cohpplot.png")
         plt_cohp.close("all")
-
-
-if __name__ == "__main__":
-    unittest.main()

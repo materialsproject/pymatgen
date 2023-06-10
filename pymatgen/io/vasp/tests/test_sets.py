@@ -4,7 +4,6 @@ import hashlib
 import os
 import shutil
 import tempfile
-import unittest
 import warnings
 from glob import glob
 from pathlib import Path
@@ -1848,6 +1847,3 @@ _dummy_structure = Structure(
     [[0, 0, 0]],
     site_properties={"magmom": [[0, 0, 1]]},
 )
-
-if __name__ == "__main__":
-    unittest.main()

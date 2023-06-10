@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from pymatgen.util.plotting import periodic_table_heatmap, van_arkel_triangle
 from pymatgen.util.testing import PymatgenTest
 
@@ -32,7 +30,3 @@ class FuncTestCase(PymatgenTest):
         random_list = [("Fe", "C"), ("Ni", "F")]
         _ = van_arkel_triangle(random_list)
         _ = van_arkel_triangle(random_list, annotate=True)
-
-
-if __name__ == "__main__":
-    unittest.main()
