@@ -403,7 +403,6 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns a list of lists of atom indices belonging to every unique
         sublattice.
         """
-
         unique_species_and_occu = set(self.species_and_occu)
 
         sublattices_dict = dict()

@@ -495,7 +495,6 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
 
 class RandomStructureTransformation(AbstractTransformation):
-
     def __init__(self):
         pass
 
@@ -510,11 +509,9 @@ class RandomStructureTransformation(AbstractTransformation):
         self.all_structures = []
 
         for _ in range(num_copies):
-
             new_structure = structure.copy()
 
             for subl_comp, subl_indices in subl.items():
-    
                 # convert composition into a dictionary
                 subl_comp_dict = subl_comp.as_dict()
 
@@ -523,11 +520,11 @@ class RandomStructureTransformation(AbstractTransformation):
 
                 # randomly choose site indices for each element present in the sublattice
 
-                el_indices = self.random_assign(sequence = subl_indices,
-                                                lengths = (el_concs * len(subl_indices)).astype(int))
+                el_indices = self.random_assign(
+                    sequence=subl_indices, lengths=(el_concs * len(subl_indices)).astype(int)
+                )
 
                 for i_el, el in enumerate(el_list):
-
                     new_structure[el_indices[i_el]] = el
 
             self.all_structures.append(new_structure)
@@ -539,7 +536,7 @@ class RandomStructureTransformation(AbstractTransformation):
         """
         Returns: None
         """
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -559,12 +556,11 @@ class RandomStructureTransformation(AbstractTransformation):
         start_pos = 0
 
         for length in lengths:
-
-            end_pos = min(start_pos+length, len(sequence))
+            end_pos = min(start_pos + length, len(sequence))
 
             ## check if end_pos is greater than start_pos
             if end_pos > start_pos:
-                assignments.append(sequence[start_pos : end_pos])
+                assignments.append(sequence[start_pos:end_pos])
                 start_pos = end_pos
 
             else:
