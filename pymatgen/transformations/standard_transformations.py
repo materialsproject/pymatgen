@@ -7,6 +7,7 @@ All transformations should inherit the AbstractTransformation ABC.
 from __future__ import annotations
 
 import logging
+import random
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
@@ -23,8 +24,6 @@ from pymatgen.core.structure import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-import random
-import numpy as np
 
 if TYPE_CHECKING:
     from pymatgen.core.sites import PeriodicSite
