@@ -31,6 +31,9 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+import random
+import numpy as np
+
 
 class RotationTransformation(AbstractTransformation):
     """
