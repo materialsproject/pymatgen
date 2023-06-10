@@ -45,7 +45,7 @@ look at `pymatgen dependents <https://github.com/materialsproject/pymatgen/netwo
 * `QuAcc <https://github.com/arosen93/quacc>`_: A platform to enable high-throughput, database-driven quantum
   chemistry and computational materials science.
 
-* `LobsterPy <https://github.com/JaGeo/LobsterPy>`_: Automatically analyze Lobster (http://www.cohp.de) runs.
+* `LobsterPy <https://github.com/JaGeo/LobsterPy>`_: Automatically analyze `Lobster runs <https://cohp.de>_`.
 
 * `pymatviz <https://github.com/janosh/pymatviz>`_: Complements ``pymatgen`` with additional plotting
   functionality for larger datasets common in materials informatics.
@@ -62,3 +62,7 @@ look at `pymatgen dependents <https://github.com/materialsproject/pymatgen/netwo
 * `Matbench <https://github.com/materialsproject/matbench>`_: Benchmarks for machine learning property prediction.
 
 * `Matbench Discovery <https://github.com/janosh/matbench-discovery>`_: Benchmark for machine learning crystal stability prediction.
+
+* `matgl <https://github.com/materialsvirtuallab/matgl>`_: Graph deep learning library for materials. Implements M3GNet and MEGNet in DGL and Pytorch with more to come.
+
+* `chgnet <https://github.com/CederGroupHub/chgnet>`_: Pretrained universal neural network potential for charge-informed atomistic modeling.

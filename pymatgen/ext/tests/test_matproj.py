@@ -43,7 +43,7 @@ if os.getenv("CI") and PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
 
 @pytest.mark.skipif(
     website_down or not PMG_MAPI_KEY,
-    "PMG_MAPI_KEY environment variable not set or MP API is down.",
+    reason="PMG_MAPI_KEY environment variable not set or MP API is down.",
 )
 class MPResterOldTest(PymatgenTest):
     _multiprocess_shared_ = True
