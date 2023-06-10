@@ -568,8 +568,7 @@ class RandomStructureTransformation(AbstractTransformation):
                 start_pos = end_pos
 
             else:
-                print("Sum of lengths must be equal to the length of the sequence!")
-                return -1
+                raise Exception("Sum of lengths must be equal to the length of the sequence!")
 
         return assignments
 
