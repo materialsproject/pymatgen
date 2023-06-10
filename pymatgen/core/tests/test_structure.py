@@ -23,11 +23,6 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import matgl
-except ImportError:
-    matgl = None
-
-try:
     import ase
     from ase.calculators.emt import EMT
 
@@ -1355,8 +1350,8 @@ class StructureTest(PymatgenTest):
                 cluster = Molecule.from_sites(structure.extract_cluster([site]))
                 assert cluster.formula == "H4 C1"
 
-    @skipIf(ase is None, "ASE is needed.")
     def test_calculate_ase(self):
+        pytest.importorskip("ase")
         struct_copy = self.cu_structure.copy()
         out_struct = self.cu_structure.calculate(calculator=EMT(asap_cutoff=True))
         assert out_struct.lattice == self.cu_structure.lattice
@@ -1370,8 +1365,8 @@ class StructureTest(PymatgenTest):
         assert not hasattr(out_struct, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
 
-    @skipIf(ase is None, "ASE is needed.")
     def test_relax_ase(self):
+        pytest.importorskip("ase")
         struct_copy = self.cu_structure.copy()
         relaxed = self.cu_structure.relax(calculator=EMT(), relax_cell=False, optimizer="BFGS")
         assert relaxed.lattice == self.cu_structure.lattice
@@ -1386,8 +1381,8 @@ class StructureTest(PymatgenTest):
         assert relaxed.dynamics.get("optimizer") == "BFGS"
         assert self.cu_structure == struct_copy, "original structure was modified"
 
-    @skipIf(ase is None, "ASE is needed.")
     def test_relax_ase_return_traj(self):
+        pytest.importorskip("ase")
         structure = self.cu_structure
         relaxed, traj = structure.relax(calculator=EMT(), fmax=0.01, return_trajectory=True)
         assert relaxed.lattice != structure.lattice
@@ -1401,8 +1396,8 @@ class StructureTest(PymatgenTest):
         assert len(traj) == 7
         assert traj[0] != traj[-1]
 
-    @skipIf(ase is None, "ASE is needed.")
     def test_relax_ase_opt_kwargs(self):
+        pytest.importorskip("ase")
         structure = self.cu_structure
         relaxed, traj = structure.relax(
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": "testing.traj"}
@@ -1419,16 +1414,16 @@ class StructureTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile("testing.traj")
 
-    @skipIf(matgl is None, "calculate default requires matgl.")
     def test_calculate_matgl(self):
+        pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         out_struct = structure.calculate()
         assert out_struct.lattice == structure.lattice
         assert hasattr(out_struct, "calc")
         assert not hasattr(out_struct, "dynamics")
 
-    @skipIf(matgl is None, "Relaxation requires matgl.")
     def test_relax_matgl(self):
+        pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         relaxed = structure.relax()
         assert relaxed.lattice.a == pytest.approx(3.857781624313035)
@@ -1436,8 +1431,8 @@ class StructureTest(PymatgenTest):
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
 
-    @skipIf(matgl is None, "Relaxation requires matgl.")
     def test_relax_matgl_fixed_lattice(self):
+        pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         relaxed = structure.relax(relax_cell=False, optimizer="BFGS")
         assert relaxed.lattice == structure.lattice
@@ -1445,8 +1440,8 @@ class StructureTest(PymatgenTest):
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics.get("optimizer") == "BFGS"
 
-    @skipIf(matgl is None, "Relaxation requires matgl.")
     def test_relax_matgl_with_traj(self):
+        pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         relaxed, trajectory = structure.relax(return_trajectory=True)
         assert relaxed.lattice.a == pytest.approx(3.857781624313035)
@@ -1906,8 +1901,8 @@ class MoleculeTest(PymatgenTest):
         assert mol.charge == 0
         assert mol.spin_multiplicity == 3
 
-    @skipIf(ase is None, "ASE is needed.")
     def test_calculate_ase_mol(self):
+        pytest.importorskip("ase")
         mol = self.mol
         mol_copy = mol.copy()
         new_mol = mol.calculate(calculator=EMT(asap_cutoff=True))
@@ -1920,8 +1915,8 @@ class MoleculeTest(PymatgenTest):
         assert not hasattr(new_mol, "dynamics")
         assert mol == mol_copy
 
-    @skipIf(ase is None, "ASE is needed.")
     def test_relax_ase_mol(self):
+        pytest.importorskip("ase")
         mol = self.mol
         relaxed, traj = mol.relax(calculator=EMT(), fmax=0.01, optimizer="BFGS", return_trajectory=True)
         assert hasattr(relaxed, "calc")
@@ -1934,8 +1929,8 @@ class MoleculeTest(PymatgenTest):
         assert len(traj) == 5
         assert traj[0] != traj[-1]
 
-    @skipIf(ase is None, "ASE is needed.")
     def test_relax_ase_mol_return_traj(self):
+        pytest.importorskip("ase")
         mol = self.mol
         relaxed, traj = mol.relax(
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": "testing.traj"}
