@@ -549,7 +549,7 @@ class RandomStructureTransformation(AbstractTransformation):
         """
         return True
 
-    def random_assign(self, sequence: list[int], lengths: list[int]) -> list[int]:
+    def random_assign(self, sequence: list[int], lengths: list[int]):
         """
         Randomly assign sublists in sequence with given lengths
         """
