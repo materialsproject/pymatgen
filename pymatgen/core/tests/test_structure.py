@@ -1350,7 +1350,7 @@ class StructureTest(PymatgenTest):
                 cluster = Molecule.from_sites(structure.extract_cluster([site]))
                 assert cluster.formula == "H4 C1"
 
-    def test_calculate_ase(self, tmpdir):
+    def test_calculate_ase(self):
         pytest.importorskip("ase")
         struct_copy = self.cu_structure.copy()
         out_struct = self.cu_structure.calculate(calculator=EMT(asap_cutoff=True))
@@ -1365,7 +1365,7 @@ class StructureTest(PymatgenTest):
         assert not hasattr(out_struct, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
 
-    def test_relax_ase(self, tmpdir):
+    def test_relax_ase(self):
         pytest.importorskip("ase")
         struct_copy = self.cu_structure.copy()
         relaxed = self.cu_structure.relax(calculator=EMT(), relax_cell=False, optimizer="BFGS")
@@ -1381,7 +1381,7 @@ class StructureTest(PymatgenTest):
         assert relaxed.dynamics.get("optimizer") == "BFGS"
         assert self.cu_structure == struct_copy, "original structure was modified"
 
-    def test_relax_ase_return_traj(self, tmpdir):
+    def test_relax_ase_return_traj(self):
         pytest.importorskip("ase")
         structure = self.cu_structure
         relaxed, traj = structure.relax(calculator=EMT(), fmax=0.01, return_trajectory=True)
@@ -1396,7 +1396,7 @@ class StructureTest(PymatgenTest):
         assert len(traj) == 7
         assert traj[0] != traj[-1]
 
-    def test_relax_ase_opt_kwargs(self, tmpdir):
+    def test_relax_ase_opt_kwargs(self):
         pytest.importorskip("ase")
         structure = self.cu_structure
         relaxed, traj = structure.relax(
@@ -1414,7 +1414,7 @@ class StructureTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile("testing.traj")
 
-    def test_calculate_matgl(self, tmpdir):
+    def test_calculate_matgl(self):
         pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         out_struct = structure.calculate()
@@ -1422,7 +1422,7 @@ class StructureTest(PymatgenTest):
         assert hasattr(out_struct, "calc")
         assert not hasattr(out_struct, "dynamics")
 
-    def test_relax_matgl(self, tmpdir):
+    def test_relax_matgl(self):
         pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         relaxed = structure.relax()
@@ -1431,7 +1431,7 @@ class StructureTest(PymatgenTest):
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
 
-    def test_relax_matgl_fixed_lattice(self, tmpdir):
+    def test_relax_matgl_fixed_lattice(self):
         pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         relaxed = structure.relax(relax_cell=False, optimizer="BFGS")
@@ -1440,7 +1440,7 @@ class StructureTest(PymatgenTest):
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics.get("optimizer") == "BFGS"
 
-    def test_relax_matgl_with_traj(self, tmpdir):
+    def test_relax_matgl_with_traj(self):
         pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         relaxed, trajectory = structure.relax(return_trajectory=True)
