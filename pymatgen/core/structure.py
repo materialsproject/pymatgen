@@ -24,7 +24,6 @@ from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
 
 import numpy as np
-from ase.optimize.optimize import Optimizer
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
