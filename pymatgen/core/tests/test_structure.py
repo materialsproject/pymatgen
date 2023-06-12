@@ -1946,6 +1946,7 @@ class MoleculeTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile("testing.traj")
 
+
 #     @skipIf(TBLite is None, "Requires tblite.")
 #     def test_calculate_gfnxtb(self):
 #         mol = self.mol
