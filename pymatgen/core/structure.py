@@ -47,6 +47,7 @@ if TYPE_CHECKING:
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike
+    from ase.optimize.optimize import Optimizer
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
 
@@ -771,6 +772,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
         # check str is valid optimizer key
         def is_ase_optimizer(key):
+            from ase.optimize.optimize import Optimizer
             return isclass(obj := getattr(optimize, key)) and issubclass(obj, Optimizer)
 
         valid_keys = [key for key in dir(optimize) if is_ase_optimizer(key)]
