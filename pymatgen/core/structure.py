@@ -24,7 +24,6 @@ from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
 
 import numpy as np
-from ase.optimize.optimize import Optimizer
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -45,6 +44,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
+    from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike
 
