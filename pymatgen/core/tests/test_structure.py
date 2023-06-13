@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+try:
+    from tblite.ase import TBLite
+except ImportError:
+    TBLite = None
+
 import json
 import os
 import random
@@ -29,10 +34,6 @@ try:
 except ImportError:
     ase = None
 
-try:
-    from tblite.ase import TBLite
-except ImportError:
-    TBLite = None
 
 enum_cmd = which("enum.x") or which("multienum.x")
 mcsqs_cmd = which("mcsqs")
@@ -1946,22 +1947,21 @@ class MoleculeTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile("testing.traj")
 
+    @skipIf(TBLite is None, "Requires tblite.")
+    def test_calculate_gfnxtb(self):
+        mol = self.mol
+        new_mol = mol.calculate()
+        assert hasattr(new_mol, "calc")
+        assert not hasattr(new_mol, "dynamics")
+        assert new_mol.calc.results["energy"] == pytest.approx(-113.61022434200855)
+        assert isinstance(new_mol, Molecule)
 
-#     @skipIf(TBLite is None, "Requires tblite.")
-#     def test_calculate_gfnxtb(self):
-#         mol = self.mol
-#         new_mol = mol.calculate()
-#         assert hasattr(new_mol, "calc")
-#         assert not hasattr(new_mol, "dynamics")
-#         assert new_mol.calc.results["energy"] == pytest.approx(-113.61022434200855)
-#         assert isinstance(new_mol, Molecule)
-
-#     @skipIf(TBLite is None, "Requires tblite.")
-#     def test_relax_gfnxtb(self):
-#         mol = self.mol
-#         relaxed = mol.relax()
-#         assert hasattr(relaxed, "calc")
-#         assert hasattr(relaxed, "dynamics")
-#         assert relaxed.calc.results.get("energy")
-#         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
-#         assert relaxed.calc.results["energy"] == pytest.approx(-113.61346199239306)
+    @skipIf(TBLite is None, "Requires tblite.")
+    def test_relax_gfnxtb(self):
+        mol = self.mol
+        relaxed = mol.relax()
+        assert hasattr(relaxed, "calc")
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
+        assert relaxed.calc.results["energy"] == pytest.approx(-113.61346199239306)
