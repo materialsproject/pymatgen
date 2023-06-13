@@ -755,6 +755,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         from ase import optimize
         from ase.constraints import ExpCellFilter
         from ase.io import read
+        from ase.optimize.optimize import Optimizer
 
         from pymatgen.io.ase import AseAtomsAdaptor
 
