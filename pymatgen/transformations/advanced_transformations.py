@@ -25,21 +25,22 @@ from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.analysis.local_env import MinimumDistanceNN
-from pymatgen.analysis.structure_matcher import SpinComparator, StructureMatcher
-from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
+from pymatgen.analysis.structure_matcher import (SpinComparator,
+                                                 StructureMatcher)
+from pymatgen.analysis.structure_prediction.substitution_probability import \
+    SubstitutionPredictor
 from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
-from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.periodic_table import (DummySpecies, Element, Species,
+                                          get_el_sp)
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.standard_transformations import (
-    OrderDisorderedStructureTransformation,
-    SubstitutionTransformation,
-    SupercellTransformation,
-)
+    OrderDisorderedStructureTransformation, SubstitutionTransformation,
+    SupercellTransformation)
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 try:
@@ -842,22 +843,21 @@ class MagOrderingTransformation(AbstractTransformation):
         :return:
         """
         for idx, site in enumerate(structure):
-            if getattr(site.specie, "_properties", None):
-                spin = site.specie._properties.get("spin")
-                sign = int(spin) if spin else 0
-                if spin:
-                    new_properties = site.specie._properties.copy()
-                    # this very hacky bit of code only works because we know
-                    # that on disordered sites in this class, all species are the same
-                    # but have different spins, and this is comma-delimited
-                    sp = str(site.specie).split(",", maxsplit=1)[0]
-                    new_properties.update({"spin": sign * self.mag_species_spin.get(sp, 0)})
-                    new_specie = Species(
-                        site.specie.symbol,
-                        getattr(site.specie, "oxi_state", None),
-                        new_properties,
-                    )
-                    structure.replace(idx, new_specie, properties=site.properties)
+            props = getattr(site.specie, "_properties", None)
+            spin = site.specie._properties.get("spin") if props else None
+            sign = int(spin) if spin else 0
+            new_properties = site.specie._properties.copy()
+            # this very hacky bit of code only works because we know
+            # that on disordered sites in this class, all species are the same
+            # but have different spins, and this is comma-delimited
+            sp = str(site.specie).split(",", maxsplit=1)[0]
+            new_properties.update({"spin": sign * self.mag_species_spin.get(sp, 0)})
+            new_specie = Species(
+                site.specie.symbol,
+                getattr(site.specie, "oxi_state", None),
+                new_properties,
+            )
+            structure.replace(idx, new_specie, properties=site.properties)
         logger.debug(f"Structure with spin magnitudes:\n{structure}")
         return structure
 
