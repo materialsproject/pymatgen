@@ -38,7 +38,3 @@ class CODTest(unittest.TestCase):
     def test_get_structure_by_id(self):
         s = COD().get_structure_by_id(2002926)
         assert s.formula == "Be8 H64 N16 F32"
-
-
-if __name__ == "__main__":
-    unittest.main()

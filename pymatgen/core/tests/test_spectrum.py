@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 from scipy import stats
 
@@ -84,7 +82,3 @@ class SpectrumTest(PymatgenTest):
         spec1copy.y[0] = spec1copy.y[0] + 1
         assert spec1copy.y[0] != self.spec1.y[0]
         assert spec1copy.y[1] == self.spec1.y[1]
-
-
-if __name__ == "__main__":
-    unittest.main()

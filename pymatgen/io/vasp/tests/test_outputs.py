@@ -2101,7 +2101,3 @@ class WSWQTest(PymatgenTest):
                 assert np.linalg.norm([r, i]) > 0.999
             else:
                 assert np.linalg.norm([r, i]) < 0.001
-
-
-if __name__ == "__main__":
-    unittest.main()

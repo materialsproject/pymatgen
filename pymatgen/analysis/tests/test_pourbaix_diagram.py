@@ -12,6 +12,7 @@ from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.analysis.pourbaix_diagram import IonEntry, MultiEntry, PourbaixDiagram, PourbaixEntry, PourbaixPlotter
+from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import PymatgenTest
@@ -177,6 +178,20 @@ class PourbaixDiagramTest(unittest.TestCase):
         assert new_ternary.get_decomposition_energy(ag_te_n, 10, -2) == approx(3.756840056890625)
         assert new_ternary.get_decomposition_energy(ground_state_ag_with_ions, 2, -1) == approx(0)
 
+        # Test processing of multi-entries with degenerate reaction, produced
+        # a bug in a prior implementation
+        entries = [
+            PourbaixEntry(ComputedEntry("VFe2Si", -1.8542253150000008), entry_id="mp-4595"),
+            PourbaixEntry(ComputedEntry("Fe", 0), entry_id="mp-13"),
+            PourbaixEntry(ComputedEntry("V2Ir2", -2.141851640000006), entry_id="mp-569250"),
+            PourbaixEntry(IonEntry(Ion.from_formula("Fe[2+]"), -0.7683100214319288), entry_id="ion-0"),
+            PourbaixEntry(IonEntry(Ion.from_formula("Li[1+]"), -3.0697590542787156), entry_id="ion-12"),
+        ]
+        comp_dict = Composition({"Fe": 1, "Ir": 1, "Li": 2, "Si": 1, "V": 2}).fractional_composition
+
+        multi_entry = PourbaixDiagram.process_multientry(entries, prod_comp=comp_dict)
+        assert multi_entry is None
+
     def test_get_pourbaix_domains(self):
         domains = PourbaixDiagram.get_pourbaix_domains(self.test_data["Zn"])
         assert len(domains[0]) == 7
@@ -300,7 +315,3 @@ class PourbaixPlotterTest(unittest.TestCase):
         binary_plotter = PourbaixPlotter(pd_binary)
         plt = binary_plotter.plot_entry_stability(self.test_data["Ag-Te"][53])
         plt.close()
-
-
-if __name__ == "__main__":
-    unittest.main()

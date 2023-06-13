@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import numpy as np
 import pytest
@@ -273,7 +272,3 @@ class EnergyTrendTest(PymatgenTest):
     def test_endpoints_minima(self):
         endpoints = self.energy_trend.endpoints_minima(slope_cutoff=1e-2)
         assert {"polar": True, "nonpolar": True} == endpoints
-
-
-if __name__ == "__main__":
-    unittest.main()

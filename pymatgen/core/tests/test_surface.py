@@ -891,7 +891,3 @@ class MillerIndexFinderTests(PymatgenTest):
         s3 = np.array([1.1595, 0.66943764, 0.9065])
         hkl = miller_index_from_sites(m, [s1, s2, s3])
         assert hkl == (2, -1, 0)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -109,7 +109,3 @@ class RemoveExistingFilterTest(unittest.TestCase):
             self._struct_list[-1],
             transmuter.transformed_structures[-1].final_structure,
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

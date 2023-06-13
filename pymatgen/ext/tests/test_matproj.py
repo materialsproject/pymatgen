@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import random
 import re
-import unittest
 import warnings
 from unittest.mock import patch
 
@@ -35,17 +34,16 @@ except requests.exceptions.ConnectionError:
 
 
 PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY")
-if PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
+if os.getenv("CI") and PMG_MAPI_KEY and not 15 <= len(PMG_MAPI_KEY) <= 20:
     msg = f"Invalid legacy PMG_MAPI_KEY, should be 15-20 characters, got {len(PMG_MAPI_KEY)}"
     if len(PMG_MAPI_KEY) == 32:
         msg += " (this looks like a new API key)"
-    if os.getenv("CI"):
-        raise ValueError(msg)
+    raise ValueError(msg)
 
 
-@unittest.skipIf(
+@pytest.mark.skipif(
     website_down or not PMG_MAPI_KEY,
-    "PMG_MAPI_KEY environment variable not set or MP API is down.",
+    reason="PMG_MAPI_KEY environment variable not set or MP API is down.",
 )
 class MPResterOldTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -474,6 +472,10 @@ class MPResterOldTest(PymatgenTest):
         assert "P2O3" in crit["pretty_formula"]["$in"]
 
     def test_include_user_agent(self):
+        pytest.skip(
+            "this test started failing with 'pymatgen.ext.matproj.MPRestError: REST query "
+            "returned with error status code 403. Content: b'error code: 1020'"
+        )
         headers = self.rester.session.headers
         assert "user-agent" in headers, "Include user-agent header by default"
         m = re.match(
@@ -530,7 +532,3 @@ class MPResterOldTest(PymatgenTest):
 
         with _MPResterLegacy(api_key=None) as mpr:
             assert mpr.api_key == "foobar"
-
-
-if __name__ == "__main__":
-    unittest.main()

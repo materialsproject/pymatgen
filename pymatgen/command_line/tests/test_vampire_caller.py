@@ -68,7 +68,3 @@ class VampireCallerTest(unittest.TestCase):
             os.remove("log")
         if os.path.exists("output"):
             os.remove("output")
-
-
-if __name__ == "__main__":
-    unittest.main()

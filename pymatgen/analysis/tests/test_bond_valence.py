@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import pytest
 
@@ -52,7 +51,3 @@ class BondValenceSumTest(PymatgenTest):
         neighbors = struct.get_neighbors(struct[0], 3.0)
         bv_sum = calculate_bv_sum_unordered(struct[0], neighbors)
         assert bv_sum == pytest.approx(1.5494662306918852)
-
-
-if __name__ == "__main__":
-    unittest.main()

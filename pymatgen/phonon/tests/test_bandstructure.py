@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -88,7 +87,3 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
     def tearDown(self):
         if os.path.isfile("test.json"):
             os.remove("test.json")
-
-
-if __name__ == "__main__":
-    unittest.main()

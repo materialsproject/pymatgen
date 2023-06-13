@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import pytest
 
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
@@ -92,7 +90,3 @@ class XRDCalculatorTest(PymatgenTest):
         assert xrd.x[0] == pytest.approx(40.294828554672264)
         assert xrd.y[0] == pytest.approx(2377745.2296686019)
         assert xrd.d_hkls[0] == pytest.approx(2.2382050944897789)
-
-
-if __name__ == "__main__":
-    unittest.main()

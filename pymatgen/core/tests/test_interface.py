@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 
 from pymatgen.core.interface import Interface
@@ -100,7 +98,3 @@ class InterfaceTest(PymatgenTest):
 
         interface = Interface.from_slabs(film_slab=si_slab, substrate_slab=sio2_slab)
         assert isinstance(interface, Interface)
-
-
-if __name__ == "__main__":
-    unittest.main()

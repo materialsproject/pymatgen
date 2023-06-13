@@ -65,7 +65,3 @@ class XrTest(unittest.TestCase):
         assert isinstance(xr.structure, Structure)
         xr2 = Xr.from_file(filename, use_cores=False)
         assert isinstance(xr2.structure, Structure)
-
-
-if __name__ == "__main__":
-    unittest.main()

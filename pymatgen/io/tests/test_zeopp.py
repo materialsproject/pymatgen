@@ -75,7 +75,7 @@ class ZeoCssrTest(unittest.TestCase):
         assert isinstance(zeocssr.structure, Structure)
 
 
-# @unittest.skipIf(not zeo, "zeo not present.")
+@unittest.skipIf(not zeo, "zeo not present.")
 class ZeoCssrOxiTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
@@ -243,7 +243,3 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
         assert isinstance(vor_face_center_struct, Structure)
-
-
-if __name__ == "__main__":
-    unittest.main()

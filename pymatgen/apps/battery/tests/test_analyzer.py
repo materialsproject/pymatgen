@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import pytest
 from pytest import approx
@@ -93,7 +92,3 @@ class BatteryAnalyzerTest(PymatgenTest):
         assert self.li3v2p3o12.get_removals_int_oxid() == {4.0, 6.0}
 
         assert self.mgnif6.get_removals_int_oxid() == {1.0, 2.0}
-
-
-if __name__ == "__main__":
-    unittest.main()

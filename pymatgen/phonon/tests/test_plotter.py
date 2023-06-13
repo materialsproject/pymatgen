@@ -113,7 +113,3 @@ class ThermoPlotterTest(unittest.TestCase):
 
 
 # Gruneisen plotter is already tested in test_gruneisen
-
-
-if __name__ == "__main__":
-    unittest.main()

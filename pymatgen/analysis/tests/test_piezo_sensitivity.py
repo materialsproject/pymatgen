@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import os
 import pickle
-import unittest
 
 import numpy as np
+import pytest
 
 import pymatgen
 from pymatgen.analysis.piezo_sensitivity import (
@@ -209,8 +209,8 @@ class PiezoSensitivityTest(PymatgenTest):
             assert np.allclose(asum1, np.zeros([3, 3]), atol=1e-05)
             assert np.allclose(asum2, np.zeros([3, 3]), atol=1e-05)
 
-    @unittest.skipIf(Phonopy is None, "Phonopy not present")
     def test_rand_FCM(self):
+        pytest.importorskip("phonopy")
         fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_rand_FCM()
@@ -261,8 +261,8 @@ class PiezoSensitivityTest(PymatgenTest):
         piezo = get_piezo(self.BEC, self.IST, self.FCM)
         assert np.allclose(piezo, self.piezo, atol=1e-05)
 
-    @unittest.skipIf(Phonopy is None, "Phonopy not present")
     def test_rand_piezo(self):
+        pytest.importorskip("phonopy")
         rand_BEC, rand_IST, rand_FCM, piezo = rand_piezo(
             self.piezo_struc,
             self.pointops,
@@ -330,7 +330,3 @@ class PiezoSensitivityTest(PymatgenTest):
                 asum2 += dynmass[j][i]
             assert np.allclose(asum1, np.zeros([3, 3]), atol=1e-05)
             assert np.allclose(asum2, np.zeros([3, 3]), atol=1e-05)
-
-
-if __name__ == "__main__":
-    unittest.main()

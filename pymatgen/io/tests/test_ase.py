@@ -266,7 +266,3 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms == atoms_back
         molecule_back = aio.AseAtomsAdaptor.get_molecule(atoms)
         assert molecule == molecule_back
-
-
-if __name__ == "__main__":
-    unittest.main()

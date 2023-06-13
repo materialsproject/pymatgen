@@ -456,17 +456,20 @@ class EnumerateStructureTransformation(AbstractTransformation):
             elif self.sort_criteria.startswith("m3gnet"):
                 if self.sort_criteria == "m3gnet_relax":
                     if m3gnet_model is None:
-                        from m3gnet.models import Relaxer
+                        import matgl
+                        from matgl.ext.ase import M3GNetCalculator, Relaxer
 
-                        m3gnet_model = Relaxer()
+                        potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
+                        m3gnet_model = Relaxer(potential=potential)
                     relax_results = m3gnet_model.relax(s)
                     energy = float(relax_results["trajectory"].energies[-1])
                     s = relax_results["final_structure"]
                 else:
                     if m3gnet_model is None:
-                        from m3gnet.models import M3GNet, M3GNetCalculator, Potential
+                        import matgl
+                        from matgl.ext.ase import M3GNetCalculator
 
-                        potential = Potential(M3GNet.load())
+                        potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
                         m3gnet_model = M3GNetCalculator(potential=potential, stress_weight=0.01)
                     from pymatgen.io.ase import AseAtomsAdaptor
 

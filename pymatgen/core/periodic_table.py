@@ -210,13 +210,13 @@ class ElementBase(Enum):
     @property
     def X(self) -> float:
         """
-        :return: Electronegativity of element. Note that if an element does not
-            have an electronegativity, a NaN float is returned.
+        :return: Pauling electronegativity of element. Note that if an element does not
+            have an Pauling electronegativity, a NaN float is returned.
         """
         if "X" in self._data:
             return self._data["X"]
         warnings.warn(
-            f"No electronegativity for {self.symbol}. Setting to NaN. This has no physical meaning, "
+            f"No Pauling electronegativity for {self.symbol}. Setting to NaN. This has no physical meaning, "
             "and is mainly done to avoid errors caused by the code expecting a float."
         )
         return float("NaN")
@@ -573,7 +573,7 @@ class ElementBase(Enum):
 
     def __lt__(self, other):
         """
-        Sets a default sort order for atomic species by electronegativity. Very
+        Sets a default sort order for atomic species by Pauling electronegativity. Very
         useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
@@ -584,7 +584,7 @@ class ElementBase(Enum):
         if x1 != x2:
             return x1 < x2
 
-        # There are cases where the electronegativity are exactly equal.
+        # There are cases where the Pauling electronegativity are exactly equal.
         # We then sort by symbol.
         return self.symbol < other.symbol
 
@@ -602,7 +602,7 @@ class ElementBase(Enum):
         for sym, data in _pt_data.items():
             if data["Atomic no"] == Z:
                 return Element(sym)
-        raise ValueError(f"No element with this atomic number {Z}")
+        raise ValueError(f"Unexpected atomic number {Z=}")
 
     @staticmethod
     def from_name(name: str) -> Element:
@@ -619,7 +619,7 @@ class ElementBase(Enum):
         for sym, data in _pt_data.items():
             if data["Name"] == name.capitalize():
                 return Element(sym)
-        raise ValueError(f"No element with the name {name}")
+        raise ValueError(f"No element with the {name=}")
 
     @staticmethod
     def from_row_and_group(row: int, group: int) -> Element:
@@ -894,7 +894,7 @@ class ElementBase(Enum):
             filter_function: A filtering function taking an Element as input
                 and returning a boolean. For example, setting
                 filter_function = lambda el: el.X > 2 will print a periodic
-                table containing only elements with electronegativity > 2.
+                table containing only elements with Pauling electronegativity > 2.
         """
         for row in range(1, 10):
             rowstr = []
@@ -1115,7 +1115,7 @@ class Species(MSONable, Stringify):
 
     def __lt__(self, other: object) -> bool:
         """
-        Sets a default sort order for atomic species by electronegativity,
+        Sets a default sort order for atomic species by Pauling electronegativity,
         followed by oxidation state, followed by spin.
         """
         if not isinstance(other, type(self)):
@@ -1126,7 +1126,7 @@ class Species(MSONable, Stringify):
         if x1 != x2:
             return x1 < x2
         if self.symbol != other.symbol:
-            # There are cases where the electronegativity are exactly equal.
+            # There are cases where the Pauling electronegativity are exactly equal.
             # We then sort by symbol.
             return self.symbol < other.symbol
         if self.oxi_state:
@@ -1256,7 +1256,7 @@ class Species(MSONable, Stringify):
             return quad_mom.get(isotopes[0], 0.0)
 
         if isotope not in quad_mom:
-            raise ValueError(f"No quadrupole moment for isotope {isotope}")
+            raise ValueError(f"No quadrupole moment for {isotope=}")
         return quad_mom.get(isotope, 0.0)
 
     def get_shannon_radius(
@@ -1391,7 +1391,7 @@ class DummySpecies(Species):
 
     .. attribute:: X
 
-        DummySpecies is always assigned an electronegativity of 0.
+        DummySpecies is always assigned a Pauling electronegativity of 0.
     """
 
     def __init__(
@@ -1437,13 +1437,13 @@ class DummySpecies(Species):
 
     def __lt__(self, other):
         """
-        Sets a default sort order for atomic species by electronegativity,
+        Sets a default sort order for atomic species by Pauling electronegativity,
         followed by oxidation state.
         """
         if self.X != other.X:
             return self.X < other.X
         if self.symbol != other.symbol:
-            # There are cases where the electronegativity are exactly equal.
+            # There are cases where the Pauling electronegativity are exactly equal.
             # We then sort by symbol.
             return self.symbol < other.symbol
         other_oxi = 0 if isinstance(other, Element) else other.oxi_state
@@ -1468,7 +1468,7 @@ class DummySpecies(Species):
     @property
     def X(self) -> float:
         """
-        DummySpecies is always assigned an electronegativity of 0. The effect of
+        DummySpecies is always assigned a Pauling electronegativity of 0. The effect of
         this is that DummySpecies are always sorted in front of actual Species.
         """
         return 0.0

@@ -98,7 +98,3 @@ class CoplTest(PymatgenTest):
         icohp = np.array([round_to_sigfigs(i, 5) for i in copl_icohp * Ry_to_eV], dtype=float)
         icohp_eV = self.copl_bise_eV.cohp_data["Bi1-Se7"]["ICOHP"][Spin.up]
         assert_array_equal(icohp, icohp_eV)
-
-
-if __name__ == "__main__":
-    unittest.main()

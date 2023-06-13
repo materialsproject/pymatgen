@@ -193,7 +193,3 @@ class IonTest(unittest.TestCase):
         ]
         all_latex = [c.to_latex_string() for c in self.comp]
         assert all_latex == correct_latex
-
-
-if __name__ == "__main__":
-    unittest.main()

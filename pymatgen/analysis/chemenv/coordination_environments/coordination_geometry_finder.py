@@ -1517,7 +1517,7 @@ class LocalGeometryFinder:
                     raise ValueError("Wrong number of points to initialize separation plane")
                 cgsm = self._cg_csm_separation_plane(
                     coordination_geometry=coordination_geometry,
-                    sepplane=separation_plane_algo,
+                    sep_plane=separation_plane_algo,
                     local_plane=plane,
                     plane_separations=plane_separations,
                     dist_tolerances=DIST_TOLERANCES,
@@ -1724,7 +1724,7 @@ class LocalGeometryFinder:
     def _cg_csm_separation_plane(
         self,
         coordination_geometry,
-        sepplane,
+        sep_plane,
         local_plane,
         plane_separations,
         dist_tolerances=None,
@@ -1732,7 +1732,7 @@ class LocalGeometryFinder:
         tested_permutations=False,
         points_perfect=None,
     ):
-        argref_separation = sepplane.argsorted_ref_separation_perm
+        argref_separation = sep_plane.argsorted_ref_separation_perm
         plane_found = False
         permutations = []
         permutations_symmetry_measures = []
@@ -1749,12 +1749,12 @@ class LocalGeometryFinder:
                 continue
             # Do not consider a separation which does not follow the reference separation of the perfect
             # coordination geometry
-            if len(separation[1]) != len(sepplane.plane_points):
+            if len(separation[1]) != len(sep_plane.plane_points):
                 continue
-            if len(separation[0]) == len(sepplane.point_groups[0]):
+            if len(separation[0]) == len(sep_plane.point_groups[0]):
                 this_separation = separation
                 plane_separations.append(this_separation)
-            elif len(separation[0]) == len(sepplane.point_groups[1]):
+            elif len(separation[0]) == len(sep_plane.point_groups[1]):
                 this_separation = [
                     list(separation[2]),
                     list(separation[1]),
@@ -1764,16 +1764,16 @@ class LocalGeometryFinder:
             else:
                 continue
 
-            if sepplane.ordered_plane:
+            if sep_plane.ordered_plane:
                 inp = [pp for ip, pp in enumerate(self.local_geometry._coords) if ip in this_separation[1]]
 
-                if sepplane.ordered_point_groups[0]:
+                if sep_plane.ordered_point_groups[0]:
                     pp_s0 = [pp for ip, pp in enumerate(self.local_geometry._coords) if ip in this_separation[0]]
                     ordind_s0 = local_plane.project_and_to2dim_ordered_indices(pp_s0)
                     sep0 = [this_separation[0][ii] for ii in ordind_s0]
                 else:
                     sep0 = list(this_separation[0])
-                if sepplane.ordered_point_groups[1]:
+                if sep_plane.ordered_point_groups[1]:
                     pp_s2 = [pp for ip, pp in enumerate(self.local_geometry._coords) if ip in this_separation[2]]
                     ordind_s2 = local_plane.project_and_to2dim_ordered_indices(pp_s2)
                     sep2 = [this_separation[2][ii] for ii in ordind_s2]
@@ -1790,12 +1790,12 @@ class LocalGeometryFinder:
                 algo = "SEPARATION_PLANE_2POINTS"
                 separation_perm.extend(this_separation[2])
             if self.plane_safe_permutations:
-                sep_perms = sepplane.safe_separation_permutations(
-                    ordered_plane=sepplane.ordered_plane,
-                    ordered_point_groups=sepplane.ordered_point_groups,
+                sep_perms = sep_plane.safe_separation_permutations(
+                    ordered_plane=sep_plane.ordered_plane,
+                    ordered_point_groups=sep_plane.ordered_point_groups,
                 )
             else:
-                sep_perms = sepplane.permutations
+                sep_perms = sep_plane.permutations
 
             # plane_found = True
 
@@ -1832,7 +1832,7 @@ class LocalGeometryFinder:
             return (
                 permutations_symmetry_measures,
                 permutations,
-                [sepplane.algorithm_type] * len(permutations),
+                [sep_plane.algorithm_type] * len(permutations),
             )
         if plane_found:
             if testing:

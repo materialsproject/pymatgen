@@ -16,6 +16,8 @@ from pymatgen.core.structure import Molecule, Structure
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
+    from pymatgen.core.structure import SiteCollection
+
 
 try:
     from ase import Atoms
@@ -40,12 +42,12 @@ class AseAtomsAdaptor:
     """
 
     @staticmethod
-    def get_atoms(structure: Structure | Molecule, **kwargs) -> Atoms:
+    def get_atoms(structure: SiteCollection, **kwargs) -> Atoms:
         """
         Returns ASE Atoms object from pymatgen structure or molecule.
 
         Args:
-            structure (Structure | Molecule): Input structure or molecule
+            structure (SiteCollection): pymatgen Structure or Molecule
             **kwargs: passed to the ASE Atoms constructor
 
         Returns:
@@ -62,9 +64,12 @@ class AseAtomsAdaptor:
         # Construct the base ASE Atoms object
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
-        is_struct = hasattr(structure, "lattice")
-        pbc = True if is_struct else None
-        cell = structure.lattice.matrix if is_struct else None
+        if hasattr(structure, "lattice"):
+            pbc = True
+            cell = structure.lattice.matrix
+        else:  # Molecule without lattice
+            pbc = None
+            cell = None
 
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
 
@@ -91,7 +96,7 @@ class AseAtomsAdaptor:
                 calc = SinglePointDFTCalculator(atoms, magmoms=magmoms, charges=charges)
             elif magmoms:
                 calc = SinglePointDFTCalculator(atoms, magmoms=magmoms)
-            elif charges:
+            else:
                 calc = SinglePointDFTCalculator(atoms, charges=charges)
             atoms.calc = calc
 

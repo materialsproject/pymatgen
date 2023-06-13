@@ -120,7 +120,3 @@ class JahnTellerTest(unittest.TestCase):
         assert np.sqrt(35) == pytest.approx(JahnTellerAnalyzer.mu_so(SpeciesCo, "oct", "high"))
         SpeciesNa = Species(symbol="Na", oxidation_state=1)
         assert None is JahnTellerAnalyzer.mu_so(SpeciesNa, "oct", "high")
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 from pytest import approx
 
@@ -72,7 +71,3 @@ class CompleteDosTest(PymatgenTest):
 
     def test_str(self):
         assert str(self.cdos) is not None
-
-
-if __name__ == "__main__":
-    unittest.main()

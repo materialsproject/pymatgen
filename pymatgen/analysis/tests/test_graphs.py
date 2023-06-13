@@ -497,12 +497,8 @@ from    to  to_image
 
 class MoleculeGraphTest(unittest.TestCase):
     def setUp(self):
-        cyclohexene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/cyclohexene.xyz",
-            )
-        )
+        cyclohexene_xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/cyclohexene.xyz")
+        cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.with_empty_graph(
             cyclohexene, edge_weight_name="strength", edge_weight_units=""
         )
@@ -587,8 +583,8 @@ class MoleculeGraphTest(unittest.TestCase):
         del self.butadiene
         del self.cyclohexene
 
-    @unittest.skipIf(not openbabel, "OpenBabel not present. Skipping...")
     def test_construction(self):
+        pytest.importorskip("openbabel")
         edges_frag = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_frag1_edges}
         mol_graph = MoleculeGraph.with_edges(self.pc_frag1, edges_frag)
         # dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_frag1_mg.json"))
@@ -920,7 +916,3 @@ class MoleculeGraphTest(unittest.TestCase):
         assert list(sg.graph.edges) == [(0, 1, 0), (0, 2, 0), (0, 3, 0), (1, 4, 0), (1, 5, 0)]
         sg.sort()
         assert list(sg.graph.edges) == [(4, 5, 0), (0, 4, 0), (1, 4, 0), (2, 5, 0), (3, 5, 0)]
-
-
-if __name__ == "__main__":
-    unittest.main()

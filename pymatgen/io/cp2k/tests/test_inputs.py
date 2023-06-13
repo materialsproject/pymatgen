@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from pathlib import Path
 
 import numpy as np
@@ -256,7 +255,3 @@ class InputTest(PymatgenTest):
         s.set({"GLOBAL": {"SUBSEC": {"TEST2": 2}, "SUBSEC2": {"Test2": 1}}})
         assert s.check("global/SUBSEC")
         assert s.check("global/subsec2")
-
-
-if __name__ == "__main__":
-    unittest.main()

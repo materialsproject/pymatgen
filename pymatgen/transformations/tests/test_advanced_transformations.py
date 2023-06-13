@@ -7,6 +7,7 @@ import warnings
 from shutil import which
 
 import numpy as np
+import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -54,9 +55,9 @@ except ImportError:
 
 
 try:
-    import m3gnet
+    import matgl
 except ImportError:
-    m3gnet = None
+    matgl = None
 
 
 def get_table():
@@ -225,8 +226,8 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         for s in alls:
             assert "energy" not in s
 
-    @unittest.skipIf(m3gnet is None, "m3gnet package not available.")
     def test_m3gnet(self):
+        pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         struct = p.structure
@@ -242,9 +243,12 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
     def test_callable_sort_criteria(self):
-        from m3gnet.models import Relaxer
+        matgl = pytest.importorskip("matgl")
+        from matgl.ext.ase import Relaxer
 
-        m3gnet_model = Relaxer(optimizer="BFGS")
+        pot = matgl.load_model("M3GNet-MP-2021.2.8-PES")
+
+        m3gnet_model = Relaxer(potential=pot)
 
         def sort_criteria(s):
             relax_results = m3gnet_model.relax(s)
@@ -793,7 +797,3 @@ class MonteCarloRattleTransformationTest(PymatgenTest):
         mcrt = MonteCarloRattleTransformation(0.01, 2, seed=1)
         s_trans2 = mcrt.apply_transformation(s)
         assert np.allclose(s_trans.cart_coords, s_trans2.cart_coords)
-
-
-if __name__ == "__main__":
-    unittest.main()

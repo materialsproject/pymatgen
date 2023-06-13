@@ -138,7 +138,3 @@ class FuncUtilsTest(unittest.TestCase):
         assert delta_csm_ratio_function.evaluate(5.0) == 0.5
         assert delta_csm_ratio_function.evaluate(8.0) == 1.0
         assert delta_csm_ratio_function.evaluate(12.0) == 1.0
-
-
-if __name__ == "__main__":
-    unittest.main()

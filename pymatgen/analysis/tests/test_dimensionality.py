@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 import warnings
 
 import networkx as nx
@@ -172,7 +171,3 @@ class GoraiDimensionalityTest(PymatgenTest):
         s = self.get_structure("CsCl")
         assert get_dimensionality_gorai(s) == 1
         assert get_dimensionality_gorai(s, bonds={("Cs", "Cl"): 3.7}) == 3
-
-
-if __name__ == "__main__":
-    unittest.main()

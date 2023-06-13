@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import numpy as np
 import pytest
@@ -204,15 +203,15 @@ class CoordinationGeometryFinderTest(PymatgenTest):
                 )
                 assert (
                     abs(se.get_csm(0, mp_symbol)["symmetry_measure"] - 0.0) < 1e-8
-                ), f"Failed to get perfect environment with mp_symbol {mp_symbol}"
+                ), f"Failed to get perfect environment with {mp_symbol=}"
 
     def test_disable_hints(self):
         allcg = AllCoordinationGeometries()
         mp_symbol = "SH:13"
         mp_symbols = ["SH:13", "HP:12"]
         cg = allcg.get_geometry_from_mp_symbol(mp_symbol=mp_symbol)
-        mypoints = cg.points
-        mypoints[-1] = [0.9 * cc for cc in mypoints[-1]]
+        my_points = cg.points
+        my_points[-1] = [0.9 * cc for cc in my_points[-1]]
         self.lgf.allcg = AllCoordinationGeometries(only_symbols=[mp_symbol])
         self.lgf.setup_test_perfect_environment(
             mp_symbol,
@@ -221,7 +220,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             random_translation="NONE",
             random_rotation="NONE",
             random_scale="NONE",
-            points=mypoints,
+            points=my_points,
         )
         se_nohints = self.lgf.compute_structure_environments(
             only_indices=[0],
@@ -243,7 +242,3 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             se_nohints.ce_list[0][12]
         assert se_hints.ce_list[0][13][0] == se_nohints.ce_list[0][13][0]
         assert set(se_nohints.ce_list[0]).issubset(set(se_hints.ce_list[0]))
-
-
-if __name__ == "__main__":
-    unittest.main()

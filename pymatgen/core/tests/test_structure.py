@@ -3,10 +3,11 @@ from __future__ import annotations
 import json
 import os
 import random
-import unittest
 import warnings
 from pathlib import Path
 from shutil import which
+from tempfile import TemporaryDirectory
+from unittest import skipIf
 
 import numpy as np
 import pytest
@@ -22,14 +23,15 @@ from pymatgen.core.structure import IMolecule, IStructure, Molecule, PeriodicNei
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
 
+try:
+    import ase
+    from ase.calculators.emt import EMT
+except ImportError:
+    ase = None
+
+
 enum_cmd = which("enum.x") or which("multienum.x")
 mcsqs_cmd = which("mcsqs")
-
-try:
-    import m3gnet
-    import tensorflow as tf  # noqa: F401
-except ImportError:
-    m3gnet = None
 
 
 class NeighborTest(PymatgenTest):
@@ -60,12 +62,7 @@ class IStructureTest(PymatgenTest):
         coords.append([0, 0, 0])
         coords.append([0.0, 0, 0.0000001])
         with pytest.raises(StructureError):
-            IStructure(
-                self.lattice,
-                ["Si"] * 2,
-                coords,
-                validate_proximity=True,
-            )
+            IStructure(self.lattice, ["Si"] * 2, coords, validate_proximity=True)
         self.propertied_structure = IStructure(self.lattice, ["Si"] * 2, coords, site_properties={"magmom": [5, -5]})
 
         self.lattice_pbc = Lattice(
@@ -77,7 +74,7 @@ class IStructureTest(PymatgenTest):
             pbc=(True, True, False),
         )
 
-    @unittest.skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
+    @skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
     def test_get_orderings(self):
         ordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         assert ordered.get_orderings()[0] == ordered
@@ -546,7 +543,7 @@ Direct
         p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
         self.assert_all_close(sorted(c_distances), sorted(p_distances))
 
-    # @unittest.skipIf(not os.getenv("CI"), "Only run this in CI tests.")
+    # @skipIf(not os.getenv("CI"), "Only run this in CI tests.")
     # def test_get_all_neighbors_crosscheck_old(self):
     #     warnings.simplefilter("ignore")
     #     for i in range(100):
@@ -739,13 +736,11 @@ class StructureTest(PymatgenTest):
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
+            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         )
         self.structure = Structure(lattice, ["Si", "Si"], coords)
+        self.cu_structure = Structure(lattice, ["Cu", "Cu"], coords)
+        self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
 
     def test_mutable_sequence_methods(self):
         s = self.structure
@@ -854,10 +849,9 @@ class StructureTest(PymatgenTest):
 
     def test_propertied_structure(self):
         # Make sure that site properties are set to None for missing values.
-        s = self.structure
-        s.add_site_property("charge", [4.1, -5])
-        s.append("Li", [0.3, 0.3, 0.3])
-        assert len(s.site_properties["charge"]) == 3
+        self.structure.add_site_property("charge", [4.1, -5])
+        self.structure.append("Li", [0.3, 0.3, 0.3])
+        assert len(self.structure.site_properties["charge"]) == 3
 
     def test_perturb(self):
         d = 0.1
@@ -865,26 +859,30 @@ class StructureTest(PymatgenTest):
         self.structure.perturb(distance=d)
         post_perturbation_sites = self.structure.sites
 
-        for i, x in enumerate(pre_perturbation_sites):
-            assert round(abs(x.distance(post_perturbation_sites[i]) - d), 3) == 0, "Bad perturbation distance"
+        for idx, site in enumerate(pre_perturbation_sites):
+            assert round(abs(site.distance(post_perturbation_sites[idx]) - d), 3) == 0, "Bad perturbation distance"
 
         structure2 = pre_perturbation_sites.copy()
         structure2.perturb(distance=d, min_distance=0)
         post_perturbation_sites2 = structure2.sites
 
-        for i, x in enumerate(pre_perturbation_sites):
-            assert x.distance(post_perturbation_sites2[i]) <= d
-            assert x.distance(post_perturbation_sites2[i]) >= 0
+        for idx, site in enumerate(pre_perturbation_sites):
+            assert site.distance(post_perturbation_sites2[idx]) <= d
+            assert site.distance(post_perturbation_sites2[idx]) >= 0
 
-    def test_add_oxidation_states(self):
+    def test_add_oxidation_states_by_element(self):
         oxidation_states = {"Si": -4}
         self.structure.add_oxidation_state_by_element(oxidation_states)
         for site in self.structure:
-            for k in site.species:
-                assert k.oxi_state == oxidation_states[k.symbol], "Wrong oxidation state assigned!"
+            for specie in site.species:
+                assert specie.oxi_state == oxidation_states[specie.symbol], "Wrong oxidation state assigned!"
         oxidation_states = {"Fe": 2}
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as exc_info:
             self.structure.add_oxidation_state_by_element(oxidation_states)
+
+        assert "Oxidation states not specified for all elements, missing={'Si'}" in str(exc_info.value)
+
+    def test_add_oxidation_states_by_site(self):
         self.structure.add_oxidation_state_by_site([2, -4])
         assert self.structure[0].specie.oxi_state == 2
         with pytest.raises(ValueError):
@@ -905,10 +903,11 @@ class StructureTest(PymatgenTest):
         assert s_elem == s_specie, "Oxidation state remover failed"
 
     def test_add_oxidation_states_by_guess(self):
-        s = PymatgenTest.get_structure("Li2O")
-        s.add_oxidation_state_by_guess()
-        for i in s:
-            assert i.specie in [Species("Li", 1), Species("O", -2)]
+        struct = PymatgenTest.get_structure("Li2O")
+        struct.add_oxidation_state_by_guess()
+        expected = [Species("Li", 1), Species("O", -2)]
+        for site in struct:
+            assert site.specie in expected
 
     def test_add_remove_spin_states(self):
         latt = Lattice.cubic(4.17)
@@ -1229,9 +1228,14 @@ class StructureTest(PymatgenTest):
         assert sites[-1].specie.symbol == "C"
         self.structure.add_oxidation_state_by_element({"Si": 4, "C": 2})
         assert self.structure.charge == 62
-        species = self.structure.species
-        assert isinstance(species, list)
-        assert len(species) == len(self.structure)
+
+    def test_species(self):
+        assert {*map(str, self.structure.species)} == {"Si"}
+        assert len(self.structure.species) == len(self.structure)
+
+        # https://github.com/materialsproject/pymatgen/issues/3033
+        with pytest.raises(AttributeError, match="species property only supports ordered structures!"):
+            self.disordered.species
 
     def test_set_item(self):
         s = self.structure.copy()
@@ -1332,17 +1336,104 @@ class StructureTest(PymatgenTest):
                 cluster = Molecule.from_sites(structure.extract_cluster([site]))
                 assert cluster.formula == "H4 C1"
 
-    @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
-    def test_relax(self):
+    def test_calculate_ase(self):
+        pytest.importorskip("ase")
+        struct_copy = self.cu_structure.copy()
+        out_struct = self.cu_structure.calculate(calculator=EMT(asap_cutoff=True))
+        assert out_struct.lattice == self.cu_structure.lattice
+        assert hasattr(out_struct, "calc")
+        assert out_struct.calc.results.get("energy")
+        assert out_struct.calc.results.get("energies") is not None
+        assert out_struct.calc.results.get("free_energy")
+        assert out_struct.calc.results["energy"] == pytest.approx(1.82609895)
+        assert out_struct.calc.parameters == {"asap_cutoff": True}
+        assert out_struct.volume == pytest.approx(self.cu_structure.volume)
+        assert not hasattr(out_struct, "dynamics")
+        assert self.cu_structure == struct_copy, "original structure was modified"
+
+    def test_relax_ase(self):
+        pytest.importorskip("ase")
+        struct_copy = self.cu_structure.copy()
+        relaxed = self.cu_structure.relax(calculator=EMT(), relax_cell=False, optimizer="BFGS")
+        assert relaxed.lattice == self.cu_structure.lattice
+        assert hasattr(relaxed, "calc")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.calc.results.get("energies") is not None
+        assert relaxed.calc.results.get("free_energy")
+        assert relaxed.calc.results["energy"] == pytest.approx(1.82559661)
+        assert relaxed.lattice.volume == pytest.approx(self.cu_structure.lattice.volume)
+        assert relaxed.calc.parameters == {"asap_cutoff": False}
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "BFGS"
+        assert self.cu_structure == struct_copy, "original structure was modified"
+
+    def test_relax_ase_return_traj(self):
+        pytest.importorskip("ase")
+        structure = self.cu_structure
+        relaxed, traj = structure.relax(calculator=EMT(), fmax=0.01, return_trajectory=True)
+        assert relaxed.lattice != structure.lattice
+        assert hasattr(relaxed, "calc")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.calc.results.get("energies") is not None
+        assert relaxed.calc.results.get("free_energy")
+        assert relaxed.calc.parameters == {"asap_cutoff": False}
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "FIRE"
+        assert len(traj) == 7
+        assert traj[0] != traj[-1]
+        os.remove("opt.traj")  # fails if file missing
+
+    def test_relax_ase_opt_kwargs(self):
+        pytest.importorskip("ase")
+        structure = self.cu_structure
+        tmp_dir = TemporaryDirectory()
+        traj_file = f"{tmp_dir.name}/testing.traj"
+        relaxed, traj = structure.relax(
+            calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
+        )
+        assert relaxed.lattice != structure.lattice
+        assert hasattr(relaxed, "calc")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.calc.results.get("energies") is not None
+        assert relaxed.calc.results.get("free_energy")
+        assert relaxed.calc.parameters == {"asap_cutoff": False}
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "FIRE"
+        assert len(traj) == 3  # there is an off-by-one in how ASE counts steps
+        assert traj[0] != traj[-1]
+        assert os.path.isfile(traj_file)
+
+    def test_calculate_matgl(self):
+        pytest.importorskip("matgl")
+        structure = self.get_structure("Si")
+        out_struct = structure.calculate()
+        assert out_struct.lattice == structure.lattice
+        assert hasattr(out_struct, "calc")
+        assert not hasattr(out_struct, "dynamics")
+
+    def test_relax_matgl(self):
+        pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         relaxed = structure.relax()
-        assert relaxed.lattice.a == pytest.approx(3.849563)
+        assert relaxed.lattice.a == pytest.approx(3.857781624313035)
+        assert hasattr(relaxed, "calc")
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
 
-    @unittest.skipIf(m3gnet is None, "Relaxation requires m3gnet.")
-    def test_relax_with_observer(self):
+    def test_relax_matgl_fixed_lattice(self):
+        pytest.importorskip("matgl")
+        structure = self.get_structure("Si")
+        relaxed = structure.relax(relax_cell=False, optimizer="BFGS")
+        assert relaxed.lattice == structure.lattice
+        assert hasattr(relaxed, "calc")
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "BFGS"
+
+    def test_relax_matgl_with_traj(self):
+        pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         relaxed, trajectory = structure.relax(return_trajectory=True)
-        assert relaxed.lattice.a == pytest.approx(3.849563)
+        assert relaxed.lattice.a == pytest.approx(3.857781624313035)
         expected_attrs = ["atom_positions", "atoms", "cells", "energies", "forces", "stresses"]
         assert sorted(trajectory.__dict__) == expected_attrs
         for key in expected_attrs:
@@ -1418,12 +1509,10 @@ class IMoleculeTest(PymatgenTest):
             [-0.513360, 0.889165, -0.363000],
             [-0.513360, 0.889165, -0.36301],
         ]
-        with pytest.raises(StructureError):
-            Molecule(
-                ["C", "H", "H", "H", "H", "H"],
-                coords,
-                validate_proximity=True,
-            )
+        with pytest.raises(StructureError) as exc:
+            Molecule(["C", "H", "H", "H", "H", "H"], coords, validate_proximity=True)
+
+        assert "Molecule contains sites that are less than 0.01 Angstrom apart!" in str(exc.value)
 
     def test_get_angle_dihedral(self):
         assert round(abs(self.mol.get_angle(1, 0, 2) - 109.47122144618737), 7) == 0
@@ -1799,6 +1888,72 @@ class MoleculeTest(PymatgenTest):
         assert mol.charge == 0
         assert mol.spin_multiplicity == 3
 
+    def test_calculate_ase_mol(self):
+        pytest.importorskip("ase")
+        mol = self.mol
+        mol_copy = mol.copy()
+        new_mol = mol.calculate(calculator=EMT(asap_cutoff=True))
+        assert hasattr(new_mol, "calc")
+        assert new_mol.calc.results.get("energy")
+        assert new_mol.calc.results.get("energies") is not None
+        assert new_mol.calc.results.get("free_energy")
+        assert new_mol.calc.results["energy"] == pytest.approx(1.99570042)
+        assert new_mol.calc.parameters == {"asap_cutoff": True}
+        assert not hasattr(new_mol, "dynamics")
+        assert mol == mol_copy
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_relax_ase_mol(self):
+        pytest.importorskip("ase")
+        mol = self.mol
+        relaxed, traj = mol.relax(calculator=EMT(), fmax=0.01, optimizer="BFGS", return_trajectory=True)
+        assert hasattr(relaxed, "calc")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.calc.results.get("energies") is not None
+        assert relaxed.calc.results.get("free_energy")
+        assert relaxed.calc.parameters == {"asap_cutoff": False}
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "BFGS"
+        assert len(traj) == 5
+        assert traj[0] != traj[-1]
+        os.remove("opt.traj")  # fails if file missing
+
+    def test_relax_ase_mol_return_traj(self):
+        pytest.importorskip("ase")
+        tmp_dir = TemporaryDirectory()
+        mol = self.mol
+        traj_file = f"{tmp_dir.name}/testing.traj"
+        relaxed, traj = mol.relax(
+            calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
+        )
+        assert hasattr(relaxed, "calc")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.calc.results.get("energies") is not None
+        assert relaxed.calc.results.get("free_energy")
+        assert relaxed.calc.parameters == {"asap_cutoff": False}
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.dynamics.get("optimizer") == "FIRE"
+        assert len(traj) == 3  # there is an off-by-one in how ASE counts steps
+        assert traj[0] != traj[-1]
+        assert os.path.isfile(traj_file)
+
+    # TODO remove skip once https://github.com/tblite/tblite/issues/110 is fixed
+    @pytest.mark.skip("Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
+    def test_calculate_gfnxtb(self):
+        pytest.importorskip("tblite")
+        mol = self.mol
+        new_mol = mol.calculate()
+        assert hasattr(new_mol, "calc")
+        assert not hasattr(new_mol, "dynamics")
+        assert new_mol.calc.results["energy"] == pytest.approx(-113.61022434200855)
+        assert isinstance(new_mol, Molecule)
+
+    @pytest.mark.skip("Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
+    def test_relax_gfnxtb(self):
+        pytest.importorskip("tblite")
+        mol = self.mol
+        relaxed = mol.relax()
+        assert hasattr(relaxed, "calc")
+        assert hasattr(relaxed, "dynamics")
+        assert relaxed.calc.results.get("energy")
+        assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
+        assert relaxed.calc.results["energy"] == pytest.approx(-113.61346199239306)

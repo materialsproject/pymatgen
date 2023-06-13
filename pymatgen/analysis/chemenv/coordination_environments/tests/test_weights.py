@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 import pytest
 from pytest import approx
@@ -763,7 +762,3 @@ class StrategyWeightsTest(PymatgenTest):
         assert abs(myweightdelta1 - 0.15625) < 1e-8
         myweightdelta6 = deltadnbset_weight4.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
         assert abs(myweightdelta6 - 1.0) < 1e-8
-
-
-if __name__ == "__main__":
-    unittest.main()

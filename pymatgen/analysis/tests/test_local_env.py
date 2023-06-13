@@ -304,7 +304,7 @@ class TestIsayevNN(PymatgenTest):
 
 class OpenBabelNNTest(PymatgenTest):
     def setUp(self):
-        pytest.importorskip("openbabel", reason="OpenBabel not installed")
+        pytest.importorskip("openbabel")
         self.benzene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "benzene.xyz"))
         self.acetylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
 
@@ -1550,7 +1550,3 @@ class MetalEdgeExtenderTest(PymatgenTest):
         # up the six coordination bonds
         short_mol_graph = metal_edge_extender(self.water_cluster_Mg, cutoff=1.5)
         assert len(short_mol_graph.graph.edges) == 6
-
-
-if __name__ == "__main__":
-    unittest.main()

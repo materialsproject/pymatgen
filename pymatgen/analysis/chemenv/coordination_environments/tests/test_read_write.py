@@ -253,7 +253,3 @@ class ReadWriteChemenvTest(unittest.TestCase):
     def tearDownClass(cls):
         # Remove the directory in which the temporary files have been created
         shutil.rmtree("tmp_dir")
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -6,16 +6,20 @@ periodic structure.
 from __future__ import annotations
 
 import collections
+import contextlib
 import functools
+import io
 import itertools
 import json
 import math
 import os
 import random
 import re
+import sys
 import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
+from inspect import isclass
 from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
 
@@ -38,7 +42,10 @@ from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 
 if TYPE_CHECKING:
-    from m3gnet.models._dynamics import TrajectoryObserver
+    from ase.calculators.calculator import Calculator
+    from ase.io.trajectory import Trajectory
+    from ase.optimize.optimize import Optimizer
+    from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
@@ -232,11 +239,15 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     def species(self) -> list[Element | Species]:
         """
         Only works for ordered structures.
-        Disordered structures will raise an AttributeError.
+
+        Raises:
+            AttributeError: If structure is disordered.
 
         Returns:
             ([Species]) List of species at each site of the structure.
         """
+        if not self.is_ordered:
+            raise AttributeError("species property only supports ordered structures!")
         return [site.specie for site in self]
 
     @property
@@ -283,7 +294,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
         """
-        return tuple((i for i, specie in enumerate(self.species) if specie.symbol == symbol))
+        return tuple((idx for idx, specie in enumerate(self.species) if specie.symbol == symbol))
 
     @property
     def symbol_set(self) -> tuple[str, ...]:
@@ -481,7 +492,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 number of sites.
         """
         if len(values) != len(self):
-            raise ValueError("Values must be same length as sites.")
+            raise ValueError(f"Values has length {len(values)} but there are {len(self)} sites! Must be same length.")
         for site, val in zip(self.sites, values):
             site.properties[property_name] = val
 
@@ -492,7 +503,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Args:
             property_name (str): The name of the property to remove.
         """
-        for site in self.sites:
+        for site in self:
             del site.properties[property_name]
 
     def replace_species(self, species_mapping: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]]) -> None:
@@ -514,42 +525,44 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 f"substituted = {sp_to_replace}; Species in structure = {sp_in_structure}"
             )
 
-        for site in self.sites:
+        for site in self:
             if sp_to_replace.intersection(site.species):
-                c = Composition()
+                comp = Composition()
                 for sp, amt in site.species.items():
                     new_sp = sp_mapping.get(sp, sp)
                     try:
-                        c += Composition(new_sp) * amt
+                        comp += Composition(new_sp) * amt
                     except Exception:
-                        c += {new_sp: amt}
-                site.species = c
+                        comp += {new_sp: amt}
+                site.species = comp
 
-    def add_oxidation_state_by_element(self, oxidation_states: dict[str, float]):
+    def add_oxidation_state_by_element(self, oxidation_states: dict[str, float]) -> None:
         """
         Add oxidation states.
 
         Args:
             oxidation_states (dict): Dict of oxidation states.
                 E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
-        """
-        try:
-            for site in self.sites:
-                new_sp = {}
-                for el, occu in site.species.items():
-                    sym = el.symbol
-                    new_sp[Species(sym, oxidation_states[sym])] = occu
-                site.species = Composition(new_sp)
-        except KeyError:
-            raise ValueError("Oxidation state of all elements must be specified in the dictionary.")
 
-    def add_oxidation_state_by_site(self, oxidation_states: list[float]):
+        Raises:
+            ValueError if oxidation states are not specified for all elements.
+        """
+        missing = {el.symbol for el in self.composition} - {*oxidation_states}
+        if missing:
+            raise ValueError(f"Oxidation states not specified for all elements, {missing=}")
+        for site in self:
+            new_sp = {}
+            for el, occu in site.species.items():
+                new_sp[Species(el.symbol, oxidation_states[el.symbol])] = occu
+            site.species = Composition(new_sp)
+
+    def add_oxidation_state_by_site(self, oxidation_states: list[float]) -> None:
         """
         Add oxidation states to a structure by site.
 
         Args:
-            oxidation_states (list): List of oxidation states.
-                E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
+            oxidation_states (list[float]): List of oxidation states.
+                E.g. [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
         """
         if len(oxidation_states) != len(self):
             raise ValueError(
@@ -563,18 +576,18 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 new_sp[Species(sym, ox)] = occu
             site.species = Composition(new_sp)
 
-    def remove_oxidation_states(self):
+    def remove_oxidation_states(self) -> None:
         """
         Removes oxidation states from a structure.
         """
-        for site in self.sites:
-            new_sp = collections.defaultdict(float)
+        for site in self:
+            new_sp: dict[Element, float] = collections.defaultdict(float)
             for el, occu in site.species.items():
                 sym = el.symbol
                 new_sp[Element(sym)] += occu
             site.species = Composition(new_sp)
 
-    def add_oxidation_state_by_guess(self, **kwargs):
+    def add_oxidation_state_by_guess(self, **kwargs) -> None:
         """
         Decorates the structure with oxidation state, guessing
         using Composition.oxi_state_guesses()
@@ -586,31 +599,27 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         oxid_guess = oxid_guess or [{e.symbol: 0 for e in self.composition}]
         self.add_oxidation_state_by_element(oxid_guess[0])
 
-    def add_spin_by_element(self, spins: dict[str, float]):
+    def add_spin_by_element(self, spins: dict[str, float]) -> None:
         """
-        Add spin states to a structure.
+        Add spin states to structure.
 
         Args:
             spins (dict): Dict of spins associated with elements or species,
                 e.g. {"Ni":+5} or {"Ni2+":5}
         """
-        for site in self.sites:
-            new_sp = {}
+        for site in self:
+            new_species = {}
             for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[
-                    Species(
-                        sym,
-                        oxidation_state=oxi_state,
-                        properties={"spin": spins.get(str(sp), spins.get(sym))},
-                    )
-                ] = occu
-            site.species = Composition(new_sp)
+                props = {"spin": spins.get(str(sp), spins.get(sym))}
+                species = Species(sym, oxidation_state=oxi_state, properties=props)
+                new_species[species] = occu
+            site.species = Composition(new_species)
 
-    def add_spin_by_site(self, spins: list[float]):
+    def add_spin_by_site(self, spins: list[float]) -> None:
         """
-        Add spin states to a structure by site.
+        Add spin states to structure by site.
 
         Args:
             spins (list): List of spins
@@ -620,34 +629,34 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             raise ValueError(f"Spins for all sites must be specified, expected {len(self)} spins, got {len(spins)}")
 
         for site, spin in zip(self.sites, spins):
-            new_sp = {}
+            new_species = {}
             for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[Species(sym, oxidation_state=oxi_state, properties={"spin": spin})] = occu
-            site.species = Composition(new_sp)
+                new_species[Species(sym, oxidation_state=oxi_state, properties={"spin": spin})] = occu
+            site.species = Composition(new_species)
 
-    def remove_spin(self):
+    def remove_spin(self) -> None:
         """
-        Removes spin states from a structure.
+        Remove spin states from structure.
         """
-        for site in self.sites:
-            new_sp = collections.defaultdict(float)
+        for site in self:
+            new_sp: dict[Element, float] = collections.defaultdict(float)
             for sp, occu in site.species.items():
                 oxi_state = getattr(sp, "oxi_state", None)
                 new_sp[Species(sp.symbol, oxidation_state=oxi_state)] += occu
-            site.species = new_sp
+            site.species = Composition(new_sp)
 
-    def extract_cluster(self, target_sites: list[Site], **kwargs):
+    def extract_cluster(self, target_sites: list[Site], **kwargs) -> list[Site]:
         """
         Extracts a cluster of atoms based on bond lengths
 
         Args:
-            target_sites ([Site]): List of initial sites to nucleate cluster.
+            target_sites (list[Site]): Initial sites from which to nucleate cluster.
             **kwargs: kwargs passed through to CovalentBond.is_bonded.
 
         Returns:
-            [Site/PeriodicSite] Cluster of atoms.
+            list[Site/PeriodicSite] Cluster of atoms.
         """
         cluster = list(target_sites)
         others = [site for site in self if site not in cluster]
@@ -664,6 +673,194 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                     new_others.append(site)
             others = new_others
         return cluster
+
+    def _calculate(
+        self, struct: Structure | Molecule, calculator: str | Calculator, verbose: bool = False
+    ) -> Structure | Molecule:
+        """
+        Performs an ASE calculation.
+
+        Args:
+            struct: Structure or Molecule to run ASE calculation on.
+            calculator: An ASE Calculator or a string from the following options: "m3gnet",
+                "gfn2-xtb".
+            verbose (bool): whether to print stdout. Defaults to False.
+
+        Returns:
+            Structure: Structure or Molelcule following ASE calculation.
+        """
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        is_molecule = isinstance(struct, Molecule)
+        if is_molecule and calculator == "m3gnet":
+            raise ValueError(f"Can't use {calculator=} for a Molecule.")
+        calculator = self._prep_calculator(calculator)
+
+        # Get Atoms object
+        adaptor = AseAtomsAdaptor()
+        atoms = adaptor.get_atoms(struct)
+
+        # Set calculator
+        atoms.calc = calculator
+
+        # Run calculation
+        stream = sys.stdout if verbose else io.StringIO()
+        with contextlib.redirect_stdout(stream):
+            atoms.get_potential_energy()
+
+        # Ensure Calculator state is preserved because it contains parameters and results
+        calc = atoms.calc
+
+        # Get Molecule/Structure object
+        struct = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
+
+        # Attach important ASE results
+        struct.calc = calc
+
+        return struct
+
+    def _relax(
+        self,
+        calculator: str | Calculator,
+        relax_cell: bool = True,
+        optimizer: str | Optimizer = "FIRE",
+        steps: int = 500,
+        fmax: float = 0.1,
+        stress_weight: float = 0.01,
+        opt_kwargs: dict = None,
+        return_trajectory: bool = False,
+        verbose: bool = False,
+    ) -> Structure | Molecule | tuple[Structure | Molecule, TrajectoryObserver | Trajectory]:
+        """
+        Performs a structure relaxation using an ASE calculator.
+
+        Args:
+            calculator: An ASE Calculator or a string from the following options: "M3GNet",
+                "gfn2-xtb".
+            relax_cell (bool): whether to relax the lattice cell. Defaults to True.
+            optimizer (str): name of the ASE optimizer class to use
+            steps (int): max number of steps for relaxation. Defaults to 500.
+            fmax (float): total force tolerance for relaxation convergence.
+                Here fmax is a sum of force and stress forces. Defaults to 0.1.
+            stress_weight (float): the stress weight for relaxation with M3GNet.
+                Defaults to 0.01.
+            opt_kwargs (dict): kwargs for the ASE optimizer class.
+            return_trajectory (bool): Whether to return the trajectory of relaxation.
+                Defaults to False.
+            verbose (bool): whether to print stdout. Defaults to False.
+
+        Returns:
+            Structure | Molecule: Relaxed structure or molecule
+        """
+        from ase import optimize
+        from ase.constraints import ExpCellFilter
+        from ase.io import read
+        from ase.optimize.optimize import Optimizer
+
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        opt_kwargs = opt_kwargs or {}
+        is_molecule = isinstance(self, Molecule)
+        run_m3gnet = isinstance(calculator, str) and calculator.lower() == "m3gnet"
+
+        if isinstance(calculator, str):
+            if run_m3gnet:
+                calculator = self._prep_calculator(calculator, stress_weight=stress_weight)
+            else:
+                calculator = self._prep_calculator(calculator)
+
+        # check str is valid optimizer key
+        def is_ase_optimizer(key):
+            return isclass(obj := getattr(optimize, key)) and issubclass(obj, Optimizer)
+
+        valid_keys = [key for key in dir(optimize) if is_ase_optimizer(key)]
+        if optimizer not in valid_keys:
+            raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
+        opt_class = getattr(optimize, optimizer)
+
+        # Get Atoms object
+        adaptor = AseAtomsAdaptor()
+        atoms = adaptor.get_atoms(self)
+
+        # Use a TrajectoryObserver if running m3gnet; otherwise, write a .traj file
+        if return_trajectory:
+            if run_m3gnet:
+                from matgl.ext.ase import TrajectoryObserver
+
+                traj_observer = TrajectoryObserver(atoms)
+            else:
+                opt_kwargs.setdefault("trajectory", "opt.traj")
+
+        # Attach calculator
+        atoms.calc = calculator
+
+        # Run relaxation
+        stream = sys.stdout if verbose else io.StringIO()
+        with contextlib.redirect_stdout(stream):
+            if relax_cell:
+                if is_molecule:
+                    raise ValueError("Can't relax cell for a Molecule.")
+                ecf = ExpCellFilter(atoms)
+                dyn = opt_class(ecf, **opt_kwargs)
+            else:
+                dyn = opt_class(atoms, **opt_kwargs)
+            dyn.run(fmax=fmax, steps=steps)
+
+        # Get pymatgen Structure or Molecule
+        system: Structure | Molecule = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
+
+        # Attach important ASE results
+        system.calc = atoms.calc
+        system.dynamics = dyn.todict()
+
+        if return_trajectory:
+            if run_m3gnet:
+                traj_observer()  # save properties of the Atoms during the relaxation
+            else:
+                traj_file = opt_kwargs["trajectory"]
+                traj_observer = read(traj_file, index=":")
+            return system, traj_observer
+
+        return system
+
+    def _prep_calculator(self, calculator: Literal["m3gnet", "gfn2-xtb"] | Calculator, **params) -> Calculator:
+        """
+        Convert string name of special ASE calculators into ASE calculator objects.
+
+        Args:
+            calculator: An ASE Calculator or a string from the following options: "m3gnet",
+                "gfn2-xtb".
+            **params: Parameters for the calculator.
+
+        Returns:
+            Calculator: ASE calculator object.
+        """
+        from ase.calculators.calculator import Calculator
+
+        if isinstance(calculator, Calculator):
+            return calculator
+
+        if calculator.lower() == "m3gnet":
+            try:
+                import matgl
+                from matgl.ext.ase import M3GNetCalculator
+            except ImportError:
+                raise ImportError("matgl not installed. Try `pip install matgl`.")
+            potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
+            return M3GNetCalculator(potential=potential, **params)
+
+        if calculator.lower() == "gfn2-xtb":
+            try:
+                from tblite.ase import TBLite
+            except ImportError:
+                raise ImportError(
+                    "Must install tblite[ase]. Try `pip install tblite[ase]` (Linux)"
+                    "or `conda install -c conda-forge tblite-python` on (Mac/Windows)."
+                )
+
+            return TBLite(method="GFN2-xTB", **params)
+
+        raise ValueError(f"Unknown {calculator=}.")
 
 
 class IStructure(SiteCollection, MSONable):
@@ -715,11 +912,11 @@ class IStructure(SiteCollection, MSONable):
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             to_unit_cell (bool): Whether to map all sites into the unit cell,
-                i.e., fractional coords between 0 and 1. Defaults to False.
+                i.e. fractional coords between 0 and 1. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
-                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                dict of sequences, e.g. {"magmom":[5, 5, 5, 5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
         """
@@ -732,7 +929,7 @@ class IStructure(SiteCollection, MSONable):
         for idx, specie in enumerate(species):
             prop = None
             if site_properties:
-                prop = {k: v[idx] for k, v in site_properties.items()}
+                prop = {key: val[idx] for key, val in site_properties.items()}
 
             site = PeriodicSite(
                 specie,
@@ -1211,7 +1408,7 @@ class IStructure(SiteCollection, MSONable):
         Algorithm:
 
         1. place sphere of radius r in crystal and determine minimum supercell
-           (parallelpiped) which would contain a sphere of radius r. for this
+           (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
            determine how many a_1"s it will take to contain the sphere.
@@ -1233,17 +1430,17 @@ class IStructure(SiteCollection, MSONable):
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors: list[PeriodicNeighbor] = []
-        for fcoord, dist, i, img in self._lattice.get_points_in_sphere(site_fcoords, pt, r):
-            nnsite = PeriodicNeighbor(
+        for frac_coord, dist, i, img in self._lattice.get_points_in_sphere(site_fcoords, pt, r):
+            nn_site = PeriodicNeighbor(
                 self[i].species,
-                fcoord,
+                frac_coord,
                 self._lattice,
                 properties=self[i].properties,
                 nn_distance=dist,
                 image=img,  # type: ignore
                 index=i,
             )
-            neighbors.append(nnsite)
+            neighbors.append(nn_site)
         return neighbors
 
     def get_neighbors(
@@ -1378,14 +1575,13 @@ class IStructure(SiteCollection, MSONable):
             if sites is None:
                 sites = self.sites
             site_coords = np.array([site.coords for site in sites], dtype=float)
-            cart_coords = np.ascontiguousarray(np.array(self.cart_coords), dtype=float)
-            lattice_matrix = np.ascontiguousarray(np.array(self.lattice.matrix), dtype=float)
-            pbc = np.ascontiguousarray(self.pbc, dtype=int)
-            r = float(r)
+            cart_coords = np.array(self.cart_coords, dtype=float)
+            lattice_matrix = np.array(self.lattice.matrix, dtype=float)
+            pbc = np.array(self.pbc, dtype=int)
             center_indices, points_indices, images, distances = find_points_in_spheres(
                 cart_coords,
                 site_coords,
-                r=r,
+                r=float(r),
                 pbc=pbc,
                 lattice=lattice_matrix,
                 tol=numerical_tol,
@@ -1394,12 +1590,7 @@ class IStructure(SiteCollection, MSONable):
             if exclude_self:
                 self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
                 cond = ~self_pair
-            return (
-                center_indices[cond],
-                points_indices[cond],
-                images[cond],
-                distances[cond],
-            )
+            return (center_indices[cond], points_indices[cond], images[cond], distances[cond])
 
     def get_symmetric_neighbor_list(
         self,
@@ -1449,9 +1640,8 @@ class IStructure(SiteCollection, MSONable):
         if sg is None:
             ops = SpaceGroup(self.get_space_group_info()[0]).symmetry_ops
         else:
-            try:
-                i = int(sg)
-                sgp = SpaceGroup.from_int_number(i)
+            try:  # first assume sg is int
+                sgp = SpaceGroup.from_int_number(int(sg))
             except ValueError:
                 sgp = SpaceGroup(sg)
             ops = sgp.symmetry_ops
@@ -1499,7 +1689,7 @@ class IStructure(SiteCollection, MSONable):
 
         # Again, compare all neighbors pairwise. For each pair of neighbors, all the symmetry operations of the provided
         # space group are iterated over. If an operation is found that connects the two bonds, it is assigned the same
-        # symmetry index it is compared to, and the symmetry operation that connets the two is saved. To compare two
+        # symmetry index it is compared to, and the symmetry operation that connects the two is saved. To compare two
         # neighbors 'SymmOp.are_symmetrically_related_vectors' is used. It is also checked whether applying the
         # connecting symmetry operation generates the neighbor-pair itself, or the equivalent version with the
         # sites exchanged and R reversed. The output is always reordered such that the former case is true.
@@ -1533,12 +1723,7 @@ class IStructure(SiteCollection, MSONable):
 
         # the bonds are ordered by their symmetry index
         idcs_symid = np.argsort(symmetry_indices)
-        bonds = (
-            bonds[0][idcs_symid],
-            bonds[1][idcs_symid],
-            bonds[2][idcs_symid],
-            bonds[3][idcs_symid],
-        )
+        bonds = (bonds[0][idcs_symid], bonds[1][idcs_symid], bonds[2][idcs_symid], bonds[3][idcs_symid])
         symmetry_indices = symmetry_indices[idcs_symid]
         symmetry_ops = symmetry_ops[idcs_symid]
 
@@ -2750,17 +2935,18 @@ class IMolecule(SiteCollection, MSONable):
         """
         if len(species) != len(coords):
             raise StructureError(
-                "The list of atomic species must be of the same length as the list of fractional coordinates."
+                f"len(species) != len(coords) ({len(species)} != {len(coords)}). List of atomic species must "
+                "have same length as list of fractional coordinates."
             )
 
         self._charge_spin_check = charge_spin_check
 
-        sites = []
-        for i, _ in enumerate(species):
+        sites: list[Site] = []
+        for idx, specie in enumerate(species):
             prop = None
             if site_properties:
-                prop = {k: v[i] for k, v in site_properties.items()}
-            sites.append(Site(species[i], coords[i], properties=prop))  # type: ignore
+                prop = {k: v[idx] for k, v in site_properties.items()}
+            sites.append(Site(specie, coords[idx], properties=prop))
 
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
@@ -3976,68 +4162,67 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def relax(
         self,
-        calculator: str = "m3gnet",
+        calculator: str | Calculator = "m3gnet",
         relax_cell: bool = True,
-        stress_weight: float = 0.01,
+        optimizer: str | Optimizer = "FIRE",
         steps: int = 500,
         fmax: float = 0.1,
+        stress_weight: float = 0.01,
+        opt_kwargs: dict = None,
         return_trajectory: bool = False,
         verbose: bool = False,
-    ) -> Structure | tuple[Structure, TrajectoryObserver]:
+    ) -> Structure | tuple[Structure, TrajectoryObserver | Trajectory]:
         """
-        Performs a crystal structure relaxation using some algorithm.
+        Performs a crystal structure relaxation using an ASE calculator.
 
         Args:
-            calculator: A string or an ASE calculator. Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            calculator: An ASE Calculator or a string from the following options: "m3gnet".
+                Defaults to 'm3gnet', i.e. the M3GNet universal potential.
             relax_cell (bool): whether to relax the lattice cell. Defaults to True.
-            stress_weight (float): the stress weight for relaxation. Defaults to 0.01.
+            optimizer (str): name of the ASE optimizer class to use
             steps (int): max number of steps for relaxation. Defaults to 500.
             fmax (float): total force tolerance for relaxation convergence.
                 Here fmax is a sum of force and stress forces. Defaults to 0.1.
+            stress_weight (float): the stress weight for relaxation with M3GNet.
+                Defaults to 0.01.
+            opt_kwargs (dict): kwargs for the ASE optimizer class.
             return_trajectory (bool): Whether to return the trajectory of relaxation.
                 Defaults to False.
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
         Returns:
-            Structure: IAP-relaxed structure
+            Structure | tuple[Structure, Trajectory]: Relaxed structure or 2-tuple of Structure
+                and ASE/M3GNet TrajectoryObserver if return_trajectory=True.
         """
-        import contextlib
-        import io
-        import sys
+        return self._relax(
+            calculator,
+            relax_cell=relax_cell,
+            optimizer=optimizer,
+            steps=steps,
+            fmax=fmax,
+            stress_weight=stress_weight,
+            opt_kwargs=opt_kwargs,
+            return_trajectory=return_trajectory,
+            verbose=verbose,
+        )
 
-        from ase.constraints import ExpCellFilter
-        from ase.optimize.fire import FIRE
-        from m3gnet.models import M3GNet, M3GNetCalculator, Potential
-        from m3gnet.models._dynamics import TrajectoryObserver
+    def calculate(
+        self,
+        calculator: str | Calculator = "m3gnet",
+        verbose: bool = False,
+    ):
+        """
+        Performs an ASE calculation.
 
-        from pymatgen.io.ase import AseAtomsAdaptor
+        Args:
+            calculator: An ASE Calculator or a string from the following options: "m3gnet".
+                Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            verbose (bool): whether to print stdout. Defaults to False.
 
-        if calculator == "m3gnet":
-            potential = Potential(M3GNet.load())
-            calculator = M3GNetCalculator(potential=potential, stress_weight=stress_weight)
-
-        adaptor = AseAtomsAdaptor()
-        atoms = adaptor.get_atoms(self)
-
-        if return_trajectory:
-            # monitor the relaxation
-            traj_observer = TrajectoryObserver(atoms)
-
-        atoms.set_calculator(calculator)
-        stream = sys.stdout if verbose else io.StringIO()
-        with contextlib.redirect_stdout(stream):
-            if relax_cell:
-                atoms = ExpCellFilter(atoms)
-            optimizer = FIRE(atoms)
-            optimizer.run(fmax=fmax, steps=steps)
-        if isinstance(atoms, ExpCellFilter):
-            atoms = atoms.atoms
-
-        struct = adaptor.get_structure(atoms)
-        if return_trajectory:
-            traj_observer()  # save properties of the Atoms during the relaxation
-            return struct, traj_observer
-        return struct
+        Returns:
+            Structure: Structure following ASE calculation.
+        """
+        return self._calculate(self, calculator, verbose=verbose)
 
     @classmethod
     def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Structure:
@@ -4091,7 +4276,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 )
         except KeyError as ex:
             raise ValueError(f"Required parameter {ex} not specified as a kwargs!")
-        raise ValueError(f"Unsupported prototype {prototype}!")
+        raise ValueError(f"Unsupported {prototype=}!")
 
 
 class Molecule(IMolecule, collections.abc.MutableSequence):
@@ -4450,28 +4635,28 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         # Pass value of functional group--either from user-defined or from
         # functional.json
         if isinstance(func_group, Molecule):
-            func_grp = func_group
+            functional_group = func_group
         else:
             # Check to see whether the functional group is in database.
             if func_group not in FunctionalGroups:
                 raise RuntimeError("Can't find functional group in list. Provide explicit coordinate instead")
-            func_grp = FunctionalGroups[func_group]
+            functional_group = FunctionalGroups[func_group]
 
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
-        bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie, bond_order=bond_order)
-        if bl is not None:
-            func_grp = func_grp.copy()
-            vec = func_grp[0].coords - func_grp[1].coords
+        bond_len = get_bond_length(non_terminal_nn.specie, functional_group[1].specie, bond_order=bond_order)
+        if bond_len is not None:
+            functional_group = functional_group.copy()
+            vec = functional_group[0].coords - functional_group[1].coords
             vec /= np.linalg.norm(vec)
-            func_grp[0] = "X", func_grp[1].coords + float(bl) * vec
+            functional_group[0] = "X", functional_group[1].coords + float(bond_len) * vec
 
         # Align X to the origin.
-        x = func_grp[0]
-        func_grp.translate_sites(list(range(len(func_grp))), origin - x.coords)
+        x = functional_group[0]
+        functional_group.translate_sites(list(range(len(functional_group))), origin - x.coords)
 
         # Find angle between the attaching bond and the bond to be replaced.
-        v1 = func_grp[1].coords - origin
+        v1 = functional_group[1].coords - origin
         v2 = self[index].coords - origin
         angle = get_angle(v1, v2)
 
@@ -4481,18 +4666,76 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             # bonds.
             axis = np.cross(v1, v2)
             op = SymmOp.from_origin_axis_angle(origin, axis, angle)
-            func_grp.apply_operation(op)
+            functional_group.apply_operation(op)
         elif abs(abs(angle) - 180) < 1:
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
-            for i, fg in enumerate(func_grp):
-                func_grp[i] = (fg.species, origin - (fg.coords - origin))
+            for i, fg in enumerate(functional_group):
+                functional_group[i] = (fg.species, origin - (fg.coords - origin))
 
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
         del self[index]
-        for site in func_grp[1:]:
+        for site in functional_group[1:]:
             self._sites.append(site)
+
+    def relax(
+        self,
+        calculator: str | Calculator = "gfn2-xtb",
+        optimizer: str | Optimizer = "FIRE",
+        steps: int = 500,
+        fmax: float = 0.1,
+        opt_kwargs: dict = None,
+        return_trajectory: bool = False,
+        verbose: bool = False,
+    ) -> Molecule | tuple[Molecule, TrajectoryObserver | Trajectory]:
+        """
+        Performs a molecule relaxation using an ASE calculator.
+
+        Args:
+            calculator: An ASE Calculator or a string from the following options: "gfn2-xtb".
+                Defaults to 'gfn2-xtb'.
+            optimizer (str): name of the ASE optimizer class to use
+            steps (int): max number of steps for relaxation. Defaults to 500.
+            fmax (float): total force tolerance for relaxation convergence.
+                Defaults to 0.1 eV/A.
+            opt_kwargs (dict): kwargs for the ASE optimizer class.
+            return_trajectory (bool): Whether to return the trajectory of relaxation.
+                Defaults to False.
+            verbose (bool): whether to print out relaxation steps. Defaults to False.
+
+        Returns:
+            Molecule | tuple[Molecule, Trajectory]: Relaxed Molecule or 2-tuple of Molecule
+                and ASE/M3GNet TrajectoryObserver if return_trajectory=True.
+        """
+        return self._relax(
+            calculator,
+            relax_cell=False,
+            optimizer=optimizer,
+            steps=steps,
+            fmax=fmax,
+            opt_kwargs=opt_kwargs,
+            return_trajectory=return_trajectory,
+            verbose=verbose,
+        )
+
+    def calculate(
+        self,
+        calculator: str | Calculator = "gfn2-xtb",
+        verbose: bool = False,
+    ) -> Molecule:
+        """
+        Performs an ASE calculation.
+
+        Args:
+            calculator: An ASE Calculator or a string from the following options: "gfn2-xtb".
+                Defaults to 'gfn2-xtb'.
+            verbose (bool): whether to print stdout. Defaults to False.
+
+        Returns:
+            Molecule: Molecule following ASE calculation.
+        """
+        return self._calculate(self, calculator, verbose=verbose)
 
 
 class StructureError(Exception):

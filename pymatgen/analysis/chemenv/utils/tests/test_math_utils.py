@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 
 from pymatgen.analysis.chemenv.utils.math_utils import (
@@ -160,7 +158,3 @@ class MathUtilsTest(PymatgenTest):
             1.0,
             1.0,
         ]
-
-
-if __name__ == "__main__":
-    unittest.main()

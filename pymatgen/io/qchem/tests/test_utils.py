@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import os
 import struct
-import unittest
 
 import pytest
 from monty.io import zopen
@@ -59,7 +58,3 @@ class UtilTest(PymatgenTest):
         for ii, val in enumerate(data_132):
             diff = abs(val - processed_data_HESS[ii])
             assert diff < 1e-15
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 import warnings
 
 import numpy as np
@@ -133,7 +132,3 @@ class XASTest(PymatgenTest):
         self.site2_xanes.absorbing_index = self.site1_xanes.absorbing_index
         with pytest.raises(ValueError):
             site_weighted_spectrum([self.site1_xanes, self.site2_xanes])
-
-
-if __name__ == "__main__":
-    unittest.main()
