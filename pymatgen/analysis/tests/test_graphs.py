@@ -497,12 +497,8 @@ from    to  to_image
 
 class MoleculeGraphTest(unittest.TestCase):
     def setUp(self):
-        cyclohexene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/cyclohexene.xyz",
-            )
-        )
+        cyclohexene_xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/cyclohexene.xyz")
+        cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.with_empty_graph(
             cyclohexene, edge_weight_name="strength", edge_weight_units=""
         )
