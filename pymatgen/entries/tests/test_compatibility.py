@@ -2110,13 +2110,15 @@ class TestMaterialsProjectAqueousCompatibility:
             o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5, solid_compat=None
         )
 
-        hydrate_entry = ComputedEntry(Composition("FeH4O2"), -10)
+        hydrate_entry = ComputedEntry(Composition("FeH4O2"), -10)  # nH2O = 2
+        hydrate_entry2 = ComputedEntry(Composition("Li2O2H2"), -10)  # nH2O = 0
 
-        initial_energy = hydrate_entry.energy
-        hydrate_entry = compat.process_entries(hydrate_entry)[0]
-        processed_energy = hydrate_entry.energy
+        compat.process_entries([hydrate_entry, hydrate_entry2])
 
-        assert initial_energy - processed_energy == pytest.approx(2 * (compat.h2o_adjustments * 3 + MU_H2O))
+        assert hydrate_entry.uncorrected_energy - hydrate_entry.energy == pytest.approx(
+            2 * (compat.h2o_adjustments * 3 + MU_H2O)
+        )
+        assert hydrate_entry2.uncorrected_energy - hydrate_entry2.energy == 0
 
     def test_processing_entries_inplace(self):
         h2o_entry = ComputedEntry(Composition("H2O"), (-5.195 + 0.234) * 3, correction=-0.234 * 3)  # -5.195 eV/atom
@@ -2390,7 +2392,3 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
 
         entry_hydride_corrected = self.compat.process_entry(self.entry_hydride)
         assert entry_hydride_corrected.correction_uncertainty == pytest.approx(0.0013)
-
-
-if __name__ == "__main__":
-    unittest.main()

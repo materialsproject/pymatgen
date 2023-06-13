@@ -689,43 +689,42 @@ class BandStructure:
             return cls.from_old_dict(dct)
 
     @classmethod
-    def from_old_dict(cls, d):
+    def from_old_dict(cls, dct):
         """
         Args:
-            d (dict): A dict with all data for a band structure symm line
-                object.
+            dct (dict): A dict with all data for a band structure symm line object.
 
         Returns:
             A BandStructureSymmLine object
         """
         # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
-        labels_dict = {k.strip(): v for k, v in d["labels_dict"].items()}
+        labels_dict = {k.strip(): v for k, v in dct["labels_dict"].items()}
         projections = {}
         structure = None
-        if "projections" in d and len(d["projections"]) != 0:
-            structure = Structure.from_dict(d["structure"])
+        if "projections" in dct and len(dct["projections"]) != 0:
+            structure = Structure.from_dict(dct["structure"])
             projections = {}
-            for spin in d["projections"]:
+            for spin in dct["projections"]:
                 dd = []
-                for ii in range(len(d["projections"][spin])):
+                for ii in range(len(dct["projections"][spin])):
                     ddd = []
-                    for jj in range(len(d["projections"][spin][ii])):
+                    for jj in range(len(dct["projections"][spin][ii])):
                         dddd = []
-                        for kk in range(len(d["projections"][spin][ii][jj])):
+                        for kk in range(len(dct["projections"][spin][ii][jj])):
                             ddddd = []
                             orb = Orbital(kk).name
-                            for ll in range(len(d["projections"][spin][ii][jj][orb])):
-                                ddddd.append(d["projections"][spin][ii][jj][orb][ll])
+                            for ll in range(len(dct["projections"][spin][ii][jj][orb])):
+                                ddddd.append(dct["projections"][spin][ii][jj][orb][ll])
                             dddd.append(np.array(ddddd))
                         ddd.append(np.array(dddd))
                     dd.append(np.array(ddd))
                 projections[Spin(int(spin))] = np.array(dd)
 
         return BandStructure(
-            d["kpoints"],
-            {Spin(int(k)): d["bands"][k] for k in d["bands"]},
-            Lattice(d["lattice_rec"]["matrix"]),
-            d["efermi"],
+            dct["kpoints"],
+            {Spin(int(k)): dct["bands"][k] for k in dct["bands"]},
+            Lattice(dct["lattice_rec"]["matrix"]),
+            dct["efermi"],
             labels_dict,
             structure=structure,
             projections=projections,

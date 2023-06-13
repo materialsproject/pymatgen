@@ -306,7 +306,7 @@ class GlobalFunctionsTest(unittest.TestCase):
         assert isinstance(energy, float)
         assert isinstance(struct, Structure)
         site_len = len(struct)
-        assert site_len == len(self.mgo_uc.sites)
+        assert site_len == len(self.mgo_uc)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -362,7 +362,3 @@ class BuckinghamPotentialBushTest(unittest.TestCase):
     def test_spring(self):
         assert self.bpb.spring_dict["Li"] == ""
         assert self.bpb.spring_dict["O"] != ""
-
-
-if __name__ == "__main__":
-    unittest.main()

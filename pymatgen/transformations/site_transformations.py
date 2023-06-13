@@ -49,7 +49,7 @@ class InsertSitesTransformation(AbstractTransformation):
         self.coords_are_cartesian = coords_are_cartesian
         self.validate_proximity = validate_proximity
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -80,7 +80,7 @@ class InsertSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -105,7 +105,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         """
         self.indices_species_map = indices_species_map
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -132,7 +132,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -152,7 +152,7 @@ class RemoveSitesTransformation(AbstractTransformation):
         """
         self.indices_to_remove = indices_to_remove
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -176,7 +176,7 @@ class RemoveSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -205,7 +205,7 @@ class TranslateSitesTransformation(AbstractTransformation):
         self.translation_vector = np.array(translation_vector)
         self.vector_in_frac_coords = vector_in_frac_coords
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -455,7 +455,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         return all_structures
 
-    def _enumerate_ordering(self, structure):
+    def _enumerate_ordering(self, structure: Structure):
         # Generate the disordered structure first.
         s = structure.copy()
         for indices, fraction in zip(self.indices, self.fractions):
@@ -534,7 +534,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -554,7 +554,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
         """
         self.site_properties = site_properties
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -573,7 +573,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -605,7 +605,7 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
         self.displacement = displacement
         self.nn_only = nn_only
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 

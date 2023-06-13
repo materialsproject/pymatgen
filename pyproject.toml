@@ -68,22 +68,16 @@ ignore = [
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
   "D415",    # First line should end with a period, question mark, or exclamation point
-  "PD002",   # pandas-use-of-inplace-argument
-  "PD011",   # pandas-use-of-dot-values
   "PD901",   # pandas-df-variable-name
   "PLC0414", # useless-import-alias
   "PLC1901", # compare-to-empty-string
   "PLR",     # pylint refactor
   "PLR2004", # Magic number
-  "PLW0603", # Using the global statement to update variables is discouraged
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
-  "PLW3301", # TODO: remove once https://github.com/charliermarsh/ruff/pull/4412 released
   "PT011",   # pytest-raises-too-broad
   "PT013",   # pytest-incorrect-pytest-import
-  "RET501",  # unnecessary-return-none
   "RET504",  # unnecessary-assign
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
-  "SIM115",  # Use context handler for opening files
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]

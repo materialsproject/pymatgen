@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import pickle
-import unittest
 import warnings
 from pathlib import Path
 
@@ -182,7 +181,7 @@ cart
 """
         p = Poscar.from_string(poscar_string)
         site = p.structure[1]
-        self.assertArrayAlmostEqual(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
+        self.assert_all_close(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
     def test_significant_figures(self):
         si = 14
@@ -283,9 +282,9 @@ direct
         p.write_file(tempfname)
         p3 = Poscar.from_file(tempfname)
 
-        self.assertArrayAlmostEqual(p.structure.lattice.abc, p3.structure.lattice.abc, 5)
-        self.assertArrayAlmostEqual(p.velocities, p3.velocities, 5)
-        self.assertArrayAlmostEqual(p.predictor_corrector, p3.predictor_corrector, 5)
+        self.assert_all_close(p.structure.lattice.abc, p3.structure.lattice.abc, 5)
+        self.assert_all_close(p.velocities, p3.velocities, 5)
+        self.assert_all_close(p.predictor_corrector, p3.predictor_corrector, 5)
         assert p.predictor_corrector_preamble == p3.predictor_corrector_preamble
         tempfname.unlink()
 
@@ -369,7 +368,7 @@ direct
         tempfname = Path("POSCAR.testing")
         poscar.write_file(tempfname)
         p = Poscar.from_file(tempfname)
-        self.assertArrayAlmostEqual(poscar.structure.lattice.abc, p.structure.lattice.abc, 5)
+        self.assert_all_close(poscar.structure.lattice.abc, p.structure.lattice.abc, 5)
         tempfname.unlink()
 
     def test_selective_dynamics(self):
@@ -820,7 +819,7 @@ G
 0.5 0.5 0.5
 """
         )
-        self.assertArrayAlmostEqual(kpoints.kpts_shift, [0.5, 0.5, 0.5])
+        self.assert_all_close(kpoints.kpts_shift, [0.5, 0.5, 0.5])
 
     def test_as_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
@@ -862,7 +861,7 @@ direct
 0.000000 0.000000 0.000000 Al"""
         )
         kpoints = Kpoints.automatic_density(p.structure, 1000)
-        self.assertArrayAlmostEqual(kpoints.kpts[0], [10, 10, 10])
+        self.assert_all_close(kpoints.kpts[0], [10, 10, 10])
 
 
 class PotcarSingleTest(PymatgenTest):
@@ -1115,17 +1114,17 @@ class VaspInputTest(PymatgenTest):
         potcar = Potcar.from_file(filepath)
         filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.auto"
         kpoints = Kpoints.from_file(filepath)
-        self.vinput = VaspInput(incar, kpoints, poscar, potcar)
+        self.vasp_input = VaspInput(incar, kpoints, poscar, potcar)
 
     def test_to_from_dict(self):
-        d = self.vinput.as_dict()
-        vinput = VaspInput.from_dict(d)
-        comp = vinput["POSCAR"].structure.composition
+        d = self.vasp_input.as_dict()
+        vasp_input = VaspInput.from_dict(d)
+        comp = vasp_input["POSCAR"].structure.composition
         assert comp == Composition("Fe4P4O16")
 
     def test_write(self):
         tmp_dir = Path("VaspInput.testing")
-        self.vinput.write_input(tmp_dir)
+        self.vasp_input.write_input(tmp_dir)
 
         filepath = tmp_dir / "INCAR"
         incar = Incar.from_file(filepath)
@@ -1139,7 +1138,7 @@ class VaspInputTest(PymatgenTest):
     def test_run_vasp(self):
         # To add some test.
         with ScratchDir(".") as d:
-            self.vinput.run_vasp(d, vasp_cmd=["cat", "INCAR"])
+            self.vasp_input.run_vasp(d, vasp_cmd=["cat", "INCAR"])
             with open(os.path.join(d, "vasp.out")) as f:
                 output = f.read()
                 assert output.split("\n")[0] == "ALGO = Damped"
@@ -1149,9 +1148,5 @@ class VaspInputTest(PymatgenTest):
         assert vi["INCAR"]["ALGO"] == "Damped"
         assert "CONTCAR.Li2O" in vi
         d = vi.as_dict()
-        vinput = VaspInput.from_dict(d)
-        assert "CONTCAR.Li2O" in vinput
-
-
-if __name__ == "__main__":
-    unittest.main()
+        vasp_input = VaspInput.from_dict(d)
+        assert "CONTCAR.Li2O" in vasp_input

@@ -186,18 +186,18 @@ class Cohp(MSONable):
         return dict_to_return
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Returns a COHP object from a dict representation of the COHP.
         """
-        icohp = {Spin(int(key)): np.array(val) for key, val in d["ICOHP"].items()} if "ICOHP" in d else None
-        are_cobis = False if "are_cobis" not in d else d["are_cobis"]
+        icohp = {Spin(int(key)): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
+        are_cobis = False if "are_cobis" not in dct else dct["are_cobis"]
         return Cohp(
-            d["efermi"],
-            d["energies"],
-            {Spin(int(key)): np.array(val) for key, val in d["COHP"].items()},
+            dct["efermi"],
+            dct["energies"],
+            {Spin(int(key)): np.array(val) for key, val in dct["COHP"].items()},
             icohp=icohp,
-            are_coops=d["are_coops"],
+            are_coops=dct["are_coops"],
             are_cobis=are_cobis,
         )
 
@@ -796,7 +796,7 @@ class CompleteCohp(Cohp):
         bond_dict = {
             label: {
                 "length": v["length"],
-                "sites": [structure.sites[site] for site in v["sites"]],
+                "sites": [structure[site] for site in v["sites"]],
             }
             for label, v in cohp_data.items()
         }
@@ -868,98 +868,40 @@ class IcohpValue(MSONable):
         else:
             self._is_spin_polarized = False
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """String representation of the ICOHP/ICOOP"""
         if not self._are_coops and not self._are_cobis:
             if self._is_spin_polarized:
                 return (
-                    "ICOHP "
-                    + str(self._label)
-                    + " between "
-                    + str(self._atom1)
-                    + " and "
-                    + str(self._atom2)
-                    + " ("
-                    + str(self._translation)
-                    + "): "
-                    + str(self._icohp[Spin.up])
-                    + " eV (Spin up) and "
-                    + str(self._icohp[Spin.down])
-                    + " eV (Spin down)"
+                    f"ICOHP {self._label} between {self._atom1} and {self._atom2} ({self._translation}): "
+                    f"{self._icohp[Spin.up]} eV (Spin up) and {self._icohp[Spin.down]} eV (Spin down)"
                 )
             return (
-                "ICOHP "
-                + str(self._label)
-                + " between "
-                + str(self._atom1)
-                + " and "
-                + str(self._atom2)
-                + " ("
-                + str(self._translation)
-                + "): "
-                + str(self._icohp[Spin.up])
-                + " eV (Spin up)"
+                f"ICOHP {self._label} between {self._atom1} and {self._atom2} ({self._translation}): "
+                f"{self._icohp[Spin.up]} eV (Spin up)"
             )
         if self._are_coops and not self._are_cobis:
             if self._is_spin_polarized:
                 return (
-                    "ICOOP "
-                    + str(self._label)
-                    + " between "
-                    + str(self._atom1)
-                    + " and "
-                    + str(self._atom2)
-                    + " ("
-                    + str(self._translation)
-                    + "): "
-                    + str(self._icohp[Spin.up])
-                    + " (Spin up) and "
-                    + str(self._icohp[Spin.down])
-                    + " (Spin down)"
+                    f"ICOOP {self._label} between {self._atom1} and {self._atom2} ({self._translation}): "
+                    f"{self._icohp[Spin.up]} eV (Spin up) and {self._icohp[Spin.down]} eV (Spin down)"
                 )
             return (
-                "ICOOP "
-                + str(self._label)
-                + " between "
-                + str(self._atom1)
-                + " and "
-                + str(self._atom2)
-                + " ("
-                + str(self._translation)
-                + "): "
-                + str(self._icohp[Spin.up])
-                + " (Spin up)"
+                f"ICOOP {self._label} between {self._atom1} and {self._atom2} ({self._translation}): "
+                f"{self._icohp[Spin.up]} eV (Spin up)"
             )
         if self._are_cobis and not self._are_coops:
             if self._is_spin_polarized:
                 return (
-                    "ICOBI "
-                    + str(self._label)
-                    + " between "
-                    + str(self._atom1)
-                    + " and "
-                    + str(self._atom2)
-                    + " ("
-                    + str(self._translation)
-                    + "): "
-                    + str(self._icohp[Spin.up])
-                    + " (Spin up) and "
-                    + str(self._icohp[Spin.down])
-                    + " (Spin down)"
+                    f"ICOBI {self._label} between {self._atom1} and {self._atom2} ({self._translation}): "
+                    f"{self._icohp[Spin.up]} eV (Spin up) and {self._icohp[Spin.down]} eV (Spin down)"
                 )
             return (
-                "ICOBI "
-                + str(self._label)
-                + " between "
-                + str(self._atom1)
-                + " and "
-                + str(self._atom2)
-                + " ("
-                + str(self._translation)
-                + "): "
-                + str(self._icohp[Spin.up])
-                + " (Spin up)"
+                f"ICOBI {self._label} between {self._atom1} and {self._atom2} ({self._translation}): "
+                f"{self._icohp[Spin.up]} eV (Spin up)"
             )
-        return None
+
+        return ""
 
     @property
     def num_bonds(self):

@@ -10,7 +10,7 @@ import os
 import warnings
 from collections import namedtuple
 from enum import Enum, unique
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, no_type_check
 
 import numpy as np
 from monty.serialization import loadfn
@@ -25,7 +25,7 @@ from pymatgen.transformations.advanced_transformations import MagOrderingTransfo
 from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
 
 if TYPE_CHECKING:
-    from pymatgen.util.typing import VectorLike
+    from numpy.typing import ArrayLike
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -293,8 +293,9 @@ class CollinearMagneticStructureAnalyzer:
 
         self.structure = structure
 
+    @no_type_check  # ignore seemingly false mypy errors
     @staticmethod
-    def _round_magmoms(magmoms: VectorLike, round_magmoms_mode: int | float) -> np.ndarray:
+    def _round_magmoms(magmoms: ArrayLike, round_magmoms_mode: int | float) -> np.ndarray:
         """If round_magmoms_mode is an integer, simply round to that number
         of decimal places, else if set to a float will try and round
         intelligently by grouping magmoms.
@@ -609,11 +610,7 @@ class MagneticStructureEnumerator:
         self,
         structure: Structure,
         default_magmoms: dict[str, float] | None = None,
-        strategies: list[str]
-        | tuple[str, ...] = (
-            "ferromagnetic",
-            "antiferromagnetic",
-        ),
+        strategies: list[str] | tuple[str, ...] = ("ferromagnetic", "antiferromagnetic"),
         automatic: bool = True,
         truncate_by_symmetry: bool = True,
         transformation_kwargs: dict | None = None,
@@ -706,7 +703,11 @@ class MagneticStructureEnumerator:
         # we will first create a set of transformations
         # and then apply them to our input structure
         self.transformations = self._generate_transformations(self.sanitized_structure)
-        self._generate_ordered_structures(self.sanitized_structure, self.transformations)
+        ordered_structures, ordered_structures_origins = self._generate_ordered_structures(
+            self.sanitized_structure, self.transformations
+        )
+        self.ordered_structures = ordered_structures
+        self.ordered_structure_origins = ordered_structures_origins
 
     @staticmethod
     def _sanitize_input_structure(input_structure: Structure) -> Structure:
@@ -934,7 +935,7 @@ class MagneticStructureEnumerator:
         self,
         sanitized_input_structure: Structure,
         transformations: dict[str, MagOrderingTransformation],
-    ):
+    ) -> tuple[list[Structure], list[str]]:
         """Apply our input structure to our list of transformations and output a list
         of ordered structures that have been pruned for duplicates and for those
         with low symmetry (optional).
@@ -1056,9 +1057,7 @@ class MagneticStructureEnumerator:
                 self.logger.info(f"Input structure was found in enumerated structures at index {matches.index(True)}")
                 self.input_index = matches.index(True)
                 self.input_origin = ordered_structures_origins[self.input_index]
-
-        self.ordered_structures = ordered_structures
-        self.ordered_structure_origins = ordered_structures_origins
+        return ordered_structures, ordered_structures_origins
 
 
 MagneticDeformation = namedtuple("MagneticDeformation", "type deformation")

@@ -292,13 +292,13 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         if run_type not in self.valid_rtypes_1 + self.valid_rtypes_2:
             raise CompatibilityError(
-                f"WARNING! Invalid run_type {run_type} for entry {entry.entry_id}. Must be one of "
+                f"WARNING! Invalid {run_type=} for entry {entry.entry_id}. Must be one of "
                 f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
             )
 
         # Verify that the entry is included in the mixing state data
-        if (entry.entry_id not in mixing_state_data["entry_id_1"].values) and (
-            entry.entry_id not in mixing_state_data["entry_id_2"].values
+        if (entry.entry_id not in mixing_state_data["entry_id_1"].values) and (  # noqa: PD011
+            entry.entry_id not in mixing_state_data["entry_id_2"].values  # noqa: PD011
         ):
             raise CompatibilityError(
                 f"WARNING! Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
@@ -308,8 +308,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             )
 
         # Verify that the entry's energy has not been modified since mixing state data was generated
-        if (entry.energy_per_atom not in mixing_state_data["energy_1"].values) and (
-            entry.energy_per_atom not in mixing_state_data["energy_2"].values
+        if (entry.energy_per_atom not in mixing_state_data["energy_1"].values) and (  # noqa: PD011
+            entry.energy_per_atom not in mixing_state_data["energy_2"].values  # noqa: PD011
         ):
             raise CompatibilityError(
                 f"WARNING! Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
@@ -583,24 +583,27 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         filtered_entries = []
 
         for entry in entries:
+            entry_id = entry.entry_id
             if not entry.parameters.get("run_type"):
                 warnings.warn(
-                    f"Entry {entry.entry_id} is missing parameters.run_type! This field"
+                    f"Entry {entry_id} is missing parameters.run_type! This field"
                     "is required. This entry will be ignored."
                 )
                 continue
 
-            if entry.parameters.get("run_type") not in self.valid_rtypes_1 + self.valid_rtypes_2:
+            run_type = entry.parameters.get("run_type")
+            if run_type not in [*self.valid_rtypes_1, *self.valid_rtypes_2]:
                 warnings.warn(
-                    f"Invalid run_type {entry.parameters.get('run_type')} for entry {entry.entry_id}. Must be one of "
+                    f"Invalid {run_type=} for entry {entry_id}. Must be one of "
                     f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
                 )
                 continue
 
-            if entry.entry_id is None:
+            formula = entry.composition.reduced_formula
+            if entry_id is None:
                 warnings.warn(
-                    f"Entry_id for {entry.composition.reduced_formula} entry {entry.entry_id} is invalid. "
-                    "Unique entry_ids are required for every ComputedStructureEntry. This entry will be ignored."
+                    f"{entry_id=} for {formula=}. Unique entry_ids are required for every ComputedStructureEntry."
+                    " This entry will be ignored."
                 )
                 continue
 
@@ -735,7 +738,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         try:
             pd = PhaseDiagram(entries)
         except ValueError:
-            return None
+            return
 
         print(
             f"{'entry_id':<12}{'formula':<12}{'spacegroup':<12}{'run_type':<10}{'eV/atom':<8}"
@@ -747,4 +750,4 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 f"{e.parameters['run_type']:<10}{e.energy_per_atom:<8.3f}"
                 f"{e.correction / e.composition.num_atoms:<9.3f} {pd.get_e_above_hull(e):<9.3f}"
             )
-        return None
+        return

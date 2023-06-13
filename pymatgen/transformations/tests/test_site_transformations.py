@@ -64,7 +64,7 @@ class TranslateSitesTransformationTest(PymatgenTest):
         inv_t = t.inverse
         s = inv_t.apply_transformation(s)
         assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == approx(0)
-        self.assertArrayAlmostEqual(s[1].frac_coords, [0.375, 0.375, 0.375])
+        self.assert_all_close(s[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_to_from_dict(self):
         d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
@@ -271,7 +271,7 @@ class AddSitePropertyTransformationTest(PymatgenTest):
             manually_set.add_site_property(prop, value)
         trans_set = trans.apply_transformation(s)
         for prop in site_props:
-            self.assertArrayAlmostEqual(trans_set.site_properties[prop], manually_set.site_properties[prop])
+            self.assert_all_close(trans_set.site_properties[prop], manually_set.site_properties[prop])
 
 
 class RadialSiteDistortionTransformationTest(PymatgenTest):
@@ -344,7 +344,3 @@ class RadialSiteDistortionTransformationTest(PymatgenTest):
         s = t.apply_transformation(self.molecule)
         for c1, c2 in zip(self.molecule[7:], s[7:]):
             assert abs(round(sum(c2.coords - c1.coords), 2)) == 0.33
-
-
-if __name__ == "__main__":
-    unittest.main()

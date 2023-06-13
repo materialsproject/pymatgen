@@ -52,7 +52,3 @@ class FuncTestCase(unittest.TestCase):
             round_to_sigfigs(3.5, -2)
         with pytest.raises(TypeError):
             round_to_sigfigs(3.5, 3.5)
-
-
-if __name__ == "__main__":
-    unittest.main()

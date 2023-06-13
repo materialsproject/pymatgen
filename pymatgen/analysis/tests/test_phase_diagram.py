@@ -393,16 +393,15 @@ class PhaseDiagramTest(unittest.TestCase):
             ), "The number of decomposition phases can at most be equal to the number of components."
 
         # Just to test decomposition for a fictitious composition
-        ans_dict = {
+        actual = {
             entry.composition.formula: amt for entry, amt in self.pd.get_decomposition(Composition("Li3Fe7O11")).items()
         }
-        expected_ans = {
+        expected = {
             "Fe2 O2": 0.0952380952380949,
             "Li1 Fe1 O2": 0.5714285714285714,
             "Fe6 O8": 0.33333333333333393,
         }
-        for k, v in expected_ans.items():
-            assert ans_dict[k] == pytest.approx(v)
+        assert actual == pytest.approx(expected)
 
     def test_get_transition_chempots(self):
         for el in self.pd.elements:
@@ -415,21 +414,9 @@ class PhaseDiagramTest(unittest.TestCase):
                     assert len(self.pd.get_element_profile(el, entry.composition)) <= len(self.pd.facets)
 
         expected = [
-            {
-                "evolution": 1.0,
-                "chempot": -4.2582781416666666,
-                "reaction": "Li2O + 0.5 O2 -> Li2O2",
-            },
-            {
-                "evolution": 0,
-                "chempot": -5.0885906699999968,
-                "reaction": "Li2O -> Li2O",
-            },
-            {
-                "evolution": -1.0,
-                "chempot": -10.487582010000001,
-                "reaction": "Li2O -> 2 Li + 0.5 O2",
-            },
+            {"evolution": 1.0, "chempot": -4.2582781416666666, "reaction": "Li2O + 0.5 O2 -> Li2O2"},
+            {"evolution": 0, "chempot": -5.0885906699999968, "reaction": "Li2O -> Li2O"},
+            {"evolution": -1.0, "chempot": -10.487582010000001, "reaction": "Li2O -> 2 Li + 0.5 O2"},
         ]
         result = self.pd.get_element_profile(Element("O"), Composition("Li2O"))
         for d1, d2 in zip(expected, result):
@@ -591,6 +578,9 @@ class PhaseDiagramTest(unittest.TestCase):
 
         for elem, energy in cpresult.items():
             assert cp2["FeO-LiFeO2-Fe"][elem] == pytest.approx(energy)
+
+    def test_get_plot(self):
+        self.pd.get_plot()  # PDPlotter functionality is tested separately
 
     def test_to_from_dict(self):
         # test round-trip for other entry types such as ComputedEntry
@@ -862,14 +852,19 @@ class PDPlotterTest(unittest.TestCase):
     def setUp(self):
         entries = list(EntrySet.from_csv(os.path.join(module_dir, "pdentries_test.csv")))
 
-        self.pd_ternary = PhaseDiagram(entries)
-        self.plotter_ternary_mpl = PDPlotter(self.pd_ternary, backend="matplotlib")
-        self.plotter_ternary_plotly = PDPlotter(self.pd_ternary, backend="plotly")
+        elemental_entries = [e for e in entries if e.composition.elements == [Element("Li")]]
+        self.pd_unary = PhaseDiagram(elemental_entries)
+        self.plotter_unary_plotly = PDPlotter(self.pd_unary, backend="plotly")
 
         entries_LiO = [e for e in entries if "Fe" not in e.composition]
         self.pd_binary = PhaseDiagram(entries_LiO)
         self.plotter_binary_mpl = PDPlotter(self.pd_binary, backend="matplotlib")
         self.plotter_binary_plotly = PDPlotter(self.pd_binary, backend="plotly")
+
+        self.pd_ternary = PhaseDiagram(entries)
+        self.plotter_ternary_mpl = PDPlotter(self.pd_ternary, backend="matplotlib")
+        self.plotter_ternary_plotly_2d = PDPlotter(self.pd_ternary, backend="plotly", ternary_style="2d")
+        self.plotter_ternary_plotly_3d = PDPlotter(self.pd_ternary, backend="plotly", ternary_style="3d")
 
         entries.append(PDEntry("C", 0))
         self.pd_quaternary = PhaseDiagram(entries)
@@ -909,8 +904,10 @@ class PDPlotterTest(unittest.TestCase):
 
     def test_plotly_plots(self):
         # Also very basic tests. Ensures callability and 2D vs 3D properties.
+        self.plotter_unary_plotly.get_plot()
         self.plotter_binary_plotly.get_plot()
-        self.plotter_ternary_plotly.get_plot()
+        self.plotter_ternary_plotly_2d.get_plot()
+        self.plotter_ternary_plotly_3d.get_plot()
         self.plotter_quaternary_plotly.get_plot()
 
 
@@ -930,7 +927,7 @@ class UtilityFunctionTest(unittest.TestCase):
             [400, 17, 20],
             [21, 17, 400],
         ]
-        expected_ans = {
+        expected = {
             (5, 393),
             (21, 353),
             (353, 400),
@@ -954,7 +951,7 @@ class UtilityFunctionTest(unittest.TestCase):
             (399, 400),
             (20, 400),
         }
-        assert uniquelines(testdata) == expected_ans
+        assert uniquelines(testdata) == expected
 
     def test_triangular_coord(self):
         coord = [0.5, 0.5]
@@ -965,7 +962,3 @@ class UtilityFunctionTest(unittest.TestCase):
         coord = [0.5, 0.5, 0.5]
         coord = tet_coord(coord)
         assert np.allclose(coord, [1.0, 0.57735027, 0.40824829])
-
-
-if __name__ == "__main__":
-    unittest.main()

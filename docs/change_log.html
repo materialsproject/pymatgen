@@ -36,14 +36,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
                 2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -53,6 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2023-5-31">v2023.5.31</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2023-5-10">v2023.5.10</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2023-5-8">v2023.5.8</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#the-yb-2-deprecation-release">❗ The <code class="docutils literal notranslate"><span class="pre">Yb_2</span></code> deprecation release ❗</a></li>
@@ -407,7 +412,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Change log</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/change_log.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -420,6 +425,41 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
+<section id="v2023-5-31">
+<h2>v2023.5.31<a class="headerlink" href="#v2023-5-31" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Breaking: Default <code class="docutils literal notranslate"><span class="pre">user_potcar_settings</span></code> to <code class="docutils literal notranslate"><span class="pre">{&quot;W&quot;:</span> <span class="pre">&quot;W_sv&quot;}</span></code> in all input sets if <code class="docutils literal notranslate"><span class="pre">user_potcar_functional</span> <span class="pre">==</span> <span class="pre">&quot;PBE_54&quot;</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3022">#3022</a></p></li>
+<li><p>Unignore <code class="docutils literal notranslate"><span class="pre">ruff</span></code> <code class="docutils literal notranslate"><span class="pre">PD011</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3020">#3020</a></p></li>
+<li><p>Tweak variable names <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3019">#3019</a></p></li>
+<li><p>MaterialsProjectCompatibility issue silencable deprecation warning <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3017">#3017</a></p></li>
+<li><p>Optimize cython find_points_in _spheres <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3015">#3015</a></p></li>
+<li><p>Cp2k 2.0 <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2672">#2672</a></p></li>
+<li><p>Added methods to compute and compare DOS fingerprints <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2772">#2772</a></p></li>
+<li><p>Breaking: Overhaul <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">PymatgenTest</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3014">#3014</a></p></li>
+<li><p>Fix <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when <code class="docutils literal notranslate"><span class="pre">structure.selective_dynamics</span></code> has type <code class="docutils literal notranslate"><span class="pre">np.array</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3012">#3012</a></p></li>
+<li><p>Clean up <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3010">#3010</a></p></li>
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">.pytest-split-durations</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3005">#3005</a></p></li>
+<li><p>Lookup <code class="docutils literal notranslate"><span class="pre">MPRester</span></code> API key in settings if <code class="docutils literal notranslate"><span class="pre">None</span></code> provided as arg <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3004">#3004</a></p></li>
+<li><p>Support writing structures to compressed JSON (.json.gz .json.bz2 .json.xz .json.lzma) <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3003">#3003</a></p></li>
+<li><p>Add LightStructureEnvironments.from_structure_environments() fallback value if <code class="docutils literal notranslate"><span class="pre">ce_and_neighbors</span></code> is None <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3002">#3002</a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Species</span></code> parse oxi state from symbol str <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2998">#2998</a></p></li>
+<li><p>Re-export <code class="docutils literal notranslate"><span class="pre">SiteCollection</span></code> + <code class="docutils literal notranslate"><span class="pre">DummySpecies</span></code> from <code class="docutils literal notranslate"><span class="pre">pymatgen.core</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2995">#2995</a></p></li>
+<li><p>Orbital-resolved icohplist <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2993">#2993</a></p></li>
+<li><p>Hide all type-hint-only imports behind <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">TYPE_CHECKING</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2992">#2992</a></p></li>
+<li><p>Add type hints for <code class="docutils literal notranslate"><span class="pre">pymatgen.io.ase</span></code> module <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2991">#2991</a></p></li>
+<li><p>Enable ruff doc rules in CI <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2990">#2990</a></p></li>
+<li><p>Suspected Typo Fix in <code class="docutils literal notranslate"><span class="pre">pymatgen.io.vasp.optics</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2989">#2989</a></p></li>
+<li><p>Doc strings <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2987">#2987</a></p></li>
+<li><p>Fix average error <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2986">#2986</a></p></li>
+<li><p>Drop deprecated SubstrateAnalyzer + ZSLGenerator reexports <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2981">#2981</a></p></li>
+<li><p>Breaking: Default <code class="docutils literal notranslate"><span class="pre">user_potcar_settings</span></code> to <code class="docutils literal notranslate"><span class="pre">{&quot;W&quot;:</span> <span class="pre">&quot;W_sv&quot;}</span></code> in all input sets if <code class="docutils literal notranslate"><span class="pre">user_potcar_functional</span> <span class="pre">==</span> <span class="pre">&quot;PBE_54&quot;</span></code> (#3022) <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3022">#3022</a></p></li>
+<li><p>fix unwanted x margins in get_elt_projected_plots_color (closes #562) <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues/562">#562</a></p></li>
+<li><p>Add LightStructureEnvironments.from_structure_environments() fallback value if <code class="docutils literal notranslate"><span class="pre">ce_and_neighbors</span></code> is None (#3002) <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues/2756">#2756</a></p></li>
+<li><p>add doc str explaining need for class ElementBase (closes #2999) <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues/2999">#2999</a></p></li>
+<li><p>Update docs. <a class="reference external" href="https://github.com/materialsproject/pymatgen/commit/3e3c31c8d342c84f2c6bbb961c321e458b9accb9">3e3c31c</a></p></li>
+<li><p>ruff set isort.split-on-trailing-comma = false <a class="reference external" href="https://github.com/materialsproject/pymatgen/commit/c0ec53452c3dc87c6cca5edc1c6b2b6218f15569">c0ec534</a></p></li>
+</ul>
+</section>
 <section id="v2023-5-10">
 <h2>v2023.5.10<a class="headerlink" href="#v2023-5-10" title="Permalink to this heading"></a></h2>
 <ul class="simple">
@@ -469,7 +509,7 @@
 * Link /addons from new subsection on /contributing page by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2967">#2967</a>
 * Breaking: change <code class="docutils literal notranslate"><span class="pre">Yb</span></code> pseudo-potential on all VASP input sets from <code class="docutils literal notranslate"><span class="pre">Yb_2</span></code> to <code class="docutils literal notranslate"><span class="pre">Yb_3</span></code> by &#64;janosh in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2969">#2969</a>
 * fix recursion error by adding copy and deepcopy dunder methods by &#64;orionarcher in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2973">#2973</a>
-* Revert to <code class="docutils literal notranslate"><span class="pre">Yb_2</span></code> on pre-<code class="docutils literal notranslate"><span class="pre">PBE_54</span></code> input sets by &#64;janosh in <a href="#id35"><span class="problematic" id="id36">`</span></a>#2972</p>
+* Revert to <code class="docutils literal notranslate"><span class="pre">Yb_2</span></code> on pre-<code class="docutils literal notranslate"><span class="pre">PBE_54</span></code> input sets by &#64;janosh in <a href="#id63"><span class="problematic" id="id64">`</span></a>#2972</p>
 </section>
 </section>
 <section id="v2023-3-23">
@@ -2259,7 +2299,7 @@ Ar, which are set to infinity with a warning.</p></li>
 <section id="v4-5-7">
 <h2>v4.5.7<a class="headerlink" href="#v4-5-7" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>PMG settings are now prefixed with <a href="#id41"><span class="problematic" id="id42">PMG_</span></a> to ensure proper namespacing.</p></li>
+<li><p>PMG settings are now prefixed with <a href="#id69"><span class="problematic" id="id70">PMG_</span></a> to ensure proper namespacing.</p></li>
 <li><p>Improve error output in command line bader caller.</p></li>
 <li><p>Add Py3.6 classifier.</p></li>
 <li><p>Misc bug fixes.</p></li>
@@ -2927,9 +2967,9 @@ document schema for use with MPRester.query method.</p></li>
 <ul class="simple">
 <li><p>Completely revamped symmetry package. The finder.SymmetryFinder and
 pointgroup and spacegroup modules are now deprecated. Instead,
-all symmetry analysis is in the <a href="#id37"><span class="problematic" id="id38">:module:`pymatgen.symmetry.analyzer`_</span></a>
+all symmetry analysis is in the <a href="#id65"><span class="problematic" id="id66">:module:`pymatgen.symmetry.analyzer`_</span></a>
 module. There is also a completely rewritten support for symmetry groups in
-<a href="#id39"><span class="problematic" id="id40">:module:`pymatgen.symmetry.groups`_</span></a>. Structure now supports a static
+<a href="#id67"><span class="problematic" id="id68">:module:`pymatgen.symmetry.groups`_</span></a>. Structure now supports a static
 constructor to generate a structure from a spacegroup (see examples).</p></li>
 <li><p>BatteryAnalyzer class (Anubhav Jain) to provide for some common analysis of
 intercalation electrodes.</p></li>

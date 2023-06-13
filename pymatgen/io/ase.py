@@ -7,21 +7,26 @@ Atoms object and pymatgen Structure objects.
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.core.structure import Molecule, Structure
 
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.core.structure import SiteCollection
+
+
 try:
     from ase import Atoms
+    from ase.calculators.singlepoint import SinglePointDFTCalculator
+    from ase.constraints import FixAtoms
 
     ase_loaded = True
 except ImportError:
     ase_loaded = False
-
-if ase_loaded:
-    from ase.calculators.singlepoint import SinglePointDFTCalculator
-    from ase.constraints import FixAtoms
 
 __author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -37,12 +42,12 @@ class AseAtomsAdaptor:
     """
 
     @staticmethod
-    def get_atoms(structure: Structure | Molecule, **kwargs) -> Atoms:
+    def get_atoms(structure: SiteCollection, **kwargs) -> Atoms:
         """
         Returns ASE Atoms object from pymatgen structure or molecule.
 
         Args:
-            structure (Structure | Molecule): Input structure or molecule
+            structure (SiteCollection): pymatgen Structure or Molecule
             **kwargs: passed to the ASE Atoms constructor
 
         Returns:
@@ -52,18 +57,19 @@ class AseAtomsAdaptor:
             raise ValueError("ASE Atoms only supports ordered structures")
         if not ase_loaded:
             raise ImportError(
-                "AseAtomsAdaptor requires the ASE package.\nUse `pip install ase` or `conda install ase -c conda-forge`"
+                "AseAtomsAdaptor requires the ASE package.\n"
+                "Use `pip install ase` or `conda install ase -c conda-forge`"
             )
 
         # Construct the base ASE Atoms object
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
         if hasattr(structure, "lattice"):
-            cell = structure.lattice.matrix
             pbc = True
-        else:
-            cell = None
+            cell = structure.lattice.matrix
+        else:  # Molecule without lattice
             pbc = None
+            cell = None
 
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
 
@@ -83,14 +89,14 @@ class AseAtomsAdaptor:
             initial_charges = structure.site_properties["charge"]
             atoms.set_initial_charges(initial_charges)
 
-        magmoms = structure.site_properties["final_magmom"] if "final_magmom" in structure.site_properties else None
-        charges = structure.site_properties["final_charge"] if "final_charge" in structure.site_properties else None
+        magmoms = structure.site_properties.get("final_magmom")
+        charges = structure.site_properties.get("final_charge")
         if magmoms or charges:
             if magmoms and charges:
                 calc = SinglePointDFTCalculator(atoms, magmoms=magmoms, charges=charges)
             elif magmoms:
                 calc = SinglePointDFTCalculator(atoms, magmoms=magmoms)
-            elif charges:
+            else:
                 calc = SinglePointDFTCalculator(atoms, charges=charges)
             atoms.calc = calc
 
@@ -103,11 +109,12 @@ class AseAtomsAdaptor:
         if "selective_dynamics" in structure.site_properties:
             fix_atoms = []
             for site in structure:
-                site_prop = site.properties["selective_dynamics"]
-                if site_prop not in [[True, True, True], [False, False, False]]:
+                selective_dynamics: ArrayLike = site.properties.get("selective_dynamics")  # type: ignore[assignment]
+                if not (np.all(selective_dynamics) or not np.any(selective_dynamics)):
+                    # should be [True, True, True] or [False, False, False]
                     raise ValueError(
-                        "ASE FixAtoms constraint does not support selective dynamics in only some dimensions."
-                        "Remove the selective dynamics and try again if you do not need them."
+                        "ASE FixAtoms constraint does not support selective dynamics in only some dimensions. "
+                        f"Remove the {selective_dynamics=} and try again if you do not need them."
                     )
                 is_fixed = bool(~np.all(site.properties["selective_dynamics"]))
                 fix_atoms.append(is_fixed)

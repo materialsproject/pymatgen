@@ -7,6 +7,7 @@ import unittest
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_almost_equal
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AngleNbSetWeight,
@@ -41,8 +42,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
         os.makedirs("tmp_dir", exist_ok=True)
 
     def test_read_write_structure_environments(self):
-        with open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json") as f:
-            dd = json.load(f)
+        with open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json") as file:
+            dd = json.load(file)
 
         atom_indices = dd["atom_indices"]
 
@@ -52,11 +53,11 @@ class ReadWriteChemenvTest(unittest.TestCase):
             only_indices=atom_indices, maximum_distance_factor=2.25, get_from_hints=True
         )
 
-        with open("tmp_dir/se.json", "w") as f:
-            json.dump(se.as_dict(), f)
+        with open("tmp_dir/se.json", "w") as file:
+            json.dump(se.as_dict(), file)
 
-        with open("tmp_dir/se.json") as f:
-            dd = json.load(f)
+        with open("tmp_dir/se.json") as file:
+            dd = json.load(file)
 
         se2 = StructureEnvironments.from_dict(dd)
 
@@ -67,11 +68,11 @@ class ReadWriteChemenvTest(unittest.TestCase):
             structure_environments=se, strategy=strategy, valences="undefined"
         )
 
-        with open("tmp_dir/lse.json", "w") as f:
-            json.dump(lse.as_dict(), f, default=lambda o: o.tolist() if hasattr(o, "tolist") else o)
+        with open("tmp_dir/lse.json", "w") as file:
+            json.dump(lse.as_dict(), file, default=lambda obj: getattr(obj, "tolist", lambda: obj)())
 
-        with open("tmp_dir/lse.json") as f:
-            LightStructureEnvironments.from_dict(json.load(f))
+        with open("tmp_dir/lse.json") as file:
+            LightStructureEnvironments.from_dict(json.load(file))
 
         # this_sites = [ss["site"] for ss in lse._all_nbs_sites]
         # print(f"{this_sites=}")
@@ -87,10 +88,10 @@ class ReadWriteChemenvTest(unittest.TestCase):
         with open(f"{se_files_dir}/se_mp-7000.json") as f:
             dd = json.load(f)
 
-        se = StructureEnvironments.from_dict(dd)
+        struct_envs = StructureEnvironments.from_dict(dd)
 
         isite = 6
-        nb_set = se.neighbors_sets[isite][4][0]
+        nb_set = struct_envs.neighbors_sets[isite][4][0]
 
         nb_set_surface_points = [
             [1.0017922780870239, 0.99301365328679292],
@@ -115,8 +116,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         neighb_coords = nb_set.coords
 
-        np.testing.assert_array_almost_equal(coords, neighb_coords[1:])
-        np.testing.assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
+        assert_array_almost_equal(coords, neighb_coords[1:])
+        assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
 
         norm_dist = nb_set.normalized_distances
         assert sorted(norm_dist) == pytest.approx(sorted([1.001792, 1.001792, 1, 1.0]))
@@ -252,7 +253,3 @@ class ReadWriteChemenvTest(unittest.TestCase):
     def tearDownClass(cls):
         # Remove the directory in which the temporary files have been created
         shutil.rmtree("tmp_dir")
-
-
-if __name__ == "__main__":
-    unittest.main()

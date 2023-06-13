@@ -1132,7 +1132,7 @@ class StructureMatcher(MSONable):
             if match is None:
                 return None
             # invert the mapping, since it needs to be from s1 to s2
-            mapping = [list(match[4]).index(i) if i in match[4] else None for i in range(len(s1))]
+            mapping = [list(match[4]).index(idx) if idx in match[4] else None for idx in range(len(s1))]
             return match[2], match[3], mapping
         # s2 is superset
         match = self._strict_match(s2, s1, fu=fu, s1_supercell=True, use_rms=True, break_on_match=False)

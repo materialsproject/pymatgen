@@ -361,7 +361,7 @@ class AdfKey(MSONable):
         key = d.get("name")
         options = d.get("options")
         subkey_list = d.get("subkeys", [])
-        subkeys = [AdfKey.from_dict(k) for k in subkey_list] if len(subkey_list) > 0 else None
+        subkeys = [AdfKey.from_dict(k) for k in subkey_list] or None
         return cls(key, options, subkeys)
 
     @staticmethod
@@ -827,7 +827,7 @@ class AdfOutput:
                     if m:
                         cycle = int(m.group(1))
                         if cycle <= 0:
-                            raise AdfOutputError(f"Wrong cycle {cycle}")
+                            raise AdfOutputError(f"Wrong {cycle=}")
                         if cycle > last_cycle:
                             parse_cycle = True
                             last_cycle = cycle

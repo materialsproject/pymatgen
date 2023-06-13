@@ -162,7 +162,7 @@ class SlabEntry(ComputedStructureEntry):
 
     def gibbs_binding_energy(self, eads=False):
         """
-        Returns the adsorption energy or Gibb's binding energy
+        Returns the adsorption energy or Gibbs binding energy
             of an adsorbate on a surface
         Args:
             eads (bool): Whether to calculate the adsorption energy
@@ -170,10 +170,10 @@ class SlabEntry(ComputedStructureEntry):
                 adsorption energy normalized by number of adsorbates.
         """
         n = self.get_unit_primitive_area
-        Nads = self.Nads_in_slab
+        n_ads = self.Nads_in_slab
 
-        BE = (self.energy - n * self.clean_entry.energy) / Nads - sum(ads.energy_per_atom for ads in self.adsorbates)
-        return BE * Nads if eads else BE
+        BE = (self.energy - n * self.clean_entry.energy) / n_ads - sum(ads.energy_per_atom for ads in self.adsorbates)
+        return BE * n_ads if eads else BE
 
     def surface_energy(self, ucell_entry, ref_entries=None):
         """
@@ -211,7 +211,7 @@ class SlabEntry(ComputedStructureEntry):
         ref_entries_dict.update(self.ads_entries_dict)
 
         # Calculate Gibbs free energy of the bulk per unit formula
-        gbulk = ucell_entry.energy / ucell_comp.get_integer_formula_and_factor()[1]
+        gibbs_bulk = ucell_entry.energy / ucell_comp.get_integer_formula_and_factor()[1]
 
         # First we get the contribution to the bulk energy
         # from each element with an existing ref_entry.
@@ -228,8 +228,8 @@ class SlabEntry(ComputedStructureEntry):
         for ref_el in ucell_comp.as_dict():
             if str(ref_el) not in ref_entries_dict:
                 break
-        refEperA = (gbulk - gbulk_eqn) / ucell_reduced_comp.as_dict()[ref_el]
-        bulk_energy += self.composition.as_dict()[ref_el] * refEperA
+        ref_e_per_a = (gibbs_bulk - gbulk_eqn) / ucell_reduced_comp.as_dict()[ref_el]
+        bulk_energy += self.composition.as_dict()[ref_el] * ref_e_per_a
         se = gamma.subs(
             {
                 Symbol("E_surf"): self.energy,
@@ -258,9 +258,9 @@ class SlabEntry(ComputedStructureEntry):
             adsorbate.
         """
         unit_a = self.get_unit_primitive_area
-        Nsurfs = self.Nsurfs_ads_in_slab
-        Nads = self.Nads_in_slab
-        return Nads / (unit_a * Nsurfs)
+        n_surfs = self.Nsurfs_ads_in_slab
+        n_ads = self.Nads_in_slab
+        return n_ads / (unit_a * n_surfs)
 
     @property
     def Nads_in_slab(self):
@@ -278,31 +278,31 @@ class SlabEntry(ComputedStructureEntry):
         weights = [s.species.weight for s in struct]
         center_of_mass = np.average(struct.frac_coords, weights=weights, axis=0)
 
-        Nsurfs = 0
+        n_surfs = 0
         # Are there adsorbates on top surface?
         if any(
             site.species_string in self.ads_entries_dict for site in struct if site.frac_coords[2] > center_of_mass[2]
         ):
-            Nsurfs += 1
+            n_surfs += 1
         # Are there adsorbates on bottom surface?
         if any(
             site.species_string in self.ads_entries_dict for site in struct if site.frac_coords[2] < center_of_mass[2]
         ):
-            Nsurfs += 1
+            n_surfs += 1
 
-        return Nsurfs
+        return n_surfs
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Returns a SlabEntry by reading in an dictionary
         """
-        structure = SlabEntry.from_dict(d["structure"])
-        energy = SlabEntry.from_dict(d["energy"])
-        miller_index = d["miller_index"]
-        label = d["label"]
-        adsorbates = d["adsorbates"]
-        clean_entry = d["clean_entry"]
+        structure = SlabEntry.from_dict(dct["structure"])
+        energy = SlabEntry.from_dict(dct["energy"])
+        miller_index = dct["miller_index"]
+        label = dct["label"]
+        adsorbates = dct["adsorbates"]
+        clean_entry = dct["clean_entry"]
 
         return cls(
             structure,
@@ -599,7 +599,7 @@ class SurfaceEnergyPlotter:
                 of intersection. Defaults to 10 points.
 
         Returns:
-            (Pylab): Plot of area frac on the Wulff shape
+            (pyplot): Plot of area frac on the Wulff shape
                 for each facet vs chemical potential.
         """
         delu_dict = delu_dict or {}
@@ -1514,7 +1514,7 @@ class WorkFunctionAnalyzer:
             label_energies (bool): Whether to label relevant energy
                 quantities such as the work function, Fermi energy,
                 vacuum locpot, bulk-like locpot
-            plt (plt): Matplotlib pylab object
+            plt (plt): Matplotlib pyplot object
             label_fontsize (float): Fontsize of labels
 
         Returns plt of the locpot vs c axis
@@ -1881,7 +1881,7 @@ class NanoscaleStability:
             label (str): Label of the plot for legend
             increments (int): Number of plot points
             delu_default (float): Default value for all unset chemical potentials
-            plt (pylab): Plot
+            plt (pyplot): Plot
             from_sphere_area (bool): There are two ways to calculate the bulk
                 formation energy. Either by treating the volume and thus surface
                 area of the particle as a perfect sphere, or as a Wulff shape.
@@ -1942,7 +1942,7 @@ class NanoscaleStability:
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             delu_default (float): Default value for all unset chemical potentials
-            plt (pylab): Plot
+            plt (pyplot): Plot
             labels (list): List of labels for each plot, corresponds to the
                 list of se_analyzers
             from_sphere_area (bool): There are two ways to calculate the bulk

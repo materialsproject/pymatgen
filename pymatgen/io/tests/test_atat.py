@@ -94,7 +94,7 @@ class AtatTest(PymatgenTest):
         struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.out"))
 
         assert struc_from_cif.matches(struc_from_out)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             struc_from_out.lattice.parameters,
             struc_from_cif.lattice.parameters,
             decimal=4,
@@ -108,7 +108,7 @@ class AtatTest(PymatgenTest):
         struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.out"))
 
         assert struc_from_cif.matches(struc_from_out)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             struc_from_out.lattice.parameters,
             struc_from_cif.lattice.parameters,
             decimal=4,

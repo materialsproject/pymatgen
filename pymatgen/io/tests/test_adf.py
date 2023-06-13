@@ -306,7 +306,3 @@ class AdfOutputTest(unittest.TestCase):
         o = AdfOutput(filename)
         assert o.final_energy == approx(-0.74399276)
         assert len(o.final_structure) == 4
-
-
-if __name__ == "__main__":
-    unittest.main()

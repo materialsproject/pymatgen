@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 from pymatgen.analysis.structure_prediction.substitutor import Substitutor
 from pymatgen.core.composition import Composition
@@ -44,7 +43,3 @@ class SubstitutorTest(PymatgenTest):
 
     def test_as_dict(self):
         Substitutor.from_dict(self.s.as_dict())
-
-
-if __name__ == "__main__":
-    unittest.main()

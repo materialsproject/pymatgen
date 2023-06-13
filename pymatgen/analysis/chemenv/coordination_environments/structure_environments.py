@@ -677,12 +677,12 @@ class StructureEnvironments(MSONable):
             import matplotlib.pyplot as plt
         except ImportError:
             print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
-            return None
+            return
         fig = self.get_csm_and_maps(isite=isite, max_csm=max_csm)
         if fig is None:
-            return None
+            return
         plt.show()
-        return None
+        return
 
     def get_csm_and_maps(self, isite, max_csm=8.0, figsize=None, symmetry_measure_type=None):
         """
@@ -728,7 +728,7 @@ class StructureEnvironments(MSONable):
                 if len(min_geoms) == 0:
                     continue
                 wds = nb_set.normalized_distances
-                max_wd = max(max_wd, max(wds))
+                max_wd = max(max_wd, *wds)
                 all_wds.append(wds)
                 all_was.append(nb_set.normalized_angles)
                 for mp_symbol, cg_dict in min_geoms:
@@ -1343,7 +1343,7 @@ class StructureEnvironments(MSONable):
         neighbors_sets = [
             {
                 int(cn): [
-                    cls.NeighborsSet.from_dict(dd=nb_set_dict, structure=structure, detailed_voronoi=voronoi)
+                    cls.NeighborsSet.from_dict(nb_set_dict, structure=structure, detailed_voronoi=voronoi)
                     for nb_set_dict in nb_sets
                 ]
                 for cn, nb_sets in site_nbs_sets_dict.items()
@@ -2127,7 +2127,7 @@ class LightStructureEnvironments(MSONable):
             all_nbs_sites.append({"site": site, "index": nb_site["index"], "image_cell": image_cell})
         neighbors_sets = [
             [
-                cls.NeighborsSet.from_dict(dd=nb_set, structure=structure, all_nbs_sites=all_nbs_sites)
+                cls.NeighborsSet.from_dict(nb_set, structure=structure, all_nbs_sites=all_nbs_sites)
                 for nb_set in site_nb_sets
             ]
             if site_nb_sets is not None

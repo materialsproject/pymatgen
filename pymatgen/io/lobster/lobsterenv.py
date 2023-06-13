@@ -822,10 +822,10 @@ class LobsterNeighbors(NearNeighbors):
         list_icohps = []
         list_lengths = []
         list_keys = []
-        for isite in range(len(self.structure)):
+        for idx in range(len(self.structure)):
             icohps = self._get_icohps(
                 icohpcollection=self.Icohpcollection,
-                isite=isite,
+                isite=idx,
                 lowerlimit=lowerlimit,
                 upperlimit=upperlimit,
                 only_bonds_to=only_bonds_to,
@@ -836,10 +836,10 @@ class LobsterNeighbors(NearNeighbors):
                 lengths_from_ICOHPs,
                 neighbors_from_ICOHPs,
                 selected_ICOHPs,
-            ) = self._find_relevant_atoms_additional_condition(isite, icohps, additional_condition)
+            ) = self._find_relevant_atoms_additional_condition(idx, icohps, additional_condition)
 
             if len(neighbors_from_ICOHPs) > 0:
-                centralsite = self.structure.sites[isite]
+                centralsite = self.structure[idx]
 
                 neighbors_by_distance_start = self.structure.get_sites_in_sphere(
                     pt=centralsite.coords,
@@ -857,16 +857,20 @@ class LobsterNeighbors(NearNeighbors):
                     index_here = neigh_new[2]
                     index_here_list.append(index_here)
                     cell_here = neigh_new[3]
-                    newcoords = [
+                    new_coords = [
                         site_here.frac_coords[0] + float(cell_here[0]),
                         site_here.frac_coords[1] + float(cell_here[1]),
                         site_here.frac_coords[2] + float(cell_here[2]),
                     ]
-                    coords.append(site_here.lattice.get_cartesian_coords(newcoords))
+                    coords.append(site_here.lattice.get_cartesian_coords(new_coords))
 
-                    # new_site = PeriodicSite(species=site_here.species_string,
-                    #                         coords=site_here.lattice.get_cartesian_coords(newcoords),
-                    #                         lattice=site_here.lattice, to_unit_cell=False, coords_are_cartesian=True)
+                    # new_site = PeriodicSite(
+                    #     species=site_here.species_string,
+                    #     coords=site_here.lattice.get_cartesian_coords(new_coords),
+                    #     lattice=site_here.lattice,
+                    #     to_unit_cell=False,
+                    #     coords_are_cartesian=True,
+                    # )
                     neighbors_by_distance.append(neigh_new[0])
                     list_distances.append(neigh_new[1])
                 _list_neighsite = []
@@ -1352,8 +1356,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
                 for nb_site in self._all_nbs_sites
             ],
             "neighbors_sets": [
-                [nb_set.as_dict() for nb_set in site_nb_sets] if site_nb_sets is not None else None
-                for site_nb_sets in self.neighbors_sets
+                [nb_set.as_dict() for nb_set in site_nb_sets] or None for site_nb_sets in self.neighbors_sets
             ],
             "valences": self.valences,
         }

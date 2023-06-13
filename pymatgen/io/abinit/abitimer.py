@@ -111,7 +111,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         read_ok = []
         for fname in filenames:
             try:
-                fh = open(fname)  # pylint: disable=R1732
+                fh = open(fname)  # noqa: SIM115
             except OSError:
                 logger.warning(f"Cannot open file {fname}")
                 continue
@@ -304,24 +304,17 @@ class AbinitTimerParser(collections.abc.Iterable):
         """
         import pandas as pd
 
-        colnames = [
-            "fname",
-            "wall_time",
-            "cpu_time",
-            "mpi_nprocs",
-            "omp_nthreads",
-            "mpi_rank",
-        ]
+        col_names = ["fname", "wall_time", "cpu_time", "mpi_nprocs", "omp_nthreads", "mpi_rank"]
 
-        frame = pd.DataFrame(columns=colnames)
+        frame = pd.DataFrame(columns=col_names)
         for timer in self.timers():
-            frame = frame.append({k: getattr(timer, k) for k in colnames}, ignore_index=True)
+            frame = frame.append({key: getattr(timer, key) for key in col_names}, ignore_index=True)
         frame["tot_ncpus"] = frame["mpi_nprocs"] * frame["omp_nthreads"]
 
         # Compute parallel efficiency (use the run with min number of cpus to normalize).
-        i = frame["tot_ncpus"].values.argmin()
-        ref_wtime = frame.iloc[i]["wall_time"]
-        ref_ncpus = frame.iloc[i]["tot_ncpus"]
+        idx = frame["tot_ncpus"].argmin()
+        ref_wtime = frame.iloc[idx]["wall_time"]
+        ref_ncpus = frame.iloc[idx]["tot_ncpus"]
         frame["peff"] = (ref_ncpus * ref_wtime) / (frame["wall_time"] * frame["tot_ncpus"])
 
         return frame
@@ -695,7 +688,7 @@ class AbinitTimer:
         openclose = is_string(fileobj)
 
         if openclose:
-            fileobj = open(fileobj, "w")  # pylint: disable=R1732
+            fileobj = open(fileobj, "w")  # noqa: SIM115
 
         for idx, section in enumerate(self.sections):
             fileobj.write(section.to_csvline(with_header=(idx == 0)))

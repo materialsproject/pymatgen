@@ -5,6 +5,7 @@ import tempfile
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit.inputs import (
@@ -51,7 +52,7 @@ class AbinitInputTestCase(PymatgenTest):
         inp = BasicAbinitInput(structure=unit_cell, pseudos=abiref_file("14si.pspnc"))
 
         shiftk = [[0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]]
-        self.assertArrayEqual(calc_shiftk(inp.structure), shiftk)
+        assert_array_equal(calc_shiftk(inp.structure), shiftk)
         assert num_valence_electrons(inp.structure, inp.pseudos) == 8
 
         repr(inp), str(inp)
@@ -274,7 +275,7 @@ class FactoryTest(PymatgenTest):
         str(inp)
         assert inp["nsppol"] == 2
         assert inp["nband"] == 14
-        self.assertArrayEqual(inp["ngkpt"], [2, 2, 2])
+        assert_array_equal(inp["ngkpt"], [2, 2, 2])
 
     def test_ebands_input(self):
         """Testing ebands_input factory."""

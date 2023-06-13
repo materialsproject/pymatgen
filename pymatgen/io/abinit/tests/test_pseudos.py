@@ -58,7 +58,7 @@ class PseudoTestCase(PymatgenTest):
                 self.serialize_with_pickle(pseudo, test_eq=False)
 
                 # Test MSONable
-                self.assertMSONable(pseudo)
+                self.assert_msonable(pseudo)
 
         # HGH pseudos
         pseudo = self.Si_hgh
@@ -119,7 +119,7 @@ class PseudoTestCase(PymatgenTest):
         # Test pickle
         new_objs = self.serialize_with_pickle(oxygen, test_eq=False)
         # Test MSONable
-        self.assertMSONable(oxygen)
+        self.assert_msonable(oxygen)
 
         for o in new_objs:
             assert o.ispaw
@@ -150,7 +150,7 @@ class PseudoTestCase(PymatgenTest):
 
         # Data persistence
         self.serialize_with_pickle(ger, test_eq=False)
-        self.assertMSONable(ger)
+        self.assert_msonable(ger)
 
     def test_oncvpsp_pseudo_fr(self):
         """
@@ -162,7 +162,7 @@ class PseudoTestCase(PymatgenTest):
 
         # Data persistence
         self.serialize_with_pickle(pb, test_eq=False)
-        self.assertMSONable(pb)
+        self.assert_msonable(pb)
 
         assert pb.symbol == "Pb"
         assert pb.Z == 82.0
@@ -191,7 +191,7 @@ class PseudoTableTest(PymatgenTest):
 
         d = table.as_dict()
         PseudoTable.from_dict(d)
-        self.assertMSONable(table)
+        self.assert_msonable(table)
 
         selected = table.select_symbols("Si")
         assert len(selected) == len(table)

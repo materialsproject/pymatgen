@@ -204,7 +204,6 @@ _gulp_kw = {
     "meanke",
     "nodensity_out",
     "nodpsym",
-    "nofirst_point",
     "nofrequency",
     "nokpoints",
     "operators",
@@ -217,8 +216,6 @@ _gulp_kw = {
     "save",
     "terse",
     # Structure control
-    "full",
-    "hexagonal",
     "lower_symmetry",
     "nosymmetry",
     # PDF control

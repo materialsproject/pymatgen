@@ -891,7 +891,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """The |Structure| object associated to this input."""
         return self._structure
 
-    def set_structure(self, structure):
+    def set_structure(self, structure: Structure):
         """Set structure."""
         self._structure = as_structure(structure)
 
@@ -1112,7 +1112,7 @@ class BasicMultiDataset:
 
         # Build the list of BasicAbinitInput objects.
         if ndtset <= 0:
-            raise ValueError(f"ndtset {ndtset} cannot be <=0")
+            raise ValueError(f"{ndtset=} cannot be <=0")
 
         if not isinstance(structure, (list, tuple)):
             self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]

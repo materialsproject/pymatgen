@@ -7,7 +7,9 @@ import warnings
 from shutil import which
 
 import numpy as np
+import pytest
 from monty.serialization import loadfn
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.energy_models import IsingModel
@@ -53,9 +55,9 @@ except ImportError:
 
 
 try:
-    import m3gnet
+    import matgl
 except ImportError:
-    m3gnet = None
+    matgl = None
 
 
 def get_table():
@@ -198,19 +200,19 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         struct = p.structure
-        expected_ans = [1, 3, 1]
+        expected = [1, 3, 1]
         for i, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
             s = trans.apply_transformation(struct)
             oxitrans = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
             s = oxitrans.apply_transformation(s)
             alls = enum_trans.apply_transformation(s, 100)
-            assert len(alls) == expected_ans[i]
+            assert len(alls) == expected[i]
             assert isinstance(trans.apply_transformation(s), Structure)
             for ss in alls:
                 assert "energy" in ss
             alls = enum_trans2.apply_transformation(s, 100)
-            assert len(alls) == expected_ans[i]
+            assert len(alls) == expected[i]
             assert isinstance(trans.apply_transformation(s), Structure)
             for ss in alls:
                 assert "num_sites" in ss
@@ -224,8 +226,8 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         for s in alls:
             assert "energy" not in s
 
-    @unittest.skipIf(m3gnet is None, "m3gnet package not available.")
     def test_m3gnet(self):
+        pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         struct = p.structure
@@ -241,9 +243,12 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
     def test_callable_sort_criteria(self):
-        from m3gnet.models import Relaxer
+        matgl = pytest.importorskip("matgl")
+        from matgl.ext.ase import Relaxer
 
-        m3gnet_model = Relaxer(optimizer="BFGS")
+        pot = matgl.load_model("M3GNet-MP-2021.2.8-PES")
+
+        m3gnet_model = Relaxer(potential=pot)
 
         def sort_criteria(s):
             relax_results = m3gnet_model.relax(s)
@@ -265,22 +270,21 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
     def test_max_disordered_sites(self):
-        latt = Lattice.cubic(4)
         s_orig = Structure(
-            latt,
+            Lattice.cubic(4),
             [{"Li": 0.2, "Na": 0.2, "K": 0.6}, {"O": 1}],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
         est = EnumerateStructureTransformation(max_cell_size=None, max_disordered_sites=5)
-        dd = est.apply_transformation(s_orig, return_ranked_list=100)
-        assert len(dd) == 9
-        for d in dd:
+        lst = est.apply_transformation(s_orig, return_ranked_list=100)
+        assert len(lst) == 9
+        for d in lst:
             assert len(d["structure"]) == 10
 
     def test_to_from_dict(self):
         trans = EnumerateStructureTransformation()
-        d = trans.as_dict()
-        trans = EnumerateStructureTransformation.from_dict(d)
+        dct = trans.as_dict()
+        trans = EnumerateStructureTransformation.from_dict(dct)
         assert trans.symm_prec == 0.1
 
 
@@ -371,8 +375,8 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation({"Ni": 5})
         alls = trans.apply_transformation(self.NiO.get_primitive_structure(), return_ranked_list=10)
 
-        self.assertArrayAlmostEqual(self.NiO_AFM_111.lattice.parameters, alls[0]["structure"].lattice.parameters)
-        self.assertArrayAlmostEqual(self.NiO_AFM_001.lattice.parameters, alls[1]["structure"].lattice.parameters)
+        self.assert_all_close(self.NiO_AFM_111.lattice.parameters, alls[0]["structure"].lattice.parameters)
+        self.assert_all_close(self.NiO_AFM_001.lattice.parameters, alls[1]["structure"].lattice.parameters)
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
@@ -611,16 +615,16 @@ class SlabTransformationTest(PymatgenTest):
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
         slab_from_gen = gen.get_slab(0.25)
         slab_from_trans = trans.apply_transformation(s)
-        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix, slab_from_trans.lattice.matrix)
-        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
+        self.assert_all_close(slab_from_gen.lattice.matrix, slab_from_trans.lattice.matrix)
+        self.assert_all_close(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
 
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         trans = SlabTransformation([1, 1, 1], 10, 10)
         slab_from_trans = trans.apply_transformation(fcc)
         gen = SlabGenerator(fcc, [1, 1, 1], 10, 10)
         slab_from_gen = gen.get_slab()
-        self.assertArrayAlmostEqual(slab_from_gen.lattice.matrix, slab_from_trans.lattice.matrix)
-        self.assertArrayAlmostEqual(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
+        self.assert_all_close(slab_from_gen.lattice.matrix, slab_from_trans.lattice.matrix)
+        self.assert_all_close(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
 
 
 class GrainBoundaryTransformationTest(PymatgenTest):
@@ -641,8 +645,8 @@ class GrainBoundaryTransformationTest(PymatgenTest):
             gb_from_generator = gbg.gb_from_parameters(**gb_gen_params_s5)
             gbt_s5 = GrainBoundaryTransformation(**gb_gen_params_s5)
             gb_from_trans = gbt_s5.apply_transformation(Al_bulk)
-            self.assertArrayAlmostEqual(gb_from_generator.lattice.matrix, gb_from_trans.lattice.matrix)
-            self.assertArrayAlmostEqual(gb_from_generator.cart_coords, gb_from_trans.cart_coords)
+            self.assert_all_close(gb_from_generator.lattice.matrix, gb_from_trans.lattice.matrix)
+            self.assert_all_close(gb_from_generator.cart_coords, gb_from_trans.cart_coords)
 
 
 class DisorderedOrderedTransformationTest(PymatgenTest):
@@ -660,23 +664,23 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
 @unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
 class SQSTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        pztstructs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs/pztstructs.json"))
+        pzt_structs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs/pztstructs.json"))
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
         # nonsensical example just for testing purposes
         struct = self.get_structure("Pb2TiZrO6").copy()
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
-        struc_out = trans.apply_transformation(struct)
-        matches = [struc_out.matches(s) for s in pztstructs]
+        struct_out = trans.apply_transformation(struct)
+        matches = [struct_out.matches(s) for s in pzt_structs]
         assert True in matches
 
     def test_return_ranked_list(self):
         # list of structures
-        pztstructs2 = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs/pztstructs2.json"))
+        pzt_structs2 = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs/pztstructs2.json"))
         trans = SQSTransformation(scaling=2, search_time=0.01, instances=8, wd=0)
         struct = self.get_structure("Pb2TiZrO6").copy()
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
-        matches = [ranked_list_out[0]["structure"].matches(s) for s in pztstructs2]
+        matches = [ranked_list_out[0]["structure"].matches(s) for s in pzt_structs2]
         assert True in matches
 
     def test_spin(self):
@@ -686,10 +690,10 @@ class SQSTransformationTest(PymatgenTest):
         struct = self.get_structure("Pb2TiZrO6").copy()
         struct.replace_species({"Ti": {"Ti,spin=5": 0.5, "Ti,spin=-5": 0.5}})
 
-        struc_out = trans.apply_transformation(struct)
-        struc_out_specie_strings = [site.species_string for site in struc_out]
-        assert "Ti,spin=-5" in struc_out_specie_strings
-        assert "Ti,spin=5" in struc_out_specie_strings
+        struct_out = trans.apply_transformation(struct)
+        struct_out_specie_strings = [site.species_string for site in struct_out]
+        assert "Ti,spin=-5" in struct_out_specie_strings
+        assert "Ti,spin=5" in struct_out_specie_strings
 
 
 class CubicSupercellTransformationTest(PymatgenTest):
@@ -705,17 +709,17 @@ class CubicSupercellTransformationTest(PymatgenTest):
         num_atoms = superstructure.num_sites
         assert num_atoms >= min_atoms
         assert num_atoms <= max_atoms
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             superstructure.lattice.matrix[0],
             [1.49656087e01, -1.11448000e-03, 9.04924836e00],
         )
-        self.assertArrayAlmostEqual(superstructure.lattice.matrix[1], [-0.95005506, 14.95766342, 10.01819773])
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(superstructure.lattice.matrix[1], [-0.95005506, 14.95766342, 10.01819773])
+        self.assert_all_close(
             superstructure.lattice.matrix[2],
             [3.69130000e-02, 4.09320200e-02, 5.90830153e01],
         )
         assert superstructure.num_sites == 448
-        self.assertArrayEqual(
+        assert_array_equal(
             supercell_generator.transformation_matrix,
             np.array([[4, 0, 0], [1, 4, -4], [0, 0, 1]]),
         )
@@ -731,7 +735,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
             force_diagonal=True,
         )
         _ = diagonal_supercell_generator.apply_transformation(structure2)
-        self.assertArrayEqual(diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4)
+        assert_array_equal(diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4)
 
         # test force_90_degrees
         structure2 = self.get_structure("Si")
@@ -744,7 +748,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
             force_90_degrees=True,
         )
         transformed_structure = diagonal_supercell_generator.apply_transformation(structure2)
-        self.assertArrayAlmostEqual(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
+        self.assert_all_close(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
 
         structure = self.get_structure("BaNiO3")
         min_atoms = 100
@@ -755,7 +759,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
             min_atoms=min_atoms, max_atoms=max_atoms, min_length=10.0, force_90_degrees=True
         )
         transformed_structure = supercell_generator.apply_transformation(structure)
-        self.assertArrayAlmostEqual(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
+        self.assert_all_close(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
 
 
 class AddAdsorbateTransformationTest(PymatgenTest):
@@ -793,7 +797,3 @@ class MonteCarloRattleTransformationTest(PymatgenTest):
         mcrt = MonteCarloRattleTransformation(0.01, 2, seed=1)
         s_trans2 = mcrt.apply_transformation(s)
         assert np.allclose(s_trans.cart_coords, s_trans2.cart_coords)
-
-
-if __name__ == "__main__":
-    unittest.main()

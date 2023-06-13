@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import numpy as np
 import pytest
@@ -378,7 +377,3 @@ class PWOuputTest(PymatgenTest):
         assert self.pwout.get_celldm(1) == approx(10.323)
         for i in range(2, 7):
             assert self.pwout.get_celldm(i) == approx(0)
-
-
-if __name__ == "__main__":
-    unittest.main()

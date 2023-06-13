@@ -318,24 +318,26 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation
+            dct (dict): Dict representation
 
         Returns:
             GruneisenPhononBandStructure: Phonon band structure with Grueneisen parameters.
         """
-        lattice_rec = Lattice(d["lattice_rec"]["matrix"])
-        eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
-        structure = Structure.from_dict(d["structure"]) if "structure" in d else None
+        lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
+        eigendisplacements = (
+            np.array(dct["eigendisplacements"]["real"]) + np.array(dct["eigendisplacements"]["imag"]) * 1j
+        )
+        structure = Structure.from_dict(dct["structure"]) if "structure" in dct else None
         return cls(
-            qpoints=d["qpoints"],
-            frequencies=np.array(d["bands"]),
-            gruneisenparameters=np.array(d["gruneisen"]),
+            qpoints=dct["qpoints"],
+            frequencies=np.array(dct["bands"]),
+            gruneisenparameters=np.array(dct["gruneisen"]),
             lattice=lattice_rec,
             eigendisplacements=eigendisplacements,
-            labels_dict=d["labels_dict"],
+            labels_dict=dct["labels_dict"],
             structure=structure,
         )
 
@@ -398,22 +400,24 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         )
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d: Dict representation
+            dct: Dict representation
 
-        Returns: GruneisenPhononBandStructureSummLine
+        Returns: GruneisenPhononBandStructureSymmLine
         """
-        lattice_rec = Lattice(d["lattice_rec"]["matrix"])
-        eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
-        structure = Structure.from_dict(d["structure"]) if "structure" in d else None
+        lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
+        eigendisplacements = (
+            np.array(dct["eigendisplacements"]["real"]) + np.array(dct["eigendisplacements"]["imag"]) * 1j
+        )
+        structure = Structure.from_dict(dct["structure"]) if "structure" in dct else None
         return cls(
-            qpoints=d["qpoints"],
-            frequencies=np.array(d["bands"]),
-            gruneisenparameters=np.array(d["gruneisen"]),
+            qpoints=dct["qpoints"],
+            frequencies=np.array(dct["bands"]),
+            gruneisenparameters=np.array(dct["gruneisen"]),
             lattice=lattice_rec,
             eigendisplacements=eigendisplacements,
-            labels_dict=d["labels_dict"],
+            labels_dict=dct["labels_dict"],
             structure=structure,
         )

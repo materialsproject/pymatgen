@@ -75,7 +75,7 @@ class ZeoCssrTest(unittest.TestCase):
         assert isinstance(zeocssr.structure, Structure)
 
 
-# @unittest.skipIf(not zeo, "zeo not present.")
+@unittest.skipIf(not zeo, "zeo not present.")
 class ZeoCssrOxiTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
@@ -168,16 +168,12 @@ class GetVoronoiNodesTest(unittest.TestCase):
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        (
-            vor_node_struct,
-            vor_edge_center_struct,
-            vor_face_center_struct,
-        ) = get_voronoi_nodes(self.structure, self.rad_dict)
+        vor_node_struct, vor_edge_center_struct, vor_face_center_struct = get_voronoi_nodes(
+            self.structure, self.rad_dict
+        )
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
         assert isinstance(vor_face_center_struct, Structure)
-        print(len(vor_node_struct.sites))
-        print(len(vor_face_center_struct.sites))
 
 
 @unittest.skip("file free_sph.cif not present")
@@ -206,27 +202,21 @@ class GetFreeSphereParamsTest(unittest.TestCase):
 class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
-        p = Poscar.from_file(filepath)
-        self.structure = p.structure
+        poscar = Poscar.from_file(filepath)
+        self.structure = poscar.structure
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
         el = [site.species_string for site in self.structure]
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
-        for k, v in valence_dict.items():
-            self.rad_dict[k] = float(Species(k, v).ionic_radius)
+        for key, val in valence_dict.items():
+            self.rad_dict[key] = float(Species(key, val).ionic_radius)
 
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        # vor_node_struct, vor_ec_struct, vor_fc_struct = \
-        #    get_high_accuracy_voronoi_nodes(self.structure, self.rad_dict)
         vor_node_struct = get_high_accuracy_voronoi_nodes(self.structure, self.rad_dict)
         assert isinstance(vor_node_struct, Structure)
-        # self.assertIsInstance(vor_ec_struct, Structure)
-        # self.assertIsInstance(vor_fc_struct, Structure)
-        print(len(vor_node_struct.sites))
-        # print(len(vor_fc_struct.sites))
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -245,8 +235,6 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
             radii.append(radius)
         el = [site.species_string for site in self.structure]
         self.rad_dict = dict(zip(el, radii))
-        for el in self.rad_dict:
-            print((el, self.rad_dict[el].real))
 
     def test_get_voronoi_nodes(self):
         vor_node_struct, vor_edge_center_struct, vor_face_center_struct = get_voronoi_nodes(
@@ -255,7 +243,3 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
         assert isinstance(vor_face_center_struct, Structure)
-
-
-if __name__ == "__main__":
-    unittest.main()

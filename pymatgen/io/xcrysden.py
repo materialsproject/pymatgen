@@ -4,7 +4,12 @@ Support for reading XCrysDen files.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pymatgen.core.periodic_table import Element
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -17,7 +22,7 @@ class XSF:
     Class for parsing XCrysden files.
     """
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
         :param structure: Structure object.
         """

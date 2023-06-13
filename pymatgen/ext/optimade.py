@@ -339,9 +339,7 @@ class OptimadeRester:
             except Exception as exc:
                 # TODO: manually inspect failures to either (a) correct a bug or (b) raise more appropriate error
 
-                _logger.error(
-                    f"Could not retrieve required information from provider {identifier} and url {url}: {exc}"
-                )
+                _logger.error(f"Could not retrieve required information from provider {identifier} and {url=}: {exc}")
 
         return all_snls
 

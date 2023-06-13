@@ -124,7 +124,3 @@ class BaderAnalysisTest(unittest.TestCase):
         assert np.sum(analysis.chgcar.data["total"]) == approx(
             np.sum([np.sum(d["data"]) for d in analysis.atomic_densities])
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

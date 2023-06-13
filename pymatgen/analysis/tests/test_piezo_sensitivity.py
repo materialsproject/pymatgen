@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import os
 import pickle
-import unittest
 
 import numpy as np
+import pytest
 
 import pymatgen
 from pymatgen.analysis.piezo_sensitivity import (
@@ -70,15 +70,15 @@ class PiezoSensitivityTest(PymatgenTest):
 
     def test_BornEffectiveChargeTensor(self):
         bec = BornEffectiveCharge(self.piezo_struc, self.BEC, self.pointops)
-        self.assertArrayAlmostEqual(self.BEC, bec.bec)
+        self.assert_all_close(self.BEC, bec.bec)
 
     def test_InternalStrainTensor(self):
         ist = InternalStrainTensor(self.piezo_struc, self.IST, self.pointops)
-        self.assertArrayAlmostEqual(ist.ist, self.IST)
+        self.assert_all_close(ist.ist, self.IST)
 
     def test_ForceConstantMatrix(self):
         fcmt = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
-        self.assertArrayAlmostEqual(fcmt.fcm, self.FCM)
+        self.assert_all_close(fcmt.fcm, self.FCM)
 
     def test_get_BEC_operations(self):
         bec = BornEffectiveCharge(self.piezo_struc, self.BEC, self.pointops)
@@ -209,8 +209,8 @@ class PiezoSensitivityTest(PymatgenTest):
             assert np.allclose(asum1, np.zeros([3, 3]), atol=1e-05)
             assert np.allclose(asum2, np.zeros([3, 3]), atol=1e-05)
 
-    @unittest.skipIf(Phonopy is None, "Phonopy not present")
     def test_rand_FCM(self):
+        pytest.importorskip("phonopy")
         fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_rand_FCM()
@@ -261,8 +261,8 @@ class PiezoSensitivityTest(PymatgenTest):
         piezo = get_piezo(self.BEC, self.IST, self.FCM)
         assert np.allclose(piezo, self.piezo, atol=1e-05)
 
-    @unittest.skipIf(Phonopy is None, "Phonopy not present")
     def test_rand_piezo(self):
+        pytest.importorskip("phonopy")
         rand_BEC, rand_IST, rand_FCM, piezo = rand_piezo(
             self.piezo_struc,
             self.pointops,
@@ -330,7 +330,3 @@ class PiezoSensitivityTest(PymatgenTest):
                 asum2 += dynmass[j][i]
             assert np.allclose(asum1, np.zeros([3, 3]), atol=1e-05)
             assert np.allclose(asum2, np.zeros([3, 3]), atol=1e-05)
-
-
-if __name__ == "__main__":
-    unittest.main()

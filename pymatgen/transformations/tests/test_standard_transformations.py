@@ -612,7 +612,3 @@ class ScaleToRelaxedTransformationTest(unittest.TestCase):
         assert (Fe_init.lattice.a < Fe_fin.lattice.a) == (Mo_init.lattice.a < Mo_fin.lattice.a)
         assert (Fe_init.lattice.b < Fe_fin.lattice.b) == (Mo_init.lattice.b < Mo_fin.lattice.b)
         assert (Fe_init.lattice.c < Fe_fin.lattice.c) == (Mo_init.lattice.c < Mo_fin.lattice.c)
-
-
-if __name__ == "__main__":
-    unittest.main()

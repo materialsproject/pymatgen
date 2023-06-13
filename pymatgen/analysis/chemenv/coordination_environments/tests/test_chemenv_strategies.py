@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import pytest
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
@@ -105,7 +103,3 @@ class StrategyOptionsTest(PymatgenTest):
         with pytest.raises(ValueError) as exc_info:
             simplest_strategy.setup_options({"continuous_symmetry_measure_cutoff": 100.1})
         assert str(exc_info.value) == "Continuous symmetry measure limits should be between 0.0 and 100.0"
-
-
-if __name__ == "__main__":
-    unittest.main()

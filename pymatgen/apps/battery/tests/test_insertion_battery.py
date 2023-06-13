@@ -107,8 +107,8 @@ class InsertionElectrodeTest(unittest.TestCase):
         assert vpair.x_charge == pytest.approx(0.0)
         assert vpair.x_discharge == pytest.approx(0.5)
         # reconstruct the voltage pair
-        dd = vpair.as_dict()
-        vv = InsertionVoltagePair.from_dict(dd)
+        dct = vpair.as_dict()
+        vv = InsertionVoltagePair.from_dict(dct)
         assert vv.entry_charge.energy == pytest.approx(-105.53608265)
         assert vv.voltage == pytest.approx(2.78583901)
 
@@ -142,7 +142,3 @@ class InsertionElectrodeTest(unittest.TestCase):
         vols_no_struct = [ient.data["volume"] for ient in ie_LTO_no_struct.get_all_entries()]
         vols_struct = [ient.structure.volume for ient in self.ie_LTO.get_all_entries()]
         assert vols_no_struct == pytest.approx(vols_struct, rel=1e-3)
-
-
-if __name__ == "__main__":
-    unittest.main()

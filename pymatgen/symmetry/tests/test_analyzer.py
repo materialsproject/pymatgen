@@ -88,9 +88,9 @@ class SpacegroupAnalyzerTest(PymatgenTest):
             for fop, op, pgop in zip(frac_symm_ops, symm_ops, pg_ops):
                 # translation vector values should all be 0 or 0.5
                 t = fop.translation_vector * 2
-                self.assertArrayAlmostEqual(t - np.round(t), 0)
+                self.assert_all_close(t - np.round(t), 0)
 
-                self.assertArrayAlmostEqual(fop.rotation_matrix, pgop.rotation_matrix)
+                self.assert_all_close(fop.rotation_matrix, pgop.rotation_matrix)
                 for site in structure:
                     new_frac = fop.operate(site.frac_coords)
                     new_cart = op.operate(site.coords)
@@ -168,10 +168,9 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         refined_struct = sg.get_refined_structure(keep_site_properties=False)
         assert refined_struct.site_properties.get("magmom") is None
 
-    def test_get_symmetrized_structure(self):
+    def test_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
-        for a in symm_struct.lattice.angles:
-            assert a == 90
+        assert symm_struct.lattice.angles == (90, 90, 90)
         assert len(symm_struct.equivalent_sites) == 5
 
         symm_struct = self.disordered_sg.get_symmetrized_structure()
@@ -190,7 +189,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
         ss = SymmetrizedStructure.from_dict(d)
         assert ss.wyckoff_symbols[0] == "16h"
-        assert "SymmetrizedStructure" in str(ss)
+        assert str(ss).startswith("SymmetrizedStructure\nFull Formula (Li20.2 Ge2.06 P3.94 S24)\nReduced Formula: ")
 
     def test_find_primitive(self):
         """F m -3 m Li2O testing of converting to primitive cell."""
@@ -713,7 +712,3 @@ class FuncTest(unittest.TestCase):
         o, c = cluster_sites(C2H2F2Br2.get_centered_molecule(), 0.1)
         assert o is None
         assert len(c) == 4
-
-
-if __name__ == "__main__":
-    unittest.main()

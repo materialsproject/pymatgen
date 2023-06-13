@@ -1178,7 +1178,3 @@ loop_
 }
 """
         assert self.mcif_ncl.get_bibtex_string() == ref_bibtex_string
-
-
-if __name__ == "__main__":
-    unittest.main()

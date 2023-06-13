@@ -82,7 +82,3 @@ class HeisenbergMapperTest(unittest.TestCase):
         for hm in self.hms:
             hmodel = hm.get_heisenberg_model()
             assert hmodel.formula == "Mn3Al"
-
-
-if __name__ == "__main__":
-    unittest.main()

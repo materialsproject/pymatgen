@@ -494,7 +494,3 @@ class InterfaceReactionTest(unittest.TestCase):
         assert np.isclose(
             actual_8, expect_8, atol=1e-5
         ), f"get_chempot_correction gets error, {expect_8} expected but gets {actual_8}"
-
-
-if __name__ == "__main__":
-    unittest.main()

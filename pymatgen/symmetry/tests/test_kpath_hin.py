@@ -28,16 +28,10 @@ class KPathSeekTest(PymatgenTest):
 
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]
-        for i in range(230):
-            sg_num = i + 1
+        for idx in range(230):
+            sg_num = idx + 1
             if sg_num in triclinic:
-                lattice = Lattice(
-                    [
-                        [3.0233057319441246, 1, 0],
-                        [0, 7.9850357844548681, 1],
-                        [0, 1.2, 8.1136762279561818],
-                    ]
-                )
+                lattice = Lattice([[3.02330573, 1, 0], [0, 7.98503578, 1], [0, 1.2, 8.11367622]])
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
             elif sg_num in orthorhombic:
@@ -129,7 +123,3 @@ class KPathSeekTest(PymatgenTest):
         assert kpoints["G_2"][0] == pytest.approx(0.25308641975308643)
         assert kpoints["G_2"][1] == pytest.approx(0.7469135802469136)
         assert kpoints["G_2"][2] == pytest.approx(-0.5)
-
-
-if __name__ == "__main__":
-    unittest.main()

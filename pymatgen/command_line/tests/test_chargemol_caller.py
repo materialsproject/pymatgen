@@ -54,7 +54,3 @@ class ChargemolAnalysisTest(unittest.TestCase):
         assert ca.summary["ddec"]["spin_moments"] == ca.ddec_spin_moments
         assert ca.natoms is None
         assert ca.structure is None
-
-
-if __name__ == "__main__":
-    unittest.main()

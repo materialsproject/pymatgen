@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 import pytest
 from pytest import approx
@@ -250,12 +249,12 @@ class StrategyWeightsTest(PymatgenTest):
     def test_self_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
         with open(os.path.join(se_files_dir, "se_mp-743972.json")) as f:
-            dd = json.load(f)
-        se = StructureEnvironments.from_dict(dd)
+            dct = json.load(f)
+        struct_envs = StructureEnvironments.from_dict(dct)
 
         # Get neighbors sets for which we get the weights
         cn_maps = [(12, 3), (12, 2), (13, 2), (12, 0), (12, 1)]
-        nbsets = {cn_map: se.neighbors_sets[0][cn_map[0]][cn_map[1]] for cn_map in cn_maps}
+        nbsets = {cn_map: struct_envs.neighbors_sets[0][cn_map[0]][cn_map[1]] for cn_map in cn_maps}
 
         effective_csm_estimator = {
             "function": "power2_inverse_decreasing",
@@ -286,7 +285,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (12, 3)
         self_w = self_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -294,7 +293,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (12, 2)
         self_w = self_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -302,7 +301,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (12, 0)
         self_w = self_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -310,7 +309,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (12, 1)
         self_w = self_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -318,7 +317,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (13, 2)
         self_w = self_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -326,12 +325,12 @@ class StrategyWeightsTest(PymatgenTest):
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
         with open(os.path.join(se_files_dir, "se_mp-7000.json")) as f:
-            dd = json.load(f)
-        se = StructureEnvironments.from_dict(dd)
+            dct = json.load(f)
+        struct_envs = StructureEnvironments.from_dict(dct)
 
         # Get neighbors sets for which we get the weights
         cn_maps = [(2, 0), (4, 0)]
-        nbsets = {cn_map: se.neighbors_sets[6][cn_map[0]][cn_map[1]] for cn_map in cn_maps}
+        nbsets = {cn_map: struct_envs.neighbors_sets[6][cn_map[0]][cn_map[1]] for cn_map in cn_maps}
 
         effective_csm_estimator = {
             "function": "power2_inverse_decreasing",
@@ -353,7 +352,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (2, 0)
         self_w = self_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -361,7 +360,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (4, 0)
         self_w = self_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -371,11 +370,11 @@ class StrategyWeightsTest(PymatgenTest):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
         with open(os.path.join(se_files_dir, "se_mp-743972.json")) as f:
             dd = json.load(f)
-        se = StructureEnvironments.from_dict(dd)
+        struct_envs = StructureEnvironments.from_dict(dd)
 
         # Get neighbors sets for which we get the weights
         cn_maps = [(12, 3), (12, 2), (13, 2), (12, 0), (12, 1), (13, 0), (13, 1)]
-        nbsets = {cn_map: se.neighbors_sets[0][cn_map[0]][cn_map[1]] for cn_map in cn_maps}
+        nbsets = {cn_map: struct_envs.neighbors_sets[0][cn_map[0]][cn_map[1]] for cn_map in cn_maps}
 
         effective_csm_estimator = {
             "function": "power2_inverse_decreasing",
@@ -396,7 +395,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (12, 3)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -404,7 +403,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (12, 2)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -412,7 +411,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (12, 0)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -420,7 +419,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (12, 1)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -428,7 +427,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (13, 2)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -436,7 +435,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (13, 0)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -444,7 +443,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (13, 1)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -470,7 +469,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (12, 3)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -478,7 +477,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (13, 2)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -486,7 +485,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (13, 0)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -494,7 +493,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (13, 1)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -503,11 +502,11 @@ class StrategyWeightsTest(PymatgenTest):
         # Get the StructureEnvironments for SiO2 (mp-7000)
         with open(os.path.join(se_files_dir, "se_mp-7000.json")) as f:
             dd = json.load(f)
-        se = StructureEnvironments.from_dict(dd)
+        struct_envs = StructureEnvironments.from_dict(dd)
 
         # Get neighbors sets for which we get the weights
         cn_maps = [(2, 0), (4, 0)]
-        nbsets = {cn_map: se.neighbors_sets[6][cn_map[0]][cn_map[1]] for cn_map in cn_maps}
+        nbsets = {cn_map: struct_envs.neighbors_sets[6][cn_map[0]][cn_map[1]] for cn_map in cn_maps}
 
         effective_csm_estimator = {
             "function": "power2_inverse_decreasing",
@@ -529,7 +528,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (2, 0)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -537,7 +536,7 @@ class StrategyWeightsTest(PymatgenTest):
         cn_map = (4, 0)
         delta_w = delta_weight.weight(
             nb_set=nbsets[cn_map],
-            structure_environments=se,
+            structure_environments=struct_envs,
             cn_map=cn_map,
             additional_info=additional_info,
         )
@@ -763,7 +762,3 @@ class StrategyWeightsTest(PymatgenTest):
         assert abs(myweightdelta1 - 0.15625) < 1e-8
         myweightdelta6 = deltadnbset_weight4.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
         assert abs(myweightdelta6 - 1.0) < 1e-8
-
-
-if __name__ == "__main__":
-    unittest.main()

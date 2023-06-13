@@ -121,10 +121,10 @@ class NwTask(MSONable):
         """
         # Basic checks.
         if theory.lower() not in NwTask.theories:
-            raise NwInputError(f"Invalid theory {theory}")
+            raise NwInputError(f"Invalid {theory=}")
 
         if operation.lower() not in NwTask.operations:
-            raise NwInputError(f"Invalid operation {operation}")
+            raise NwInputError(f"Invalid {operation=}")
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
         self.title = title if title is not None else f"{theory} {operation}"

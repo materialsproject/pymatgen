@@ -67,7 +67,7 @@ class ValenceIonicRadiusEvaluator:
     analyzer
     """
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
         Args:
             structure: pymatgen.core.structure.Structure
@@ -413,7 +413,7 @@ class NearNeighbors:
         """
         raise NotImplementedError("get_nn_info(structure, n) is not defined!")
 
-    def get_all_nn_info(self, structure):
+    def get_all_nn_info(self, structure: Structure):
         """Get a listing of all neighbors for all sites in a structure
 
         Args:
@@ -787,7 +787,7 @@ class VoronoiNN(NearNeighbors):
                 cutoff = min(cutoff * 2, max_cutoff + 0.001)
         return cell_info
 
-    def get_all_voronoi_polyhedra(self, structure):
+    def get_all_voronoi_polyhedra(self, structure: Structure):
         """Get the Voronoi polyhedra for all site in a simulation cell
 
         Args:
@@ -830,14 +830,14 @@ class VoronoiNN(NearNeighbors):
             indices.extend([(x[2],) + x[3] for x in neighs])
 
         # Get the non-duplicates (using the site indices for numerical stability)
-        indices = np.array(indices, dtype=int)
-        indices, uniq_inds = np.unique(indices, return_index=True, axis=0)
+        indices = np.array(indices, dtype=int)  # type: ignore
+        indices, uniq_inds = np.unique(indices, return_index=True, axis=0)  # type: ignore[assignment]
         sites = [sites[i] for i in uniq_inds]
 
         # Sort array such that atoms in the root image are first
-        #   Exploit the fact that the array is sorted by the unique operation such that
-        #   the images associated with atom 0 are first, followed by atom 1, etc.
-        (root_images,) = np.nonzero(np.abs(indices[:, 1:]).max(axis=1) == 0)
+        # Exploit the fact that the array is sorted by the unique operation such that
+        # the images associated with atom 0 are first, followed by atom 1, etc.
+        (root_images,) = np.nonzero(np.abs(indices[:, 1:]).max(axis=1) == 0)  # type: ignore
 
         del indices  # Save memory (tessellations can be costly)
 
@@ -1001,7 +1001,7 @@ class VoronoiNN(NearNeighbors):
         # Extract the NN info
         return self._extract_nn_info(structure, nns)
 
-    def get_all_nn_info(self, structure):
+    def get_all_nn_info(self, structure: Structure):
         """
         Args:
             structure (Structure): input structure.
@@ -3310,7 +3310,7 @@ class LocalStructOrderParams:
                                 qsp_theta[i][j][k] = (
                                     qsp_theta[i][j][k] / norms[i][j][k] if norms[i][j][k] > 1.0e-12 else 0.0
                                 )
-                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], max(qsp_theta[i][j]))
+                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], *qsp_theta[i][j])
                 elif t == "bcc":
                     ops[i] = 0.0
                     for j in range(nneigh):
@@ -3327,7 +3327,7 @@ class LocalStructOrderParams:
                             tmp = self._params[i][2] * (d - dmean)
                             acc = acc + exp(-0.5 * tmp * tmp)
                         for j in range(nneigh):
-                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], max(qsp_theta[i][j]))
+                            ops[i] = max(qsp_theta[i][j]) if j == 0 else max(ops[i], *qsp_theta[i][j])
                         ops[i] = acc * ops[i] / float(nneigh)
                         # nneigh * (nneigh - 1))
                     else:

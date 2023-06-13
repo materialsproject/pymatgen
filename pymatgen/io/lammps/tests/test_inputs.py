@@ -713,7 +713,3 @@ class LammpsTemplateGenTest(PymatgenTest):
             obj_read = LammpsData.from_file(str(tmpdir / "obj" / "data.peptide"), atom_style="atomic")
             pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
             pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
-
-
-if __name__ == "__main__":
-    unittest.main()

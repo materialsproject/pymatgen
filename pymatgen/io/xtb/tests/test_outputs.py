@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 from pytest import approx
 
@@ -34,49 +33,7 @@ class TestCRESTOutput(PymatgenTest):
 
     def test_all(self):
         expected_cmd_options = {"g": "H2O", "c": "2"}
-        expected_energies = [
-            [
-                "-13.66580",
-                "-13.66580",
-                "-13.66580",
-                "-13.66580",
-                "-13.66580",
-                "-13.66580",
-                "-13.66580",
-                "-13.66580",
-                "-13.66580",
-                "-13.66580",
-            ],
-            [
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-                "-13.66479",
-            ],
-        ]
+        expected_energies = [["-13.66580"] * 10, ["-13.66479"] * 27]
         expected_sorted_structures = [[], []]
         for f in os.listdir(expected_output_dir):
             if f.endswith("xyz") and "_r" in f:
@@ -97,7 +54,3 @@ class TestCRESTOutput(PymatgenTest):
         if have_babel:
             assert check_for_structure_changes(cout.lowest_energy_structure, exp_best) == "no_change"
         assert cout.cmd_options == expected_cmd_options
-
-
-if __name__ == "__main__":
-    unittest.main()

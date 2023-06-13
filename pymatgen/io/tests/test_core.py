@@ -19,7 +19,7 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR)
 class StructInputFile(InputFile):
     """Test implementation of an InputFile object for CIF."""
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         self.structure = structure
 
     def get_string(self) -> str:

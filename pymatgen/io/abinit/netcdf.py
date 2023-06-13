@@ -202,7 +202,7 @@ class NetcdfReader:
         assert var.shape[-1] == 2
         if cmode == "c":
             return var[..., 0] + 1j * var[..., 1]
-        raise ValueError(f"Wrong value for cmode {cmode}")
+        raise ValueError(f"Wrong value for {cmode=}")
 
     def read_variable(self, varname, path="/"):
         """Returns the variable with name varname in the group specified by path."""

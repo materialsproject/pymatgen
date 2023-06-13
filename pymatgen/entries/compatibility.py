@@ -443,7 +443,7 @@ class UCorrection(Correction):
             error_file: Path to the selected compatibilityErrors.yaml config file.
         """
         if compat_type not in ["GGA", "Advanced"]:
-            raise CompatibilityError(f"Invalid compat_type {compat_type}")
+            raise CompatibilityError(f"Invalid {compat_type=}")
 
         c = loadfn(config_file)
 
@@ -790,7 +790,13 @@ class MaterialsProjectCompatibility(CorrectionsList):
             correct_peroxide: Specify whether peroxide/superoxide/ozonide
                 corrections are to be applied or not.
             check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
+            silence_deprecation (bool): Silence deprecation warning. Defaults to False.
         """
+        warnings.warn(  # added by @janosh on 2023-05-25
+            "MaterialsProjectCompatibility is deprecated, Materials Project formation energies "
+            "use the newer MaterialsProject2020Compatibility scheme.",
+            DeprecationWarning,
+        )
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
@@ -885,7 +891,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1-10 (2011).
         """
         if compat_type not in ["GGA", "Advanced"]:
-            raise CompatibilityError(f"Invalid compat_type {compat_type}")
+            raise CompatibilityError(f"Invalid {compat_type=}")
 
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
@@ -1354,8 +1360,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # TODO - detection of embedded water molecules is not very sophisticated
         # Should be replaced with some kind of actual structure detection
 
-        # For any compound except water, check to see if it is a hydrate (contains)
-        # H2O in its structure. If so, adjust the energy to remove MU_H2O ev per
+        # For any compound except water, check to see if it is a hydrate (contains
+        # H2O in its structure). If so, adjust the energy to remove MU_H2O eV per
         # embedded water molecule.
         # in other words, we assume that the DFT energy of such a compound is really
         # a superposition of the "real" solid DFT energy (FeO in this case) and the free
@@ -1366,11 +1372,14 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # with
         # g_FeO = E_FeO.nH2O + dE_Fe + dE_O + n g_H2O
         # where E is DFT energy, dE is an energy correction, and g is Gibbs free energy
-        # This means we have to 1) remove energy corrections associated with H and O in water
-        # and then 2) remove the free energy of the water molecules
+        # of formation
+        # This means we have to 1) reverse any energy corrections that have already been
+        # applied to H and O in water and then 2) remove the free energy of the water
+        # molecules from the hydrated solid energy.
         if rform != "H2O":
             # count the number of whole water molecules in the composition
-            nH2O = int(min(comp["H"] / 2.0, comp["O"]))
+            rcomp, factor = comp.get_reduced_composition_and_factor()
+            nH2O = int(min(rcomp["H"] / 2.0, rcomp["O"])) * factor
             if nH2O > 0:
                 # first, remove any H or O corrections already applied to H2O in the
                 # formation energy so that we don't double count them

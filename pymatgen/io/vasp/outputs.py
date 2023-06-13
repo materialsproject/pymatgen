@@ -3882,7 +3882,7 @@ class Procar:
             self.data = data
             self.phase_factors = phase_factors
 
-    def get_projection_on_elements(self, structure):
+    def get_projection_on_elements(self, structure: Structure):
         """
         Method returning a dictionary of projections on elements.
 
@@ -3892,7 +3892,7 @@ class Procar:
         Returns:
             a dictionary in the {Spin.up:[k index][b index][{Element:values}]]
         """
-        dico = {}
+        dico: dict[Spin, list] = {}
         for spin in self.data:
             dico[spin] = [[defaultdict(float) for i in range(self.nkpoints)] for j in range(self.nbands)]
 
@@ -4571,7 +4571,7 @@ class Wavecar:
         """
         self.filename = filename
         if not (vasp_type is None or vasp_type.lower()[0] in ["s", "g", "n"]):
-            raise ValueError(f"invalid vasp_type {vasp_type}")
+            raise ValueError(f"invalid {vasp_type=}")
         self.vasp_type = vasp_type
 
         # c = 0.26246582250210965422
@@ -4677,29 +4677,21 @@ class Wavecar:
                     np.fromfile(f, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
 
                     if self.vasp_type is None:
-                        (
-                            self.Gpoints[ink],
-                            extra_gpoints,
-                            extra_coeff_inds,
-                        ) = self._generate_G_points(kpoint, gamma=True)
+                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(kpoint, gamma=True)
                         if len(self.Gpoints[ink]) == nplane:
                             self.vasp_type = "gam"
                         else:
-                            (
-                                self.Gpoints[ink],
-                                extra_gpoints,
-                                extra_coeff_inds,
-                            ) = self._generate_G_points(kpoint, gamma=False)
+                            self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(
+                                kpoint, gamma=False
+                            )
                             self.vasp_type = "std" if len(self.Gpoints[ink]) == nplane else "ncl"
 
                         if verbose:
-                            print("\ndetermined vasp_type =", self.vasp_type, "\n")
+                            print(f"\ndetermined {self.vasp_type = }\n")
                     else:
-                        (
-                            self.Gpoints[ink],
-                            extra_gpoints,
-                            extra_coeff_inds,
-                        ) = self._generate_G_points(kpoint, gamma=self.vasp_type.lower()[0] == "g")
+                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(
+                            kpoint, gamma=self.vasp_type.lower()[0] == "g"
+                        )
 
                     if len(self.Gpoints[ink]) != nplane and 2 * len(self.Gpoints[ink]) != nplane:
                         raise ValueError(

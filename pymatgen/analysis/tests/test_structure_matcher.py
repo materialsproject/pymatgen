@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 import numpy as np
 import pytest
@@ -806,12 +805,8 @@ class StructureMatcherTest(PymatgenTest):
         sp = ["Si", "Si", "Al"]
         s1 = Structure(latt, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.5]])
         s2 = Structure(latt, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.6]])
-        self.assertArrayAlmostEqual(sm.get_rms_dist(s1, s2), (0.32**0.5 / 2, 0.4))
+        self.assert_all_close(sm.get_rms_dist(s1, s2), (0.32**0.5 / 2, 0.4))
 
         assert sm.fit(s1, s2) is False
         assert sm.fit_anonymous(s1, s2) is False
         assert sm.get_mapping(s1, s2) is None
-
-
-if __name__ == "__main__":
-    unittest.main()

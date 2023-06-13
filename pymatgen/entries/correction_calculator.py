@@ -149,7 +149,7 @@ class CorrectionCalculator:
             for anion in self.exclude_polyanions:
                 if anion in name or anion in cmpd_info["formula"]:
                     allow = False
-                    warnings.warn(f"Compound {name} contains the polyanion {anion} and is excluded from the fit")
+                    warnings.warn(f"Compound {name} contains the poly{anion=} and is excluded from the fit")
                     break
 
             # filter out compounds that are unstable
