@@ -1945,8 +1945,9 @@ class MoleculeTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile("testing.traj")
 
-    def _test_calculate_gfnxtb(self):
-        mol = self.mol
+    def _test_calculate_gfnxtb(self, mol):
+        import pytest
+
         new_mol = mol.calculate()
         assert hasattr(new_mol, "calc")
         assert not hasattr(new_mol, "dynamics")
@@ -1956,10 +1957,13 @@ class MoleculeTest(PymatgenTest):
     # see https://github.com/materialsproject/pymatgen/pull/3060 for why this ugly inspect hack
     def test_calculate_gfnxtb(self):
         pytest.importorskip("tblite")
-        code = inspect.getsource(self._test_calculate_gfnxtb)  # extract test code from private method
-        subprocess.run([sys.executable, "-c", code])
+        code = f"from pymatgen.core import Molecule\n\nmol = Molecule.from_dict({self.mol.as_dict()})"
+        code += inspect.getsource(self._test_calculate_gfnxtb)  # extract test code from private method
+        subprocess.run([sys.executable, "-c", code], check=True)
 
     def _test_relax_gfnxtb(self):
+        import pytest
+
         mol = self.mol
         relaxed = mol.relax()
         assert hasattr(relaxed, "calc")
@@ -1970,5 +1974,6 @@ class MoleculeTest(PymatgenTest):
 
     def test_relax_gfnxtb(self):
         pytest.importorskip("tblite")
-        code = inspect.getsource(self._test_relax_gfnxtb)  # extract test code from private method
-        subprocess.run([sys.executable, "-c", code])
+        code = f"from pymatgen.core import Molecule\n\nmol = Molecule.from_dict({self.mol.as_dict()})"
+        code += inspect.getsource(self._test_relax_gfnxtb)  # extract test code from private method
+        subprocess.run([sys.executable, "-c", code], check=True)
