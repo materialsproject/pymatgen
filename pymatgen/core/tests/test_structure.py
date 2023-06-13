@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-import inspect
 import json
 import os
 import random
-import subprocess
-import sys
 import warnings
 from pathlib import Path
 from shutil import which
@@ -28,7 +25,6 @@ from pymatgen.util.testing import PymatgenTest
 try:
     import ase
     from ase.calculators.emt import EMT
-
 except ImportError:
     ase = None
 
@@ -1945,26 +1941,20 @@ class MoleculeTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile("testing.traj")
 
-    def _test_calculate_gfnxtb(self, mol):
-        import pytest
-
+    # TODO remove skip once https://github.com/tblite/tblite/issues/110 is fixed
+    @pytest.mark.skip("Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
+    def test_calculate_gfnxtb(self):
+        pytest.importorskip("tblite")
+        mol = self.mol
         new_mol = mol.calculate()
         assert hasattr(new_mol, "calc")
         assert not hasattr(new_mol, "dynamics")
         assert new_mol.calc.results["energy"] == pytest.approx(-113.61022434200855)
         assert isinstance(new_mol, Molecule)
 
-    # see https://github.com/materialsproject/pymatgen/pull/3060 for why this ugly inspect hack
-    def test_calculate_gfnxtb(self):
+    @pytest.mark.skip("Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
+    def test_relax_gfnxtb(self):
         pytest.importorskip("tblite")
-        code = f"from pymatgen.core import Molecule\n\nmol = Molecule.from_dict({self.mol.as_dict()})\n\n"
-        # extract test code from private method
-        code += "\n".join(map(str.strip, inspect.getsourcelines(self._test_calculate_gfnxtb)[0][1:]))
-        subprocess.run([sys.executable, "-c", code], check=True)
-
-    def _test_relax_gfnxtb(self):
-        import pytest
-
         mol = self.mol
         relaxed = mol.relax()
         assert hasattr(relaxed, "calc")
@@ -1972,10 +1962,3 @@ class MoleculeTest(PymatgenTest):
         assert relaxed.calc.results.get("energy")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
         assert relaxed.calc.results["energy"] == pytest.approx(-113.61346199239306)
-
-    def test_relax_gfnxtb(self):
-        pytest.importorskip("tblite")
-        code = f"from pymatgen.core import Molecule\n\nmol = Molecule.from_dict({self.mol.as_dict()})\n\n"
-        # extract test code from private method
-        code += "\n".join(map(str.strip, inspect.getsourcelines(self._test_relax_gfnxtb)[0][1:]))
-        subprocess.run([sys.executable, "-c", code], check=True)
