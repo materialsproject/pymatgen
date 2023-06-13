@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-try:
-    from tblite.ase import TBLite
-except ImportError:
-    TBLite = None
-
+import inspect
 import json
 import os
 import random
+import subprocess
+import sys
 import warnings
 from pathlib import Path
 from shutil import which
@@ -1947,8 +1945,7 @@ class MoleculeTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile("testing.traj")
 
-    @skipIf(TBLite is None, "Requires tblite.")
-    def test_calculate_gfnxtb(self):
+    def _test_calculate_gfnxtb(self):
         mol = self.mol
         new_mol = mol.calculate()
         assert hasattr(new_mol, "calc")
@@ -1956,8 +1953,13 @@ class MoleculeTest(PymatgenTest):
         assert new_mol.calc.results["energy"] == pytest.approx(-113.61022434200855)
         assert isinstance(new_mol, Molecule)
 
-    @skipIf(TBLite is None, "Requires tblite.")
-    def test_relax_gfnxtb(self):
+    # see https://github.com/materialsproject/pymatgen/pull/3060 for why this ugly inspect hack
+    def test_calculate_gfnxtb(self):
+        pytest.importorskip("tblite")
+        code = inspect.getsource(self._test_calculate_gfnxtb)  # extract test code from private method
+        subprocess.run([sys.executable, "-c", code])
+
+    def _test_relax_gfnxtb(self):
         mol = self.mol
         relaxed = mol.relax()
         assert hasattr(relaxed, "calc")
@@ -1965,3 +1967,8 @@ class MoleculeTest(PymatgenTest):
         assert relaxed.calc.results.get("energy")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
         assert relaxed.calc.results["energy"] == pytest.approx(-113.61346199239306)
+
+    def test_relax_gfnxtb(self):
+        pytest.importorskip("tblite")
+        code = inspect.getsource(self._test_relax_gfnxtb)  # extract test code from private method
+        subprocess.run([sys.executable, "-c", code])
