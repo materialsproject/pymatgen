@@ -6,6 +6,7 @@ import random
 import warnings
 from pathlib import Path
 from shutil import which
+from tempfile import TemporaryDirectory
 from unittest import skipIf
 
 import numpy as np
@@ -61,12 +62,7 @@ class IStructureTest(PymatgenTest):
         coords.append([0, 0, 0])
         coords.append([0.0, 0, 0.0000001])
         with pytest.raises(StructureError):
-            IStructure(
-                self.lattice,
-                ["Si"] * 2,
-                coords,
-                validate_proximity=True,
-            )
+            IStructure(self.lattice, ["Si"] * 2, coords, validate_proximity=True)
         self.propertied_structure = IStructure(self.lattice, ["Si"] * 2, coords, site_properties={"magmom": [5, -5]})
 
         self.lattice_pbc = Lattice(
@@ -746,11 +742,6 @@ class StructureTest(PymatgenTest):
         self.cu_structure = Structure(lattice, ["Cu", "Cu"], coords)
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
 
-    def tearDown(self):
-        for f in ["opt.traj", "testing.traj"]:
-            if os.path.isfile(f):
-                os.remove(f)
-
     def test_mutable_sequence_methods(self):
         s = self.structure
         s[0] = "Fe"
@@ -1390,12 +1381,15 @@ class StructureTest(PymatgenTest):
         assert relaxed.dynamics.get("optimizer") == "FIRE"
         assert len(traj) == 7
         assert traj[0] != traj[-1]
+        os.remove("opt.traj")  # fails if file missing
 
     def test_relax_ase_opt_kwargs(self):
         pytest.importorskip("ase")
         structure = self.cu_structure
+        tmp_dir = TemporaryDirectory()
+        traj_file = f"{tmp_dir.name}/testing.traj"
         relaxed, traj = structure.relax(
-            calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": "testing.traj"}
+            calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
         )
         assert relaxed.lattice != structure.lattice
         assert hasattr(relaxed, "calc")
@@ -1407,7 +1401,7 @@ class StructureTest(PymatgenTest):
         assert relaxed.dynamics.get("optimizer") == "FIRE"
         assert len(traj) == 3  # there is an off-by-one in how ASE counts steps
         assert traj[0] != traj[-1]
-        assert os.path.isfile("testing.traj")
+        assert os.path.isfile(traj_file)
 
     def test_calculate_matgl(self):
         pytest.importorskip("matgl")
@@ -1923,12 +1917,15 @@ class MoleculeTest(PymatgenTest):
         assert relaxed.dynamics.get("optimizer") == "BFGS"
         assert len(traj) == 5
         assert traj[0] != traj[-1]
+        os.remove("opt.traj")  # fails if file missing
 
     def test_relax_ase_mol_return_traj(self):
         pytest.importorskip("ase")
+        tmp_dir = TemporaryDirectory()
         mol = self.mol
+        traj_file = f"{tmp_dir.name}/testing.traj"
         relaxed, traj = mol.relax(
-            calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": "testing.traj"}
+            calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
         )
         assert hasattr(relaxed, "calc")
         assert relaxed.calc.results.get("energy")
@@ -1939,7 +1936,7 @@ class MoleculeTest(PymatgenTest):
         assert relaxed.dynamics.get("optimizer") == "FIRE"
         assert len(traj) == 3  # there is an off-by-one in how ASE counts steps
         assert traj[0] != traj[-1]
-        assert os.path.isfile("testing.traj")
+        assert os.path.isfile(traj_file)
 
     # TODO remove skip once https://github.com/tblite/tblite/issues/110 is fixed
     @pytest.mark.skip("Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
