@@ -2935,17 +2935,18 @@ class IMolecule(SiteCollection, MSONable):
         """
         if len(species) != len(coords):
             raise StructureError(
-                "The list of atomic species must be of the same length as the list of fractional coordinates."
+                f"len(species) != len(coords) ({len(species)} != {len(coords)}). List of atomic species must "
+                "have same length as list of fractional coordinates."
             )
 
         self._charge_spin_check = charge_spin_check
 
-        sites = []
-        for i, _ in enumerate(species):
+        sites: list[Site] = []
+        for idx, specie in enumerate(species):
             prop = None
             if site_properties:
-                prop = {k: v[i] for k, v in site_properties.items()}
-            sites.append(Site(species[i], coords[i], properties=prop))  # type: ignore
+                prop = {k: v[idx] for k, v in site_properties.items()}
+            sites.append(Site(specie, coords[idx], properties=prop))
 
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
