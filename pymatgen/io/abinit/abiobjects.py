@@ -779,7 +779,7 @@ class KSampling(AbivarAble, MSONable):
             )
 
         else:
-            raise ValueError(f"Unknown mode {mode}")
+            raise ValueError(f"Unknown {mode=}")
 
         self.abivars = abivars
         # self.abivars["#comment"] = comment

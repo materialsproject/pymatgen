@@ -827,7 +827,7 @@ class AdfOutput:
                     if m:
                         cycle = int(m.group(1))
                         if cycle <= 0:
-                            raise AdfOutputError(f"Wrong cycle {cycle}")
+                            raise AdfOutputError(f"Wrong {cycle=}")
                         if cycle > last_cycle:
                             parse_cycle = True
                             last_cycle = cycle

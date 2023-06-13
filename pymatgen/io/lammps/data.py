@@ -693,7 +693,7 @@ class LammpsData(MSONable):
                     elif df.shape[1] == len(names) + 3:  # pylint: disable=E1101
                         names += ["nx", "ny", "nz"]
                     else:
-                        raise ValueError(f"Format in Atoms section inconsistent with atom_style {atom_style}")
+                        raise ValueError(f"Format in Atoms section inconsistent with {atom_style=}")
                 else:
                     raise NotImplementedError(f"Parser for {kw} section not implemented")
             df.columns = names

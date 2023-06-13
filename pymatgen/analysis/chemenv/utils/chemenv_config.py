@@ -127,7 +127,7 @@ class ChemEnvConfig:
                         self.package_options["default_strategy"]["strategy_options"][option] = option_dict["type"](test)
                         break
                     except ValueError:
-                        print(f"Wrong input for option {option}")
+                        print(f"Wrong input for {option=}")
 
     def package_options_description(self):
         """

@@ -182,7 +182,7 @@ class BabelMolAdaptor:
         ff = openbabel.OBForceField_FindType(forcefield)
         if ff == 0:
             warnings.warn(
-                f"This input forcefield {forcefield} is not supported "
+                f"This input {forcefield=} is not supported "
                 "in openbabel. The forcefield will be reset as "
                 "default 'mmff94' for now."
             )
@@ -263,10 +263,7 @@ class BabelMolAdaptor:
 
         ff = openbabel.OBForceField_FindType(forcefield)
         if ff == 0:
-            print(
-                f"Could not find forcefield {forcefield} in openbabel, the forcefield "
-                "will be reset as default 'mmff94'"
-            )
+            print(f"Could not find {forcefield=} in openbabel, the forcefield will be reset as default 'mmff94'")
             ff = openbabel.OBForceField_FindType("mmff94")
 
         if freeze_atoms:
