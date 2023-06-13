@@ -350,7 +350,7 @@ def get_angle(v1, v2, units="degrees"):
         return math.degrees(angle)
     if units == "radians":
         return angle
-    raise ValueError(f"Invalid units {units}")
+    raise ValueError(f"Invalid {units=}")
 
 
 class Simplex(MSONable):

@@ -89,7 +89,7 @@ class Spectrum(MSONable):
         elif mode.lower() == "max":
             factor = np.max(self.y, axis=0)
         else:
-            raise ValueError(f"Unsupported normalization mode {mode}!")
+            raise ValueError(f"Unsupported normalization {mode=}!")
 
         self.y /= factor / value
 
@@ -110,7 +110,7 @@ class Spectrum(MSONable):
         elif func.lower() == "lorentzian":
             weights = lorentzian(points, sigma=sigma)
         else:
-            raise ValueError(f"Invalid func {func}")
+            raise ValueError(f"Invalid {func=}")
         weights /= np.sum(weights)
         if len(self.ydim) == 1:
             total = np.sum(self.y)

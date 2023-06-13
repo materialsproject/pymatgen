@@ -737,7 +737,7 @@ class _MPResterLegacy:
                 return self.get_structure_by_material_id(new_material_id)
             except MPRestError:
                 raise MPRestError(
-                    f"material_id {material_id} unknown, if this seems like an error "
+                    f"{material_id=} unknown, if this seems like an error "
                     "please let us know at matsci.org/materials-project"
                 )
 

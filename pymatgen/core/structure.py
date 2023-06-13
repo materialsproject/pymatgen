@@ -4276,7 +4276,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 )
         except KeyError as ex:
             raise ValueError(f"Required parameter {ex} not specified as a kwargs!")
-        raise ValueError(f"Unsupported prototype {prototype}!")
+        raise ValueError(f"Unsupported {prototype=}!")
 
 
 class Molecule(IMolecule, collections.abc.MutableSequence):

@@ -602,7 +602,7 @@ class ElementBase(Enum):
         for sym, data in _pt_data.items():
             if data["Atomic no"] == Z:
                 return Element(sym)
-        raise ValueError(f"No element with this atomic number {Z}")
+        raise ValueError(f"Unexpected atomic number {Z=}")
 
     @staticmethod
     def from_name(name: str) -> Element:
@@ -619,7 +619,7 @@ class ElementBase(Enum):
         for sym, data in _pt_data.items():
             if data["Name"] == name.capitalize():
                 return Element(sym)
-        raise ValueError(f"No element with the name {name}")
+        raise ValueError(f"No element with the {name=}")
 
     @staticmethod
     def from_row_and_group(row: int, group: int) -> Element:
@@ -1256,7 +1256,7 @@ class Species(MSONable, Stringify):
             return quad_mom.get(isotopes[0], 0.0)
 
         if isotope not in quad_mom:
-            raise ValueError(f"No quadrupole moment for isotope {isotope}")
+            raise ValueError(f"No quadrupole moment for {isotope=}")
         return quad_mom.get(isotope, 0.0)
 
     def get_shannon_radius(

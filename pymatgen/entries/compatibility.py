@@ -443,7 +443,7 @@ class UCorrection(Correction):
             error_file: Path to the selected compatibilityErrors.yaml config file.
         """
         if compat_type not in ["GGA", "Advanced"]:
-            raise CompatibilityError(f"Invalid compat_type {compat_type}")
+            raise CompatibilityError(f"Invalid {compat_type=}")
 
         c = loadfn(config_file)
 
@@ -891,7 +891,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1-10 (2011).
         """
         if compat_type not in ["GGA", "Advanced"]:
-            raise CompatibilityError(f"Invalid compat_type {compat_type}")
+            raise CompatibilityError(f"Invalid {compat_type=}")
 
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide

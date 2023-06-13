@@ -292,7 +292,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         if run_type not in self.valid_rtypes_1 + self.valid_rtypes_2:
             raise CompatibilityError(
-                f"WARNING! Invalid run_type {run_type} for entry {entry.entry_id}. Must be one of "
+                f"WARNING! Invalid {run_type=} for entry {entry.entry_id}. Must be one of "
                 f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
             )
 

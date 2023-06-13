@@ -168,7 +168,7 @@ class ResParser:
         """Parses the CELL entry."""
         fields = line.split()
         if len(fields) != 7:
-            raise ParseError(f"Failed to parse CELL line {line}, expected 7 fields.")
+            raise ParseError(f"Failed to parse CELL {line=}, expected 7 fields.")
         field_1, a, b, c, alpha, beta, gamma = map(float, fields)
         return ResCELL(field_1, a, b, c, alpha, beta, gamma)
 
@@ -232,7 +232,7 @@ class ResParser:
                 elif first == "SFAC":
                     _SFAC = self._parse_sfac(rest, it)
                 else:
-                    raise Warning(f"Skipping line {line}, tag {first} not recognized.")
+                    raise Warning(f"Skipping {line=}, tag {first} not recognized.")
         except StopIteration:
             pass
         if _CELL is None or _SFAC is None:
@@ -432,7 +432,7 @@ class AirssProvider(ResProvider):
         """Parses a date from a string where the date is in the format typically used by CASTEP."""
         match = cls._date_fmt.search(string)
         if match is None:
-            raise ParseError(f"Could not parse the date from string {string}.")
+            raise ParseError(f"Could not parse the date from {string=}.")
         date_string = match.group(0)
         return dateutil.parser.parse(date_string)  # type: ignore
 
