@@ -25,6 +25,7 @@ jobs:
     # prevent this action from running on forks
     if: github.repository == 'materialsproject/pymatgen'
     strategy:
+      fail-fast: false
       matrix:
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         os: [ubuntu-latest, windows-latest]
