@@ -1957,7 +1957,7 @@ class MoleculeTest(PymatgenTest):
     # see https://github.com/materialsproject/pymatgen/pull/3060 for why this ugly inspect hack
     def test_calculate_gfnxtb(self):
         pytest.importorskip("tblite")
-        code = f"from pymatgen.core import Molecule\n\nmol = Molecule.from_dict({self.mol.as_dict()})"
+        code = f"from pymatgen.core import Molecule\n\nmol = Molecule.from_dict({self.mol.as_dict()})\n\n"
         # extract test code from private method
         code += "\n".join(map(str.strip, inspect.getsourcelines(self._test_calculate_gfnxtb)[0][1:]))
         subprocess.run([sys.executable, "-c", code], check=True)
@@ -1975,7 +1975,7 @@ class MoleculeTest(PymatgenTest):
 
     def test_relax_gfnxtb(self):
         pytest.importorskip("tblite")
-        code = f"from pymatgen.core import Molecule\n\nmol = Molecule.from_dict({self.mol.as_dict()})"
+        code = f"from pymatgen.core import Molecule\n\nmol = Molecule.from_dict({self.mol.as_dict()})\n\n"
         # extract test code from private method
         code += "\n".join(map(str.strip, inspect.getsourcelines(self._test_relax_gfnxtb)[0][1:]))
         subprocess.run([sys.executable, "-c", code], check=True)
