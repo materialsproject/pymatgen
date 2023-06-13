@@ -1958,7 +1958,8 @@ class MoleculeTest(PymatgenTest):
     def test_calculate_gfnxtb(self):
         pytest.importorskip("tblite")
         code = f"from pymatgen.core import Molecule\n\nmol = Molecule.from_dict({self.mol.as_dict()})"
-        code += inspect.getsource(self._test_calculate_gfnxtb)  # extract test code from private method
+        # extract test code from private method
+        code += "\n".join(map(str.strip, inspect.getsourcelines(self._test_calculate_gfnxtb)[0][1:]))
         subprocess.run([sys.executable, "-c", code], check=True)
 
     def _test_relax_gfnxtb(self):
@@ -1975,5 +1976,6 @@ class MoleculeTest(PymatgenTest):
     def test_relax_gfnxtb(self):
         pytest.importorskip("tblite")
         code = f"from pymatgen.core import Molecule\n\nmol = Molecule.from_dict({self.mol.as_dict()})"
-        code += inspect.getsource(self._test_relax_gfnxtb)  # extract test code from private method
+        # extract test code from private method
+        code += "\n".join(map(str.strip, inspect.getsourcelines(self._test_relax_gfnxtb)[0][1:]))
         subprocess.run([sys.executable, "-c", code], check=True)
