@@ -788,8 +788,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 from matgl.ext.ase import TrajectoryObserver
 
                 traj_observer = TrajectoryObserver(atoms)
-            elif "trajectory" not in opt_kwargs:
-                opt_kwargs["trajectory"] = "opt.traj"
+            else:
+                opt_kwargs.setdefault("trajectory", "opt.traj")
 
         # Attach calculator
         atoms.calc = calculator
