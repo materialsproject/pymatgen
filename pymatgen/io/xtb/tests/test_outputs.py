@@ -21,8 +21,8 @@ __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.1"
 
-test_dir = f"{os.path.dirname(__file__), PymatgenTest.TEST_FILES_DIR}/xtb/sample_CREST_output"
-expected_output_dir = f"{os.path.dirname(__file__), PymatgenTest.TEST_FILES_DIR}/xtb/expected_output"
+test_dir = f"{PymatgenTest.TEST_FILES_DIR}/xtb/sample_CREST_output"
+expected_output_dir = f"{PymatgenTest.TEST_FILES_DIR}/xtb/expected_output"
 
 
 class TestCRESTOutput(PymatgenTest):
@@ -35,11 +35,11 @@ class TestCRESTOutput(PymatgenTest):
         expected_cmd_options = {"g": "H2O", "c": "2"}
         expected_energies = [["-13.66580"] * 10, ["-13.66479"] * 27]
         expected_sorted_structures = [[], []]
-        for f in os.listdir(expected_output_dir):
-            if f.endswith("xyz") and "_r" in f:
-                n_conf = int(f.split("_")[0][-1])
-                n_rot = int(f.split("_")[1].split(".")[0][-1])
-                m = Molecule.from_file(os.path.join(expected_output_dir, f))
+        for filepath in os.listdir(expected_output_dir):
+            if filepath.endswith("xyz") and "_r" in filepath:
+                n_conf = int(filepath.split("_")[0][-1])
+                n_rot = int(filepath.split("_")[1].split(".")[0][-1])
+                m = Molecule.from_file(os.path.join(expected_output_dir, filepath))
                 expected_sorted_structures[n_conf].insert(n_rot, m)
 
         cout = CRESTOutput(output_filename="crest_out.out", path=test_dir)
