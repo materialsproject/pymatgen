@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-from tempfile import TemporaryDirectory
 
 import numpy as np
 import pytest
@@ -23,106 +22,100 @@ from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
 
-struct_env_files_dir = os.path.join(
-    PymatgenTest.TEST_FILES_DIR,
-    "chemenv",
-    "structure_environments_files",
-)
+struct_env_files_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chemenv", "structure_environments_files")
 
 
 class StructureEnvironmentsTest(PymatgenTest):
     def test_structure_environments(self):
-        with TemporaryDirectory() as tmp_dir:
-            os.chdir(tmp_dir)
-            with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
-                dd = json.load(f)
+        with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
+            dd = json.load(f)
 
-            struct_envs = StructureEnvironments.from_dict(dd)
-            isite = 6
-            csm_and_maps_fig, csm_and_maps_subplot = struct_envs.get_csm_and_maps(isite=isite)
-            assert_array_almost_equal(csm_and_maps_subplot.lines[0].get_xydata().flatten(), [0, 0.53499332])
-            assert_array_almost_equal(csm_and_maps_subplot.lines[1].get_xydata().flatten(), [1, 0.47026441])
-            assert_array_almost_equal(csm_and_maps_subplot.lines[2].get_xydata().flatten(), [2, 0.00988778])
+        struct_envs = StructureEnvironments.from_dict(dd)
+        isite = 6
+        csm_and_maps_fig, csm_and_maps_subplot = struct_envs.get_csm_and_maps(isite=isite)
+        assert_array_almost_equal(csm_and_maps_subplot.lines[0].get_xydata().flatten(), [0, 0.53499332])
+        assert_array_almost_equal(csm_and_maps_subplot.lines[1].get_xydata().flatten(), [1, 0.47026441])
+        assert_array_almost_equal(csm_and_maps_subplot.lines[2].get_xydata().flatten(), [2, 0.00988778])
 
-            environments_figure, environments_subplot = struct_envs.get_environments_figure(isite=isite)
-            assert_array_almost_equal(
-                np.array(environments_subplot.patches[0].get_xy()),
-                [[1, 1], [1, 0.99301365], [1.00179228, 0.99301365], [1.00179228, 1], [1, 1]],
-            )
-            assert_array_almost_equal(
-                np.array(environments_subplot.patches[1].get_xy()),
-                [[1, 0.99301365], [1, 0], [1.00179228, 0], [1.00179228, 0.99301365], [1, 0.99301365]],
-            )
-            assert_array_almost_equal(
-                np.array(environments_subplot.patches[2].get_xy()),
-                [[1.00179228, 1], [1.00179228, 0.99301365], [2.25, 0.99301365], [2.25, 1], [1.00179228, 1]],
-            )
-            assert_array_almost_equal(
-                np.array(environments_subplot.patches[3].get_xy()),
-                [
-                    [1.00179228, 0.99301365],
-                    [1.00179228, 0],
-                    [2.22376156, 0],
-                    [2.22376156, 0.0060837],
-                    [2.25, 0.0060837],
-                    [2.25, 0.99301365],
-                    [1.00179228, 0.99301365],
-                ],
-            )
-            assert_array_almost_equal(
-                np.array(environments_subplot.patches[4].get_xy()),
-                [[2.22376156, 0.0060837], [2.22376156, 0], [2.25, 0], [2.25, 0.0060837], [2.22376156, 0.0060837]],
-            )
+        environments_figure, environments_subplot = struct_envs.get_environments_figure(isite=isite)
+        assert_array_almost_equal(
+            np.array(environments_subplot.patches[0].get_xy()),
+            [[1, 1], [1, 0.99301365], [1.00179228, 0.99301365], [1.00179228, 1], [1, 1]],
+        )
+        assert_array_almost_equal(
+            np.array(environments_subplot.patches[1].get_xy()),
+            [[1, 0.99301365], [1, 0], [1.00179228, 0], [1.00179228, 0.99301365], [1, 0.99301365]],
+        )
+        assert_array_almost_equal(
+            np.array(environments_subplot.patches[2].get_xy()),
+            [[1.00179228, 1], [1.00179228, 0.99301365], [2.25, 0.99301365], [2.25, 1], [1.00179228, 1]],
+        )
+        assert_array_almost_equal(
+            np.array(environments_subplot.patches[3].get_xy()),
+            [
+                [1.00179228, 0.99301365],
+                [1.00179228, 0],
+                [2.22376156, 0],
+                [2.22376156, 0.0060837],
+                [2.25, 0.0060837],
+                [2.25, 0.99301365],
+                [1.00179228, 0.99301365],
+            ],
+        )
+        assert_array_almost_equal(
+            np.array(environments_subplot.patches[4].get_xy()),
+            [[2.22376156, 0.0060837], [2.22376156, 0], [2.25, 0], [2.25, 0.0060837], [2.22376156, 0.0060837]],
+        )
 
-            struct_envs.save_environments_figure(isite=isite, imagename="image.png")
-            assert os.path.exists("image.png")
+        struct_envs.save_environments_figure(isite=isite, imagename="image.png")
+        assert os.path.exists("image.png")
 
-            assert len(struct_envs.differences_wrt(struct_envs)) == 0
+        assert len(struct_envs.differences_wrt(struct_envs)) == 0
 
-            assert struct_envs == struct_envs
+        assert struct_envs == struct_envs
 
-            ce = struct_envs.ce_list[isite][4][0]
+        ce = struct_envs.ce_list[isite][4][0]
 
-            assert len(ce), 4
+        assert len(ce), 4
 
-            symbol, min_geometry = ce.minimum_geometry(symmetry_measure_type="csm_wocs_ctwocc")
-            assert symbol == "T:4"
-            assert min_geometry["symmetry_measure"] == pytest.approx(0.00988778424054)
+        symbol, min_geometry = ce.minimum_geometry(symmetry_measure_type="csm_wocs_ctwocc")
+        assert symbol == "T:4"
+        assert min_geometry["symmetry_measure"] == pytest.approx(0.00988778424054)
 
-            assert_array_almost_equal(
-                min_geometry["other_symmetry_measures"]["rotation_matrix_wcs_csc"],
-                [
-                    [-0.8433079817973094, -0.19705747216466898, 0.5000000005010193],
-                    [0.4868840909509757, 0.11377118475194581, 0.8660254034951744],
-                    [-0.22754236927612112, 0.9737681809261427, 1.3979531202869064e-13],
-                ],
-            )
-            assert min_geometry["detailed_voronoi_index"] == {"index": 0, "cn": 4}
-            assert min_geometry["other_symmetry_measures"]["scaling_factor_wocs_ctwocc"] == pytest.approx(1.627060)
+        assert_array_almost_equal(
+            min_geometry["other_symmetry_measures"]["rotation_matrix_wcs_csc"],
+            [
+                [-0.8433079817973094, -0.19705747216466898, 0.5000000005010193],
+                [0.4868840909509757, 0.11377118475194581, 0.8660254034951744],
+                [-0.22754236927612112, 0.9737681809261427, 1.3979531202869064e-13],
+            ],
+        )
+        assert min_geometry["detailed_voronoi_index"] == {"index": 0, "cn": 4}
+        assert min_geometry["other_symmetry_measures"]["scaling_factor_wocs_ctwocc"] == pytest.approx(1.627060)
 
-            assert "csm1 (with central site) : 0.00988" in str(ce)
-            assert "csm2 (without central site) : 0.00981" in str(ce)
-            assert "csm1 (with central site) : 12.987" in str(ce)
-            assert "csm2 (without central site) : 11.827" in str(ce)
-            assert "csm1 (with central site) : 32.466" in str(ce)
-            assert "csm2 (without central site) : 32.466" in str(ce)
-            assert "csm1 (with central site) : 34.644" in str(ce)
-            assert "csm2 (without central site) : 32.466" in str(ce)
+        assert "csm1 (with central site) : 0.00988" in str(ce)
+        assert "csm2 (without central site) : 0.00981" in str(ce)
+        assert "csm1 (with central site) : 12.987" in str(ce)
+        assert "csm2 (without central site) : 11.827" in str(ce)
+        assert "csm1 (with central site) : 32.466" in str(ce)
+        assert "csm2 (without central site) : 32.466" in str(ce)
+        assert "csm1 (with central site) : 34.644" in str(ce)
+        assert "csm2 (without central site) : 32.466" in str(ce)
 
-            min_geoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwocc", max_csm=12)
-            assert len(min_geoms) == 2
-            min_geoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwcc", max_csm=12)
-            assert len(min_geoms) == 1
-            min_geoms = ce.minimum_geometries(n=3)
-            assert len(min_geoms) == 3
+        min_geoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwocc", max_csm=12)
+        assert len(min_geoms) == 2
+        min_geoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwcc", max_csm=12)
+        assert len(min_geoms) == 1
+        min_geoms = ce.minimum_geometries(n=3)
+        assert len(min_geoms) == 3
 
-            ce2 = struct_envs.ce_list[7][4][0]
+        ce2 = struct_envs.ce_list[7][4][0]
 
-            assert ce.is_close_to(ce2, rtol=0.01, atol=1e-4)
-            assert not ce.is_close_to(ce2, rtol=0, atol=1e-8)
+        assert ce.is_close_to(ce2, rtol=0.01, atol=1e-4)
+        assert not ce.is_close_to(ce2, rtol=0, atol=1e-8)
 
-            assert ce != ce2
-            assert ce != ce2
+        assert ce != ce2
+        assert ce != ce2
 
     def test_light_structure_environments(self):
         with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
