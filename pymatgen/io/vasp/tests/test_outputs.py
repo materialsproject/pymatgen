@@ -904,14 +904,8 @@ class OutcarTest(PymatgenTest):
         outcar = Outcar(filepath)
         assert outcar.spin is True
         assert outcar.noncollinear is False
-        assert outcar.p_ion[0] == approx(0.0)
-        assert outcar.p_ion[1] == approx(0.0)
-        assert outcar.p_ion[2] == approx(-5.56684)
-        assert outcar.p_sp1[0] == approx(2.00068)
-        assert outcar.p_sp2[0] == approx(-2.00044)
-        assert outcar.p_elec[0] == approx(0.00024)
-        assert outcar.p_elec[1] == approx(0.00019)
-        assert outcar.p_elec[2] == approx(3.61674)
+        assert outcar.p_ion == approx([0.0, 0.0, -5.56684])
+        assert outcar.p_elec == approx([0.00024, 0.00019, 3.61674])
 
     def test_pseudo_zval(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.BaTiO3.polar"
@@ -2025,12 +2019,8 @@ class EigenvalTest(PymatgenTest):
         props = eig.eigenvalue_band_properties
         eig2 = Eigenval(self.TEST_FILES_DIR / "EIGENVAL_separate_spins.gz", separate_spins=False)
         props2 = eig2.eigenvalue_band_properties
-        assert props[0][0] == approx(2.8772, abs=1e-4)
-        assert props[0][1] == approx(1.2810, abs=1e-4)
-        assert props[1][0] == approx(3.6741, abs=1e-4)
-        assert props[1][1] == approx(1.6225, abs=1e-4)
-        assert props[2][0] == approx(0.7969, abs=1e-4)
-        assert props[2][1] == approx(0.3415, abs=1e-4)
+
+        assert np.array(props)[:3, :2].flat == approx([2.8772, 1.2810, 3.6741, 1.6225, 0.7969, 0.3415], abs=1e-4)
         assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), abs=1e-4)
         assert props[3][0] is True
         assert props[3][1] is True

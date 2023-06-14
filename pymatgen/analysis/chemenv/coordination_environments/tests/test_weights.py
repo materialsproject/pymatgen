@@ -222,8 +222,8 @@ class StrategyWeightsTest(PymatgenTest):
         bias_weight4 = CNBiasNbSetWeight.from_description(
             {"type": "linearly_equidistant", "weight_cn1": 2.0, "weight_cn13": 26.0}
         )
-        for cn in range(1, 14):
-            assert bias_weight4.cn_weights[cn] == approx(2.0 * cn)
+        for idx in range(1, 14):
+            assert bias_weight4.cn_weights[idx] == approx(2 * idx)
 
         bias_weight5 = CNBiasNbSetWeight.from_description(
             {
