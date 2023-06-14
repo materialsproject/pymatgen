@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import random
 
 import numpy as np
@@ -12,8 +11,8 @@ from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
 
-json_files_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chemenv", "json_test_files")
-img_files_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chemenv", "images")
+json_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/json_test_files"
+img_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/images"
 
 
 class VoronoiContainerTest(PymatgenTest):

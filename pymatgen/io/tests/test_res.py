@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import os
-
 import pytest
 
 from pymatgen.core import Structure
 from pymatgen.io.res import AirssProvider, ParseError, ResWriter
 from pymatgen.util.testing import PymatgenTest
 
-res_coc = os.path.join(PymatgenTest.TEST_FILES_DIR, "res", "coc-115925-9326-14.res")
+res_coc = f"{PymatgenTest.TEST_FILES_DIR}/res/coc-115925-9326-14.res"
 
 
 @pytest.mark.parametrize("provider", [AirssProvider.from_file(res_coc, "strict")])
@@ -132,7 +130,7 @@ class TestSpin:
         pytest.fail("valid 'magmom' not found in any site properties")
 
     def test_gh_2938_example(self):
-        res_spin_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "res", "spins-in-last-col.res")
+        res_spin_file = f"{PymatgenTest.TEST_FILES_DIR}/res/spins-in-last-col.res"
         with open(res_spin_file) as res_file:
             contents = res_file.read()
 

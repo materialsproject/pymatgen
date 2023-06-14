@@ -1210,7 +1210,7 @@ $end"""
     def test_read_write_nbo7(self):
         qcinp = QCInput.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin"))
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_nbo7.qin"))
-        test_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin")
+        test_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files", "nbo7.qin"
         ref_path = os.path.join(os.path.dirname(__file__), "test_nbo7.qin")
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
@@ -1225,7 +1225,7 @@ $end"""
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "e2pert.qin")
         )
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_e2pert.qin"))
-        test_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "e2pert.qin")
+        test_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files", "e2pert.qin"
         ref_path = os.path.join(os.path.dirname(__file__), "test_e2pert.qin")
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
@@ -1239,7 +1239,7 @@ $end"""
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "custom_smd.qin")
         )
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_custom_smd.qin"))
-        test_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "custom_smd.qin")
+        test_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files", "custom_smd.qin"
         ref_path = os.path.join(os.path.dirname(__file__), "test_custom_smd.qin")
 
         with open(ref_path) as ref_file, open(test_path) as test_file:

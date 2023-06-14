@@ -16,7 +16,7 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 logger = logging.getLogger(__name__)
 
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files")
+test_dir = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files"
 
 
 class UtilTest(PymatgenTest):

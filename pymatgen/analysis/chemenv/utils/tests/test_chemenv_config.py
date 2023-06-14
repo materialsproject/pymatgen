@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import unittest
 
 from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
@@ -9,7 +8,7 @@ from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
 
-config_file_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chemenv", "config")
+config_file_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/config"
 
 
 class ChemenvConfigTest(unittest.TestCase):

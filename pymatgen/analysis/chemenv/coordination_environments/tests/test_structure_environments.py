@@ -22,7 +22,7 @@ from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
 
-struct_env_files_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chemenv", "structure_environments_files")
+struct_env_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/structure_environments_files"
 
 
 class StructureEnvironmentsTest(PymatgenTest):

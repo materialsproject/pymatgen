@@ -45,38 +45,34 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 
 class CohpcarTest(PymatgenTest):
     def setUp(self):
-        self.cohp_bise = Cohpcar(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.BiSe.gz"))
+        self.cohp_bise = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.BiSe.gz")
         self.coop_bise = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COOPCAR.lobster.BiSe.gz"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COOPCAR.lobster.BiSe.gz",
             are_coops=True,
         )
-        self.cohp_fe = Cohpcar(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COOPCAR.lobster.gz"))
+        self.cohp_fe = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COOPCAR.lobster.gz")
         self.coop_fe = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COOPCAR.lobster.gz"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COOPCAR.lobster.gz",
             are_coops=True,
         )
-        self.orb = Cohpcar(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.orbitalwise.gz"))
-        self.orb_notot = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.notot.orbitalwise.gz")
-        )
+        self.orb = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.orbitalwise.gz")
+        self.orb_notot = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.notot.orbitalwise.gz")
 
         # Lobster 3.1 (Test data is from prerelease of Lobster 3.1)
-        self.cohp_KF = Cohpcar(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.KF.gz"))
+        self.cohp_KF = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.KF.gz")
         self.coop_KF = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.KF.gz"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.KF.gz",
             are_coops=True,
         )
 
         # example with f electrons
-        self.cohp_Na2UO4 = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.Na2UO4.gz")
-        )
+        self.cohp_Na2UO4 = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.Na2UO4.gz")
         self.coop_Na2UO4 = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COOPCAR.lobster.Na2UO4.gz"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COOPCAR.lobster.Na2UO4.gz",
             are_coops=True,
         )
         self.cobi = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COBICAR.lobster.gz"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COBICAR.lobster.gz",
             are_cobis=True,
         )
 
@@ -412,40 +408,36 @@ class CohpcarTest(PymatgenTest):
 
 class IcohplistTest(unittest.TestCase):
     def setUp(self):
-        self.icohp_bise = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster.BiSe")
-        )
+        self.icohp_bise = Icohplist(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOHPLIST.lobster.BiSe")
         self.icoop_bise = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOOPLIST.lobster.BiSe"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOOPLIST.lobster.BiSe",
             are_coops=True,
         )
-        self.icohp_fe = Icohplist(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"))
+        self.icohp_fe = Icohplist(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOHPLIST.lobster")
         # allow gzipped files
-        self.icohp_gzipped = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster.gz")
-        )
+        self.icohp_gzipped = Icohplist(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOHPLIST.lobster.gz")
         self.icoop_fe = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOHPLIST.lobster",
             are_coops=True,
         )
         # ICOBIs and orbitalwise ICOBILIST.lobster
         self.icobi_orbitalwise = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOBILIST.lobster",
             are_cobis=True,
         )
         # TODO: test orbitalwise ICOHPs with and without spin polarization
 
         self.icobi = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.withoutorbitals"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOBILIST.lobster.withoutorbitals",
             are_cobis=True,
         )
         self.icobi_orbitalwise_spinpolarized = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.spinpolarized"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOBILIST.lobster.spinpolarized",
             are_cobis=True,
         )
         # make sure the correct line is read to check if this is a orbitalwise ICOBILIST
         self.icobi_orbitalwise_add = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.additional_case"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOBILIST.lobster.additional_case",
             are_cobis=True,
         )
         self.icobi_orbitalwise_spinpolarized_add = Icohplist(
@@ -844,9 +836,9 @@ class DoscarTest(unittest.TestCase):
 
 class ChargeTest(PymatgenTest):
     def setUp(self):
-        self.charge2 = Charge(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "CHARGE.lobster.MnO"))
+        self.charge2 = Charge(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/CHARGE.lobster.MnO")
         # gzipped file
-        self.charge = Charge(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "CHARGE.lobster.MnO2.gz"))
+        self.charge = Charge(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/CHARGE.lobster.MnO2.gz")
 
     def testattributes(self):
         charge_Loewdin = [-1.25, 1.25]
@@ -903,13 +895,9 @@ class ChargeTest(PymatgenTest):
 class LobsteroutTest(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
-        self.lobsterout_normal = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.normal")
-        )
+        self.lobsterout_normal = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.normal")
         # make sure .gz files are also read correctly
-        self.lobsterout_normal = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.normal2.gz")
-        )
+        self.lobsterout_normal = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.normal2.gz")
         self.lobsterout_fatband_grosspop_densityofenergies = Lobsterout(
             filename=os.path.join(
                 PymatgenTest.TEST_FILES_DIR,
@@ -918,31 +906,25 @@ class LobsteroutTest(PymatgenTest):
             )
         )
         self.lobsterout_saveprojection = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.saveprojection")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.saveprojection"
         )
         self.lobsterout_skipping_all = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.skipping_all")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.skipping_all"
         )
-        self.lobsterout_twospins = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.twospins")
-        )
-        self.lobsterout_GaAs = Lobsterout(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.GaAs"))
+        self.lobsterout_twospins = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.twospins")
+        self.lobsterout_GaAs = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.GaAs")
         self.lobsterout_from_projection = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_from_projection")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout_from_projection"
         )
-        self.lobsterout_onethread = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.onethread")
-        )
+        self.lobsterout_onethread = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.onethread")
         self.lobsterout_cobi_madelung = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_cobi_madelung")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout_cobi_madelung"
         )
-        self.lobsterout_doscar_lso = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_doscar_lso")
-        )
+        self.lobsterout_doscar_lso = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout_doscar_lso")
 
         # TODO: implement skipping madelung/cobi
         self.lobsterout_skipping_cobi_madelung = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.skip_cobi_madelung")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.skip_cobi_madelung"
         )
 
     def tearDown(self):
@@ -1370,26 +1352,24 @@ class FatbandTest(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.fatband_SiO2_p_x = Fatband(
-            filenames=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x"),
-            Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/KPOINTS"),
-            vasprun=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/vasprun.xml"),
+            filenames=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x",
+            Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
+            vasprun=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
         )
         self.vasprun_SiO2_p_x = Vasprun(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/vasprun.xml")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml"
         )
         self.bs_symmline = self.vasprun_SiO2_p_x.get_band_structure(line_mode=True, force_hybrid_mode=True)
         self.fatband_SiO2_p = Fatband(
-            filenames=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p"),
-            Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p/KPOINTS"),
-            vasprun=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p/vasprun.xml"),
+            filenames=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p",
+            Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/KPOINTS",
+            vasprun=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/vasprun.xml",
         )
-        self.vasprun_SiO2_p = Vasprun(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p/vasprun.xml")
-        )
+        self.vasprun_SiO2_p = Vasprun(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/vasprun.xml")
         self.bs_symmline2 = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
         self.fatband_SiO2_spin = Fatband(
-            filenames=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_Spin"),
-            Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_Spin/KPOINTS"),
+            filenames=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin",
+            Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin/KPOINTS",
             vasprun=os.path.join(
                 PymatgenTest.TEST_FILES_DIR,
                 "cohp",
@@ -1516,7 +1496,7 @@ class FatbandTest(PymatgenTest):
                         "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
                     ),
                 ],
-                Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/KPOINTS"),
+                Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
                 vasprun=os.path.join(
                     PymatgenTest.TEST_FILES_DIR,
                     "cohp",
@@ -1538,7 +1518,7 @@ class FatbandTest(PymatgenTest):
                         "Fatband_SiO2/Test_p/FATBAND_si1_3p.lobster",
                     ),
                 ],
-                Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/KPOINTS"),
+                Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
                 vasprun=os.path.join(
                     PymatgenTest.TEST_FILES_DIR,
                     "cohp",
@@ -1549,7 +1529,7 @@ class FatbandTest(PymatgenTest):
         with pytest.raises(ValueError):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=".",
-                Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/KPOINTS"),
+                Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
                 vasprun=os.path.join(
                     PymatgenTest.TEST_FILES_DIR,
                     "cohp",
@@ -2031,7 +2011,7 @@ class LobsterinTest(unittest.TestCase):
         #
         # #without line mode, using a certain grid, isym=0 instead of -1
         lobsterin1.write_KPOINTS(
-            POSCAR_input=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.Li"),
+            POSCAR_input=f"{PymatgenTest.TEST_FILES_DIR}/cohp/POSCAR.Li",
             KPOINTS_output=outfile_path,
             line_mode=False,
             from_grid=True,
@@ -2057,7 +2037,7 @@ class LobsterinTest(unittest.TestCase):
             )
 
         lobsterin1.write_KPOINTS(
-            POSCAR_input=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.Li"),
+            POSCAR_input=f"{PymatgenTest.TEST_FILES_DIR}/cohp/POSCAR.Li",
             KPOINTS_output=outfile_path,
             line_mode=False,
             from_grid=True,
@@ -2464,7 +2444,7 @@ class WavefunctionTest(PymatgenTest):
 
     def test_set_volumetric_data(self):
         wave1 = Wavefunction(
-            filename=os.path.join(test_dir_doscar, "cohp", "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
+            filename=f"{test_dir_doscar}/cohp/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")),
         )
 
@@ -2533,9 +2513,7 @@ class WavefunctionTest(PymatgenTest):
 
 class SitePotentialsTest(PymatgenTest):
     def setUp(self) -> None:
-        self.sitepotential = SitePotential(
-            filename=os.path.join(test_dir_doscar, "cohp", "SitePotentials.lobster.perovskite")
-        )
+        self.sitepotential = SitePotential(filename=f"{test_dir_doscar}/cohp/SitePotentials.lobster.perovskite")
 
     def test_attributes(self):
         assert self.sitepotential.sitepotentials_Loewdin == [-8.77, -17.08, 9.57, 9.57, 8.45]
@@ -2557,9 +2535,7 @@ class SitePotentialsTest(PymatgenTest):
 
 class MadelungEnergiesTest(PymatgenTest):
     def setUp(self) -> None:
-        self.madelungenergies = MadelungEnergies(
-            filename=os.path.join(test_dir_doscar, "cohp", "MadelungEnergies.lobster.perovskite")
-        )
+        self.madelungenergies = MadelungEnergies(filename=f"{test_dir_doscar}/cohp/MadelungEnergies.lobster.perovskite")
 
     def test_attributes(self):
         assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)

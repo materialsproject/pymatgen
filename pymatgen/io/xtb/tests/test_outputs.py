@@ -21,8 +21,8 @@ __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.1"
 
-test_dir = os.path.join(os.path.dirname(__file__), PymatgenTest.TEST_FILES_DIR, "xtb", "sample_CREST_output")
-expected_output_dir = os.path.join(os.path.dirname(__file__), PymatgenTest.TEST_FILES_DIR, "xtb", "expected_output")
+test_dir = f"{os.path.dirname(__file__), PymatgenTest.TEST_FILES_DIR}/xtb/sample_CREST_output"
+expected_output_dir = f"{os.path.dirname(__file__), PymatgenTest.TEST_FILES_DIR}/xtb/expected_output"
 
 
 class TestCRESTOutput(PymatgenTest):

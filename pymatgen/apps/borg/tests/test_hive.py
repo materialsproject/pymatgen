@@ -85,7 +85,7 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_assimilate(self):
-        test_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "methane.log")
+        test_file = f"{PymatgenTest.TEST_FILES_DIR}/molecules/methane.log"
         entry = self.drone.assimilate(test_file)
         for p in [
             "functional",
