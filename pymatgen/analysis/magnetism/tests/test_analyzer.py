@@ -256,9 +256,10 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
         # (enable for further development of workflow, too slow for CI)
 
         # structure = Structure.from_file(os.path.join(ref_dir, "CuO.json"))
-        # enumerator = MagneticOrderingsenumerator(structure, default_magmoms={'Cu': 1.73},
-        #                         transformation_kwargs={'max_cell_size': 4})
-        # self.assertEqual(enumerator.input_origin, "afm")
+        # enumerator = MagneticOrderingsenumerator(
+        #     structure, default_magmoms={"Cu": 1.73}, transformation_kwargs={"max_cell_size": 4}
+        # )
+        # assert enumerator.input_origin == "afm"
 
         # antiferromagnetic by structural motif
         structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings/Ca3Co2O6.json"))

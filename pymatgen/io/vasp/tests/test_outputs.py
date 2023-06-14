@@ -595,10 +595,10 @@ class VasprunTest(PymatgenTest):
 
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.sc_overflow"
-        # with warnings.catch_warnings(record=True) as w:
+        # with warnings.catch_warnings(record=True) as warns:
         #     warnings.simplefilter("always")
         #     vasprun = Vasprun(filepath)
-        #     self.assertEqual(len(w), 3)
+        #     assert len(warns) == 3
         vasprun = Vasprun(filepath)
         estep = vasprun.ionic_steps[0]["electronic_steps"][29]
         assert np.isnan(estep["e_wo_entrp"])
@@ -896,7 +896,7 @@ class OutcarTest(PymatgenTest):
             },
         )
         # test note: Magmom class uses np.allclose() when testing for equality
-        # so fine to use assertEqual here
+        # so fine to use == operator here
         assert outcar.magnetization == expected_mag, "Wrong vector magnetization read from Outcar for SOC calculation"
 
     def test_polarization(self):

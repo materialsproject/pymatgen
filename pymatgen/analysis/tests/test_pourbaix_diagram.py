@@ -39,8 +39,8 @@ class PourbaixEntryTest(PymatgenTest):
         assert self.PxIon.entry.name == "MnO4[-1]", "Wrong Entry!"
         assert self.PxSol.entry.energy == 49, "Wrong Energy!"
         assert self.PxSol.entry.name == "Mn2O3", "Wrong Entry!"
-        # self.assertEqual(self.PxIon.energy, 25, "Wrong Energy!")
-        # self.assertEqual(self.PxSol.energy, 49, "Wrong Energy!")
+        # assert self.PxIon.energy == 25, "Wrong Energy!"
+        # assert self.PxSol.energy == 49, "Wrong Energy!"
         assert self.PxIon.concentration == 1e-4, "Wrong concentration!"
 
     def test_calc_coeff_terms(self):
