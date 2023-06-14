@@ -1389,97 +1389,52 @@ class FatbandTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_attributes(self):
-        assert list(self.fatband_SiO2_p_x.label_dict["M"])[0] == approx(0.5)
-        assert list(self.fatband_SiO2_p_x.label_dict["M"])[1] == approx(0.0)
-        assert list(self.fatband_SiO2_p_x.label_dict["M"])[2] == approx(0.0)
+        assert list(self.fatband_SiO2_p_x.label_dict["M"]) == approx([0.5, 0.0, 0.0])
         assert self.fatband_SiO2_p_x.efermi == self.vasprun_SiO2_p_x.efermi
         lattice1 = self.bs_symmline.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p_x.lattice.as_dict()
-        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
-        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
-        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
-        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
-        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
-        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
-        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
-        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
-        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
+        for idx in range(3):
+            assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
         assert self.fatband_SiO2_p_x.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p_x.efermi == -18.245
         assert self.fatband_SiO2_p_x.is_spinpolarized is False
-        assert self.fatband_SiO2_p_x.kpoints_array[3][0] == approx(0.03409091)
-        assert self.fatband_SiO2_p_x.kpoints_array[3][1] == 0.0
-        assert self.fatband_SiO2_p_x.kpoints_array[3][2] == 0.0
+        assert self.fatband_SiO2_p_x.kpoints_array[3] == approx([0.03409091, 0, 0])
         assert self.fatband_SiO2_p_x.nbands == 36
         assert self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"] == 0.002
-        assert self.fatband_SiO2_p_x.structure[0].frac_coords[0] == approx(0.0)
-        assert self.fatband_SiO2_p_x.structure[0].frac_coords[1] == approx(0.47634315)
-        assert self.fatband_SiO2_p_x.structure[0].frac_coords[2] == approx(0.666667)
+        assert self.fatband_SiO2_p_x.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_p_x.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_p_x.structure[0].coords[0] == approx(-1.19607309)
-        assert self.fatband_SiO2_p_x.structure[0].coords[1] == approx(2.0716597)
-        assert self.fatband_SiO2_p_x.structure[0].coords[2] == approx(3.67462144)
+        assert self.fatband_SiO2_p_x.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
-        assert list(self.fatband_SiO2_p.label_dict["M"])[0] == approx(0.5)
-        assert list(self.fatband_SiO2_p.label_dict["M"])[1] == approx(0.0)
-        assert list(self.fatband_SiO2_p.label_dict["M"])[2] == approx(0.0)
+        assert list(self.fatband_SiO2_p.label_dict["M"]) == approx([0.5, 0.0, 0.0])
         assert self.fatband_SiO2_p.efermi == self.vasprun_SiO2_p.efermi
         lattice1 = self.bs_symmline2.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p.lattice.as_dict()
-        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
-        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
-        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
-        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
-        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
-        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
-        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
-        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
-        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
+        for idx in range(3):
+            assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
         assert self.fatband_SiO2_p.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p.efermi == -18.245
         assert self.fatband_SiO2_p.is_spinpolarized is False
-        assert self.fatband_SiO2_p.kpoints_array[3][0] == approx(0.03409091)
-        assert self.fatband_SiO2_p.kpoints_array[3][1] == 0.0
-        assert self.fatband_SiO2_p.kpoints_array[3][2] == 0.0
+        assert self.fatband_SiO2_p.kpoints_array[3] == approx([0.03409091, 0, 0])
         assert self.fatband_SiO2_p.nbands == 36
         assert self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
-        assert self.fatband_SiO2_p.structure[0].frac_coords[0] == approx(0.0)
-        assert self.fatband_SiO2_p.structure[0].frac_coords[1] == approx(0.47634315)
-        assert self.fatband_SiO2_p.structure[0].frac_coords[2] == approx(0.666667)
+        assert self.fatband_SiO2_p.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_p.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_p.structure[0].coords[0] == approx(-1.19607309)
-        assert self.fatband_SiO2_p.structure[0].coords[1] == approx(2.0716597)
-        assert self.fatband_SiO2_p.structure[0].coords[2] == approx(3.67462144)
+        assert self.fatband_SiO2_p.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
-        assert list(self.fatband_SiO2_spin.label_dict["M"])[0] == approx(0.5)
-        assert list(self.fatband_SiO2_spin.label_dict["M"])[1] == approx(0.0)
-        assert list(self.fatband_SiO2_spin.label_dict["M"])[2] == approx(0.0)
+        assert list(self.fatband_SiO2_spin.label_dict["M"]) == approx([0.5, 0.0, 0.0])
         assert self.fatband_SiO2_spin.efermi == self.vasprun_SiO2_spin.efermi
         lattice1 = self.bs_symmline_spin.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_spin.lattice.as_dict()
-        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
-        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
-        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
-        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
-        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
-        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
-        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
-        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
-        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
+        for idx in range(3):
+            assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
         assert self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi == -18.245
         assert self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi == -18.245
         assert self.fatband_SiO2_spin.is_spinpolarized is True
-        assert self.fatband_SiO2_spin.kpoints_array[3][0] == approx(0.03409091)
-        assert self.fatband_SiO2_spin.kpoints_array[3][1] == 0.0
-        assert self.fatband_SiO2_spin.kpoints_array[3][2] == 0.0
+        assert self.fatband_SiO2_spin.kpoints_array[3] == approx([0.03409091, 0, 0])
         assert self.fatband_SiO2_spin.nbands == 36
 
         assert self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
-        assert self.fatband_SiO2_spin.structure[0].frac_coords[0] == approx(0.0)
-        assert self.fatband_SiO2_spin.structure[0].frac_coords[1] == approx(0.47634315)
-        assert self.fatband_SiO2_spin.structure[0].frac_coords[2] == approx(0.666667)
+        assert self.fatband_SiO2_spin.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_spin.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_spin.structure[0].coords[0] == approx(-1.19607309)
-        assert self.fatband_SiO2_spin.structure[0].coords[1] == approx(2.0716597)
-        assert self.fatband_SiO2_spin.structure[0].coords[2] == approx(3.67462144)
+        assert self.fatband_SiO2_spin.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
     def test_raises(self):
         with pytest.raises(ValueError):
@@ -1558,15 +1513,9 @@ class FatbandTest(PymatgenTest):
         assert bs_p.distance[30] == approx(self.bs_symmline2.distance[30])
         lattice1 = bs_p.lattice_rec.as_dict()
         lattice2 = self.bs_symmline2.lattice_rec.as_dict()
-        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
-        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
-        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
-        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
-        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
-        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
-        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
-        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
-        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
+        assert lattice1["matrix"][0] == approx(lattice2["matrix"][0])
+        assert lattice1["matrix"][1] == approx(lattice2["matrix"][1])
+        assert lattice1["matrix"][2] == approx(lattice2["matrix"][2])
 
         assert bs_p.kpoints[8].frac_coords[0] == approx(self.bs_symmline2.kpoints[8].frac_coords[0])
         assert bs_p.kpoints[8].frac_coords[1] == approx(self.bs_symmline2.kpoints[8].frac_coords[1])
