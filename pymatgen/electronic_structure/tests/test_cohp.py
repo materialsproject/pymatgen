@@ -839,8 +839,8 @@ class CompleteCohpTest(PymatgenTest):
         self.cohp_lobster_forb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
         # spinpolarized case:
-        filepath = os.path.join(test_dir, "environments", "COHPCAR.lobster.mp-190.gz")
-        structure = os.path.join(test_dir, "environments", "POSCAR.mp_190.gz")
+        filepath = f"{test_dir}/environments/COHPCAR.lobster.mp-190.gz"
+        structure = f"{test_dir}/environments/POSCAR.mp_190.gz"
         self.cohp_lobster_spin_polarized = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure
         )
@@ -1198,8 +1198,8 @@ class MethodTest(unittest.TestCase):
         structure = os.path.join(test_dir, "POSCAR.orbitalwise")
         self.cohp_orb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
-        filepath = os.path.join(test_dir, "environments", "COHPCAR.lobster.mp-190.gz")
-        structure = os.path.join(test_dir, "environments", "POSCAR.mp_190.gz")
+        filepath = f"{test_dir}/environments/COHPCAR.lobster.mp-190.gz"
+        structure = f"{test_dir}/environments/POSCAR.mp_190.gz"
         self.cohp_lobster_spin_polarized = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure
         )

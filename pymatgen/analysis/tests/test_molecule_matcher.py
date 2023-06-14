@@ -25,7 +25,7 @@ try:
 except (ImportError, RuntimeError):
     openbabel = None
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "molecule_matcher")
+test_dir = f"{PymatgenTest.TEST_FILES_DIR}/molecules/molecule_matcher"
 
 
 ob_align_missing = openbabel is None or "OBAlign" not in dir(openbabel)

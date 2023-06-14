@@ -216,9 +216,7 @@ class Critic2Caller:
 
         input_script = "\n".join(input_script)
 
-        with ScratchDir(".") as temp_dir:
-            os.chdir(temp_dir)
-
+        with ScratchDir("."):
             structure.to(filename="POSCAR")
 
             if chgcar and isinstance(chgcar, VolumetricData):
