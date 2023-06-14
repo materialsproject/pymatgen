@@ -1209,17 +1209,17 @@ $end"""
         os.remove(os.path.join(module_dir, "test_vdw.qin"))
 
     def test_read_write_nbo7(self):
+        test_path = os.path.join(module_dir, "test_nbo7.qin")
+        ref_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files/nbo7.qin"
         qcinp = QCInput.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin"))
-        qcinp.write_file(os.path.join(module_dir, "test_nbo7.qin"))
-        test_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files", "nbo7.qin"
-        ref_path = os.path.join(module_dir, "test_nbo7.qin")
+        qcinp.write_file(test_path)
 
-        with open(ref_path) as ref_file, open(test_path) as test_file:
+        with open(test_path) as ref_file, open(ref_path) as test_file:
             for l_test, l_ref in zip(test_file, ref_file):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
 
-        os.remove(os.path.join(module_dir, "test_nbo7.qin"))
+        os.remove(test_path)
 
     def test_read_write_nbo_e2pert(self):
         qcinp = QCInput.from_file(f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files/e2pert.qin")
