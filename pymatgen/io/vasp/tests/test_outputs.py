@@ -11,7 +11,6 @@ from shutil import copyfile, copyfileobj
 
 import numpy as np
 import pytest
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.core import Element
@@ -493,39 +492,35 @@ class VasprunTest(PymatgenTest):
             assert projected[Spin.up][0][0]["Si"]["s"] == approx(0.4238)
 
             # Test compressed files case 1: compressed KPOINTS in current dir
-            with ScratchDir("./"):
-                copyfile(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "vasprun.xml")
+            copyfile(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "vasprun.xml")
 
-                # Check for error if no KPOINTS file
-                vasprun = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
-                with pytest.raises(VaspParserError):
-                    _ = vasprun.get_band_structure(line_mode=True)
+            # Check for error if no KPOINTS file
+            vasprun = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
+            with pytest.raises(VaspParserError):
+                _ = vasprun.get_band_structure(line_mode=True)
 
-                # Check KPOINTS.gz successfully inferred and used if present
-                with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in, gzip.open(
-                    "KPOINTS.gz", "wb"
-                ) as f_out:
-                    copyfileobj(f_in, f_out)
-                bs_kpts_gzip = vasprun.get_band_structure()
-                assert bs.efermi == bs_kpts_gzip.efermi
-                assert bs.as_dict() == bs_kpts_gzip.as_dict()
+            # Check KPOINTS.gz successfully inferred and used if present
+            with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in, gzip.open("KPOINTS.gz", "wb") as f_out:
+                copyfileobj(f_in, f_out)
+            bs_kpts_gzip = vasprun.get_band_structure()
+            assert bs.efermi == bs_kpts_gzip.efermi
+            assert bs.as_dict() == bs_kpts_gzip.as_dict()
 
             # Test compressed files case 2: compressed vasprun in another dir
-            with ScratchDir("./"):
-                os.mkdir("deeper")
-                copyfile(self.TEST_FILES_DIR / "KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
-                with open(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "rb") as f_in, gzip.open(
-                    os.path.join("deeper", "vasprun.xml.gz"), "wb"
-                ) as f_out:
-                    copyfileobj(f_in, f_out)
-                vasprun = Vasprun(
-                    os.path.join("deeper", "vasprun.xml.gz"),
-                    parse_projected_eigen=True,
-                    parse_potcar_file=False,
-                )
-                bs_vasprun_gzip = vasprun.get_band_structure(line_mode=True)
-                assert bs.efermi == bs_vasprun_gzip.efermi
-                assert bs.as_dict() == bs_vasprun_gzip.as_dict()
+            os.mkdir("deeper")
+            copyfile(self.TEST_FILES_DIR / "KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
+            with open(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "rb") as f_in, gzip.open(
+                os.path.join("deeper", "vasprun.xml.gz"), "wb"
+            ) as f_out:
+                copyfileobj(f_in, f_out)
+            vasprun = Vasprun(
+                os.path.join("deeper", "vasprun.xml.gz"),
+                parse_projected_eigen=True,
+                parse_potcar_file=False,
+            )
+            bs_vasprun_gzip = vasprun.get_band_structure(line_mode=True)
+            assert bs.efermi == bs_vasprun_gzip.efermi
+            assert bs.as_dict() == bs_vasprun_gzip.as_dict()
 
             # test hybrid band structures
             vasprun.actual_kpoints_weights[-1] = 0.0
@@ -1978,24 +1973,21 @@ class WavecarTest(PymatgenTest):
             self.w.write_unks(self.TEST_FILES_DIR / "UNK.N2.std")
 
         # different grids
-        with ScratchDir("."):
-            self.w.write_unks("./unk_dir")
-            assert len(list(Path("./unk_dir").glob("UNK*"))) == 1
-            unk = Unk.from_file("./unk_dir/UNK00001.1")
-            assert unk != unk_std
+        self.w.write_unks("./unk_dir")
+        assert len(list(Path("./unk_dir").glob("UNK*"))) == 1
+        unk = Unk.from_file("./unk_dir/UNK00001.1")
+        assert unk != unk_std
 
         # correct grid
         self.w.ng = np.array([12, 12, 12])
-        with ScratchDir("."):
-            self.w.write_unks(".")
-            unk = Unk.from_file("UNK00001.1")
-            assert unk == unk_std
+        self.w.write_unks(".")
+        unk = Unk.from_file("UNK00001.1")
+        assert unk == unk_std
 
         # ncl test
-        with ScratchDir("."):
-            self.w_ncl.write_unks(".")
-            unk = Unk.from_file("UNK00001.NC")
-            assert unk == unk_ncl
+        self.w_ncl.write_unks(".")
+        unk = Unk.from_file("UNK00001.NC")
+        assert unk == unk_ncl
 
 
 class EigenvalTest(PymatgenTest):

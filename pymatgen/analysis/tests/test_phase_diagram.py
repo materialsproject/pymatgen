@@ -10,7 +10,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 from monty.serialization import dumpfn, loadfn
-from monty.tempfile import ScratchDir
 
 from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
@@ -596,9 +595,8 @@ class PhaseDiagramTest(unittest.TestCase):
         assert isinstance(pd.to_json(), str)
 
     def test_read_json(self):
-        with ScratchDir("."):
-            dumpfn(self.pd, "pd.json")
-            loadfn("pd.json")
+        dumpfn(self.pd, "pd.json")
+        loadfn("pd.json")
 
     def test_el_refs(self):
         # Create an imitation of pre_computed phase diagram with el_refs keys being

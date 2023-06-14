@@ -10,7 +10,6 @@ import pytest
 import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.core import SETTINGS
@@ -1136,12 +1135,10 @@ class VaspInputTest(PymatgenTest):
         tmp_dir.rmdir()
 
     def test_run_vasp(self):
-        # To add some test.
-        with ScratchDir(".") as d:
-            self.vasp_input.run_vasp(d, vasp_cmd=["cat", "INCAR"])
-            with open(os.path.join(d, "vasp.out")) as f:
-                output = f.read()
-                assert output.split("\n")[0] == "ALGO = Damped"
+        self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
+        with open("vasp.out") as f:
+            output = f.read()
+            assert output.split("\n")[0] == "ALGO = Damped"
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(PymatgenTest.TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar})

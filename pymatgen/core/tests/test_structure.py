@@ -12,7 +12,6 @@ from unittest import skipIf
 import numpy as np
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
-from monty.tempfile import ScratchDir
 from numpy.testing import assert_array_equal
 
 from pymatgen.core.composition import Composition
@@ -681,46 +680,45 @@ Direct
         self.assert_all_close(self.struct.distance_matrix, ans)
 
     def test_to_from_file_string(self):
-        with ScratchDir("."):
-            for fmt in ["cif", "json", "poscar", "cssr"]:
-                struct = self.struct.to(fmt=fmt)
-                assert struct is not None
-                ss = IStructure.from_str(struct, fmt=fmt)
-                self.assert_all_close(ss.lattice.parameters, self.struct.lattice.parameters, decimal=5)
-                self.assert_all_close(ss.frac_coords, self.struct.frac_coords)
-                assert isinstance(ss, IStructure)
+        for fmt in ["cif", "json", "poscar", "cssr"]:
+            struct = self.struct.to(fmt=fmt)
+            assert struct is not None
+            ss = IStructure.from_str(struct, fmt=fmt)
+            self.assert_all_close(ss.lattice.parameters, self.struct.lattice.parameters, decimal=5)
+            self.assert_all_close(ss.frac_coords, self.struct.frac_coords)
+            assert isinstance(ss, IStructure)
 
-            assert "Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1)
+        assert "Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1)
 
-            self.struct.to(filename="POSCAR.testing")
-            assert os.path.isfile("POSCAR.testing")
+        self.struct.to(filename="POSCAR.testing")
+        assert os.path.isfile("POSCAR.testing")
 
-            self.struct.to(filename="Si_testing.yaml")
-            assert os.path.isfile("Si_testing.yaml")
-            struct = Structure.from_file("Si_testing.yaml")
-            assert struct == self.struct
-            # Test Path support
-            struct = Structure.from_file(Path("Si_testing.yaml"))
-            assert struct == self.struct
+        self.struct.to(filename="Si_testing.yaml")
+        assert os.path.isfile("Si_testing.yaml")
+        struct = Structure.from_file("Si_testing.yaml")
+        assert struct == self.struct
+        # Test Path support
+        struct = Structure.from_file(Path("Si_testing.yaml"))
+        assert struct == self.struct
 
-            # Test .yml extension works too.
-            os.replace("Si_testing.yaml", "Si_testing.yml")
-            struct = Structure.from_file("Si_testing.yml")
-            assert struct == self.struct
+        # Test .yml extension works too.
+        os.replace("Si_testing.yaml", "Si_testing.yml")
+        struct = Structure.from_file("Si_testing.yml")
+        assert struct == self.struct
 
-            with pytest.raises(ValueError):
-                self.struct.to(filename="whatever")
-            with pytest.raises(ValueError):
-                self.struct.to(fmt="badformat")
+        with pytest.raises(ValueError):
+            self.struct.to(filename="whatever")
+        with pytest.raises(ValueError):
+            self.struct.to(fmt="badformat")
 
-            self.struct.to(filename="POSCAR.testing.gz")
-            struct = Structure.from_file("POSCAR.testing.gz")
-            assert struct == self.struct
+        self.struct.to(filename="POSCAR.testing.gz")
+        struct = Structure.from_file("POSCAR.testing.gz")
+        assert struct == self.struct
 
-            # test CIF file with unicode error
-            # https://github.com/materialsproject/pymatgen/issues/2947
-            struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "bad-unicode-gh-2947.mcif"))
-            assert struct.formula == "Ni32 O32"
+        # test CIF file with unicode error
+        # https://github.com/materialsproject/pymatgen/issues/2947
+        struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "bad-unicode-gh-2947.mcif"))
+        assert struct.formula == "Ni32 O32"
 
     def test_pbc(self):
         assert_array_equal(self.struct.pbc, (True, True, True))
@@ -1064,24 +1062,23 @@ class StructureTest(PymatgenTest):
         assert isinstance(s2, Structure)
 
     def test_to_from_file_string(self):
-        with ScratchDir("."):
-            # to/from string
-            for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf", "res"]:
-                s = self.structure.to(fmt=fmt)
-                assert s is not None
-                ss = Structure.from_str(s, fmt=fmt)
-                self.assert_all_close(ss.lattice.parameters, self.structure.lattice.parameters, decimal=5)
-                self.assert_all_close(ss.frac_coords, self.structure.frac_coords)
-                assert isinstance(ss, Structure)
+        # to/from string
+        for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf", "res"]:
+            s = self.structure.to(fmt=fmt)
+            assert s is not None
+            ss = Structure.from_str(s, fmt=fmt)
+            self.assert_all_close(ss.lattice.parameters, self.structure.lattice.parameters, decimal=5)
+            self.assert_all_close(ss.frac_coords, self.structure.frac_coords)
+            assert isinstance(ss, Structure)
 
-            # to/from file
-            self.structure.to(filename="POSCAR.testing")
-            assert os.path.isfile("POSCAR.testing")
+        # to/from file
+        self.structure.to(filename="POSCAR.testing")
+        assert os.path.isfile("POSCAR.testing")
 
-            for ext in (".json", ".json.gz", ".json.bz2", ".json.xz", ".json.lzma"):
-                self.structure.to(filename=f"json-struct{ext}")
-                assert os.path.isfile(f"json-struct{ext}")
-                assert Structure.from_file(f"json-struct{ext}") == self.structure
+        for ext in (".json", ".json.gz", ".json.bz2", ".json.xz", ".json.lzma"):
+            self.structure.to(filename=f"json-struct{ext}")
+            assert os.path.isfile(f"json-struct{ext}")
+            assert Structure.from_file(f"json-struct{ext}") == self.structure
 
     def test_from_spacegroup(self):
         s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]])
