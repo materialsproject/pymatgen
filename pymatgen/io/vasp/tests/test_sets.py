@@ -479,7 +479,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
         dct = mp_user_set.as_dict()
         val = dec.process_decoded(dct)
-        # self.assertEqual(type(v), MPVaspInputSet)
+        # assert isinstance(val, MPVaspInputSet)
         assert val.user_incar_settings["MAGMOM"] == {"Fe": 10, "S": -5, "Mn3+": 100}
 
     def test_hubbard_off_and_ediff_override(self):

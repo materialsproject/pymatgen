@@ -271,15 +271,14 @@ class MPResterOldTest(PymatgenTest):
         assert Ni.lattice.gamma == 90
 
         # Test case where convs are different from initial and final
-        # th = self.rester.get_structure_by_material_id(
-        #     "mp-37", conventional_unit_cell=True)
-        # th_entry = self.rester.get_entry_by_material_id(
-        #     "mp-37", inc_structure=True, conventional_unit_cell=True)
+        # th = self.rester.get_structure_by_material_id("mp-37", conventional_unit_cell=True)
+        # th_entry = self.rester.get_entry_by_material_id("mp-37", inc_structure=True, conventional_unit_cell=True)
         # th_entry_initial = self.rester.get_entry_by_material_id(
-        #     "mp-37", inc_structure="initial", conventional_unit_cell=True)
-        # self.assertEqual(th, th_entry.structure)
-        # self.assertEqual(len(th_entry.structure), 4)
-        # self.assertEqual(len(th_entry_initial.structure), 2)
+        #     "mp-37", inc_structure="initial", conventional_unit_cell=True
+        # )
+        # assert th == th_entry.structure
+        # assert len(th_entry.structure) == 4
+        # assert len(th_entry_initial.structure) == 2
 
         # Test if the polymorphs of Fe are properly sorted
         # by e_above_hull when sort_by_e_above_hull=True
@@ -316,17 +315,17 @@ class MPResterOldTest(PymatgenTest):
         assert entry.energy == -825.5
 
     # def test_submit_query_delete_snl(self):
-    # s = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
-    # d = self.rester.submit_snl(
-    #     [s, s], remarks=["unittest"],
-    #     authors="Test User <test@materialsproject.com>")
-    # self.assertEqual(len(d), 2)
-    # data = self.rester.query_snl({"about.remarks": "unittest"})
-    # self.assertEqual(len(data), 2)
-    # snlids = [d["_id"] for d in data]
-    # self.rester.delete_snl(snlids)
-    # data = self.rester.query_snl({"about.remarks": "unittest"})
-    # self.assertEqual(len(data), 0)
+    #     struct = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
+    #     d = self.rester.submit_snl(
+    #         [struct, struct], remarks=["unittest"], authors="Test User <test@materialsproject.com>"
+    #     )
+    #     assert len(d) == 2
+    #     data = self.rester.query_snl({"about.remarks": "unittest"})
+    #     assert len(data) == 2
+    #     snl_ids = [d["_id"] for d in data]
+    #     self.rester.delete_snl(snl_ids)
+    #     data = self.rester.query_snl({"about.remarks": "unittest"})
+    #     assert len(data) == 0
 
     def test_get_stability(self):
         entries = self.rester.get_entries_in_chemsys(["Fe", "O"])

@@ -1036,10 +1036,10 @@ class PotcarSingleTest(PymatgenTest):
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
-    #     self.assertEqual(p.functional_class, 'GGA')
+    #     assert p.functional_class == "GGA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
-    #     self.assertEqual(p.functional_class, 'LDA')
+    #     assert p.functional_class == "LDA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 
@@ -1087,12 +1087,12 @@ class PotcarTest(PymatgenTest):
 
     # def test_default_functional(self):
     #     p = Potcar(["Fe", "P"])
-    #     self.assertEqual(p[0].functional_class, 'GGA')
-    #     self.assertEqual(p[1].functional_class, 'GGA')
+    #     assert p[0].functional_class == "GGA"
+    #     assert p[1].functional_class == "GGA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
     #     p = Potcar(["Fe", "P"])
-    #     self.assertEqual(p[0].functional_class, 'LDA')
-    #     self.assertEqual(p[1].functional_class, 'LDA')
+    #     assert p[0].functional_class == "LDA"
+    #     assert p[1].functional_class == "LDA"
 
     def test_pickle(self):
         pickle.dumps(self.potcar)

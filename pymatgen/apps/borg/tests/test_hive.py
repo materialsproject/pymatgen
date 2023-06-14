@@ -39,7 +39,7 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
             assert entry.energy == approx(0.5559329)
             assert isinstance(entry, ComputedStructureEntry)
             assert entry.structure is not None
-            # self.assertEqual(len(entry.parameters["history"]), 2)
+            # assert len(entry.parameters["history"]) == 2
 
     def tearDown(self):
         warnings.simplefilter("default")

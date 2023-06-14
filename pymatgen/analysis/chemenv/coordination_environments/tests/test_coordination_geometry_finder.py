@@ -57,13 +57,12 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.assert_all_close(abstract_geom.centre, [0.0, 0.0, 0.25])
 
         # WHY ARE WE TESTING STRINGS????
-        # self.assertEqual(str(abstract_geom)),
-        #                  '\nAbstract Geometry with 3 points :\n'
-        #                  '  [-1.    0.   -0.25]\n'
-        #                  '  [ 1.    0.   -0.25]\n'
-        #                  '  [ 0.   0.   0.75]\n'
-        #                  'Points are referenced to the centroid (calculated with the central site) :\n'
-        #                  '  [ 0.   0.   0.25]\n')
+        # assert (
+        #     str(abstract_geom) == "\nAbstract Geometry with 3 points :\n"
+        #     "  [-1.    0.   -0.25]\n  [ 1.    0.   -0.25]\n  [ 0.   0.   0.75]\n"
+        #     "Points are referenced to the centroid (calculated with the central site) :\n"
+        #     "  [ 0.   0.   0.25]\n"
+        # )
 
         symm_dict = symmetry_measure([[0.0, 0.0, 0.0]], [1.1, 2.2, 3.3])
         assert symm_dict["symmetry_measure"] == pytest.approx(0.0)
@@ -125,7 +124,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
 
     # def _strategy_test(self, strategy):
     #     files = []
-    #     for (_dirpath, _dirnames, filenames) in os.walk(json_files_dir):
+    #     for _dirpath, _dirnames, filenames in os.walk(json_files_dir):
     #         files.extend(filenames)
     #         break
 
@@ -153,7 +152,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
     #                 except TypeError:
     #                     coord_env = ce
     #                 # Check that the environment found is the expected one
-    #                 self.assertEqual(coord_env, expected_geoms[ienv])
+    #                 assert coord_env == expected_geoms[ienv]
 
     # def test_simplest_chemenv_strategy(self):
     #     strategy = SimplestChemenvStrategy()

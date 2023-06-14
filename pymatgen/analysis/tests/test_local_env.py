@@ -1436,7 +1436,7 @@ class Critic2NNTest(PymatgenTest):
 
     def test_cn(self):
         Critic2NN()
-        # self.assertEqual(nn.get_cn(self.diamond, 0), 4)
+        # assert nn.get_cn(self.diamond, 0) == 4
 
 
 class MetalEdgeExtenderTest(PymatgenTest):
