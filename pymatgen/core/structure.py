@@ -2942,11 +2942,11 @@ class IMolecule(SiteCollection, MSONable):
         self._charge_spin_check = charge_spin_check
 
         sites: list[Site] = []
-        for idx, specie in enumerate(species):
+        for idx in range(len(species)):
             prop = None
             if site_properties:
                 prop = {k: v[idx] for k, v in site_properties.items()}
-            sites.append(Site(specie, coords[idx], properties=prop))
+            sites.append(Site(species[idx], coords[idx], properties=prop))
 
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
