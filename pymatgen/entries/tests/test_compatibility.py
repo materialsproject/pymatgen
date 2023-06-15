@@ -526,7 +526,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             },
         )
         entry = self.compat.process_entry(entry)
-        #        self.assertEqual(entry.entry_id, -8)
+        # assert entry.entry_id == -8
         assert entry.energy == pytest.approx(-1)
         assert self.ggacompat.process_entry(entry).energy == pytest.approx(-1)
 

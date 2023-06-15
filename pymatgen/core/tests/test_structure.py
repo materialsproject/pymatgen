@@ -12,7 +12,6 @@ from unittest import skipIf
 import numpy as np
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
-from monty.tempfile import ScratchDir
 from numpy.testing import assert_array_equal
 
 from pymatgen.core.composition import Composition
@@ -553,36 +552,59 @@ Direct
     #         frac_coords = np.random.rand(5, 3)
     #         try:
     #             latt = Lattice.from_parameters(a, b, c, alpha, beta, 90)
-    #             s = Structure.from_spacegroup("P1", latt,
-    #                                           species, frac_coords)
-    #             for nn_new, nn_old in zip(s.get_all_neighbors(4),
-    #                                       s.get_all_neighbors_old(4)):
+    #             s = Structure.from_spacegroup("P1", latt, species, frac_coords)
+    #             for nn_new, nn_old in zip(s.get_all_neighbors(4), s.get_all_neighbors_old(4)):
     #                 sites1 = [i[0] for i in nn_new]
     #                 sites2 = [i[0] for i in nn_old]
-    #                 self.assertEqual(set(sites1), set(sites2))
+    #                 assert set(sites1) == set(sites2)
     #             break
-    #         except Exception as ex:
+    #         except Exception:
     #             pass
     #     else:
     #         raise ValueError("No valid structure tested.")
-    #
+
     #     from pymatgen.electronic_structure.core import Spin
-    #     d = {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
-    #         'matrix': [[0.0, 0.0, 5.5333], [5.7461, 0.0, 3.518471486290303e-16],
-    #                    [-4.692662837312786e-16, 7.6637, 4.692662837312786e-16]], 'a': 5.5333, 'b': 5.7461,
-    #                    'c': 7.6637,
-    #         'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0, 'volume': 243.66653780778103}, 'sites': [
-    #         {'species': [{'element': 'Mn', 'oxidation_state': 0, 'properties': {'spin': Spin.down}, 'occu': 1}],
-    #          'abc': [0.0, 0.5, 0.5], 'xyz': [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
-    #          'label': 'Mn0+,spin=-1',
-    #          'properties': {}},
-    #         {'species': [{'element': 'Mn', 'oxidation_state': None, 'occu': 1.0}],
-    #          'abc': [1.232595164407831e-32, 0.5, 0.5],
-    #          'xyz': [2.8730499999999997, 3.83185, 4.105567161801545e-16], 'label': 'Mn', 'properties': {}}]}
+
+    #     d = {
+    #         "@module": "pymatgen.core.structure",
+    #         "@class": "Structure",
+    #         "charge": None,
+    #         "lattice": {
+    #             "matrix": [
+    #                 [0.0, 0.0, 5.5333],
+    #                 [5.7461, 0.0, 3.518471486290303e-16],
+    #                 [-4.692662837312786e-16, 7.6637, 4.692662837312786e-16],
+    #             ],
+    #             "a": 5.5333,
+    #             "b": 5.7461,
+    #             "c": 7.6637,
+    #             "alpha": 90.0,
+    #             "beta": 90.0,
+    #             "gamma": 90.0,
+    #             "volume": 243.66653780778103,
+    #         },
+    #         "sites": [
+    #             {
+    #                "species": [{"element": "Mn", "oxidation_state": 0, "properties": {"spin": Spin.down}, "occu": 1}],
+    #                 "abc": [0.0, 0.5, 0.5],
+    #                 "xyz": [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
+    #                 "label": "Mn0+,spin=-1",
+    #                 "properties": {},
+    #             },
+    #             {
+    #                 "species": [{"element": "Mn", "oxidation_state": None, "occu": 1.0}],
+    #                 "abc": [1.232595164407831e-32, 0.5, 0.5],
+    #                 "xyz": [2.8730499999999997, 3.83185, 4.105567161801545e-16],
+    #                 "label": "Mn",
+    #                 "properties": {},
+    #             },
+    #         ],
+    #     }
     #     struct = Structure.from_dict(d)
-    #     self.assertEqual(set([i[0] for i in struct.get_neighbors(struct[0], 0.05)]),
-    #                      set([i[0] for i in struct.get_neighbors_old(struct[0], 0.05)]))
-    #
+    #     assert {i[0] for i in struct.get_neighbors(struct[0], 0.05)} == {
+    #         i[0] for i in struct.get_neighbors_old(struct[0], 0.05)
+    #     }
+
     #     warnings.simplefilter("default")
 
     def test_get_symmetric_neighbor_list(self):
@@ -681,46 +703,45 @@ Direct
         self.assert_all_close(self.struct.distance_matrix, ans)
 
     def test_to_from_file_string(self):
-        with ScratchDir("."):
-            for fmt in ["cif", "json", "poscar", "cssr"]:
-                struct = self.struct.to(fmt=fmt)
-                assert struct is not None
-                ss = IStructure.from_str(struct, fmt=fmt)
-                self.assert_all_close(ss.lattice.parameters, self.struct.lattice.parameters, decimal=5)
-                self.assert_all_close(ss.frac_coords, self.struct.frac_coords)
-                assert isinstance(ss, IStructure)
+        for fmt in ["cif", "json", "poscar", "cssr"]:
+            struct = self.struct.to(fmt=fmt)
+            assert struct is not None
+            ss = IStructure.from_str(struct, fmt=fmt)
+            self.assert_all_close(ss.lattice.parameters, self.struct.lattice.parameters, decimal=5)
+            self.assert_all_close(ss.frac_coords, self.struct.frac_coords)
+            assert isinstance(ss, IStructure)
 
-            assert "Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1)
+        assert "Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1)
 
-            self.struct.to(filename="POSCAR.testing")
-            assert os.path.isfile("POSCAR.testing")
+        self.struct.to(filename="POSCAR.testing")
+        assert os.path.isfile("POSCAR.testing")
 
-            self.struct.to(filename="Si_testing.yaml")
-            assert os.path.isfile("Si_testing.yaml")
-            struct = Structure.from_file("Si_testing.yaml")
-            assert struct == self.struct
-            # Test Path support
-            struct = Structure.from_file(Path("Si_testing.yaml"))
-            assert struct == self.struct
+        self.struct.to(filename="Si_testing.yaml")
+        assert os.path.isfile("Si_testing.yaml")
+        struct = Structure.from_file("Si_testing.yaml")
+        assert struct == self.struct
+        # Test Path support
+        struct = Structure.from_file(Path("Si_testing.yaml"))
+        assert struct == self.struct
 
-            # Test .yml extension works too.
-            os.replace("Si_testing.yaml", "Si_testing.yml")
-            struct = Structure.from_file("Si_testing.yml")
-            assert struct == self.struct
+        # Test .yml extension works too.
+        os.replace("Si_testing.yaml", "Si_testing.yml")
+        struct = Structure.from_file("Si_testing.yml")
+        assert struct == self.struct
 
-            with pytest.raises(ValueError):
-                self.struct.to(filename="whatever")
-            with pytest.raises(ValueError):
-                self.struct.to(fmt="badformat")
+        with pytest.raises(ValueError):
+            self.struct.to(filename="whatever")
+        with pytest.raises(ValueError):
+            self.struct.to(fmt="badformat")
 
-            self.struct.to(filename="POSCAR.testing.gz")
-            struct = Structure.from_file("POSCAR.testing.gz")
-            assert struct == self.struct
+        self.struct.to(filename="POSCAR.testing.gz")
+        struct = Structure.from_file("POSCAR.testing.gz")
+        assert struct == self.struct
 
-            # test CIF file with unicode error
-            # https://github.com/materialsproject/pymatgen/issues/2947
-            struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "bad-unicode-gh-2947.mcif"))
-            assert struct.formula == "Ni32 O32"
+        # test CIF file with unicode error
+        # https://github.com/materialsproject/pymatgen/issues/2947
+        struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "bad-unicode-gh-2947.mcif"))
+        assert struct.formula == "Ni32 O32"
 
     def test_pbc(self):
         assert_array_equal(self.struct.pbc, (True, True, True))
@@ -1064,24 +1085,23 @@ class StructureTest(PymatgenTest):
         assert isinstance(s2, Structure)
 
     def test_to_from_file_string(self):
-        with ScratchDir("."):
-            # to/from string
-            for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf", "res"]:
-                s = self.structure.to(fmt=fmt)
-                assert s is not None
-                ss = Structure.from_str(s, fmt=fmt)
-                self.assert_all_close(ss.lattice.parameters, self.structure.lattice.parameters, decimal=5)
-                self.assert_all_close(ss.frac_coords, self.structure.frac_coords)
-                assert isinstance(ss, Structure)
+        # to/from string
+        for fmt in ["cif", "json", "poscar", "cssr", "yaml", "xsf", "res"]:
+            s = self.structure.to(fmt=fmt)
+            assert s is not None
+            ss = Structure.from_str(s, fmt=fmt)
+            self.assert_all_close(ss.lattice.parameters, self.structure.lattice.parameters, decimal=5)
+            self.assert_all_close(ss.frac_coords, self.structure.frac_coords)
+            assert isinstance(ss, Structure)
 
-            # to/from file
-            self.structure.to(filename="POSCAR.testing")
-            assert os.path.isfile("POSCAR.testing")
+        # to/from file
+        self.structure.to(filename="POSCAR.testing")
+        assert os.path.isfile("POSCAR.testing")
 
-            for ext in (".json", ".json.gz", ".json.bz2", ".json.xz", ".json.lzma"):
-                self.structure.to(filename=f"json-struct{ext}")
-                assert os.path.isfile(f"json-struct{ext}")
-                assert Structure.from_file(f"json-struct{ext}") == self.structure
+        for ext in (".json", ".json.gz", ".json.bz2", ".json.xz", ".json.lzma"):
+            self.structure.to(filename=f"json-struct{ext}")
+            assert os.path.isfile(f"json-struct{ext}")
+            assert Structure.from_file(f"json-struct{ext}") == self.structure
 
     def test_from_spacegroup(self):
         s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]])

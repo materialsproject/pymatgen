@@ -473,7 +473,7 @@ class SpeciesTestCase(PymatgenTest):
         # Why make the thing so complicated for a use case that I have never seen???
         # fe_no_ox = Species("Fe", oxidation_state=None, properties={"spin": 5})
         # fe_no_ox_from_str = Species.from_string("Fe,spin=5")
-        # self.assertEqual(fe_no_ox, fe_no_ox_from_str)
+        # assert fe_no_ox == fe_no_ox_from_str
 
     def test_no_oxidation_state(self):
         mo0 = Species("Mo", None, {"spin": 5})

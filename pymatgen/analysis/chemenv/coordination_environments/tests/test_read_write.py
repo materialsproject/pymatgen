@@ -30,8 +30,8 @@ from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
 
-json_files_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chemenv", "json_test_files")
-se_files_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chemenv", "structure_environments_files")
+json_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/json_test_files"
+se_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/structure_environments_files"
 
 
 class ReadWriteChemenvTest(unittest.TestCase):

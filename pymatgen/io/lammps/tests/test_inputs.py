@@ -649,7 +649,7 @@ class FuncTest(unittest.TestCase):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "in.peptide")) as f:
             peptide_script = f.read()
         # copy data file
-        src = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "data.quartz")
+        src = f"{PymatgenTest.TEST_FILES_DIR}/lammps/data.quartz"
         write_lammps_inputs(output_dir="path", script_template=peptide_script, data=src)
         dst = os.path.join("path", "data.peptide")
         assert filecmp.cmp(src, dst, shallow=False)
@@ -674,7 +674,7 @@ class LammpsTemplateGenTest(PymatgenTest):
         with tempfile.TemporaryDirectory() as tmpdir:
             # simple script without data file
             lis = LammpsTemplateGen().get_input_set(
-                script_template=os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "kappa.txt"),
+                script_template=f"{PymatgenTest.TEST_FILES_DIR}/lammps/kappa.txt",
                 settings={"method": "heat"},
                 data=None,
                 data_filename="data.peptide",
@@ -701,7 +701,7 @@ class LammpsTemplateGenTest(PymatgenTest):
                 os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "data.quartz"), atom_style="atomic"
             )
             lis = LammpsTemplateGen().get_input_set(
-                script_template=os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "in.peptide"),
+                script_template=f"{PymatgenTest.TEST_FILES_DIR}/lammps/in.peptide",
                 settings=None,
                 data=obj,
                 data_filename="data.peptide",

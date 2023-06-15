@@ -135,8 +135,8 @@ class EnumlibAdaptor:
         Run the enumeration.
         """
         # Create a temporary directory for working.
-        with ScratchDir(".") as d:
-            logger.debug(f"Temp dir : {d}")
+        with ScratchDir(".") as tmp_dir:
+            logger.debug(f"Temp dir : {tmp_dir}")
             # Generate input files
             self._gen_input_file()
             # Perform the actual enumeration

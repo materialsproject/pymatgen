@@ -6,7 +6,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from monty.tempfile import ScratchDir
 from numpy.testing import assert_array_equal
 from pytest import approx
 
@@ -140,14 +139,13 @@ class GetDisplacedStructuresTest(PymatgenTest):
         self.assert_all_close(structures[0].lattice._matrix, structures[8].lattice._matrix, 8)
 
         # test writing output
-        with ScratchDir("."):
-            structures = get_displaced_structures(
-                pmg_structure=pmg_s,
-                atom_disp=0.01,
-                supercell_matrix=supercell_matrix,
-                yaml_fname="test.yaml",
-            )
-            assert os.path.exists("test.yaml")
+        structures = get_displaced_structures(
+            pmg_structure=pmg_s,
+            atom_disp=0.01,
+            supercell_matrix=supercell_matrix,
+            yaml_fname="test.yaml",
+        )
+        assert os.path.exists("test.yaml")
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
