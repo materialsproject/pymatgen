@@ -25,22 +25,21 @@ from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.analysis.local_env import MinimumDistanceNN
-from pymatgen.analysis.structure_matcher import (SpinComparator,
-                                                 StructureMatcher)
-from pymatgen.analysis.structure_prediction.substitution_probability import \
-    SubstitutionPredictor
+from pymatgen.analysis.structure_matcher import SpinComparator, StructureMatcher
+from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
 from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
-from pymatgen.core.periodic_table import (DummySpecies, Element, Species,
-                                          get_el_sp)
+from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.standard_transformations import (
-    OrderDisorderedStructureTransformation, SubstitutionTransformation,
-    SupercellTransformation)
+    OrderDisorderedStructureTransformation,
+    SubstitutionTransformation,
+    SupercellTransformation,
+)
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 try:

@@ -21,10 +21,8 @@ from pymatgen.core.structure import DummySpecies, Element, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
-from pymatgen.transformations.advanced_transformations import (
-    MagOrderingTransformation, MagOrderParameterConstraint)
-from pymatgen.transformations.standard_transformations import \
-    AutoOxiStateDecorationTransformation
+from pymatgen.transformations.advanced_transformations import MagOrderingTransformation, MagOrderParameterConstraint
+from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike

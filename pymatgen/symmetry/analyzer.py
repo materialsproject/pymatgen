@@ -82,7 +82,7 @@ class SpacegroupAnalyzer:
 
         has_explicit_magmoms = False
         if "magmom" in structure.site_properties or any(
-            (hasattr(specie, "spin") for specie in structure.types_of_species)
+            hasattr(specie, "spin") for specie in structure.types_of_species
         ):
             has_explicit_magmoms = True
 
