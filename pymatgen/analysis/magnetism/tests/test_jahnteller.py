@@ -4,7 +4,7 @@ import os
 import unittest
 
 import numpy as np
-import pytest
+from pytest import approx
 
 from pymatgen.analysis.magnetism.jahnteller import JahnTellerAnalyzer, Species
 from pymatgen.io.cif import CifParser
@@ -116,7 +116,7 @@ class JahnTellerTest(unittest.TestCase):
 
     def test_mu_so(self):
         SpeciesCo = Species(symbol="Co", oxidation_state=4)
-        assert np.sqrt(3) == pytest.approx(JahnTellerAnalyzer.mu_so(SpeciesCo, "oct", "low"))
-        assert np.sqrt(35) == pytest.approx(JahnTellerAnalyzer.mu_so(SpeciesCo, "oct", "high"))
+        assert np.sqrt(3) == approx(JahnTellerAnalyzer.mu_so(SpeciesCo, "oct", "low"))
+        assert np.sqrt(35) == approx(JahnTellerAnalyzer.mu_so(SpeciesCo, "oct", "high"))
         SpeciesNa = Species(symbol="Na", oxidation_state=1)
         assert None is JahnTellerAnalyzer.mu_so(SpeciesNa, "oct", "high")

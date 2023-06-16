@@ -4,8 +4,8 @@ import json
 import os
 
 import numpy as np
-import pytest
 from numpy.testing import assert_array_almost_equal
+from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     MultiWeightsChemenvStrategy,
@@ -80,7 +80,7 @@ class StructureEnvironmentsTest(PymatgenTest):
 
         symbol, min_geometry = ce.minimum_geometry(symmetry_measure_type="csm_wocs_ctwocc")
         assert symbol == "T:4"
-        assert min_geometry["symmetry_measure"] == pytest.approx(0.00988778424054)
+        assert min_geometry["symmetry_measure"] == approx(0.00988778424054)
 
         assert_array_almost_equal(
             min_geometry["other_symmetry_measures"]["rotation_matrix_wcs_csc"],
@@ -91,7 +91,7 @@ class StructureEnvironmentsTest(PymatgenTest):
             ],
         )
         assert min_geometry["detailed_voronoi_index"] == {"index": 0, "cn": 4}
-        assert min_geometry["other_symmetry_measures"]["scaling_factor_wocs_ctwocc"] == pytest.approx(1.627060)
+        assert min_geometry["other_symmetry_measures"]["scaling_factor_wocs_ctwocc"] == approx(1.627060)
 
         assert "csm1 (with central site) : 0.00988" in str(ce)
         assert "csm2 (without central site) : 0.00981" in str(ce)
@@ -211,8 +211,8 @@ class StructureEnvironmentsTest(PymatgenTest):
         lse_multi = LightStructureEnvironments.from_structure_environments(
             strategy=multi_strategy, structure_environments=struct_envs, valences="undefined"
         )
-        assert lse_multi.coordination_environments[isite][0]["csm"] == pytest.approx(0.009887784240541068)
-        assert lse_multi.coordination_environments[isite][0]["ce_fraction"] == pytest.approx(1)
+        assert lse_multi.coordination_environments[isite][0]["csm"] == approx(0.009887784240541068)
+        assert lse_multi.coordination_environments[isite][0]["ce_fraction"] == approx(1)
         assert lse_multi.coordination_environments[isite][0]["ce_symbol"] == "T:4"
 
     def test_from_structure_environments(self):

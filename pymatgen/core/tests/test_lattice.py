@@ -5,6 +5,7 @@ import itertools
 import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
+from pytest import approx
 
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
@@ -570,11 +571,9 @@ class LatticeTestCase(PymatgenTest):
         assert Lattice.selling_dist(Lattice.cubic(5), Lattice.cubic(5)) == 0
         hex_lattice = Lattice.hexagonal(5, 8)
         triclinic_lattice = Lattice.from_parameters(4, 10, 11, 100, 110, 80)
-        assert Lattice.selling_dist(hex_lattice, triclinic_lattice) == pytest.approx(76, abs=0.1)
-        assert Lattice.selling_dist(Lattice.tetragonal(10, 12), Lattice.tetragonal(10.1, 11.9)) == pytest.approx(
-            3.7, abs=0.1
-        )
-        assert Lattice.selling_dist(Lattice.cubic(5), Lattice.from_parameters(8, 10, 12, 80, 90, 95)) == pytest.approx(
+        assert Lattice.selling_dist(hex_lattice, triclinic_lattice) == approx(76, abs=0.1)
+        assert Lattice.selling_dist(Lattice.tetragonal(10, 12), Lattice.tetragonal(10.1, 11.9)) == approx(3.7, abs=0.1)
+        assert Lattice.selling_dist(Lattice.cubic(5), Lattice.from_parameters(8, 10, 12, 80, 90, 95)) == approx(
             125.99, abs=0.1
         )
 

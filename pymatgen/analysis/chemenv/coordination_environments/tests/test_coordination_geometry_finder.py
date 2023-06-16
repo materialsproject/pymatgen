@@ -4,6 +4,7 @@ import os
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
@@ -65,15 +66,15 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         # )
 
         symm_dict = symmetry_measure([[0.0, 0.0, 0.0]], [1.1, 2.2, 3.3])
-        assert symm_dict["symmetry_measure"] == pytest.approx(0.0)
+        assert symm_dict["symmetry_measure"] == approx(0.0)
         assert symm_dict["scaling_factor"] is None
         assert symm_dict["rotation_matrix"] is None
 
         tio2_struct = self.get_structure("TiO2")
 
         envs = self.lgf.compute_coordination_environments(structure=tio2_struct, indices=[0])
-        assert envs[0][0]["csm"] == pytest.approx(1.5309987846957258)
-        assert envs[0][0]["ce_fraction"] == pytest.approx(1.0)
+        assert envs[0][0]["csm"] == approx(1.5309987846957258)
+        assert envs[0][0]["ce_fraction"] == approx(1.0)
         assert envs[0][0]["ce_symbol"] == "O:6"
         assert sorted(envs[0][0]["permutation"]) == sorted([0, 4, 1, 5, 2, 3])
 
@@ -95,7 +96,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         LiFePO4_struct = self.get_structure("LiFePO4")
         isite = 10
         envs_LiFePO4 = self.lgf.compute_coordination_environments(structure=LiFePO4_struct, indices=[isite])
-        assert envs_LiFePO4[isite][0]["csm"] == pytest.approx(0.140355832317)
+        assert envs_LiFePO4[isite][0]["csm"] == approx(0.140355832317)
         nbs_coords = [
             np.array([6.16700437, -4.55194317, -5.89031356]),
             np.array([4.71588167, -4.54248093, -3.75553856]),
@@ -120,7 +121,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         )
         permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps = res
         for perm_csm_dict in permutations_symmetry_measures:
-            assert perm_csm_dict["symmetry_measure"] == pytest.approx(0.140355832317)
+            assert perm_csm_dict["symmetry_measure"] == approx(0.140355832317)
 
     # def _strategy_test(self, strategy):
     #     files = []
