@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     AllCoordinationGeometries,
@@ -63,9 +64,9 @@ class CoordinationGeometriesTest(PymatgenTest):
         cg_oct = allcg["O:6"]
         cg_oct2 = CoordinationGeometry.from_dict(cg_oct.as_dict())
 
-        assert cg_oct.central_site == pytest.approx(cg_oct2.central_site)
+        assert cg_oct.central_site == approx(cg_oct2.central_site)
         for p1, p2 in zip(cg_oct.points, cg_oct2.points):
-            assert p1 == pytest.approx(p2)
+            assert p1 == approx(p2)
         assert (
             str(cg_oct) == "Coordination geometry type : Octahedron (IUPAC: OC-6 || IUCr: [6o])\n"
             "\n"

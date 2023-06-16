@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-import pytest
+from pytest import approx
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -27,13 +27,7 @@ class BandStructureSCTest(PymatgenTest):
         for i in range(230):
             sg_num = i + 1
             if sg_num in triclinic:
-                lattice = Lattice(
-                    [
-                        [3.0233057319441246, 0, 0],
-                        [0, 7.9850357844548681, 0],
-                        [0, 0, 8.1136762279561818],
-                    ]
-                )
+                lattice = Lattice([[3.0233057319441246, 0, 0], [0, 7.9850357844548681, 0], [0, 0, 8.1136762279561818]])
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
             elif sg_num in orthorhombic:
@@ -67,42 +61,22 @@ class BandStructureSCTest(PymatgenTest):
 
         assert sorted(labels) == sorted(["\\Gamma", "A", "A_1", "R", "S", "T", "X", "X_1", "Y", "Z"])
 
-        assert kpoints["\\Gamma"][0] == 0.00000000
-        assert kpoints["\\Gamma"][1] == pytest.approx(0.00000000)
-        assert kpoints["\\Gamma"][2] == pytest.approx(0.00000000)
+        assert list(kpoints["\\Gamma"]) == [0, 0, 0]
 
-        assert kpoints["A"][0] == pytest.approx(0.25308642)
-        assert kpoints["A"][1] == pytest.approx(0.25308642)
-        assert kpoints["A"][2] == pytest.approx(0.50000000)
+        assert kpoints["A"] == approx([0.25308642, 0.25308642, 0.5])
 
-        assert kpoints["A_1"][0] == pytest.approx(-0.25308642)
-        assert kpoints["A_1"][1] == pytest.approx(0.74691358)
-        assert kpoints["A_1"][2] == pytest.approx(0.50000000)
+        assert kpoints["A_1"] == approx([-0.25308642, 0.74691358, 0.5])
 
-        assert kpoints["R"][0] == pytest.approx(0.00000000)
-        assert kpoints["R"][1] == pytest.approx(0.50000000)
-        assert kpoints["R"][2] == pytest.approx(0.50000000)
+        assert kpoints["R"] == approx([0, 0.5, 0.5])
 
-        assert kpoints["S"][0] == pytest.approx(0.00000000)
-        assert kpoints["S"][1] == pytest.approx(0.50000000)
-        assert kpoints["S"][2] == pytest.approx(0.00000000)
+        assert kpoints["S"] == approx([0, 0.5, 0])
 
-        assert kpoints["T"][0] == pytest.approx(-0.50000000)
-        assert kpoints["T"][1] == pytest.approx(0.50000000)
-        assert kpoints["T"][2] == pytest.approx(0.50000000)
+        assert kpoints["T"] == approx([-0.5, 0.5, 0.5])
 
-        assert kpoints["X"][0] == pytest.approx(0.25308642)
-        assert kpoints["X"][1] == pytest.approx(0.25308642)
-        assert kpoints["X"][2] == pytest.approx(0.00000000)
+        assert kpoints["X"] == approx([0.25308642, 0.25308642, 0])
 
-        assert kpoints["X_1"][0] == pytest.approx(-0.25308642)
-        assert kpoints["X_1"][1] == pytest.approx(0.74691358)
-        assert kpoints["X_1"][2] == pytest.approx(0.00000000)
+        assert kpoints["X_1"] == approx([-0.25308642, 0.74691358, 0])
 
-        assert kpoints["Y"][0] == pytest.approx(-0.50000000)
-        assert kpoints["Y"][1] == pytest.approx(0.50000000)
-        assert kpoints["Y"][2] == pytest.approx(0.00000000)
+        assert kpoints["Y"] == approx([-0.5, 0.5, 0])
 
-        assert kpoints["Z"][0] == pytest.approx(0.00000000)
-        assert kpoints["Z"][1] == pytest.approx(0.00000000)
-        assert kpoints["Z"][2] == pytest.approx(0.50000000)
+        assert kpoints["Z"] == approx([0, 0, 0.5])

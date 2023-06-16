@@ -9,6 +9,7 @@ import random
 import unittest
 
 import pytest
+from pytest import approx
 
 from pymatgen.core.composition import ChemicalPotential, Composition
 from pymatgen.core.periodic_table import Element, Species
@@ -312,7 +313,7 @@ class CompositionTest(PymatgenTest):
             c2 = Composition.from_weight_dict(weight_dict).fractional_composition
             assert set(c1.elements) == set(c2.elements)
             for el in c1.elements:
-                assert c1[el] == pytest.approx(c2[el], abs=1e-3)
+                assert c1[el] == approx(c2[el], abs=1e-3)
 
     def test_tofrom_weight_dict(self):
         for c in self.comp:

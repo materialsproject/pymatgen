@@ -5,6 +5,7 @@ import unittest
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule, Structure
@@ -200,10 +201,10 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert primitive_structure.formula == "Li2 O1"
         assert primitive_structure.site_properties.get("magmom") is None
         # This isn't what is expected. All the angles should be 60
-        assert primitive_structure.lattice.alpha == pytest.approx(60)
-        assert primitive_structure.lattice.beta == pytest.approx(60)
-        assert primitive_structure.lattice.gamma == pytest.approx(60)
-        assert primitive_structure.lattice.volume == pytest.approx(structure.lattice.volume / 4.0)
+        assert primitive_structure.lattice.alpha == approx(60)
+        assert primitive_structure.lattice.beta == approx(60)
+        assert primitive_structure.lattice.gamma == approx(60)
+        assert primitive_structure.lattice.volume == approx(structure.lattice.volume / 4.0)
 
         structure = parser.get_structures(False)[0]
         structure.add_site_property("magmom", [1.0] * len(structure))
@@ -220,10 +221,10 @@ class SpacegroupAnalyzerTest(PymatgenTest):
     def test_get_ir_reciprocal_mesh(self):
         grid = self.sg.get_ir_reciprocal_mesh()
         assert len(grid) == 216
-        assert grid[1][0][0] == pytest.approx(0.1)
-        assert grid[1][0][1] == pytest.approx(0.0)
-        assert grid[1][0][2] == pytest.approx(0.0)
-        assert grid[1][1] == pytest.approx(2)
+        assert grid[1][0][0] == approx(0.1)
+        assert grid[1][0][1] == approx(0.0)
+        assert grid[1][0][2] == approx(0.0)
+        assert grid[1][1] == approx(2)
 
     def test_get_ir_reciprocal_mesh_map(self):
         mesh = (6, 6, 6)
@@ -231,96 +232,74 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         full_grid, mapping = self.sg.get_ir_reciprocal_mesh_map(mesh=mesh)
         assert len(np.unique(mapping)) == len(grid)
         for _, i in enumerate(np.unique(mapping)):
-            assert full_grid[i][0] == pytest.approx(grid[_][0][0])
-            assert full_grid[i][1] == pytest.approx(grid[_][0][1])
-            assert full_grid[i][2] == pytest.approx(grid[_][0][2])
+            assert full_grid[i][0] == approx(grid[_][0][0])
+            assert full_grid[i][1] == approx(grid[_][0][1])
+            assert full_grid[i][2] == approx(grid[_][0][2])
 
     def test_get_conventional_standard_structure(self):
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
-        assert conv.lattice.alpha == pytest.approx(90)
-        assert conv.lattice.beta == pytest.approx(90)
-        assert conv.lattice.gamma == pytest.approx(90)
-        assert conv.lattice.a == pytest.approx(9.1980270633769461)
-        assert conv.lattice.b == pytest.approx(9.1980270633769461)
-        assert conv.lattice.c == pytest.approx(9.1980270633769461)
+        assert conv.lattice.angles == (90, 90, 90)
+        assert conv.lattice.lengths == approx([9.1980270633769461] * 3)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "btet_1915.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
-        assert conv.lattice.alpha == pytest.approx(90)
-        assert conv.lattice.beta == pytest.approx(90)
-        assert conv.lattice.gamma == pytest.approx(90)
-        assert conv.lattice.a == pytest.approx(5.0615106678044235)
-        assert conv.lattice.b == pytest.approx(5.0615106678044235)
-        assert conv.lattice.c == pytest.approx(4.2327080177761687)
+        assert conv.lattice.angles == (90, 90, 90)
+        assert conv.lattice.a == approx(5.0615106678044235)
+        assert conv.lattice.b == approx(5.0615106678044235)
+        assert conv.lattice.c == approx(4.2327080177761687)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orci_1010.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
-        assert conv.lattice.alpha == pytest.approx(90)
-        assert conv.lattice.beta == pytest.approx(90)
-        assert conv.lattice.gamma == pytest.approx(90)
-        assert conv.lattice.a == pytest.approx(2.9542233922299999)
-        assert conv.lattice.b == pytest.approx(4.6330325651443296)
-        assert conv.lattice.c == pytest.approx(5.373703587040775)
+        assert conv.lattice.angles == (90, 90, 90)
+        assert conv.lattice.a == approx(2.9542233922299999)
+        assert conv.lattice.b == approx(4.6330325651443296)
+        assert conv.lattice.c == approx(5.373703587040775)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orcc_1003.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
-        assert conv.lattice.alpha == pytest.approx(90)
-        assert conv.lattice.beta == pytest.approx(90)
-        assert conv.lattice.gamma == pytest.approx(90)
-        assert conv.lattice.a == pytest.approx(4.1430033493799998)
-        assert conv.lattice.b == pytest.approx(31.437979757624728)
-        assert conv.lattice.c == pytest.approx(3.99648651)
+        assert conv.lattice.angles == (90, 90, 90)
+        assert conv.lattice.a == approx(4.1430033493799998)
+        assert conv.lattice.b == approx(31.437979757624728)
+        assert conv.lattice.c == approx(3.99648651)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orac_632475.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
-        assert conv.lattice.alpha == pytest.approx(90)
-        assert conv.lattice.beta == pytest.approx(90)
-        assert conv.lattice.gamma == pytest.approx(90)
-        assert conv.lattice.a == pytest.approx(3.1790663399999999)
-        assert conv.lattice.b == pytest.approx(9.9032878699999998)
-        assert conv.lattice.c == pytest.approx(3.5372412099999999)
+        assert conv.lattice.angles == (90, 90, 90)
+        assert conv.lattice.lengths == approx([3.1790663399999999, 9.9032878699999998, 3.5372412099999999])
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "monoc_1028.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
-        assert conv.lattice.alpha == pytest.approx(90)
-        assert conv.lattice.beta == pytest.approx(117.53832420192903)
-        assert conv.lattice.gamma == pytest.approx(90)
-        assert conv.lattice.a == pytest.approx(14.033435583000625)
-        assert conv.lattice.b == pytest.approx(3.96052850731)
-        assert conv.lattice.c == pytest.approx(6.8743926325200002)
+        assert conv.lattice.angles == approx([90, 117.53832420192903, 90])
+        assert conv.lattice.lengths == approx([14.033435583000625, 3.96052850731, 6.8743926325200002])
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "hex_1170.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
-        assert conv.lattice.alpha == pytest.approx(90)
-        assert conv.lattice.beta == pytest.approx(90)
-        assert conv.lattice.gamma == pytest.approx(120)
-        assert conv.lattice.a == pytest.approx(3.699919902005897)
-        assert conv.lattice.b == pytest.approx(3.699919902005897)
-        assert conv.lattice.c == pytest.approx(6.9779585500000003)
+        assert conv.lattice.angles == approx([90, 90, 120])
+        assert conv.lattice.lengths == approx([3.699919902005897, 3.699919902005897, 6.9779585500000003])
 
         structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "tric_684654.json"))
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
-        assert conv.lattice.alpha == pytest.approx(74.09581916308757)
-        assert conv.lattice.beta == pytest.approx(75.72817279281173)
-        assert conv.lattice.gamma == pytest.approx(63.63234318667333)
-        assert conv.lattice.a == pytest.approx(3.741372924048738)
-        assert conv.lattice.b == pytest.approx(3.9883228679270686)
-        assert conv.lattice.c == pytest.approx(7.288495840048958)
+        assert conv.lattice.alpha == approx(74.09581916308757)
+        assert conv.lattice.beta == approx(75.72817279281173)
+        assert conv.lattice.gamma == approx(63.63234318667333)
+        assert conv.lattice.a == approx(3.741372924048738)
+        assert conv.lattice.b == approx(3.9883228679270686)
+        assert conv.lattice.c == approx(7.288495840048958)
 
         structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "tric_684654.json"))
         structure.add_site_property("magmom", [1.0] * len(structure))
@@ -339,89 +318,89 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
-        assert prim.lattice.alpha == pytest.approx(109.47122063400001)
-        assert prim.lattice.beta == pytest.approx(109.47122063400001)
-        assert prim.lattice.gamma == pytest.approx(109.47122063400001)
-        assert prim.lattice.a == pytest.approx(7.9657251015812145)
-        assert prim.lattice.b == pytest.approx(7.9657251015812145)
-        assert prim.lattice.c == pytest.approx(7.9657251015812145)
+        assert prim.lattice.alpha == approx(109.47122063400001)
+        assert prim.lattice.beta == approx(109.47122063400001)
+        assert prim.lattice.gamma == approx(109.47122063400001)
+        assert prim.lattice.a == approx(7.9657251015812145)
+        assert prim.lattice.b == approx(7.9657251015812145)
+        assert prim.lattice.c == approx(7.9657251015812145)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "btet_1915.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
-        assert prim.lattice.alpha == pytest.approx(105.015053349)
-        assert prim.lattice.beta == pytest.approx(105.015053349)
-        assert prim.lattice.gamma == pytest.approx(118.80658411899999)
-        assert prim.lattice.a == pytest.approx(4.1579321075608791)
-        assert prim.lattice.b == pytest.approx(4.1579321075608791)
-        assert prim.lattice.c == pytest.approx(4.1579321075608791)
+        assert prim.lattice.alpha == approx(105.015053349)
+        assert prim.lattice.beta == approx(105.015053349)
+        assert prim.lattice.gamma == approx(118.80658411899999)
+        assert prim.lattice.a == approx(4.1579321075608791)
+        assert prim.lattice.b == approx(4.1579321075608791)
+        assert prim.lattice.c == approx(4.1579321075608791)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orci_1010.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
-        assert prim.lattice.alpha == pytest.approx(134.78923546600001)
-        assert prim.lattice.beta == pytest.approx(105.856239333)
-        assert prim.lattice.gamma == pytest.approx(91.276341676000001)
-        assert prim.lattice.a == pytest.approx(3.8428217771014852)
-        assert prim.lattice.b == pytest.approx(3.8428217771014852)
-        assert prim.lattice.c == pytest.approx(3.8428217771014852)
+        assert prim.lattice.alpha == approx(134.78923546600001)
+        assert prim.lattice.beta == approx(105.856239333)
+        assert prim.lattice.gamma == approx(91.276341676000001)
+        assert prim.lattice.a == approx(3.8428217771014852)
+        assert prim.lattice.b == approx(3.8428217771014852)
+        assert prim.lattice.c == approx(3.8428217771014852)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orcc_1003.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
-        assert prim.lattice.alpha == pytest.approx(90)
-        assert prim.lattice.beta == pytest.approx(90)
-        assert prim.lattice.gamma == pytest.approx(164.985257335)
-        assert prim.lattice.a == pytest.approx(15.854897098324196)
-        assert prim.lattice.b == pytest.approx(15.854897098324196)
-        assert prim.lattice.c == pytest.approx(3.99648651)
+        assert prim.lattice.alpha == approx(90)
+        assert prim.lattice.beta == approx(90)
+        assert prim.lattice.gamma == approx(164.985257335)
+        assert prim.lattice.a == approx(15.854897098324196)
+        assert prim.lattice.b == approx(15.854897098324196)
+        assert prim.lattice.c == approx(3.99648651)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orac_632475.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
-        assert prim.lattice.alpha == pytest.approx(90)
-        assert prim.lattice.beta == pytest.approx(90)
-        assert prim.lattice.gamma == pytest.approx(144.40557588533386)
-        assert prim.lattice.a == pytest.approx(5.2005185662155391)
-        assert prim.lattice.b == pytest.approx(5.2005185662155391)
-        assert prim.lattice.c == pytest.approx(3.5372412099999999)
+        assert prim.lattice.alpha == approx(90)
+        assert prim.lattice.beta == approx(90)
+        assert prim.lattice.gamma == approx(144.40557588533386)
+        assert prim.lattice.a == approx(5.2005185662155391)
+        assert prim.lattice.b == approx(5.2005185662155391)
+        assert prim.lattice.c == approx(3.5372412099999999)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "monoc_1028.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
-        assert prim.lattice.alpha == pytest.approx(63.579155761999999)
-        assert prim.lattice.beta == pytest.approx(116.42084423747779)
-        assert prim.lattice.gamma == pytest.approx(148.47965136208569)
-        assert prim.lattice.a == pytest.approx(7.2908007159612325)
-        assert prim.lattice.b == pytest.approx(7.2908007159612325)
-        assert prim.lattice.c == pytest.approx(6.8743926325200002)
+        assert prim.lattice.alpha == approx(63.579155761999999)
+        assert prim.lattice.beta == approx(116.42084423747779)
+        assert prim.lattice.gamma == approx(148.47965136208569)
+        assert prim.lattice.a == approx(7.2908007159612325)
+        assert prim.lattice.b == approx(7.2908007159612325)
+        assert prim.lattice.c == approx(6.8743926325200002)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "hex_1170.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
-        assert prim.lattice.alpha == pytest.approx(90)
-        assert prim.lattice.beta == pytest.approx(90)
-        assert prim.lattice.gamma == pytest.approx(120)
-        assert prim.lattice.a == pytest.approx(3.699919902005897)
-        assert prim.lattice.b == pytest.approx(3.699919902005897)
-        assert prim.lattice.c == pytest.approx(6.9779585500000003)
+        assert prim.lattice.alpha == approx(90)
+        assert prim.lattice.beta == approx(90)
+        assert prim.lattice.gamma == approx(120)
+        assert prim.lattice.a == approx(3.699919902005897)
+        assert prim.lattice.b == approx(3.699919902005897)
+        assert prim.lattice.c == approx(6.9779585500000003)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "rhomb_3478_conv.cif"))
         structure = parser.get_structures(False)[0]
         s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
-        assert prim.lattice.alpha == pytest.approx(28.049186140546812)
-        assert prim.lattice.beta == pytest.approx(28.049186140546812)
-        assert prim.lattice.gamma == pytest.approx(28.049186140546812)
-        assert prim.lattice.a == pytest.approx(5.9352627428399982)
-        assert prim.lattice.b == pytest.approx(5.9352627428399982)
-        assert prim.lattice.c == pytest.approx(5.9352627428399982)
+        assert prim.lattice.alpha == approx(28.049186140546812)
+        assert prim.lattice.beta == approx(28.049186140546812)
+        assert prim.lattice.gamma == approx(28.049186140546812)
+        assert prim.lattice.a == approx(5.9352627428399982)
+        assert prim.lattice.b == approx(5.9352627428399982)
+        assert prim.lattice.c == approx(5.9352627428399982)
 
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "rhomb_3478_conv.cif"))
         structure = parser.get_structures(False)[0]
@@ -681,7 +660,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
             for i, w in zip(weights, a.get_kpoint_weights([i[0] for i in ir_mesh])):
-                assert i == pytest.approx(w)
+                assert i == approx(w)
 
         for name in ["SrTiO3", "LiFePO4", "Graphite"]:
             s = PymatgenTest.get_structure(name)
@@ -690,14 +669,14 @@ class PointGroupAnalyzerTest(PymatgenTest):
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
             for i, w in zip(weights, a.get_kpoint_weights([i[0] for i in ir_mesh])):
-                assert i == pytest.approx(w)
+                assert i == approx(w)
 
         v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml"))
         a = SpacegroupAnalyzer(v.final_structure)
         wts = a.get_kpoint_weights(v.actual_kpoints)
 
         for w1, w2 in zip(v.actual_kpoints_weights, wts):
-            assert w1 == pytest.approx(w2)
+            assert w1 == approx(w2)
 
         kpts = [[0, 0, 0], [0.15, 0.15, 0.15], [0.2, 0.2, 0.2]]
         with pytest.raises(ValueError):

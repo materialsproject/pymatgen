@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AdditionalConditionInt,
@@ -58,28 +59,28 @@ class StrategyOptionsTest(PymatgenTest):
     def test_strategies(self):
         simplest_strategy = SimplestChemenvStrategy()
         assert simplest_strategy.uniquely_determines_coordination_environments
-        assert simplest_strategy.continuous_symmetry_measure_cutoff == pytest.approx(10.0)
-        assert simplest_strategy.distance_cutoff == pytest.approx(1.4)
-        assert simplest_strategy.angle_cutoff == pytest.approx(0.3)
+        assert simplest_strategy.continuous_symmetry_measure_cutoff == approx(10.0)
+        assert simplest_strategy.distance_cutoff == approx(1.4)
+        assert simplest_strategy.angle_cutoff == approx(0.3)
 
         simplest_strategy = SimplestChemenvStrategy(
             distance_cutoff=1.3,
             angle_cutoff=0.45,
             continuous_symmetry_measure_cutoff=8.26,
         )
-        assert simplest_strategy.continuous_symmetry_measure_cutoff == pytest.approx(8.26)
-        assert simplest_strategy.distance_cutoff == pytest.approx(1.3)
-        assert simplest_strategy.angle_cutoff == pytest.approx(0.45)
+        assert simplest_strategy.continuous_symmetry_measure_cutoff == approx(8.26)
+        assert simplest_strategy.distance_cutoff == approx(1.3)
+        assert simplest_strategy.angle_cutoff == approx(0.45)
 
         simplest_strategy.set_option("distance_cutoff", 1.5)
-        assert simplest_strategy.distance_cutoff == pytest.approx(1.5)
+        assert simplest_strategy.distance_cutoff == approx(1.5)
 
         with pytest.raises(ValueError) as exc_info:
             simplest_strategy.set_option("distance_cutoff", 0.5)
         assert str(exc_info.value) == "Distance cutoff should be between 1.0 and +infinity"
 
         simplest_strategy.set_option("angle_cutoff", 0.2)
-        assert simplest_strategy.angle_cutoff == pytest.approx(0.2)
+        assert simplest_strategy.angle_cutoff == approx(0.2)
 
         with pytest.raises(ValueError) as exc_info:
             simplest_strategy.set_option("angle_cutoff", 1.5)
@@ -92,8 +93,8 @@ class StrategyOptionsTest(PymatgenTest):
                 "continuous_symmetry_measure_cutoff": 8.5,
             }
         )
-        assert simplest_strategy.distance_cutoff == pytest.approx(1.4)
-        assert simplest_strategy.continuous_symmetry_measure_cutoff == pytest.approx(8.5)
+        assert simplest_strategy.distance_cutoff == approx(1.4)
+        assert simplest_strategy.continuous_symmetry_measure_cutoff == approx(8.5)
         assert simplest_strategy.additional_condition == 3
 
         with pytest.raises(ValueError) as exc_info:

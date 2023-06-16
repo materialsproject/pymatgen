@@ -8,6 +8,7 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
+from pytest import approx
 from scipy.misc import central_diff_weights
 
 from pymatgen.analysis.elasticity.elastic import (
@@ -78,33 +79,31 @@ class ElasticTensorTest(PymatgenTest):
         ct = ComplianceTensor.from_voigt(np.linalg.inv(self.elastic_tensor_1.voigt))
         self.assert_all_close(ct, self.elastic_tensor_1.compliance_tensor)
         # KG average properties
-        assert self.elastic_tensor_1.k_voigt == pytest.approx(38.49111111111)
-        assert self.elastic_tensor_1.g_voigt == pytest.approx(22.05866666666)
-        assert self.elastic_tensor_1.k_reuss == pytest.approx(38.49110945133)
-        assert self.elastic_tensor_1.g_reuss == pytest.approx(20.67146635306)
-        assert self.elastic_tensor_1.k_vrh == pytest.approx(38.49111028122)
-        assert self.elastic_tensor_1.g_vrh == pytest.approx(21.36506650986)
+        assert self.elastic_tensor_1.k_voigt == approx(38.49111111111)
+        assert self.elastic_tensor_1.g_voigt == approx(22.05866666666)
+        assert self.elastic_tensor_1.k_reuss == approx(38.49110945133)
+        assert self.elastic_tensor_1.g_reuss == approx(20.67146635306)
+        assert self.elastic_tensor_1.k_vrh == approx(38.49111028122)
+        assert self.elastic_tensor_1.g_vrh == approx(21.36506650986)
 
         # universal anisotropy
-        assert self.elastic_tensor_1.universal_anisotropy == pytest.approx(0.33553509658699)
+        assert self.elastic_tensor_1.universal_anisotropy == approx(0.33553509658699)
         # homogeneous Poisson
-        assert self.elastic_tensor_1.homogeneous_poisson == pytest.approx(0.26579965576472)
+        assert self.elastic_tensor_1.homogeneous_poisson == approx(0.26579965576472)
         # voigt notation tensor
         self.assert_all_close(self.elastic_tensor_1.voigt, self.voigt_1)
         # young's modulus
-        assert self.elastic_tensor_1.y_mod == pytest.approx(54087787667.160583)
+        assert self.elastic_tensor_1.y_mod == approx(54087787667.160583)
 
         # prop dict
         prop_dict = self.elastic_tensor_1.property_dict
-        assert prop_dict["homogeneous_poisson"] == pytest.approx(0.26579965576)
+        assert prop_dict["homogeneous_poisson"] == approx(0.26579965576)
         for k, v in prop_dict.items():
-            assert getattr(self.elastic_tensor_1, k) == pytest.approx(v)
+            assert getattr(self.elastic_tensor_1, k) == approx(v)
 
     def test_directional_elastic_mod(self):
-        assert self.elastic_tensor_1.directional_elastic_mod([1, 0, 0]) == pytest.approx(
-            self.elastic_tensor_1.voigt[0, 0]
-        )
-        assert self.elastic_tensor_1.directional_elastic_mod([1, 1, 1]) == pytest.approx(73.624444444)
+        assert self.elastic_tensor_1.directional_elastic_mod([1, 0, 0]) == approx(self.elastic_tensor_1.voigt[0, 0])
+        assert self.elastic_tensor_1.directional_elastic_mod([1, 1, 1]) == approx(73.624444444)
 
     def test_compliance_tensor(self):
         stress = self.elastic_tensor_1.calculate_stress([0.01] + [0] * 5)
@@ -114,27 +113,27 @@ class ElasticTensorTest(PymatgenTest):
 
     def test_directional_poisson_ratio(self):
         v_12 = self.elastic_tensor_1.directional_poisson_ratio([1, 0, 0], [0, 1, 0])
-        assert v_12 == pytest.approx(0.321388)
+        assert v_12 == approx(0.321388)
 
     def test_structure_based_methods(self):
         # trans_velocity
-        assert self.elastic_tensor_1.trans_v(self.structure) == pytest.approx(1996.35019877)
+        assert self.elastic_tensor_1.trans_v(self.structure) == approx(1996.35019877)
         # long_velocity
-        assert self.elastic_tensor_1.long_v(self.structure) == pytest.approx(3534.68123832)
+        assert self.elastic_tensor_1.long_v(self.structure) == approx(3534.68123832)
         # Snyder properties
-        assert self.elastic_tensor_1.snyder_ac(self.structure) == pytest.approx(18.06127074)
-        assert self.elastic_tensor_1.snyder_opt(self.structure) == pytest.approx(0.18937465)
-        assert self.elastic_tensor_1.snyder_total(self.structure) == pytest.approx(18.25064540)
+        assert self.elastic_tensor_1.snyder_ac(self.structure) == approx(18.06127074)
+        assert self.elastic_tensor_1.snyder_opt(self.structure) == approx(0.18937465)
+        assert self.elastic_tensor_1.snyder_total(self.structure) == approx(18.25064540)
         # Clarke
-        assert self.elastic_tensor_1.clarke_thermalcond(self.structure) == pytest.approx(0.3450307)
+        assert self.elastic_tensor_1.clarke_thermalcond(self.structure) == approx(0.3450307)
         # Cahill
-        assert self.elastic_tensor_1.cahill_thermalcond(self.structure) == pytest.approx(0.37896275)
+        assert self.elastic_tensor_1.cahill_thermalcond(self.structure) == approx(0.37896275)
         # Debye
-        assert self.elastic_tensor_1.debye_temperature(self.structure) == pytest.approx(198.8037985019)
+        assert self.elastic_tensor_1.debye_temperature(self.structure) == approx(198.8037985019)
 
         # structure-property dict
         sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure)
-        assert sprop_dict["long_v"] == pytest.approx(3534.68123832)
+        assert sprop_dict["long_v"] == approx(3534.68123832)
         for val in sprop_dict.values():
             assert not isinstance(val, FloatWithUnit)
         for k, v in sprop_dict.items():
@@ -143,9 +142,9 @@ class ElasticTensorTest(PymatgenTest):
             else:
                 f = getattr(self.elastic_tensor_1, k)
                 if callable(f):
-                    assert getattr(self.elastic_tensor_1, k)(self.structure) == pytest.approx(v)
+                    assert getattr(self.elastic_tensor_1, k)(self.structure) == approx(v)
                 else:
-                    assert getattr(self.elastic_tensor_1, k) == pytest.approx(v)
+                    assert getattr(self.elastic_tensor_1, k) == approx(v)
 
         # Test other sprop dict modes
         sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure, include_base_props=False)
@@ -222,7 +221,7 @@ class ElasticTensorTest(PymatgenTest):
             ]
         )
 
-        assert film_elac.energy_density(dfm.green_lagrange_strain) == pytest.approx(0.00125664672793)
+        assert film_elac.energy_density(dfm.green_lagrange_strain) == approx(0.00125664672793)
 
         film_elac.energy_density(
             Strain.from_deformation(
@@ -279,7 +278,7 @@ class ElasticTensorExpansionTest(PymatgenTest):
 
     def test_energy_density(self):
         e_density = self.exp.energy_density(self.strains[0])
-        assert e_density == pytest.approx(1.36363099e-4)
+        assert e_density == approx(1.36363099e-4)
 
     def test_gruneisen(self):
         # Get GGT
@@ -293,11 +292,11 @@ class ElasticTensorExpansionTest(PymatgenTest):
         c0 = self.exp_cu.get_heat_capacity(0, self.cu, [1, 0, 0], [0, 1, 0])
         assert c0 == 0.0
         c = self.exp_cu.get_heat_capacity(300, self.cu, [1, 0, 0], [0, 1, 0])
-        assert c == pytest.approx(8.285611958)
+        assert c == approx(8.285611958)
 
         # Get Gruneisen parameter
         gp = self.exp_cu.get_gruneisen_parameter()
-        assert gp == pytest.approx(2.59631832)
+        assert gp == approx(2.59631832)
         _ = self.exp_cu.get_gruneisen_parameter(temperature=200, structure=self.cu)
 
     def test_thermal_expansion_coeff(self):
