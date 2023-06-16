@@ -42,14 +42,14 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.assert_all_close(abstract_geom.centre, [0.0, 0.0, 0.0])
         abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="centroid")
         self.assert_all_close(abstract_geom.centre, [0.0, 0.0, 0.33333333333])
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(ValueError) as exc:
             AbstractGeometry.from_cg(
                 cg=cg_ts3,
                 centering_type="central_site",
                 include_central_site_in_centroid=True,
             )
         assert (
-            str(exc_info.value) == "The center is the central site, no calculation of the centroid, "
+            str(exc.value) == "The center is the central site, no calculation of the centroid, "
             "variable include_central_site_in_centroid should be set to False"
         )
         abstract_geom = AbstractGeometry.from_cg(

@@ -567,9 +567,9 @@ class MITMPRelaxSetTest(PymatgenTest):
         struct = self.structure.copy()
         get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="v")
         struct.insert(0, "Li", [0, 0, 0], properties={"magmom": 10.0})
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(TypeError) as exc:
             get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="a")
-        assert "Magmom type conflict" in str(exc_info.value)
+        assert "Magmom type conflict" in str(exc.value)
 
         # Test the behavior of MPRelaxSet to atomacically fill in the missing magmom
         struct = self.structure.copy()
@@ -577,10 +577,10 @@ class MITMPRelaxSetTest(PymatgenTest):
         struct.insert(0, "Li", [0, 0, 0])
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=False)
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(TypeError) as exc:
             print(vis.get_vasp_input())
 
-        assert "argument must be a string" in str(exc_info.value)
+        assert "argument must be a string" in str(exc.value)
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True)
         assert vis.get_vasp_input()["INCAR"]["MAGMOM"] == [1.0] * len(struct)
 

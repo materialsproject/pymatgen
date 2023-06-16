@@ -171,9 +171,11 @@ class InsertSitesTransformationTest(unittest.TestCase):
         s = t.apply_transformation(self.struct)
         assert s.formula == "Li4 Mn1 Fe1 O4"
         t = InsertSitesTransformation(["Fe", "Mn"], [[0.001, 0, 0], [0.1, 0.2, 0.2]])
+
         # Test validate proximity
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as exc:
             t.apply_transformation(self.struct)
+        assert "New site is too close to an existing site!" in str(exc.value)
 
     def test_to_from_dict(self):
         d = InsertSitesTransformation(["Fe", "Mn"], [[0.5, 0, 0], [0.1, 0.5, 0.2]]).as_dict()

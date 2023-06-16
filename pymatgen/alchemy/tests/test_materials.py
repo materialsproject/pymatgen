@@ -36,9 +36,9 @@ class TransformedStructureTest(PymatgenTest):
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         lattice = [
-            [3.8401979337, 0.00, 0.00],
-            [1.9200989668, 3.3257101909, 0.00],
-            [0.00, -2.2171384943, 3.1355090603],
+            [3.8401979337, 0, 0],
+            [1.9200989668, 3.3257101909, 0],
+            [0, -2.2171384943, 3.1355090603],
         ]
         struct = Structure(lattice, ["Si4+", "Si4+"], coords)
         ts = TransformedStructure(struct, [])

@@ -899,10 +899,10 @@ class StructureTest(PymatgenTest):
             for specie in site.species:
                 assert specie.oxi_state == oxidation_states[specie.symbol], "Wrong oxidation state assigned!"
         oxidation_states = {"Fe": 2}
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(ValueError) as exc:
             self.structure.add_oxidation_state_by_element(oxidation_states)
 
-        assert "Oxidation states not specified for all elements, missing={'Si'}" in str(exc_info.value)
+        assert "Oxidation states not specified for all elements, missing={'Si'}" in str(exc.value)
 
     def test_add_oxidation_states_by_site(self):
         self.structure.add_oxidation_state_by_site([2, -4])

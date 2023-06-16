@@ -27,8 +27,7 @@ class KPathLatimerMunroTest(PymatgenTest):
 
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]
-        for i in range(230):
-            sg_num = i + 1
+        for sg_num in range(1, 231):
             if sg_num in triclinic:
                 lattice = Lattice(
                     [[3.0233057319441246, 1, 0], [0, 7.9850357844548681, 1], [0, 1.2, 8.1136762279561818]]
@@ -67,17 +66,17 @@ class KPathLatimerMunroTest(PymatgenTest):
 
         assert sorted(labels) == sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "q", "q_{1}", "Γ"])
 
-        assert kpoints["a"] == approx([0.0, 0.4999999999999997, 0.0])
+        assert kpoints["a"] == approx([0.0, 0.5, 0.0])
 
-        assert kpoints["f"] == approx([-0.49999999999999933, 0.4999999999999992, 0.4999999999999999])
+        assert kpoints["f"] == approx([-0.5, 0.5, 0.5])
 
         assert kpoints["c"] == approx([0.0, 0.0, 0.5])
 
-        assert kpoints["b"] == approx([-0.5000000000000002, 0.500000000000000, 0.0])
+        assert kpoints["b"] == approx([-0.5, 0.5, 0.0])
 
         assert kpoints["Γ"] == approx([0, 0, 0])
 
-        assert kpoints["e"] == approx([0.0, 0.49999999999999956, 0.5000000000000002])
+        assert kpoints["e"] == approx([0.0, 0.5, 0.5])
 
         assert kpoints["d_{1}"] == approx([0.2530864197530836, 0.25308641975308915, 0.0]) or kpoints["d"] == approx(
             [0.2530864197530836, 0.25308641975308915, 0.0]
@@ -108,21 +107,19 @@ class KPathLatimerMunroTest(PymatgenTest):
         kpath = KPathLatimerMunro(col_spin_prim, has_magmoms=True)
 
         kpoints = kpath._kpath["kpoints"]
-        labels = list(kpoints)
+        assert sorted(kpoints) == sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "g", "g_{1}", "Γ"])
 
-        assert sorted(labels) == sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "g", "g_{1}", "Γ"])
+        assert kpoints["e"] == approx([-0.5, 0.0, 0.5])
 
-        assert kpoints["e"] == approx([-0.4999999999999998, 0.0, 0.5000000000000002])
+        assert kpoints["g"] == approx([-0.5, -0.5, 0.5])
 
-        assert kpoints["g"] == approx([-0.4999999999999999, -0.49999999999999994, 0.5000000000000002])
+        assert kpoints["a"] == approx([-0.5, 0.0, 0.0])
 
-        assert kpoints["a"] == approx([-0.4999999999999999, 0.0, 0.0])
+        assert kpoints["g_{1}"] == approx([0.5, -0.5, 0.5])
 
-        assert kpoints["g_{1}"] == approx([0.4999999999999999, -0.5, 0.5000000000000001])
+        assert kpoints["f"] == approx([0.0, -0.5, 0.5])
 
-        assert kpoints["f"] == approx([0.0, -0.5, 0.5000000000000002])
-
-        assert kpoints["c"] == approx([0.0, 0.0, 0.5000000000000001])
+        assert kpoints["c"] == approx([0.0, 0.0, 0.5])
 
         assert kpoints["b"] == approx([0.0, -0.5, 0.0])
 
