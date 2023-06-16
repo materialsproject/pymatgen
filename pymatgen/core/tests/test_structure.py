@@ -13,6 +13,7 @@ import numpy as np
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_array_equal
+from pytest import approx
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -982,7 +983,7 @@ class StructureTest(PymatgenTest):
         s = self.structure
         initial_coord = s[1].coords
         s.apply_strain(0.01)
-        assert pytest.approx(s.lattice.abc) == (3.8785999130369997, 3.878600984287687, 3.8785999130549516)
+        assert approx(s.lattice.abc) == (3.8785999130369997, 3.878600984287687, 3.8785999130549516)
         self.assert_all_close(s[1].coords, initial_coord * 1.01)
         a1, b1, c1 = s.lattice.abc
         s.apply_strain([0.1, 0.2, 0.3])
@@ -1365,9 +1366,9 @@ class StructureTest(PymatgenTest):
         assert out_struct.calc.results.get("energy")
         assert out_struct.calc.results.get("energies") is not None
         assert out_struct.calc.results.get("free_energy")
-        assert out_struct.calc.results["energy"] == pytest.approx(1.82609895)
+        assert out_struct.calc.results["energy"] == approx(1.82609895)
         assert out_struct.calc.parameters == {"asap_cutoff": True}
-        assert out_struct.volume == pytest.approx(self.cu_structure.volume)
+        assert out_struct.volume == approx(self.cu_structure.volume)
         assert not hasattr(out_struct, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
 
@@ -1380,8 +1381,8 @@ class StructureTest(PymatgenTest):
         assert relaxed.calc.results.get("energy")
         assert relaxed.calc.results.get("energies") is not None
         assert relaxed.calc.results.get("free_energy")
-        assert relaxed.calc.results["energy"] == pytest.approx(1.82559661)
-        assert relaxed.lattice.volume == pytest.approx(self.cu_structure.lattice.volume)
+        assert relaxed.calc.results["energy"] == approx(1.82559661)
+        assert relaxed.lattice.volume == approx(self.cu_structure.lattice.volume)
         assert relaxed.calc.parameters == {"asap_cutoff": False}
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics.get("optimizer") == "BFGS"
@@ -1435,7 +1436,7 @@ class StructureTest(PymatgenTest):
         pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         relaxed = structure.relax()
-        assert relaxed.lattice.a == pytest.approx(3.857781624313035)
+        assert relaxed.lattice.a == approx(3.857781624313035)
         assert hasattr(relaxed, "calc")
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
@@ -1453,7 +1454,7 @@ class StructureTest(PymatgenTest):
         pytest.importorskip("matgl")
         structure = self.get_structure("Si")
         relaxed, trajectory = structure.relax(return_trajectory=True)
-        assert relaxed.lattice.a == pytest.approx(3.857781624313035)
+        assert relaxed.lattice.a == approx(3.857781624313035)
         expected_attrs = ["atom_positions", "atoms", "cells", "energies", "forces", "stresses"]
         assert sorted(trajectory.__dict__) == expected_attrs
         for key in expected_attrs:
@@ -1917,7 +1918,7 @@ class MoleculeTest(PymatgenTest):
         assert new_mol.calc.results.get("energy")
         assert new_mol.calc.results.get("energies") is not None
         assert new_mol.calc.results.get("free_energy")
-        assert new_mol.calc.results["energy"] == pytest.approx(1.99570042)
+        assert new_mol.calc.results["energy"] == approx(1.99570042)
         assert new_mol.calc.parameters == {"asap_cutoff": True}
         assert not hasattr(new_mol, "dynamics")
         assert mol == mol_copy
@@ -1964,7 +1965,7 @@ class MoleculeTest(PymatgenTest):
         new_mol = mol.calculate()
         assert hasattr(new_mol, "calc")
         assert not hasattr(new_mol, "dynamics")
-        assert new_mol.calc.results["energy"] == pytest.approx(-113.61022434200855)
+        assert new_mol.calc.results["energy"] == approx(-113.61022434200855)
         assert isinstance(new_mol, Molecule)
 
     @pytest.mark.skip("Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
@@ -1976,4 +1977,4 @@ class MoleculeTest(PymatgenTest):
         assert hasattr(relaxed, "dynamics")
         assert relaxed.calc.results.get("energy")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
-        assert relaxed.calc.results["energy"] == pytest.approx(-113.61346199239306)
+        assert relaxed.calc.results["energy"] == approx(-113.61346199239306)
