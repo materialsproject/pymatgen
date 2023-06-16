@@ -4,6 +4,7 @@ Wrapper classes for Cif input and output from Structures.
 
 from __future__ import annotations
 
+import copy
 import math
 import os
 import re
@@ -1326,7 +1327,9 @@ class CifWriter:
         if symprec is None:
             for site in struct:
                 for sp, occu in sorted(site.species.items()):
-                    atom_site_type_symbol.append(str(sp.symbol))
+                    sp_no_prop = copy.deepcopy(sp)
+                    sp_no_prop._properties = {}
+                    atom_site_type_symbol.append(str(sp_no_prop))
                     atom_site_symmetry_multiplicity.append("1")
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
@@ -1363,7 +1366,9 @@ class CifWriter:
                 ),
             ):
                 for sp, occu in site.species.items():
-                    atom_site_type_symbol.append(str(sp.symbol))
+                    sp_no_prop = copy.deepcopy(sp)
+                    sp_no_prop._properties = {}
+                    atom_site_type_symbol.append(str(sp_no_prop))
                     atom_site_symmetry_multiplicity.append(f"{mult}")
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
