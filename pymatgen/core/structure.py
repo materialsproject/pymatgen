@@ -400,7 +400,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     @property
     def sublattices(self) -> dict[Composition, list]:
         """
-        Returns a list of lists of atom indices belonging to every unique
+        Returns dict of lists of atom indices belonging to every unique
         sublattice.
         """
         unique_species_and_occu = set(self.species_and_occu)

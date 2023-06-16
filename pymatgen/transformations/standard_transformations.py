@@ -497,23 +497,30 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
 class RandomStructureTransformation(AbstractTransformation):
     """
-    Transform a disordered structure into a given number of random ordered structures.
+    Transform a disordered structure into a given number of ordered random structures.
     """
 
     def __init__(self):
         pass
 
-    def apply_transformation(self, structure: Structure, num_copies: int):
+    def apply_transformation(self, structure: Structure, n_copies: int) -> list[Structure]:
         """
         For this transformation, the apply_transformation method will return
-        a random ordered structure from the given disordered structure.
+        ordered random structure(s) from the given disordered structure.
+
+        Args:
+            structure: input structure
+            n_copies (int): number of copies of ordered random structures to be returned
+
+        Returns:
+            A list of ordered random structures based on the input disordered structure. 
         """
         subl = structure.sublattices
 
         # fill the sublattice sites with pure-element atoms
         self.all_structures = []
 
-        for _ in range(num_copies):
+        for _ in range(n_copies):
             new_structure = structure.copy()
 
             for subl_comp, subl_indices in subl.items():
@@ -551,7 +558,24 @@ class RandomStructureTransformation(AbstractTransformation):
 
     def random_assign(self, sequence: list[int], lengths: list[int]):
         """
-        Randomly assign sublists in sequence with given lengths
+        Randomly assign sublists in sequence with given lengths.
+
+        Args:
+            sequence (list): a list of integers, representing the atom indices on the sublattice
+            lengths (list):  a list of integers, representing the numbers of sites for
+                             each element in the sublattice
+
+        Returns:
+            if np.sum(lengths) == len(sequence):
+                returns a list of lists, where each sublist contains randomly assigned indices
+            else:
+                raise an error message
+
+        Example:
+            sequence = [0, 1, 2, 3, 4, 5, 6, 7]
+            lengths = [5, 3]
+
+            output: [[0, 2, 3, 5, 7], [1, 4, 6]]
         """
         random.shuffle(sequence)
 
@@ -560,6 +584,7 @@ class RandomStructureTransformation(AbstractTransformation):
         start_pos = 0
 
         for length in lengths:
+
             end_pos = min(start_pos + length, len(sequence))
 
             ## check if end_pos is greater than start_pos
@@ -568,7 +593,10 @@ class RandomStructureTransformation(AbstractTransformation):
                 start_pos = end_pos
 
             else:
-                raise Exception("Sum of lengths must be equal to the length of the sequence!")
+                raise Exception("Sum of lengths greater than the length of the sequence; should be equal!")
+
+        if start_pos < len(sequence):
+            raise Exception("Sum of lengths less than the length of the sequence; should be equal!")
 
         return assignments
 
