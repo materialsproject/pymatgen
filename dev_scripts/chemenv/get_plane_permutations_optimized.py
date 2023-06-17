@@ -409,7 +409,7 @@ if __name__ == "__main__":
             for perm, number in perms_used.items():
                 print(f" - permutation {'-'.join(map(str, perm))} : {number:d}")
             print(
-                f"For ialgo {ialgo} (plane_points : [{', '.join(map(str, algo.plane_points))}], "
+                f"For {ialgo=} (plane_points : [{', '.join(map(str, algo.plane_points))}], "
                 f"side_0 : [{', '.join(map(str, algo.point_groups[0]))}] and "
                 f"side_1 : [{', '.join(map(str, algo.point_groups[1]))}]),\n"
                 f"Optimized perturbations {len(perms_used)}/{len(algo.permutations)} (old : "

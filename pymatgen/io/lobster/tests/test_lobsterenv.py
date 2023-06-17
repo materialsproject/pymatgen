@@ -20,7 +20,7 @@ __version__ = "0.1"
 __email__ = "janine.george@uclouvain.be"
 __date__ = "Jan 14, 2021"
 
-test_dir_env = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "environments")
+test_dir_env = f"{PymatgenTest.TEST_FILES_DIR}/cohp/environments"
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -601,14 +601,14 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert results[0] == approx(-33.26058)
         for bond in results[1]:
             assert bond == approx(-5.54345, abs=1e-3)
-        assert results[2] == approx(6)
-        assert results[3] == approx(["27", "30", "48", "49", "64", "73"])
+        assert results[2] == 6
+        assert results[3] == ["27", "30", "48", "49", "64", "73"]
 
         results2 = self.chemenvlobster1.get_info_icohps_to_neighbors(isites=None)
         assert results2[0] == approx(-33.26058)
         for bond in results2[1]:
             assert bond == approx(-5.54345, abs=1e-3)
-        assert results2[2] == approx(6)
+        assert results2[2] == 6
         assert results2[3] == ["27", "30", "48", "49", "64", "73"]
         assert results2[4] == [
             ["Re1", "O2"],
@@ -636,64 +636,29 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert len(chemenv_here.get_info_icohps_between_neighbors(isites=[0])[4]) == 6
 
     def test_get_plot_label(self):
-        assert (
-            self.chemenvlobster1._get_plot_label(
-                atoms=[
-                    ["Re1", "O2"],
-                    ["Re1", "O2"],
-                    ["Re1", "O3"],
-                    ["Re1", "O3"],
-                    ["Re1", "O4"],
-                    ["Re1", "O4"],
-                ],
-                per_bond=False,
-            )
-            == "6 x O-Re"
+        label = self.chemenvlobster1._get_plot_label(
+            atoms=[["Re1", "O2"], ["Re1", "O2"], ["Re1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Re1", "O4"]],
+            per_bond=False,
         )
-        assert (
-            self.chemenvlobster1._get_plot_label(
-                atoms=[
-                    ["Re1", "O2"],
-                    ["Re1", "O2"],
-                    ["Re1", "O3"],
-                    ["Re1", "O3"],
-                    ["Re1", "O4"],
-                    ["Si1", "O4"],
-                ],
-                per_bond=False,
-            )
-            == "5 x O-Re, 1 x O-Si"
-        )
+        assert label == "6 x O-Re"
 
-        assert (
-            self.chemenvlobster1._get_plot_label(
-                atoms=[
-                    ["Si1", "O2"],
-                    ["Si1", "O2"],
-                    ["Si1", "O3"],
-                    ["Re1", "O3"],
-                    ["Re1", "O4"],
-                    ["Si1", "O4"],
-                ],
-                per_bond=False,
-            )
-            == "4 x O-Si, 2 x O-Re"
+        label = self.chemenvlobster1._get_plot_label(
+            atoms=[["Re1", "O2"], ["Re1", "O2"], ["Re1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Si1", "O4"]],
+            per_bond=False,
         )
+        assert label == "5 x O-Re, 1 x O-Si"
 
-        assert (
-            self.chemenvlobster1._get_plot_label(
-                atoms=[
-                    ["Re1", "O2"],
-                    ["Re1", "O2"],
-                    ["Re1", "O3"],
-                    ["Re1", "O3"],
-                    ["Re1", "O4"],
-                    ["Re1", "O4"],
-                ],
-                per_bond=True,
-            )
-            == "6 x O-Re (per bond)"
+        label = self.chemenvlobster1._get_plot_label(
+            atoms=[["Si1", "O2"], ["Si1", "O2"], ["Si1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Si1", "O4"]],
+            per_bond=False,
         )
+        assert label == "4 x O-Si, 2 x O-Re"
+
+        label = self.chemenvlobster1._get_plot_label(
+            atoms=[["Re1", "O2"], ["Re1", "O2"], ["Re1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Re1", "O4"]],
+            per_bond=True,
+        )
+        assert label == "6 x O-Re (per bond)"
 
     def test_get_info_cohps_to_neighbors(self):
         chemenvlobster1 = LobsterNeighbors(

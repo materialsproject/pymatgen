@@ -29,16 +29,12 @@ class KpointTest(unittest.TestCase):
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
 
     def test_properties(self):
-        assert self.kpoint.frac_coords[0] == 0.1
-        assert self.kpoint.frac_coords[1] == 0.4
-        assert self.kpoint.frac_coords[2] == -0.5
+        assert list(self.kpoint.frac_coords) == [0.1, 0.4, -0.5]
         assert self.kpoint.a == 0.1
         assert self.kpoint.b == 0.4
         assert self.kpoint.c == -0.5
         assert self.lattice == Lattice.cubic(10.0)
-        assert self.kpoint.cart_coords[0] == 1.0
-        assert self.kpoint.cart_coords[1] == 4.0
-        assert self.kpoint.cart_coords[2] == -5.0
+        assert list(self.kpoint.cart_coords) == [1.0, 4.0, -5.0]
         assert self.kpoint.label == "X"
 
     def test_as_dict(self):
@@ -54,16 +50,12 @@ class KpointTest(unittest.TestCase):
 
         kpoint = Kpoint.from_dict(d)
 
-        assert kpoint.frac_coords[0] == 0.1
-        assert kpoint.frac_coords[1] == 0.4
-        assert kpoint.frac_coords[2] == -0.5
+        assert list(kpoint.frac_coords) == [0.1, 0.4, -0.5]
         assert kpoint.a == 0.1
         assert kpoint.b == 0.4
         assert kpoint.c == -0.5
         assert kpoint.lattice == Lattice.cubic(10.0)
-        assert kpoint.cart_coords[0] == 1.0
-        assert kpoint.cart_coords[1] == 4.0
-        assert kpoint.cart_coords[2] == -5.0
+        assert list(kpoint.cart_coords) == [1.0, 4.0, -5.0]
         assert kpoint.label == "X"
 
 
@@ -106,12 +98,8 @@ class BandStructureSymmLineTest(PymatgenTest):
 
     def test_properties(self):
         self.one_kpoint = self.bs2.kpoints[31]
-        assert self.one_kpoint.frac_coords[0] == 0.5
-        assert self.one_kpoint.frac_coords[1] == 0.25
-        assert self.one_kpoint.frac_coords[2] == 0.75
-        assert self.one_kpoint.cart_coords[0] == approx(0.64918757)
-        assert self.one_kpoint.cart_coords[1] == approx(1.29837513)
-        assert self.one_kpoint.cart_coords[2] == approx(0.0)
+        assert list(self.one_kpoint.frac_coords) == [0.5, 0.25, 0.75]
+        assert self.one_kpoint.cart_coords == approx([0.64918757, 1.29837513, 0.0])
         assert self.one_kpoint.label == "W"
 
         assert self.bs2.efermi == approx(2.6211967), "wrong fermi energy"
@@ -288,37 +276,19 @@ class LobsterBandStructureSymmLineTest(PymatgenTest):
     def test_basic(self):
         bs_p = self.bs_p
         bs_spin = self.bs_spin
-        assert bs_p.structure[0].frac_coords[0] == approx(0.0)
-        assert bs_p.structure[0].frac_coords[1] == approx(0.47634315)
-        assert bs_p.structure[0].frac_coords[2] == approx(0.666667)
+        assert bs_p.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
         assert bs_p.structure[0].species_string == "Si"
-        assert bs_p.structure[0].coords[0] == approx(-1.19607309)
-        assert bs_p.structure[0].coords[1] == approx(2.0716597)
-        assert bs_p.structure[0].coords[2] == approx(3.67462144)
+        assert bs_p.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
         assert bs_p.efermi == approx(1.06470288)
 
         lattice = bs_p.lattice_rec.as_dict()
-        assert lattice["matrix"][0][0] == approx(1.2511575194890285)
-        assert lattice["matrix"][0][1] == approx(0.7223560132915973)
-        assert lattice["matrix"][0][2] == approx(0.0)
-        assert lattice["matrix"][1][0] == approx(0.0)
-        assert lattice["matrix"][1][1] == approx(1.4447123171425553)
-        assert lattice["matrix"][1][2] == approx(0.0)
-        assert lattice["matrix"][2][0] == approx(0.0)
-        assert lattice["matrix"][2][1] == approx(0.0)
-        assert lattice["matrix"][2][2] == approx(1.1399248502312707)
-        assert bs_p.kpoints[8].frac_coords[0] == approx(0.09090909)
-        assert bs_p.kpoints[8].frac_coords[1] == approx(0.0)
-        assert bs_p.kpoints[8].frac_coords[2] == approx(0.0)
-        assert bs_p.kpoints[8].cart_coords[0] == approx(0.11374159)
-        assert bs_p.kpoints[8].cart_coords[1] == approx(0.06566873)
-        assert bs_p.kpoints[8].cart_coords[2] == approx(0.0)
-        assert bs_p.kpoints[50].frac_coords[0] == approx(0.46153846)
-        assert bs_p.kpoints[50].frac_coords[1] == approx(0.07692308)
-        assert bs_p.kpoints[50].frac_coords[2] == approx(0.0)
-        assert bs_p.kpoints[50].cart_coords[0] == approx(0.57745732)
-        assert bs_p.kpoints[50].cart_coords[1] == approx(0.4445268)
-        assert bs_p.kpoints[50].cart_coords[2] == approx(0.0)
+        assert lattice["matrix"][0] == approx([1.2511575194890285, 0.7223560132915973, 0.0])
+        assert lattice["matrix"][1] == approx([0.0, 1.4447123171425553, 0.0])
+        assert lattice["matrix"][2] == approx([0.0, 0.0, 1.1399248502312707])
+        assert bs_p.kpoints[8].frac_coords == approx([0.09090909, 0.0, 0.0])
+        assert bs_p.kpoints[8].cart_coords == approx([0.11374159, 0.06566873, 0.0])
+        assert bs_p.kpoints[50].frac_coords == approx([0.46153846, 0.07692308, 0.0])
+        assert bs_p.kpoints[50].cart_coords == approx([0.57745732, 0.4445268, 0.0])
         assert bs_p.distance[30] == approx(0.49251552363382556)
         assert bs_p.branches[0]["name"], "\\Gamma-K"
         assert bs_p.get_band_gap()["energy"] == approx(5.6739999999999995)
@@ -424,9 +394,9 @@ class LobsterBandStructureSymmLineTest(PymatgenTest):
         assert len(vbm["band_index"][Spin.up]) == 1, "wrong VBM number of bands"
         assert vbm["band_index"][Spin.up][0] == 23, "wrong VBM band index"
         assert vbm["kpoint_index"][0] == 68, "wrong VBM kpoint index"
-        assert vbm["kpoint"].frac_coords[0] == approx(0.34615384615385), "wrong VBM kpoint frac coords"
-        assert vbm["kpoint"].frac_coords[1] == approx(0.30769230769231), "wrong VBM kpoint frac coords"
-        assert vbm["kpoint"].frac_coords[2] == approx(0.0), "wrong VBM kpoint frac coords"
+        assert vbm["kpoint"].frac_coords == approx(
+            [0.34615384615385, 0.30769230769231, 0.0]
+        ), "wrong VBM kpoint frac coords"
         assert vbm["kpoint"].label is None, "wrong VBM kpoint label"
         vbm_spin = self.bs_spin.get_vbm()
         assert vbm_spin["energy"] == approx(0.6297027399999999), "wrong VBM energy"
@@ -434,9 +404,9 @@ class LobsterBandStructureSymmLineTest(PymatgenTest):
         assert len(vbm_spin["band_index"][Spin.down]) == 1, "wrong VBM number of bands"
         assert vbm_spin["band_index"][Spin.up][0] == 23, "wrong VBM band index"
         assert vbm_spin["kpoint_index"][0] == 68, "wrong VBM kpoint index"
-        assert vbm_spin["kpoint"].frac_coords[0] == approx(0.34615384615385), "wrong VBM kpoint frac coords"
-        assert vbm_spin["kpoint"].frac_coords[1] == approx(0.30769230769231), "wrong VBM kpoint frac coords"
-        assert vbm_spin["kpoint"].frac_coords[2] == approx(0.0), "wrong VBM kpoint frac coords"
+        assert vbm_spin["kpoint"].frac_coords == approx(
+            [0.34615384615385, 0.30769230769231, 0.0]
+        ), "wrong VBM kpoint frac coords"
         assert vbm_spin["kpoint"].label is None, "wrong VBM kpoint label"
 
     def test_get_band_gap(self):

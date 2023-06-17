@@ -8,7 +8,6 @@ import warnings
 
 import numpy as np
 from monty.serialization import dumpfn, loadfn
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.analysis.pourbaix_diagram import IonEntry, MultiEntry, PourbaixDiagram, PourbaixEntry, PourbaixPlotter
@@ -20,7 +19,7 @@ from pymatgen.util.testing import PymatgenTest
 logger = logging.getLogger(__name__)
 
 
-class PourbaixEntryTest(unittest.TestCase):
+class PourbaixEntryTest(PymatgenTest):
     _multiprocess_shared_ = True
     """
     Test all functions using a fictitious entry
@@ -28,11 +27,11 @@ class PourbaixEntryTest(unittest.TestCase):
 
     def setUp(self):
         # comp = Composition("Mn2O3")
-        self.solentry = ComputedEntry("Mn2O3", 49)
+        self.sol_entry = ComputedEntry("Mn2O3", 49)
         ion = Ion.from_formula("MnO4-")
-        self.ionentry = IonEntry(ion, 25)
-        self.PxIon = PourbaixEntry(self.ionentry)
-        self.PxSol = PourbaixEntry(self.solentry)
+        self.ion_entry = IonEntry(ion, 25)
+        self.PxIon = PourbaixEntry(self.ion_entry)
+        self.PxSol = PourbaixEntry(self.sol_entry)
         self.PxIon.concentration = 1e-4
 
     def test_pourbaix_entry(self):
@@ -40,8 +39,8 @@ class PourbaixEntryTest(unittest.TestCase):
         assert self.PxIon.entry.name == "MnO4[-1]", "Wrong Entry!"
         assert self.PxSol.entry.energy == 49, "Wrong Energy!"
         assert self.PxSol.entry.name == "Mn2O3", "Wrong Entry!"
-        # self.assertEqual(self.PxIon.energy, 25, "Wrong Energy!")
-        # self.assertEqual(self.PxSol.energy, 49, "Wrong Energy!")
+        # assert self.PxIon.energy == 25, "Wrong Energy!"
+        # assert self.PxSol.energy == 49, "Wrong Energy!"
         assert self.PxIon.concentration == 1e-4, "Wrong concentration!"
 
     def test_calc_coeff_terms(self):
@@ -66,9 +65,8 @@ class PourbaixEntryTest(unittest.TestCase):
         # Ensure computed entry data persists
         entry = ComputedEntry("TiO2", energy=-20, data={"test": "test"})
         pbx_entry = PourbaixEntry(entry=entry)
-        with ScratchDir("."):
-            dumpfn(pbx_entry, "pbx_entry.json")
-            reloaded = loadfn("pbx_entry.json")
+        dumpfn(pbx_entry, "pbx_entry.json")
+        reloaded = loadfn("pbx_entry.json")
         assert isinstance(reloaded.entry, ComputedEntry)
         assert reloaded.entry.data is not None
 

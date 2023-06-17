@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.io.wannier90 import Unk
@@ -80,28 +79,24 @@ class UnkTest(PymatgenTest):
         assert unk.data[0, 1, 0, 0, 0].real == approx(0.0)
 
     def test_write_file(self):
-        with ScratchDir("."):
-            self.unk_std.write_file("UNK00001.1")
-            temp_unk = Unk.from_file("UNK00001.1")
-            assert self.unk_std == temp_unk
+        self.unk_std.write_file("UNK00001.1")
+        temp_unk = Unk.from_file("UNK00001.1")
+        assert self.unk_std == temp_unk
 
-        with ScratchDir("."):
-            self.unk_ncl.write_file("UNK00001.NC")
-            temp_unk = Unk.from_file("UNK00001.NC")
-            assert self.unk_ncl == temp_unk
+        self.unk_ncl.write_file("UNK00001.NC")
+        temp_unk = Unk.from_file("UNK00001.NC")
+        assert self.unk_ncl == temp_unk
 
     def test_read_write(self):
         unk0 = Unk.from_file(self.TEST_FILES_DIR / "UNK.std")
-        with ScratchDir("."):
-            unk0.write_file("UNK00001.1")
-            unk1 = Unk.from_file("UNK00001.1")
-            assert unk0 == unk1
+        unk0.write_file("UNK00001.1")
+        unk1 = Unk.from_file("UNK00001.1")
+        assert unk0 == unk1
 
         unk0 = Unk.from_file(self.TEST_FILES_DIR / "UNK.ncl")
-        with ScratchDir("."):
-            unk0.write_file("UNK00001.NC")
-            unk1 = Unk.from_file("UNK00001.NC")
-            assert unk0 == unk1
+        unk0.write_file("UNK00001.NC")
+        unk1 = Unk.from_file("UNK00001.NC")
+        assert unk0 == unk1
 
     def test_repr(self):
         assert repr(self.unk_std) != ""

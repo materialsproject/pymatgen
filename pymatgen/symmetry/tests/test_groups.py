@@ -5,6 +5,7 @@ import warnings
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
@@ -125,9 +126,9 @@ class SpaceGroupTest(unittest.TestCase):
         orbit, generators = sg.get_orbit_and_generators(p)
         assert len(orbit) <= sg.order
         pp = generators[0].operate(orbit[0])
-        assert p[0] == pytest.approx(pp[0])
-        assert p[1] == pytest.approx(pp[1])
-        assert p[2] == pytest.approx(pp[2])
+        assert p[0] == approx(pp[0])
+        assert p[1] == approx(pp[1])
+        assert p[2] == approx(pp[2])
 
     def test_is_compatible(self):
         cubic = Lattice.cubic(1)

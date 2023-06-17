@@ -6,8 +6,8 @@ import shutil
 import unittest
 
 import numpy as np
-import pytest
 from numpy.testing import assert_array_almost_equal
+from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AngleNbSetWeight,
@@ -30,8 +30,8 @@ from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
 
-json_files_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chemenv", "json_test_files")
-se_files_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chemenv", "structure_environments_files")
+json_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/json_test_files"
+se_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/structure_environments_files"
 
 
 class ReadWriteChemenvTest(unittest.TestCase):
@@ -112,7 +112,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
             [0.826167, 3.658339, 0.704672],
         ]
         for idx, coord in enumerate(coords):
-            assert coord == pytest.approx(neighb_sites[idx].coords, abs=6)
+            assert coord == approx(neighb_sites[idx].coords, abs=6)
 
         neighb_coords = nb_set.coords
 
@@ -120,21 +120,21 @@ class ReadWriteChemenvTest(unittest.TestCase):
         assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
 
         norm_dist = nb_set.normalized_distances
-        assert sorted(norm_dist) == pytest.approx(sorted([1.001792, 1.001792, 1, 1.0]))
+        assert sorted(norm_dist) == approx(sorted([1.001792, 1.001792, 1, 1.0]))
         norm_ang = nb_set.normalized_angles
-        assert sorted(norm_ang) == pytest.approx(sorted([0.999999, 1, 0.993013, 0.993013]))
+        assert sorted(norm_ang) == approx(sorted([0.999999, 1, 0.993013, 0.993013]))
         dist = nb_set.distances
-        assert sorted(dist) == pytest.approx(sorted([1.628439, 1.628439, 1.625526, 1.625526]))
+        assert sorted(dist) == approx(sorted([1.628439, 1.628439, 1.625526, 1.625526]))
         ang = nb_set.angles
-        assert sorted(ang) == pytest.approx(sorted([3.117389, 3.117389, 3.095610, 3.095610]))
+        assert sorted(ang) == approx(sorted([3.117389, 3.117389, 3.095610, 3.095610]))
 
         nb_set_info = nb_set.info
 
-        assert nb_set_info["normalized_angles_mean"] == pytest.approx(0.996506826547)
-        assert nb_set_info["normalized_distances_std"] == pytest.approx(0.000896138995037)
-        assert nb_set_info["angles_std"] == pytest.approx(0.0108895833142)
-        assert nb_set_info["distances_std"] == pytest.approx(0.00145669776056)
-        assert nb_set_info["distances_mean"] == pytest.approx(1.62698328347)
+        assert nb_set_info["normalized_angles_mean"] == approx(0.996506826547)
+        assert nb_set_info["normalized_distances_std"] == approx(0.000896138995037)
+        assert nb_set_info["angles_std"] == approx(0.0108895833142)
+        assert nb_set_info["distances_std"] == approx(0.00145669776056)
+        assert nb_set_info["distances_mean"] == approx(1.62698328347)
 
         assert (
             str(nb_set) == "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n"

@@ -331,7 +331,7 @@ from    to  to_image
         sq_sg_2 = self.square_sg * (4, 4, 1)
         assert sq_sg_1.graph.number_of_edges() == sq_sg_2.graph.number_of_edges()
         # TODO: the below test still gives 8 != 4
-        # self.assertEqual(self.square_sg.get_coordination_of_site(0), 4)
+        # assert self.square_sg.get_coordination_of_site(0) == 4
 
         mos2_sg_mul = self.mos2_sg * (3, 3, 1)
         for idx in mos2_sg_mul.structure.indices_from_symbol("Mo"):
@@ -497,12 +497,8 @@ from    to  to_image
 
 class MoleculeGraphTest(unittest.TestCase):
     def setUp(self):
-        cyclohexene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/cyclohexene.xyz",
-            )
-        )
+        cyclohexene_xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/cyclohexene.xyz")
+        cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.with_empty_graph(
             cyclohexene, edge_weight_name="strength", edge_weight_units=""
         )

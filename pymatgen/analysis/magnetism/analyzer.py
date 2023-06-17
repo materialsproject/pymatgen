@@ -86,7 +86,7 @@ class CollinearMagneticStructureAnalyzer:
         make_primitive: bool = True,
         default_magmoms: dict | None = None,
         set_net_positive: bool = True,
-        threshold: float = 0.00,
+        threshold: float = 0,
         threshold_nonmag: float = 0.1,
     ):
         """

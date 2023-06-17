@@ -839,8 +839,8 @@ class CompleteCohpTest(PymatgenTest):
         self.cohp_lobster_forb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
         # spinpolarized case:
-        filepath = os.path.join(test_dir, "environments", "COHPCAR.lobster.mp-190.gz")
-        structure = os.path.join(test_dir, "environments", "POSCAR.mp_190.gz")
+        filepath = f"{test_dir}/environments/COHPCAR.lobster.mp-190.gz"
+        structure = f"{test_dir}/environments/POSCAR.mp_190.gz"
         self.cohp_lobster_spin_polarized = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure
         )
@@ -890,21 +890,20 @@ class CompleteCohpTest(PymatgenTest):
         # is calculated and not read, there may be differences in rounding
         # with a very small number of matrix elements, which would cause the
         # test to fail
+        cohp_lmto_dict = self.cohp_lmto.as_dict()
         for key in ["COHP", "ICOHP"]:
             self.assert_all_close(
-                self.cohp_lmto.as_dict()[key]["average"]["1"],
+                cohp_lmto_dict[key]["average"]["1"],
                 self.cohp_lmto_dict.as_dict()[key]["average"]["1"],
                 5,
             )
-        # for key in self.cohp_lmto.as_dict():
+        # for key in cohp_lmto_dict:
         #     if key not in ["COHP", "ICOHP"]:
-        #         self.assertEqual(self.cohp_lmto.as_dict()[key],
-        #                          self.cohp_lmto_dict.as_dict()[key])
+        #         assert cohp_lmto_dict[key] == self.cohp_lmto_dict.as_dict()[key]
         #     else:
-        #         for bond in self.cohp_lmto.as_dict()[key]:
+        #         for bond in cohp_lmto_dict[key]:
         #             if bond != "average":
-        #                 self.assertEqual(self.cohp_lmto.as_dict()[key][bond],
-        #                                  self.cohp_lmto_dict.as_dict()[key][bond])
+        #                 assert cohp_lmto_dict[key][bond] == self.cohp_lmto_dict.as_dict()[key][bond]
 
     def test_icohp_values(self):
         # icohp_ef are the ICHOP(Ef) values taken from
@@ -1198,8 +1197,8 @@ class MethodTest(unittest.TestCase):
         structure = os.path.join(test_dir, "POSCAR.orbitalwise")
         self.cohp_orb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
-        filepath = os.path.join(test_dir, "environments", "COHPCAR.lobster.mp-190.gz")
-        structure = os.path.join(test_dir, "environments", "POSCAR.mp_190.gz")
+        filepath = f"{test_dir}/environments/COHPCAR.lobster.mp-190.gz"
+        structure = f"{test_dir}/environments/POSCAR.mp_190.gz"
         self.cohp_lobster_spin_polarized = CompleteCohp.from_file(
             "lobster", filename=filepath, structure_file=structure
         )

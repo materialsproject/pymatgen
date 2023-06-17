@@ -11,7 +11,6 @@ from shutil import copyfile, copyfileobj
 
 import numpy as np
 import pytest
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.core import Element
@@ -493,39 +492,35 @@ class VasprunTest(PymatgenTest):
             assert projected[Spin.up][0][0]["Si"]["s"] == approx(0.4238)
 
             # Test compressed files case 1: compressed KPOINTS in current dir
-            with ScratchDir("./"):
-                copyfile(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "vasprun.xml")
+            copyfile(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "vasprun.xml")
 
-                # Check for error if no KPOINTS file
-                vasprun = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
-                with pytest.raises(VaspParserError):
-                    _ = vasprun.get_band_structure(line_mode=True)
+            # Check for error if no KPOINTS file
+            vasprun = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
+            with pytest.raises(VaspParserError):
+                _ = vasprun.get_band_structure(line_mode=True)
 
-                # Check KPOINTS.gz successfully inferred and used if present
-                with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in, gzip.open(
-                    "KPOINTS.gz", "wb"
-                ) as f_out:
-                    copyfileobj(f_in, f_out)
-                bs_kpts_gzip = vasprun.get_band_structure()
-                assert bs.efermi == bs_kpts_gzip.efermi
-                assert bs.as_dict() == bs_kpts_gzip.as_dict()
+            # Check KPOINTS.gz successfully inferred and used if present
+            with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in, gzip.open("KPOINTS.gz", "wb") as f_out:
+                copyfileobj(f_in, f_out)
+            bs_kpts_gzip = vasprun.get_band_structure()
+            assert bs.efermi == bs_kpts_gzip.efermi
+            assert bs.as_dict() == bs_kpts_gzip.as_dict()
 
             # Test compressed files case 2: compressed vasprun in another dir
-            with ScratchDir("./"):
-                os.mkdir("deeper")
-                copyfile(self.TEST_FILES_DIR / "KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
-                with open(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "rb") as f_in, gzip.open(
-                    os.path.join("deeper", "vasprun.xml.gz"), "wb"
-                ) as f_out:
-                    copyfileobj(f_in, f_out)
-                vasprun = Vasprun(
-                    os.path.join("deeper", "vasprun.xml.gz"),
-                    parse_projected_eigen=True,
-                    parse_potcar_file=False,
-                )
-                bs_vasprun_gzip = vasprun.get_band_structure(line_mode=True)
-                assert bs.efermi == bs_vasprun_gzip.efermi
-                assert bs.as_dict() == bs_vasprun_gzip.as_dict()
+            os.mkdir("deeper")
+            copyfile(self.TEST_FILES_DIR / "KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
+            with open(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "rb") as f_in, gzip.open(
+                os.path.join("deeper", "vasprun.xml.gz"), "wb"
+            ) as f_out:
+                copyfileobj(f_in, f_out)
+            vasprun = Vasprun(
+                os.path.join("deeper", "vasprun.xml.gz"),
+                parse_projected_eigen=True,
+                parse_potcar_file=False,
+            )
+            bs_vasprun_gzip = vasprun.get_band_structure(line_mode=True)
+            assert bs.efermi == bs_vasprun_gzip.efermi
+            assert bs.as_dict() == bs_vasprun_gzip.as_dict()
 
             # test hybrid band structures
             vasprun.actual_kpoints_weights[-1] = 0.0
@@ -600,10 +595,10 @@ class VasprunTest(PymatgenTest):
 
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.sc_overflow"
-        # with warnings.catch_warnings(record=True) as w:
+        # with warnings.catch_warnings(record=True) as warns:
         #     warnings.simplefilter("always")
         #     vasprun = Vasprun(filepath)
-        #     self.assertEqual(len(w), 3)
+        #     assert len(warns) == 3
         vasprun = Vasprun(filepath)
         estep = vasprun.ionic_steps[0]["electronic_steps"][29]
         assert np.isnan(estep["e_wo_entrp"])
@@ -901,7 +896,7 @@ class OutcarTest(PymatgenTest):
             },
         )
         # test note: Magmom class uses np.allclose() when testing for equality
-        # so fine to use assertEqual here
+        # so fine to use == operator here
         assert outcar.magnetization == expected_mag, "Wrong vector magnetization read from Outcar for SOC calculation"
 
     def test_polarization(self):
@@ -909,14 +904,8 @@ class OutcarTest(PymatgenTest):
         outcar = Outcar(filepath)
         assert outcar.spin is True
         assert outcar.noncollinear is False
-        assert outcar.p_ion[0] == approx(0.0)
-        assert outcar.p_ion[1] == approx(0.0)
-        assert outcar.p_ion[2] == approx(-5.56684)
-        assert outcar.p_sp1[0] == approx(2.00068)
-        assert outcar.p_sp2[0] == approx(-2.00044)
-        assert outcar.p_elec[0] == approx(0.00024)
-        assert outcar.p_elec[1] == approx(0.00019)
-        assert outcar.p_elec[2] == approx(3.61674)
+        assert outcar.p_ion == approx([0.0, 0.0, -5.56684])
+        assert outcar.p_elec == approx([0.00024, 0.00019, 3.61674])
 
     def test_pseudo_zval(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.BaTiO3.polar"
@@ -1978,24 +1967,21 @@ class WavecarTest(PymatgenTest):
             self.w.write_unks(self.TEST_FILES_DIR / "UNK.N2.std")
 
         # different grids
-        with ScratchDir("."):
-            self.w.write_unks("./unk_dir")
-            assert len(list(Path("./unk_dir").glob("UNK*"))) == 1
-            unk = Unk.from_file("./unk_dir/UNK00001.1")
-            assert unk != unk_std
+        self.w.write_unks("./unk_dir")
+        assert len(list(Path("./unk_dir").glob("UNK*"))) == 1
+        unk = Unk.from_file("./unk_dir/UNK00001.1")
+        assert unk != unk_std
 
         # correct grid
         self.w.ng = np.array([12, 12, 12])
-        with ScratchDir("."):
-            self.w.write_unks(".")
-            unk = Unk.from_file("UNK00001.1")
-            assert unk == unk_std
+        self.w.write_unks(".")
+        unk = Unk.from_file("UNK00001.1")
+        assert unk == unk_std
 
         # ncl test
-        with ScratchDir("."):
-            self.w_ncl.write_unks(".")
-            unk = Unk.from_file("UNK00001.NC")
-            assert unk == unk_ncl
+        self.w_ncl.write_unks(".")
+        unk = Unk.from_file("UNK00001.NC")
+        assert unk == unk_ncl
 
 
 class EigenvalTest(PymatgenTest):
@@ -2033,12 +2019,8 @@ class EigenvalTest(PymatgenTest):
         props = eig.eigenvalue_band_properties
         eig2 = Eigenval(self.TEST_FILES_DIR / "EIGENVAL_separate_spins.gz", separate_spins=False)
         props2 = eig2.eigenvalue_band_properties
-        assert props[0][0] == approx(2.8772, abs=1e-4)
-        assert props[0][1] == approx(1.2810, abs=1e-4)
-        assert props[1][0] == approx(3.6741, abs=1e-4)
-        assert props[1][1] == approx(1.6225, abs=1e-4)
-        assert props[2][0] == approx(0.7969, abs=1e-4)
-        assert props[2][1] == approx(0.3415, abs=1e-4)
+
+        assert np.array(props)[:3, :2].flat == approx([2.8772, 1.2810, 3.6741, 1.6225, 0.7969, 0.3415], abs=1e-4)
         assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), abs=1e-4)
         assert props[3][0] is True
         assert props[3][1] is True

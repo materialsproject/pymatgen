@@ -10,7 +10,7 @@ from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings")
+test_dir = f"{PymatgenTest.TEST_FILES_DIR}/magnetic_orderings"
 
 
 class HeisenbergMapperTest(unittest.TestCase):

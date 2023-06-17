@@ -25,7 +25,7 @@ try:
 except (ImportError, RuntimeError):
     openbabel = None
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "molecule_matcher")
+test_dir = f"{PymatgenTest.TEST_FILES_DIR}/molecules/molecule_matcher"
 
 
 ob_align_missing = openbabel is None or "OBAlign" not in dir(openbabel)
@@ -115,7 +115,7 @@ def generate_Si2O_cluster():
         [0.625, 0.625, 0.125],
         [0.625, 0.125, 0.625],
         [0.125, 0.625, 0.625],
-        [0.500, 0.500, 0.500],
+        [0, 0, 0],
         [0.750, 0.750, 0.750],
     ]
 
@@ -186,11 +186,11 @@ class MoleculeMatcherTest(unittest.TestCase):
 
     def fit_with_mapper(self, mapper):
         coords = [
-            [0.000000, 0.000000, 0.000000],
-            [0.000000, 0.000000, 1.089000],
-            [1.026719, 0.000000, -0.363000],
-            [-0.513360, -0.889165, -0.363000],
-            [-0.513360, 0.889165, -0.363000],
+            [0, 0, 0],
+            [0, 0, 1],
+            [1.026719, 0, -0],
+            [-0.513360, -0.889165, -0],
+            [-0.513360, 0.889165, -0],
         ]
         mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
@@ -285,11 +285,11 @@ class KabschMatcherTest(unittest.TestCase):
 
     def test_rotated_molecule(self):
         coords = [
-            [0.000000, 0.000000, 0.000000],
-            [0.000000, 0.000000, 1.089000],
-            [1.026719, 0.000000, -0.363000],
-            [-0.513360, -0.889165, -0.363000],
-            [-0.513360, 0.889165, -0.363000],
+            [0, 0, 0],
+            [0, 0, 1],
+            [1.026719, 0, -0],
+            [-0.513360, -0.889165, -0],
+            [-0.513360, 0.889165, -0],
         ]
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
@@ -366,11 +366,11 @@ class HungarianOrderMatcherTest(unittest.TestCase):
 
     def test_rotated_molecule(self):
         coords = [
-            [0.000000, 0.000000, 0.000000],
-            [0.000000, 0.000000, 1.089000],
-            [1.026719, 0.000000, -0.363000],
-            [-0.513360, -0.889165, -0.363000],
-            [-0.513360, 0.889165, -0.363000],
+            [0, 0, 0],
+            [0, 0, 1],
+            [1.026719, 0, -0],
+            [-0.513360, -0.889165, -0],
+            [-0.513360, 0.889165, -0],
         ]
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
@@ -471,11 +471,11 @@ class GeneticOrderMatcherTest(unittest.TestCase):
 
     def test_rotated_molecule(self):
         coords = [
-            [0.000000, 0.000000, 0.000000],
-            [0.000000, 0.000000, 1.089000],
-            [1.026719, 0.000000, -0.363000],
-            [-0.513360, -0.889165, -0.363000],
-            [-0.513360, 0.889165, -0.363000],
+            [0, 0, 0],
+            [0, 0, 1],
+            [1.026719, 0, -0],
+            [-0.513360, -0.889165, -0],
+            [-0.513360, 0.889165, -0],
         ]
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)

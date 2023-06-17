@@ -52,7 +52,7 @@ setup(
         "tblite": ["tblite[ase]>=0.3.0"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
-        "relaxation": ["m3gnet"],
+        "relaxation": ["matgl"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
             "black",
@@ -70,7 +70,7 @@ setup(
         ],
         "optional": [
             # "hiphive>=0.6",
-            # "m3gnet>=0.0.8",
+            "matgl",
             "ase>=3.22.1",
             # https://peps.python.org/pep-0508/#environment-markers
             "BoltzTraP2>=22.3.2; platform_system!='Windows'",

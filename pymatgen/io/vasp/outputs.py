@@ -4571,7 +4571,7 @@ class Wavecar:
         """
         self.filename = filename
         if not (vasp_type is None or vasp_type.lower()[0] in ["s", "g", "n"]):
-            raise ValueError(f"invalid vasp_type {vasp_type}")
+            raise ValueError(f"invalid {vasp_type=}")
         self.vasp_type = vasp_type
 
         # c = 0.26246582250210965422

@@ -7,6 +7,7 @@ import warnings
 from shutil import which
 
 import numpy as np
+import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -225,8 +226,8 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         for s in alls:
             assert "energy" not in s
 
-    @unittest.skipIf(matgl is None, "matgl package not available.")
     def test_m3gnet(self):
+        pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         struct = p.structure
@@ -241,9 +242,8 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         # Check ordering of energy/atom
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
-    @unittest.skipIf(matgl is None, "matgl package not available.")
     def test_callable_sort_criteria(self):
-        import matgl
+        matgl = pytest.importorskip("matgl")
         from matgl.ext.ase import Relaxer
 
         pot = matgl.load_model("M3GNet-MP-2021.2.8-PES")

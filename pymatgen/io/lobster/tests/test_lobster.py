@@ -45,38 +45,34 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 
 class CohpcarTest(PymatgenTest):
     def setUp(self):
-        self.cohp_bise = Cohpcar(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.BiSe.gz"))
+        self.cohp_bise = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.BiSe.gz")
         self.coop_bise = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COOPCAR.lobster.BiSe.gz"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COOPCAR.lobster.BiSe.gz",
             are_coops=True,
         )
-        self.cohp_fe = Cohpcar(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COOPCAR.lobster.gz"))
+        self.cohp_fe = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COOPCAR.lobster.gz")
         self.coop_fe = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COOPCAR.lobster.gz"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COOPCAR.lobster.gz",
             are_coops=True,
         )
-        self.orb = Cohpcar(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.orbitalwise.gz"))
-        self.orb_notot = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.notot.orbitalwise.gz")
-        )
+        self.orb = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.orbitalwise.gz")
+        self.orb_notot = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.notot.orbitalwise.gz")
 
         # Lobster 3.1 (Test data is from prerelease of Lobster 3.1)
-        self.cohp_KF = Cohpcar(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.KF.gz"))
+        self.cohp_KF = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.KF.gz")
         self.coop_KF = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.KF.gz"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.KF.gz",
             are_coops=True,
         )
 
         # example with f electrons
-        self.cohp_Na2UO4 = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COHPCAR.lobster.Na2UO4.gz")
-        )
+        self.cohp_Na2UO4 = Cohpcar(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COHPCAR.lobster.Na2UO4.gz")
         self.coop_Na2UO4 = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COOPCAR.lobster.Na2UO4.gz"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COOPCAR.lobster.Na2UO4.gz",
             are_coops=True,
         )
         self.cobi = Cohpcar(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "COBICAR.lobster.gz"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/COBICAR.lobster.gz",
             are_cobis=True,
         )
 
@@ -412,40 +408,36 @@ class CohpcarTest(PymatgenTest):
 
 class IcohplistTest(unittest.TestCase):
     def setUp(self):
-        self.icohp_bise = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster.BiSe")
-        )
+        self.icohp_bise = Icohplist(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOHPLIST.lobster.BiSe")
         self.icoop_bise = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOOPLIST.lobster.BiSe"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOOPLIST.lobster.BiSe",
             are_coops=True,
         )
-        self.icohp_fe = Icohplist(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"))
+        self.icohp_fe = Icohplist(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOHPLIST.lobster")
         # allow gzipped files
-        self.icohp_gzipped = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster.gz")
-        )
+        self.icohp_gzipped = Icohplist(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOHPLIST.lobster.gz")
         self.icoop_fe = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOHPLIST.lobster",
             are_coops=True,
         )
         # ICOBIs and orbitalwise ICOBILIST.lobster
         self.icobi_orbitalwise = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOBILIST.lobster",
             are_cobis=True,
         )
         # TODO: test orbitalwise ICOHPs with and without spin polarization
 
         self.icobi = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.withoutorbitals"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOBILIST.lobster.withoutorbitals",
             are_cobis=True,
         )
         self.icobi_orbitalwise_spinpolarized = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.spinpolarized"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOBILIST.lobster.spinpolarized",
             are_cobis=True,
         )
         # make sure the correct line is read to check if this is a orbitalwise ICOBILIST
         self.icobi_orbitalwise_add = Icohplist(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOBILIST.lobster.additional_case"),
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/ICOBILIST.lobster.additional_case",
             are_cobis=True,
         )
         self.icobi_orbitalwise_spinpolarized_add = Icohplist(
@@ -844,9 +836,9 @@ class DoscarTest(unittest.TestCase):
 
 class ChargeTest(PymatgenTest):
     def setUp(self):
-        self.charge2 = Charge(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "CHARGE.lobster.MnO"))
+        self.charge2 = Charge(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/CHARGE.lobster.MnO")
         # gzipped file
-        self.charge = Charge(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "CHARGE.lobster.MnO2.gz"))
+        self.charge = Charge(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/CHARGE.lobster.MnO2.gz")
 
     def testattributes(self):
         charge_Loewdin = [-1.25, 1.25]
@@ -903,13 +895,9 @@ class ChargeTest(PymatgenTest):
 class LobsteroutTest(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
-        self.lobsterout_normal = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.normal")
-        )
+        self.lobsterout_normal = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.normal")
         # make sure .gz files are also read correctly
-        self.lobsterout_normal = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.normal2.gz")
-        )
+        self.lobsterout_normal = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.normal2.gz")
         self.lobsterout_fatband_grosspop_densityofenergies = Lobsterout(
             filename=os.path.join(
                 PymatgenTest.TEST_FILES_DIR,
@@ -918,31 +906,25 @@ class LobsteroutTest(PymatgenTest):
             )
         )
         self.lobsterout_saveprojection = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.saveprojection")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.saveprojection"
         )
         self.lobsterout_skipping_all = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.skipping_all")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.skipping_all"
         )
-        self.lobsterout_twospins = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.twospins")
-        )
-        self.lobsterout_GaAs = Lobsterout(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.GaAs"))
+        self.lobsterout_twospins = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.twospins")
+        self.lobsterout_GaAs = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.GaAs")
         self.lobsterout_from_projection = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_from_projection")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout_from_projection"
         )
-        self.lobsterout_onethread = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.onethread")
-        )
+        self.lobsterout_onethread = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.onethread")
         self.lobsterout_cobi_madelung = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_cobi_madelung")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout_cobi_madelung"
         )
-        self.lobsterout_doscar_lso = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_doscar_lso")
-        )
+        self.lobsterout_doscar_lso = Lobsterout(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout_doscar_lso")
 
         # TODO: implement skipping madelung/cobi
         self.lobsterout_skipping_cobi_madelung = Lobsterout(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.skip_cobi_madelung")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/lobsterout.skip_cobi_madelung"
         )
 
     def tearDown(self):
@@ -1370,26 +1352,24 @@ class FatbandTest(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.fatband_SiO2_p_x = Fatband(
-            filenames=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x"),
-            Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/KPOINTS"),
-            vasprun=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/vasprun.xml"),
+            filenames=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x",
+            Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
+            vasprun=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
         )
         self.vasprun_SiO2_p_x = Vasprun(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/vasprun.xml")
+            filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml"
         )
         self.bs_symmline = self.vasprun_SiO2_p_x.get_band_structure(line_mode=True, force_hybrid_mode=True)
         self.fatband_SiO2_p = Fatband(
-            filenames=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p"),
-            Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p/KPOINTS"),
-            vasprun=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p/vasprun.xml"),
+            filenames=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p",
+            Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/KPOINTS",
+            vasprun=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/vasprun.xml",
         )
-        self.vasprun_SiO2_p = Vasprun(
-            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p/vasprun.xml")
-        )
+        self.vasprun_SiO2_p = Vasprun(filename=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/vasprun.xml")
         self.bs_symmline2 = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
         self.fatband_SiO2_spin = Fatband(
-            filenames=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_Spin"),
-            Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_Spin/KPOINTS"),
+            filenames=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin",
+            Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_Spin/KPOINTS",
             vasprun=os.path.join(
                 PymatgenTest.TEST_FILES_DIR,
                 "cohp",
@@ -1409,97 +1389,52 @@ class FatbandTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_attributes(self):
-        assert list(self.fatband_SiO2_p_x.label_dict["M"])[0] == approx(0.5)
-        assert list(self.fatband_SiO2_p_x.label_dict["M"])[1] == approx(0.0)
-        assert list(self.fatband_SiO2_p_x.label_dict["M"])[2] == approx(0.0)
+        assert list(self.fatband_SiO2_p_x.label_dict["M"]) == approx([0.5, 0.0, 0.0])
         assert self.fatband_SiO2_p_x.efermi == self.vasprun_SiO2_p_x.efermi
         lattice1 = self.bs_symmline.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p_x.lattice.as_dict()
-        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
-        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
-        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
-        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
-        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
-        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
-        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
-        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
-        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
+        for idx in range(3):
+            assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
         assert self.fatband_SiO2_p_x.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p_x.efermi == -18.245
         assert self.fatband_SiO2_p_x.is_spinpolarized is False
-        assert self.fatband_SiO2_p_x.kpoints_array[3][0] == approx(0.03409091)
-        assert self.fatband_SiO2_p_x.kpoints_array[3][1] == 0.0
-        assert self.fatband_SiO2_p_x.kpoints_array[3][2] == 0.0
+        assert self.fatband_SiO2_p_x.kpoints_array[3] == approx([0.03409091, 0, 0])
         assert self.fatband_SiO2_p_x.nbands == 36
         assert self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"] == 0.002
-        assert self.fatband_SiO2_p_x.structure[0].frac_coords[0] == approx(0.0)
-        assert self.fatband_SiO2_p_x.structure[0].frac_coords[1] == approx(0.47634315)
-        assert self.fatband_SiO2_p_x.structure[0].frac_coords[2] == approx(0.666667)
+        assert self.fatband_SiO2_p_x.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_p_x.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_p_x.structure[0].coords[0] == approx(-1.19607309)
-        assert self.fatband_SiO2_p_x.structure[0].coords[1] == approx(2.0716597)
-        assert self.fatband_SiO2_p_x.structure[0].coords[2] == approx(3.67462144)
+        assert self.fatband_SiO2_p_x.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
-        assert list(self.fatband_SiO2_p.label_dict["M"])[0] == approx(0.5)
-        assert list(self.fatband_SiO2_p.label_dict["M"])[1] == approx(0.0)
-        assert list(self.fatband_SiO2_p.label_dict["M"])[2] == approx(0.0)
+        assert list(self.fatband_SiO2_p.label_dict["M"]) == approx([0.5, 0.0, 0.0])
         assert self.fatband_SiO2_p.efermi == self.vasprun_SiO2_p.efermi
         lattice1 = self.bs_symmline2.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p.lattice.as_dict()
-        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
-        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
-        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
-        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
-        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
-        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
-        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
-        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
-        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
+        for idx in range(3):
+            assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
         assert self.fatband_SiO2_p.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p.efermi == -18.245
         assert self.fatband_SiO2_p.is_spinpolarized is False
-        assert self.fatband_SiO2_p.kpoints_array[3][0] == approx(0.03409091)
-        assert self.fatband_SiO2_p.kpoints_array[3][1] == 0.0
-        assert self.fatband_SiO2_p.kpoints_array[3][2] == 0.0
+        assert self.fatband_SiO2_p.kpoints_array[3] == approx([0.03409091, 0, 0])
         assert self.fatband_SiO2_p.nbands == 36
         assert self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
-        assert self.fatband_SiO2_p.structure[0].frac_coords[0] == approx(0.0)
-        assert self.fatband_SiO2_p.structure[0].frac_coords[1] == approx(0.47634315)
-        assert self.fatband_SiO2_p.structure[0].frac_coords[2] == approx(0.666667)
+        assert self.fatband_SiO2_p.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_p.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_p.structure[0].coords[0] == approx(-1.19607309)
-        assert self.fatband_SiO2_p.structure[0].coords[1] == approx(2.0716597)
-        assert self.fatband_SiO2_p.structure[0].coords[2] == approx(3.67462144)
+        assert self.fatband_SiO2_p.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
-        assert list(self.fatband_SiO2_spin.label_dict["M"])[0] == approx(0.5)
-        assert list(self.fatband_SiO2_spin.label_dict["M"])[1] == approx(0.0)
-        assert list(self.fatband_SiO2_spin.label_dict["M"])[2] == approx(0.0)
+        assert list(self.fatband_SiO2_spin.label_dict["M"]) == approx([0.5, 0.0, 0.0])
         assert self.fatband_SiO2_spin.efermi == self.vasprun_SiO2_spin.efermi
         lattice1 = self.bs_symmline_spin.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_spin.lattice.as_dict()
-        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
-        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
-        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
-        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
-        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
-        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
-        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
-        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
-        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
+        for idx in range(3):
+            assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
         assert self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi == -18.245
         assert self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi == -18.245
         assert self.fatband_SiO2_spin.is_spinpolarized is True
-        assert self.fatband_SiO2_spin.kpoints_array[3][0] == approx(0.03409091)
-        assert self.fatband_SiO2_spin.kpoints_array[3][1] == 0.0
-        assert self.fatband_SiO2_spin.kpoints_array[3][2] == 0.0
+        assert self.fatband_SiO2_spin.kpoints_array[3] == approx([0.03409091, 0, 0])
         assert self.fatband_SiO2_spin.nbands == 36
 
         assert self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
-        assert self.fatband_SiO2_spin.structure[0].frac_coords[0] == approx(0.0)
-        assert self.fatband_SiO2_spin.structure[0].frac_coords[1] == approx(0.47634315)
-        assert self.fatband_SiO2_spin.structure[0].frac_coords[2] == approx(0.666667)
+        assert self.fatband_SiO2_spin.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_spin.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_spin.structure[0].coords[0] == approx(-1.19607309)
-        assert self.fatband_SiO2_spin.structure[0].coords[1] == approx(2.0716597)
-        assert self.fatband_SiO2_spin.structure[0].coords[2] == approx(3.67462144)
+        assert self.fatband_SiO2_spin.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
     def test_raises(self):
         with pytest.raises(ValueError):
@@ -1516,7 +1451,7 @@ class FatbandTest(PymatgenTest):
                         "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
                     ),
                 ],
-                Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/KPOINTS"),
+                Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
                 vasprun=os.path.join(
                     PymatgenTest.TEST_FILES_DIR,
                     "cohp",
@@ -1538,7 +1473,7 @@ class FatbandTest(PymatgenTest):
                         "Fatband_SiO2/Test_p/FATBAND_si1_3p.lobster",
                     ),
                 ],
-                Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/KPOINTS"),
+                Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
                 vasprun=os.path.join(
                     PymatgenTest.TEST_FILES_DIR,
                     "cohp",
@@ -1549,7 +1484,7 @@ class FatbandTest(PymatgenTest):
         with pytest.raises(ValueError):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=".",
-                Kpointsfile=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "Fatband_SiO2/Test_p_x/KPOINTS"),
+                Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
                 vasprun=os.path.join(
                     PymatgenTest.TEST_FILES_DIR,
                     "cohp",
@@ -1578,15 +1513,9 @@ class FatbandTest(PymatgenTest):
         assert bs_p.distance[30] == approx(self.bs_symmline2.distance[30])
         lattice1 = bs_p.lattice_rec.as_dict()
         lattice2 = self.bs_symmline2.lattice_rec.as_dict()
-        assert lattice1["matrix"][0][0] == approx(lattice2["matrix"][0][0])
-        assert lattice1["matrix"][0][1] == approx(lattice2["matrix"][0][1])
-        assert lattice1["matrix"][0][2] == approx(lattice2["matrix"][0][2])
-        assert lattice1["matrix"][1][0] == approx(lattice2["matrix"][1][0])
-        assert lattice1["matrix"][1][1] == approx(lattice2["matrix"][1][1])
-        assert lattice1["matrix"][1][2] == approx(lattice2["matrix"][1][2])
-        assert lattice1["matrix"][2][0] == approx(lattice2["matrix"][2][0])
-        assert lattice1["matrix"][2][1] == approx(lattice2["matrix"][2][1])
-        assert lattice1["matrix"][2][2] == approx(lattice2["matrix"][2][2])
+        assert lattice1["matrix"][0] == approx(lattice2["matrix"][0])
+        assert lattice1["matrix"][1] == approx(lattice2["matrix"][1])
+        assert lattice1["matrix"][2] == approx(lattice2["matrix"][2])
 
         assert bs_p.kpoints[8].frac_coords[0] == approx(self.bs_symmline2.kpoints[8].frac_coords[0])
         assert bs_p.kpoints[8].frac_coords[1] == approx(self.bs_symmline2.kpoints[8].frac_coords[1])
@@ -2031,7 +1960,7 @@ class LobsterinTest(unittest.TestCase):
         #
         # #without line mode, using a certain grid, isym=0 instead of -1
         lobsterin1.write_KPOINTS(
-            POSCAR_input=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.Li"),
+            POSCAR_input=f"{PymatgenTest.TEST_FILES_DIR}/cohp/POSCAR.Li",
             KPOINTS_output=outfile_path,
             line_mode=False,
             from_grid=True,
@@ -2057,7 +1986,7 @@ class LobsterinTest(unittest.TestCase):
             )
 
         lobsterin1.write_KPOINTS(
-            POSCAR_input=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.Li"),
+            POSCAR_input=f"{PymatgenTest.TEST_FILES_DIR}/cohp/POSCAR.Li",
             KPOINTS_output=outfile_path,
             line_mode=False,
             from_grid=True,
@@ -2464,7 +2393,7 @@ class WavefunctionTest(PymatgenTest):
 
     def test_set_volumetric_data(self):
         wave1 = Wavefunction(
-            filename=os.path.join(test_dir_doscar, "cohp", "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
+            filename=f"{test_dir_doscar}/cohp/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")),
         )
 
@@ -2533,9 +2462,7 @@ class WavefunctionTest(PymatgenTest):
 
 class SitePotentialsTest(PymatgenTest):
     def setUp(self) -> None:
-        self.sitepotential = SitePotential(
-            filename=os.path.join(test_dir_doscar, "cohp", "SitePotentials.lobster.perovskite")
-        )
+        self.sitepotential = SitePotential(filename=f"{test_dir_doscar}/cohp/SitePotentials.lobster.perovskite")
 
     def test_attributes(self):
         assert self.sitepotential.sitepotentials_Loewdin == [-8.77, -17.08, 9.57, 9.57, 8.45]
@@ -2557,9 +2484,7 @@ class SitePotentialsTest(PymatgenTest):
 
 class MadelungEnergiesTest(PymatgenTest):
     def setUp(self) -> None:
-        self.madelungenergies = MadelungEnergies(
-            filename=os.path.join(test_dir_doscar, "cohp", "MadelungEnergies.lobster.perovskite")
-        )
+        self.madelungenergies = MadelungEnergies(filename=f"{test_dir_doscar}/cohp/MadelungEnergies.lobster.perovskite")
 
     def test_attributes(self):
         assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)
