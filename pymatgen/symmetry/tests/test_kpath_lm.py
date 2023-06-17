@@ -79,21 +79,13 @@ class KPathLatimerMunroTest(PymatgenTest):
 
         assert kpoints["e"] == approx([0.0, 0.49999999999999956, 0.5000000000000002])
 
-        d = False
-        if np.allclose(kpoints["d_{1}"], [0.2530864197530836, 0.25308641975308915, 0.0], atol=1e-5) or np.allclose(
-            kpoints["d"], [0.2530864197530836, 0.25308641975308915, 0.0], atol=1e-5
-        ):
-            d = True
+        assert kpoints["d_{1}"] == approx([0.2530864197530836, 0.25308641975308915, 0.0]) or kpoints["d"] == approx(
+            [0.2530864197530836, 0.25308641975308915, 0.0]
+        )
 
-        assert d
-
-        q = False
-        if np.allclose(kpoints["q_{1}"], [0.2530864197530836, 0.25308641975308915, 0.5], atol=1e-5) or np.allclose(
-            kpoints["q"], [0.2530864197530836, 0.25308641975308915, 0.5], atol=1e-5
-        ):
-            q = True
-
-        assert q
+        assert kpoints["q_{1}"] == approx([0.2530864197530836, 0.25308641975308915, 0.5]) or kpoints["q"] == approx(
+            [0.2530864197530836, 0.25308641975308915, 0.5]
+        )
 
     def test_magnetic_kpath_generation(self):
         struct_file_path = os.path.join(test_dir_structs, "LaMnO3_magnetic.mcif")
@@ -136,21 +128,4 @@ class KPathLatimerMunroTest(PymatgenTest):
 
         assert kpoints["Γ"] == approx([0, 0, 0])
 
-        d = False
-        if np.allclose(kpoints["d_{1}"], [-0.5, -0.5, 0.0], atol=1e-5) or np.allclose(
-            kpoints["d"], [-0.5, -0.5, 0.0], atol=1e-5
-        ):
-            d = True
-
-        assert d
-
-        g = False
-        if np.allclose(kpoints["g_{1}"], [-0.5, -0.5, 0.5], atol=1e-5) or np.allclose(
-            kpoints["g"], [-0.5, -0.5, 0.5], atol=1e-5
-        ):
-            g = True
-
-        assert g
-
         assert kpoints["d_{1}"] == approx([-0.5, -0.5, 0.0]) or kpoints["d"] == approx([-0.5, -0.5, 0.0])
-        assert kpoints["g_{1}"] == approx([-0.5, -0.5, 0.5]) or kpoints["g"] == approx([-0.5, -0.5, 0.5])
