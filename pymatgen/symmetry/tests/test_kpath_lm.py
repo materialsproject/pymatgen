@@ -79,9 +79,13 @@ class KPathLatimerMunroTest(PymatgenTest):
 
         assert kpoints["e"] == approx([0.0, 0.49999999999999956, 0.5000000000000002])
 
-        assert kpoints["d_{1}"] == approx([0.2530864197530836, 0.25308641975308915, 0.0]) or kpoints["d"] == approx([0.2530864197530836, 0.25308641975308915, 0.0])
-        
-        assert kpoints["q_{1}"] == approx([0.2530864197530836, 0.25308641975308915, 0.5]) or kpoints["q"] == approx([0.2530864197530836, 0.25308641975308915, 0.5])
+        assert kpoints["d_{1}"] == approx([0.2530864197530836, 0.25308641975308915, 0.0]) or kpoints["d"] == approx(
+            [0.2530864197530836, 0.25308641975308915, 0.0]
+        )
+
+        assert kpoints["q_{1}"] == approx([0.2530864197530836, 0.25308641975308915, 0.5]) or kpoints["q"] == approx(
+            [0.2530864197530836, 0.25308641975308915, 0.5]
+        )
 
     def test_magnetic_kpath_generation(self):
         struct_file_path = os.path.join(test_dir_structs, "LaMnO3_magnetic.mcif")
