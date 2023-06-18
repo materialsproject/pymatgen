@@ -261,6 +261,7 @@ class AseAtomsAdaptor:
                 "numbers",
                 "positions",
                 "magmom",
+                "initial_charges",
                 "initial_magmoms",
                 "final_magmom",
                 "charge",

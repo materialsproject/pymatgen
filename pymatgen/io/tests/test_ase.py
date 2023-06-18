@@ -271,7 +271,8 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms_back = aio.AseAtomsAdaptor.get_atoms(structure)
         structure_back = aio.AseAtomsAdaptor.get_structure(atoms_back)
         assert structure_back == structure
-        assert atoms_back == atoms
+        for k, v in atoms.todict().items():
+            assert str(atoms_back.todict()[k]) == str(v)
 
         # Structure --> Atoms --> Structure --> Atoms
         structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
@@ -285,7 +286,8 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         structure_back = aio.AseAtomsAdaptor.get_structure(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(structure_back)
         assert structure_back == structure
-        assert atoms_back == atoms
+        for k, v in atoms.todict().items():
+            assert str(atoms_back.todict()[k]) == str(v)
 
         # Atoms --> Molecule --> Atoms --> Molecule
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
@@ -297,7 +299,8 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(molecule)
         molecule_back = aio.AseAtomsAdaptor.get_molecule(atoms_back)
-        assert atoms_back == atoms
+        for k, v in atoms.todict().items():
+            assert str(atoms_back.todict()[k]) == str(v)
         assert molecule_back == molecule
 
         # Molecule --> Atoms --> Molecule --> Atoms
@@ -307,5 +310,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         molecule_back = aio.AseAtomsAdaptor.get_molecule(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(molecule_back)
-        assert atoms_back == atoms
+        for k, v in atoms.todict().items():
+            assert str(atoms_back.todict()[k]) == str(v)
         assert molecule_back == molecule
