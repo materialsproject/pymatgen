@@ -294,20 +294,16 @@ class AseAtomsAdaptor:
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
 
         # Set the global charge and spin multiplicity
-        charge = (
-            atoms.charge
-            if atoms.has("charge")
-            else round(np.sum(atoms.get_initial_charges()))
-            if atoms.has("initial_charges")
-            else 0
-        )
-        spin_mult = (
-            atoms.spin_multiplicity
-            if atoms.has("spin_multiplicity")
-            else round(np.sum(atoms.get_initial_magnetic_moments())) + 1
-            if atoms.has("initial_magmoms")
-            else 1
-        )
+        try:
+            charge = atoms.charge
+        except AttributeError:
+            charge = round(np.sum(atoms.get_initial_charges())) if atoms.has("initial_charges") else 0
+
+        try:
+            spin_mult = atoms.spin_multiplicity
+        except AttributeError:
+            spin_mult = round(np.sum(atoms.get_initial_magnetic_moments())) + 1 if atoms.has("initial_magmoms") else 1
+
         molecule.set_charge_and_spin(charge, spin_multiplicity=spin_mult)
 
         return molecule
