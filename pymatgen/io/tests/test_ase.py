@@ -260,6 +260,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         from ase.io import read
 
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR"))
+        atoms.info = {"test": "hi"}
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
         atoms.set_initial_charges([1.0] * len(atoms))
         atoms.set_initial_magnetic_moments([2.0] * len(atoms))
@@ -267,15 +268,17 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(structure)
         structure_back = aio.AseAtomsAdaptor.get_structure(atoms)
-        assert structure == structure_back
+        assert structure_back == structure
+        assert atoms_back == atoms
 
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        atoms.info = {"test": "hi"}
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
         atoms.set_initial_charges([1.0] * len(atoms))
         atoms.set_initial_magnetic_moments([2.0] * len(atoms))
         atoms.set_array("prop", np.array([3.0] * len(atoms)))
         molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(molecule)
-        assert atoms == atoms_back
         molecule_back = aio.AseAtomsAdaptor.get_molecule(atoms)
-        assert molecule == molecule_back
+        assert atoms_back == atoms
+        assert molecule_back == molecule
