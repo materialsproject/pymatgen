@@ -80,7 +80,7 @@ class AseAtomsAdaptor:
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between these two when constructing the Structure/Molecule.
         # Additionally, ASE does not have a global .charge or .spin_multiplicity property,
-        # whereas pymatgen does. Therefore, we have to patch these in to ensure they do not
+        # whereas Molecule does. Therefore, we have to patch these in to ensure they do not
         # get lost during interconversion.
         #
         # The mapping selected here is as follows:
@@ -225,7 +225,7 @@ class AseAtomsAdaptor:
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between these two when constructing the Structure/Molecule.
         # Additionally, ASE does not have a global .charge or .spin_multiplicity property,
-        # whereas pymatgen does. Therefore, we have to patch these in to ensure they do not
+        # whereas Molecule does. Therefore, we have to patch these in to ensure they do not
         # get lost during interconversion.
         #
         # The mapping selected here is:
