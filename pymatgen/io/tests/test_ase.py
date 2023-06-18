@@ -13,11 +13,8 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
 
-skip_if_no_ase = unittest.skipIf(not aio.ase_loaded, "ASE not loaded.")
-
 
 class AseAtomsAdaptorTest(unittest.TestCase):
-    @skip_if_no_ase
     def test_get_atoms_from_structure(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structure = p.structure
@@ -39,7 +36,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert atoms.get_array("prop").tolist() == prop
 
-    @skip_if_no_ase
     def test_get_atoms_from_structure_mags(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structure = p.structure
@@ -67,7 +63,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.get_initial_magnetic_moments().tolist(), initial_mags
         assert atoms.get_magnetic_moments().tolist(), mags
 
-    @skip_if_no_ase
     def test_get_atoms_from_structure_charge(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structure = p.structure
@@ -95,7 +90,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.get_initial_charges().tolist(), initial_charges
         assert atoms.get_charges().tolist(), charges
 
-    @skip_if_no_ase
     def test_get_atoms_from_structure_oxistates(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structure = p.structure
@@ -104,7 +98,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert atoms.get_array("oxi_states").tolist() == oxi_states
 
-    # @skip_if_no_ase
     def test_get_atoms_from_structure_dyn(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structure = p.structure
@@ -112,7 +105,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
 
-    @skip_if_no_ase
     def test_get_atoms_from_molecule(self):
         m = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
         atoms = aio.AseAtomsAdaptor.get_atoms(m)
@@ -124,7 +116,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert not atoms.has("initial_magmoms")
         assert atoms.calc is None
 
-    @skip_if_no_ase
     def test_get_atoms_from_molecule_mags(self):
         molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
@@ -150,14 +141,12 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.charge == -2
         assert atoms.spin_multiplicity == 3
 
-    @skip_if_no_ase
     def test_get_atoms_from_molecule_dyn(self):
         molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
         molecule.add_site_property("selective_dynamics", [[False] * 3] * len(molecule))
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
 
-    @skip_if_no_ase
     def test_get_structure(self):
         from ase.io import read
 
@@ -178,7 +167,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         with pytest.raises(StructureError):
             struct = aio.AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
 
-    @skip_if_no_ase
     def test_get_structure_mag(self):
         from ase.io import read
 
@@ -196,7 +184,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert "magmom" not in structure.site_properties
         assert "initial_magmoms" not in structure.site_properties
 
-    @skip_if_no_ase
     def test_get_structure_dyn(self):
         from ase.constraints import FixAtoms
         from ase.io import read
@@ -226,7 +213,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
 
             assert len(ase_atoms) == len(structure)
 
-    @skip_if_no_ase
     def test_get_molecule(self):
         from ase.io import read
 
@@ -255,7 +241,6 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert molecule.charge == 2
         assert molecule.spin_multiplicity == 3
 
-    @skip_if_no_ase
     def test_back_forth(self):
         from ase.constraints import FixAtoms
         from ase.io import read
