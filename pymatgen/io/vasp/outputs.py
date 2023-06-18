@@ -1831,8 +1831,7 @@ class Outcar:
         mag_z = []
         header = []
         run_stats = {}
-        total_mag = nelect = efermi = e_fr_energy = None
-        e_wo_entrp = e0 = None
+        total_mag = nelect = efermi = e_fr_energy = e_wo_entrp = e0 = None
 
         time_patt = re.compile(r"\((sec|kb)\)")
         efermi_patt = re.compile(r"E-fermi\s*:\s*(\S+)")

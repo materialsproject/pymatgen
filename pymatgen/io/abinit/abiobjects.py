@@ -1487,8 +1487,7 @@ class SelfEnergy(AbivarAble):
         # band_mode in ["gap", "full"]
 
         # if isinstance(kptgw, str) and kptgw == "all":
-        #    self.kptgw = None
-        #    self.nkptgw = None
+        #    self.kptgw = self.nkptgw = None
         # else:
         #    self.kptgw = np.reshape(kptgw, (-1,3))
         #    self.nkptgw =  len(self.kptgw)
@@ -1534,11 +1533,11 @@ class SelfEnergy(AbivarAble):
             "gw_qprange": self.gw_qprange,
             "gwpara": self.gwpara,
             "optdriver": self.optdriver,
-            "nband": self.nband
-            # "ecutwfn"  : self.ecutwfn,
-            # "kptgw"    : self.kptgw,
-            # "nkptgw"   : self.nkptgw,
-            # "bdgw"     : self.bdgw,
+            "nband": self.nband,
+            # "ecutwfn": self.ecutwfn,
+            # "kptgw": self.kptgw,
+            # "nkptgw": self.nkptgw,
+            # "bdgw": self.bdgw,
         }
 
         # TODO: problem with the spin

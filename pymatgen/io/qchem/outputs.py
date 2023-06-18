@@ -1481,7 +1481,6 @@ class QCOutput(MSONable):
             "total_enthalpy",
             "total_entropy",
         ]
-
         for key in keys:
             if temp_dict.get(key) is None:
                 self.data[key] = None
@@ -1489,10 +1488,9 @@ class QCOutput(MSONable):
                 self.data[key] = float(temp_dict.get(key)[0][0])
 
         if temp_dict.get("frequencies") is None:
-            self.data["frequencies"] = self.data["IR_intens"] = self.data["IR_active"] = self.data[
-                "raman_intens"
-            ] = None
-            self.data["raman_active"] = self.data["depolar"] = self.data["trans_dip"] = None
+            self.data["frequencies"] = self.data["IR_intens"] = self.data["IR_active"] = None
+            self.data["raman_active"] = self.data["raman_intens"] = None
+            self.data["depolar"] = self.data["trans_dip"] = None
         else:
             temp_freqs = [value for entry in temp_dict.get("frequencies") for value in entry]
             temp_IR_intens = [value for entry in temp_dict.get("IR_intens") for value in entry]
