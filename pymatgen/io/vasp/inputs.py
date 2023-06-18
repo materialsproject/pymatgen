@@ -446,9 +446,7 @@ class Poscar(MSONable):
                     d3 = [float(tok) for tok in lines[st + 2 * n_sites].split()]
                     predictor_corrector.append([d1, d2, d3])
         else:
-            velocities = None
-            predictor_corrector = None
-            predictor_corrector_preamble = None
+            velocities = predictor_corrector = predictor_corrector_preamble = None
 
         return Poscar(
             struct,

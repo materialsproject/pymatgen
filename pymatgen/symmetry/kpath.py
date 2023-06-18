@@ -1869,9 +1869,7 @@ class KPathLatimerMunro(KPathBase):
         ginv = np.linalg.inv(g)
         D = np.linalg.det(W)
 
-        primary_orientation = None
-        secondary_orientation = None
-        tertiary_orientation = None
+        primary_orientation = secondary_orientation = tertiary_orientation = None
 
         planar_boundaries = []
         IRBZ_points = list(enumerate(key_points))

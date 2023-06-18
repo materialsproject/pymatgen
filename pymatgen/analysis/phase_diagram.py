@@ -1259,8 +1259,7 @@ class PhaseDiagram(MSONable):
         coeff = [-target_comp[e] for e in self.elements if e != open_elt]
         max_open = -float("inf")
         min_open = float("inf")
-        max_mus = None
-        min_mus = None
+        max_mus = min_mus = None
 
         for e, chempots in chempot_ranges.items():
             if e.composition.reduced_composition == target_comp.reduced_composition:
@@ -2835,8 +2834,7 @@ class PDPlotter:
             go.Scatter (or go.Scatter3d) plot
         """
         x, y, z, text, textpositions = [], [], [], [], []
-        stable_labels_plot = None
-        min_energy_x = None
+        stable_labels_plot = min_energy_x = None
         offset_2d = 0.008  # extra distance to offset label position for clarity
         offset_3d = 0.01
 

@@ -117,9 +117,7 @@ class EwaldSummation(MSONable):
         # Define the private attributes to lazy compute reciprocal and real
         # space terms.
         self._initialized = False
-        self._recip = None
-        self._real, self._point = None, None
-        self._forces = None
+        self._recip = self._real = self._point = self._forces = None
 
         # Compute the correction for a charged cell
         self._charged_cell_energy = (

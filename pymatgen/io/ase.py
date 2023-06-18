@@ -70,7 +70,7 @@ class AseAtomsAdaptor:
             pbc = True
             cell = structure.lattice.matrix
         else:  # Molecule without lattice
-            pbc = None
+            pbc = False
             cell = None
 
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
@@ -188,8 +188,7 @@ class AseAtomsAdaptor:
             magmoms = atoms.calc.results.get("magmoms")
             charges = atoms.calc.results.get("charges")
         else:
-            magmoms = None
-            charges = None
+            magmoms = charges = None
 
         # Get the initial magmoms and charges from the ASE Atoms object.
         initial_magmoms = atoms.get_initial_magnetic_moments() if atoms.has("initial_magmoms") else None

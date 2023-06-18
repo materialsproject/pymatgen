@@ -220,8 +220,7 @@ class Cohpcar:
             orb_label, orbitals = get_orb_from_str(orbs)
 
         else:
-            orbitals = None
-            orb_label = None
+            orbitals = orb_label = None
 
         bond_data = {
             "length": length,

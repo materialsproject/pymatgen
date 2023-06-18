@@ -124,9 +124,7 @@ class ChargemolAnalysis:
             self.structure = self.chgcar.structure
             self.natoms = self.chgcar.poscar.natoms
         else:
-            self.chgcar = None
-            self.structure = None
-            self.natoms = None
+            self.chgcar = self.structure = self.natoms = None
             warnings.warn("No CHGCAR found. Some properties may be unavailable.", UserWarning)
         if self._potcarpath:
             self.potcar = Potcar.from_file(self._potcarpath)
@@ -229,8 +227,7 @@ class ChargemolAnalysis:
             self.bond_order_sums = self._get_data_from_xyz(bond_order_path)
             self.bond_order_dict = self._get_bond_order_info(bond_order_path)
         else:
-            self.bond_order_sums = None
-            self.bond_order_dict = None
+            self.bond_order_sums = self.bond_order_dict = None
 
         spin_moment_path = os.path.join(chargemol_output_path, "DDEC6_even_tempered_atomic_spin_moments.xyz")
         if os.path.exists(spin_moment_path):

@@ -450,8 +450,7 @@ class LocalGeometryFinder:
         self.initial_structure = structure.copy()
         if self.structure_refinement == self.STRUCTURE_REFINEMENT_NONE:
             self.structure = structure.copy()
-            self.spg_analyzer = None
-            self.symmetrized_structure = None
+            self.spg_analyzer = self.symmetrized_structure = None
         else:
             self.spg_analyzer = SpacegroupAnalyzer(
                 self.initial_structure,

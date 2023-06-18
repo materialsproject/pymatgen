@@ -405,10 +405,7 @@ class Vasprun(MSONable):
             warnings.warn(msg, UnconvergedVASPWarning)
 
     def _parse(self, stream, parse_dos, parse_eigen, parse_projected_eigen):
-        self.efermi = None
-        self.eigenvalues = None
-        self.projected_eigenvalues = None
-        self.projected_magnetisation = None
+        self.efermi = self.eigenvalues = self.projected_eigenvalues = self.projected_magnetisation = None
         self.dielectric_data = {}
         self.other_dielectric = {}
         self.incar = {}
@@ -1561,8 +1558,7 @@ class BSVasprun(Vasprun):
         with zopen(filename, "rt") as f:
             self.efermi = None
             parsed_header = False
-            self.eigenvalues = None
-            self.projected_eigenvalues = None
+            self.eigenvalues = self.projected_eigenvalues = None
             for _, elem in ET.iterparse(f):
                 tag = elem.tag
                 if not parsed_header:
@@ -1835,12 +1831,8 @@ class Outcar:
         mag_z = []
         header = []
         run_stats = {}
-        total_mag = None
-        nelect = None
-        efermi = None
-        e_fr_energy = None
-        e_wo_entrp = None
-        e0 = None
+        total_mag = nelect = efermi = e_fr_energy = None
+        e_wo_entrp = e0 = None
 
         time_patt = re.compile(r"\((sec|kb)\)")
         efermi_patt = re.compile(r"E-fermi\s*:\s*(\S+)")
@@ -2069,9 +2061,7 @@ class Outcar:
             self.read_pseudo_zval()
 
         # Read electrostatic potential
-        self.electrostatic_potential = None
-        self.ngf = None
-        self.sampling_radii = None
+        self.electrostatic_potential = self.ngf = self.sampling_radii = None
         self.read_pattern({"electrostatic": r"average \(electrostatic\) potential at core"})
         if self.data.get("electrostatic", []):
             self.read_electrostatic_potential()
@@ -2634,8 +2624,7 @@ class Outcar:
         self.er_bp = {}  # will  be  dics (Spin.up/down) of array(3*float)
         self.er_ev_tot = None  # will be array(3*float)
         self.er_bp_tot = None  # will be array(3*float)
-        self.p_elec = None
-        self.p_ion = None
+        self.p_elec = self.p_ion = None
         try:
             search = []
 
@@ -2762,8 +2751,7 @@ class Outcar:
                 self.er_bp_tot = self.er_bp[Spin.up] + self.er_bp[Spin.down]
 
         except Exception:
-            self.er_ev_tot = None
-            self.er_bp_tot = None
+            self.er_ev_tot = self.er_bp_tot = None
             raise Exception("IGPAR OUTCAR could not be parsed.")
 
     def read_internal_strain_tensor(self):
@@ -3090,10 +3078,7 @@ class Outcar:
 
         # TODO: Document the actual variables.
         """
-        self.p_elec = None
-        self.p_sp1 = None
-        self.p_sp2 = None
-        self.p_ion = None
+        self.p_elec = self.p_sp1 = self.p_sp2 = self.p_ion = None
         try:
             search = []
 
@@ -3477,8 +3462,7 @@ class VolumetricData(BaseVolumetricData):
         # for holding any strings in input that are not Poscar
         # or VolumetricData (typically augmentation charges)
         all_dataset_aug = {}
-        dim = None
-        dimline = None
+        dim = dimline = None
         read_dataset = False
         ngrid_pts = 0
         data_count = 0

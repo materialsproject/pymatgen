@@ -105,10 +105,7 @@ class Trajectory(MSONable):
                 `coords_are_displacement=True`. Defaults to the first index of
                 `coords` when `coords_are_displacement=False`.
         """
-        self.charge = None
-        self.spin_multiplicity = None
-        self.lattice = None
-        self.constant_lattice = None
+        self.charge = self.spin_multiplicity = self.lattice = self.constant_lattice = None
 
         # First, sanity check that the necessary inputs have been provided
         if lattice is None:

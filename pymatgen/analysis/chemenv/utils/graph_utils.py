@@ -338,8 +338,7 @@ class MultiGraphCycle(MSONable):
             self.ordered = ordered
         else:
             self.order()
-        self.edge_deltas = None
-        self.per = None
+        self.edge_deltas = self.per = None
 
     def _is_valid(self, check_strict_ordering=False):
         """Check if a MultiGraphCycle is valid.

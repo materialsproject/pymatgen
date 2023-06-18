@@ -62,15 +62,8 @@ class Cp2kOutput:
         self.data = {}
 
         # Material properties/results
-        self.input = None
-        self.initial_structure = None
-        self.lattice = None
-        self.final_structure = None
-        self.composition = None
-        self.efermi = None
-        self.vbm = None
-        self.cbm = None
-        self.band_gap = None
+        self.input = self.initial_structure = self.lattice = self.final_structure = self.composition = None
+        self.efermi = self.vbm = self.cbm = self.band_gap = None
         self.structures = []
         self.ionic_steps = []
 

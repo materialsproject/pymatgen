@@ -115,8 +115,7 @@ class QCOutput(MSONable):
                 self.data["walltime"] = float(temp_timings[0][0])
                 self.data["cputime"] = float(temp_timings[0][1])
             else:
-                self.data["walltime"] = None
-                self.data["cputime"] = None
+                self.data["walltime"] = self.data["cputime"] = None
 
         # Check if calculation is unrestricted
         self.data["unrestricted"] = read_pattern(
@@ -226,8 +225,7 @@ class QCOutput(MSONable):
             self.data["gap_info"] = None
 
         # Check to see if PCM or SMD are present
-        self.data["solvent_method"] = None
-        self.data["solvent_data"] = None
+        self.data["solvent_method"] = self.data["solvent_data"] = None
 
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*pcm"}, terminate_on_match=True).get("key") == [[]]:
             self.data["solvent_method"] = "PCM"
@@ -811,10 +809,9 @@ class QCOutput(MSONable):
         footer_pattern = r"\s*-+"
         temp_geom = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         if temp_geom is None or len(temp_geom) == 0:
-            self.data["species"] = None
-            self.data["initial_geometry"] = None
-            self.data["initial_molecule"] = None
-            self.data["point_group"] = None
+            self.data["species"] = self.data["initial_geometry"] = self.data["initial_molecule"] = self.data[
+                "point_group"
+            ] = None
         else:
             temp_point_group = read_pattern(
                 self.text,
@@ -1492,13 +1489,10 @@ class QCOutput(MSONable):
                 self.data[key] = float(temp_dict.get(key)[0][0])
 
         if temp_dict.get("frequencies") is None:
-            self.data["frequencies"] = None
-            self.data["IR_intens"] = None
-            self.data["IR_active"] = None
-            self.data["raman_intens"] = None
-            self.data["raman_active"] = None
-            self.data["depolar"] = None
-            self.data["trans_dip"] = None
+            self.data["frequencies"] = self.data["IR_intens"] = self.data["IR_active"] = self.data[
+                "raman_intens"
+            ] = None
+            self.data["raman_active"] = self.data["depolar"] = self.data["trans_dip"] = None
         else:
             temp_freqs = [value for entry in temp_dict.get("frequencies") for value in entry]
             temp_IR_intens = [value for entry in temp_dict.get("IR_intens") for value in entry]
@@ -1528,9 +1522,7 @@ class QCOutput(MSONable):
                             depolar[ii] = float(entry)
                 self.data["depolar"] = depolar
             else:
-                self.data["raman_intens"] = None
-                self.data["raman_active"] = None
-                self.data["depolar"] = None
+                self.data["raman_intens"] = self.data["raman_active"] = self.data["depolar"] = None
 
             trans_dip = np.zeros(shape=(int((len(temp_trans_dip) - temp_trans_dip.count("None")) / 3), 3))
             for ii, entry in enumerate(temp_trans_dip):
@@ -1898,9 +1890,9 @@ class QCOutput(MSONable):
 
         becke_table = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         if becke_table is None or len(becke_table) == 0:
-            self.data["cdft_becke_excess_electrons"] = None
-            self.data["cdft_becke_population"] = None
-            self.data["cdft_becke_net_spin"] = None
+            self.data["cdft_becke_excess_electrons"] = self.data["cdft_becke_population"] = self.data[
+                "cdft_becke_net_spin"
+            ] = None
         else:
             self.data["cdft_becke_excess_electrons"] = []
             self.data["cdft_becke_population"] = []

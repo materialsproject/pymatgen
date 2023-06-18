@@ -60,8 +60,7 @@ class ConversionElectrode(AbstractElectrode):
             allow_unstable: Allow compositions that are unstable
         """
         working_ion = Element(working_ion_symbol)
-        entry = None
-        working_ion_entry = None
+        entry = working_ion_entry = None
         for e in pd.stable_entries:
             if e.composition.reduced_formula == comp.reduced_formula:
                 entry = e
