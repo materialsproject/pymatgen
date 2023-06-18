@@ -272,10 +272,10 @@ class AseAtomsAdaptor:
 
         # Add any .info/calc.results flags to the Pymatgen structure object so we don't lose them
         # during interconversion.
-        if getattr(atoms, "info", None) is not None:
-            structure.info = atoms.info
-        if getattr(atoms, "calc", None) is not None:
-            structure.calc = atoms.calc
+        if info := getattr(atoms, "info", None):
+            structure.info = info
+        if calc := getattr(atoms, "calc", None):
+            structure.calc = calc
 
         return structure
 
