@@ -144,6 +144,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
 
         molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
         molecule.set_charge_and_spin(-2, spin_multiplicity=3)
+        atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         assert atoms.calc is None
         assert atoms.get_initial_magnetic_moments().tolist() == [0] * len(molecule)
         assert atoms.charge == -2

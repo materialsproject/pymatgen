@@ -162,7 +162,7 @@ class AseAtomsAdaptor:
         if getattr(structure, "info", None) is not None:
             atoms.info = structure.info
         if getattr(structure, "calc", None) is not None:
-            atoms.calc.results = structure.calc
+            atoms.calc = structure.calc
 
         return atoms
 
