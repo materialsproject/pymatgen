@@ -44,7 +44,7 @@ class CovalentBondTest(unittest.TestCase):
         site2 = Site("H", [0, 0, 1.5])
         assert not CovalentBond.is_bonded(site1, site2)
         site1 = Site("U", [0, 0, 0])
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="No bond data for elements H - U"):
             CovalentBond.is_bonded(site1, site2)
         assert CovalentBond.is_bonded(site1, site2, default_bl=2)
 
@@ -64,7 +64,7 @@ class FuncTest(unittest.TestCase):
 
     def test_obtain_all_bond_lengths(self):
         assert obtain_all_bond_lengths("C", "C") == {1.0: 1.54, 2.0: 1.34, 3.0: 1.2}
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="No bond data for elements Br - C"):
             obtain_all_bond_lengths("Br", Element("C"))
         assert obtain_all_bond_lengths("C", Element("Br"), 1.76) == {1: 1.76}
         bond_lengths_dict = obtain_all_bond_lengths("C", "N")
@@ -84,6 +84,6 @@ class FuncTest(unittest.TestCase):
         assert approx(get_bond_order("C", "Br", 2, default_bl=1.9) - 0.7368421052631575) == 0
         assert approx(get_bond_order("C", "Br", 1.9, tol=0.5, default_bl=1.9) - 1) == 0
         assert approx(get_bond_order("C", "Br", 2, tol=0.5, default_bl=1.9) - 0.894736842105263) == 0
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="No bond data for elements Br - C"):
             get_bond_order("C", "Br", 1.9)
         assert approx(get_bond_order("N", "N", 1.25) - 2) == 0

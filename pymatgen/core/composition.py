@@ -135,12 +135,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if strict and not self.valid:
             raise ValueError(f"Composition is not valid, contains: {', '.join(map(str, self.elements))}")
 
-    def __getitem__(self, item: SpeciesLike) -> float:
+    def __getitem__(self, key: SpeciesLike) -> float:
         try:
-            sp = get_el_sp(item)
+            sp = get_el_sp(key)
             return self._data.get(sp, 0)
-        except ValueError as ex:
-            raise TypeError(f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}")
+        except ValueError as exc:
+            raise KeyError(f"Invalid {key=}") from exc
 
     def __len__(self) -> int:
         return len(self._data)

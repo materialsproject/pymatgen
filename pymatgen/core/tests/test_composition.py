@@ -57,9 +57,9 @@ class CompositionTest(PymatgenTest):
         assert Element("Fe") in self.comp[0]
         assert self.comp[0]["Fe"] == 2
         assert self.comp[0]["Mn"] == 0
-        with pytest.raises(TypeError):
+        with pytest.raises(KeyError, match="Invalid key='Hello'"):
             self.comp[0]["Hello"]
-        with pytest.raises(TypeError):
+        with pytest.raises(KeyError, match="Invalid key='Vac'"):
             self.comp[0]["Vac"]
 
     def test_hill_formula(self):
