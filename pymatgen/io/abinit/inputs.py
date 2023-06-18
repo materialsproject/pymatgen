@@ -1112,7 +1112,7 @@ class BasicMultiDataset:
 
         # Build the list of BasicAbinitInput objects.
         if ndtset <= 0:
-            raise ValueError(f"ndtset {ndtset} cannot be <=0")
+            raise ValueError(f"{ndtset=} cannot be <=0")
 
         if not isinstance(structure, (list, tuple)):
             self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]

@@ -49,7 +49,7 @@ class LarsenDimensionalityTest(PymatgenTest):
         mol_structure = Structure(
             [[-2.316, 2.316, 2.160], [2.316, -2.316, 2.160], [2.316, 2.316, -2.160]],
             ["H", "C", "N"],
-            [[0.752, 0.752, 0.000], [0.004, 0.004, 0.0], [0.272, 0.272, 0.0]],
+            [[0.752, 0.752, 0], [0.004, 0.004, 0.0], [0.272, 0.272, 0.0]],
         )
         self.mol_structure = cnn.get_bonded_structure(mol_structure)
         warnings.simplefilter("ignore")

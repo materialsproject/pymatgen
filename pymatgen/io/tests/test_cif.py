@@ -522,7 +522,7 @@ loop_
         assert m.fit(cif.get_structures()[0], poscar.structure)
 
         # for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
-        #     self.assertEqual(l1.strip(), l2.strip())
+        #     assert l1.strip() == l2.strip()
 
         s = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
         writer = CifWriter(s, symprec=0.1)

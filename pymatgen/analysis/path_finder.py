@@ -255,7 +255,7 @@ class NEBPathfinder:
             s[0] = s0[0]
             s[-1] = s0[-1]
 
-            # Reparametrize string
+            # Re-parametrize string
             ds = s - np.roll(s, 1, axis=0)
             ds[0] = ds[0] - ds[0]
             ls = np.cumsum(la.norm(ds, axis=1))
@@ -269,11 +269,11 @@ class NEBPathfinder:
                 raise ValueError("Pathfinding failed, path diverged! Consider reducing h to avoid divergence.")
 
             if step > min_iter and tol < max_tol:
-                logger.debug(f"Converged at step {step}")
+                logger.debug(f"Converged at {step=}")
                 break
 
             if step % 100 == 0:
-                logger.debug(f"Step {step} - ds = {tol}")
+                logger.debug(f"{step=} - ds = {tol}")
         return s
 
     @staticmethod
@@ -283,13 +283,7 @@ class NEBPathfinder:
         the grid size of v
         """
         # frac_coords = frac_coords % 1
-        return np.array(
-            [
-                int(frac_coords[0] * v.shape[0]),
-                int(frac_coords[1] * v.shape[1]),
-                int(frac_coords[2] * v.shape[2]),
-            ]
-        )
+        return (np.array(frac_coords) * np.array(v.shape)).astype(int)
 
     @staticmethod
     def __d2f(disc_coords, v):

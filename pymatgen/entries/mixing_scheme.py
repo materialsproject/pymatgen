@@ -292,7 +292,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         if run_type not in self.valid_rtypes_1 + self.valid_rtypes_2:
             raise CompatibilityError(
-                f"WARNING! Invalid run_type {run_type} for entry {entry.entry_id}. Must be one of "
+                f"WARNING! Invalid {run_type=} for entry {entry.entry_id}. Must be one of "
                 f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
             )
 
@@ -583,24 +583,27 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         filtered_entries = []
 
         for entry in entries:
+            entry_id = entry.entry_id
             if not entry.parameters.get("run_type"):
                 warnings.warn(
-                    f"Entry {entry.entry_id} is missing parameters.run_type! This field"
+                    f"Entry {entry_id} is missing parameters.run_type! This field"
                     "is required. This entry will be ignored."
                 )
                 continue
 
-            if entry.parameters.get("run_type") not in self.valid_rtypes_1 + self.valid_rtypes_2:
+            run_type = entry.parameters.get("run_type")
+            if run_type not in [*self.valid_rtypes_1, *self.valid_rtypes_2]:
                 warnings.warn(
-                    f"Invalid run_type {entry.parameters.get('run_type')} for entry {entry.entry_id}. Must be one of "
+                    f"Invalid {run_type=} for entry {entry_id}. Must be one of "
                     f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
                 )
                 continue
 
-            if entry.entry_id is None:
+            formula = entry.composition.reduced_formula
+            if entry_id is None:
                 warnings.warn(
-                    f"Entry_id for {entry.composition.reduced_formula} entry {entry.entry_id} is invalid. "
-                    "Unique entry_ids are required for every ComputedStructureEntry. This entry will be ignored."
+                    f"{entry_id=} for {formula=}. Unique entry_ids are required for every ComputedStructureEntry."
+                    " This entry will be ignored."
                 )
                 continue
 

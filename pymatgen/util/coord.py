@@ -58,10 +58,10 @@ def in_coord_list(coord_list, coord, atol=1e-8):
     return len(find_in_coord_list(coord_list, coord, atol=atol)) > 0
 
 
-def is_coord_subset(subset, superset, atol=1e-8) -> bool:
+def is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8) -> bool:
     """
     Tests if all coords in subset are contained in superset.
-    Doesn't use periodic boundary conditions
+    Doesn't use periodic boundary conditions.
 
     Args:
         subset: List of coords
@@ -95,7 +95,7 @@ def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-
     inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :], atol=atol), axis=2))[1]
     result = c2[inds]
     if not np.allclose(c1, result, atol=atol) and not is_coord_subset(subset, superset):
-        raise ValueError("subset is not a subset of superset")
+        raise ValueError("not a subset of superset")
     if not result.shape == c1.shape:
         raise ValueError("Something wrong with the inputs, likely duplicates in superset")
     return inds
@@ -350,7 +350,7 @@ def get_angle(v1, v2, units="degrees"):
         return math.degrees(angle)
     if units == "radians":
         return angle
-    raise ValueError(f"Invalid units {units}")
+    raise ValueError(f"Invalid {units=}")
 
 
 class Simplex(MSONable):

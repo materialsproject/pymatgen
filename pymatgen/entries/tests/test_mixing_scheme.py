@@ -1021,13 +1021,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 Structure(
                     lattice,
                     ["Sn", "Br", "Br", "Br", "Br"],
-                    [
-                        [0, 0, 0],
-                        [0.2, 0.2, 0.2],
-                        [0.4, 0.4, 0.4],
-                        [0.7, 0.7, 0.7],
-                        [1, 1, 1],
-                    ],
+                    [[0, 0, 0], [0.2, 0.2, 0.2], [0.4, 0.4, 0.4], [0.7, 0.7, 0.7], [1, 1, 1]],
                 ),
                 0,
                 parameters={"run_type": "GGA"},
@@ -1035,17 +1029,14 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
             ),
         ]
 
-        with pytest.warns(UserWarning, match="Invalid run_type LDA"):
+        with pytest.warns(UserWarning, match="Invalid run_type='LDA'"):
             assert len(mixing_scheme_no_compat.process_entries(entries)) == 4
 
         state_data = mixing_scheme_no_compat.get_mixing_state_data(entries)
-        with pytest.raises(CompatibilityError, match="Invalid run_type LDA"):
-            assert (
-                mixing_scheme_no_compat.get_adjustments(
-                    [e for e in entries if e.parameters["run_type"] == "LDA"][0],
-                    state_data,
-                )
-                == []
+        with pytest.raises(CompatibilityError, match="Invalid run_type='LDA'"):
+            mixing_scheme_no_compat.get_adjustments(
+                [e for e in entries if e.parameters["run_type"] == "LDA"][0],
+                state_data,
             )
 
     def test_no_single_entry(self, mixing_scheme_no_compat):

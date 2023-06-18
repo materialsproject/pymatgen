@@ -9,6 +9,7 @@ import random
 import unittest
 
 import pytest
+from pytest import approx
 
 from pymatgen.core.composition import ChemicalPotential, Composition
 from pymatgen.core.periodic_table import Element, Species
@@ -40,15 +41,15 @@ class CompositionTest(PymatgenTest):
         ]
 
     def test_immutable(self):
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(TypeError) as exc:
             self.comp[0]["Fe"] = 1
 
-        assert "'Composition' object does not support item assignment" in str(exc_info.value)
+        assert "'Composition' object does not support item assignment" in str(exc.value)
 
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(TypeError) as exc:
             del self.comp[0]["Fe"]
 
-        assert "'Composition' object does not support item deletion" in str(exc_info.value)
+        assert "'Composition' object does not support item deletion" in str(exc.value)
 
     def test_in(self):
         assert "Fe" in self.comp[0]
@@ -312,7 +313,7 @@ class CompositionTest(PymatgenTest):
             c2 = Composition.from_weight_dict(weight_dict).fractional_composition
             assert set(c1.elements) == set(c2.elements)
             for el in c1.elements:
-                assert c1[el] == pytest.approx(c2[el], abs=1e-3)
+                assert c1[el] == approx(c2[el], abs=1e-3)
 
     def test_tofrom_weight_dict(self):
         for c in self.comp:

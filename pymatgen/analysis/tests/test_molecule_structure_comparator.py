@@ -10,7 +10,7 @@ from pymatgen.util.testing import PymatgenTest
 __author__ = "xiaohuiqu"
 
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change")
+test_dir = f"{PymatgenTest.TEST_FILES_DIR}/molecules/structural_change"
 
 
 class TestMoleculeStructureComparator(TestCase):

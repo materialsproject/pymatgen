@@ -24,7 +24,6 @@ from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Literal, Sequence, SupportsIndex, cast
 
 import numpy as np
-from ase.optimize.optimize import Optimizer
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -45,6 +44,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 if TYPE_CHECKING:
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
+    from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike
 
@@ -755,6 +755,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         from ase import optimize
         from ase.constraints import ExpCellFilter
         from ase.io import read
+        from ase.optimize.optimize import Optimizer
 
         from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -787,8 +788,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 from matgl.ext.ase import TrajectoryObserver
 
                 traj_observer = TrajectoryObserver(atoms)
-            elif "trajectory" not in opt_kwargs:
-                opt_kwargs["trajectory"] = "opt.traj"
+            else:
+                opt_kwargs.setdefault("trajectory", "opt.traj")
 
         # Attach calculator
         atoms.calc = calculator
@@ -2934,17 +2935,18 @@ class IMolecule(SiteCollection, MSONable):
         """
         if len(species) != len(coords):
             raise StructureError(
-                "The list of atomic species must be of the same length as the list of fractional coordinates."
+                f"len(species) != len(coords) ({len(species)} != {len(coords)}). List of atomic species must "
+                "have same length as list of fractional coordinates."
             )
 
         self._charge_spin_check = charge_spin_check
 
-        sites = []
-        for i, _ in enumerate(species):
+        sites: list[Site] = []
+        for idx in range(len(species)):
             prop = None
             if site_properties:
-                prop = {k: v[i] for k, v in site_properties.items()}
-            sites.append(Site(species[i], coords[i], properties=prop))  # type: ignore
+                prop = {k: v[idx] for k, v in site_properties.items()}
+            sites.append(Site(species[idx], coords[idx], properties=prop))
 
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
@@ -4274,7 +4276,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 )
         except KeyError as ex:
             raise ValueError(f"Required parameter {ex} not specified as a kwargs!")
-        raise ValueError(f"Unsupported prototype {prototype}!")
+        raise ValueError(f"Unsupported {prototype=}!")
 
 
 class Molecule(IMolecule, collections.abc.MutableSequence):

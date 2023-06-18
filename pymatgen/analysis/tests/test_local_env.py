@@ -1079,68 +1079,38 @@ class LocalStructOrderParamsTest(PymatgenTest):
         # Cubic structure.
         op_vals = ops_099.get_order_parameters(self.cubic, 0)
         assert op_vals[0] == approx(0.0)
-        assert op_vals[3] is None
-        assert op_vals[4] is None
-        assert op_vals[5] is None
-        assert op_vals[6] is None
-        assert op_vals[7] is None
-        assert op_vals[8] is None
+        assert op_vals[3:9] == [None] * 6
         op_vals = ops_101.get_order_parameters(self.cubic, 0)
         assert op_vals[0] == approx(6.0)
-        assert int(op_vals[3] * 1000) == approx(23)
-        assert int(op_vals[4] * 1000) == approx(1000)
-        assert int(op_vals[5] * 1000) == approx(333)
-        assert int(op_vals[6] * 1000) == approx(0)
-        assert int(op_vals[7] * 1000) == approx(763)
-        assert int(op_vals[8] * 1000) == approx(353)
-        assert int(op_vals[28] * 1000) == approx(1000)
+        assert op_vals[3:9] == approx([0.023, 1, 0.333, 0, 0.763, 0.353], abs=1e-3)
+        assert op_vals[28] == 1
 
         # Bcc structure.
         op_vals = ops_087.get_order_parameters(self.bcc, 0)
         assert op_vals[0] == approx(8.0)
-        assert int(op_vals[3] * 1000) == approx(200)
-        assert int(op_vals[4] * 1000) == approx(145)
-        assert int(op_vals[5] * 1000 + 0.5) == approx(1000)
-        assert int(op_vals[6] * 1000) == approx(0)
-        assert int(op_vals[7] * 1000) == approx(509)
-        assert int(op_vals[8] * 1000) == approx(628)
+        assert op_vals[3:9] == approx([0.2, 0.145, 1, 0, 0.509, 0.628], abs=1e-3)
 
         # Fcc structure.
         op_vals = ops_071.get_order_parameters(self.fcc, 0)
         assert op_vals[0] == approx(12.0)
-        assert int(op_vals[3] * 1000) == approx(36)
-        assert int(op_vals[4] * 1000) == approx(78)
-        assert int(op_vals[5] * 1000) == approx(-2)
-        assert int(op_vals[6] * 1000) == approx(0)
-        assert int(op_vals[7] * 1000) == approx(190)
-        assert int(op_vals[8] * 1000) == approx(574)
+        assert op_vals[3:9] == approx([0.036, 0.078, -0.002, 0, 0.19, 0.574], abs=1e-3)
 
         # Hcp structure.
         op_vals = ops_101.get_order_parameters(self.hcp, 0)
         assert op_vals[0] == approx(12.0)
-        assert int(op_vals[3] * 1000) == approx(33)
-        assert int(op_vals[4] * 1000) == approx(82)
-        # self.assertAlmostEqual(int(op_vals[5] * 1000), -26)
-        assert int(op_vals[6] * 1000) == approx(0)
-        assert int(op_vals[7] * 1000) == approx(97)
-        assert int(op_vals[8] * 1000) == approx(484)
+        assert op_vals[3:9] == approx([0.033, 0.082, -0.018, 0, 0.097, 0.484], abs=1e-3)
 
         # Diamond structure.
         op_vals = ops_044.get_order_parameters(self.diamond, 0)
         assert op_vals[0] == approx(4.0)
-        assert int(op_vals[3] * 1000) == approx(1000)
-        assert int(op_vals[4] * 1000) == approx(37)
-        assert op_vals[5] == approx(0.75)
-        assert int(op_vals[6] * 1000) == approx(0)
-        assert int(op_vals[7] * 1000) == approx(509)
-        assert int(op_vals[8] * 1000) == approx(628)
-        assert int(op_vals[27] * 1000) == approx(1000)
+        assert op_vals[3:9] == approx([1, 0.037, 0.75, 0, 0.509, 0.628], abs=1e-3)
+        assert op_vals[27] == 1
 
         # Trigonal off-plane molecule.
         op_vals = ops_044.get_order_parameters(self.trigonal_off_plane, 0)
         assert op_vals[0] == approx(3.0)
-        assert int(op_vals[3] * 1000) == approx(1000)
-        assert int(op_vals[33] * 1000) == approx(1000)
+        assert op_vals[3] == 1
+        assert op_vals[33] == 1
 
         # Trigonal-planar motif.
         op_vals = ops_101.get_order_parameters(self.trigonal_planar, 0)
@@ -1218,7 +1188,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[1])
         assert op_vals[0] is not None
         assert op_vals[3] is None
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Neighbor site index beyond maximum!"):
             ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[2])
 
     def tearDown(self):
@@ -1436,7 +1406,7 @@ class Critic2NNTest(PymatgenTest):
 
     def test_cn(self):
         Critic2NN()
-        # self.assertEqual(nn.get_cn(self.diamond, 0), 4)
+        # assert nn.get_cn(self.diamond, 0) == 4
 
 
 class MetalEdgeExtenderTest(PymatgenTest):

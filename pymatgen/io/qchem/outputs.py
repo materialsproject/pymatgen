@@ -2215,14 +2215,14 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
     of the new list contains the header.
 
     Args:
-            lines: List of lines.
-            header: Substring to match.
+        lines: List of lines.
+        header: Substring to match.
 
     Returns:
-            Truncated lines.
+        Truncated lines.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     # Search for the header
     for i, line in enumerate(lines):
@@ -2230,7 +2230,7 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
             return lines[i:]
 
     # Search failed
-    raise RuntimeError(f"Header {header} could not be found in the lines.")
+    raise RuntimeError(f"{header=} could not be found in the lines.")
 
 
 def get_percentage(line: str, orbital: str) -> str:
@@ -2238,14 +2238,14 @@ def get_percentage(line: str, orbital: str) -> str:
     Retrieve the percent character of an orbital.
 
     Args:
-            line: Line containing orbital and percentage.
-            orbital: Type of orbital (s, p, d, f).
+        line: Line containing orbital and percentage.
+        orbital: Type of orbital (s, p, d, f).
 
     Returns:
-            Percentage of character.
+        Percentage of character.
 
     Raises:
-            n/a
+        n/a
     """
     # Locate orbital in line
     index = line.find(orbital)
@@ -2265,13 +2265,13 @@ def z_int(string: str) -> int:
     If string empty, return -1.
 
     Args:
-            string: Input to be cast to int.
+        string: Input to be cast to int.
 
     Returns:
-            Int representation.
+        Int representation.
 
     Raises:
-            n/a
+        n/a
     """
     try:
         return int(string)
@@ -2284,13 +2284,13 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     Parse the natural populations section of NBO output.
 
     Args:
-            lines: QChem output lines.
+        lines: QChem output lines.
 
     Returns:
-            Data frame of formatted output.
+        Data frame of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     no_failures = True
     pop_dfs = []
@@ -2344,13 +2344,13 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
     Parse the natural populations section of NBO output.
 
     Args:
-            lines: QChem output lines.
+        lines: QChem output lines.
 
     Returns:
-            Data frame of formatted output.
+        Data frame of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     no_failures = True
     hyperbond_dfs = []
@@ -2425,13 +2425,13 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     Parse the hybridization character section of NBO output.
 
     Args:
-            lines: QChem output lines.
+        lines: QChem output lines.
 
     Returns:
-            Data frames of formatted output.
+        Data frames of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     # Orbitals
     orbitals = ["s", "p", "d", "f"]
@@ -2809,13 +2809,13 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     Parse all the important sections of NBO output.
 
     Args:
-            filename: Path to QChem NBO output.
+        filename: Path to QChem NBO output.
 
     Returns:
-            Data frames of formatted output.
+        Data frames of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     # Open the lines
     with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:

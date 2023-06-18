@@ -330,8 +330,7 @@ class PackmolRunner:
         """
         # ugly hack to get around the openbabel issues with inconsistent
         # residue labelling.
-        scratch = tempfile.gettempdir()
-        with ScratchDir(scratch, copy_to_current_on_exit=False) as _:
+        with ScratchDir("."):
             mol.to(fmt="pdb", filename="tmp.pdb")
             bma = BabelMolAdaptor.from_file("tmp.pdb", "pdb")
 

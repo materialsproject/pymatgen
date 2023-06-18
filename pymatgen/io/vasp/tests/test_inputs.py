@@ -10,7 +10,6 @@ import pytest
 import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.core import SETTINGS
@@ -1037,10 +1036,10 @@ class PotcarSingleTest(PymatgenTest):
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
-    #     self.assertEqual(p.functional_class, 'GGA')
+    #     assert p.functional_class == "GGA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
-    #     self.assertEqual(p.functional_class, 'LDA')
+    #     assert p.functional_class == "LDA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 
@@ -1088,12 +1087,12 @@ class PotcarTest(PymatgenTest):
 
     # def test_default_functional(self):
     #     p = Potcar(["Fe", "P"])
-    #     self.assertEqual(p[0].functional_class, 'GGA')
-    #     self.assertEqual(p[1].functional_class, 'GGA')
+    #     assert p[0].functional_class == "GGA"
+    #     assert p[1].functional_class == "GGA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
     #     p = Potcar(["Fe", "P"])
-    #     self.assertEqual(p[0].functional_class, 'LDA')
-    #     self.assertEqual(p[1].functional_class, 'LDA')
+    #     assert p[0].functional_class == "LDA"
+    #     assert p[1].functional_class == "LDA"
 
     def test_pickle(self):
         pickle.dumps(self.potcar)
@@ -1136,12 +1135,10 @@ class VaspInputTest(PymatgenTest):
         tmp_dir.rmdir()
 
     def test_run_vasp(self):
-        # To add some test.
-        with ScratchDir(".") as d:
-            self.vasp_input.run_vasp(d, vasp_cmd=["cat", "INCAR"])
-            with open(os.path.join(d, "vasp.out")) as f:
-                output = f.read()
-                assert output.split("\n")[0] == "ALGO = Damped"
+        self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
+        with open("vasp.out") as f:
+            output = f.read()
+            assert output.split("\n")[0] == "ALGO = Damped"
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(PymatgenTest.TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar})

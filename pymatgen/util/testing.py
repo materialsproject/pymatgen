@@ -13,6 +13,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import pytest
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
@@ -43,6 +44,12 @@ class PymatgenTest(unittest.TestCase):
     TEST_STRUCTURES = {}  # Dict for test structures to aid testing.
     for fn in STRUCTURES_DIR.iterdir():
         TEST_STRUCTURES[fn.name.rsplit(".", 1)[0]] = loadfn(str(fn))
+
+    @pytest.fixture(autouse=True)  # make all tests run a in a temporary directory accessible via self.tmp_path
+    def _tmp_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        # https://pytest.org/en/latest/how-to/unittest.html#using-autouse-fixtures-and-accessing-other-fixtures
+        monkeypatch.chdir(tmp_path)  # change to pytest-provided temporary directory
+        self.tmp_path = tmp_path
 
     @classmethod
     def get_structure(cls, name: str) -> Structure:
@@ -124,14 +131,14 @@ class PymatgenTest(unittest.TestCase):
                 with open(tmpfile, mode) as fh:
                     pickle.dump(objects, fh, protocol=protocol)
             except Exception as exc:
-                errors.append(f"pickle.dump with protocol {protocol} raised:\n{exc}")
+                errors.append(f"pickle.dump with {protocol=} raised:\n{exc}")
                 continue
 
             try:
                 with open(tmpfile, "rb") as fh:
                     new_objects = pickle.load(fh)
             except Exception as exc:
-                errors.append(f"pickle.load with protocol {protocol} raised:\n{exc}")
+                errors.append(f"pickle.load with {protocol=} raised:\n{exc}")
                 continue
 
             # Test for equality
