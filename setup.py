@@ -31,7 +31,7 @@ setup(
     install_requires=[
         "matplotlib>=1.5",
         "monty>=3.0.2",
-        "mp-api>=0.27.3",
+        "mp-api>=0.27.3,<0.34.0",
         "networkx>=2.2",
         "numpy>=1.20.1",
         "palettable>=3.1.1",
