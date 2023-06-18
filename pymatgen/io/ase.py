@@ -36,6 +36,8 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
 
+# NOTE: If making notable changes to this class, please ping @arosen93 on GitHub.
+# There are some subtleties in here, particularly related to spins/charges.
 class AseAtomsAdaptor:
     """
     Adaptor serves as a bridge between ASE Atoms and pymatgen objects.
@@ -53,13 +55,13 @@ class AseAtomsAdaptor:
         Returns:
             Atoms: ASE Atoms object
         """
-        if not structure.is_ordered:
-            raise ValueError("ASE Atoms only supports ordered structures")
         if not ase_loaded:
             raise ImportError(
                 "AseAtomsAdaptor requires the ASE package.\n"
                 "Use `pip install ase` or `conda install ase -c conda-forge`"
             )
+        if not structure.is_ordered:
+            raise ValueError("ASE Atoms only supports ordered structures")
 
         # Construct the base ASE Atoms object
         symbols = [str(site.specie.symbol) for site in structure]
@@ -77,28 +79,40 @@ class AseAtomsAdaptor:
         # Note: ASE distinguishes between initial and converged
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between these two when constructing the Structure/Molecule.
-        # The mapping selected here is:
-
+        # Additionally, ASE does not have a global .charge or .spin_multiplicity property,
+        # whereas pymatgen does. Therefore, we have to patch these in to ensure they do not
+        # get lost during interconversion.
+        #
+        # The mapping selected here is as follows:
+        #
         # Site properties:
         # Atoms.get_initial_magnetic_moments() <--> Structure/Molecule.site_properties["magmom"]
         # Atoms.get_magnetic_moments() <--> Structure/Molecule.site_properties["final_magmom"]
         # Atoms.get_initial_charges() <--> Structure/Molecule.site_properties["charge"]
         # Atoms.get_charges() <--> Structure/Molecule.site_properties["final_charge"]
-
+        #
         # Global properties:
         # Atoms.charge <--> Molecule.charge
         # Atoms.spin_multiplicity <--> Molecule.spin_multiplicity
 
+        # Set Atoms initial magnetic moments and charges
         if "magmom" in structure.site_properties:
             initial_magmoms = structure.site_properties["magmom"]
             atoms.set_initial_magnetic_moments(initial_magmoms)
         if "charge" in structure.site_properties:
             initial_charges = structure.site_properties["charge"]
             atoms.set_initial_charges(initial_charges)
+
+        # Set Atoms global charge and spin multiplicity.
+        # This is patched into the Atoms object to ensure we don't lose the
+        # Pymatgen global charge/spin_multiplicity when interconverting.
         if isinstance(structure, Molecule):
             atoms.charge = structure.charge
             atoms.spin_multiplicity = structure.spin_multiplicity
 
+        # Set the Atoms final magnetic moments and charges if present.
+        # This uses the SinglePointDFTCalculator as the dummy calculator
+        # to store results.
         magmoms = structure.site_properties.get("final_magmom")
         charges = structure.site_properties.get("final_charge")
         if magmoms or charges:
@@ -143,6 +157,13 @@ class AseAtomsAdaptor:
         if any(oxi_states):
             atoms.set_array("oxi_states", np.array(oxi_states))
 
+        # Add any .info/calc.results flags to the ASE Atoms object so we don't lose them during
+        # interconversion.
+        if getattr(structure, "info", None) is not None:
+            atoms.info = structure.info
+        if getattr(structure, "calc", None) is not None:
+            atoms.calc.results = structure.calc
+
         return atoms
 
     @staticmethod
@@ -162,7 +183,7 @@ class AseAtomsAdaptor:
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
 
-        # Get the site magmoms from the ASE Atoms objects.
+        # Get the (final) site magmoms and charges from the ASE Atoms object.
         if getattr(atoms, "calc", None) is not None and getattr(atoms.calc, "results", None) is not None:
             magmoms = atoms.calc.results.get("magmoms")
             charges = atoms.calc.results.get("charges")
@@ -170,6 +191,7 @@ class AseAtomsAdaptor:
             magmoms = None
             charges = None
 
+        # Get the initial magmoms and charges from the ASE Atoms object.
         initial_magmoms = atoms.get_initial_magnetic_moments() if atoms.has("initial_magmoms") else None
         initial_charges = atoms.get_initial_charges() if atoms.has("initial_charges") else None
         oxi_states = atoms.get_array("oxi_states") if atoms.has("oxi_states") else None
@@ -202,14 +224,18 @@ class AseAtomsAdaptor:
         # Note: ASE distinguishes between initial and converged
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
         # have to distinguish between these two when constructing the Structure/Molecule.
+        # Additionally, ASE does not have a global .charge or .spin_multiplicity property,
+        # whereas pymatgen does. Therefore, we have to patch these in to ensure they do not
+        # get lost during interconversion.
+        #
         # The mapping selected here is:
-
+        #
         # Site properties:
         # Atoms.get_initial_magnetic_moments() <--> Structure/Molecule.site_properties["magmom"]
         # Atoms.get_magnetic_moments() <--> Structure/Molecule.site_properties["final_magmom"]
         # Atoms.get_initial_charges() <--> Structure/Molecule.site_properties["charge"]
         # Atoms.get_charges() <--> Structure/Molecule.site_properties["final_charge"]
-
+        #
         # Global properties:
         # Atoms.charge <--> Molecule.charge
         # Atoms.spin_multiplicity <--> Molecule.spin_multiplicity
@@ -243,6 +269,13 @@ class AseAtomsAdaptor:
             ]:
                 structure.add_site_property(prop, atoms.get_array(prop).tolist())
 
+        # Add any .info/calc.results flags to the Pymatgen structure object so we don't lose them
+        # during interconversion.
+        if getattr(atoms, "info", None) is not None:
+            structure.info = atoms.info
+        if getattr(atoms, "calc", None) is not None:
+            structure.calc = atoms.calc
+
         return structure
 
     @staticmethod
@@ -259,6 +292,8 @@ class AseAtomsAdaptor:
             Molecule: Equivalent pymatgen.core.structure.Molecule
         """
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
+
+        # Set the global charge and spin multiplicity
         charge = (
             atoms.charge
             if atoms.has("charge")

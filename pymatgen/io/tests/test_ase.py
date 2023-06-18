@@ -7,9 +7,7 @@ import numpy as np
 import pytest
 
 import pymatgen.io.ase as aio
-from pymatgen.core import Lattice, Structure
-from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Molecule, StructureError
+from pymatgen.core import Composition, Lattice, Molecule, Structure, StructureError
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
