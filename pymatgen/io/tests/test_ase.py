@@ -259,6 +259,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         from ase.constraints import FixAtoms
         from ase.io import read
 
+        # Atoms --> Structure --> Atoms --> Structure
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR"))
         atoms.info = {"test": "hi"}
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
@@ -267,10 +268,25 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms.set_array("prop", np.array([3.0] * len(atoms)))
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(structure)
-        structure_back = aio.AseAtomsAdaptor.get_structure(atoms)
+        structure_back = aio.AseAtomsAdaptor.get_structure(atoms_back)
         assert structure_back == structure
         assert atoms_back == atoms
 
+        # Structure --> Atoms --> Structure --> Atoms
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        structure.add_site_property("final_magmom", [1.0] * len(structure))
+        structure.add_site_property("magmom", [2.0] * len(structure))
+        structure.add_site_property("final_charge", [3.0] * len(structure))
+        structure.add_site_property("charge", [4.0] * len(structure))
+        structure.add_site_property("prop", [5.0] * len(structure))
+        structure.info = {"test": "hi"}
+        atoms = aio.AseAtomsAdaptor.get_atoms(structure)
+        structure_back = aio.AseAtomsAdaptor.get_structure(atoms)
+        atoms_back = aio.AseAtomsAdaptor.get_atoms(structure_back)
+        assert structure_back == structure
+        assert atoms_back == atoms
+
+        # Atoms --> Molecule --> Atoms --> Molecule
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
         atoms.info = {"test": "hi"}
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
@@ -279,6 +295,16 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms.set_array("prop", np.array([3.0] * len(atoms)))
         molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(molecule)
+        molecule_back = aio.AseAtomsAdaptor.get_molecule(atoms_back)
+        assert atoms_back == atoms
+        assert molecule_back == molecule
+
+        # Molecule --> Atoms --> Molecule --> Atoms
+        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        molecule.set_charge_and_spin(-2, spin_multiplicity=3)
+        molecule.info = {"test": "hi"}
+        atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         molecule_back = aio.AseAtomsAdaptor.get_molecule(atoms)
+        atoms_back = aio.AseAtomsAdaptor.get_atoms(molecule_back)
         assert atoms_back == atoms
         assert molecule_back == molecule
