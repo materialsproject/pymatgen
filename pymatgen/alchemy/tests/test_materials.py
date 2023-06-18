@@ -82,13 +82,13 @@ class TransformedStructureTest(PymatgenTest):
         assert ts.final_structure.composition.reduced_formula == "NaFePO4"
         ts.undo_last_change()
         assert ts.final_structure.composition.reduced_formula == "LiFePO4"
-        with pytest.raises(IndexError):
+        with pytest.raises(IndexError, match="No more changes to undo"):
             ts.undo_last_change()
         ts.redo_next_change()
         assert ts.final_structure.composition.reduced_formula == "NaFePO4"
         ts.redo_next_change()
         assert ts.final_structure.composition.reduced_formula == "NaMnPO4"
-        with pytest.raises(IndexError):
+        with pytest.raises(IndexError, match="No more changes to redo"):
             ts.redo_next_change()
         # Make sure that this works with filters.
         f3 = ContainsSpecieFilter(["O2-"], strict_compare=True, AND=False)

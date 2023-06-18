@@ -69,7 +69,7 @@ class TransformedStructure(MSONable):
             IndexError: If already at the oldest change.
         """
         if len(self.history) == 0:
-            raise IndexError("Can't undo. Already at oldest change.")
+            raise IndexError("No more changes to undo")
         if "input_structure" not in self.history[-1]:
             raise IndexError("Can't undo. Latest history has no input_structure")
         h = self.history.pop()
@@ -87,7 +87,7 @@ class TransformedStructure(MSONable):
             IndexError: If already at the latest change.
         """
         if len(self._undone) == 0:
-            raise IndexError("Can't redo. Already at latest change.")
+            raise IndexError("No more changes to redo")
         h, s = self._undone.pop()
         self.history.append(h)
         self.final_structure = s
