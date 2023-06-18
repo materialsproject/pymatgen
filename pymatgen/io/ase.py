@@ -101,12 +101,13 @@ class AseAtomsAdaptor:
         # Atoms.spin_multiplicity <--> Molecule.spin_multiplicity
 
         # Set Atoms initial magnetic moments and charges
-        if "magmom" in structure.site_properties:
-            initial_magmoms = structure.site_properties["magmom"]
-            atoms.set_initial_magnetic_moments(initial_magmoms)
         if "charge" in structure.site_properties:
             initial_charges = structure.site_properties["charge"]
             atoms.set_initial_charges(initial_charges)
+
+        if "magmom" in structure.site_properties:
+            initial_magmoms = structure.site_properties["magmom"]
+            atoms.set_initial_magnetic_moments(initial_magmoms)
 
         # Set Atoms global charge and spin multiplicity.
         # This is patched into the Atoms object to ensure we don't lose the
@@ -118,8 +119,8 @@ class AseAtomsAdaptor:
         # Set the Atoms final magnetic moments and charges if present.
         # This uses the SinglePointDFTCalculator as the dummy calculator
         # to store results.
-        magmoms = structure.site_properties.get("final_magmom")
         charges = structure.site_properties.get("final_charge")
+        magmoms = structure.site_properties.get("final_magmom")
         if magmoms or charges:
             if magmoms and charges:
                 calc = SinglePointDFTCalculator(atoms, magmoms=magmoms, charges=charges)
@@ -190,14 +191,14 @@ class AseAtomsAdaptor:
 
         # Get the (final) site magmoms and charges from the ASE Atoms object.
         if getattr(atoms, "calc", None) is not None and getattr(atoms.calc, "results", None) is not None:
-            magmoms = atoms.calc.results.get("magmoms")
             charges = atoms.calc.results.get("charges")
+            magmoms = atoms.calc.results.get("magmoms")
         else:
             magmoms = charges = None
 
         # Get the initial magmoms and charges from the ASE Atoms object.
-        initial_magmoms = atoms.get_initial_magnetic_moments() if atoms.has("initial_magmoms") else None
         initial_charges = atoms.get_initial_charges() if atoms.has("initial_charges") else None
+        initial_magmoms = atoms.get_initial_magnetic_moments() if atoms.has("initial_magmoms") else None
         oxi_states = atoms.get_array("oxi_states") if atoms.has("oxi_states") else None
 
         # If the ASE Atoms object has constraints, make sure that they are of the
@@ -244,14 +245,14 @@ class AseAtomsAdaptor:
         # Atoms.charge <--> Molecule.charge
         # Atoms.spin_multiplicity <--> Molecule.spin_multiplicity
 
+        if initial_charges is not None:
+            structure.add_site_property("charge", initial_charges)
+        if charges is not None:
+            structure.add_site_property("final_charge", charges)
         if magmoms is not None:
             structure.add_site_property("final_magmom", magmoms)
         if initial_magmoms is not None:
             structure.add_site_property("magmom", initial_magmoms)
-        if charges is not None:
-            structure.add_site_property("final_charge", charges)
-        if initial_charges is not None:
-            structure.add_site_property("charge", initial_charges)
         if sel_dyn is not None and ~np.all(sel_dyn):
             structure.add_site_property("selective_dynamics", sel_dyn)
 
