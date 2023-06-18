@@ -646,23 +646,22 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             ] = self.equivalent_site_index_and_transform(site)
         neighbors_normalized_distances = self.structure_environments.voronoi.neighbors_normalized_distances[isite]
         neighbors_normalized_angles = self.structure_environments.voronoi.neighbors_normalized_angles[isite]
-        idist = None
+        i_dist = None
         for iwd, wd in enumerate(neighbors_normalized_distances):
             if self.distance_cutoff >= wd["min"]:
-                idist = iwd
+                i_dist = iwd
             else:
                 break
-        iang = None
+        i_ang = None
         for iwa, wa in enumerate(neighbors_normalized_angles):
             if self.angle_cutoff <= wa["max"]:
-                iang = iwa
+                i_ang = iwa
             else:
                 break
-        if idist is None or iang is None:
+        if i_dist is None or i_ang is None:
             raise ValueError("Distance or angle parameter not found ...")
 
-        my_cn = None
-        my_inb_set = None
+        my_cn = my_inb_set = None
         found = False
         for cn, nb_sets in self.structure_environments.neighbors_sets[isite].items():
             for inb_set, nb_set in enumerate(nb_sets):
@@ -672,7 +671,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
                     if src["origin"] == "dist_ang_ac_voronoi" and src["ac"] == self.additional_condition
                 ]
                 for src in sources:
-                    if src["idp"] == idist and src["iap"] == iang:
+                    if src["idp"] == i_dist and src["iap"] == i_ang:
                         my_cn = cn
                         my_inb_set = inb_set
                         found = True
@@ -1701,8 +1700,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         )
         cn = cn_map[0]
         isite = nb_set.isite
-        delta_csm = None
-        delta_csm_cn_map2 = None
+        delta_csm = delta_csm_cn_map2 = None
         nb_set_weight = 1.0
         for cn2, nb_sets in structure_environments.neighbors_sets[isite].items():
             if cn2 < cn:
@@ -2623,7 +2621,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                     cn_maps_new.append(cn_map)
             cn_maps = cn_maps_new
         for cn_map, weights in weights_additional_info["weights"][isite].items():
-            weights_additional_info["weights"][isite][cn_map]["Product"] = np.product(list(weights.values()))
+            weights_additional_info["weights"][isite][cn_map]["Product"] = np.prod(list(weights.values()))
 
         w_nb_sets = {
             cn_map: weights["Product"] for cn_map, weights in weights_additional_info["weights"][isite].items()
@@ -2923,9 +2921,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         )
         symmetry_measure_type = "csm_wcs_ctwcc"
         delta_weight = DeltaCSMNbSetWeight.delta_cn_specifics()
-        bias_weight = None
-        angle_weight = None
-        nad_weight = None
+        bias_weight = angle_weight = nad_weight = None
         return cls(
             dist_ang_area_weight=da_area_weight,
             self_csm_weight=self_csm_weight,

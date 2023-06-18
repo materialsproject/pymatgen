@@ -7,9 +7,8 @@ import numpy as np
 import pytest
 
 import pymatgen.io.ase as aio
-from pymatgen.core import Lattice, Structure
-from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Molecule, StructureError
+from pymatgen.core import Composition, Lattice, Molecule, Structure
+from pymatgen.core.structure import StructureError
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
@@ -143,6 +142,14 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.calc is None
         assert atoms.get_initial_magnetic_moments().tolist() == initial_mags
 
+        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        molecule.set_charge_and_spin(-2, spin_multiplicity=3)
+        atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
+        assert atoms.calc is None
+        assert atoms.get_initial_magnetic_moments().tolist() == [0] * len(molecule)
+        assert atoms.charge == -2
+        assert atoms.spin_multiplicity == 3
+
     @skip_if_no_ase
     def test_get_atoms_from_molecule_dyn(self):
         molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
@@ -241,28 +248,68 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert molecule.site_properties.get("charge") == initial_charges
         assert molecule.site_properties.get("magmom") == initial_mags
 
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        atoms.spin_multiplicity = 3
+        atoms.charge = 2
+        molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
+        assert molecule.charge == 2
+        assert molecule.spin_multiplicity == 3
+
     @skip_if_no_ase
     def test_back_forth(self):
         from ase.constraints import FixAtoms
         from ase.io import read
 
+        # Atoms --> Structure --> Atoms --> Structure
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR"))
+        atoms.info = {"test": "hi"}
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
         atoms.set_initial_charges([1.0] * len(atoms))
         atoms.set_initial_magnetic_moments([2.0] * len(atoms))
         atoms.set_array("prop", np.array([3.0] * len(atoms)))
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(structure)
-        structure_back = aio.AseAtomsAdaptor.get_structure(atoms)
-        assert structure == structure_back
+        structure_back = aio.AseAtomsAdaptor.get_structure(atoms_back)
+        assert structure_back == structure
+        for k, v in atoms.todict().items():
+            assert str(atoms_back.todict()[k]) == str(v)
 
+        # Structure --> Atoms --> Structure --> Atoms
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        structure.add_site_property("final_magmom", [1.0] * len(structure))
+        structure.add_site_property("magmom", [2.0] * len(structure))
+        structure.add_site_property("final_charge", [3.0] * len(structure))
+        structure.add_site_property("charge", [4.0] * len(structure))
+        structure.add_site_property("prop", [5.0] * len(structure))
+        structure.info = {"test": "hi"}
+        atoms = aio.AseAtomsAdaptor.get_atoms(structure)
+        structure_back = aio.AseAtomsAdaptor.get_structure(atoms)
+        atoms_back = aio.AseAtomsAdaptor.get_atoms(structure_back)
+        assert structure_back == structure
+        for k, v in atoms.todict().items():
+            assert str(atoms_back.todict()[k]) == str(v)
+
+        # Atoms --> Molecule --> Atoms --> Molecule
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        atoms.info = {"test": "hi"}
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
         atoms.set_initial_charges([1.0] * len(atoms))
         atoms.set_initial_magnetic_moments([2.0] * len(atoms))
         atoms.set_array("prop", np.array([3.0] * len(atoms)))
         molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(molecule)
-        assert atoms == atoms_back
+        molecule_back = aio.AseAtomsAdaptor.get_molecule(atoms_back)
+        for k, v in atoms.todict().items():
+            assert str(atoms_back.todict()[k]) == str(v)
+        assert molecule_back == molecule
+
+        # Molecule --> Atoms --> Molecule --> Atoms
+        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        molecule.set_charge_and_spin(-2, spin_multiplicity=3)
+        molecule.info = {"test": "hi"}
+        atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         molecule_back = aio.AseAtomsAdaptor.get_molecule(atoms)
-        assert molecule == molecule_back
+        atoms_back = aio.AseAtomsAdaptor.get_atoms(molecule_back)
+        for k, v in atoms.todict().items():
+            assert str(atoms_back.todict()[k]) == str(v)
+        assert molecule_back == molecule

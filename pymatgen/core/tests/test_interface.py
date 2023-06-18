@@ -29,15 +29,8 @@ class InterfaceTest(PymatgenTest):
         assert interface.substrate_layers == 2
 
         iface_dict = interface.as_dict()
-        for k in [
-            "lattice",
-            "sites",
-            "in_plane_offset",
-            "gap",
-            "vacuum_over_film",
-            "interface_properties",
-        ]:
-            assert k in iface_dict
+        expected_keys = {"lattice", "sites", "in_plane_offset", "gap", "vacuum_over_film", "interface_properties"}
+        assert expected_keys <= {*iface_dict}
         assert isinstance(interface.from_dict(iface_dict), Interface)
 
     def test_gap_setter(self):

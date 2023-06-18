@@ -582,7 +582,7 @@ class DictSet(VaspInputSet):
         # reciprocal Angstrom). An error handler in Custodian is available to correct
         # overly large KSPACING values (small number of kpoints) if necessary.
         # if "KSPACING" not in self.user_incar_settings:
-        if self.kpoints is not None and np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+        if self.kpoints is not None and np.prod(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
             incar["ISMEAR"] = 0
 
         if self.user_incar_settings.get("KSPACING", 0) > 0.5 and incar.get("ISMEAR", 0) == -5:
@@ -595,9 +595,8 @@ class DictSet(VaspInputSet):
 
         if all(k.is_metal for k in structure.composition) and incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
             warnings.warn(
-                "Relaxation of likely metal with ISMEAR < 1 "
-                "detected. Please see VASP recommendations on "
-                "ISMEAR for metals.",
+                "Relaxation of likely metal with ISMEAR < 1 detected. Please see VASP "
+                "recommendations on ISMEAR for metals.",
                 BadInputSetWarning,
             )
 
