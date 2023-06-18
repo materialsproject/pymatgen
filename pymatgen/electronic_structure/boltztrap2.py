@@ -119,8 +119,7 @@ class VasprunBSLoader:
             self.vbm = bs_obj.get_vbm()["energy"]
             self.cbm = bs_obj.get_cbm()["energy"]
         else:
-            self.vbm_idx = None
-            self.cbm_idx = None
+            self.vbm_idx = self.cbm_idx = None
             self.vbm = self.fermi / units.eV
             self.cbm = self.fermi / units.eV
 
@@ -243,8 +242,7 @@ class BandstructureLoader:
             self.cbm = bs_obj.get_cbm()["energy"]
             self.nelect_all = self.vbm_idx * self.dosweight
         else:
-            self.vbm_idx = None
-            self.cbm_idx = None
+            self.vbm_idx = self.cbm_idx = None
             self.vbm = self.fermi
             self.cbm = self.fermi
             self.nelect_all = nelect
@@ -344,9 +342,7 @@ class VasprunLoader:
             self.lattvec = self.atoms.get_cell().T * units.Angstrom
 
             # TODO: read mommat from vasprun
-            self.mommat = None
-            self.magmom = None
-            self.spin = None
+            self.mommat = self.magmom = self.spin = None
             self.fermi = vrun_obj.efermi * units.eV
             self.nelect = vrun_obj.parameters["NELECT"]
             self.UCvol = self.structure.volume * units.Angstrom**3
@@ -358,8 +354,7 @@ class VasprunLoader:
                 self.vbm = bs_obj.get_vbm()["energy"]
                 self.cbm = bs_obj.get_cbm()["energy"]
             else:
-                self.vbm_idx = None
-                self.cbm_idx = None
+                self.vbm_idx = self.cbm_idx = None
                 self.vbm = self.fermi
                 self.cbm = self.fermi
 

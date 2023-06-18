@@ -244,8 +244,7 @@ def install_software(install: Literal["enumlib", "bader"]):
             print(str(ex))
             raise SystemExit("No fortran compiler found.")
 
-    enum = None
-    bader = None
+    enum = bader = None
     if install == "enumlib":
         print("Building enumlib")
         enum = build_enum(fortran_command)

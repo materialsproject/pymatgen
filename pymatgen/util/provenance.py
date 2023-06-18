@@ -19,8 +19,7 @@ try:
     from pybtex import errors
     from pybtex.database.input import bibtex
 except ImportError:
-    pybtex = None
-    bibtex = None
+    pybtex = bibtex = None
 
 from pymatgen.core.structure import Molecule, Structure
 

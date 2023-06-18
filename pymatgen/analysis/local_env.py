@@ -4294,8 +4294,7 @@ class Critic2NN(NearNeighbors):
         # calls get_nn_info() repeatedly for different
         # sites in the same structure to save redundant
         # computations
-        self.__last_structure = None
-        self.__last_bonded_structure = None
+        self.__last_structure = self.__last_bonded_structure = None
 
     @property
     def structures_allowed(self):

@@ -180,8 +180,7 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("All valences are equal to 0, additional_conditions 1 and 3 and 5 and 6 will not work")
 
         if limits is None:
-            self.lowerlimit = None
-            self.upperlimit = None
+            self.lowerlimit = self.upperlimit = None
 
         else:
             self.lowerlimit = limits[0]

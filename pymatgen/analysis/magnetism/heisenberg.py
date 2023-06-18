@@ -87,10 +87,7 @@ class HeisenbergMapper:
         self.unique_site_ids, self.wyckoff_ids = self._get_unique_sites(ordered_structures[0])
 
         # These attributes are set by internal methods
-        self.nn_interactions = None
-        self.dists = None
-        self.ex_mat = None
-        self.ex_params = None
+        self.nn_interactions = self.dists = self.ex_mat = self.ex_params = None
 
         # Check how many commensurate graphs we found
         if len(self.sgraphs) < 2:

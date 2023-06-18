@@ -21,9 +21,7 @@ try:
     from phonopy.file_IO import write_disp_yaml
     from phonopy.structure.atoms import PhonopyAtoms
 except ImportError:
-    Phonopy = None
-    write_disp_yaml = None
-    PhonopyAtoms = None
+    Phonopy = write_disp_yaml = PhonopyAtoms = None
 
 
 @requires(Phonopy, "phonopy not installed!")

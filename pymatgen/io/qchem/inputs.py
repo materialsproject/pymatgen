@@ -302,20 +302,11 @@ class QCInput(InputFile):
         molecule = cls.read_molecule(string)
         rem = cls.read_rem(string)
         # only molecule and rem are necessary everything else is checked
-        opt = None
-        pcm = None
-        solvent = None
-        smx = None
-        scan = None
-        vdw = None
+        opt = pcm = solvent = smx = None
+        scan = vdw = None
         vdw_mode = "atomic"
-        plots = None
-        nbo = None
-        geom_opt = None
-        cdft = None
-        almo_coupling = None
-        svp = None
-        pcm_nonels = None
+        plots = nbo = geom_opt = cdft = None
+        almo_coupling = svp = pcm_nonels = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -809,8 +800,7 @@ class QCInput(InputFile):
         Returns:
             Molecule
         """
-        charge = None
-        spin_mult = None
+        charge = spin_mult = None
         patterns = {
             "read": r"^\s*\$molecule\n\s*(read)",
             "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d+",

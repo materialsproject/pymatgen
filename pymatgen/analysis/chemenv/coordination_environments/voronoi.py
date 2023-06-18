@@ -625,16 +625,14 @@ class DetailedVoronoiContainer(MSONable):
         Returns:
             List of neighbors of the given site for the given distance and angle factors.
         """
-        idist = None
-        dfact = None
+        idist = dfact = None
         for iwd, wd in enumerate(self.neighbors_normalized_distances[isite]):
             if distfactor >= wd["min"]:
                 idist = iwd
                 dfact = wd["max"]
             else:
                 break
-        iang = None
-        afact = None
+        iang = afact = None
         for iwa, wa in enumerate(self.neighbors_normalized_angles[isite]):
             if angfactor <= wa["max"]:
                 iang = iwa

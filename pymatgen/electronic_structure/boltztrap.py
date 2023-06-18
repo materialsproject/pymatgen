@@ -1082,8 +1082,7 @@ class BoltztrapAnalyzer:
 
             units are microW/(m K^2)
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
 
@@ -1147,8 +1146,7 @@ class BoltztrapAnalyzer:
 
             units are W/mK
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
             for doping in result_doping:
@@ -1214,8 +1212,7 @@ class BoltztrapAnalyzer:
             The result includes a given constant relaxation time and lattice
             thermal conductivity
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
 
@@ -1302,8 +1299,7 @@ class BoltztrapAnalyzer:
             The 'p' links to hole effective mass tensor and 'n' to electron
             effective mass tensor.
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         conc = self.get_carrier_concentration()
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._cond_doping[doping]} for doping in self.doping}
@@ -1518,10 +1514,7 @@ class BoltztrapAnalyzer:
 
         absval = True  # take the absolute value of properties
 
-        x_val = None
-        x_temp = None
-        x_doping = None
-        x_isotropic = None
+        x_val = x_temp = x_doping = x_isotropic = None
         output = {}
 
         min_temp = min_temp or 0
@@ -1712,10 +1705,7 @@ class BoltztrapAnalyzer:
         Returns:
             tuple - (run_type, warning, efermi, gap, doping_levels)
         """
-        run_type = None
-        warning = None
-        efermi = None
-        gap = None
+        run_type = warning = efermi = gap = None
         doping_levels = []
 
         with open(os.path.join(path_dir, "boltztrap.outputtrans")) as f:

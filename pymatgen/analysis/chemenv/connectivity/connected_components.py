@@ -247,7 +247,7 @@ class ConnectedComponent(MSONable):
                     raise ChemenvError(
                         self.__class__,
                         "__init__",
-                        "Trying to add edge with some unexisting node ...",
+                        "Trying to add edge with some unexistent node ...",
                     )
                 if links_data is not None:
                     if (env_node1, env_node2, key) in links_data:

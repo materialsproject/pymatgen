@@ -628,8 +628,7 @@ class Plane:
         if self.p1 is None:
             self.init_3points(nonzeros, zeros)
         self.vector_to_origin = dd * self.normal_vector
-        self.e1 = None
-        self.e2 = None
+        self.e1 = self.e2 = None
         self.e3 = self.normal_vector
 
     def init_3points(self, nonzeros, zeros):

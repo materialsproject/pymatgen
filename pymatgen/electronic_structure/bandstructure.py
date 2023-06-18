@@ -371,8 +371,7 @@ class BandStructure:
                 "projections": {},
             }
         max_tmp = -float("inf")
-        index = None
-        kpointvbm = None
+        index = kpointvbm = None
         for value in self.bands.values():
             for i, j in zip(*np.where(value < self.efermi)):
                 if value[i, j] > max_tmp:
@@ -438,8 +437,7 @@ class BandStructure:
             }
         max_tmp = float("inf")
 
-        index = None
-        kpointcbm = None
+        index = kpointcbm = None
         for value in self.bands.values():
             for i, j in zip(*np.where(value >= self.efermi)):
                 if value[i, j] < max_tmp:

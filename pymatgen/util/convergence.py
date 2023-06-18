@@ -514,8 +514,7 @@ def determine_convergence(xs, ys, name, tol: float = 0.0001, extra="", verbose=F
         raise RuntimeError("the range of x and y are not equal")
     conv = False
     x_value = float("inf")
-    y_value = None
-    n_value = None
+    y_value = n_value = None
     popt = [None, None, None]
     if len(xs) > 2:
         ds = get_derivatives(xs[0 : len(ys)], ys)
