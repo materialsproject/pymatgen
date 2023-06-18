@@ -159,10 +159,10 @@ class AseAtomsAdaptor:
 
         # Add any .info/calc.results flags to the ASE Atoms object so we don't lose them during
         # interconversion.
-        if getattr(structure, "info", None) is not None:
-            atoms.info = structure.info
-        if getattr(structure, "calc", None) is not None:
-            atoms.calc = structure.calc
+        if info := getattr(structure, "info", None):
+            atoms.info = info
+        if calc := getattr(structure, "calc", None):
+            atoms.calc = calc
 
         return atoms
 
