@@ -1133,20 +1133,18 @@ class LobsterNeighbors(NearNeighbors):
         adapt_extremum_to_add_cond=False,
         additional_condition=0,
     ):
-        # TODO: adapt this to give the extremum for the correct type of bond
-        # TODO add tests
         """
         Return limits for the evaluation of the icohp values from an icohpcollection
-        Return -100000, min(max_icohp*0.15,-0.1)
+        Return -float('inf'), min(max_icohp*0.15,-0.1). Currently only works for ICOHPs.
 
         Args:
             icohpcollection: icohpcollection object
             percentage: will determine which ICOHPs will be considered (only 0.15 from the maximum value)
             adapt_extremum_to_add_cond: should the extrumum be adapted to the additional condition
             additional_condition: additional condition to determine which bonds are relevant
-        Returns: [-100000, min(max_icohp*0.15,-0.1)]
+        Returns: [-float('inf'), min(max_icohp*0.15,-0.1)]
         """
-        # TODO: make it work for COOPs
+        # TODO: make it work for COOPs/COBIs
         if not adapt_extremum_to_add_cond or additional_condition == 0:
             extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
         elif additional_condition == 1:
@@ -1221,7 +1219,7 @@ class LobsterNeighbors(NearNeighbors):
 
         # if not self.are_coops:
         max_here = min(extremum_based, -0.1)
-        return -100000, max_here
+        return float("inf"), max_here
         # else:
         #    return extremum_based, 100000
 
