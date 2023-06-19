@@ -672,68 +672,51 @@ class TestLobsterNeighbors(unittest.TestCase):
             structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_190.gz")),
             additional_condition=1,
         )
-        assert (
-            chemenvlobster1.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
-                isites=[0],
-                only_bonds_to=["O"],
-            )[0]
-            == "6 x O-Re (per bond)"
-        )
-        cohp = chemenvlobster1.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+        cohpcar_lobster_mp_190 = os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz")
+        plot_label, summed_cohpcar_mp_190 = chemenvlobster1.get_info_cohps_to_neighbors(
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=["O"],
-        )[1]
-        assert isinstance(cohp, Cohp)
+        )
+        assert plot_label == "6 x O-Re (per bond)"
+        assert isinstance(summed_cohpcar_mp_190, Cohp)
 
-        cophthing = chemenvlobster1.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+        coph_thing = chemenvlobster1.get_info_cohps_to_neighbors(
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=None,
             per_bond=False,
         )[1]
-        assert np.sum([cophthing.icohp[Spin.up], cophthing.icohp[Spin.down]], axis=0)[300] == approx(
+        assert np.sum([coph_thing.icohp[Spin.up], coph_thing.icohp[Spin.down]], axis=0)[300] == approx(
             chemenvlobster1.get_info_icohps_to_neighbors(isites=[0])[0]
         )
 
         # summed_spin_channel
-        cophthing = chemenvlobster1.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+        coph_thing = chemenvlobster1.get_info_cohps_to_neighbors(
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=None,
             per_bond=False,
             summed_spin_channels=True,
         )[1]
-        assert cophthing.icohp[Spin.up][300] == approx(chemenvlobster1.get_info_icohps_to_neighbors(isites=[0])[0])
+        assert coph_thing.icohp[Spin.up][300] == approx(chemenvlobster1.get_info_icohps_to_neighbors(isites=[0])[0])
 
-        assert (
-            chemenvlobster1.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
-                isites=[0],
-                only_bonds_to=["Te"],
-            )[0]
-            is None
+        plot_label, summed_cohpcar_mp_190_Te = chemenvlobster1.get_info_cohps_to_neighbors(
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
+            isites=[0],
+            only_bonds_to=["Te"],
         )
 
-        assert (
-            chemenvlobster1.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
-                isites=[0],
-                only_bonds_to=["Te"],
-            )[1]
-            is None
-        )
+        assert plot_label is None
+        assert summed_cohpcar_mp_190_Te is None
 
-        assert (
-            self.chemenvlobster0_NaSi.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.NaSi.gz"),
-                isites=[8],
-                onlycation_isites=False,
-                only_bonds_to=["Na"],
-            )[0]
-            == "1 x Na-Si (per bond)"
+        plot_label, _summed_cohpcar_NaSi = self.chemenvlobster0_NaSi.get_info_cohps_to_neighbors(
+            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.NaSi.gz"),
+            isites=[8],
+            onlycation_isites=False,
+            only_bonds_to=["Na"],
         )
+        assert plot_label == "1 x Na-Si (per bond)"
         assert (
             self.chemenvlobster0_NaSi.get_info_cohps_to_neighbors(
                 path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.NaSi.gz"),
@@ -745,14 +728,14 @@ class TestLobsterNeighbors(unittest.TestCase):
         )
 
         chemenvlobster1.plot_cohps_of_neighbors(
-            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=["O"],
             summed_spin_channels=True,
         )
 
         chemenvlobster1.plot_cohps_of_neighbors(
-            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=["O"],
             summed_spin_channels=True,
@@ -763,7 +746,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         with pytest.raises(ValueError):
             # icohplist and cohpcar do not fit together
             self.chemenvlobster1.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+                path_to_COHPCAR=cohpcar_lobster_mp_190,
                 isites=[0],
                 only_bonds_to=None,
                 per_bond=False,
@@ -772,7 +755,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         with pytest.raises(ValueError):
             # icohplist and cohpcar do not fit together
             self.chemenvlobster2.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+                path_to_COHPCAR=cohpcar_lobster_mp_190,
                 isites=[0],
                 only_bonds_to=None,
                 per_bond=False,

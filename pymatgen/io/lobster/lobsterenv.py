@@ -99,7 +99,7 @@ class LobsterNeighbors(NearNeighbors):
         """
         self.ICOHP = Icohplist(are_coops=are_coops, filename=filename_ICOHP)
         self.Icohpcollection = self.ICOHP.icohpcollection
-        self.structure: Structure = structure  # type: ignore[assignment]
+        self.structure = structure
         self.limits = limits
         self.only_bonds_to = only_bonds_to
         self.adapt_extremum_to_add_cond = adapt_extremum_to_add_cond
@@ -145,10 +145,10 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("Algorithm only works correctly for ICOHPLIST.lobster")
 
         # will check if the additional condition is correctly delivered
-        if additional_condition in range(0, 7):
+        if additional_condition in range(7):
             self.additional_condition = additional_condition
         else:
-            raise ValueError("No correct additional condition")
+            raise ValueError(f"Unexpected {additional_condition=}, must be one of {list(range(7))}")
 
         # will read in valences, will prefer manual setting of valences
         self.valences: list[float] | None
@@ -171,20 +171,14 @@ class LobsterNeighbors(NearNeighbors):
                         )
         else:
             self.valences = valences
-        if np.allclose(np.array(self.valences), np.zeros(np.array(self.valences).shape)) and additional_condition in [
-            1,
-            3,
-            5,
-            6,
-        ]:
+        if np.allclose(np.array(self.valences), np.zeros_like(self.valences)) and additional_condition in [1, 3, 5, 6]:
             raise ValueError("All valences are equal to 0, additional_conditions 1 and 3 and 5 and 6 will not work")
 
         if limits is None:
             self.lowerlimit = self.upperlimit = None
 
         else:
-            self.lowerlimit = limits[0]
-            self.upperlimit = limits[1]
+            self.lowerlimit, self.upperlimit = limits
 
         # will evaluate coordination environments
         self._evaluate_ce(
@@ -508,7 +502,7 @@ class LobsterNeighbors(NearNeighbors):
             # sort by anion type
             divisor = len(labels) if per_bond else 1
 
-            plotlabel = self._get_plot_label(atoms, per_bond)
+            plot_label = self._get_plot_label(atoms, per_bond)
             summed_cohp = self.completecohp.get_summed_cohp_by_label_list(
                 label_list=labels,
                 divisor=divisor,
@@ -545,18 +539,18 @@ class LobsterNeighbors(NearNeighbors):
             if len(new_labels) > 0:
                 divisor = len(new_labels) if per_bond else 1
 
-                plotlabel = self._get_plot_label(new_atoms, per_bond)
+                plot_label = self._get_plot_label(new_atoms, per_bond)
                 summed_cohp = self.completecohp.get_summed_cohp_by_label_list(
                     label_list=new_labels,
                     divisor=divisor,
                     summed_spin_channels=summed_spin_channels,
                 )
             else:
-                plotlabel = None
+                plot_label = None
 
                 summed_cohp = None
 
-        return plotlabel, summed_cohp
+        return plot_label, summed_cohp
 
     def _get_plot_label(self, atoms, per_bond):
         # count the types of bonds and append a label:
