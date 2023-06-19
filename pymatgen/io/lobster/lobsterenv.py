@@ -226,6 +226,8 @@ class LobsterNeighbors(NearNeighbors):
 
         return set(anion_species)
 
+
+
     def get_nn_info(self, structure: Structure, n, use_weights=False):
         """
         Get coordination number, CN, of site with index n in structure.
