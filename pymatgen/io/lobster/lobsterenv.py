@@ -211,7 +211,8 @@ class LobsterNeighbors(NearNeighbors):
         """
         return False
 
-    def get_anion_types(self):
+    @property
+    def anion_types(self):
         """
         Return the types of anions present in crystal structure as a set
         Returns: set of Element describing anions in the crystal structure
