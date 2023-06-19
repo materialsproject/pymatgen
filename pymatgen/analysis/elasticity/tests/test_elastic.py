@@ -156,9 +156,11 @@ class ElasticTensorTest(PymatgenTest):
         prop_dict = test_et.property_dict
         for attr_name in sprop_dict:
             if attr_name not in ([*prop_dict, "structure"]):
-                with pytest.raises(ValueError):
+                with pytest.raises(
+                    ValueError, match="Bulk or shear modulus is negative, property cannot be determined"
+                ):
                     getattr(test_et, attr_name)(self.structure)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Bulk or shear modulus is negative, property cannot be determined"):
             test_et.get_structure_property_dict(self.structure)
         noval_sprop_dict = test_et.get_structure_property_dict(self.structure, ignore_errors=True)
         assert noval_sprop_dict["snyder_ac"] is None
@@ -172,9 +174,12 @@ class ElasticTensorTest(PymatgenTest):
             assert len(w) == 1
         bad_tensor1 = np.zeros((3, 3, 3))
         bad_tensor2 = np.zeros((3, 3, 3, 2))
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="ElasticTensor input must be rank 4"):
             ElasticTensor(bad_tensor1)
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard notation",
+        ):
             ElasticTensor(bad_tensor2)
 
     def test_from_pseudoinverse(self):
@@ -204,12 +209,12 @@ class ElasticTensorTest(PymatgenTest):
     def test_energy_density(self):
         film_elac = ElasticTensor.from_voigt(
             [
-                [324.32, 187.3, 170.92, 0.0, 0.0, 0.0],
-                [187.3, 324.32, 170.92, 0.0, 0.0, 0.0],
-                [170.92, 170.92, 408.41, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 150.73, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0, 150.73, 0.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0, 238.74],
+                [324.32, 187.3, 170.92, 0, 0, 0],
+                [187.3, 324.32, 170.92, 0, 0, 0],
+                [170.92, 170.92, 408.41, 0, 0, 0],
+                [0, 0, 0, 150.73, 0, 0],
+                [0, 0, 0, 0, 150.73, 0],
+                [0, 0, 0, 0, 0, 238.74],
             ]
         )
 
@@ -226,12 +231,12 @@ class ElasticTensorTest(PymatgenTest):
         film_elac.energy_density(
             Strain.from_deformation(
                 [
-                    [0.99774738, 0.11520994, -0.0],
-                    [-0.11520994, 0.99774738, 0.0],
+                    [0.99774738, 0.11520994, -0],
+                    [-0.11520994, 0.99774738, 0],
                     [
-                        -0.0,
-                        -0.0,
-                        1.0,
+                        -0,
+                        -0,
+                        1,
                     ],
                 ]
             )
@@ -252,7 +257,7 @@ class ElasticTensorExpansionTest(PymatgenTest):
         values = [167.8, 113.5, 74.5]
         cu_c2 = ElasticTensor.from_values_indices(values, indices, structure=self.cu, populate=True)
         indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), (0, 3, 3), (0, 5, 5), (3, 4, 5)]
-        values = [-1507.0, -965.0, -71.0, -7.0, -901.0, 45.0]
+        values = [-1507, -965, -71, -7, -901, 45]
         cu_c3 = Tensor.from_values_indices(values, indices, structure=self.cu, populate=True)
         self.exp_cu = ElasticTensorExpansion([cu_c2, cu_c3])
         cu_c4 = Tensor.from_voigt(self.data_dict["Cu_fourth_order"])
@@ -358,7 +363,7 @@ class NthOrderElasticTensorTest(PymatgenTest):
         c4 = NthOrderElasticTensor(np.zeros([3] * 8))
         for n, c in enumerate([c2, c3, c4]):
             assert c.order == n + 2
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="ElasticTensor must have even rank"):
             NthOrderElasticTensor(np.zeros([3] * 5))
 
     def test_from_diff_fit(self):
@@ -441,17 +446,17 @@ class DiffFitTest(PymatgenTest):
         backward_26 = get_diff_coeff(np.arange(-6, 1), 2)
         central_29 = get_diff_coeff(np.arange(-4, 5), 2)
         self.assert_all_close(forward_11, [-1, 1])
-        self.assert_all_close(forward_13, [-11.0 / 6, 3, -3.0 / 2, 1.0 / 3])
+        self.assert_all_close(forward_13, [-11 / 6, 3, -3 / 2, 1 / 3])
         self.assert_all_close(
             backward_26,
             [
-                137.0 / 180,
-                -27.0 / 5,
-                33.0 / 2,
-                -254.0 / 9,
-                117.0 / 4,
-                -87.0 / 5,
-                203.0 / 45,
+                137 / 180,
+                -27 / 5,
+                33 / 2,
+                -254 / 9,
+                117 / 4,
+                -87 / 5,
+                203 / 45,
             ],
         )
         self.assert_all_close(central_29, central_diff_weights(9, 2))

@@ -56,7 +56,9 @@ class NDCalculatorTest(PymatgenTest):
         # not in scattering length table.
         # This curium structure is just for test, not the actual structure.
         something = Structure(Lattice.cubic(a=1), ["Cm"], [[0, 0, 0]])
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="Unable to calculate ND pattern as there is no scattering coefficients for Cm."
+        ):
             nd = c.get_pattern(something, two_theta_range=(0, 90))
 
         # Test with Debye-Waller factor

@@ -171,7 +171,7 @@ class Strain(SquareTensor):
         does not include the deformation gradient
 
         Args:
-            strain_matrix (3x3 array-like): the 3x3 array-like
+            strain_matrix (ArrayLike): 3x3 matrix or length-6 Voigt notation vector
                 representing the Green-Lagrange strain
         """
         vscale = np.ones((6,))
@@ -179,7 +179,7 @@ class Strain(SquareTensor):
         obj = super().__new__(cls, strain_matrix, vscale=vscale)
         if not obj.is_symmetric():
             raise ValueError(
-                "Strain objects must be initialized with a symmetric array or a Voigt-notation vector with six entries."
+                "Strain must be initialized with a symmetric array or a Voigt-notation vector with six entries."
             )
         return obj.view(cls)
 
@@ -205,7 +205,7 @@ class Strain(SquareTensor):
     def from_index_amount(cls, idx, amount):
         """
         Like Deformation.from_index_amount, except generates
-        a strain from the zero 3x3 tensor or voigt vector with
+        a strain from the zero 3x3 tensor or Voigt vector with
         the amount specified in the index location. Ensures
         symmetric strain.
 
