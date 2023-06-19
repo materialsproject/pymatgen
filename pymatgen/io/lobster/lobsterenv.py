@@ -11,7 +11,7 @@ import copy
 import math
 import os
 from typing import TYPE_CHECKING, NamedTuple
-
+from monty.dev import deprecated
 import numpy as np
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
