@@ -8,8 +8,8 @@ import pytest
 from pytest import approx
 
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.core.structure import Structure
 from pymatgen.core import Element
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import Cohp
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
@@ -277,8 +277,9 @@ class TestLobsterNeighbors(unittest.TestCase):
         self.chemenvlobster1.molecules_allowed
 
     def test_get_anion_types(self):
-        assert self.chemenvlobster0_second.get_anion_types() == set([Element("O")])
-        assert self.chemenvlobster0_second.anion_types() == set([Element("O")])
+        assert self.chemenvlobster0_second.get_anion_types() == {Element("O")}
+        assert self.chemenvlobster0_second.anion_types() == {Element("O")}
+
     def test_get_nn_info(self):
         # NO_ADDITIONAL_CONDITION = 0
         # ONLY_ANION_CATION_BONDS = 1
