@@ -43,43 +43,42 @@ class LobsterNeighbors(NearNeighbors):
 
     def __init__(
         self,
-        are_coops=False,
-        filename_ICOHP=None,
-        valences=None,
-        limits=None,
-        structure=None,
-        additional_condition=0,
-        only_bonds_to=None,
-        perc_strength_ICOHP=0.15,
-        valences_from_charges=False,
-        filename_CHARGE=None,
-        which_charge="Mulliken",
-        adapt_extremum_to_add_cond=False,
-        add_additional_data_sg=False,
-        filename_blist_sg1=None,
-        filename_blist_sg2=None,
-        id_blist_sg1="ICOOP",
-        id_blist_sg2="ICOBI",
+        are_coops: bool = False,
+        filename_ICOHP: str = None,
+        valences: list[int | float] = None,
+        limits: tuple[float, float] | None = None,
+        structure: Structure = None,
+        additional_condition: int = 0,
+        only_bonds_to: list[str] | None = None,
+        perc_strength_ICOHP: float = 0.15,
+        valences_from_charges: bool = False,
+        filename_CHARGE: str = None,
+        which_charge: str = "Mulliken",
+        adapt_extremum_to_add_cond: bool = False,
+        add_additional_data_sg: bool = False,
+        filename_blist_sg1: str = None,
+        filename_blist_sg2: str = None,
+        id_blist_sg1: str = "ICOOP",
+        id_blist_sg2: str = "ICOBI",
     ) -> None:
         """
 
         Args:
             are_coops: (bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for
-            ICOHPLIST.lobster so far
+                ICOHPLIST.lobster so far
             filename_ICOHP: (str) Path to ICOHPLIST.lobster
-            valences: (list of integers/floats) gives valence/charge for each element
-            limits: limit to decide which ICOHPs should be considered
-            structure: (Structure Object) typically constructed by: Structure.from_file("POSCAR") (Structure object
-            from pymatgen.core.structure)
-            additional_condition:   Additional condition that decides which kind of bonds will be considered
-                                    NO_ADDITIONAL_CONDITION = 0
-                                    ONLY_ANION_CATION_BONDS = 1
-                                    NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
-                                    ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
-                                    ONLY_ELEMENT_TO_OXYGEN_BONDS = 4
-                                    DO_NOT_CONSIDER_ANION_CATION_BONDS=5
-                                    ONLY_CATION_CATION_BONDS=6
-            only_bonds_to: (list of str) will only consider bonds to certain elements (e.g. ["O"] for oxygen)
+            valences: (list[int | float]): gives valence/charge for each element
+            limits (tuple[float, float] | None): limit to decide which ICOHPs should be considered
+            structure: (Structure): typically constructed by Structure.from_file("POSCAR")
+            additional_condition (int): Additional condition that decides which kind of bonds will be considered
+                NO_ADDITIONAL_CONDITION = 0
+                ONLY_ANION_CATION_BONDS = 1
+                NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
+                ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
+                ONLY_ELEMENT_TO_OXYGEN_BONDS = 4
+                DO_NOT_CONSIDER_ANION_CATION_BONDS=5
+                ONLY_CATION_CATION_BONDS=6
+            only_bonds_to: (list[str]) will only consider bonds to certain elements (e.g. ["O"] for oxygen)
             perc_strength_ICOHP: if no limits are given, this will decide which icohps will still be considered (
             relative to
             the strongest ICOHP)
@@ -99,7 +98,7 @@ class LobsterNeighbors(NearNeighbors):
         """
         self.ICOHP = Icohplist(are_coops=are_coops, filename=filename_ICOHP)
         self.Icohpcollection = self.ICOHP.icohpcollection
-        self.structure = structure
+        self.structure: Structure = structure  # type: ignore[assignment]
         self.limits = limits
         self.only_bonds_to = only_bonds_to
         self.adapt_extremum_to_add_cond = adapt_extremum_to_add_cond
