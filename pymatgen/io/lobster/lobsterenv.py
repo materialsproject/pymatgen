@@ -227,7 +227,7 @@ class LobsterNeighbors(NearNeighbors):
 
         return set(anion_species)
 
-    @deprecated(replacement=self.anion_types, message="use anion_types instead")
+    @deprecated(replacement=anion_types)
     def get_anion_types(self):
         return self.anion_types
 
