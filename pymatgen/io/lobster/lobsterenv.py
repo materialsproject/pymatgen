@@ -234,7 +234,8 @@ class LobsterNeighbors(NearNeighbors):
         """
         from warnings import warn
 
-        warn("get_anion_types will be deprecated. Please use anion_types instead.")
+        @deprecated(replacement=self.anion_types, message="use anion_types instead")
+        def get_anion_types(self):
 
         return self.anion_types
 
