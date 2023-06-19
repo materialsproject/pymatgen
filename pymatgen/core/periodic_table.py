@@ -1562,7 +1562,7 @@ class DummySpecie(DummySpecies):
     to maintain backwards compatibility.
     """
 
-
+@functools.cache
 def get_el_sp(obj) -> Element | Species | DummySpecies:
     """
     Utility method to get an Element or Species from an input obj.
