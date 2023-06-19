@@ -278,7 +278,7 @@ class TestLobsterNeighbors(unittest.TestCase):
 
     def test_get_anion_types(self):
         assert self.chemenvlobster0_second.get_anion_types() == set([Element("O")])
-        assert self.chemenvlobster0_second.anion_types() == set([Element("O")])
+        assert self.chemenvlobster0_second.anion_types == set([Element("O")])
     def test_get_nn_info(self):
         # NO_ADDITIONAL_CONDITION = 0
         # ONLY_ANION_CATION_BONDS = 1
