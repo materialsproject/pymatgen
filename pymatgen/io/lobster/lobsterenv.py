@@ -366,8 +366,9 @@ class LobsterNeighbors(NearNeighbors):
             sum of icohp values of neighbors to the selected sites [given by the id in structure] (float),
             list of summed icohp values for all identified interactions with neighbors (list),
             number of identified bonds to the selected sites (int),
-            labels (from ICOHPLIST) for all identified bonds returned as a list of site names, e.g.,
-            ['Ag3', 'O5'] [the latter is useful for plotting summed COHP plots] (list),
+            labels (from ICOHPLIST) for all identified bonds (list of  str),
+            list of list describing the species present in the identified interactions (names from ICOHPLIST], e.g.,
+                ['Ag3', 'O5'] [the latter is useful for plotting summed COHP plots] (list),
             list of the central isite for each identified interaction (list)
         """
         if self.valences is None and onlycation_isites:
@@ -593,8 +594,9 @@ class LobsterNeighbors(NearNeighbors):
             sum of icohp values between the neighbors of the selected sites [given by the id in structure] (float),
             list of summed icohp values for all identified interactions between neighbors (list),
             number of identified bonds between the neighbors of the selected sites (int),
-            labels (from ICOHPLIST) for all identified bonds returned as a list of site names, e.g.,
-            ['Ag3', 'O5'] [the latter is useful for plotting summed COHP plots] (list),
+            labels (from ICOHPLIST) for all identified bonds (list of  str),
+            list of list describing the species present in the identified interactions (names from ICOHPLIST], e.g.,
+                ['Ag3', 'O5'] [the latter is useful for plotting summed COHP plots] (list)
         """
         lowerlimit = self.lowerlimit
         upperlimit = self.upperlimit
