@@ -11,8 +11,9 @@ import copy
 import math
 import os
 from typing import TYPE_CHECKING, NamedTuple
-from monty.dev import deprecated
+
 import numpy as np
+from monty.dev import deprecated
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
