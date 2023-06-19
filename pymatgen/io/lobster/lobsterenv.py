@@ -10,7 +10,7 @@ import collections
 import copy
 import math
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 
@@ -362,14 +362,7 @@ class LobsterNeighbors(NearNeighbors):
             onlycation_isites: if True and if isite==None, it will only analyse the sites of the cations
 
 
-        Returns: tuple including
-            sum of icohp values of neighbors to the selected sites [given by the id in structure] (float),
-            list of summed icohp values for all identified interactions with neighbors (list),
-            number of identified bonds to the selected sites (int),
-            labels (from ICOHPLIST) for all identified bonds (list of  str),
-            list of list describing the species present in the identified interactions (names from ICOHPLIST], e.g.,
-                ['Ag3', 'O5'] [the latter is useful for plotting summed COHP plots] (list),
-            list of the central isite for each identified interaction (list)
+        Returns: ICOHPNeighborsInfo
         """
         if self.valences is None and onlycation_isites:
             raise ValueError("No valences are provided")
@@ -399,7 +392,7 @@ class LobsterNeighbors(NearNeighbors):
                     )
                     number_bonds += 1
                     final_isites.append(ival)
-        return summed_icohps, list_icohps, number_bonds, labels, atoms, final_isites
+        return ICOHPNeighborsInfo(summed_icohps, list_icohps, number_bonds, labels, atoms, final_isites)
 
     def plot_cohps_of_neighbors(
         self,
@@ -589,14 +582,7 @@ class LobsterNeighbors(NearNeighbors):
             isites: list of site ids, if isite==None, all isites will be used
             onlycation_isites: will only use cations, if isite==None
 
-        Returns:
-            tuple:
-            sum of icohp values between the neighbors of the selected sites [given by the id in structure] (float),
-            list of summed icohp values for all identified interactions between neighbors (list),
-            number of identified bonds between the neighbors of the selected sites (int),
-            labels (from ICOHPLIST) for all identified bonds (list of  str),
-            list of list describing the species present in the identified interactions (names from ICOHPLIST], e.g.,
-                ['Ag3', 'O5'] [the latter is useful for plotting summed COHP plots] (list)
+        Returns: ICOHPNeighborsInfo
         """
         lowerlimit = self.lowerlimit
         upperlimit = self.upperlimit
@@ -681,7 +667,7 @@ class LobsterNeighbors(NearNeighbors):
                                         )
                                         done = True
 
-        return summed_icohps, list_icohps, number_bonds, label_list, atoms_list
+        return ICOHPNeighborsInfo(summed_icohps, list_icohps, number_bonds, label_list, atoms_list, None)
 
     def _evaluate_ce(
         self,
@@ -1367,3 +1353,26 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
             ],
             "valences": self.valences,
         }
+
+
+class ICOHPNeighborsInfo(NamedTuple):
+    """
+    Tuple to represent information on relevant bonds
+    Args:
+        total_icohp (float): sum of icohp values of neighbors to the selected sites [given by the id in structure]
+        list_icohps (list): list of summed icohp values for all identified interactions with neighbors
+        n_bonds (int): number of identified bonds to the selected sites
+        labels (list(str)): labels (from ICOHPLIST) for all identified bonds
+        atoms (list(list(str)): list of list describing the species present in the identified interactions (names from ICOHPLIST), e.g.,
+            ['Ag3', 'O5']
+        central_isites (list(int)): list of the central isite for each identified interaction.
+
+
+    """
+
+    total_icohp: float
+    list_icohps: list[float]
+    n_bonds: int
+    labels: list[str]
+    atoms: list[list[str]]
+    central_isites: list[int] | None
