@@ -43,11 +43,11 @@ class LobsterNeighbors(NearNeighbors):
 
     def __init__(
         self,
+        structure: Structure,
+        filename_ICOHP: str = "ICOHPLIST.lobster",
         are_coops: bool = False,
-        filename_ICOHP: str = None,
         valences: list[int | float] = None,
         limits: tuple[float, float] | None = None,
-        structure: Structure = None,
         additional_condition: int = 0,
         only_bonds_to: list[str] | None = None,
         perc_strength_ICOHP: float = 0.15,
@@ -64,12 +64,12 @@ class LobsterNeighbors(NearNeighbors):
         """
 
         Args:
+            filename_ICOHP: (str) Path to ICOHPLIST.lobster
+            structure: (Structure): typically constructed by Structure.from_file("POSCAR")
             are_coops: (bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for
                 ICOHPLIST.lobster so far
-            filename_ICOHP: (str) Path to ICOHPLIST.lobster
             valences: (list[int | float]): gives valence/charge for each element
             limits (tuple[float, float] | None): limit to decide which ICOHPs should be considered
-            structure: (Structure): typically constructed by Structure.from_file("POSCAR")
             additional_condition (int): Additional condition that decides which kind of bonds will be considered
                 NO_ADDITIONAL_CONDITION = 0
                 ONLY_ANION_CATION_BONDS = 1
