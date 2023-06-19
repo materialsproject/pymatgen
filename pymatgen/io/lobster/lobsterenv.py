@@ -227,7 +227,16 @@ class LobsterNeighbors(NearNeighbors):
 
         return set(anion_species)
 
+    def get_anion_types(self):
+        """
+        Return the types of anions present in crystal structure as a set
+        Returns: set of Element describing anions in the crystal structure
+        """
+        from warnings import warn
 
+        warn("get_anion_types will be deprecated. Please use anion_types instead.")
+
+        return self.anion_types
 
     def get_nn_info(self, structure: Structure, n, use_weights=False):
         """
