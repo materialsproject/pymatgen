@@ -519,6 +519,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         )
         assert isinstance(sg, StructureGraph)
 
+
     def test_extended_structure_graph(self):
         self.chemenvlobsterNaCl = LobsterNeighbors(
             are_coops=False,
