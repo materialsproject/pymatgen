@@ -1562,6 +1562,7 @@ class DummySpecie(DummySpecies):
     to maintain backwards compatibility.
     """
 
+
 @functools.cache
 def get_el_sp(obj) -> Element | Species | DummySpecies:
     """
