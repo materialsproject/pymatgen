@@ -214,8 +214,8 @@ class LobsterNeighbors(NearNeighbors):
 
     def get_anion_types(self):
         """
-        Return the types of anions present in crystal structure
-        Returns:
+        Return the types of anions present in crystal structure as a set
+        Returns: set of Element describing anions in the crystal structure
         """
         if self.valences is None:
             raise ValueError("No cations and anions defined")
@@ -352,21 +352,23 @@ class LobsterNeighbors(NearNeighbors):
 
         return lse
 
-    def get_info_icohps_to_neighbors(self, isites=None, onlycation_isites=True):
+    def get_info_icohps_to_neighbors(self, isites: list(int) | None = None, onlycation_isites: bool = True):
         """
-        this method Return information of cohps of neighbors
+        This method returns information on the icohps of neighbors for certain sites as identified by their site id.
+        This is useful for plotting the relevant cohps of a site in the structure.
 
         Args:
-            isites: list of site ids, if isite==None, all isites will be used to add the icohps of the neighbors
-            onlycation_isites: will only use cations, if isite==[]
+            isites: list of site ids. If isite==None, all isites will be used to add the icohps of the neighbors
+            onlycation_isites: if True and if isite==None, it will only analyse the sites of the cations
 
 
-        Returns:
-            sum of icohps of neighbors to certain sites [given by the id in structure], number of bonds to this site,
-            labels (from ICOHPLIST) for
-            these bonds
-            [the latter is useful for plotting summed COHP plots],
-            list of the central isite for each label
+        Returns: tuple including
+            sum of icohp values of neighbors to the selected sites [given by the id in structure] (float),
+            list of summed icohp values for all identified interactions with neighbors (list),
+            number of identified bonds to the selected sites (int),
+            labels (from ICOHPLIST) for all identified bonds returned as a list of site names, e.g.,
+            ['Ag3', 'O5'] [the latter is useful for plotting summed COHP plots] (list),
+            list of the central isite for each identified interaction (list)
         """
         if self.valences is None and onlycation_isites:
             raise ValueError("No valences are provided")
@@ -461,7 +463,8 @@ class LobsterNeighbors(NearNeighbors):
         summed_spin_channels=False,
     ):
         """
-        Return info about the cohps from all sites mentioned in isites with neighbors
+        Return info about the cohps as a summed cohp object and a label
+         from all sites mentioned in isites with neighbors
 
         Args:
             path_to_COHPCAR: str, path to COHPCAR
@@ -586,7 +589,12 @@ class LobsterNeighbors(NearNeighbors):
             onlycation_isites: will only use cations, if isite==None
 
         Returns:
-            tuple: summed_icohps, list_icohps, number_bonds, label_list, atoms_list
+            tuple:
+            sum of icohp values between the neighbors of the selected sites [given by the id in structure] (float),
+            list of summed icohp values for all identified interactions between neighbors (list),
+            number of identified bonds between the neighbors of the selected sites (int),
+            labels (from ICOHPLIST) for all identified bonds returned as a list of site names, e.g.,
+            ['Ag3', 'O5'] [the latter is useful for plotting summed COHP plots] (list),
         """
         lowerlimit = self.lowerlimit
         upperlimit = self.upperlimit
