@@ -87,12 +87,11 @@ def readfile(file_object):
     """
     if hasattr(file_object, "read"):
         return file_object.read()
-    elif isinstance(file_object, str):
+    if isinstance(file_object, str):
         with open(file_object) as f:
             content = f.read()
         return content
-    else:
-        raise ValueError("``file_object`` must be a string or a file object!")
+    raise ValueError("``file_object`` must be a string or a file object!")
 
 
 class AdfKeyTest(unittest.TestCase):
@@ -307,7 +306,3 @@ class AdfOutputTest(unittest.TestCase):
         o = AdfOutput(filename)
         assert o.final_energy == approx(-0.74399276)
         assert len(o.final_structure) == 4
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -248,7 +248,7 @@ def _get_shifts(shift_mode, structure):
             return shifts
         return ((0, 0, 0),)
 
-    raise ValueError(f"invalid shift_mode: `{str(shift_mode)}`")
+    raise ValueError(f"invalid shift_mode: `{shift_mode!s}`")
 
 
 def gs_input(
@@ -803,12 +803,12 @@ class BasicAbinitInput(AbstractInput, MSONable):
         This function receive a list of ``AbiVarable`` objects and add
         the corresponding variables to the input.
         """
-        d = {}
+        dct = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
-                raise TypeError(f"type {type(obj)}: {repr(obj)} does not have `to_abivars` method")
-            d.update(self.set_vars(obj.to_abivars()))
-        return d
+                raise TypeError(f"type {type(obj)}: {obj!r} does not have `to_abivars` method")
+            dct.update(self.set_vars(obj.to_abivars()))
+        return dct
 
     def __setitem__(self, key, value):
         if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
@@ -891,7 +891,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """The |Structure| object associated to this input."""
         return self._structure
 
-    def set_structure(self, structure):
+    def set_structure(self, structure: Structure):
         """Set structure."""
         self._structure = as_structure(structure)
 
@@ -1106,13 +1106,13 @@ class BasicMultiDataset:
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:
-                raise self.Error(f"Cannot find the following pseudopotential files:\n{str(missing)}")
+                raise self.Error(f"Cannot find the following pseudopotential files:\n{missing!s}")
 
             pseudos = PseudoTable(pseudo_paths)
 
         # Build the list of BasicAbinitInput objects.
         if ndtset <= 0:
-            raise ValueError(f"ndtset {ndtset} cannot be <=0")
+            raise ValueError(f"{ndtset=} cannot be <=0")
 
         if not isinstance(structure, (list, tuple)):
             self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]

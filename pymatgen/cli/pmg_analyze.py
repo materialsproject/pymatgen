@@ -11,10 +11,7 @@ import re
 
 from tabulate import tabulate
 
-from pymatgen.apps.borg.hive import (
-    SimpleVaspToComputedEntryDrone,
-    VaspToComputedEntryDrone,
-)
+from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.io.vasp import Outcar
 
@@ -102,7 +99,7 @@ def get_magnetizations(dir: str, ion_list: list[int]):
     Get magnetization info from OUTCARs.
 
     Args:
-        mydir (str): Directory name
+        dir (str): Directory name
         ion_list (list[int]): List of ions to obtain magnetization information for.
 
     Returns:

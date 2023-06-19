@@ -14,16 +14,10 @@ import numpy as np
 from monty.json import MSONable
 from scipy.stats import gmean
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
-from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
-    DetailedVoronoiContainer,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.analysis.chemenv.utils.chemenv_errors import EquivalentSiteSearchError
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
-    get_lower_and_upper_f,
-)
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lower_and_upper_f
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.analysis.chemenv.utils.func_utils import (
     CSMFiniteRatioFunction,
@@ -260,15 +254,15 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
                         isite = isite2
                         break
         # Get the translation between psite and its corresponding site in the unit cell (Translation I)
-        thissite = self.structure_environments.structure[isite]
-        dthissite = psite.frac_coords - thissite.frac_coords
+        this_site = self.structure_environments.structure[isite]
+        dthis_site = psite.frac_coords - this_site.frac_coords
         # Get the translation between the equivalent site for which the neighbors have been computed and the site in
         # the unit cell that corresponds to psite (Translation II)
-        equivsite = self.structure_environments.structure[self.structure_environments.sites_map[isite]].to_unit_cell()
+        equiv_site = self.structure_environments.structure[self.structure_environments.sites_map[isite]].to_unit_cell()
         # equivsite = self.structure_environments.structure[self.structure_environments.sites_map[isite]]
         dequivsite = (
             self.structure_environments.structure[self.structure_environments.sites_map[isite]].frac_coords
-            - equivsite.frac_coords
+            - equiv_site.frac_coords
         )
         found = False
         # Find the symmetry that applies the site in the unit cell to the equivalent site, as well as the translation
@@ -276,41 +270,36 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         # TODO: check that these tolerances are needed, now that the structures are refined before analyzing envs
         tolerances = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4]
         for tolerance in tolerances:
-            for symop in self.symops:
-                newsite = PeriodicSite(
-                    equivsite._species,
-                    symop.operate(equivsite.frac_coords),
-                    equivsite._lattice,
+            for sym_op in self.symops:
+                new_site = PeriodicSite(
+                    equiv_site._species,
+                    sym_op.operate(equiv_site.frac_coords),
+                    equiv_site._lattice,
                 )
-                if newsite.is_periodic_image(thissite, tolerance=tolerance):
-                    mysym = symop
-                    dthissite2 = thissite.frac_coords - newsite.frac_coords
+                if new_site.is_periodic_image(this_site, tolerance=tolerance):
+                    my_sym = sym_op
+                    dthissite2 = this_site.frac_coords - new_site.frac_coords
                     found = True
                     break
             if not found:
-                symops = [SymmOp.from_rotation_and_translation()]
-                for symop in symops:
-                    newsite = PeriodicSite(
-                        equivsite._species,
-                        symop.operate(equivsite.frac_coords),
-                        equivsite._lattice,
+                sym_ops = [SymmOp.from_rotation_and_translation()]
+                for sym_op in sym_ops:
+                    new_site = PeriodicSite(
+                        equiv_site._species,
+                        sym_op.operate(equiv_site.frac_coords),
+                        equiv_site._lattice,
                     )
                     # if newsite.is_periodic_image(thissite):
-                    if newsite.is_periodic_image(thissite, tolerance=tolerance):
-                        mysym = symop
-                        dthissite2 = thissite.frac_coords - newsite.frac_coords
+                    if new_site.is_periodic_image(this_site, tolerance=tolerance):
+                        my_sym = sym_op
+                        dthissite2 = this_site.frac_coords - new_site.frac_coords
                         found = True
                         break
             if found:
                 break
         if not found:
             raise EquivalentSiteSearchError(psite)
-        return [
-            self.structure_environments.sites_map[isite],
-            dequivsite,
-            dthissite + dthissite2,
-            mysym,
-        ]
+        return [self.structure_environments.sites_map[isite], dequivsite, dthis_site + dthissite2, my_sym]
 
     @abc.abstractmethod
     def get_site_neighbors(self, site):
@@ -322,7 +311,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :return: The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
             can return a list of list of neighbors
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def uniquely_determines_coordination_environments(self):
@@ -330,7 +319,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         Returns True if the strategy leads to a unique coordination environment, False otherwise.
         :return: True if the strategy leads to a unique coordination environment, False otherwise.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_site_coordination_environment(self, site):
@@ -341,7 +330,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
             solutions, this can return a list of coordination environments for the site
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_site_coordination_environments(self, site):
@@ -352,7 +341,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
             solutions, this can return a list of coordination environments for the site
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_site_coordination_environments_fractions(
@@ -374,7 +363,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
             solutions, this can return a list of coordination environments for the site
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_site_ce_fractions_and_neighbors(self, site, full_ce_info=False, strategy_info=False):
         """
@@ -439,7 +428,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :param other: strategy to be compared with the current one
         :return:
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __str__(self):
         out = f"  Chemenv Strategy {type(self).__name__!r}\n"
@@ -458,7 +447,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         Bson-serializable dict representation of the SimplestChemenvStrategy object.
         :return: Bson-serializable dict representation of the SimplestChemenvStrategy object.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def from_dict(cls, d):
@@ -468,7 +457,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :param d: dict representation of the SimpleAbundanceChemenvStrategy object
         :return: StructureEnvironments object
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class SimplestChemenvStrategy(AbstractChemenvStrategy):
@@ -657,23 +646,22 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             ] = self.equivalent_site_index_and_transform(site)
         neighbors_normalized_distances = self.structure_environments.voronoi.neighbors_normalized_distances[isite]
         neighbors_normalized_angles = self.structure_environments.voronoi.neighbors_normalized_angles[isite]
-        idist = None
+        i_dist = None
         for iwd, wd in enumerate(neighbors_normalized_distances):
             if self.distance_cutoff >= wd["min"]:
-                idist = iwd
+                i_dist = iwd
             else:
                 break
-        iang = None
+        i_ang = None
         for iwa, wa in enumerate(neighbors_normalized_angles):
             if self.angle_cutoff <= wa["max"]:
-                iang = iwa
+                i_ang = iwa
             else:
                 break
-        if idist is None or iang is None:
+        if i_dist is None or i_ang is None:
             raise ValueError("Distance or angle parameter not found ...")
 
-        my_cn = None
-        my_inb_set = None
+        my_cn = my_inb_set = None
         found = False
         for cn, nb_sets in self.structure_environments.neighbors_sets[isite].items():
             for inb_set, nb_set in enumerate(nb_sets):
@@ -683,7 +671,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
                     if src["origin"] == "dist_ang_ac_voronoi" and src["ac"] == self.additional_condition
                 ]
                 for src in sources:
-                    if src["idp"] == idist and src["iap"] == iang:
+                    if src["idp"] == i_dist and src["iap"] == i_ang:
                         my_cn = cn
                         my_inb_set = inb_set
                         found = True
@@ -1350,17 +1338,12 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
                 self.fda = self.ang
             else:
                 self.fda = self.angn
+        elif self.aa == 1:
+            self.fda = self.anginvdist if self.bb == 1 else self.anginvndist
+        elif self.bb == 1:
+            self.fda = self.angninvdist
         else:
-            if self.aa == 1:
-                if self.bb == 1:
-                    self.fda = self.anginvdist
-                else:
-                    self.fda = self.anginvndist
-            else:
-                if self.bb == 1:
-                    self.fda = self.angninvdist
-                else:
-                    self.fda = self.angninvndist
+            self.fda = self.angninvndist
 
     def __eq__(self, other: object) -> bool:
         needed_attrs = ("average_type", "aa", "bb")
@@ -1717,8 +1700,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         )
         cn = cn_map[0]
         isite = nb_set.isite
-        delta_csm = None
-        delta_csm_cn_map2 = None
+        delta_csm = delta_csm_cn_map2 = None
         nb_set_weight = 1.0
         for cn2, nb_sets in structure_environments.neighbors_sets[isite].items():
             if cn2 < cn:
@@ -2043,7 +2025,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         if weight_type == "has_intersection":
             self.area_weight = self.w_area_has_intersection
         elif weight_type == "has_intersection_smoothstep":
-            raise NotImplementedError()
+            raise NotImplementedError
             # self.area_weight = self.w_area_has_intersection_smoothstep
         else:
             raise ValueError(f'Weight type is {weight_type!r} while it should be "has_intersection"')
@@ -2561,10 +2543,10 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         :param structure_environments: StructureEnvironments object containing all the information on the
             coordination of the sites in a structure
         """
+        if nb_set_weights is None:
+            raise ValueError(f"{nb_set_weights=} must be provided")
         AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
         self._additional_condition = additional_condition
-        if nb_set_weights is None:
-            raise ValueError()
         self.nb_set_weights = nb_set_weights
         self.ordered_weights = []
         for nb_set_weight in self.nb_set_weights:
@@ -2639,7 +2621,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                     cn_maps_new.append(cn_map)
             cn_maps = cn_maps_new
         for cn_map, weights in weights_additional_info["weights"][isite].items():
-            weights_additional_info["weights"][isite][cn_map]["Product"] = np.product(list(weights.values()))
+            weights_additional_info["weights"][isite][cn_map]["Product"] = np.prod(list(weights.values()))
 
         w_nb_sets = {
             cn_map: weights["Product"] for cn_map, weights in weights_additional_info["weights"][isite].items()
@@ -2939,9 +2921,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         )
         symmetry_measure_type = "csm_wcs_ctwcc"
         delta_weight = DeltaCSMNbSetWeight.delta_cn_specifics()
-        bias_weight = None
-        angle_weight = None
-        nad_weight = None
+        bias_weight = angle_weight = nad_weight = None
         return cls(
             dist_ang_area_weight=da_area_weight,
             self_csm_weight=self_csm_weight,

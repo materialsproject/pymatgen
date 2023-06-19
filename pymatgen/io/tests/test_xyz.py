@@ -196,7 +196,3 @@ O 9.960184 1.516793 1.393875"""
         # index tests
         np.testing.assert_array_equal(mol_df.columns, test_df.columns)
         np.testing.assert_array_equal(mol_df.index, test_df.index)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -6,8 +6,10 @@ from __future__ import annotations
 
 import collections
 import itertools
+from typing import TYPE_CHECKING
 
-from pymatgen.core.structure import Structure
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 def get_warren_cowley_parameters(structure: Structure, r: float, dr: float) -> dict[tuple, float]:

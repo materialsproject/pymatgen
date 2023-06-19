@@ -265,13 +265,12 @@ class PhononBSPlotter:
                 uniq_d.append(tt[0])
                 uniq_l.append(tt[1])
                 logger.debug(f"Adding label {tt[0]} at {tt[1]}")
+            elif tt[1] == temp_ticks[i - 1][1]:
+                logger.debug(f"Skipping label {tt[1]}")
             else:
-                if tt[1] == temp_ticks[i - 1][1]:
-                    logger.debug(f"Skipping label {tt[1]}")
-                else:
-                    logger.debug(f"Adding label {tt[0]} at {tt[1]}")
-                    uniq_d.append(tt[0])
-                    uniq_l.append(tt[1])
+                logger.debug(f"Adding label {tt[0]} at {tt[1]}")
+                uniq_d.append(tt[0])
+                uniq_l.append(tt[1])
 
         logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
         plt.gca().set_xticks(uniq_d)
@@ -401,10 +400,10 @@ class PhononBSPlotter:
         # if there are two groups, use red and blue
         if len(colors) == 2:
             return [colors[0], 0, colors[1]]
-        elif len(colors) == 3:
+        if len(colors) == 3:
             return colors
         # if there are four groups, use cyan, magenta, yellow and black
-        elif len(colors) == 4:
+        if len(colors) == 4:
             r = (1 - colors[0]) * (1 - colors[3])
             g = (1 - colors[1]) * (1 - colors[3])
             b = (1 - colors[2]) * (1 - colors[3])
@@ -430,6 +429,9 @@ class PhononBSPlotter:
             ylim: Specify the y-axis (frequency) limits; by default None let
                 the code choose.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+                Defaults to "thz".
+            rgb_labels: a list of rgb colors for the labels; if not specified,
+                the colors will be automatically generated.
         """
         from matplotlib.collections import LineCollection
 
@@ -494,11 +496,10 @@ class PhononBSPlotter:
         labels: list[str]
         if rgb_labels is not None:
             labels = rgb_labels  # type: ignore[assignment]
+        elif site_comb == "element":
+            labels = [e.symbol for e in self._bs.structure.composition.elements]
         else:
-            if site_comb == "element":
-                labels = [e.symbol for e in self._bs.structure.composition.elements]
-            else:
-                labels = [f"{i}" for i in range(len(site_comb))]
+            labels = [f"{i}" for i in range(len(site_comb))]
         if len(indices) == 2:
             BSDOSPlotter._rb_line(ax, labels[0], labels[1], "best")
         elif len(indices) == 3:
@@ -545,9 +546,16 @@ class PhononBSPlotter:
         Show the projected plot using matplotlib.
 
         Args:
+            site_comb: A list of list of indices of sites to combine. For example,
+                [[0, 1], [2, 3]] will combine the projections of sites 0 and 1,
+                and sites 2 and 3. Defaults to "element", which will combine
+                sites by element.
             ylim: Specify the y-axis (frequency) limits; by default None let
                 the code choose.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+                Defaults to "thz".
+            rgb_labels: A list of labels for the rgb triangle. Defaults to None,
+                which will use the element symbols.
         """
         self.get_proj_plot(site_comb=site_comb, ylim=ylim, units=units, rgb_labels=rgb_labels)
         plt.show()
@@ -582,11 +590,10 @@ class PhononBSPlotter:
                     tick_labels.pop()
                     tick_distance.pop()
                     tick_labels.append(label0 + "$\\mid$" + label1)
+                elif c.label.startswith("\\") or c.label.find("_") != -1:
+                    tick_labels.append("$" + c.label + "$")
                 else:
-                    if c.label.startswith("\\") or c.label.find("_") != -1:
-                        tick_labels.append("$" + c.label + "$")
-                    else:
-                        tick_labels.append(c.label)
+                    tick_labels.append(c.label)
                 previous_label = c.label
                 previous_branch = this_branch
         return {"distance": tick_distance, "label": tick_labels}
@@ -600,7 +607,9 @@ class PhononBSPlotter:
 
         Args:
             other_plotter: another PhononBSPlotter object defined along the same symmetry lines
-            units:
+            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+                Defaults to 'thz'.
+
         Returns:
             a matplotlib object with both band structures
         """
@@ -916,8 +925,6 @@ class GruneisenPlotter:
             filename: name of the filename
             img_format: format of the saved plot
             units: accepted units: thz, ev, mev, ha, cm-1, cm^-1
-
-        Returns:
         """
         plt = self.get_plot(units=units)
         plt.savefig(filename, format=img_format)
@@ -1046,7 +1053,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         plt.savefig(filename, format=img_format)
         plt.close()
 
-    def plot_compare_gs(self, other_plotter):
+    def plot_compare_gs(self, other_plotter: GruneisenPhononBSPlotter) -> plt:
         """
         plot two band structure for comparison. One is in red the other in blue.
         The two band structures need to be defined on the same symmetry lines!
@@ -1054,7 +1061,8 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         the one of the band structure used to build the PhononBSPlotter
 
         Args:
-            another GruneisenPhononBSPlotter object defined along the same symmetry lines
+            other_plotter (GruneisenPhononBSPlotter): another phonon DOS plotter defined along
+                the same symmetry lines.
 
         Returns:
             a matplotlib object with both band structures

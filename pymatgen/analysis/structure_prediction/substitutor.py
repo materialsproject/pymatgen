@@ -14,9 +14,7 @@ from monty.json import MSONable
 from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.alchemy.transmuters import StandardTransmuter
-from pymatgen.analysis.structure_prediction.substitution_probability import (
-    SubstitutionProbability,
-)
+from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionProbability
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 
@@ -162,7 +160,7 @@ class Substitutor(MSONable):
         """
         Checks if the structure object is charge balanced
         """
-        return sum(s.specie.oxi_state for s in struct.sites) == 0.0
+        return sum(site.specie.oxi_state for site in struct) == 0.0
 
     @staticmethod
     def _is_from_chemical_system(chemical_system, struct):

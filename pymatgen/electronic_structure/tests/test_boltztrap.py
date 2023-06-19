@@ -182,7 +182,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         ref = [0.097408810215, 0.29335112354, 0.614673998089]
         for i in range(0, 3):
             assert self.bz.get_zt()["n"][800][4][i] == approx(ref[i])
-        assert self.bz.get_zt(output="average", kl=0.5)["p"][700][2] == approx(0.0170001879916)
+        assert self.bz.get_zt(output="average", k_l=0.5)["p"][700][2] == approx(0.0170001879916)
         assert self.bz.get_zt(output="average", doping_levels=False, relaxation_time=1e-15)[300][240] == approx(
             0.0041923533238348342
         )
@@ -239,14 +239,14 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
             assert len(sbs_bzt.bands[Spin.up][1]) == approx(143)
 
     # def test_check_acc_bzt_bands(self):
-    #     structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR,'boltztrap/structure_mp-12103.json'))
-    #     sbs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR,'boltztrap/dft_bs_sym_line.json'))
-    #     sbs_bzt = self.bz_bands.get_symm_bands(structure,-5.25204548)
-    #     corr,werr_vbm,werr_cbm,warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt,sbs)
-    #     self.assertAlmostEqual(corr[2],9.16851750e-05)
-    #     self.assertAlmostEqual(werr_vbm['K-H'],0.18260273521047862)
-    #     self.assertAlmostEqual(werr_cbm['M-K'],0.071552669981356981)
-    #     self.assertFalse(warn)
+    #     structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/structure_mp-12103.json"))
+    #     sbs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/dft_bs_sym_line.json"))
+    #     sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548)
+    #     corr, werr_vbm, werr_cbm, warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt, sbs)
+    #     assert corr[2] == 9.16851750e-05
+    #     assert werr_vbm["K-H"] == 0.18260273521047862
+    #     assert werr_cbm["M-K"] == 0.071552669981356981
+    #     assert not warn
 
     def test_get_complete_dos(self):
         structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/structure_mp-12103.json"))
@@ -275,7 +275,3 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         s = json.dumps(btr_dict)
         assert s is not None
         assert btr_dict["bs"] is not None
-
-
-if __name__ == "__main__":
-    unittest.main()

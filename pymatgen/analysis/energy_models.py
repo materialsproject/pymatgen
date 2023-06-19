@@ -7,11 +7,15 @@ implementations. Basically, an EnergyModel is any model that returns an
 from __future__ import annotations
 
 import abc
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __version__ = "0.1"
 
@@ -30,12 +34,15 @@ class EnergyModel(MSONable, metaclass=abc.ABCMeta):
         return 0.0
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
-        :param d: Dict representation
-        :return: EnergyModel
+        Args:
+            dct (dict): Dict representation
+
+        Returns:
+            EnergyModel
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class EwaldElectrostaticModel(EnergyModel):
@@ -66,7 +73,7 @@ class EwaldElectrostaticModel(EnergyModel):
         self.eta = eta
         self.acc_factor = acc_factor
 
-    def get_energy(self, structure):
+    def get_energy(self, structure: Structure):
         """
         :param structure: Structure
         :return: Energy value
@@ -115,7 +122,7 @@ class SymmetryModel(EnergyModel):
         self.symprec = symprec
         self.angle_tolerance = angle_tolerance
 
-    def get_energy(self, structure):
+    def get_energy(self, structure: Structure):
         """
         :param structure: Structure
         :return: Energy value
@@ -152,7 +159,7 @@ class IsingModel(EnergyModel):
         self.j = j
         self.max_radius = max_radius
 
-    def get_energy(self, structure):
+    def get_energy(self, structure: Structure):
         """
         :param structure: Structure
         :return: Energy value
@@ -184,7 +191,7 @@ class NsitesModel(EnergyModel):
     of sites after enumeration.
     """
 
-    def get_energy(self, structure):
+    def get_energy(self, structure: Structure):
         """
         :param structure: Structure
         :return: Energy value

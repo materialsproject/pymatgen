@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 from mpl_toolkits.mplot3d import Axes3D
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.wulff import WulffShape
@@ -104,8 +104,7 @@ class WulffShapeTest(PymatgenTest):
                 symm_point = op.operate(point)
                 if in_coord_list(wulff_vertices, symm_point):
                     continue
-                else:
-                    return False
+                return False
         return True
 
     def consistency_tests(self):
@@ -173,11 +172,7 @@ class WulffShapeTest(PymatgenTest):
 
     def test_corner_and_edges(self):
         # Test if it is returning the correct number of corner and edges
-        self.assertArrayEqual(self.cube.tot_corner_sites, 8)
-        self.assertArrayEqual(self.cube.tot_edges, 12)
-        self.assertArrayEqual(self.hex_prism.tot_corner_sites, 12)
-        self.assertArrayEqual(self.hex_prism.tot_edges, 18)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert_array_equal(self.cube.tot_corner_sites, 8)
+        assert_array_equal(self.cube.tot_edges, 12)
+        assert_array_equal(self.hex_prism.tot_corner_sites, 12)
+        assert_array_equal(self.hex_prism.tot_edges, 18)

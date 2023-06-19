@@ -11,16 +11,19 @@ import itertools
 import logging
 import math
 import time
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.analysis.local_env import MinimumDistanceNN
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.transformation_abc import AbstractTransformation
+
+if TYPE_CHECKING:
+    from pymatgen.core.sites import PeriodicSite
+    from pymatgen.core.structure import Structure
 
 
 class InsertSitesTransformation(AbstractTransformation):
@@ -46,7 +49,7 @@ class InsertSitesTransformation(AbstractTransformation):
         self.coords_are_cartesian = coords_are_cartesian
         self.validate_proximity = validate_proximity
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -77,7 +80,7 @@ class InsertSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -102,7 +105,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         """
         self.indices_species_map = indices_species_map
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -129,7 +132,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -149,7 +152,7 @@ class RemoveSitesTransformation(AbstractTransformation):
         """
         self.indices_to_remove = indices_to_remove
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -173,7 +176,7 @@ class RemoveSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -202,7 +205,7 @@ class TranslateSitesTransformation(AbstractTransformation):
         self.translation_vector = np.array(translation_vector)
         self.vector_in_frac_coords = vector_in_frac_coords
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -452,7 +455,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         return all_structures
 
-    def _enumerate_ordering(self, structure):
+    def _enumerate_ordering(self, structure: Structure):
         # Generate the disordered structure first.
         s = structure.copy()
         for indices, fraction in zip(self.indices, self.fractions):
@@ -460,22 +463,19 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
                 s[ind] = new_sp
         # Perform enumeration
-        from pymatgen.transformations.advanced_transformations import (
-            EnumerateStructureTransformation,
-        )
+        from pymatgen.transformations.advanced_transformations import EnumerateStructureTransformation
 
         trans = EnumerateStructureTransformation()
         return trans.apply_transformation(s, 10000)
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Apply the transformation.
 
         Args:
             structure: input structure
-            return_ranked_list (bool): Whether or not multiple structures are
-                returned. If return_ranked_list is a number, that number of
-                structures is returned.
+            return_ranked_list (bool | int): Whether or not multiple structures are returned.
+                If return_ranked_list is int, that number of structures is returned.
 
         Returns:
             Depending on returned_ranked list, either a transformed structure
@@ -534,7 +534,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -554,7 +554,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
         """
         self.site_properties = site_properties
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -573,7 +573,7 @@ class AddSitePropertyTransformation(AbstractTransformation):
     @property
     def inverse(self):
         """Return: None"""
-        return None
+        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -605,7 +605,7 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
         self.displacement = displacement
         self.nn_only = nn_only
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 

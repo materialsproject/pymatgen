@@ -26,6 +26,7 @@ import subprocess
 import tempfile
 import time
 from shutil import which
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -35,15 +36,18 @@ from scipy import constants
 from scipy.spatial import distance
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
 from pymatgen.core.units import Energy, Length
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, Kpoint
 from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.core.sites import PeriodicSite
+    from pymatgen.core.structure import Structure
 
 __author__ = "Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -354,12 +358,10 @@ class BoltztrapRunner(MSONable):
                 so = "so"
             f.write(
                 "5, 'boltztrap.intrans',      'old',    'formatted',0\n"
-                + "6,'boltztrap.outputtrans',      'unknown',    "
+                "6,'boltztrap.outputtrans',      'unknown',    "
                 "'formatted',0\n"
-                + "20,'boltztrap.struct',         'old',    'formatted',0\n"
-                + "10,'boltztrap.energy"
-                + so
-                + "',         'old',    "
+                "20,'boltztrap.struct',         'old',    'formatted',0\n"
+                "10,'boltztrap.energy" + so + "',         'old',    "
                 "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
                 "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
                 "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
@@ -380,7 +382,7 @@ class BoltztrapRunner(MSONable):
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
         for oi, o in enumerate(Orbital):
-            for site_nb in range(0, len(self._bs.structure.sites)):
+            for site_nb in range(len(self._bs.structure)):
                 if oi < len(self._bs.projections[Spin.up][0][0]):
                     with open(output_file_proj + "_" + str(site_nb) + "_" + str(o), "w") as f:
                         f.write(self._bs.structure.composition.formula + "\n")
@@ -406,12 +408,10 @@ class BoltztrapRunner(MSONable):
                 so = "so"
             f.write(
                 "5, 'boltztrap.intrans',      'old',    'formatted',0\n"
-                + "6,'boltztrap.outputtrans',      'unknown',    "
+                "6,'boltztrap.outputtrans',      'unknown',    "
                 "'formatted',0\n"
-                + "20,'boltztrap.struct',         'old',    'formatted',0\n"
-                + "10,'boltztrap.energy"
-                + so
-                + "',         'old',    "
+                "20,'boltztrap.struct',         'old',    'formatted',0\n"
+                "10,'boltztrap.energy" + so + "',         'old',    "
                 "'formatted',0\n48,'boltztrap.engre',         'unknown',    "
                 "'unformatted',0\n49,'boltztrap.transdos',        'unknown',    "
                 "'formatted',0\n50,'boltztrap.sigxx',        'unknown',    'formatted',"
@@ -424,7 +424,7 @@ class BoltztrapRunner(MSONable):
             )
             i = 1000
             for oi, o in enumerate(Orbital):
-                for site_nb in range(0, len(self._bs.structure.sites)):
+                for site_nb in range(0, len(self._bs.structure)):
                     if oi < len(self._bs.projections[Spin.up][0][0]):
                         f.write(f"{i},'boltztrap.proj_{site_nb}_{o.name}old', 'formatted',0\n")
                         i += 1
@@ -552,8 +552,6 @@ class BoltztrapRunner(MSONable):
                 in convergence mode
             min_egrid: (float) minimum egrid value to try before giving up in
                 convergence mode
-
-        Returns:
         """
         # TODO: consider making this a part of custodian rather than pymatgen
         # A lot of this functionality (scratch dirs, handlers, monitors)
@@ -1084,8 +1082,7 @@ class BoltztrapAnalyzer:
 
             units are microW/(m K^2)
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
 
@@ -1149,8 +1146,7 @@ class BoltztrapAnalyzer:
 
             units are W/mK
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
             for doping in result_doping:
@@ -1182,7 +1178,7 @@ class BoltztrapAnalyzer:
 
         return BoltztrapAnalyzer._format_to_output(result, result_doping, output, doping_levels, multi=relaxation_time)
 
-    def get_zt(self, output="eigs", doping_levels=True, relaxation_time=1e-14, kl=1.0):
+    def get_zt(self, output="eigs", doping_levels=True, relaxation_time=1e-14, k_l=1):
         """
         Gives the ZT coefficient (S^2*cond*T/thermal cond) in either a full
         3x3 tensor form,
@@ -1216,8 +1212,7 @@ class BoltztrapAnalyzer:
             The result includes a given constant relaxation time and lattice
             thermal conductivity
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
 
@@ -1235,7 +1230,7 @@ class BoltztrapAnalyzer:
                         result_doping[doping][t].append(
                             np.dot(
                                 pf_tensor * relaxation_time * t,
-                                np.linalg.inv(thermal_conduct + kl * np.eye(3, 3)),
+                                np.linalg.inv(thermal_conduct + k_l * np.eye(3, 3)),
                             )
                         )
         else:
@@ -1250,7 +1245,7 @@ class BoltztrapAnalyzer:
                     result[t].append(
                         np.dot(
                             pf_tensor * relaxation_time * t,
-                            np.linalg.inv(thermal_conduct + kl * np.eye(3, 3)),
+                            np.linalg.inv(thermal_conduct + k_l * np.eye(3, 3)),
                         )
                     )
 
@@ -1304,8 +1299,7 @@ class BoltztrapAnalyzer:
             The 'p' links to hole effective mass tensor and 'n' to electron
             effective mass tensor.
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         conc = self.get_carrier_concentration()
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._cond_doping[doping]} for doping in self.doping}
@@ -1520,10 +1514,7 @@ class BoltztrapAnalyzer:
 
         absval = True  # take the absolute value of properties
 
-        x_val = None
-        x_temp = None
-        x_doping = None
-        x_isotropic = None
+        x_val = x_temp = x_doping = x_isotropic = None
         output = {}
 
         min_temp = min_temp or 0
@@ -1613,9 +1604,8 @@ class BoltztrapAnalyzer:
         Gives a CompleteDos object with the DOS from the interpolated projected band structure
 
         Args:
-            the structure (necessary to identify sites for projection)
-            analyzer_for_second_spin must be specified to have a
-            CompleteDos with both Spin components
+            structure: necessary to identify sites for projection
+            analyzer_for_second_spin: must be specified to have a CompleteDos with both Spin components
 
         Returns:
             a CompleteDos object
@@ -1642,14 +1632,15 @@ class BoltztrapAnalyzer:
                 raise BoltztrapError("Dos merging error: spin component are the same")
 
         for s in self._dos_partial:
-            if structure.sites[int(s)] not in pdoss:
-                pdoss[structure.sites[int(s)]] = {}
+            idx = int(s)
+            if structure[idx] not in pdoss:
+                pdoss[structure[idx]] = {}
             for o in self._dos_partial[s]:
-                if Orbital[o] not in pdoss[structure.sites[int(s)]]:
-                    pdoss[structure.sites[int(s)]][Orbital[o]] = {}
-                pdoss[structure.sites[int(s)]][Orbital[o]][spin_1] = self._dos_partial[s][o]
+                if Orbital[o] not in pdoss[structure[idx]]:
+                    pdoss[structure[idx]][Orbital[o]] = {}
+                pdoss[structure[idx]][Orbital[o]][spin_1] = self._dos_partial[s][o]
                 if analyzer_for_second_spin:
-                    pdoss[structure.sites[int(s)]][Orbital[o]][spin_2] = analyzer_for_second_spin._dos_partial[s][o]
+                    pdoss[structure[idx]][Orbital[o]][spin_2] = analyzer_for_second_spin._dos_partial[s][o]
         if analyzer_for_second_spin:
             tdos = Dos(
                 self.dos.efermi,
@@ -1714,10 +1705,7 @@ class BoltztrapAnalyzer:
         Returns:
             tuple - (run_type, warning, efermi, gap, doping_levels)
         """
-        run_type = None
-        warning = None
-        efermi = None
-        gap = None
+        run_type = warning = efermi = gap = None
         doping_levels = []
 
         with open(os.path.join(path_dir, "boltztrap.outputtrans")) as f:

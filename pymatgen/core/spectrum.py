@@ -5,7 +5,7 @@ x y value pairs.
 
 from __future__ import annotations
 
-from typing import Callable, Literal
+from typing import TYPE_CHECKING, Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -13,7 +13,9 @@ from scipy import stats
 from scipy.ndimage import convolve1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
@@ -67,7 +69,7 @@ class Spectrum(MSONable):
             return self.x
         if item == self.YLABEL.lower():
             return self.y
-        raise AttributeError(f"Invalid attribute name {str(item)}")
+        raise AttributeError(f"Invalid attribute name {item!s}")
 
     def __len__(self):
         return self.ydim[0]
@@ -87,7 +89,7 @@ class Spectrum(MSONable):
         elif mode.lower() == "max":
             factor = np.max(self.y, axis=0)
         else:
-            raise ValueError(f"Unsupported normalization mode {mode}!")
+            raise ValueError(f"Unsupported normalization {mode=}!")
 
         self.y /= factor / value
 
@@ -108,7 +110,7 @@ class Spectrum(MSONable):
         elif func.lower() == "lorentzian":
             weights = lorentzian(points, sigma=sigma)
         else:
-            raise ValueError(f"Invalid func {func}")
+            raise ValueError(f"Invalid {func=}")
         weights /= np.sum(weights)
         if len(self.ydim) == 1:
             total = np.sum(self.y)

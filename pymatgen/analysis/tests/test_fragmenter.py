@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import pytest
 
@@ -66,12 +65,12 @@ class TestFragmentMolecule(PymatgenTest):
         assert fragmenter.total_unique_fragments == 12
 
     def test_babel_PC_frag1(self):
-        pytest.importorskip("openbabel", reason="OpenBabel not installed")
+        pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.pc_frag1, depth=0)
         assert fragmenter.total_unique_fragments == 12
 
     def test_babel_PC_old_defaults(self):
-        pytest.importorskip("openbabel", reason="OpenBabel not installed")
+        pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.pc, open_rings=True)
         assert fragmenter.open_rings is True
         assert fragmenter.opt_steps == 10000
@@ -80,7 +79,7 @@ class TestFragmentMolecule(PymatgenTest):
         assert fragmenter.total_unique_fragments == 13
 
     def test_babel_PC_defaults(self):
-        pytest.importorskip("openbabel", reason="OpenBabel not installed")
+        pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.pc)
         assert fragmenter.open_rings is False
         assert fragmenter.opt_steps == 10000
@@ -108,12 +107,12 @@ class TestFragmentMolecule(PymatgenTest):
         assert fragmenter.total_unique_fragments == 156
 
     def test_babel_TFSI(self):
-        pytest.importorskip("openbabel", reason="OpenBabel not installed")
+        pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.tfsi, depth=0)
         assert fragmenter.total_unique_fragments == 156
 
     def test_babel_PC_with_RO_depth_0_vs_depth_10(self):
-        pytest.importorskip("openbabel", reason="OpenBabel not installed")
+        pytest.importorskip("openbabel")
         fragmenter0 = Fragmenter(molecule=self.pc, depth=0, open_rings=True, opt_steps=1000)
         assert fragmenter0.total_unique_fragments == 509
 
@@ -156,7 +155,7 @@ class TestFragmentMolecule(PymatgenTest):
         assert frag2.new_unique_fragments == 295 - 12
 
     def test_PC_then_EC_depth_10(self):
-        pytest.importorskip("openbabel", reason="OpenBabel not installed")
+        pytest.importorskip("openbabel")
         fragPC = Fragmenter(molecule=self.pc, depth=10, open_rings=True)
         fragEC = Fragmenter(
             molecule=self.ec,
@@ -166,7 +165,3 @@ class TestFragmentMolecule(PymatgenTest):
         )
         assert fragEC.new_unique_fragments == 11
         assert fragEC.total_unique_fragments == 509 + 11
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -10,18 +10,20 @@ import datetime
 import json
 import os
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from warnings import warn
 
 from monty.json import MSONable, jsanitize
 
-from pymatgen.alchemy.filters import AbstractStructureFilter
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.sets import MPRelaxSet, VaspInputSet
-from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.util.provenance import StructureNL
+
+if TYPE_CHECKING:
+    from pymatgen.alchemy.filters import AbstractStructureFilter
+    from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 
 class TransformedStructure(MSONable):
@@ -67,7 +69,7 @@ class TransformedStructure(MSONable):
             IndexError: If already at the oldest change.
         """
         if len(self.history) == 0:
-            raise IndexError("Can't undo. Already at oldest change.")
+            raise IndexError("No more changes to undo")
         if "input_structure" not in self.history[-1]:
             raise IndexError("Can't undo. Latest history has no input_structure")
         h = self.history.pop()
@@ -85,7 +87,7 @@ class TransformedStructure(MSONable):
             IndexError: If already at the latest change.
         """
         if len(self._undone) == 0:
-            raise IndexError("Can't redo. Already at latest change.")
+            raise IndexError("No more changes to redo")
         h, s = self._undone.pop()
         self.history.append(h)
         self.final_structure = s
@@ -188,12 +190,13 @@ class TransformedStructure(MSONable):
         Returns VASP input as a dict of VASP objects.
 
         Args:
-            vasp_input_set (pymatgen.io.vaspio_set.VaspInputSet): input set
-                to create vasp input files from structures
+            vasp_input_set (pymatgen.io.vasp.sets.VaspInputSet): input set
+                to create VASP input files from structures
+            **kwargs: All keyword args supported by the VASP input set.
         """
-        d = vasp_input_set(self.final_structure, **kwargs).get_vasp_input()
-        d["transformations.json"] = json.dumps(self.as_dict())
-        return d
+        dct = vasp_input_set(self.final_structure, **kwargs).get_vasp_input()
+        dct["transformations.json"] = json.dumps(self.as_dict())
+        return dct
 
     def write_vasp_input(
         self,
@@ -206,7 +209,7 @@ class TransformedStructure(MSONable):
         Writes VASP input to an output_dir.
 
         Args:
-            vasp_input_set: pymatgen.io.vaspio_set.VaspInputSet like object that creates vasp input files from
+            vasp_input_set: pymatgen.io.vasp.sets.VaspInputSet like object that creates vasp input files from
                 structures.
             output_dir: Directory to output files
             create_directory: Create the directory if not present. Defaults to

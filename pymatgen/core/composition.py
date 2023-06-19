@@ -93,27 +93,27 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Very flexible Composition construction, similar to the built-in Python
         dict(). Also extended to allow simple string init.
 
+        Takes any inputs supported by the Python built-in dict function.
+
+        1. A dict of either {Element/Species: amount},
+
+            {string symbol:amount}, or {atomic number:amount} or any mixture
+            of these. E.g., {Element("Li"): 2, Element("O"): 1},
+            {"Li":2, "O":1}, {3: 2, 8: 1} all result in a Li2O composition.
+        2. Keyword arg initialization, similar to a dict, e.g.,
+
+            Composition(Li = 2, O = 1)
+
+        In addition, the Composition constructor also allows a single
+        string as an input formula. E.g., Composition("Li2O").
+
         Args:
-            Any form supported by the Python built-in dict function.
-
-            1. A dict of either {Element/Species: amount},
-
-               {string symbol:amount}, or {atomic number:amount} or any mixture
-               of these. E.g., {Element("Li"): 2, Element("O"): 1},
-               {"Li":2, "O":1}, {3: 2, 8: 1} all result in a Li2O composition.
-            2. Keyword arg initialization, similar to a dict, e.g.,
-
-               Composition(Li = 2, O = 1)
-
-            In addition, the Composition constructor also allows a single
-            string as an input formula. E.g., Composition("Li2O").
-
-            strict: Only allow valid Elements and Species in the Composition.
-
-            allow_negative: Whether to allow negative compositions. This
-                argument must be popped from the **kwargs due to *args
-                ambiguity.
+            *args: Any number of 2-tuples as key-value pairs.
+            strict (bool): Only allow valid Elements and Species in the Composition. Defaults to False.
+            allow_negative (bool): Whether to allow negative compositions. Defaults to False.
+            **kwargs: Additional kwargs supported by the dict() constructor.
         """
+        # allow_negative must be popped from **kwargs due to *args ambiguity
         self.allow_negative = kwargs.pop("allow_negative", False)
         # it's much faster to recognize a composition and use the el_map than
         # to pass the composition to {}
@@ -125,22 +125,22 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             elem_map = dict(*args, **kwargs)  # type: ignore
         elem_amt = {}
         self._natoms = 0
-        for k, v in elem_map.items():
-            if v < -Composition.amount_tolerance and not self.allow_negative:
+        for key, val in elem_map.items():
+            if val < -Composition.amount_tolerance and not self.allow_negative:
                 raise ValueError("Amounts in Composition cannot be negative!")
-            if abs(v) >= Composition.amount_tolerance:
-                elem_amt[get_el_sp(k)] = v
-                self._natoms += abs(v)
+            if abs(val) >= Composition.amount_tolerance:
+                elem_amt[get_el_sp(key)] = val
+                self._natoms += abs(val)
         self._data = elem_amt
         if strict and not self.valid:
             raise ValueError(f"Composition is not valid, contains: {', '.join(map(str, self.elements))}")
 
-    def __getitem__(self, item: SpeciesLike) -> float:
+    def __getitem__(self, key: SpeciesLike) -> float:
         try:
-            sp = get_el_sp(item)
+            sp = get_el_sp(key)
             return self._data.get(sp, 0)
-        except ValueError as ex:
-            raise TypeError(f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}")
+        except ValueError as exc:
+            raise KeyError(f"Invalid {key=}") from exc
 
     def __len__(self) -> int:
         return len(self._data)
@@ -293,7 +293,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
-        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s], False)}" for s in syms]
         return " ".join(formula)
 
     @property
@@ -317,7 +317,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda s: get_el_sp(s).iupac_ordering)
-        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s], False)}" for s in syms]
         return " ".join(formula)
 
     @property
@@ -1231,13 +1231,12 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
         syms = sorted(syms, key=lambda x: [get_el_sp(x).iupac_ordering, x])
 
     reduced_form = []
-    for s in syms:
-        normamt = sym_amt[s] * 1.0 / factor
-        reduced_form.append(s)
-        reduced_form.append(formula_double_format(normamt))
+    for sym in syms:
+        norm_amt = sym_amt[sym] * 1.0 / factor
+        reduced_form.append(sym)
+        reduced_form.append(str(formula_double_format(norm_amt)))
 
-    reduced_form = "".join(reduced_form + polyanion)  # type: ignore
-    return reduced_form, factor  # type: ignore
+    return "".join([*reduced_form, *polyanion]), factor
 
 
 class ChemicalPotential(dict, MSONable):

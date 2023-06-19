@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import re
 import subprocess
+import warnings
 from shutil import which
 
 import requests
@@ -101,21 +102,20 @@ class COD:
         return Structure.from_str(r.text, fmt="cif", **kwargs)
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
-    def get_structure_by_formula(self, formula, **kwargs):
+    def get_structure_by_formula(self, formula: str, **kwargs) -> list[dict[str, str | int | Structure]]:
         """
         Queries the COD for structures by formula. Requires mysql executable to
         be in the path.
 
         Args:
-            cod_id (int): COD id.
+            formula (str): Chemical formula.
             kwargs: All kwargs supported by
                 :func:`pymatgen.core.structure.Structure.from_str`.
 
         Returns:
-            A list of dict of the format
-            [{"structure": Structure, "cod_id": cod_id, "sg": "P n m a"}]
+            A list of dict of the format [{"structure": Structure, "cod_id": int, "sg": "P n m a"}]
         """
-        structures = []
+        structures: list[dict[str, str | int | Structure]] = []
         sql = f'select file, sg from data where formula="- {Composition(formula).hill_formula} -"'
         text = self.query(sql).split("\n")
         text.pop(0)
@@ -127,8 +127,6 @@ class COD:
                     s = Structure.from_str(r.text, fmt="cif", **kwargs)
                     structures.append({"structure": s, "cod_id": int(cod_id), "sg": sg})
                 except Exception:
-                    import warnings
-
                     warnings.warn(f"\nStructure.from_str failed while parsing CIF file:\n{r.text}")
                     raise
 

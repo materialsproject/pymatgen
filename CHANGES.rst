@@ -1,6 +1,95 @@
 Change log
 ==========
 
+v2023.5.31
+----------
+- Breaking: Default ``user_potcar_settings`` to ``{"W": "W_sv"}`` in all input sets if ``user_potcar_functional == "PBE_54"`` `#3022 <https://github.com/materialsproject/pymatgen/pull/3022>`_
+- Unignore ``ruff`` ``PD011`` `#3020 <https://github.com/materialsproject/pymatgen/pull/3020>`_
+- Tweak variable names `#3019 <https://github.com/materialsproject/pymatgen/pull/3019>`_
+- MaterialsProjectCompatibility issue silencable deprecation warning `#3017 <https://github.com/materialsproject/pymatgen/pull/3017>`_
+- Optimize cython find_points_in _spheres `#3015 <https://github.com/materialsproject/pymatgen/pull/3015>`_
+- Cp2k 2.0 `#2672 <https://github.com/materialsproject/pymatgen/pull/2672>`_
+- Added methods to compute and compare DOS fingerprints `#2772 <https://github.com/materialsproject/pymatgen/pull/2772>`_
+- Breaking: Overhaul ``class PymatgenTest`` `#3014 <https://github.com/materialsproject/pymatgen/pull/3014>`_
+- Fix ``ValueError`` when ``structure.selective_dynamics`` has type ``np.array`` `#3012 <https://github.com/materialsproject/pymatgen/pull/3012>`_
+- Clean up `#3010 <https://github.com/materialsproject/pymatgen/pull/3010>`_
+- Update ``.pytest-split-durations`` `#3005 <https://github.com/materialsproject/pymatgen/pull/3005>`_
+- Lookup ``MPRester`` API key in settings if ``None`` provided as arg `#3004 <https://github.com/materialsproject/pymatgen/pull/3004>`_
+- Support writing structures to compressed JSON (.json.gz .json.bz2 .json.xz .json.lzma) `#3003 <https://github.com/materialsproject/pymatgen/pull/3003>`_
+- Add LightStructureEnvironments.from_structure_environments() fallback value if ``ce_and_neighbors`` is None `#3002 <https://github.com/materialsproject/pymatgen/pull/3002>`_
+- ``Species`` parse oxi state from symbol str `#2998 <https://github.com/materialsproject/pymatgen/pull/2998>`_
+- Re-export ``SiteCollection`` + ``DummySpecies`` from ``pymatgen.core`` `#2995 <https://github.com/materialsproject/pymatgen/pull/2995>`_
+- Orbital-resolved icohplist `#2993 <https://github.com/materialsproject/pymatgen/pull/2993>`_
+- Hide all type-hint-only imports behind ``if TYPE_CHECKING`` `#2992 <https://github.com/materialsproject/pymatgen/pull/2992>`_
+- Add type hints for ``pymatgen.io.ase`` module `#2991 <https://github.com/materialsproject/pymatgen/pull/2991>`_
+- Enable ruff doc rules in CI `#2990 <https://github.com/materialsproject/pymatgen/pull/2990>`_
+- Suspected Typo Fix in ``pymatgen.io.vasp.optics`` `#2989 <https://github.com/materialsproject/pymatgen/pull/2989>`_
+- Doc strings `#2987 <https://github.com/materialsproject/pymatgen/pull/2987>`_
+- Fix average error `#2986 <https://github.com/materialsproject/pymatgen/pull/2986>`_
+- Drop deprecated SubstrateAnalyzer + ZSLGenerator reexports `#2981 <https://github.com/materialsproject/pymatgen/pull/2981>`_
+- Breaking: Default ``user_potcar_settings`` to ``{"W": "W_sv"}`` in all input sets if ``user_potcar_functional == "PBE_54"`` (#3022) `#3022 <https://github.com/materialsproject/pymatgen/pull/3022>`_
+- fix unwanted x margins in get_elt_projected_plots_color (closes #562) `#562 <https://github.com/materialsproject/pymatgen/issues/562>`_
+- Add LightStructureEnvironments.from_structure_environments() fallback value if ``ce_and_neighbors`` is None (#3002) `#2756 <https://github.com/materialsproject/pymatgen/issues/2756>`_
+- add doc str explaining need for class ElementBase (closes #2999) `#2999 <https://github.com/materialsproject/pymatgen/issues/2999>`_
+- Update docs. `3e3c31c <https://github.com/materialsproject/pymatgen/commit/3e3c31c8d342c84f2c6bbb961c321e458b9accb9>`_
+- ruff set isort.split-on-trailing-comma = false `c0ec534 <https://github.com/materialsproject/pymatgen/commit/c0ec53452c3dc87c6cca5edc1c6b2b6218f15569>`_
+
+v2023.5.10
+----------
+* Fix mem leak in pbc_shortest_vector cython code. (@stichri)
+* Set all cython code to language level 3.
+
+v2023.5.8
+---------
+
+❗ The ``Yb_2`` deprecation release ❗
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This release changes the Ytterbium (Yb) pseudo-potential (PSP) from ``Yb_2`` to ``Yb_3`` for all ``PBE_54`` VASP input sets.
+
+Background: The `A-lab <https://newscenter.lbl.gov/2023/04/17/meet-the-autonomous-lab-of-the-future>`_ revealed that as a result of using ``Yb_2`` the energy on Yb compounds is off by a lot, resulting in supposedly stable things being unsynthesizable. While an unfortunate mistake, it's also great to see how experiment can help surface simulation errors.
+
+On pre-``PBE_54`` input sets, we now issue a warning that ``Yb_2`` will give bad results for most systems since Yb is most often in oxidation state Yb3+.
+
+Reason: The better fix ``Yb_3`` only became available in the ``PBE_54`` PSP set. Requiring it on ``pre-PBE_54`` input sets would mean you can't run Yb compounds.
+
+For more details see `#2968 <https://github.com/materialsproject/pymatgen/pull/2968>`_ and `#2969 <https://github.com/materialsproject/pymatgen/pull/2969>`_.
+
+What's Changed
+* Fix TypeError: a bytes-like object is required, not 'list' when passing triplet of bools to ``find_points_in_spheres()`` ``pbc`` kwarg  by @janosh in `#2907 <https://github.com/materialsproject/pymatgen/pull/2907>`_
+* Fix ValueError: not enough values to unpack in PDPlotter if no unstable entries in PD by @janosh in `#2908 <https://github.com/materialsproject/pymatgen/pull/2908>`_
+* Fix ``VolumetricData.to_cube()`` not preserving structure dimensions by @janosh in `#2909 <https://github.com/materialsproject/pymatgen/pull/2909>`_
+* Update team.rst by @jmmshn in `#2912 <https://github.com/materialsproject/pymatgen/pull/2912>`_
+* Faff by @janosh in `#2915 <https://github.com/materialsproject/pymatgen/pull/2915>`_
+* Add ``formal_chempots`` option to ``ChemicalPotentialDiagram`` to plot the formal chemical potentials rather than the DFT energies by @kavanase in `#2916 <https://github.com/materialsproject/pymatgen/pull/2916>`_
+* Modified dosplotter by @kaueltzen in `#2844 <https://github.com/materialsproject/pymatgen/pull/2844>`_
+* auto version by @jmmshn in `#2925 <https://github.com/materialsproject/pymatgen/pull/2925>`_
+* bug fix for potcar parsing by @jmmshn in `#2910 <https://github.com/materialsproject/pymatgen/pull/2910>`_
+* Fix breaking changes from pandas v2 by @janosh in `#2935 <https://github.com/materialsproject/pymatgen/pull/2935>`_
+* add kwarg to MoleculeGraph method and fix PackmolSet bug by @orionarcher in `#2927 <https://github.com/materialsproject/pymatgen/pull/2927>`_
+* fix on reading multiple route in Gaussian input file by @Ameyanagi in `#2939 <https://github.com/materialsproject/pymatgen/pull/2939>`_
+* Fix CI errors by @janosh in `#2940 <https://github.com/materialsproject/pymatgen/pull/2940>`_
+* Add ResParser support for reading files with spin values by @ScottNotFound in `#2941 <https://github.com/materialsproject/pymatgen/pull/2941>`_
+* Ignore bad unicode characters in Structure.from_file() by @janosh in `#2948 <https://github.com/materialsproject/pymatgen/pull/2948>`_
+* Minor modification for symmetrically distinct Miller index generation by @fyalcin in `#2949 <https://github.com/materialsproject/pymatgen/pull/2949>`_
+* Fixed Wulff shape for new versions of matplotlib by @CifLord in `#2950 <https://github.com/materialsproject/pymatgen/pull/2950>`_
+* Test figure returned by WulffShape.get_plot() contains single Axes3D by @janosh in `#2953 <https://github.com/materialsproject/pymatgen/pull/2953>`_
+* Fix ``Cp2kOutput.spin_polarized()`` likely not doing what author intended by @janosh in `#2954 <https://github.com/materialsproject/pymatgen/pull/2954>`_
+* For MPcules: Molecule Trajectory and graph hashes by @espottesmith in `#2945 <https://github.com/materialsproject/pymatgen/pull/2945>`_
+* ``self.assertArrayEqual->assert`` by @janosh in `#2955 <https://github.com/materialsproject/pymatgen/pull/2955>`_
+* fix GaussianOutput bug with multiple route lines by @xjf729 in `#2937 <https://github.com/materialsproject/pymatgen/pull/2937>`_
+* Fix ValueError when passing ``selective_dynamics`` to ``Poscar`` by @chiang-yuan in `#2951 <https://github.com/materialsproject/pymatgen/pull/2951>`_
+* Bump beautifulsoup4 from 4.11.1 to 4.12.2 by @dependabot in `#2962 <https://github.com/materialsproject/pymatgen/pull/2962>`_
+* Bump pypa/cibuildwheel from 2.11.4 to 2.12.3 by @dependabot in `#2959 <https://github.com/materialsproject/pymatgen/pull/2959>`_
+* Bump uncertainties from 3.1.6 to 3.1.7 by @dependabot in `#2960 <https://github.com/materialsproject/pymatgen/pull/2960>`_
+* Bump numpy from 1.23.2 to 1.24.3 by @dependabot in `#2963 <https://github.com/materialsproject/pymatgen/pull/2963>`_
+* Bump tabulate from 0.8.10 to 0.9.0 by @dependabot in `#2961 <https://github.com/materialsproject/pymatgen/pull/2961>`_
+* Bump pandas from 1.4.4 to 2.0.1 by @dependabot in `#2964 <https://github.com/materialsproject/pymatgen/pull/2964>`_
+* Link /addons from new subsection on /contributing page by @janosh in `#2967 <https://github.com/materialsproject/pymatgen/pull/2967>`_
+* Breaking: change ``Yb`` pseudo-potential on all VASP input sets from ``Yb_2`` to ``Yb_3`` by @janosh in `#2969 <https://github.com/materialsproject/pymatgen/pull/2969>`_
+* fix recursion error by adding copy and deepcopy dunder methods by @orionarcher in `#2973 <https://github.com/materialsproject/pymatgen/pull/2973>`_
+* Revert to ``Yb_2`` on pre-``PBE_54`` input sets by @janosh in `#2972
+
 v2023.3.23
 ----------
 * Misc bug fixes.

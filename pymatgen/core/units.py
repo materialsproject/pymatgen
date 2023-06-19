@@ -403,8 +403,7 @@ class FloatWithUnit(float):
 
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
-        # FIXME
-        # There's a problem with _unit_type if we try to unpickle objects from file.
+        # TODO There's a problem with _unit_type if we try to unpickle objects from file.
         # since self._unit_type might not be defined. I think this is due to
         # the use of decorators (property and unitized). In particular I have problems with "amu"
         # likely due to weight in core.composition
@@ -572,8 +571,7 @@ class ArrayWithUnit(np.ndarray):
         return self.__class__(np.array(self) - np.array(other), unit_type=self.unit_type, unit=self.unit)
 
     def __mul__(self, other):
-        # FIXME
-        # Here we have the most important difference between FloatWithUnit and
+        # TODO Here we have the most important difference between FloatWithUnit and
         # ArrayWithFloatWithUnit:
         # If other does not have units, I return an object with the same units
         # as self.
@@ -822,7 +820,7 @@ def unitized(unit):
             elif val is None:
                 pass
             else:
-                raise TypeError(f"Don't know how to assign units to {str(val)}")
+                raise TypeError(f"Don't know how to assign units to {val!s}")
             return val
 
         return wrapped_f

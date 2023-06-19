@@ -5,6 +5,7 @@ import unittest
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import ETSF_Reader
@@ -24,12 +25,10 @@ def ref_file(filename):
 
 class ETSF_Reader_TestCase(PymatgenTest):
     def setUp(self):
-        formulas = [
-            "Si2",
-        ]
-        self.GSR_paths = d = {}
+        formulas = ["Si2"]
+        self.GSR_paths = dct = {}
         for formula in formulas:
-            d[formula] = ref_file(formula + "_GSR.nc")
+            dct[formula] = ref_file(formula + "_GSR.nc")
 
     @unittest.skipIf(netCDF4 is None, "Requires Netcdf4")
     def test_read_Si2(self):
@@ -54,19 +53,19 @@ class ETSF_Reader_TestCase(PymatgenTest):
             # Test dimensions.
             for dimname, int_ref in ref_dims.items():
                 value = data.read_dimvalue(dimname)
-                self.assertArrayEqual(value, int_ref)
+                assert_array_equal(value, int_ref)
 
             # Test int variables
             for varname, int_ref in ref_int_values.items():
                 value = data.read_value(varname)
                 print(varname, value)
-                self.assertArrayEqual(value, int_ref)
+                assert_array_equal(value, int_ref)
 
             # Test float variables
             for varname, float_ref in ref_float_values.items():
                 value = data.read_value(varname)
                 print(varname, value)
-                self.assertArrayAlmostEqual(value, float_ref)
+                self.assert_all_close(value, float_ref)
             # assert 0
 
             # Reading non-existent variables or dims should raise

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 import warnings
 
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
@@ -59,11 +59,11 @@ class XASTest(PymatgenTest):
 
     def test_to_from_dict(self):
         s = XAS.from_dict(self.k_xanes.as_dict())
-        self.assertArrayAlmostEqual(s.y, self.k_xanes.y)
+        self.assert_all_close(s.y, self.k_xanes.y)
 
     def test_attributes(self):
-        self.assertArrayEqual(self.k_xanes.energy, self.k_xanes.x)
-        self.assertArrayEqual(self.k_xanes.intensity, self.k_xanes.y)
+        assert_array_equal(self.k_xanes.energy, self.k_xanes.x)
+        assert_array_equal(self.k_xanes.intensity, self.k_xanes.y)
 
     def test_str(self):
         assert str(self.k_xanes) is not None
@@ -99,12 +99,12 @@ class XASTest(PymatgenTest):
 
     def test_stitch_l23(self):
         self.l2_xanes.y[0] = 0.1
-        with warnings.catch_warnings(record=True) as w:
+        with warnings.catch_warnings(record=True) as warns:
             warnings.simplefilter("always")
             XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
-            # self.assertEqual(len(w), 6)
-            assert w[-1].category is UserWarning
-            assert "jump" in str(w[-1].message)
+            # assert len(warns) == 6
+            assert warns[-1].category is UserWarning
+            assert "jump" in str(warns[-1].message)
         self.l2_xanes = XAS.from_dict(l2_xanes_dict)
         l23 = XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
         assert isinstance(l23, XAS)
@@ -132,7 +132,3 @@ class XASTest(PymatgenTest):
         self.site2_xanes.absorbing_index = self.site1_xanes.absorbing_index
         with pytest.raises(ValueError):
             site_weighted_spectrum([self.site1_xanes, self.site2_xanes])
-
-
-if __name__ == "__main__":
-    unittest.main()

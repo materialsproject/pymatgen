@@ -6,18 +6,17 @@ from __future__ import annotations
 
 import os
 import warnings
-from typing import Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import numpy as np
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.local_env import (
-    LocalStructOrderParams,
-    get_neighbors_of_site_with_index,
-)
+from pymatgen.analysis.local_env import LocalStructOrderParams, get_neighbors_of_site_with_index
 from pymatgen.core.periodic_table import Species, get_el_sp
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 

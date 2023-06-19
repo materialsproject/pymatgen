@@ -87,17 +87,14 @@ class HeisenbergMapper:
         self.unique_site_ids, self.wyckoff_ids = self._get_unique_sites(ordered_structures[0])
 
         # These attributes are set by internal methods
-        self.nn_interactions = None
-        self.dists = None
-        self.ex_mat = None
-        self.ex_params = None
+        self.nn_interactions = self.dists = self.ex_mat = self.ex_params = None
 
         # Check how many commensurate graphs we found
         if len(self.sgraphs) < 2:
             raise SystemExit("We need at least 2 unique orderings.")
-        else:  # Set attributes
-            self._get_nn_dict()
-            self._get_exchange_df()
+        # Set attributes
+        self._get_nn_dict()
+        self._get_exchange_df()
 
     @staticmethod
     def _get_graphs(cutoff, ordered_structures):
@@ -322,16 +319,16 @@ class HeisenbergMapper:
                         j_ji = str(j_index) + "-" + str(i_index) + order
 
                         if j_ij in ex_mat.columns:
-                            ex_row.at[sgraph_index, j_ij] -= s_i * s_j
+                            ex_row.loc[sgraph_index, j_ij] -= s_i * s_j
                         elif j_ji in ex_mat.columns:
-                            ex_row.at[sgraph_index, j_ji] -= s_i * s_j
+                            ex_row.loc[sgraph_index, j_ji] -= s_i * s_j
 
                 # Ignore the row if it is a duplicate to avoid singular matrix
                 # Create a temporary DataFrame with the new row
                 temp_df = pd.concat([ex_mat, ex_row], ignore_index=True)
                 if temp_df[j_columns].equals(temp_df[j_columns].drop_duplicates(keep="first")):
                     e_index = self.ordered_structures.index(sgraph.structure)
-                    ex_row.at[sgraph_index, "E"] = self.energies[e_index]
+                    ex_row.loc[sgraph_index, "E"] = self.energies[e_index]
                     sgraph_index += 1
                     ex_mat = pd.concat([ex_mat, ex_row], ignore_index=True)
                     # if sgraph_index == num_nn_j:  # check for zero columns
@@ -881,28 +878,28 @@ class HeisenbergModel(MSONable):
         """
         Because some dicts have tuple keys, some sanitization is required for json compatibility.
         """
-        d = {}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["@version"] = __version__
-        d["formula"] = self.formula
-        d["structures"] = [s.as_dict() for s in self.structures]
-        d["energies"] = self.energies
-        d["cutoff"] = self.cutoff
-        d["tol"] = self.tol
-        d["sgraphs"] = [sgraph.as_dict() for sgraph in self.sgraphs]
-        d["dists"] = self.dists
-        d["ex_params"] = self.ex_params
-        d["javg"] = self.javg
-        d["igraph"] = self.igraph.as_dict()
+        dct = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["@version"] = __version__
+        dct["formula"] = self.formula
+        dct["structures"] = [s.as_dict() for s in self.structures]
+        dct["energies"] = self.energies
+        dct["cutoff"] = self.cutoff
+        dct["tol"] = self.tol
+        dct["sgraphs"] = [sgraph.as_dict() for sgraph in self.sgraphs]
+        dct["dists"] = self.dists
+        dct["ex_params"] = self.ex_params
+        dct["javg"] = self.javg
+        dct["igraph"] = self.igraph.as_dict()
 
         # Sanitize tuple & int keys
-        d["ex_mat"] = jsanitize(self.ex_mat)
-        d["nn_interactions"] = jsanitize(self.nn_interactions)
-        d["unique_site_ids"] = jsanitize(self.unique_site_ids)
-        d["wyckoff_ids"] = jsanitize(self.wyckoff_ids)
+        dct["ex_mat"] = jsanitize(self.ex_mat)
+        dct["nn_interactions"] = jsanitize(self.nn_interactions)
+        dct["unique_site_ids"] = jsanitize(self.unique_site_ids)
+        dct["wyckoff_ids"] = jsanitize(self.wyckoff_ids)
 
-        return d
+        return dct
 
     @classmethod
     def from_dict(cls, d):

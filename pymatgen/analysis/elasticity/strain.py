@@ -8,15 +8,18 @@ from __future__ import annotations
 
 import collections
 import itertools
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import scipy
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.core.structure import Structure
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -69,7 +72,7 @@ class Deformation(SquareTensor):
         """
         return Strain.from_deformation(self)
 
-    def apply_to_structure(self, structure):
+    def apply_to_structure(self, structure: Structure):
         """
         Apply the deformation gradient to a structure.
 

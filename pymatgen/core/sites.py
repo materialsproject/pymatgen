@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import collections
 import json
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -14,7 +15,11 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.util.coord import pbc_diff
-from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.util.typing import CompositionLike, SpeciesLike
 
 
 class Site(collections.abc.Hashable, MSONable):
@@ -244,12 +249,12 @@ class Site(collections.abc.Hashable, MSONable):
         """
         species_list = []
         for spec, occu in self.species.items():
-            d = spec.as_dict()
-            del d["@module"]
-            del d["@class"]
-            d["occu"] = occu
-            species_list.append(d)
-        d = {
+            spec_dct = spec.as_dict()
+            del spec_dct["@module"]
+            del spec_dct["@class"]
+            spec_dct["occu"] = occu
+            species_list.append(spec_dct)
+        dct = {
             "name": self.species_string,
             "species": species_list,
             "xyz": [float(c) for c in self.coords],
@@ -258,16 +263,16 @@ class Site(collections.abc.Hashable, MSONable):
             "@class": type(self).__name__,
         }
         if self.properties:
-            d["properties"] = self.properties
-        return d
+            dct["properties"] = self.properties
+        return dct
 
     @classmethod
-    def from_dict(cls, d: dict) -> Site:
+    def from_dict(cls, dct: dict) -> Site:
         """
         Create Site from dict representation
         """
         atoms_n_occu = {}
-        for sp_occu in d["species"]:
+        for sp_occu in dct["species"]:
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(sp_occu["element"]):
                 sp = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
@@ -275,11 +280,11 @@ class Site(collections.abc.Hashable, MSONable):
             else:
                 sp = Element(sp_occu["element"])  # type: ignore
             atoms_n_occu[sp] = sp_occu["occu"]
-        props = d.get("properties")
+        props = dct.get("properties")
         if props is not None:
             for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
-        return cls(atoms_n_occu, d["xyz"], properties=props)
+        return cls(atoms_n_occu, dct["xyz"], properties=props)
 
 
 class PeriodicSite(Site, MSONable):
@@ -594,13 +599,13 @@ class PeriodicSite(Site, MSONable):
         """
         species_list = []
         for spec, occu in self._species.items():
-            d = spec.as_dict()
-            del d["@module"]
-            del d["@class"]
-            d["occu"] = occu
-            species_list.append(d)
+            dct = spec.as_dict()
+            del dct["@module"]
+            del dct["@class"]
+            dct["occu"] = occu
+            species_list.append(dct)
 
-        d = {
+        dct = {
             "species": species_list,
             "abc": [float(c) for c in self._frac_coords],  # type: ignore
             "lattice": self._lattice.as_dict(verbosity=verbosity),
@@ -609,12 +614,12 @@ class PeriodicSite(Site, MSONable):
         }
 
         if verbosity > 0:
-            d["xyz"] = [float(c) for c in self.coords]
-            d["label"] = self.species_string
+            dct["xyz"] = [float(c) for c in self.coords]
+            dct["label"] = self.species_string
 
-        d["properties"] = self.properties
+        dct["properties"] = self.properties
 
-        return d
+        return dct
 
     @classmethod
     def from_dict(cls, d, lattice=None) -> PeriodicSite:

@@ -10,7 +10,7 @@ from __future__ import annotations
 import itertools
 import os
 import warnings
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 
 import numpy as np
 import spglib
@@ -18,11 +18,14 @@ from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
 
-from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+
+if TYPE_CHECKING:
+    from pymatgen.core.composition import Composition
+
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -189,14 +192,13 @@ class Lobsterin(dict, MSONable):
                             "lobsterin1": v1,
                             "lobsterin2": other[new_key],
                         }
+                elif v1 != other[new_key]:
+                    different_param[k1.upper()] = {
+                        "lobsterin1": v1,
+                        "lobsterin2": other[new_key],
+                    }
                 else:
-                    if v1 != other[new_key]:
-                        different_param[k1.upper()] = {
-                            "lobsterin1": v1,
-                            "lobsterin2": other[new_key],
-                        }
-                    else:
-                        similar_param[k1.upper()] = v1
+                    similar_param[k1.upper()] = v1
 
         for k2, v2 in other.items():
             if k2.upper() not in similar_param and k2.upper() not in different_param:
@@ -595,16 +597,14 @@ class Lobsterin(dict, MSONable):
                             Lobsterindict[raw_datum[0].lower()] = " ".join(raw_datum[1:])
                         else:
                             raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                    elif raw_datum[0].lower() not in Lobsterindict:
+                        Lobsterindict[raw_datum[0].lower()] = float(raw_datum[1])
                     else:
-                        if raw_datum[0].lower() not in Lobsterindict:
-                            Lobsterindict[raw_datum[0].lower()] = float(raw_datum[1])
-                        else:
-                            raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                        raise ValueError("Same keyword " + str(raw_datum[0].lower()) + "twice!")
+                elif raw_datum[0].lower() not in Lobsterindict:
+                    Lobsterindict[raw_datum[0].lower()] = [" ".join(raw_datum[1:])]
                 else:
-                    if raw_datum[0].lower() not in Lobsterindict:
-                        Lobsterindict[raw_datum[0].lower()] = [" ".join(raw_datum[1:])]
-                    else:
-                        Lobsterindict[raw_datum[0].lower()].append(" ".join(raw_datum[1:]))
+                    Lobsterindict[raw_datum[0].lower()].append(" ".join(raw_datum[1:]))
             elif len(raw_datum) > 0:
                 Lobsterindict[raw_datum[0].lower()] = True
 

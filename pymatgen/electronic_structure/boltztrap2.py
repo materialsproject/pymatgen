@@ -35,11 +35,7 @@ import numpy as np
 from monty.serialization import dumpfn, loadfn
 from tqdm import tqdm
 
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructure,
-    BandStructureSymmLine,
-    Spin,
-)
+from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine, Spin
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, Orbital
 from pymatgen.electronic_structure.plotter import BSPlotter, DosPlotter
@@ -123,8 +119,7 @@ class VasprunBSLoader:
             self.vbm = bs_obj.get_vbm()["energy"]
             self.cbm = bs_obj.get_cbm()["energy"]
         else:
-            self.vbm_idx = None
-            self.cbm_idx = None
+            self.vbm_idx = self.cbm_idx = None
             self.vbm = self.fermi / units.eV
             self.cbm = self.fermi / units.eV
 
@@ -198,7 +193,7 @@ class BandstructureLoader:
             bs_obj: BandStructure object.
             structure: Structure object. It is needed if it is not contained in the BandStructure obj.
             nelect: Number of electrons in the calculation.
-            momat: Matrix of derivatives of energy eigenvalues. Not implemented yet.
+            mommat: Matrix of derivatives of energy eigenvalues. TODO Not implemented yet.
             magmom: Matrix of magnetic moments in non collinear calculations. Not implemented yet.
 
         Example:
@@ -247,8 +242,7 @@ class BandstructureLoader:
             self.cbm = bs_obj.get_cbm()["energy"]
             self.nelect_all = self.vbm_idx * self.dosweight
         else:
-            self.vbm_idx = None
-            self.cbm_idx = None
+            self.vbm_idx = self.cbm_idx = None
             self.vbm = self.fermi
             self.cbm = self.fermi
             self.nelect_all = nelect
@@ -348,9 +342,7 @@ class VasprunLoader:
             self.lattvec = self.atoms.get_cell().T * units.Angstrom
 
             # TODO: read mommat from vasprun
-            self.mommat = None
-            self.magmom = None
-            self.spin = None
+            self.mommat = self.magmom = self.spin = None
             self.fermi = vrun_obj.efermi * units.eV
             self.nelect = vrun_obj.parameters["NELECT"]
             self.UCvol = self.structure.volume * units.Angstrom**3
@@ -362,8 +354,7 @@ class VasprunLoader:
                 self.vbm = bs_obj.get_vbm()["energy"]
                 self.cbm = bs_obj.get_cbm()["energy"]
             else:
-                self.vbm_idx = None
-                self.cbm_idx = None
+                self.vbm_idx = self.cbm_idx = None
                 self.vbm = self.fermi
                 self.cbm = self.fermi
 
@@ -627,7 +618,7 @@ class BztInterpolator:
             n_iter = np.prod(np.sum([np.array(i.shape)[2:] for i in self.data.proj.values()]))
             t = tqdm(total=n_iter * 2)
         for spin, eb in zip(spins, eband_ud):
-            for isite, site in enumerate(self.data.structure.sites):
+            for idx, site in enumerate(self.data.structure):
                 if site not in pdoss:
                     pdoss[site] = {}
                 for iorb, orb in enumerate(Orbital):
@@ -639,7 +630,7 @@ class BztInterpolator:
                     if orb not in pdoss[site]:
                         pdoss[site][orb] = {}
 
-                    self.data.ebands = self.data.proj[spin][:, :, isite, iorb].T
+                    self.data.ebands = self.data.proj[spin][:, :, idx, iorb].T
                     coeffs = fite.fitde3D(self.data, self.equivalences)
                     proj, vvproj, cproj = fite.getBTPbands(self.equivalences, coeffs, self.data.lattvec)
 
@@ -684,6 +675,8 @@ class BztTransportProperties:
                 compute_properties_doping() method for details.
             npts_mu: number of energy points at which to calculate transport properties
             CRTA: constant value of the relaxation time
+            margin: The energy range of the interpolation is extended by this value on both sides.
+                Defaults to 9 * units.BOLTZMANN * temp_r.max().
             save_bztTranspProps: Default False. If True all computed transport properties
                 will be stored in fname file.
             load_bztTranspProps: Default False. If True all computed transport properties
@@ -714,7 +707,7 @@ class BztTransportProperties:
         self.efermi = BztInterpolator.data.fermi / units.eV
 
         if margin is None:
-            margin = 9.0 * units.BOLTZMANN * temp_r.max()
+            margin = 9 * units.BOLTZMANN * temp_r.max()
 
         if load_bztTranspProps:
             self.load(fname)
@@ -735,7 +728,7 @@ class BztTransportProperties:
                 self.epsilon < self.epsilon.max() - margin,
             )
 
-            self.mu_r = self.epsilon[mur_indices]
+            self.mu_r = self.epsilon[mur_indices]  # mu range
             self.mu_r_eV = self.mu_r / units.eV - self.efermi
 
             N, L0, L1, L2, Lm11 = BL.fermiintegrals(
@@ -803,6 +796,7 @@ class BztTransportProperties:
 
         Args:
             doping: numpy array specifying the doping levels
+            temp_r: numpy array specifying the temperatures
 
         When executed, it add the following variable at the BztTransportProperties
         object:

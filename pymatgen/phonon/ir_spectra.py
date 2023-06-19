@@ -33,8 +33,8 @@ class IRDielectricTensor(MSONable):
     def __init__(self, oscillator_strength, ph_freqs_gamma, epsilon_infinity, structure):
         """
         Args:
-            oscillatator_strength: IR oscillator strengths as defined
-                                   in Eq. 54 in :cite:`Gonze1997` PRB55, 10355 (1997).
+            oscillator_strength: IR oscillator strengths as defined in Eq. 54 in
+                :cite:`Gonze1997` PRB55, 10355 (1997).
             ph_freqs_gamma: Phonon frequencies at the Gamma point
             epsilon_infinity: electronic susceptibility as defined in Eq. 29.
             structure: A Structure object corresponding to the structure used for the calculation.
@@ -93,7 +93,8 @@ class IRDielectricTensor(MSONable):
 
         Args:
             broad: a list of broadenings or a single broadening for the phonon peaks
-            emin, emax: minimum and maximum energy in which to obtain the spectra
+            emin (float): minimum energy in which to obtain the spectra. Defaults to 0.
+            emax (float): maximum energy in which to obtain the spectra. Defaults to None.
             divs: number of frequency samples between emin and emax
 
         Returns:
@@ -132,6 +133,9 @@ class IRDielectricTensor(MSONable):
                         Can be either two indexes or a string like 'xx' to plot the (0,0) component
             reim: If 're' (im) is present in the string plots the real (imaginary) part of the dielectric tensor
             show_phonon_frequencies: plot a dot where the phonon frequencies are to help identify IR inactive modes
+            xlim: x-limits of the plot. Defaults to None for automatic determination.
+            ylim: y-limits of the plot. Defaults to None for automatic determination.
+            kwargs: keyword arguments passed to the plotter
         """
         plotter = self.get_plotter(components=components, reim=reim, **kwargs)
         plt = plotter.get_plot(xlim=xlim, ylim=ylim)
@@ -170,8 +174,11 @@ class IRDielectricTensor(MSONable):
             components: A list with the components of the dielectric tensor to plot.
                         Can be either two indexes or a string like 'xx' to plot the (0,0) component
             reim: If 're' (im) is present in the string plots the real (imaginary) part of the dielectric tensor
-            emin, emax: minimum and maximum energy in which to obtain the spectra
+            broad (float): a list of broadenings or a single broadening for the phonon peaks. Defaults to 0.00005.
+            emin (float): minimum energy in which to obtain the spectra. Defaults to 0.
+            emax (float): maximum energy in which to obtain the spectra. Defaults to None.
             divs: number of frequency samples between emin and emax
+            **kwargs: Passed to IRDielectricTensor.get_spectrum()
         """
         directions_map = {"x": 0, "y": 1, "z": 2, 0: 0, 1: 1, 2: 2}
         reim_label = {"re": "Re", "im": "Im"}
@@ -182,7 +189,9 @@ class IRDielectricTensor(MSONable):
             for fstr in ("re", "im"):
                 if fstr in reim:
                     label = rf"{reim_label[fstr]}{{$\epsilon_{{{'xyz'[i]}{'xyz'[j]}}}$}}"
-                    spectrum = self.get_spectrum(component, fstr, broad=broad, emin=emin, emax=emax, divs=divs)
+                    spectrum = self.get_spectrum(
+                        component, fstr, broad=broad, emin=emin, emax=emax, divs=divs, **kwargs
+                    )
                     spectrum.XLABEL = r"Frequency (meV)"
                     spectrum.YLABEL = r"$\epsilon(\omega)$"
                     plotter.add_spectrum(label, spectrum)

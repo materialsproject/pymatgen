@@ -3,13 +3,13 @@ Created on Nov 10, 2012
 
 @author: Shyue Ping Ong
 """
-
 from __future__ import annotations
 
 import random
 import unittest
 
 import pytest
+from pytest import approx
 
 from pymatgen.core.composition import ChemicalPotential, Composition
 from pymatgen.core.periodic_table import Element, Species
@@ -41,15 +41,15 @@ class CompositionTest(PymatgenTest):
         ]
 
     def test_immutable(self):
-        try:
+        with pytest.raises(TypeError) as exc:
             self.comp[0]["Fe"] = 1
-        except Exception as ex:
-            assert isinstance(ex, TypeError)
 
-        try:
+        assert "'Composition' object does not support item assignment" in str(exc.value)
+
+        with pytest.raises(TypeError) as exc:
             del self.comp[0]["Fe"]
-        except Exception as ex:
-            assert isinstance(ex, TypeError)
+
+        assert "'Composition' object does not support item deletion" in str(exc.value)
 
     def test_in(self):
         assert "Fe" in self.comp[0]
@@ -57,9 +57,9 @@ class CompositionTest(PymatgenTest):
         assert Element("Fe") in self.comp[0]
         assert self.comp[0]["Fe"] == 2
         assert self.comp[0]["Mn"] == 0
-        with pytest.raises(TypeError):
+        with pytest.raises(KeyError, match="Invalid key='Hello'"):
             self.comp[0]["Hello"]
-        with pytest.raises(TypeError):
+        with pytest.raises(KeyError, match="Invalid key='Vac'"):
             self.comp[0]["Vac"]
 
     def test_hill_formula(self):
@@ -262,7 +262,7 @@ class CompositionTest(PymatgenTest):
             82.41634,
         ]
         all_weights = [c.weight for c in self.comp]
-        self.assertArrayAlmostEqual(all_weights, correct_weights, 5)
+        self.assert_all_close(all_weights, correct_weights, 5)
 
     def test_get_atomic_fraction(self):
         correct_at_frac = {"Li": 0.15, "Fe": 0.1, "P": 0.15, "O": 0.6}
@@ -313,7 +313,7 @@ class CompositionTest(PymatgenTest):
             c2 = Composition.from_weight_dict(weight_dict).fractional_composition
             assert set(c1.elements) == set(c2.elements)
             for el in c1.elements:
-                assert c1[el] == pytest.approx(c2[el], abs=1e-3)
+                assert c1[el] == approx(c2[el], abs=1e-3)
 
     def test_tofrom_weight_dict(self):
         for c in self.comp:
@@ -385,7 +385,7 @@ class CompositionTest(PymatgenTest):
             other_z = random.randint(1, 92)
         comp2 = Composition({fixed_el: 1, Element.from_Z(other_z): 0})
         assert comp1 == comp2, f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
-        assert hash(comp1) == hash(comp2), "Hashcode equality test failed!"
+        assert hash(comp1) == hash(comp2), "Hash equality test failed!"
 
         c1, c2 = self.comp[:2]
         assert c1 == c1
@@ -698,7 +698,3 @@ class ChemicalPotentialTest(unittest.TestCase):
         assert potsx2 - pots == pots
         assert fepot + opot == pots
         assert fepot - opot == pots - opot - opot
-
-
-if __name__ == "__main__":
-    unittest.main()

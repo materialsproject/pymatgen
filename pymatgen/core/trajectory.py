@@ -105,10 +105,7 @@ class Trajectory(MSONable):
                 `coords_are_displacement=True`. Defaults to the first index of
                 `coords` when `coords_are_displacement=False`.
         """
-        self.charge = None
-        self.spin_multiplicity = None
-        self.lattice = None
-        self.constant_lattice = None
+        self.charge = self.spin_multiplicity = self.lattice = self.constant_lattice = None
 
         # First, sanity check that the necessary inputs have been provided
         if lattice is None:
@@ -171,9 +168,7 @@ class Trajectory(MSONable):
         """
         struct = self[idx]
         if isinstance(struct, Molecule):
-            raise TypeError(
-                "Cannot return `Structure` for `Molecule`-based" "`Trajectory`! Use `get_molecule` instead!"
-            )
+            raise TypeError("Cannot return `Structure` for `Molecule`-based `Trajectory`! Use `get_molecule` instead!")
 
         return struct
 
@@ -189,9 +184,7 @@ class Trajectory(MSONable):
         """
         mol = self[idx]
         if isinstance(mol, Structure):
-            raise TypeError(
-                "Cannot return `Molecule` for `Structure`-based" "`Trajectory`! Use `get_structure` instead!"
-            )
+            raise TypeError("Cannot return `Molecule` for `Structure`-based `Trajectory`! Use `get_structure` instead!")
 
         return mol
 
@@ -255,7 +248,7 @@ class Trajectory(MSONable):
             or self.lattice is not None  # is structures
             and trajectory.lattice is None  # is molecules
         ):
-            raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. " "objects.")
+            raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. objects.")
 
         if self.time_step != trajectory.time_step:
             raise ValueError(
@@ -347,16 +340,15 @@ class Trajectory(MSONable):
                     site_properties=self._get_site_props(frames),  # type: ignore
                 )
 
-            else:
-                lattice = self.lattice if self.constant_lattice else self.lattice[frames]  # type: ignore
+            lattice = self.lattice if self.constant_lattice else self.lattice[frames]  # type: ignore
 
-                return Structure(
-                    Lattice(lattice),
-                    self.species,
-                    self.coords[frames],
-                    site_properties=self._get_site_props(frames),  # type: ignore
-                    to_unit_cell=True,
-                )
+            return Structure(
+                Lattice(lattice),
+                self.species,
+                self.coords[frames],
+                site_properties=self._get_site_props(frames),  # type: ignore
+                to_unit_cell=True,
+            )
 
         # For slice input, return a trajectory
         if isinstance(frames, (slice, list, np.ndarray)):
@@ -390,20 +382,19 @@ class Trajectory(MSONable):
                     base_positions=self.base_positions,
                 )
 
-            else:
-                lattice = self.lattice if self.constant_lattice else self.lattice[selected]  # type: ignore
+            lattice = self.lattice if self.constant_lattice else self.lattice[selected]  # type: ignore
 
-                return Trajectory(
-                    species=self.species,
-                    coords=coords,
-                    lattice=lattice,
-                    site_properties=self._get_site_props(selected),
-                    frame_properties=frame_properties,
-                    constant_lattice=self.constant_lattice,
-                    time_step=self.time_step,
-                    coords_are_displacement=False,
-                    base_positions=self.base_positions,
-                )
+            return Trajectory(
+                species=self.species,
+                coords=coords,
+                lattice=lattice,
+                site_properties=self._get_site_props(selected),
+                frame_properties=frame_properties,
+                constant_lattice=self.constant_lattice,
+                time_step=self.time_step,
+                coords_are_displacement=False,
+                base_positions=self.base_positions,
+            )
 
         supported = [int, slice, list or np.ndarray]
         raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
@@ -488,12 +479,7 @@ class Trajectory(MSONable):
         }
 
     @classmethod
-    def from_structures(
-        cls,
-        structures: list[Structure],
-        constant_lattice: bool = True,
-        **kwargs,
-    ) -> Trajectory:
+    def from_structures(cls, structures: list[Structure], constant_lattice: bool = True, **kwargs) -> Trajectory:
         """
         Create trajectory from a list of structures.
 
@@ -503,6 +489,7 @@ class Trajectory(MSONable):
             structures: pymatgen Structure objects.
             constant_lattice: Whether the lattice changes during the simulation,
                 such as in an NPT MD simulation.
+            **kwargs: Additional kwargs passed to Trajectory constructor.
 
         Returns:
             A trajectory from the structures.
@@ -526,18 +513,15 @@ class Trajectory(MSONable):
         )
 
     @classmethod
-    def from_molecules(
-        cls,
-        molecules: list[Molecule],
-        **kwargs,
-    ) -> Trajectory:
+    def from_molecules(cls, molecules: list[Molecule], **kwargs) -> Trajectory:
         """
         Create trajectory from a list of molecules.
 
         Note: Assumes no atoms removed during simulation.
 
         Args:
-            molecules: pymatgen Molecules objects.
+            molecules: pymatgen Molecule objects.
+            **kwargs: Additional kwargs passed to Trajectory constructor.
 
         Returns:
             A trajectory from the structures.
@@ -556,12 +540,7 @@ class Trajectory(MSONable):
         )
 
     @classmethod
-    def from_file(
-        cls,
-        filename: str | Path,
-        constant_lattice: bool = True,
-        **kwargs,
-    ) -> Trajectory:
+    def from_file(cls, filename: str | Path, constant_lattice: bool = True, **kwargs) -> Trajectory:
         """
         Create trajectory from XDATCAR or vasprun.xml file.
 
@@ -569,6 +548,7 @@ class Trajectory(MSONable):
             filename: Path to the file to read from.
             constant_lattice: Whether the lattice changes during the simulation,
                 such as in an NPT MD simulation.
+            **kwargs: Additional kwargs passed to Trajectory constructor.
 
         Returns:
             A trajectory from the file.

@@ -127,7 +127,7 @@ class PeriodicSiteTest(PymatgenTest):
         assert round(abs(distance - 19.461500456028563), 5) == 0
         # Test that old and new distance algo give the same ans for
         # "standard lattices"
-        lattice = Lattice(np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
+        lattice = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
         assert round(abs(get_distance_and_image_old(site1, site2)[0] - site1.distance_and_image(site2)[0]), 7) == 0
@@ -181,13 +181,13 @@ class PeriodicSiteTest(PymatgenTest):
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
         site.to_unit_cell(in_place=True)
         val = [0.25, 0.35, 0.46]
-        self.assertArrayAlmostEqual(site.frac_coords, val)
+        self.assert_all_close(site.frac_coords, val)
 
         lattice_pbc = Lattice(self.lattice.matrix, pbc=(True, True, False))
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), lattice_pbc)
         site.to_unit_cell(in_place=True)
         val = [0.25, 0.35, 4.46]
-        self.assertArrayAlmostEqual(site.frac_coords, val)
+        self.assert_all_close(site.frac_coords, val)
 
     def test_setters(self):
         site = self.propertied_site
@@ -209,9 +209,9 @@ class PeriodicSiteTest(PymatgenTest):
             set_bad_species()
 
         site.frac_coords = [0, 0, 0.1]
-        self.assertArrayAlmostEqual(site.coords, [0, 0, 10])
+        self.assert_all_close(site.coords, [0, 0, 10])
         site.coords = [1.5, 3.25, 5]
-        self.assertArrayAlmostEqual(site.frac_coords, [0.015, 0.0325, 0.05])
+        self.assert_all_close(site.frac_coords, [0.015, 0.0325, 0.05])
 
     def test_repr(self):
         assert repr(self.propertied_site) == "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]"

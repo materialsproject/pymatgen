@@ -5,7 +5,6 @@ files.
 
 from __future__ import annotations
 
-import glob
 import itertools
 import json
 import logging
@@ -16,8 +15,9 @@ import subprocess
 import warnings
 from collections import namedtuple
 from enum import Enum
+from glob import glob
 from hashlib import md5, sha256
-from typing import Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import numpy as np
 import scipy.constants as const
@@ -35,7 +35,12 @@ from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import ArrayLike, PathLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.util.typing import PathLike
+
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -244,7 +249,7 @@ class Poscar(MSONable):
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         if check_for_POTCAR:
-            potcars = glob.glob(os.path.join(dirname, "*POTCAR*"))
+            potcars = glob(os.path.join(dirname, "*POTCAR*"))
             if potcars:
                 try:
                     potcar = Potcar.from_file(sorted(potcars)[0])
@@ -441,9 +446,7 @@ class Poscar(MSONable):
                     d3 = [float(tok) for tok in lines[st + 2 * n_sites].split()]
                     predictor_corrector.append([d1, d2, d3])
         else:
-            velocities = None
-            predictor_corrector = None
-            predictor_corrector_preamble = None
+            velocities = predictor_corrector = predictor_corrector_preamble = None
 
         return Poscar(
             struct,
@@ -1178,7 +1181,7 @@ class Kpoints(MSONable):
         grid.
 
         Args:
-            kpts: Subdivisions N_1, N_2 and N_3 along reciprocal lattice
+            kpts: Subdivisions N_1, N_2, N_3 along reciprocal lattice
                 vectors. Defaults to (2,2,2)
             shift: Shift to be applied to the kpoints. Defaults to (0,0,0).
 
@@ -1402,7 +1405,7 @@ class Kpoints(MSONable):
         if style == "a":
             return Kpoints.automatic(int(lines[3].split()[0].strip()))
 
-        coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+" r"([\d+.\-Ee]+)")
+        coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in ["g", "m"]:
@@ -1438,7 +1441,7 @@ class Kpoints(MSONable):
             style = Kpoints.supported_modes.Line_mode
             kpts = []
             labels = []
-            patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)" r"\s*!*\s*(.*)")
+            patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
@@ -1724,7 +1727,7 @@ class PotcarSingle:
         self.header = data.split("\n")[0].strip()
 
         search_lines = re.search(
-            r"(?s)(parameters from PSCTR are:" r".*?END of PSCTR-controll parameters)",
+            r"(?s)(parameters from PSCTR are:.*?END of PSCTR-controll parameters)",
             data,
         ).group(1)
 
@@ -1764,7 +1767,7 @@ class PotcarSingle:
             PSCTR["Orbitals"] = tuple(orbitals)
 
         description_string = re.search(
-            r"(?s)Description\s*\n" r"(.*?)Error from kinetic" r" energy argument \(eV\)",
+            r"(?s)Description\s*\n(.*?)Error from kinetic energy argument \(eV\)",
             search_lines,
         )
         if description_string:
@@ -1786,7 +1789,7 @@ class PotcarSingle:
             PSCTR["OrbitalDescriptions"] = tuple(descriptions)
 
         rrkj_kinetic_energy_string = re.search(
-            r"(?s)Error from kinetic energy argument \(eV\)\s*\n" r"(.*?)END of PSCTR-controll parameters",
+            r"(?s)Error from kinetic energy argument \(eV\)\s*\n(.*?)END of PSCTR-controll parameters",
             search_lines,
         )
         rrkj_array = []
@@ -1906,7 +1909,7 @@ class PotcarSingle:
         d = SETTINGS.get("PMG_VASP_PSP_DIR")
         if d is None:
             raise ValueError(
-                f"No POTCAR for {symbol} with functional {functional} found. Please set the PMG_VASP_PSP_DIR "
+                f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR "
                 "environment in .pmgrc.yaml, or you may need to set PMG_DEFAULT_FUNCTIONAL to PBE_52 or "
                 "PBE_54 if you are using newer psps from VASP."
             )
@@ -1921,7 +1924,7 @@ class PotcarSingle:
                 psingle = PotcarSingle.from_file(p)
                 return psingle
         raise OSError(
-            f"You do not have the right POTCAR with functional {functional} and label {symbol} "
+            f"You do not have the right POTCAR with {functional=} and label {symbol} "
             f"in your VASP_PSP_DIR. Paths tried: {paths_to_try}"
         )
 
@@ -2287,7 +2290,7 @@ class Potcar(list, MSONable):
         functionals = []
         for p in fdata.split("End of Dataset"):
             if p_strip := p.strip():
-                single = PotcarSingle(p_strip + "End of Dataset\n")
+                single = PotcarSingle(p_strip + "\nEnd of Dataset\n")
                 potcar.append(single)
                 functionals.append(single.functional)
         if len(set(functionals)) != 1:

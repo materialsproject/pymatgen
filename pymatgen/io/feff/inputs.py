@@ -189,8 +189,7 @@ class Header(MSONable):
         # for Molecule, skip the symmetry check
         elif isinstance(self.struct, Molecule):
             self.periodic = False
-            self.space_number = None
-            self.space_group = None
+            self.space_number = self.space_group = None
         else:
             raise ValueError("'struct' argument must be a Structure or Molecule!")
         self.comment = comment or "None given"

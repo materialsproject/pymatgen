@@ -133,7 +133,3 @@ class EnumlibAdaptorTest(PymatgenTest):
         adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001)
         with pytest.raises(TimeoutError):
             adaptor._run_multienum()
-
-
-if __name__ == "__main__":
-    unittest.main()

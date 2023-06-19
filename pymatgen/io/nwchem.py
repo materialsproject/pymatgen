@@ -121,10 +121,10 @@ class NwTask(MSONable):
         """
         # Basic checks.
         if theory.lower() not in NwTask.theories:
-            raise NwInputError(f"Invalid theory {theory}")
+            raise NwInputError(f"Invalid {theory=}")
 
         if operation.lower() not in NwTask.operations:
-            raise NwInputError(f"Invalid operation {operation}")
+            raise NwInputError(f"Invalid {operation=}")
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
         self.title = title if title is not None else f"{theory} {operation}"
@@ -444,15 +444,10 @@ class NwInput(MSONable):
         """
         directives = []
         tasks = []
-        charge = None
-        spin_multiplicity = None
-        title = None
-        basis_set = None
+        charge = spin_multiplicity = title = basis_set = None
         basis_set_option = None
         theory_directives = {}
-        geom_options = None
-        symmetry_options = None
-        memory_options = None
+        geom_options = symmetry_options = memory_options = None
         lines = string_input.strip().split("\n")
         while len(lines) > 0:
             line = lines.pop(0).strip()
@@ -703,11 +698,11 @@ class NwOutput:
         energy_patt = re.compile(r"Total \w+ energy\s+=\s+([.\-\d]+)")
         energy_gas_patt = re.compile(r"gas phase energy\s+=\s+([.\-\d]+)")
         energy_sol_patt = re.compile(r"sol phase energy\s+=\s+([.\-\d]+)")
-        coord_patt = re.compile(r"\d+\s+(\w+)\s+[.\-\d]+\s+([.\-\d]+)\s+" r"([.\-\d]+)\s+([.\-\d]+)")
-        lat_vector_patt = re.compile(r"a[123]=<\s+([.\-\d]+)\s+" r"([.\-\d]+)\s+([.\-\d]+)\s+>")
-        corrections_patt = re.compile(r"([\w\-]+ correction to \w+)\s+=" r"\s+([.\-\d]+)")
+        coord_patt = re.compile(r"\d+\s+(\w+)\s+[.\-\d]+\s+([.\-\d]+)\s+([.\-\d]+)\s+([.\-\d]+)")
+        lat_vector_patt = re.compile(r"a[123]=<\s+([.\-\d]+)\s+([.\-\d]+)\s+([.\-\d]+)\s+>")
+        corrections_patt = re.compile(r"([\w\-]+ correction to \w+)\s+=\s+([.\-\d]+)")
         preamble_patt = re.compile(
-            r"(No. of atoms|No. of electrons" r"|SCF calculation type|Charge|Spin " r"multiplicity)\s*:\s*(\S+)"
+            r"(No. of atoms|No. of electrons|SCF calculation type|Charge|Spin multiplicity)\s*:\s*(\S+)"
         )
         force_patt = re.compile(r"\s+(\d+)\s+(\w+)" + 6 * r"\s+([0-9\.\-]+)")
 
@@ -728,16 +723,14 @@ class NwOutput:
 
         parse_hess = False
         parse_proj_hess = False
-        hessian = None
-        projected_hessian = None
+        hessian = projected_hessian = None
         parse_force = False
         all_forces = []
         forces = []
 
         data = {}
         energies = []
-        frequencies = None
-        normal_frequencies = None
+        frequencies = normal_frequencies = None
         corrections = {}
         molecules = []
         structures = []

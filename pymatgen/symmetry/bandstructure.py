@@ -13,12 +13,7 @@ import numpy as np
 
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.symmetry.kpath import (
-    KPathBase,
-    KPathLatimerMunro,
-    KPathSeek,
-    KPathSetyawanCurtarolo,
-)
+from pymatgen.symmetry.kpath import KPathBase, KPathLatimerMunro, KPathSeek, KPathSetyawanCurtarolo
 
 __author__ = "Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -85,9 +80,7 @@ class HighSymmKpath(KPathBase):
 
         self._path_type = path_type
 
-        self._equiv_labels = None
-        self._path_lengths = None
-        self._label_index = None
+        self._equiv_labels = self._path_lengths = self._label_index = None
 
         if path_type != "all":
             if path_type == "latimer_munro":

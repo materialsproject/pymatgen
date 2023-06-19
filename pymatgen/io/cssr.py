@@ -25,7 +25,7 @@ class Cssr:
     a Structure to a Cssr file is supported.
     """
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
         Args:
             structure (Structure/IStructure): A structure to create the Cssr object.
@@ -43,8 +43,8 @@ class Cssr:
             f"{len(self.structure)} 0",
             f"0 {self.structure.formula}",
         ]
-        for i, site in enumerate(self.structure.sites):
-            output.append(f"{i + 1} {site.specie} {site.a:.4f} {site.b:.4f} {site.c:.4f}")
+        for idx, site in enumerate(self.structure):
+            output.append(f"{idx + 1} {site.specie} {site.a:.4f} {site.b:.4f} {site.c:.4f}")
         return "\n".join(output)
 
     def write_file(self, filename):

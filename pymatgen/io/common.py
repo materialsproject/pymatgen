@@ -145,7 +145,7 @@ class VolumetricData(MSONable):
         if self.structure != other.structure:
             warnings.warn("Structures are different. Make sure you know what you are doing...")
         if list(self.data) != list(other.data):
-            raise ValueError("Data have different keys! Maybe one is spin-" "polarized and the other is not?")
+            raise ValueError("Data have different keys! Maybe one is spin-polarized and the other is not?")
 
         # To add checks
         data = {}
@@ -354,7 +354,7 @@ class VolumetricData(MSONable):
                     f"\t {self.dim[idx]} {lattice_matrix[0]:.6f} {lattice_matrix[1]:.6f} {lattice_matrix[2]:.6f}\n"
                 )
 
-            for site in self.structure.sites:
+            for site in self.structure:
                 file.write(
                     f"\t {Element(site.species_string).Z} 0.000000 "
                     f"{ang_to_bohr * site.coords[0]} "

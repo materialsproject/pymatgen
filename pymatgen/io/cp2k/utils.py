@@ -6,11 +6,13 @@ from __future__ import annotations
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
 
-from pymatgen.core import Molecule, Structure
+if TYPE_CHECKING:
+    from pymatgen.core import Molecule, Structure
 
 
 def postprocessor(data: str) -> str | int | float | bool | None:

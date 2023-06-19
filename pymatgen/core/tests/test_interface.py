@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 
 from pymatgen.core.interface import Interface
@@ -31,15 +29,8 @@ class InterfaceTest(PymatgenTest):
         assert interface.substrate_layers == 2
 
         iface_dict = interface.as_dict()
-        for k in [
-            "lattice",
-            "sites",
-            "in_plane_offset",
-            "gap",
-            "vacuum_over_film",
-            "interface_properties",
-        ]:
-            assert k in iface_dict
+        expected_keys = {"lattice", "sites", "in_plane_offset", "gap", "vacuum_over_film", "interface_properties"}
+        assert expected_keys <= {*iface_dict}
         assert isinstance(interface.from_dict(iface_dict), Interface)
 
     def test_gap_setter(self):
@@ -100,7 +91,3 @@ class InterfaceTest(PymatgenTest):
 
         interface = Interface.from_slabs(film_slab=si_slab, substrate_slab=sio2_slab)
         assert isinstance(interface, Interface)
-
-
-if __name__ == "__main__":
-    unittest.main()

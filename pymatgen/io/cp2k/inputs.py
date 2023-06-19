@@ -32,18 +32,20 @@ import typing
 from dataclasses import dataclass, field
 from hashlib import md5
 from pathlib import Path
-from typing import Any, Iterable, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence
 
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.utils import chunk, postprocessor, preprocessor
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.vasp.inputs import Kpoints_supported_modes
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core.lattice import Lattice
+    from pymatgen.core.structure import Molecule, Structure
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -89,7 +91,7 @@ class Keyword(MSONable):
             repeats: Whether or not this keyword may be repeated. Default=False.
         """
         self.name = name
-        self.values = values
+        self.values = values  # noqa: PD011
         self.description = description
         self.repeats = repeats
         self.units = units
@@ -108,8 +110,8 @@ class Keyword(MSONable):
         if not isinstance(other, Keyword):
             return NotImplemented
         if self.name.upper() == other.name.upper():
-            v1 = [_.upper() if isinstance(_, str) else _ for _ in self.values]
-            v2 = [_.upper() if isinstance(_, str) else _ for _ in other.values]
+            v1 = [_.upper() if isinstance(_, str) else _ for _ in self.values]  # noqa: PD011
+            v2 = [_.upper() if isinstance(_, str) else _ for _ in other.values]  # noqa: PD011
             if v1 == v2 and self.units == self.units:
                 return True
         return False
@@ -118,22 +120,22 @@ class Keyword(MSONable):
         return KeywordList(keywords=[self, other])
 
     def __getitem__(self, item):
-        return self.values[item]
+        return self.values[item]  # noqa: PD011
 
     def as_dict(self):
         """
         Get a dictionary representation of the Keyword
         """
-        d = {}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["name"] = self.name
-        d["values"] = self.values
-        d["description"] = self.description
-        d["repeats"] = self.repeats
-        d["units"] = self.units
-        d["verbose"] = self.verbose
-        return d
+        dct = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["name"] = self.name
+        dct["values"] = self.values  # noqa: PD011
+        dct["description"] = self.description
+        dct["repeats"] = self.repeats
+        dct["units"] = self.units
+        dct["verbose"] = self.verbose
+        return dct
 
     def get_string(self):
         """
@@ -144,7 +146,7 @@ class Keyword(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        Initialise from dictionary
+        Initialize from dictionary
         """
         return Keyword(
             d["name"],
@@ -158,7 +160,7 @@ class Keyword(MSONable):
     @staticmethod
     def from_string(s):
         """
-        Initialise from a string.
+        Initialize from a string.
 
         Keywords must be labeled with strings. If the postprocessor finds
         that the keywords is a number, then None is return (used by
@@ -832,16 +834,14 @@ class Cp2kInput(Section):
                 if tmp:
                     if isinstance(tmp, KeywordList):
                         self.by_path(current).get(kwd.name).append(kwd)
+                    elif isinstance(self.by_path(current), SectionList):
+                        self.by_path(current)[-1][kwd.name] = KeywordList(keywords=[tmp, kwd])
                     else:
-                        if isinstance(self.by_path(current), SectionList):
-                            self.by_path(current)[-1][kwd.name] = KeywordList(keywords=[tmp, kwd])
-                        else:
-                            self.by_path(current)[kwd.name] = KeywordList(keywords=[kwd, tmp])
+                        self.by_path(current)[kwd.name] = KeywordList(keywords=[kwd, tmp])
+                elif isinstance(self.by_path(current), SectionList):
+                    self.by_path(current)[-1].keywords[kwd.name] = kwd
                 else:
-                    if isinstance(self.by_path(current), SectionList):
-                        self.by_path(current)[-1].keywords[kwd.name] = kwd
-                    else:
-                        self.by_path(current).keywords[kwd.name] = kwd
+                    self.by_path(current).keywords[kwd.name] = kwd
 
     def write_file(
         self,
@@ -887,7 +887,7 @@ class Global(Section):
         keywords = keywords if keywords else {}
 
         description = (
-            "Section with general information regarding which kind of simulation" + " to perform an general settings"
+            "Section with general information regarding which kind of simulation to perform an general settings"
         )
 
         _keywords = {
@@ -915,9 +915,7 @@ class ForceEval(Section):
         keywords = keywords if keywords else {}
         subsections = subsections if subsections else {}
 
-        description = (
-            "Parameters needed to calculate energy and forces" + " and describe the system you want to analyze."
-        )
+        description = "Parameters needed to calculate energy and forces and describe the system you want to analyze."
 
         _keywords = {
             "METHOD": Keyword("METHOD", kwargs.get("METHOD", "QS")),
@@ -1163,8 +1161,8 @@ class Mgrid(Section):
         subsections = subsections if subsections else {}
         description = (
             "Multigrid information. Multigrid allows for sharp gaussians and diffuse "
-            + "gaussians to be treated on different grids, where the spacing of FFT integration "
-            + "points can be tailored to the degree of sharpness/diffusiveness"
+            "gaussians to be treated on different grids, where the spacing of FFT integration "
+            "points can be tailored to the degree of sharpness/diffusiveness"
         )
 
         _keywords = {
@@ -1346,14 +1344,14 @@ class OrbitalTransformation(Section):
 
         description = (
             "Sets the various options for the orbital transformation (OT) method. "
-            + "Default settings already provide an efficient, yet robust method. Most "
-            + "systems benefit from using the FULL_ALL preconditioner combined with a small "
-            + "value (0.001) of ENERGY_GAP. Well-behaved systems might benefit from using "
-            + "a DIIS minimizer. Advantages: It's fast, because no expensive diagonalization"
-            + "is performed. If preconditioned correctly, method guaranteed to find minimum. "
-            + "Disadvantages: Sensitive to preconditioning. A good preconditioner can be "
-            + "expensive. No smearing, or advanced SCF mixing possible: POOR convergence for "
-            + "metallic systems."
+            "Default settings already provide an efficient, yet robust method. Most "
+            "systems benefit from using the FULL_ALL preconditioner combined with a small "
+            "value (0.001) of ENERGY_GAP. Well-behaved systems might benefit from using "
+            "a DIIS minimizer. Advantages: It's fast, because no expensive diagonalization"
+            "is performed. If preconditioned correctly, method guaranteed to find minimum. "
+            "Disadvantages: Sensitive to preconditioning. A good preconditioner can be "
+            "expensive. No smearing, or advanced SCF mixing possible: POOR convergence for "
+            "metallic systems."
         )
 
         _keywords = {
@@ -1583,8 +1581,8 @@ class Coord(Section):
         subsections = subsections if subsections else {}
         description = (
             "The coordinates for simple systems (like small QM cells) are specified "
-            + "here by default using explicit XYZ coordinates. More complex systems "
-            + "should be given via an external coordinate file in the SUBSYS%TOPOLOGY section."
+            "here by default using explicit XYZ coordinates. More complex systems "
+            "should be given via an external coordinate file in the SUBSYS%TOPOLOGY section."
         )
 
         if aliases:
@@ -1699,8 +1697,8 @@ class V_Hartree_Cube(Section):
         subsections = subsections if subsections else {}
         description = (
             "Controls the printing of a cube file with eletrostatic potential generated by "
-            + "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
-            + "Note: by convention the potential has opposite sign than the expected physical one."
+            "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
+            "Note: by convention the potential has opposite sign than the expected physical one."
         )
         super().__init__(
             "V_HARTREE_CUBE",
@@ -1733,8 +1731,8 @@ class MO_Cubes(Section):
         subsections = subsections if subsections else {}
         description = (
             "Controls the printing of a cube file with eletrostatic potential generated by "
-            + "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
-            + "Note: by convention the potential has opposite sign than the expected physical one."
+            "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
+            "Note: by convention the potential has opposite sign than the expected physical one."
         )
 
         _keywords = {
@@ -1760,7 +1758,7 @@ class E_Density_Cube(Section):
         subsections = subsections if subsections else {}
         description = (
             "Controls the printing of cube files with the electronic density and, for LSD "
-            + "calculations, the spin density."
+            "calculations, the spin density."
         )
 
         super().__init__(
@@ -1843,8 +1841,8 @@ class BrokenSymmetry(Section):
         self.nel_beta = nel_beta
         description = (
             "Define the required atomic orbital occupation assigned in initialization "
-            + "of the density matrix, by adding or subtracting electrons from specific "
-            + "angular momentum channels. It works only with GUESS ATOMIC"
+            "of the density matrix, by adding or subtracting electrons from specific "
+            "angular momentum channels. It works only with GUESS ATOMIC"
         )
 
         keywords_alpha = {
@@ -2137,7 +2135,7 @@ class Kpoints(Section):
                 units = "B_VECTOR"
             elif not structure:
                 raise ValueError(
-                    "No cp2k automatic gamma constructor. " "A structure is required to construct from spglib"
+                    "No cp2k automatic gamma constructor. A structure is required to construct from spglib"
                 )
             else:
                 sga = SpacegroupAnalyzer(structure)
@@ -2735,9 +2733,9 @@ class GthPotential(AtomicMetadata):
         ):
             raise ValueError("Must initialize all attributes in order to get string")
 
-        out = f"{str(self.element)} {self.name} {' '.join(self.alias_names)}\n"
+        out = f"{self.element!s} {self.name} {' '.join(self.alias_names)}\n"
         out += f"{' '.join(str(self.n_elecs[i]) for i in range(len(self.n_elecs)))}\n"
-        out += f"{self.r_loc: .14f} {str(self.nexp_ppl)} "
+        out += f"{self.r_loc: .14f} {self.nexp_ppl!s} "
         for i in range(self.nexp_ppl):
             out += f"{self.c_exp_ppl[i]: .14f} "
         out += "\n"

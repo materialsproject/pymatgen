@@ -7,13 +7,15 @@ from __future__ import annotations
 import logging
 import os
 import warnings
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from monty.io import zopen
 
-from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
+
+if TYPE_CHECKING:
+    from pymatgen.core.structure import Molecule
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -458,12 +460,11 @@ class QChemDictSet(QCInput):
             if self.smd_solvent in ("custom", "other"):
                 if self.custom_smd is None:
                     raise ValueError(
-                        "A user-defined SMD requires passing custom_smd, a string"
-                        + " of seven comma separated values in the following order:"
-                        + " dielectric, refractive index, acidity, basicity, surface"
-                        + " tension, aromaticity, electronegative halogenicity"
+                        "A user-defined SMD requires passing custom_smd, a string of seven comma separated values "
+                        "in the following order: dielectric, refractive index, acidity, basicity, surface"
+                        " tension, aromaticity, electronegative halogenicity"
                     )
-                elif self.qchem_version == 6:
+                if self.qchem_version == 6:
                     custom_smd_vals = self.custom_smd.split(",")
                     mysmx["epsilon"] = custom_smd_vals[0]
                     mysmx["SolN"] = custom_smd_vals[1]

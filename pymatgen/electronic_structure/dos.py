@@ -7,7 +7,7 @@ from __future__ import annotations
 import functools
 import warnings
 from collections import namedtuple
-from typing import Mapping, NamedTuple
+from typing import TYPE_CHECKING, Mapping, NamedTuple
 
 import numpy as np
 from monty.json import MSONable
@@ -15,12 +15,16 @@ from scipy.constants import value as _cd
 from scipy.signal import hilbert
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
-from pymatgen.util.typing import ArrayLike, SpeciesLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.core.sites import PeriodicSite
+    from pymatgen.util.typing import SpeciesLike
 
 
 class DOS(Spectrum):
@@ -1192,10 +1196,12 @@ class CompleteDos(Dos):
         Args:
             type (str): Specify fingerprint type needed can accept '{s/p/d/f/}summed_{pdos/tdos}'
             (default is summed_pdos)
+            binning (bool): If true, the DOS fingerprint is binned using np.linspace and n_bins.
+                Default is True.
             min_e (float): The minimum mode energy to include in the fingerprint (default is None)
             max_e (float): The maximum mode energy to include in the fingerprint (default is None)
             n_bins (int): Number of bins to be used in the fingerprint (default is 256)
-            normalize (bool): If true, normalizes the area under fp to equal to 1 (default is True)
+            normalize (bool): If true, normalizes the area under fp to equal to 1. Default is True.
 
         Raises:
             ValueError: If type is not one of the accepted values {s/p/d/f/}summed_{pdos/tdos}.
@@ -1314,18 +1320,17 @@ class CompleteDos(Dos):
             rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)
             return np.dot(vec1, vec2) / rescale
 
-        elif not tanimoto and normalize:
+        if not tanimoto and normalize:
             rescale = np.linalg.norm(vec1) * np.linalg.norm(vec2)
             return np.dot(vec1, vec2) / rescale
 
-        elif not tanimoto and not normalize:
+        if not tanimoto and not normalize:
             rescale = 1.0
             return np.dot(vec1, vec2) / rescale
 
-        else:
-            raise ValueError(
-                "Cannot compute similarity index. Please set either normalize=True or tanimoto=True or both to False."
-            )
+        raise ValueError(
+            "Cannot compute similarity index. Please set either normalize=True or tanimoto=True or both to False."
+        )
 
     @classmethod
     def from_dict(cls, d) -> CompleteDos:

@@ -10,7 +10,7 @@ import os
 import warnings
 from collections import namedtuple
 from enum import Enum, unique
-from typing import Any
+from typing import TYPE_CHECKING, Any, no_type_check
 
 import numpy as np
 from monty.serialization import loadfn
@@ -21,14 +21,11 @@ from pymatgen.core.structure import DummySpecies, Element, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
-from pymatgen.transformations.advanced_transformations import (
-    MagOrderingTransformation,
-    MagOrderParameterConstraint,
-)
-from pymatgen.transformations.standard_transformations import (
-    AutoOxiStateDecorationTransformation,
-)
-from pymatgen.util.typing import VectorLike
+from pymatgen.transformations.advanced_transformations import MagOrderingTransformation, MagOrderParameterConstraint
+from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -89,7 +86,7 @@ class CollinearMagneticStructureAnalyzer:
         make_primitive: bool = True,
         default_magmoms: dict | None = None,
         set_net_positive: bool = True,
-        threshold: float = 0.00,
+        threshold: float = 0,
         threshold_nonmag: float = 0.1,
     ):
         """
@@ -222,12 +219,12 @@ class CollinearMagneticStructureAnalyzer:
         # round magmoms on magnetic ions below threshold to zero
         # and on non magnetic ions below threshold_nonmag
         magmoms = [
-            m
-            if abs(m) > threshold and a.species_string in self.default_magmoms
-            else m
-            if abs(m) > threshold_nonmag and a.species_string not in self.default_magmoms
+            magmom
+            if abs(magmom) > threshold and site.species_string in self.default_magmoms
+            else magmom
+            if abs(magmom) > threshold_nonmag and site.species_string not in self.default_magmoms
             else 0
-            for (m, a) in zip(magmoms, structure.sites)
+            for magmom, site in zip(magmoms, structure)
         ]
 
         # overwrite existing magmoms with default_magmoms
@@ -296,8 +293,9 @@ class CollinearMagneticStructureAnalyzer:
 
         self.structure = structure
 
+    @no_type_check  # ignore seemingly false mypy errors
     @staticmethod
-    def _round_magmoms(magmoms: VectorLike, round_magmoms_mode: int | float) -> np.ndarray:
+    def _round_magmoms(magmoms: ArrayLike, round_magmoms_mode: int | float) -> np.ndarray:
         """If round_magmoms_mode is an integer, simply round to that number
         of decimal places, else if set to a float will try and round
         intelligently by grouping magmoms.
@@ -612,11 +610,7 @@ class MagneticStructureEnumerator:
         self,
         structure: Structure,
         default_magmoms: dict[str, float] | None = None,
-        strategies: list[str]
-        | tuple[str, ...] = (
-            "ferromagnetic",
-            "antiferromagnetic",
-        ),
+        strategies: list[str] | tuple[str, ...] = ("ferromagnetic", "antiferromagnetic"),
         automatic: bool = True,
         truncate_by_symmetry: bool = True,
         transformation_kwargs: dict | None = None,
@@ -709,7 +703,11 @@ class MagneticStructureEnumerator:
         # we will first create a set of transformations
         # and then apply them to our input structure
         self.transformations = self._generate_transformations(self.sanitized_structure)
-        self._generate_ordered_structures(self.sanitized_structure, self.transformations)
+        ordered_structures, ordered_structures_origins = self._generate_ordered_structures(
+            self.sanitized_structure, self.transformations
+        )
+        self.ordered_structures = ordered_structures
+        self.ordered_structure_origins = ordered_structures_origins
 
     @staticmethod
     def _sanitize_input_structure(input_structure: Structure) -> Structure:
@@ -937,7 +935,7 @@ class MagneticStructureEnumerator:
         self,
         sanitized_input_structure: Structure,
         transformations: dict[str, MagOrderingTransformation],
-    ):
+    ) -> tuple[list[Structure], list[str]]:
         """Apply our input structure to our list of transformations and output a list
         of ordered structures that have been pruned for duplicates and for those
         with low symmetry (optional).
@@ -1047,8 +1045,7 @@ class MagneticStructureEnumerator:
         # if our input structure isn't in our generated structures,
         # let's add it manually and also keep a note of which structure
         # is our input: this is mostly for book-keeping/benchmarking
-        self.input_index = None
-        self.input_origin = None
+        self.input_index = self.input_origin = None
         if self.input_analyzer.ordering != Ordering.NM:
             matches = [self.input_analyzer.matches_ordering(s) for s in ordered_structures]
             if not any(matches):
@@ -1059,9 +1056,7 @@ class MagneticStructureEnumerator:
                 self.logger.info(f"Input structure was found in enumerated structures at index {matches.index(True)}")
                 self.input_index = matches.index(True)
                 self.input_origin = ordered_structures_origins[self.input_index]
-
-        self.ordered_structures = ordered_structures
-        self.ordered_structure_origins = ordered_structures_origins
+        return ordered_structures, ordered_structures_origins
 
 
 MagneticDeformation = namedtuple("MagneticDeformation", "type deformation")
@@ -1096,6 +1091,6 @@ def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> Magn
     p = np.dot(lattice_a_inv, lattice_b)
     eta = 0.5 * (np.dot(p.T, p) - np.identity(3))
     w, v = np.linalg.eig(eta)
-    deformation = 100 * (1.0 / 3.0) * np.sqrt(w[0] ** 2 + w[1] ** 2 + w[2] ** 2)
+    deformation = 100 * (1 / 3) * np.sqrt(w[0] ** 2 + w[1] ** 2 + w[2] ** 2)
 
     return MagneticDeformation(deformation=deformation, type=type_str)

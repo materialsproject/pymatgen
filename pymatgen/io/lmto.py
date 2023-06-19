@@ -126,9 +126,9 @@ class LMTOCtrl:
         sites = []
         classes = []
         num_atoms = {}
-        for s, site in enumerate(self.structure.sites):
+        for idx, site in enumerate(self.structure):
             atom = site.specie
-            label_index = ineq_sites_index.index(eq_atoms[s])
+            label_index = ineq_sites_index.index(eq_atoms[idx])
             if atom.symbol in num_atoms:
                 if label_index + 1 > sum(num_atoms.values()):
                     num_atoms[atom.symbol] += 1
@@ -378,19 +378,14 @@ class LMTOCopl:
 
             # This takes care of duplicate labels
             if label in cohp_data:
-                i = 1
-                lab = f"{label}-{i}"
+                idx = 1
+                lab = f"{label}-{idx}"
                 while lab in cohp_data:
-                    i += 1
-                    lab = f"{label}-{i}"
+                    idx += 1
+                    lab = f"{label}-{idx}"
                 label = lab
 
-            cohp_data[label] = {
-                "COHP": cohp,
-                "ICOHP": icohp,
-                "length": length,
-                "sites": sites,
-            }
+            cohp_data[label] = {"COHP": cohp, "ICOHP": icohp, "length": length, "sites": sites}
         self.cohp_data = cohp_data
 
     @staticmethod

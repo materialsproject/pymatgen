@@ -411,7 +411,7 @@ class GrainBoundaryGenerator:
                 Make sure the angle is accurate enough. You can use the enum* functions
                 in this class to extract the accurate angle.
                 e.g.: The rotation angle of sigma 3 twist GB with the rotation axis
-                [1, 1, 1] and GB plane (1, 1, 1) can be 60.000000000 degree.
+                [1, 1, 1] and GB plane (1, 1, 1) can be 60 degree.
                 If you do not know the rotation angle, but know the sigma value, we have
                 provide the function get_rotation_angle_from_sigma which is able to return
                 all the rotation angles of sigma value you provided.
@@ -2140,11 +2140,10 @@ class GrainBoundaryGenerator:
                                 c_norm = c_norm_temp
                                 normal_init = True
                                 t_matrix[2] = temp
-                    else:
-                        if c_len_temp < c_length or (abs(c_len_temp - c_length) < 1.0e-8 and c_norm_temp < c_norm):
-                            t_matrix[2] = temp
-                            c_norm = c_norm_temp
-                            c_length = c_len_temp
+                    elif c_len_temp < c_length or (abs(c_len_temp - c_length) < 1.0e-8 and c_norm_temp < c_norm):
+                        t_matrix[2] = temp
+                        c_norm = c_norm_temp
+                        c_length = c_len_temp
 
         if normal and (not normal_init):
             logger.info("Did not find the perpendicular c vector, increase max_j")

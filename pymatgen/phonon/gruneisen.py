@@ -12,10 +12,7 @@ from monty.json import MSONable
 from pymatgen.core import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.units import amu_to_kg
-from pymatgen.phonon.bandstructure import (
-    PhononBandStructure,
-    PhononBandStructureSymmLine,
-)
+from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructureSymmLine
 from pymatgen.phonon.dos import PhononDos
 
 try:
@@ -146,9 +143,9 @@ class GruneisenParameter(MSONable):
             theta_d = self.acoustic_debye_temp
         mean_g = self.average_gruneisen(t=theta_d, squared=squared, limit_frequencies=limit_frequencies)
 
-        f1 = 0.849 * 3 * (4 ** (1.0 / 3.0)) / (20 * np.pi**3 * (1 - 0.514 * mean_g**-1 + 0.228 * mean_g**-2))
+        f1 = 0.849 * 3 * (4 ** (1 / 3)) / (20 * np.pi**3 * (1 - 0.514 * mean_g**-1 + 0.228 * mean_g**-2))
         f2 = (const.k * theta_d / const.hbar) ** 2
-        f3 = const.k * average_mass * self.structure.volume ** (1.0 / 3.0) * 1e-10 / (const.hbar * mean_g**2)
+        f3 = const.k * average_mass * self.structure.volume ** (1 / 3) * 1e-10 / (const.hbar * mean_g**2)
         k = f1 * f2 * f3
 
         if t is not None:
@@ -321,24 +318,26 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation
+            dct (dict): Dict representation
 
         Returns:
             GruneisenPhononBandStructure: Phonon band structure with Grueneisen parameters.
         """
-        lattice_rec = Lattice(d["lattice_rec"]["matrix"])
-        eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
-        structure = Structure.from_dict(d["structure"]) if "structure" in d else None
+        lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
+        eigendisplacements = (
+            np.array(dct["eigendisplacements"]["real"]) + np.array(dct["eigendisplacements"]["imag"]) * 1j
+        )
+        structure = Structure.from_dict(dct["structure"]) if "structure" in dct else None
         return cls(
-            qpoints=d["qpoints"],
-            frequencies=np.array(d["bands"]),
-            gruneisenparameters=np.array(d["gruneisen"]),
+            qpoints=dct["qpoints"],
+            frequencies=np.array(dct["bands"]),
+            gruneisenparameters=np.array(dct["gruneisen"]),
             lattice=lattice_rec,
             eigendisplacements=eigendisplacements,
-            labels_dict=d["labels_dict"],
+            labels_dict=dct["labels_dict"],
             structure=structure,
         )
 
@@ -401,22 +400,24 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         )
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d: Dict representation
+            dct: Dict representation
 
-        Returns: GruneisenPhononBandStructureSummLine
+        Returns: GruneisenPhononBandStructureSymmLine
         """
-        lattice_rec = Lattice(d["lattice_rec"]["matrix"])
-        eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
-        structure = Structure.from_dict(d["structure"]) if "structure" in d else None
+        lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
+        eigendisplacements = (
+            np.array(dct["eigendisplacements"]["real"]) + np.array(dct["eigendisplacements"]["imag"]) * 1j
+        )
+        structure = Structure.from_dict(dct["structure"]) if "structure" in dct else None
         return cls(
-            qpoints=d["qpoints"],
-            frequencies=np.array(d["bands"]),
-            gruneisenparameters=np.array(d["gruneisen"]),
+            qpoints=dct["qpoints"],
+            frequencies=np.array(dct["bands"]),
+            gruneisenparameters=np.array(dct["gruneisen"]),
             lattice=lattice_rec,
             eigendisplacements=eigendisplacements,
-            labels_dict=d["labels_dict"],
+            labels_dict=dct["labels_dict"],
             structure=structure,
         )

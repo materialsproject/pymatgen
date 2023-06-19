@@ -10,13 +10,7 @@ from copy import deepcopy
 import numpy as np
 import pytest
 
-from pymatgen.core.periodic_table import (
-    DummySpecies,
-    Element,
-    ElementBase,
-    Species,
-    get_el_sp,
-)
+from pymatgen.core.periodic_table import DummySpecies, Element, ElementBase, Species, get_el_sp
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -358,7 +352,7 @@ class ElementTestCase(PymatgenTest):
         assert Element("Bi").is_post_transition_metal, True
 
 
-class SpecieTestCase(PymatgenTest):
+class SpeciesTestCase(PymatgenTest):
     def setUp(self):
         self.specie1 = Species.from_string("Fe2+")
         self.specie2 = Species("Fe", 3)
@@ -479,7 +473,7 @@ class SpecieTestCase(PymatgenTest):
         # Why make the thing so complicated for a use case that I have never seen???
         # fe_no_ox = Species("Fe", oxidation_state=None, properties={"spin": 5})
         # fe_no_ox_from_str = Species.from_string("Fe,spin=5")
-        # self.assertEqual(fe_no_ox, fe_no_ox_from_str)
+        # assert fe_no_ox == fe_no_ox_from_str
 
     def test_no_oxidation_state(self):
         mo0 = Species("Mo", None, {"spin": 5})
@@ -492,7 +486,27 @@ class SpecieTestCase(PymatgenTest):
         assert Species("S", -2).to_unicode_string() == "S²⁻"
 
 
-class DummySpecieTestCase(unittest.TestCase):
+@pytest.mark.parametrize(
+    ("symbol_oxi", "expected_element", "expected_oxi_state"),
+    [
+        ("Fe", "Fe", None),
+        ("Fe2+", "Fe", 2),
+        ("O2-", "O", -2),
+        ("N-", "N", -1),
+        ("Ca+", "Ca", 1),
+        ("Te3+", "Te", 3),
+        ("P5+", "P", 5),
+        ("Na0+", "Na", 0),
+        ("Na0-", "Na", 0),
+    ],
+)
+def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
+    species = Species(symbol_oxi)
+    assert species._el.symbol == expected_element
+    assert species._oxi_state == expected_oxi_state
+
+
+class DummySpeciesTestCase(unittest.TestCase):
     def test_init(self):
         self.specie1 = DummySpecies("X")
         with pytest.raises(ValueError):
@@ -541,7 +555,3 @@ class FuncTest(unittest.TestCase):
         assert get_el_sp("U") == Element.U
         assert get_el_sp("X2+") == DummySpecies("X", 2)
         assert get_el_sp("Mn3+") == Species("Mn", 3)
-
-
-if __name__ == "__main__":
-    unittest.main()

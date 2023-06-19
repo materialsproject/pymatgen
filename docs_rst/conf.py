@@ -320,9 +320,12 @@ epub_copyright = copyright
 # Allow duplicate toc entries.
 # epub_tocdup = True
 
-# Resolve function for the linkcode extension.
-# Thanks to https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py
+
 def linkcode_resolve(domain, info):
+    """Resolve function for the linkcode extension.
+    Thanks to https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py
+    """
+
     def find_source():
         # try to find the file and line number, based on code from numpy:
         # https://github.com/numpy/numpy/blob/master/doc/source/conf.py#L286

@@ -9,11 +9,7 @@ from monty.serialization import dumpfn, loadfn
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.entries.entry_tools import (
-    EntrySet,
-    group_entries_by_composition,
-    group_entries_by_structure,
-)
+from pymatgen.entries.entry_tools import EntrySet, group_entries_by_composition, group_entries_by_structure
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / "test_files"
@@ -74,7 +70,3 @@ class EntrySetTest(unittest.TestCase):
         entry_set = loadfn("temp_entry_set.json")
         assert len(entry_set) == len(self.entry_set)
         os.remove("temp_entry_set.json")
-
-
-if __name__ == "__main__":
-    unittest.main()

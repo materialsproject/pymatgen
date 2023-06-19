@@ -6,10 +6,12 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
-from pymatgen.core import Molecule
+if TYPE_CHECKING:
+    from pymatgen.core import Molecule
 
 __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -85,7 +87,7 @@ class CRESTInput(MSONable):
         force_constant = constraints["force_constant"]
         reference_fnm = reference_fnm
         mol = molecule
-        atoms_for_mtd = [i for i in range(1, len(mol.sites) + 1) if i not in atoms_to_constrain]
+        atoms_for_mtd = [idx for idx in range(1, len(mol) + 1) if idx not in atoms_to_constrain]
         # Write as 1-3,5 instead of 1,2,3,5
         interval_list = [atoms_for_mtd[0]]
         for i, v in enumerate(atoms_for_mtd):

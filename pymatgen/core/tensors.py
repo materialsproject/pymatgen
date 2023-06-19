@@ -11,7 +11,7 @@ import itertools
 import os
 import string
 import warnings
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
 from monty.json import MSONable
@@ -21,8 +21,10 @@ from scipy.linalg import polar
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Joseph Montoya"
 __credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, Mark Asta, Anubhav Jain, Terence Lew"
@@ -247,7 +249,7 @@ class Tensor(np.ndarray, MSONable):
             list of index groups where tensor values are equivalent to
             within tolerances
         """
-        d = {}
+        dct = {}
         array = self.voigt if voigt else self
         grouped = self.get_grouped_indices(voigt=voigt, **kwargs)
         p = 0 if zero_index else 1
@@ -256,8 +258,8 @@ class Tensor(np.ndarray, MSONable):
             sym_string += "".join(str(i + p) for i in indices[0])
             value = array[indices[0]]
             if not np.isclose(value, 0):
-                d[sym_string] = array[indices[0]]
-        return d
+                dct[sym_string] = array[indices[0]]
+        return dct
 
     def round(self, decimals=0):
         """
@@ -598,7 +600,7 @@ class Tensor(np.ndarray, MSONable):
         3. Reset the non-zero entries of the original tensor
 
         Args:
-            structure (structure object)
+            structure (Structure): structure to base population on
             prec (float): precision for determining a non-zero value
             maxiter (int): maximum iterations for populating the tensor
             verbose (bool): whether to populate verbosely

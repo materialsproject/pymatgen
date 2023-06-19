@@ -151,7 +151,3 @@ class CorrectionCalculatorTest(unittest.TestCase):
         calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
         with pytest.raises(ValueError):
             calculator.compute_from_files(exp_path, calc_path)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -42,11 +42,11 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 """
 from __future__ import annotations
 
-import glob
 import os
 import shutil
 import subprocess
 import warnings
+from glob import glob
 from shutil import which
 
 import numpy as np
@@ -124,9 +124,7 @@ class ChargemolAnalysis:
             self.structure = self.chgcar.structure
             self.natoms = self.chgcar.poscar.natoms
         else:
-            self.chgcar = None
-            self.structure = None
-            self.natoms = None
+            self.chgcar = self.structure = self.natoms = None
             warnings.warn("No CHGCAR found. Some properties may be unavailable.", UserWarning)
         if self._potcarpath:
             self.potcar = Potcar.from_file(self._potcarpath)
@@ -155,7 +153,7 @@ class ChargemolAnalysis:
             (str): Absolute path to the file.
         """
         name_pattern = f"{filename}{suffix}*" if filename != "POTCAR" else f"{filename}*"
-        paths = glob.glob(os.path.join(path, name_pattern))
+        paths = glob(os.path.join(path, name_pattern))
         fpath = None
         if len(paths) >= 1:
             # using reverse=True because, if multiple files are present,
@@ -229,8 +227,7 @@ class ChargemolAnalysis:
             self.bond_order_sums = self._get_data_from_xyz(bond_order_path)
             self.bond_order_dict = self._get_bond_order_info(bond_order_path)
         else:
-            self.bond_order_sums = None
-            self.bond_order_dict = None
+            self.bond_order_sums = self.bond_order_dict = None
 
         spin_moment_path = os.path.join(chargemol_output_path, "DDEC6_even_tempered_atomic_spin_moments.xyz")
         if os.path.exists(spin_moment_path):
@@ -367,8 +364,8 @@ class ChargemolAnalysis:
             periodicity (tuple[bool]): Periodicity of the system.
                 Default: (True, True, True).
             method (str): Method to use for the analysis. Options include "ddec6"
-            and "ddec3".
-                Default: "ddec6"
+                and "ddec3". Default: "ddec6"
+            compute_bond_orders (bool): Whether to compute bond orders. Default: True.
         """
         self.net_charge = net_charge
         self.periodicity = periodicity
@@ -404,9 +401,8 @@ class ChargemolAnalysis:
         if os.name == "nt":
             if atomic_densities_path[-1] != "\\":
                 atomic_densities_path += "\\"
-        else:
-            if atomic_densities_path[-1] != "/":
-                atomic_densities_path += "/"
+        elif atomic_densities_path[-1] != "/":
+            atomic_densities_path += "/"
 
         lines += (
             f"\n<atomic densities directory complete path>\n{atomic_densities_path}\n</atomic densities directory "

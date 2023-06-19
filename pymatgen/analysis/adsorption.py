@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import itertools
 import os
+from typing import TYPE_CHECKING
 
 import numpy as np
 from matplotlib import patches
@@ -21,6 +22,9 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -49,7 +53,7 @@ class AdsorbateSiteFinder:
             these sites
     """
 
-    def __init__(self, slab, selective_dynamics=False, height=0.9, mi_vec=None):
+    def __init__(self, slab, selective_dynamics: bool = False, height: float = 0.9, mi_vec: ArrayLike = None) -> None:
         """Create an AdsorbateSiteFinder object.
 
         Args:
@@ -62,8 +66,7 @@ class AdsorbateSiteFinder:
                 slabs that have been reoriented, but the miller vector
                 must be supplied manually
         """
-        # get surface normal from miller index
-        if mi_vec:
+        if mi_vec:  # get surface normal from miller index
             self.mvec = mi_vec
         else:
             self.mvec = get_mi_vec(slab)
@@ -290,7 +293,7 @@ class AdsorbateSiteFinder:
                 sites = [put_coord_inside(self.slab.lattice, coord) for coord in sites]
             if symm_reduce:
                 sites = self.symm_reduce(sites, threshold=symm_reduce)
-            sites = [site + distance * self.mvec for site in sites]
+            sites = [site + distance * np.asarray(self.mvec) for site in sites]
 
             ads_sites[key] = sites
         ads_sites["all"] = sum(ads_sites.values(), [])
@@ -311,12 +314,12 @@ class AdsorbateSiteFinder:
         # Convert to fractional
         coords_set = [self.slab.lattice.get_fractional_coords(coords) for coords in coords_set]
         for coords in coords_set:
-            incoord = False
+            in_coord = False
             for op in symm_ops:
                 if in_coord_list_pbc(unique_coords, op.operate(coords), atol=threshold):
-                    incoord = True
+                    in_coord = True
                     break
-            if not incoord:
+            if not in_coord:
                 unique_coords += [coords]
         # convert back to cartesian
         return [self.slab.lattice.get_cartesian_coords(coords) for coords in unique_coords]

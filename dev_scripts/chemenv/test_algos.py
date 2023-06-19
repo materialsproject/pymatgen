@@ -11,9 +11,7 @@ from random import shuffle
 
 import numpy as np
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -86,8 +84,8 @@ if __name__ == "__main__":
             print("Number of permutations tested : ", len(results[0]))
             algos_results.append(min(results[0]))
 
-            if not np.isclose(min(results[0]), 0.0):
-                print("Following is not 0.0 ...")
+            if not np.isclose(min(results[0]), 0):
+                print("Following is not 0 ...")
                 input(results)
         print("   => ", algos_results)
         idx_perm += 1

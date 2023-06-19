@@ -9,6 +9,7 @@ import functools
 import operator
 import os
 from math import exp, sqrt
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.serialization import loadfn
@@ -16,7 +17,8 @@ from monty.serialization import loadfn
 from pymatgen.core.periodic_table import Element, Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-# Let's initialize some module level properties.
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 # List of electronegative elements specified in M. O'Keefe, & N. Brese,
 # JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
@@ -26,8 +28,8 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Read in BV parameters.
 BV_PARAMS = {}
-for k, v in loadfn(os.path.join(module_dir, "bvparam_1991.yaml")).items():
-    BV_PARAMS[Element(k)] = v
+for key, val in loadfn(os.path.join(module_dir, "bvparam_1991.yaml")).items():
+    BV_PARAMS[Element(key)] = val
 
 # Read in yaml containing data-mined ICSD BV data.
 all_data = loadfn(os.path.join(module_dir, "icsd_bv.yaml"))
@@ -181,7 +183,7 @@ class BVAnalyzer:
         try:
             prob = {k: v / sum(prob.values()) for k, v in prob.items()}
         except ZeroDivisionError:
-            prob = {k: 0.0 for k in prob}
+            prob = {key: 0 for key in prob}
         return prob
 
     def _calc_site_probabilities_unordered(self, site, nn):
@@ -202,10 +204,10 @@ class BVAnalyzer:
             try:
                 prob[el] = {k: v / sum(prob[el].values()) for k, v in prob[el].items()}
             except ZeroDivisionError:
-                prob[el] = {k: 0.0 for k in prob[el]}
+                prob[el] = {key: 0 for key in prob[el]}
         return prob
 
-    def get_valences(self, structure):
+    def get_valences(self, structure: Structure):
         """
         Returns a list of valences for each site in the structure.
 
@@ -295,7 +297,7 @@ class BVAnalyzer:
                 # recurses to find permutations of valences based on whether a
                 # charge balanced assignment can still be found
                 if self._n > self.max_permutations:
-                    return None
+                    return
                 if assigned is None:
                     assigned = []
 
@@ -312,16 +314,16 @@ class BVAnalyzer:
 
                 if highest < 0 or lowest > 0:
                     self._n += 1
-                    return None
+                    return
 
                 if i == len(valences):
                     evaluate_assignment(assigned)
                     self._n += 1
-                    return None
+                    return
                 for v in valences[i]:
                     new_assigned = list(assigned)
                     _recurse([*new_assigned, v])
-                return None
+                return
 
         else:
             n_sites = np.array([len(i) for i in equi_sites])
@@ -338,7 +340,7 @@ class BVAnalyzer:
                 for sp, occu in get_z_ordered_elmap(sites[0].species):
                     elements.append(sp.symbol)
                     fractions.append(occu)
-            fractions = np.array(fractions, np.float_)
+            fractions = np.array(fractions, np.float_)  # type: ignore[assignment]
             new_valences = []
             for vals in valences:
                 for val in vals:
@@ -373,7 +375,7 @@ class BVAnalyzer:
                 # recurses to find permutations of valences based on whether a
                 # charge balanced assignment can still be found
                 if self._n > self.max_permutations:
-                    return None
+                    return
                 if assigned is None:
                     assigned = []
 
@@ -392,18 +394,18 @@ class BVAnalyzer:
 
                 if highest < -self.charge_neutrality_tolerance or lowest > self.charge_neutrality_tolerance:
                     self._n += 1
-                    return None
+                    return
 
                 if i == len(new_valences):
                     evaluate_assignment(assigned)
                     self._n += 1
-                    return None
+                    return
 
                 for v in new_valences[i]:
                     new_assigned = list(assigned)
                     _recurse([*new_assigned, v])
 
-                return None
+                return
 
         _recurse()
 
@@ -428,7 +430,7 @@ class BVAnalyzer:
             return [[int(frac_site) for frac_site in assigned[site]] for site in structure]
         raise ValueError("Valences cannot be assigned!")
 
-    def get_oxi_state_decorated_structure(self, structure):
+    def get_oxi_state_decorated_structure(self, structure: Structure):
         """
         Get an oxidation state decorated structure. This currently works only
         for ordered structures only.

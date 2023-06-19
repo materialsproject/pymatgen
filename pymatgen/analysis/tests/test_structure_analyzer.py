@@ -253,7 +253,3 @@ class MiscFunctionTest(PymatgenTest):
         # test for unphysical cells
         struct.scale_lattice(struct.volume * 10)
         assert sulfide_type(struct) == "sulfide"
-
-
-if __name__ == "__main__":
-    unittest.main()

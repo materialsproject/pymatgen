@@ -24,7 +24,7 @@ class Mcsqs:
     used by mcsqs and other ATAT codes.
     """
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
         :param structure: input Structure
         """

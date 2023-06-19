@@ -4,10 +4,13 @@ This module contains the definition of some objects used in the chemenv package.
 
 from __future__ import annotations
 
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
-    is_anion_cation_bond,
-)
-from pymatgen.core.structure import Structure
+from typing import TYPE_CHECKING
+
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import is_anion_cation_bond
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
+
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"

@@ -452,7 +452,7 @@ def main():
         args.func
     except AttributeError:
         parser.print_help()
-        raise SystemExit()
+        raise SystemExit("Please specify a command.")
     return args.func(args)
 
 

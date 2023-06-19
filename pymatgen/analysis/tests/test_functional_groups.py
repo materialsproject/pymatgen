@@ -14,8 +14,8 @@ from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "functional_groups")
 
-pytest.importorskip("openbabel", reason="OpenBabel not installed")
-pytest.importorskip("networkx", reason="NetworkX not installed")
+pytest.importorskip("openbabel")
+pytest.importorskip("networkx")
 
 __author__ = "Evan Spotte-Smith"
 __version__ = "0.1"
@@ -131,7 +131,3 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
 
         total_count = sum(c["count"] for c in categorized.values())
         assert total_count == 2
-
-
-if __name__ == "__main__":
-    unittest.main()

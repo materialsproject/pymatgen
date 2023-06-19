@@ -129,6 +129,7 @@ class Slab(Structure):
                 that are less than 0.01 Ang apart. Defaults to False.
             reconstruction (str): Type of reconstruction. Defaults to None if
                 the slab is not reconstructed.
+            to_unit_cell (bool): Translates fractional coordinates into the unit cell. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
@@ -306,22 +307,20 @@ class Slab(Structure):
             symprec (float): Symmetry precision used for SpaceGroup analyzer.
 
         Returns:
-            (bool) Whether surfaces are symmetric.
+            bool: Whether surfaces are symmetric.
         """
         sg = SpacegroupAnalyzer(self, symprec=symprec)
-        symmops = sg.get_point_group_operations()
+        symm_ops = sg.get_point_group_operations()
 
-        if (
+        # Check for inversion symmetry. Or if sites from surface (a) can be translated
+        # to surface (b) along the [hkl]-axis, surfaces are symmetric. Or because the
+        # two surfaces of our slabs are always parallel to the (hkl) plane,
+        # any operation where there's an (hkl) mirror plane has surface symmetry
+        return (
             sg.is_laue()
-            or any(op.translation_vector[2] != 0 for op in symmops)
-            or any(np.alltrue(op.rotation_matrix[2] == np.array([0, 0, -1])) for op in symmops)
-        ):
-            # Check for inversion symmetry. Or if sites from surface (a) can be translated
-            # to surface (b) along the [hkl]-axis, surfaces are symmetric. Or because the
-            # two surfaces of our slabs are always parallel to the (hkl) plane,
-            # any operation where there's an (hkl) mirror plane has surface symmetry
-            return True
-        return False
+            or any(op.translation_vector[2] != 0 for op in symm_ops)
+            or any(np.all(op.rotation_matrix[2] == np.array([0, 0, -1])) for op in symm_ops)
+        )
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -796,7 +795,7 @@ class SlabGenerator:
             in_unit_planes (bool): Whether to set min_slab_size and min_vac_size
                 in units of hkl planes (True) or Angstrom (False/default).
                 Setting in units of planes is useful for ensuring some slabs
-                have a certain nlayer of atoms. e.g. for Cs (100), a 10 Ang
+                have a certain n_layer of atoms. e.g. for Cs (100), a 10 Ang
                 slab will result in a slab with only 2 layer of atoms, whereas
                 Fe (100) will have more layer of atoms. By using units of hkl
                 planes instead, we ensure both slabs
@@ -1381,8 +1380,7 @@ class ReconstructionGenerator:
                 unit cell structure.
             min_slab_size (float): In Angstroms
             min_vacuum_size (float): In Angstroms
-
-            reconstruction (str): Name of the dict containing the instructions
+            reconstruction_name (str): Name of the dict containing the instructions
                 for building a reconstructed slab. The dictionary can contain
                 any item the creator deems relevant, however any instructions
                 archived in pymatgen for public use needs to contain the
@@ -1811,7 +1809,19 @@ def generate_all_slabs(
         repair (bool): Whether to repair terminations with broken bonds
             or just omit them
         include_reconstructions (bool): Whether to include reconstructed
-            slabs available in the reconstructions_archive.json file.
+            slabs available in the reconstructions_archive.json file. Defaults to False.
+        in_unit_planes (bool): Whether to generate slabs in units of the primitive
+            cell's c lattice vector. This is useful for generating slabs with
+            a specific number of layers, as the number of layers will be
+            independent of the Miller index. Defaults to False.
+        in_unit_planes (bool): Whether to set min_slab_size and min_vac_size
+            in units of hkl planes (True) or Angstrom (False, the default). Setting in
+            units of planes is useful for ensuring some slabs have a certain n_layer of
+            atoms. e.g. for Cs (100), a 10 Ang slab will result in a slab with only 2
+            layer of atoms, whereas Fe (100) will have more layer of atoms. By using units
+            of hkl planes instead, we ensure both slabs have the same number of atoms. The
+            slab thickness will be in min_slab_size/math.ceil(self._proj_height/dhkl)
+            multiples of oriented unit cells.
     """
     all_slabs = []
 

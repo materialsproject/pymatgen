@@ -10,7 +10,7 @@ import math
 import warnings
 from fractions import Fraction
 from functools import reduce
-from typing import Iterator, Sequence
+from typing import TYPE_CHECKING, Iterator, Sequence
 
 import numpy as np
 from monty.dev import deprecated
@@ -20,7 +20,9 @@ from numpy.linalg import inv
 
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.num import abs_cap
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -969,7 +971,7 @@ class Lattice(MSONable):
             verbosity (int): Verbosity level. Default of 0 only includes the
                 matrix representation. Set to 1 for more details.
         """
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "matrix": self._matrix.tolist(),
@@ -977,9 +979,9 @@ class Lattice(MSONable):
         }
         if verbosity > 0:
             keys = ["a", "b", "c", "alpha", "beta", "gamma", "volume"]
-            d.update(dict(zip(keys, [*self.parameters, self.volume])))
+            dct.update(dict(zip(keys, [*self.parameters, self.volume])))
 
-        return d
+        return dct
 
     def find_all_mappings(
         self,
@@ -1070,6 +1072,8 @@ class Lattice(MSONable):
                 this one.
             ltol (float): Tolerance for matching lengths. Defaults to 1e-5.
             atol (float): Tolerance for matching angles. Defaults to 1.
+            skip_rotation_matrix (bool): Whether to skip calculation of the rotation matrix.
+                Defaults to False.
 
         Returns:
             (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
@@ -1478,16 +1482,16 @@ class Lattice(MSONable):
         except ImportError:
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
         else:
-            frac_points = np.ascontiguousarray(frac_points, dtype=np.float_)
+            frac_points = np.ascontiguousarray(frac_points, dtype=float)
+            lattice_matrix = np.ascontiguousarray(self.matrix, dtype=float)
+            cart_coords = np.ascontiguousarray(self.get_cartesian_coords(frac_points), dtype=float)
+            pbc = np.ascontiguousarray(self.pbc, dtype=int)
             r = float(r)
-            lattice_matrix = np.array(self.matrix)
-            lattice_matrix = np.ascontiguousarray(lattice_matrix)
-            cart_coords = self.get_cartesian_coords(frac_points)
             _, indices, images, distances = find_points_in_spheres(
                 all_coords=cart_coords,
                 center_coords=np.ascontiguousarray([center], dtype=float),
                 r=r,
-                pbc=np.array(self.pbc, dtype=int),
+                pbc=pbc,
                 lattice=lattice_matrix,
                 tol=1e-8,
             )

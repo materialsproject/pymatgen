@@ -251,7 +251,7 @@ H 0
 
 
 class GaussianOutputTest(unittest.TestCase):
-    # todo: Add unittest for PCM type output.
+    # TODO: Add unittest for PCM type output.
 
     def setUp(self):
         self.gauout = GaussianOutput(os.path.join(test_dir, "methane.log"))
@@ -477,7 +477,3 @@ class GaussianOutputTest(unittest.TestCase):
         assert gout.title == "H4 C3 O3"
         assert gout.charge == 0
         assert gout.spin_multiplicity == 1
-
-
-if __name__ == "__main__":
-    unittest.main()

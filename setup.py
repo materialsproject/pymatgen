@@ -3,7 +3,7 @@ from __future__ import annotations
 import platform
 import sys
 
-import numpy
+import numpy as np
 from setuptools import Extension, find_namespace_packages, setup
 
 is_win_64 = sys.platform.startswith("win") and platform.machine().endswith("64")
@@ -26,12 +26,12 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2023.3.23",
+    version="2023.05.31",
     python_requires=">=3.8",
     install_requires=[
         "matplotlib>=1.5",
         "monty>=3.0.2",
-        "mp-api>=0.27.3",
+        "mp-api>=0.27.3,<0.34.0",
         "networkx>=2.2",
         "numpy>=1.20.1",
         "palettable>=3.1.1",
@@ -49,9 +49,10 @@ setup(
     ],
     extras_require={
         "ase": ["ase>=3.3"],
+        "tblite": ["tblite[ase]>=0.3.0"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
-        "relaxation": ["m3gnet"],
+        "relaxation": ["matgl"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
             "black",
@@ -69,7 +70,7 @@ setup(
         ],
         "optional": [
             # "hiphive>=0.6",
-            # "m3gnet>=0.0.8",
+            "matgl",
             "ase>=3.22.1",
             # https://peps.python.org/pep-0508/#environment-markers
             "BoltzTraP2>=22.3.2; platform_system!='Windows'",
@@ -81,6 +82,7 @@ setup(
             "netCDF4>=1.5.8",
             "phonopy>=2.4.2",
             "seekpath>=1.9.4",
+            "tblite[ase]>=0.3.0; platform_system=='Linux'",
         ],
         "numba": [
             "numba",
@@ -182,5 +184,5 @@ setup(
             "get_environment = pymatgen.cli.get_environment:main",
         ]
     },
-    include_dirs=[numpy.get_include()],
+    include_dirs=[np.get_include()],
 )

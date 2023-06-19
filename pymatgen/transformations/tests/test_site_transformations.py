@@ -5,7 +5,6 @@ from shutil import which
 
 import numpy as np
 import pytest
-from pytest import approx
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
@@ -53,7 +52,7 @@ class TranslateSitesTransformationTest(PymatgenTest):
         assert np.allclose(s[1].frac_coords, [0.475, 0.575, 0.675])
         inv_t = t.inverse
         s = inv_t.apply_transformation(s)
-        assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == approx(0)
+        assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
         assert np.allclose(s[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_apply_transformation_site_by_site(self):
@@ -63,8 +62,8 @@ class TranslateSitesTransformationTest(PymatgenTest):
         assert np.allclose(s[1].frac_coords, [0.3, 0.3, 0.3])
         inv_t = t.inverse
         s = inv_t.apply_transformation(s)
-        assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == approx(0)
-        self.assertArrayAlmostEqual(s[1].frac_coords, [0.375, 0.375, 0.375])
+        assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
+        self.assert_all_close(s[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_to_from_dict(self):
         d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
@@ -172,9 +171,11 @@ class InsertSitesTransformationTest(unittest.TestCase):
         s = t.apply_transformation(self.struct)
         assert s.formula == "Li4 Mn1 Fe1 O4"
         t = InsertSitesTransformation(["Fe", "Mn"], [[0.001, 0, 0], [0.1, 0.2, 0.2]])
+
         # Test validate proximity
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as exc:
             t.apply_transformation(self.struct)
+        assert "New site is too close to an existing site!" in str(exc.value)
 
     def test_to_from_dict(self):
         d = InsertSitesTransformation(["Fe", "Mn"], [[0.5, 0, 0], [0.1, 0.5, 0.2]]).as_dict()
@@ -271,7 +272,7 @@ class AddSitePropertyTransformationTest(PymatgenTest):
             manually_set.add_site_property(prop, value)
         trans_set = trans.apply_transformation(s)
         for prop in site_props:
-            self.assertArrayAlmostEqual(trans_set.site_properties[prop], manually_set.site_properties[prop])
+            self.assert_all_close(trans_set.site_properties[prop], manually_set.site_properties[prop])
 
 
 class RadialSiteDistortionTransformationTest(PymatgenTest):
@@ -344,7 +345,3 @@ class RadialSiteDistortionTransformationTest(PymatgenTest):
         s = t.apply_transformation(self.molecule)
         for c1, c2 in zip(self.molecule[7:], s[7:]):
             assert abs(round(sum(c2.coords - c1.coords), 2)) == 0.33
-
-
-if __name__ == "__main__":
-    unittest.main()

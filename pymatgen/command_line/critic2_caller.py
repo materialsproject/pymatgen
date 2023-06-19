@@ -39,13 +39,14 @@ V. Luaña, Comput. Phys. Communications 180, 157-166 (2009)
 
 from __future__ import annotations
 
-import glob
 import logging
 import os
 import subprocess
 import warnings
 from enum import Enum
+from glob import glob
 from shutil import which
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -56,9 +57,11 @@ from scipy.spatial import KDTree
 
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.periodic_table import DummySpecies
-from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -213,9 +216,7 @@ class Critic2Caller:
 
         input_script = "\n".join(input_script)
 
-        with ScratchDir(".") as temp_dir:
-            os.chdir(temp_dir)
-
+        with ScratchDir("."):
             structure.to(filename="POSCAR")
 
             if chgcar and isinstance(chgcar, VolumetricData):
@@ -322,7 +323,7 @@ def get_filepath(filename, warning, path, suffix):
         path: Path to search
         suffix: Suffixes to search.
     """
-    paths = glob.glob(os.path.join(path, filename + suffix + "*"))
+    paths = glob(os.path.join(path, filename + suffix + "*"))
     if not paths:
         warnings.warn(warning)
         return None
@@ -699,8 +700,7 @@ class Critic2Analysis(MSONable):
 
     @staticmethod
     def _annotate_structure_with_yt(yt, structure: Structure, zpsp):
-        volume_idx = None
-        charge_idx = None
+        volume_idx = charge_idx = None
 
         for prop in yt["integration"]["properties"]:
             if prop["label"] == "Volume":

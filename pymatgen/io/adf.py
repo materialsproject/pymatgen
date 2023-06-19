@@ -361,7 +361,7 @@ class AdfKey(MSONable):
         key = d.get("name")
         options = d.get("options")
         subkey_list = d.get("subkeys", [])
-        subkeys = [AdfKey.from_dict(k) for k in subkey_list] if len(subkey_list) > 0 else None
+        subkeys = [AdfKey.from_dict(k) for k in subkey_list] or None
         return cls(key, options, subkeys)
 
     @staticmethod
@@ -559,11 +559,11 @@ class AdfTask(MSONable):
 
     def __str__(self):
         s = f"""TITLE {self.title}\n
-{str(self.units)}
-{str(self.xc)}
-{str(self.basis_set)}
-{str(self.scf)}
-{str(self.geo)}"""
+{self.units!s}
+{self.xc!s}
+{self.basis_set!s}
+{self.scf!s}
+{self.geo!s}"""
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
@@ -726,15 +726,11 @@ class AdfOutput:
             raise OSError("The ADF logfile can not be accessed!")
 
         self.is_failed = False
-        self.error = None
-        self.final_energy = None
-        self.final_structure = None
+        self.error = self.final_energy = self.final_structure = None
         self.energies = []
         self.structures = []
         self.frequencies = []
-        self.normal_modes = None
-        self.freq_type = None
-        self.run_type = None
+        self.normal_modes = self.freq_type = self.run_type = None
         self.is_internal_crash = False
 
         self._parse_logfile(logfile)
@@ -827,7 +823,7 @@ class AdfOutput:
                     if m:
                         cycle = int(m.group(1))
                         if cycle <= 0:
-                            raise AdfOutputError(f"Wrong cycle {cycle}")
+                            raise AdfOutputError(f"Wrong {cycle=}")
                         if cycle > last_cycle:
                             parse_cycle = True
                             last_cycle = cycle

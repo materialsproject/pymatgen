@@ -4,6 +4,7 @@ import unittest
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.analysis.chemenv.utils.func_utils import (
     CSMFiniteRatioFunction,
@@ -23,8 +24,8 @@ class FuncUtilsTest(unittest.TestCase):
             options_dict={"max_csm": max_csm, "alpha": alpha},
         )
         assert csm_finite_ratio.evaluate(0.0) == 1.0
-        assert csm_finite_ratio.evaluate(2.0) == pytest.approx(0.4380754)
-        assert csm_finite_ratio.evaluate(4.0) == pytest.approx(0.1516326)
+        assert csm_finite_ratio.evaluate(2.0) == approx(0.4380754)
+        assert csm_finite_ratio.evaluate(4.0) == approx(0.1516326)
         assert csm_finite_ratio.evaluate(8.0) == 0.0
         assert csm_finite_ratio.evaluate(9.0) == 0.0
 
@@ -35,7 +36,7 @@ class FuncUtilsTest(unittest.TestCase):
             options_dict={"max_csm": max_csm, "alpha": alpha},
         )
         assert csm_finite_ratio.evaluate(0.0) == 1.0
-        assert csm_finite_ratio.evaluate(4.0) == pytest.approx(0.09196986)
+        assert csm_finite_ratio.evaluate(4.0) == approx(0.09196986)
         assert csm_finite_ratio.evaluate(8.0) == 0.0
         assert csm_finite_ratio.evaluate(9.0) == 0.0
 
@@ -46,12 +47,15 @@ class FuncUtilsTest(unittest.TestCase):
             options_dict={"max_csm": max_csm, "alpha": alpha},
         )
         assert csm_finite_ratio.evaluate(0.0) == 1.0
-        assert csm_finite_ratio.evaluate(1.0) == pytest.approx(0.4380754)
-        assert csm_finite_ratio.evaluate(2.0) == pytest.approx(0.1516326)
+        assert csm_finite_ratio.evaluate(1.0) == approx(0.4380754)
+        assert csm_finite_ratio.evaluate(2.0) == approx(0.1516326)
         assert csm_finite_ratio.evaluate(4.0) == 0.0
         assert csm_finite_ratio.evaluate(4.5) == 0.0
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="Function 'powern_decreasing' is not allowed in RatioFunction of type \"CSMFiniteRatioFunction\"",
+        ):
             CSMFiniteRatioFunction(
                 function="powern_decreasing",
                 options_dict={"max_csm": max_csm, "nn": 2},
@@ -59,13 +63,15 @@ class FuncUtilsTest(unittest.TestCase):
 
     def test_CSMInfiniteRatioFunction(self):
         max_csm = 8.0
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Option 'nn' not allowed for function 'power2_inverse_decreasing' in "):
             CSMInfiniteRatioFunction(
                 function="power2_inverse_decreasing",
                 options_dict={"max_csm": max_csm, "nn": 2},
             )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="Function 'power2_tangent_decreasing' is not allowed in RatioFunction of type "
+        ):
             CSMInfiniteRatioFunction(
                 function="power2_tangent_decreasing",
                 options_dict={"max_csm": max_csm},
@@ -76,7 +82,7 @@ class FuncUtilsTest(unittest.TestCase):
         )
         # csm_infinite_ratio = CSMInfiniteRatioFunction(function='power2_inverse_decreasing')
         assert csm_infinite_ratio.evaluate(0.0) == np.inf
-        assert csm_infinite_ratio.evaluate(2.0) == pytest.approx(2.25)
+        assert csm_infinite_ratio.evaluate(2.0) == approx(2.25)
         assert csm_infinite_ratio.evaluate(4.0) == 0.5
         assert csm_infinite_ratio.evaluate(8.0) == 0.0
         assert csm_infinite_ratio.evaluate(9.0) == 0.0
@@ -138,7 +144,3 @@ class FuncUtilsTest(unittest.TestCase):
         assert delta_csm_ratio_function.evaluate(5.0) == 0.5
         assert delta_csm_ratio_function.evaluate(8.0) == 1.0
         assert delta_csm_ratio_function.evaluate(12.0) == 1.0
-
-
-if __name__ == "__main__":
-    unittest.main()

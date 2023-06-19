@@ -7,11 +7,7 @@ import warnings
 import numpy as np
 from pytest import approx
 
-from pymatgen.command_line.bader_caller import (
-    BaderAnalysis,
-    bader_analysis_from_path,
-    which,
-)
+from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path, which
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -128,7 +124,3 @@ class BaderAnalysisTest(unittest.TestCase):
         assert np.sum(analysis.chgcar.data["total"]) == approx(
             np.sum([np.sum(d["data"]) for d in analysis.atomic_densities])
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

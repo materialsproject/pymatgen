@@ -6,13 +6,16 @@ from __future__ import annotations
 
 import abc
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):
@@ -23,7 +26,7 @@ class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -58,7 +61,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         self._AND = AND
         self._exclude = exclude
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -110,15 +113,15 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation
+            dct (dict): Dict representation
 
         Returns:
             Filter
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class SpecieProximityFilter(AbstractStructureFilter):
@@ -139,7 +142,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         """
         self.specie_and_min_dist = {get_el_sp(k): v for k, v in specie_and_min_dist_dict.items()}
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -173,15 +176,15 @@ class SpecieProximityFilter(AbstractStructureFilter):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation
+            dct (dict): Dict representation
 
         Returns:
             Filter
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class RemoveDuplicatesFilter(AbstractStructureFilter):
@@ -210,7 +213,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         else:
             self.structure_matcher = structure_matcher or StructureMatcher(comparator=ElementComparator())
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Args:
             structure (Structure): Input structure to test
@@ -222,7 +225,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
             self.structure_list[hash].append(structure)
             return True
 
-        def get_spg_num(struct: structure) -> int:
+        def get_spg_num(struct: Structure) -> int:
             finder = SpacegroupAnalyzer(struct, symprec=self.symprec)
             return finder.get_space_group_number()
 
@@ -262,7 +265,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
         else:
             self.structure_matcher = structure_matcher or StructureMatcher(comparator=ElementComparator())
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -312,7 +315,7 @@ class ChargeBalanceFilter(AbstractStructureFilter):
         No args required.
         """
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -346,7 +349,7 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
         self.sp2 = get_el_sp(sp2)
         self.max_dist = max_dist
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 

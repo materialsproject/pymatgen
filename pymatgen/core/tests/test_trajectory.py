@@ -71,7 +71,7 @@ class TrajectoryTest(PymatgenTest):
 
     def test_single_index_slice(self):
         assert all(self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19))
-        assert all([self.traj_mols[i] == self.molecules[i] for i in range(0, len(self.molecules))])
+        assert all(self.traj_mols[i] == self.molecules[i] for i in range(0, len(self.molecules)))
 
     def test_slice(self):
         sliced_traj = self.traj[2:99:3]
@@ -94,7 +94,7 @@ class TrajectoryTest(PymatgenTest):
         sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[0:2])
 
         if len(sliced_traj) == len(sliced_traj_from_mols):
-            assert all([sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj))])
+            assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
         else:
             raise AssertionError
 
@@ -102,7 +102,7 @@ class TrajectoryTest(PymatgenTest):
         sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[:-2])
 
         if len(sliced_traj) == len(sliced_traj_from_mols):
-            assert all([sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj))])
+            assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
         else:
             raise AssertionError
 
@@ -119,7 +119,7 @@ class TrajectoryTest(PymatgenTest):
         sliced_traj_from_mols = Trajectory.from_molecules([self.molecules[i] for i in [1, 3]])
 
         if len(sliced_traj) == len(sliced_traj_from_mols):
-            assert all([sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj))])
+            assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
         else:
             raise AssertionError
 
@@ -133,7 +133,7 @@ class TrajectoryTest(PymatgenTest):
         self.traj_mols.to_displacements()
         self.traj_mols.to_positions()
 
-        assert all([mol == self.molecules[i] for i, mol in enumerate(self.traj_mols)])
+        assert all(mol == self.molecules[i] for i, mol in enumerate(self.traj_mols))
 
     def test_site_properties(self):
         lattice, species, coords = self._get_lattice_species_and_coords()
@@ -237,7 +237,8 @@ class TrajectoryTest(PymatgenTest):
         except Exception:
             incompatible_test_success = True
 
-        assert compatible_success and incompatible_test_success
+        assert compatible_success
+        assert incompatible_test_success
 
         traj = copy.deepcopy(self.traj_mols)
 

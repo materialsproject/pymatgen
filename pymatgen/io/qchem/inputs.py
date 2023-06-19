@@ -6,8 +6,7 @@ from __future__ import annotations
 
 import logging
 import re
-from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from monty.io import zopen
 
@@ -15,6 +14,9 @@ from pymatgen.core import Molecule
 from pymatgen.io.core import InputFile
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -300,20 +302,9 @@ class QCInput(InputFile):
         molecule = cls.read_molecule(string)
         rem = cls.read_rem(string)
         # only molecule and rem are necessary everything else is checked
-        opt = None
-        pcm = None
-        solvent = None
-        smx = None
-        scan = None
-        vdw = None
+        opt = pcm = solvent = smx = scan = vdw = None
         vdw_mode = "atomic"
-        plots = None
-        nbo = None
-        geom_opt = None
-        cdft = None
-        almo_coupling = None
-        svp = None
-        pcm_nonels = None
+        plots = nbo = geom_opt = cdft = almo_coupling = svp = pcm_nonels = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -807,8 +798,7 @@ class QCInput(InputFile):
         Returns:
             Molecule
         """
-        charge = None
-        spin_mult = None
+        charge = spin_mult = None
         patterns = {
             "read": r"^\s*\$molecule\n\s*(read)",
             "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d+",
@@ -836,26 +826,26 @@ class QCInput(InputFile):
             else:
                 mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
             return mol
-        else:
-            header = r"\s*(?:\-)*\d+\s+(?:\-)*\d+"
-            row = r"\s*([A-Za-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-            footer = r"(:?(:?\-\-)|(:?\$end))"
 
-            molecules = []
+        header = r"\s*(?:\-)*\d+\s+(?:\-)*\d+"
+        row = r"\s*([A-Za-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+        footer = r"(:?(:?\-\-)|(:?\$end))"
 
-            patterns = {"charge_spin": r"\s*\-\-\s*([\-0-9]+)\s+([\-0-9]+)"}
-            matches = read_pattern(string, patterns)
+        molecules = []
 
-            mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-            for match, table in zip(matches.get("charge_spin"), mol_table):
-                charge = int(match[0])
-                spin = int(match[1])
-                species = [val[0] for val in table]
-                coords = [[float(val[1]), float(val[2]), float(val[3])] for val in table]
-                mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin)
-                molecules.append(mol)
+        patterns = {"charge_spin": r"\s*\-\-\s*([\-0-9]+)\s+([\-0-9]+)"}
+        matches = read_pattern(string, patterns)
 
-            return molecules
+        mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        for match, table in zip(matches.get("charge_spin"), mol_table):
+            charge = int(match[0])
+            spin = int(match[1])
+            species = [val[0] for val in table]
+            coords = [[float(val[1]), float(val[2]), float(val[3])] for val in table]
+            mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin)
+            molecules.append(mol)
+
+        return molecules
 
     @staticmethod
     def read_rem(string: str) -> dict:

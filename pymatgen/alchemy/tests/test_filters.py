@@ -23,7 +23,7 @@ from pymatgen.util.testing import PymatgenTest
 class ContainsSpecieFilterTest(PymatgenTest):
     def test_filtering(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0.00], [0.00, -2.0, 3.0]])
+        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
         struct = Structure(lattice, [{"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}] * 4, coords)
 
         species1 = [Species("Si", 5), Species("Mg", 2)]
@@ -109,7 +109,3 @@ class RemoveExistingFilterTest(unittest.TestCase):
             self._struct_list[-1],
             transmuter.transformed_structures[-1].final_structure,
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

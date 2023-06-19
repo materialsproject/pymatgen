@@ -492,7 +492,7 @@ class PourbaixDiagram(MSONable):
         else:
             # Set default conc/comp dicts
             if not comp_dict:
-                comp_dict = {elt.symbol: 1.0 / len(self.pbx_elts) for elt in self.pbx_elts}
+                comp_dict = {elt.symbol: 1 / len(self.pbx_elts) for elt in self.pbx_elts}
             if not conc_dict:
                 conc_dict = {elt.symbol: 1e-6 for elt in self.pbx_elts}
             self._conc_dict = conc_dict
@@ -516,7 +516,7 @@ class PourbaixDiagram(MSONable):
             self._unprocessed_entries = solid_entries + ion_entries
 
             if not len(solid_entries + ion_entries) == len(entries):
-                raise ValueError("All supplied entries must have a phase type of " 'either "Solid" or "Ion"')
+                raise ValueError('All supplied entries must have a phase type of either "Solid" or "Ion"')
 
             if self.filter_solids:
                 # O is 2.46 b/c pbx entry finds energies referenced to H2O
@@ -732,7 +732,7 @@ class PourbaixDiagram(MSONable):
             # their charge state.
             entry_comps = [e.composition for e in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
-            react_coeffs = [-rxn.get_coeff(comp) for comp in entry_comps]
+            react_coeffs = [-coeff for coeff in rxn.coeffs[: len(entry_list)]]
             all_coeffs = [*react_coeffs, rxn.get_coeff(prod_comp)]
 
             # Check if reaction coeff threshold met for Pourbaix compounds
@@ -930,25 +930,12 @@ class PourbaixDiagram(MSONable):
         """
         return self._unprocessed_entries
 
-    def as_dict(self, include_unprocessed_entries=None):
+    def as_dict(self):
         """
-        Args:
-            include_unprocessed_entries (): DEPRECATED. Whether to include unprocessed
-                entries (equivalent to filter_solids=False). Serialization now includes
-                all unprocessed entries by default. Set filter_solids=False before
-                serializing to include unstable solids from the generated Pourbaix Diagram.
-
         Returns:
             MSONable dict.
         """
-        if include_unprocessed_entries:
-            warnings.warn(
-                DeprecationWarning(
-                    "The include_unprocessed_entries kwarg is deprecated! "
-                    "Set filter_solids=True / False before serializing instead."
-                )
-            )
-        d = {
+        return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "entries": [e.as_dict() for e in self._unprocessed_entries],
@@ -956,7 +943,6 @@ class PourbaixDiagram(MSONable):
             "conc_dict": self._conc_dict,
             "filter_solids": self.filter_solids,
         }
-        return d
 
     @classmethod
     def from_dict(cls, d):

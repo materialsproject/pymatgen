@@ -5,14 +5,7 @@ from typing import Any
 # pymatgen.entries needs to be imported before pymatgen.util.typing
 # to avoid circular import.
 from pymatgen.entries import Entry
-from pymatgen.util.typing import (
-    CompositionLike,
-    EntryLike,
-    MatrixLike,
-    PathLike,
-    SpeciesLike,
-    VectorLike,
-)
+from pymatgen.util.typing import CompositionLike, EntryLike, MatrixLike, PathLike, SpeciesLike
 
 # This module tests types are as expected and can be imported without circular ImportError.
 
@@ -52,10 +45,6 @@ def test_composition_like():
         _type_str(CompositionLike)
         == "Union[str, Element, Species, DummySpecies, dict, pymatgen.core.composition.Composition]"
     )
-
-
-def test_vector_like():
-    assert _type_str(VectorLike) == "Union[Sequence[float], numpy.ndarray]"
 
 
 def test_matrix_like():

@@ -10,15 +10,9 @@ from monty.serialization import loadfn
 from scipy.interpolate import InterpolatedUnivariateSpline
 
 from pymatgen.core import Lattice, Structure
-from pymatgen.phonon.bandstructure import (
-    PhononBandStructure,
-    PhononBandStructureSymmLine,
-)
+from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos, PhononDos
-from pymatgen.phonon.gruneisen import (
-    GruneisenParameter,
-    GruneisenPhononBandStructureSymmLine,
-)
+from pymatgen.phonon.gruneisen import GruneisenParameter, GruneisenPhononBandStructureSymmLine
 from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -27,9 +21,7 @@ try:
     from phonopy.file_IO import write_disp_yaml
     from phonopy.structure.atoms import PhonopyAtoms
 except ImportError:
-    Phonopy = None
-    write_disp_yaml = None
-    PhonopyAtoms = None
+    Phonopy = write_disp_yaml = PhonopyAtoms = None
 
 
 @requires(Phonopy, "phonopy not installed!")
@@ -675,7 +667,6 @@ def get_thermal_displacement_matrices(
         structure_path: path to POSCAR
 
     Returns:
-
     """
     thermal_displacements_dict = loadfn(thermal_displacements_yaml)
 

@@ -11,11 +11,9 @@ REM entries.
 
 from __future__ import annotations
 
-import datetime
 import re
-from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 import dateutil.parser  # type: ignore
 from monty.io import zopen
@@ -26,6 +24,10 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from datetime import date
 
 __all__ = ["ResProvider", "AirssProvider", "ResIO", "ResWriter", "ParseError", "ResError"]
 
@@ -78,9 +80,9 @@ class Ion:
         if self.spin is None:
             ion_fmt = "{:<7s}{:<2d} {:.8f} {:.8f} {:.8f} {:f}"
             return ion_fmt.format(self.specie, self.specie_num, *self.pos, self.occupancy)
-        else:
-            ion_fmt = "{:<7s}{:<2d} {:.8f} {:.8f} {:.8f} {:f} {:5.2f}"
-            return ion_fmt.format(self.specie, self.specie_num, *self.pos, self.occupancy, self.spin)
+
+        ion_fmt = "{:<7s}{:<2d} {:.8f} {:.8f} {:.8f} {:f} {:5.2f}"
+        return ion_fmt.format(self.specie, self.specie_num, *self.pos, self.occupancy, self.spin)
 
 
 @dataclass(frozen=True)
@@ -158,16 +160,15 @@ class ResParser:
             return AirssTITL(
                 seed, float(pressure), float(volume), float(energy), float(spin), float(abs_spin), spg, int(nap)
             )
-        else:
-            # there should at least be the first 6 fields if it's an AIRSS res file
-            # if it doesn't have them, then just stop looking
-            return None
+        # there should at least be the first 6 fields if it's an AIRSS res file
+        # if it doesn't have them, then just stop looking
+        return None
 
     def _parse_cell(self, line: str) -> ResCELL:
         """Parses the CELL entry."""
         fields = line.split()
         if len(fields) != 7:
-            raise ParseError(f"Failed to parse CELL line {line}, expected 7 fields.")
+            raise ParseError(f"Failed to parse CELL {line=}, expected 7 fields.")
         field_1, a, b, c, alpha, beta, gamma = map(float, fields)
         return ResCELL(field_1, a, b, c, alpha, beta, gamma)
 
@@ -216,7 +217,7 @@ class ResParser:
                 splits = len(split)
                 if splits == 0:
                     continue
-                elif splits == 1:
+                if splits == 1:
                     first, rest = *split, ""
                 else:
                     first, rest = split
@@ -231,7 +232,7 @@ class ResParser:
                 elif first == "SFAC":
                     _SFAC = self._parse_sfac(rest, it)
                 else:
-                    raise Warning(f"Skipping line {line}, tag {first} not recognized.")
+                    raise Warning(f"Skipping {line=}, tag {first} not recognized.")
         except StopIteration:
             pass
         if _CELL is None or _SFAC is None:
@@ -289,7 +290,7 @@ class ResWriter:
     @classmethod
     def _res_from_structure(cls, structure: Structure) -> Res:
         """Produce a res file structure from a pymatgen Structure."""
-        return Res(None, [], cls._cell_from_lattice(structure.lattice), cls._sfac_from_sites(list(structure.sites)))
+        return Res(None, [], cls._cell_from_lattice(structure.lattice), cls._sfac_from_sites(list(structure)))
 
     @classmethod
     def _res_from_entry(cls, entry: ComputedStructureEntry) -> Res:
@@ -304,7 +305,7 @@ class ResWriter:
             AirssTITL(seed, pres, entry.structure.volume, entry.energy, isd, iasd, spg, 1),
             rems,
             cls._cell_from_lattice(entry.structure.lattice),
-            cls._sfac_from_sites(list(entry.structure.sites)),
+            cls._sfac_from_sites(list(entry.structure)),
         )
 
     def __init__(self, entry: Structure | ComputedStructureEntry):
@@ -329,7 +330,6 @@ class ResWriter:
         """Write the res data to a file."""
         with zopen(filename, "w") as file:
             file.write(str(self))
-        return None
 
 
 class ResProvider(MSONable):
@@ -428,20 +428,20 @@ class AirssProvider(ResProvider):
         return cls(ResParser._parse_file(filename), parse_rems)
 
     @classmethod
-    def _parse_date(cls, string: str) -> datetime.date:
+    def _parse_date(cls, string: str) -> date:
         """Parses a date from a string where the date is in the format typically used by CASTEP."""
         match = cls._date_fmt.search(string)
         if match is None:
-            raise ParseError(f"Could not parse the date from string {string}.")
+            raise ParseError(f"Could not parse the date from {string=}.")
         date_string = match.group(0)
         return dateutil.parser.parse(date_string)  # type: ignore
 
     def _raise_or_none(self, err: ParseError) -> None:
         if self.parse_rems != "strict":
-            return None
+            return
         raise err
 
-    def get_run_start_info(self) -> tuple[datetime.date, str] | None:
+    def get_run_start_info(self) -> tuple[date, str] | None:
         """
         Retrieves the run start date and the path it was started in from the REM entries.
 
@@ -512,7 +512,7 @@ class AirssProvider(ResProvider):
                 return (p, q, r), (po, qo, ro), int(srem[11]), float(srem[13])
         return self._raise_or_none(ParseError("Could not find line with MP grid."))  # type: ignore
 
-    def get_airss_version(self) -> tuple[str, datetime.date] | None:
+    def get_airss_version(self) -> tuple[str, date] | None:
         """
         Retrieves the version of AIRSS that was used along with the build date (not compile date).
 
@@ -527,13 +527,13 @@ class AirssProvider(ResProvider):
         return self._raise_or_none(ParseError("Could not find line with AIRSS version."))  # type: ignore
 
     def _get_compiler(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _get_compile_options(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _get_rng_seeds(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_pspots(self) -> dict[str, str]:
         """

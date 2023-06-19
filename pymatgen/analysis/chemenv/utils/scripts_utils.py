@@ -9,9 +9,7 @@ import re
 
 import numpy as np
 
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    SimplestChemenvStrategy,
-)
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     UNCLEAR_ENVIRONMENT_SYMBOL,
     AllCoordinationGeometries,
@@ -20,9 +18,7 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     AbstractGeometry,
     LocalGeometryFinder,
 )
-from pymatgen.analysis.chemenv.utils.chemenv_errors import (
-    NeighborsNotComputedChemenvError,
-)
+from pymatgen.analysis.chemenv.utils.chemenv_errors import NeighborsNotComputedChemenvError
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule

@@ -5,11 +5,11 @@ Piezo sensitivity analysis module.
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
 
-from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
 
@@ -18,6 +18,10 @@ try:
     from phonopy.harmonic import dynmat_to_fc as dyntofc
 except ImportError:
     Phonopy = None
+
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Handong Ling"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -372,8 +376,8 @@ class ForceConstantMatrix:
         struct = self.structure
         operations = self.FCM_operations
         # set max force in reciprocal space
-        numsites = len(struct.sites)
-        D = (1 / max_force) * 2 * (np.ones([numsites * 3, numsites * 3]))
+        n_sites = len(struct)
+        D = (1 / max_force) * 2 * (np.ones([n_sites * 3, n_sites * 3]))
         for op in operations:
             same = 0
             transpose = 0
@@ -630,22 +634,22 @@ class ForceConstantMatrix:
         """
         from pymatgen.io.phonopy import get_phonopy_structure
 
-        numsites = len(self.structure.sites)
+        n_sites = len(self.structure)
         structure = get_phonopy_structure(self.structure)
         pnstruc = Phonopy(structure, np.eye(3), np.eye(3))
 
         dyn = self.get_unstable_FCM(force)
         dyn = self.get_stable_FCM(dyn)
 
-        dyn = np.reshape(dyn, (numsites, 3, numsites, 3)).swapaxes(1, 2)
+        dyn = np.reshape(dyn, (n_sites, 3, n_sites, 3)).swapaxes(1, 2)
 
         dynmass = np.zeros([len(self.structure), len(self.structure), 3, 3])
         masses = []
-        for j in range(numsites):
-            masses.append(self.structure.sites[j].specie.atomic_mass)
-        dynmass = np.zeros([numsites, numsites, 3, 3])
-        for m in range(numsites):
-            for n in range(numsites):
+        for idx in range(n_sites):
+            masses.append(self.structure[idx].specie.atomic_mass)
+        dynmass = np.zeros([n_sites, n_sites, 3, 3])
+        for m in range(n_sites):
+            for n in range(n_sites):
                 dynmass[m][n] = dyn[m][n] * np.sqrt(masses[m]) * np.sqrt(masses[n])
 
         supercell = pnstruc.get_supercell()
@@ -653,7 +657,7 @@ class ForceConstantMatrix:
 
         converter = dyntofc.DynmatToForceConstants(primitive, supercell)
 
-        dyn = np.reshape(np.swapaxes(dynmass, 1, 2), (numsites * 3, numsites * 3))
+        dyn = np.reshape(np.swapaxes(dynmass, 1, 2), (n_sites * 3, n_sites * 3))
 
         converter.set_dynamical_matrices(dynmat=[dyn])
 

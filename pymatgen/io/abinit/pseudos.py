@@ -11,11 +11,10 @@ import logging
 import os
 import sys
 from collections import defaultdict, namedtuple
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
-
-# from monty.dev import deprecated
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MontyDecoder, MSONable
@@ -27,12 +26,11 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
+
 logger = logging.getLogger(__name__)
 
-__all__ = [
-    "Pseudo",
-    "PseudoTable",
-]
 
 __author__ = "Matteo Giantomassi"
 __version__ = "0.1"
@@ -49,19 +47,19 @@ def straceback():
     return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 
 
-def _read_nlines(filename, nlines):
+def _read_nlines(filename: str, n_lines: int) -> list[str]:
     """
     Read at most nlines lines from file filename.
     If nlines is < 0, the entire file is read.
     """
-    if nlines < 0:
+    if n_lines < 0:
         with open(filename) as fh:
             return fh.readlines()
 
     lines = []
     with open(filename) as fh:
         for lineno, line in enumerate(fh):
-            if lineno == nlines:
+            if lineno == n_lines:
                 break
             lines.append(line)
         return lines
@@ -732,7 +730,7 @@ class NcAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except Exception:
-                    raise RuntimeError(f"Conversion Error for key {key}, value {value}")
+                    raise RuntimeError(f"Conversion Error for {key=}, {value=}")
 
             self[key] = value
 
@@ -931,12 +929,12 @@ class PawAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except Exception:
-                    raise RuntimeError(f"Conversion Error for key {key}, with value {value}")
+                    raise RuntimeError(f"Conversion Error for {key=}, with {value=}")
 
             self[key] = value
 
         if kwargs:
-            raise RuntimeError(f"kwargs should be empty but got {str(kwargs)}")
+            raise RuntimeError(f"kwargs should be empty but got {kwargs!s}")
 
     @staticmethod
     def paw_header(filename, ppdesc):
@@ -1133,7 +1131,7 @@ class PseudoParser:
                     return None
 
                 if pspcod not in self._PSPCODES:
-                    raise self.Error(f"{filename}: Don't know how to handle pspcod {pspcod}\n")
+                    raise self.Error(f"{filename}: Don't know how to handle {pspcod=}\n")
 
                 ppdesc = self._PSPCODES[pspcod]
 
@@ -1299,16 +1297,16 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """Number of valence electrons."""
         return self.valence
 
-    # FIXME
     @property
     def l_max(self):
         """Maximum angular momentum."""
-        return None
+        # TODO return an actual value
+        return
 
     @property
     def l_local(self):
         """Angular momentum used for the local part."""
-        return None
+        return
 
     @property
     def summary(self):
@@ -1450,10 +1448,10 @@ class PawXmlSetup(Pseudo, PawPseudo):
         ax.set_xlabel("r [Bohr]")
         # ax.set_ylabel('density')
 
-        for i, den_name in enumerate(["ae_core_density", "pseudo_core_density"]):
-            rden = getattr(self, den_name)
-            label = "$n_c$" if i == 1 else r"$\tilde{n}_c$"
-            ax.plot(rden.mesh, rden.mesh * rden.values, label=label, lw=2)
+        for idx, density_name in enumerate(["ae_core_density", "pseudo_core_density"]):
+            rden = getattr(self, density_name)
+            label = "$n_c$" if idx == 1 else r"$\tilde{n}_c$"
+            ax.plot(rden.mesh, rden.mesh * rden.values, label=label, lw=2)  # noqa: PD011
 
         ax.legend(loc="best")
 
@@ -1481,10 +1479,10 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
 
         for state, rfunc in self.pseudo_partial_waves.items():
-            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="PS-WAVE: " + state)
+            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="PS-WAVE: " + state)  # noqa: PD011
 
         for state, rfunc in self.ae_partial_waves.items():
-            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="AE-WAVE: " + state)
+            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="AE-WAVE: " + state)  # noqa: PD011
 
         ax.legend(loc="best", shadow=True, fontsize=fontsize)
 
@@ -1510,7 +1508,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
 
         for state, rfunc in self.projector_functions.items():
-            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, label="TPROJ: " + state)
+            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, label="TPROJ: " + state)  # noqa: PD011
 
         ax.legend(loc="best", shadow=True, fontsize=fontsize)
 
@@ -1654,7 +1652,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             symbols = [p.symbol for p in pseudo_list]
             symbol = symbols[0]
             if any(symb != symbol for symb in symbols):
-                raise ValueError(f"All symbols must be equal while they are: {str(symbols)}")
+                raise ValueError(f"All symbols must be equal while they are: {symbols!s}")
 
             setattr(self, symbol, pseudo_list)
 
@@ -1707,18 +1705,18 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
     def as_dict(self, **kwargs):
         """Return dictionary for MSONable protocol."""
-        d = {}
+        dct = {}
         for p in self:
             k, count = p.element.name, 1
             # k, count = p.element, 1
             # Handle multiple-pseudos with the same name!
-            while k in d:
+            while k in dct:
                 k += k.split("#")[0] + "#" + str(count)
                 count += 1
-            d.update({k: p.as_dict()})
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        return d
+            dct.update({k: p.as_dict()})
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        return dct
 
     @classmethod
     def from_dict(cls, d):
@@ -1746,13 +1744,13 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
             table.all_combinations_for_elements(["Li", "F"])
         """
-        d = {}
+        dct = {}
         for symbol in element_symbols:
-            d[symbol] = self.select_symbols(symbol, ret_list=True)
+            dct[symbol] = self.select_symbols(symbol, ret_list=True)
 
         from itertools import product
 
-        return list(product(*d.values()))
+        return list(product(*dct.values()))
 
     def pseudo_with_symbol(self, symbol, allow_multi=False):
         """
@@ -1768,7 +1766,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """
         pseudos = self.select_symbols(symbol, ret_list=True)
         if not pseudos or (len(pseudos) > 1 and not allow_multi):
-            raise ValueError(f"Found {len(pseudos)} occurrences of symbol {symbol}")
+            raise ValueError(f"Found {len(pseudos)} occurrences of {symbol=}")
 
         if not allow_multi:
             return pseudos[0]
@@ -1817,9 +1815,8 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             if exclude:
                 if p.symbol in symbols:
                     continue
-            else:
-                if p.symbol not in symbols:
-                    continue
+            elif p.symbol not in symbols:
+                continue
 
             pseudos.append(p)
 
@@ -1827,7 +1824,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             return pseudos
         return self.__class__(pseudos)
 
-    def get_pseudos_for_structure(self, structure):
+    def get_pseudos_for_structure(self, structure: Structure):
         """
         Return the list of :class:`Pseudo` objects to be used for this :class:`Structure`.
 

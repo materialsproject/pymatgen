@@ -2,18 +2,12 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 import warnings
 
 from pytest import approx
 from sympy import Number, Symbol
 
-from pymatgen.analysis.surface_analysis import (
-    NanoscaleStability,
-    SlabEntry,
-    SurfaceEnergyPlotter,
-    WorkFunctionAnalyzer,
-)
+from pymatgen.analysis.surface_analysis import NanoscaleStability, SlabEntry, SurfaceEnergyPlotter, WorkFunctionAnalyzer
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import PymatgenTest
 
@@ -112,7 +106,7 @@ class SlabEntryTest(PymatgenTest):
             all_se.append(se)
             # Manually calculate surface energy
             manual_se = (slab_entry.energy - ECu * len(slab_entry.structure)) / (2 * slab_entry.surface_area)
-            self.assertArrayAlmostEqual(float(se), manual_se, 10)
+            self.assert_all_close(float(se), manual_se, 10)
 
         # The (111) facet should be the most stable
         clean111_entry = list(self.Cu_entry_dict[(1, 1, 1)])[0]
@@ -469,7 +463,3 @@ def load_O_adsorption():
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = [ads]
 
     return metals_O_entry_dict
-
-
-if __name__ == "__main__":
-    unittest.main()

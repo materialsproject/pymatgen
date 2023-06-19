@@ -35,7 +35,26 @@ Direct contributions to pymatgen main distribution
        git clone git@github.com:YOURNAME/pymatgen.git
 
    Note that the entire Github repo is fairly large because of the presence of test files, but these are absolutely
-   necessary for rigorous testing of the code.
+   necessary for rigorous testing of the code. If you are not planning to do major development on pymatgen and would
+   like a minimal clone (e.g., installing dev version of pymatgen on HPC resources), you can use the following series of
+   commands (size would be a fraction of the full repo)::
+
+      git clone -n --depth=1 --filter=tree:0 git@github.com:materialsproject/pymatgen.git
+      cd pymatgen
+
+      # If you have Git 2.25+ (released 2023-01-01), you can use the sparse-checkout command (uncomment the next line).
+      # git sparse-checkout set --no-cone pymatgen setup.py pyproject.toml requirements.txt requirements-optional.txt
+
+      # If you are on a system with an older version of git, run the commands below.
+      git config core.sparseCheckout true
+      echo pymatgen >> .git/info/sparse-checkout
+      echo setup.py >> .git/info/sparse-checkout
+      echo pyproject.toml >> .git/info/sparse-checkout
+      echo "requirements.txt" >> .git/info/sparse-checkout
+      echo "requirements-optional.txt" >> .git/info/sparse-checkout
+
+      git checkout
+
 5. It is highly recommended you install all the optional dependencies as well::
 
       pip install -e '.[dev,optional]'

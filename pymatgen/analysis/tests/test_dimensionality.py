@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 import warnings
 
 import networkx as nx
@@ -50,7 +49,7 @@ class LarsenDimensionalityTest(PymatgenTest):
         mol_structure = Structure(
             [[-2.316, 2.316, 2.160], [2.316, -2.316, 2.160], [2.316, 2.316, -2.160]],
             ["H", "C", "N"],
-            [[0.752, 0.752, 0.000], [0.004, 0.004, 0.0], [0.272, 0.272, 0.0]],
+            [[0.752, 0.752, 0], [0.004, 0.004, 0.0], [0.272, 0.272, 0.0]],
         )
         self.mol_structure = cnn.get_bonded_structure(mol_structure)
         warnings.simplefilter("ignore")
@@ -172,7 +171,3 @@ class GoraiDimensionalityTest(PymatgenTest):
         s = self.get_structure("CsCl")
         assert get_dimensionality_gorai(s) == 1
         assert get_dimensionality_gorai(s, bonds={("Cs", "Cl"): 3.7}) == 3
-
-
-if __name__ == "__main__":
-    unittest.main()

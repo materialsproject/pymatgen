@@ -27,12 +27,12 @@ Sci. 136 144-149 (May 2017)
 from __future__ import annotations
 
 import fractions
-import glob
 import itertools
 import logging
 import math
 import re
 import subprocess
+from glob import glob
 from shutil import which
 from threading import Timer
 
@@ -135,8 +135,8 @@ class EnumlibAdaptor:
         Run the enumeration.
         """
         # Create a temporary directory for working.
-        with ScratchDir(".") as d:
-            logger.debug(f"Temp dir : {d}")
+        with ScratchDir(".") as tmp_dir:
+            logger.debug(f"Temp dir : {tmp_dir}")
             # Generate input files
             self._gen_input_file()
             # Perform the actual enumeration
@@ -205,7 +205,7 @@ class EnumlibAdaptor:
             finder = SpacegroupAnalyzer(Structure.from_sites(ss), self.symm_prec)
             return finder.get_space_group_number()
 
-        target_sgnum = get_sg_info(symmetrized_structure.sites)
+        target_sgnum = get_sg_info(list(symmetrized_structure))
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         sgnum = get_sg_info(curr_sites)
         ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
@@ -250,12 +250,12 @@ class EnumlibAdaptor:
         output.append(str(self.enum_precision_parameter))
         output.append("full")
 
-        ndisordered = sum(len(s) for s in disordered_sites)
+        n_disordered = sum(len(s) for s in disordered_sites)
         base = int(
-            ndisordered
+            n_disordered
             * lcm(
                 *(
-                    f.limit_denominator(ndisordered * self.max_cell_size).denominator
+                    f.limit_denominator(n_disordered * self.max_cell_size).denominator
                     for f in map(fractions.Fraction, index_amounts)
                 )
             )
@@ -268,7 +268,7 @@ class EnumlibAdaptor:
         # enumeration. See Cu7Te5.cif test file.
         base *= 10
 
-        # base = ndisordered #10 ** int(math.ceil(math.log10(ndisordered)))
+        # base = ndisordered # 10 ** int(math.ceil(math.log10(ndisordered)))
         # To get a reasonable number of structures, we fix concentrations to the
         # range expected in the original structure.
         total_amounts = sum(index_amounts)
@@ -364,7 +364,7 @@ class EnumlibAdaptor:
             ordered_structure = None  # to fix pylint E0601
             inv_org_latt = None
 
-        for file in glob.glob("vasp.*"):
+        for file in glob("vasp.*"):
             with open(file) as f:
                 data = f.read()
                 data = re.sub(r"scale factor", "1", data)

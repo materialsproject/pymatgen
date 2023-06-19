@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 import unittest
 
+from numpy.testing import assert_array_equal
+
 from pymatgen.io.shengbte import Control
 from pymatgen.util.testing import PymatgenTest
 
@@ -47,7 +49,7 @@ class TestShengBTE(PymatgenTest):
         io = Control.from_file(self.filename)
         assert io["nelements"] == 1
         assert io["natoms"] == 2
-        self.assertArrayEqual(io["ngrid"], [25, 25, 25])
+        assert_array_equal(io["ngrid"], [25, 25, 25])
         assert io["norientations"] == 0
         assert io["lfactor"] == 0.1
         assert io["lattvec"][0] == [0.0, 2.734363999, 2.734363999]
@@ -61,8 +63,8 @@ class TestShengBTE(PymatgenTest):
         if isinstance(io["types"], list):
             all_ints = all(isinstance(item, int) for item in io["types"])
             assert all_ints
-        self.assertArrayEqual(io["positions"], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
-        self.assertArrayEqual(io["scell"], [5, 5, 5])
+        assert_array_equal(io["positions"], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
+        assert_array_equal(io["scell"], [5, 5, 5])
         assert io["t"] == 500
         assert io["scalebroad"] == 0.5
         assert not io["isotopes"]

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from numpy.testing import assert_array_equal
 
 from pymatgen.core.units import (
     ArrayWithUnit,
@@ -106,10 +107,10 @@ class FloatWithUnitTest(PymatgenTest):
 
         @unitized("pm")
         def h():
-            d = {}
+            dct = {}
             for i in range(3):
-                d[i] = i * 20
-            return d
+                dct[i] = i * 20
+            return dct
 
         assert str(h()[1]) == "20.0 pm"
         assert isinstance(h(), dict)
@@ -257,7 +258,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
 
     def test_as_base_units(self):
         x = ArrayWithUnit([5, 10], "MPa")
-        self.assertArrayEqual(ArrayWithUnit([5000000, 10000000], "Pa"), x.as_base_units)
+        assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), x.as_base_units)
 
 
 class DataPersistenceTest(PymatgenTest):

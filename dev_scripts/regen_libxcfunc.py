@@ -21,14 +21,14 @@ def parse_libxc_docs(path):
     """
 
     def parse_section(section):
-        d = {}
+        dct = {}
         for line in section:
             key, value = line.split(":")
-            d[key.strip()] = value.strip()
+            dct[key.strip()] = value.strip()
 
-        return int(d["Number"]), d
+        return int(dct["Number"]), dct
 
-    d = {}
+    dct = {}
     with open(path) as fh:
         section = []
         for line in fh:
@@ -36,12 +36,12 @@ def parse_libxc_docs(path):
                 section.append(line)
             else:
                 num, entry = parse_section(section)
-                assert num not in d
-                d[num] = entry
+                assert num not in dct
+                dct[num] = entry
                 section = []
         assert not section
 
-    return d
+    return dct
 
 
 def write_libxc_docs_json(xcfuncs, jpath):

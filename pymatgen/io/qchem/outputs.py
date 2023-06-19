@@ -115,8 +115,7 @@ class QCOutput(MSONable):
                 self.data["walltime"] = float(temp_timings[0][0])
                 self.data["cputime"] = float(temp_timings[0][1])
             else:
-                self.data["walltime"] = None
-                self.data["cputime"] = None
+                self.data["walltime"] = self.data["cputime"] = None
 
         # Check if calculation is unrestricted
         self.data["unrestricted"] = read_pattern(
@@ -226,8 +225,7 @@ class QCOutput(MSONable):
             self.data["gap_info"] = None
 
         # Check to see if PCM or SMD are present
-        self.data["solvent_method"] = None
-        self.data["solvent_data"] = None
+        self.data["solvent_method"] = self.data["solvent_data"] = None
 
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*pcm"}, terminate_on_match=True).get("key") == [[]]:
             self.data["solvent_method"] = "PCM"
@@ -296,12 +294,11 @@ class QCOutput(MSONable):
                 if val[0] != temp_solvent[0][0]:
                     if val[0] != "for":
                         self.data["warnings"]["SMD_two_solvents"] = str(temp_solvent[0][0]) + " and " + str(val[0])
-                    else:
-                        if (
-                            "unrecognized_solvent" not in self.data["errors"]
-                            and "unrecognized_solvent" not in self.data["warnings"]
-                        ):
-                            self.data["warnings"]["questionable_SMD_parsing"] = True
+                    elif (
+                        "unrecognized_solvent" not in self.data["errors"]
+                        and "unrecognized_solvent" not in self.data["warnings"]
+                    ):
+                        self.data["warnings"]["questionable_SMD_parsing"] = True
             self.data["solvent_data"]["SMD_solvent"] = temp_solvent[0][0]
             self._read_smd_information()
         elif self.data["solvent_method"] == "ISOSVP":
@@ -812,10 +809,9 @@ class QCOutput(MSONable):
         footer_pattern = r"\s*-+"
         temp_geom = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         if temp_geom is None or len(temp_geom) == 0:
-            self.data["species"] = None
-            self.data["initial_geometry"] = None
-            self.data["initial_molecule"] = None
-            self.data["point_group"] = None
+            self.data["species"] = self.data["initial_geometry"] = self.data["initial_molecule"] = self.data[
+                "point_group"
+            ] = None
         else:
             temp_point_group = read_pattern(
                 self.text,
@@ -1296,7 +1292,7 @@ class QCOutput(MSONable):
 
         grad_format_length = self._get_grad_format_length(grad_header_pattern)
         grad_table_pattern = (
-            r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*" r"(\-?[\d\.]{9,12})"
+            r"(?:\s+\d+(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?(?:\s+\d+)?)?\n\s\s\s\s[1-3]\s*(\-?[\d\.]{9,12})"
         )
         if grad_format_length > 1:
             for _ in range(1, grad_format_length):
@@ -1485,7 +1481,6 @@ class QCOutput(MSONable):
             "total_enthalpy",
             "total_entropy",
         ]
-
         for key in keys:
             if temp_dict.get(key) is None:
                 self.data[key] = None
@@ -1493,13 +1488,9 @@ class QCOutput(MSONable):
                 self.data[key] = float(temp_dict.get(key)[0][0])
 
         if temp_dict.get("frequencies") is None:
-            self.data["frequencies"] = None
-            self.data["IR_intens"] = None
-            self.data["IR_active"] = None
-            self.data["raman_intens"] = None
-            self.data["raman_active"] = None
-            self.data["depolar"] = None
-            self.data["trans_dip"] = None
+            self.data["frequencies"] = self.data["IR_intens"] = self.data["IR_active"] = None
+            self.data["raman_active"] = self.data["raman_intens"] = None
+            self.data["depolar"] = self.data["trans_dip"] = None
         else:
             temp_freqs = [value for entry in temp_dict.get("frequencies") for value in entry]
             temp_IR_intens = [value for entry in temp_dict.get("IR_intens") for value in entry]
@@ -1529,9 +1520,7 @@ class QCOutput(MSONable):
                             depolar[ii] = float(entry)
                 self.data["depolar"] = depolar
             else:
-                self.data["raman_intens"] = None
-                self.data["raman_active"] = None
-                self.data["depolar"] = None
+                self.data["raman_intens"] = self.data["raman_active"] = self.data["depolar"] = None
 
             trans_dip = np.zeros(shape=(int((len(temp_trans_dip) - temp_trans_dip.count("None")) / 3), 3))
             for ii, entry in enumerate(temp_trans_dip):
@@ -1562,9 +1551,8 @@ class QCOutput(MSONable):
                         if not self.data.get("completion", []):
                             if "undefined_frequency" not in self.data["errors"]:
                                 self.data["errors"] += ["undefined_frequency"]
-                        else:
-                            if "undefined_frequency" not in self.data["warnings"]:
-                                self.data["warnings"]["undefined_frequency"] = True
+                        elif "undefined_frequency" not in self.data["warnings"]:
+                            self.data["warnings"]["undefined_frequency"] = True
                     else:
                         freqs[ii] = float(entry)
             self.data["frequencies"] = freqs
@@ -1900,9 +1888,9 @@ class QCOutput(MSONable):
 
         becke_table = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         if becke_table is None or len(becke_table) == 0:
-            self.data["cdft_becke_excess_electrons"] = None
-            self.data["cdft_becke_population"] = None
-            self.data["cdft_becke_net_spin"] = None
+            self.data["cdft_becke_excess_electrons"] = self.data["cdft_becke_population"] = self.data[
+                "cdft_becke_net_spin"
+            ] = None
         else:
             self.data["cdft_becke_excess_electrons"] = []
             self.data["cdft_becke_population"] = []
@@ -2140,11 +2128,11 @@ class QCOutput(MSONable):
         Returns:
             MSONable dict.
         """
-        d = {}
-        d["data"] = self.data
-        d["text"] = self.text
-        d["filename"] = self.filename
-        return jsanitize(d, strict=True)
+        dct = {}
+        dct["data"] = self.data
+        dct["text"] = self.text
+        dct["filename"] = self.filename
+        return jsanitize(dct, strict=True)
 
 
 def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
@@ -2217,14 +2205,14 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
     of the new list contains the header.
 
     Args:
-            lines: List of lines.
-            header: Substring to match.
+        lines: List of lines.
+        header: Substring to match.
 
     Returns:
-            Truncated lines.
+        Truncated lines.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     # Search for the header
     for i, line in enumerate(lines):
@@ -2232,7 +2220,7 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
             return lines[i:]
 
     # Search failed
-    raise RuntimeError(f"Header {header} could not be found in the lines.")
+    raise RuntimeError(f"{header=} could not be found in the lines.")
 
 
 def get_percentage(line: str, orbital: str) -> str:
@@ -2240,14 +2228,14 @@ def get_percentage(line: str, orbital: str) -> str:
     Retrieve the percent character of an orbital.
 
     Args:
-            line: Line containing orbital and percentage.
-            orbital: Type of orbital (s, p, d, f).
+        line: Line containing orbital and percentage.
+        orbital: Type of orbital (s, p, d, f).
 
     Returns:
-            Percentage of character.
+        Percentage of character.
 
     Raises:
-            n/a
+        n/a
     """
     # Locate orbital in line
     index = line.find(orbital)
@@ -2267,13 +2255,13 @@ def z_int(string: str) -> int:
     If string empty, return -1.
 
     Args:
-            string: Input to be cast to int.
+        string: Input to be cast to int.
 
     Returns:
-            Int representation.
+        Int representation.
 
     Raises:
-            n/a
+        n/a
     """
     try:
         return int(string)
@@ -2286,13 +2274,13 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
     Parse the natural populations section of NBO output.
 
     Args:
-            lines: QChem output lines.
+        lines: QChem output lines.
 
     Returns:
-            Data frame of formatted output.
+        Data frame of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     no_failures = True
     pop_dfs = []
@@ -2346,13 +2334,13 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
     Parse the natural populations section of NBO output.
 
     Args:
-            lines: QChem output lines.
+        lines: QChem output lines.
 
     Returns:
-            Data frame of formatted output.
+        Data frame of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     no_failures = True
     hyperbond_dfs = []
@@ -2427,13 +2415,13 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
     Parse the hybridization character section of NBO output.
 
     Args:
-            lines: QChem output lines.
+        lines: QChem output lines.
 
     Returns:
-            Data frames of formatted output.
+        Data frames of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     # Orbitals
     orbitals = ["s", "p", "d", "f"]
@@ -2811,13 +2799,13 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     Parse all the important sections of NBO output.
 
     Args:
-            filename: Path to QChem NBO output.
+        filename: Path to QChem NBO output.
 
     Returns:
-            Data frames of formatted output.
+        Data frames of formatted output.
 
     Raises:
-            RuntimeError
+        RuntimeError
     """
     # Open the lines
     with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:

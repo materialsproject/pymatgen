@@ -6,11 +6,7 @@ import warnings
 
 from pytest import approx
 
-from pymatgen.analysis.energy_models import (
-    EwaldElectrostaticModel,
-    IsingModel,
-    SymmetryModel,
-)
+from pymatgen.analysis.energy_models import EwaldElectrostaticModel, IsingModel, SymmetryModel
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
@@ -25,7 +21,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
 
     def test_get_energy(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0.00], [0.00, -2.0, 3.0]])
+        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
         s = Structure(
             lattice,
             [

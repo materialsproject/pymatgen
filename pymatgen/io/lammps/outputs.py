@@ -5,8 +5,8 @@ files (log and dump).
 
 from __future__ import annotations
 
-import glob
 import re
+from glob import glob
 from io import StringIO
 
 import numpy as np
@@ -86,14 +86,14 @@ class LammpsDump(MSONable):
         """
         Returns: MSONable dict
         """
-        d = {}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["timestep"] = self.timestep
-        d["natoms"] = self.natoms
-        d["box"] = self.box.as_dict()
-        d["data"] = self.data.to_json(orient="split")
-        return d
+        dct = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["timestep"] = self.timestep
+        dct["natoms"] = self.natoms
+        dct["box"] = self.box.as_dict()
+        dct["data"] = self.data.to_json(orient="split")
+        return dct
 
 
 def parse_lammps_dumps(file_pattern):
@@ -109,7 +109,7 @@ def parse_lammps_dumps(file_pattern):
         LammpsDump for each available snapshot.
 
     """
-    files = glob.glob(file_pattern)
+    files = glob(file_pattern)
     if len(files) > 1:
         pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
         files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))

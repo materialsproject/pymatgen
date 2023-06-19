@@ -22,8 +22,8 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs")
 @unittest.skipIf(not (which("mcsqs") and which("str2cif")), "mcsqs executable not present")
 class McsqsCallerTest(PymatgenTest):
     def setUp(self):
-        self.pztstructs = loadfn(os.path.join(test_dir, "pztstructs.json"))
-        self.pztstructs2 = loadfn(os.path.join(test_dir, "pztstructs2.json"))
+        self.pzt_structs = loadfn(os.path.join(test_dir, "pztstructs.json"))
+        self.pzt_structs2 = loadfn(os.path.join(test_dir, "pztstructs2.json"))
         self.struct = self.get_structure("Pb2TiZrO6")
         self.perfect_match_zzn_rs = loadfn(os.path.join(test_dir, "perfect_match_zzn_rs.json"))
 
@@ -32,7 +32,7 @@ class McsqsCallerTest(PymatgenTest):
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         sqs = run_mcsqs(struct, {2: 6, 3: 4}, scaling=[2, 1, 1], search_time=0.01, instances=1)
 
-        matches = [sqs.bestsqs.matches(s) for s in self.pztstructs]
+        matches = [sqs.bestsqs.matches(s) for s in self.pzt_structs]
         assert True in matches
 
         assert isinstance(sqs.bestsqs, Structure)
@@ -51,7 +51,7 @@ class McsqsCallerTest(PymatgenTest):
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         sqs = run_mcsqs(struct, {2: 6, 3: 4}, scaling=2, search_time=0.01, instances=1)
 
-        matches = [sqs.bestsqs.matches(s) for s in self.pztstructs2]
+        matches = [sqs.bestsqs.matches(s) for s in self.pzt_structs2]
         assert True in matches
 
     def test_mcsqs_caller_total_atoms_auto_instances(self):
@@ -59,7 +59,7 @@ class McsqsCallerTest(PymatgenTest):
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         sqs = run_mcsqs(struct, {2: 6, 3: 4}, scaling=2, search_time=0.01, instances=None)
 
-        matches = [sqs.bestsqs.matches(s) for s in self.pztstructs2]
+        matches = [sqs.bestsqs.matches(s) for s in self.pzt_structs2]
         assert True in matches
 
     def test_mcsqs_caller_parallel(self):
@@ -69,7 +69,7 @@ class McsqsCallerTest(PymatgenTest):
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         sqs = run_mcsqs(struct, {2: 6, 3: 4}, scaling=2, search_time=0.01, instances=4)
 
-        matches = [sqs.bestsqs.matches(s) for s in self.pztstructs2]
+        matches = [sqs.bestsqs.matches(s) for s in self.pzt_structs2]
         assert True in matches
 
     def test_mcsqs_perfect_match_error(self):

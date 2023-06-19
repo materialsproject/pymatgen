@@ -23,9 +23,7 @@ import numpy as np
 from numpy.linalg import norm, svd
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    MultiWeightsChemenvStrategy,
-)
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import MultiWeightsChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     EXPLICIT_PERMUTATIONS,
     SEPARATION_PLANE,
@@ -36,9 +34,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     LightStructureEnvironments,
     StructureEnvironments,
 )
-from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
-    DetailedVoronoiContainer,
-)
+from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
     Plane,
     collinear,
@@ -445,7 +441,7 @@ class LocalGeometryFinder:
         """
         self.__dict__[parameter] = value
 
-    def setup_structure(self, structure):
+    def setup_structure(self, structure: Structure):
         """
         Sets up the structure for which the coordination geometries have to be identified. The structure is analyzed
         with the space group analyzer and a refined structure is used
@@ -454,8 +450,7 @@ class LocalGeometryFinder:
         self.initial_structure = structure.copy()
         if self.structure_refinement == self.STRUCTURE_REFINEMENT_NONE:
             self.structure = structure.copy()
-            self.spg_analyzer = None
-            self.symmetrized_structure = None
+            self.spg_analyzer = self.symmetrized_structure = None
         else:
             self.spg_analyzer = SpacegroupAnalyzer(
                 self.initial_structure,
@@ -519,16 +514,15 @@ class LocalGeometryFinder:
                 vals = bva.get_valences(structure=structure)
             except ValueError:
                 vals = "undefined"
+        elif valences == "undefined":
+            vals = valences
         else:
-            if valences == "undefined":
-                vals = valences
-            else:
-                len_vals, len_sites = len(valences), len(structure)
-                if len_vals != len_sites:
-                    raise ValueError(
-                        f"Valences ({len_vals}) do not match the number of sites in the structure ({len_sites})"
-                    )
-                vals = valences
+            len_vals, len_sites = len(valences), len(structure)
+            if len_vals != len_sites:
+                raise ValueError(
+                    f"Valences ({len_vals}) do not match the number of sites in the structure ({len_sites})"
+                )
+            vals = valences
         # TODO: add something to compute only the neighbors sets needed for the strategy.
         se = self.compute_structure_environments(
             only_cations=only_cations,
@@ -688,17 +682,17 @@ class LocalGeometryFinder:
 
         # Initialize the StructureEnvironments object (either from initial_structure_environments or from scratch)
         if initial_structure_environments is not None:
-            se = initial_structure_environments
-            if se.structure != self.structure:
+            struct_envs = initial_structure_environments
+            if struct_envs.structure != self.structure:
                 raise ValueError("Structure is not the same in initial_structure_environments")
-            if se.voronoi != self.detailed_voronoi:
-                if self.detailed_voronoi.is_close_to(se.voronoi):
-                    self.detailed_voronoi = se.voronoi
+            if struct_envs.voronoi != self.detailed_voronoi:
+                if self.detailed_voronoi.is_close_to(struct_envs.voronoi):
+                    self.detailed_voronoi = struct_envs.voronoi
                 else:
                     raise ValueError("Detailed Voronoi is not the same in initial_structure_environments")
-            se.info = info
+            struct_envs.info = info
         else:
-            se = StructureEnvironments(
+            struct_envs = StructureEnvironments(
                 voronoi=self.detailed_voronoi,
                 valences=self.valences,
                 sites_map=self.sites_map,
@@ -745,7 +739,7 @@ class LocalGeometryFinder:
             if optimization > 0:
                 self.detailed_voronoi.local_planes[isite] = {}
                 self.detailed_voronoi.separations[isite] = {}
-            se.init_neighbors_sets(
+            struct_envs.init_neighbors_sets(
                 isite=isite,
                 additional_conditions=additional_conditions,
                 valences=valences,
@@ -754,14 +748,14 @@ class LocalGeometryFinder:
             to_add_from_hints = []
             nb_sets_info = {}
 
-            for cn, nb_sets in se.neighbors_sets[isite].items():
+            for cn, nb_sets in struct_envs.neighbors_sets[isite].items():
                 if cn not in all_cns:
                     continue
                 for inb_set, nb_set in enumerate(nb_sets):
                     logging.debug(f"    ... getting environments for nb_set ({cn:d}, {inb_set:d})")
                     t_nbset1 = time.process_time()
                     ce = self.update_nb_set_environments(
-                        se=se,
+                        se=struct_envs,
                         isite=isite,
                         cn=cn,
                         inb_set=inb_set,
@@ -789,10 +783,10 @@ class LocalGeometryFinder:
                                 suggested_nb_set_voronoi_indices = nb_sets_hints.hints(hints_info)
                                 for idx_new, new_nb_set_voronoi_indices in enumerate(suggested_nb_set_voronoi_indices):
                                     logging.debug(f"           hint # {idx_new:d}")
-                                    new_nb_set = se.NeighborsSet(
-                                        structure=se.structure,
+                                    new_nb_set = struct_envs.NeighborsSet(
+                                        structure=struct_envs.structure,
                                         isite=isite,
-                                        detailed_voronoi=se.voronoi,
+                                        detailed_voronoi=struct_envs.voronoi,
                                         site_voronoi_indices=new_nb_set_voronoi_indices,
                                         sources={
                                             "origin": "nb_set_hints",
@@ -809,10 +803,10 @@ class LocalGeometryFinder:
                                         continue
                                     if new_nb_set in [ta["new_nb_set"] for ta in to_add_from_hints]:
                                         has_nb_set = True
-                                    elif cn_new_nb_set not in se.neighbors_sets[isite]:
+                                    elif cn_new_nb_set not in struct_envs.neighbors_sets[isite]:
                                         has_nb_set = False
                                     else:
-                                        has_nb_set = new_nb_set in se.neighbors_sets[isite][cn_new_nb_set]
+                                        has_nb_set = new_nb_set in struct_envs.neighbors_sets[isite][cn_new_nb_set]
                                     if not has_nb_set:
                                         to_add_from_hints.append(
                                             {
@@ -826,16 +820,16 @@ class LocalGeometryFinder:
                                         logging.debug("              => already present")
             logging.debug("    ... getting environments for nb_sets added from hints")
             for missing_nb_set_to_add in to_add_from_hints:
-                se.add_neighbors_set(isite=isite, nb_set=missing_nb_set_to_add["new_nb_set"])
+                struct_envs.add_neighbors_set(isite=isite, nb_set=missing_nb_set_to_add["new_nb_set"])
             for missing_nb_set_to_add in to_add_from_hints:
                 isite_new_nb_set = missing_nb_set_to_add["isite"]
                 cn_new_nb_set = missing_nb_set_to_add["cn_new_nb_set"]
                 new_nb_set = missing_nb_set_to_add["new_nb_set"]
-                inew_nb_set = se.neighbors_sets[isite_new_nb_set][cn_new_nb_set].index(new_nb_set)
+                inew_nb_set = struct_envs.neighbors_sets[isite_new_nb_set][cn_new_nb_set].index(new_nb_set)
                 logging.debug(f"    ... getting environments for nb_set ({cn_new_nb_set}, {inew_nb_set}) - from hints")
                 t_nbset1 = time.process_time()
                 self.update_nb_set_environments(
-                    se=se,
+                    se=struct_envs,
                     isite=isite_new_nb_set,
                     cn=cn_new_nb_set,
                     inb_set=inew_nb_set,
@@ -847,7 +841,7 @@ class LocalGeometryFinder:
                     nb_sets_info[cn] = {}
                 nb_sets_info[cn][inew_nb_set] = {"time": t_nbset2 - t_nbset1}
             t2 = time.process_time()
-            se.update_site_info(isite=isite, info_dict={"time": t2 - t1, "nb_sets_info": nb_sets_info})
+            struct_envs.update_site_info(isite=isite, info_dict={"time": t2 - t1, "nb_sets_info": nb_sets_info})
             if timelimit is not None:
                 time_elapsed = t2 - time_init
                 time_left = timelimit - time_elapsed
@@ -857,7 +851,7 @@ class LocalGeometryFinder:
             logging.debug(f"    ... computed in {t2 - t1:.2f} seconds")
         time_end = time.process_time()
         logging.debug(f"    ... compute_structure_environments ended in {time_end - time_init:.2f} seconds")
-        return se
+        return struct_envs
 
     def update_nb_set_environments(self, se, isite, cn, inb_set, nb_set, recompute=False, optimization=None):
         """
@@ -1036,16 +1030,16 @@ class LocalGeometryFinder:
             RR = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
         else:
             RR = random_rotation
-        newcoords = []
+        new_coords = []
         for cc in coords:
             newcc = np.dot(RR, cc).T
-            newcoords.append(newcc.ravel())
-        coords = newcoords
-        newcoords = []
+            new_coords.append(newcc.ravel())
+        coords = new_coords
+        new_coords = []
         for cc in neighb_coords:
             newcc = np.dot(RR, cc.T)
-            newcoords.append(newcc.ravel())
-        neighb_coords = newcoords
+            new_coords.append(newcc.ravel())
+        neighb_coords = new_coords
 
         # Translating the test environment
         if random_translation == "RANDOM":
@@ -1522,7 +1516,7 @@ class LocalGeometryFinder:
                     raise ValueError("Wrong number of points to initialize separation plane")
                 cgsm = self._cg_csm_separation_plane(
                     coordination_geometry=coordination_geometry,
-                    sepplane=separation_plane_algo,
+                    sep_plane=separation_plane_algo,
                     local_plane=plane,
                     plane_separations=plane_separations,
                     dist_tolerances=DIST_TOLERANCES,
@@ -1729,7 +1723,7 @@ class LocalGeometryFinder:
     def _cg_csm_separation_plane(
         self,
         coordination_geometry,
-        sepplane,
+        sep_plane,
         local_plane,
         plane_separations,
         dist_tolerances=None,
@@ -1737,7 +1731,7 @@ class LocalGeometryFinder:
         tested_permutations=False,
         points_perfect=None,
     ):
-        argref_separation = sepplane.argsorted_ref_separation_perm
+        argref_separation = sep_plane.argsorted_ref_separation_perm
         plane_found = False
         permutations = []
         permutations_symmetry_measures = []
@@ -1754,12 +1748,12 @@ class LocalGeometryFinder:
                 continue
             # Do not consider a separation which does not follow the reference separation of the perfect
             # coordination geometry
-            if len(separation[1]) != len(sepplane.plane_points):
+            if len(separation[1]) != len(sep_plane.plane_points):
                 continue
-            if len(separation[0]) == len(sepplane.point_groups[0]):
+            if len(separation[0]) == len(sep_plane.point_groups[0]):
                 this_separation = separation
                 plane_separations.append(this_separation)
-            elif len(separation[0]) == len(sepplane.point_groups[1]):
+            elif len(separation[0]) == len(sep_plane.point_groups[1]):
                 this_separation = [
                     list(separation[2]),
                     list(separation[1]),
@@ -1769,16 +1763,16 @@ class LocalGeometryFinder:
             else:
                 continue
 
-            if sepplane.ordered_plane:
+            if sep_plane.ordered_plane:
                 inp = [pp for ip, pp in enumerate(self.local_geometry._coords) if ip in this_separation[1]]
 
-                if sepplane.ordered_point_groups[0]:
+                if sep_plane.ordered_point_groups[0]:
                     pp_s0 = [pp for ip, pp in enumerate(self.local_geometry._coords) if ip in this_separation[0]]
                     ordind_s0 = local_plane.project_and_to2dim_ordered_indices(pp_s0)
                     sep0 = [this_separation[0][ii] for ii in ordind_s0]
                 else:
                     sep0 = list(this_separation[0])
-                if sepplane.ordered_point_groups[1]:
+                if sep_plane.ordered_point_groups[1]:
                     pp_s2 = [pp for ip, pp in enumerate(self.local_geometry._coords) if ip in this_separation[2]]
                     ordind_s2 = local_plane.project_and_to2dim_ordered_indices(pp_s2)
                     sep2 = [this_separation[2][ii] for ii in ordind_s2]
@@ -1795,12 +1789,12 @@ class LocalGeometryFinder:
                 algo = "SEPARATION_PLANE_2POINTS"
                 separation_perm.extend(this_separation[2])
             if self.plane_safe_permutations:
-                sep_perms = sepplane.safe_separation_permutations(
-                    ordered_plane=sepplane.ordered_plane,
-                    ordered_point_groups=sepplane.ordered_point_groups,
+                sep_perms = sep_plane.safe_separation_permutations(
+                    ordered_plane=sep_plane.ordered_plane,
+                    ordered_point_groups=sep_plane.ordered_point_groups,
                 )
             else:
-                sep_perms = sepplane.permutations
+                sep_perms = sep_plane.permutations
 
             # plane_found = True
 
@@ -1837,7 +1831,7 @@ class LocalGeometryFinder:
             return (
                 permutations_symmetry_measures,
                 permutations,
-                [sepplane.algorithm_type] * len(permutations),
+                [sep_plane.algorithm_type] * len(permutations),
             )
         if plane_found:
             if testing:

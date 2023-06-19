@@ -195,7 +195,7 @@ class NEBPathfinder:
         # logger.debug(f"Getting path from {start} to {end} (coords wrt V grid)")
 
         # Set parameters
-        dr = np.array([1.0 / V.shape[0], 1.0 / V.shape[1], 1.0 / V.shape[2]]) if not dr else np.array(dr, dtype=float)
+        dr = np.array([1 / V.shape[0], 1 / V.shape[1], 1 / V.shape[2]]) if not dr else np.array(dr, dtype=float)
         keff = k * dr * n_images
         h0 = h
 
@@ -224,7 +224,7 @@ class NEBPathfinder:
         # Evolve string
         for step in range(0, max_iter):
             # Gradually decay step size to prevent oscillations
-            h = h0 * np.exp(-2.0 * (step - min_iter) / max_iter) if step > min_iter else h0
+            h = h0 * np.exp(-2 * (step - min_iter) / max_iter) if step > min_iter else h0
             # Calculate forces acting on string
             d = V.shape
             s0 = s.copy()  # store copy for endpoint fixing below (fixes GH 2732)
@@ -255,7 +255,7 @@ class NEBPathfinder:
             s[0] = s0[0]
             s[-1] = s0[-1]
 
-            # Reparametrize string
+            # Re-parametrize string
             ds = s - np.roll(s, 1, axis=0)
             ds[0] = ds[0] - ds[0]
             ls = np.cumsum(la.norm(ds, axis=1))
@@ -269,11 +269,11 @@ class NEBPathfinder:
                 raise ValueError("Pathfinding failed, path diverged! Consider reducing h to avoid divergence.")
 
             if step > min_iter and tol < max_tol:
-                logger.debug(f"Converged at step {step}")
+                logger.debug(f"Converged at {step=}")
                 break
 
             if step % 100 == 0:
-                logger.debug(f"Step {step} - ds = {tol}")
+                logger.debug(f"{step=} - ds = {tol}")
         return s
 
     @staticmethod
@@ -283,13 +283,7 @@ class NEBPathfinder:
         the grid size of v
         """
         # frac_coords = frac_coords % 1
-        return np.array(
-            [
-                int(frac_coords[0] * v.shape[0]),
-                int(frac_coords[1] * v.shape[1]),
-                int(frac_coords[2] * v.shape[2]),
-            ]
-        )
+        return (np.array(frac_coords) * np.array(v.shape)).astype(int)
 
     @staticmethod
     def __d2f(disc_coords, v):
@@ -390,9 +384,9 @@ class StaticPotential:
         # Apply smearing
         # Gaussian filter
         gauss_dist = np.zeros((r_disc[0] * 4 + 1, r_disc[1] * 4 + 1, r_disc[2] * 4 + 1))
-        for g_a in np.arange(-2.0 * r_disc[0], 2.0 * r_disc[0] + 1, 1.0):
-            for g_b in np.arange(-2.0 * r_disc[1], 2.0 * r_disc[1] + 1, 1.0):
-                for g_c in np.arange(-2.0 * r_disc[2], 2.0 * r_disc[2] + 1, 1.0):
+        for g_a in np.arange(-2 * r_disc[0], 2 * r_disc[0] + 1, 1):
+            for g_b in np.arange(-2 * r_disc[1], 2 * r_disc[1] + 1, 1):
+                for g_c in np.arange(-2 * r_disc[2], 2 * r_disc[2] + 1, 1):
                     g = np.array([g_a / v_dim[0], g_b / v_dim[1], g_c / v_dim[2]]).T
                     gauss_dist[int(g_a + r_disc[0])][int(g_b + r_disc[1])][int(g_c + r_disc[2])] = (
                         la.norm(np.dot(self.__s.lattice.matrix, g)) / r
@@ -426,7 +420,7 @@ class ChgcarPotential(StaticPotential):
         v = v / (v.shape[0] * v.shape[1] * v.shape[2])
         StaticPotential.__init__(self, chgcar.structure, v)
         if smear:
-            self.gaussian_smear(2.0)
+            self.gaussian_smear(2)
         if normalize:
             self.normalize()
 
@@ -451,16 +445,16 @@ class FreeVolumePotential(StaticPotential):
         v = FreeVolumePotential.__add_gaussians(struct, dim)
         StaticPotential.__init__(self, struct, v)
         if smear:
-            self.gaussian_smear(2.0)
+            self.gaussian_smear(2)
         if normalize:
             self.normalize()
 
     @staticmethod
     def __add_gaussians(s, dim, r=1.5):
         gauss_dist = np.zeros(dim)
-        for a_d in np.arange(0.0, dim[0], 1.0):
-            for b_d in np.arange(0.0, dim[1], 1.0):
-                for c_d in np.arange(0.0, dim[2], 1.0):
+        for a_d in np.arange(0, dim[0], 1):
+            for b_d in np.arange(0, dim[1], 1):
+                for c_d in np.arange(0, dim[2], 1):
                     coords_f = np.array([a_d / dim[0], b_d / dim[1], c_d / dim[2]])
                     d_f = sorted(s.get_sites_in_sphere(coords_f, s.lattice.a), key=lambda x: x[1])[0][1]
                     # logger.debug(d_f)
@@ -489,6 +483,6 @@ class MixedPotential(StaticPotential):
             v += potentials[i].get_v() * coefficients[i]
         StaticPotential.__init__(self, s, v)
         if smear:
-            self.gaussian_smear(2.0)
+            self.gaussian_smear(2)
         if normalize:
             self.normalize()

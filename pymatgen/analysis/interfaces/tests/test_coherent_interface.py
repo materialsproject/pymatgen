@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from pymatgen.analysis.interfaces.coherent_interfaces import (
     CoherentInterfaceBuilder,
     from_2d_to_3d,
@@ -21,9 +19,9 @@ class InterfaceBuilderTest(PymatgenTest):
         cls.sio2_conventional = SpacegroupAnalyzer(sio2_struct).get_conventional_standard_structure()
 
     def test_utils(self):
-        self.assertArrayAlmostEqual(from_2d_to_3d([[1, 2], [3, 4]]), [[1, 2, 0], [3, 4, 0], [0, 0, 1]])
-        self.assertArrayAlmostEqual(get_2d_transform([[1, 0], [0, 1]], [[1, 2], [3, 4]]), [[1, 2], [3, 4]])
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(from_2d_to_3d([[1, 2], [3, 4]]), [[1, 2, 0], [3, 4, 0], [0, 0, 1]])
+        self.assert_all_close(get_2d_transform([[1, 0], [0, 1]], [[1, 2], [3, 4]]), [[1, 2], [3, 4]])
+        self.assert_all_close(
             get_rot_3d_for_2d([[1, 0, 0], [0, 1, 0]], [[1, 1, 0], [0, 1, 1]]),
             [
                 [0.78867513, -0.21132487, 0.57735027],
@@ -41,10 +39,6 @@ class InterfaceBuilderTest(PymatgenTest):
         )
 
         assert len(builder.terminations) == 2
-        # SP: I am commenting out this test which is super fragile and the result fluctates between 6 and 30 for
+        # SP: I am commenting out this test which is super fragile and the result fluctuates between 6 and 30 for
         # no apparent reason. The author should fix this.
-        # self.assertEqual(len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))), 30)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        # assert len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))) == 30

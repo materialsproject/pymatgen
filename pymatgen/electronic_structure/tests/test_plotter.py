@@ -84,18 +84,17 @@ class DosPlotterTest(unittest.TestCase):
             param_dict = self.get_plot_attributes(plt)
             plt_invert = self.plotter.get_plot(invert_axes=True, xlim=item["DOS_limit"], ylim=item["energy_limit"])
             param_dict_invert = self.get_plot_attributes(plt_invert)
-            self.assertEqual(item["energy_result"], param_dict["xaxis_limits"])
-            self.assertEqual(item["energy_result"], param_dict_invert["yaxis_limits"])
-            self.assertEqual(item["DOS_result"], param_dict["yaxis_limits"])
-            self.assertEqual(item["DOS_result"], param_dict_invert["xaxis_limits"])
+            assert item["energy_result"] == param_dict["xaxis_limits"]
+            assert item["energy_result"] == param_dict_invert["yaxis_limits"]
+            assert item["DOS_result"] == param_dict["yaxis_limits"]
+            assert item["DOS_result"] == param_dict_invert["xaxis_limits"]
 
     @staticmethod
     def get_plot_attributes(plt):
         if plt.axes:
             ax = plt.gca()
             return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
-        else:
-            return None
+        return None
 
 
 class BSPlotterTest(unittest.TestCase):
@@ -468,10 +467,10 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
 class CohpPlotterTest(PymatgenTest):
     def setUp(self):
-        path = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "complete_cohp_lobster.json")
+        path = f"{PymatgenTest.TEST_FILES_DIR}/cohp/complete_cohp_lobster.json"
         with open(os.path.join(path)) as f:
             self.cohp = CompleteCohp.from_dict(json.load(f))
-        path = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "complete_coop_lobster.json")
+        path = f"{PymatgenTest.TEST_FILES_DIR}/cohp/complete_coop_lobster.json"
         with open(os.path.join(path)) as f:
             self.coop = CompleteCohp.from_dict(json.load(f))
         self.cohp_plot = CohpPlotter(zero_at_efermi=False)
@@ -535,8 +534,8 @@ class CohpPlotterTest(PymatgenTest):
         cohp_fe_fe = self.cohp.all_cohps["1"]
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            self.assertArrayAlmostEqual(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
-            self.assertArrayAlmostEqual(lines.get_ydata(), self.cohp.energies)
+            self.assert_all_close(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
+            self.assert_all_close(lines.get_ydata(), self.cohp.energies)
             assert lines.get_linestyle() == linestyles[spin]
         plt_cohp.close()
 
@@ -546,8 +545,8 @@ class CohpPlotterTest(PymatgenTest):
         assert ax_cohp.get_ylabel() == "COHP"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            self.assertArrayAlmostEqual(lines.get_xdata(), self.cohp.energies)
-            self.assertArrayAlmostEqual(lines.get_ydata(), cohp_fe_fe.cohp[spin])
+            self.assert_all_close(lines.get_xdata(), self.cohp.energies)
+            self.assert_all_close(lines.get_ydata(), cohp_fe_fe.cohp[spin])
         plt_cohp.close()
 
         plt_cohp = self.cohp_plot.get_plot(integrated=True)
@@ -555,7 +554,7 @@ class CohpPlotterTest(PymatgenTest):
         assert ax_cohp.get_xlabel() == "-ICOHP (eV)"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            self.assertArrayAlmostEqual(lines.get_xdata(), -cohp_fe_fe.icohp[spin])
+            self.assert_all_close(lines.get_xdata(), -cohp_fe_fe.icohp[spin])
 
         coop_dict = {"Bi5-Bi6": self.coop.all_cohps["10"]}
         self.coop_plot.add_cohp_dict(coop_dict)
@@ -564,9 +563,9 @@ class CohpPlotterTest(PymatgenTest):
         assert ax_coop.get_xlabel() == "COOP"
         assert ax_coop.get_ylabel() == "$E - E_f$ (eV)"
         lines_coop = ax_coop.get_lines()[0]
-        self.assertArrayAlmostEqual(lines_coop.get_ydata(), self.coop.energies - self.coop.efermi)
+        self.assert_all_close(lines_coop.get_ydata(), self.coop.energies - self.coop.efermi)
         coop_bi_bi = self.coop.all_cohps["10"].cohp[Spin.up]
-        self.assertArrayAlmostEqual(lines_coop.get_xdata(), coop_bi_bi)
+        self.assert_all_close(lines_coop.get_xdata(), coop_bi_bi)
 
         # Cleanup.
         plt_cohp.close()
@@ -579,7 +578,3 @@ class CohpPlotterTest(PymatgenTest):
         assert os.path.isfile("cohpplot.png")
         os.remove("cohpplot.png")
         plt_cohp.close("all")
-
-
-if __name__ == "__main__":
-    unittest.main()

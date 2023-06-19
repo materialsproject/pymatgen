@@ -5,10 +5,11 @@ import warnings
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
-from pymatgen.symmetry.groups import PointGroup, SpaceGroup, _get_symm_data
+from pymatgen.symmetry.groups import SYMM_DATA, PointGroup, SpaceGroup
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Virtual Lab"
@@ -80,7 +81,7 @@ class SpaceGroupTest(unittest.TestCase):
             sg = SpaceGroup.from_int_number(i)
             assert hasattr(sg, "point_group")
 
-        for symbol in _get_symm_data("space_group_encoding"):
+        for symbol in SYMM_DATA["space_group_encoding"]:
             sg = SpaceGroup(symbol)
             assert hasattr(sg, "point_group")
 
@@ -125,9 +126,9 @@ class SpaceGroupTest(unittest.TestCase):
         orbit, generators = sg.get_orbit_and_generators(p)
         assert len(orbit) <= sg.order
         pp = generators[0].operate(orbit[0])
-        assert p[0] == pytest.approx(pp[0])
-        assert p[1] == pytest.approx(pp[1])
-        assert p[2] == pytest.approx(pp[2])
+        assert p[0] == approx(pp[0])
+        assert p[1] == approx(pp[1])
+        assert p[2] == approx(pp[2])
 
     def test_is_compatible(self):
         cubic = Lattice.cubic(1)
@@ -208,7 +209,3 @@ class SpaceGroupTest(unittest.TestCase):
         assert sg.to_latex_string() == "P6/mmm"
         sg = SpaceGroup("P4_1")
         assert sg.to_unicode_string() == "P4₁"
-
-
-if __name__ == "__main__":
-    unittest.main()

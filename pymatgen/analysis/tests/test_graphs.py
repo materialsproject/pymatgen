@@ -12,12 +12,7 @@ import pytest
 from monty.serialization import loadfn
 from pytest import approx
 
-from pymatgen.analysis.graphs import (
-    MoleculeGraph,
-    MolGraphSplitError,
-    PeriodicSite,
-    StructureGraph,
-)
+from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError, PeriodicSite, StructureGraph
 from pymatgen.analysis.local_env import (
     CovalentBondNN,
     CutOffDictNN,
@@ -293,8 +288,8 @@ from    to  to_image      bond_length (A)
         # don't care about testing Py 2.7 unicode support,
         # change Å to A
         self.mos2_sg.graph.graph["edge_weight_units"] = "A"
-        self.assertStrContentEqual(str(self.square_sg), square_sg_str_ref)
-        self.assertStrContentEqual(str(self.mos2_sg), mos2_sg_str_ref)
+        self.assert_str_content_equal(str(self.square_sg), square_sg_str_ref)
+        self.assert_str_content_equal(str(self.mos2_sg), mos2_sg_str_ref)
 
     def test_mul(self):
         square_sg_mul = self.square_sg * (2, 1, 1)
@@ -328,7 +323,7 @@ from    to  to_image
         square_sg_mul_ref_str = "\n".join(square_sg_mul_ref_str.splitlines()[11:])
         square_sg_mul_actual_str = "\n".join(square_sg_mul_actual_str.splitlines()[11:])
 
-        self.assertStrContentEqual(square_sg_mul_actual_str, square_sg_mul_ref_str)
+        self.assert_str_content_equal(square_sg_mul_actual_str, square_sg_mul_ref_str)
 
         # test sequential multiplication
         sq_sg_1 = self.square_sg * (2, 2, 1)
@@ -336,7 +331,7 @@ from    to  to_image
         sq_sg_2 = self.square_sg * (4, 4, 1)
         assert sq_sg_1.graph.number_of_edges() == sq_sg_2.graph.number_of_edges()
         # TODO: the below test still gives 8 != 4
-        # self.assertEqual(self.square_sg.get_coordination_of_site(0), 4)
+        # assert self.square_sg.get_coordination_of_site(0) == 4
 
         mos2_sg_mul = self.mos2_sg * (3, 3, 1)
         for idx in mos2_sg_mul.structure.indices_from_symbol("Mo"):
@@ -502,12 +497,8 @@ from    to  to_image
 
 class MoleculeGraphTest(unittest.TestCase):
     def setUp(self):
-        cyclohexene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/cyclohexene.xyz",
-            )
-        )
+        cyclohexene_xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/cyclohexene.xyz")
+        cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.with_empty_graph(
             cyclohexene, edge_weight_name="strength", edge_weight_units=""
         )
@@ -592,8 +583,8 @@ class MoleculeGraphTest(unittest.TestCase):
         del self.butadiene
         del self.cyclohexene
 
-    @unittest.skipIf(not openbabel, "OpenBabel not present. Skipping...")
     def test_construction(self):
+        pytest.importorskip("openbabel")
         edges_frag = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_frag1_edges}
         mol_graph = MoleculeGraph.with_edges(self.pc_frag1, edges_frag)
         # dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_frag1_mg.json"))
@@ -845,12 +836,8 @@ class MoleculeGraphTest(unittest.TestCase):
         assert no_rings == []
 
     def test_isomorphic(self):
-        ethylene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/ethylene.xyz",
-            )
-        )
+        ethyl_xyz_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/ethylene.xyz")
+        ethylene = Molecule.from_file(ethyl_xyz_path)
         # switch carbons
         ethylene[0], ethylene[1] = ethylene[1], ethylene[0]
 
@@ -929,7 +916,3 @@ class MoleculeGraphTest(unittest.TestCase):
         assert list(sg.graph.edges) == [(0, 1, 0), (0, 2, 0), (0, 3, 0), (1, 4, 0), (1, 5, 0)]
         sg.sort()
         assert list(sg.graph.edges) == [(4, 5, 0), (0, 4, 0), (1, 4, 0), (2, 5, 0), (3, 5, 0)]
-
-
-if __name__ == "__main__":
-    unittest.main()

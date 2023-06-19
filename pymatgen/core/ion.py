@@ -22,7 +22,7 @@ class Ion(Composition, MSONable, Stringify):
     Mn[+2]. Note the order of the sign and magnitude in each representation.
     """
 
-    def __init__(self, composition, charge=0.0, properties=None):
+    def __init__(self, composition, charge=0.0, _properties=None):
         """
         Flexible Ion construction, similar to Composition.
         For more information, please see pymatgen.core.Composition
@@ -327,8 +327,6 @@ class Ion(Composition, MSONable, Stringify):
         :return: Pretty string with proper superscripts.
         """
         str_ = super().reduced_formula
-        if self.charge > 0:
-            str_ += "^+" + formula_double_format(self.charge, False)
-        elif self._charge < 0:
-            str_ += "^" + formula_double_format(self.charge, False)
+        if val := formula_double_format(self.charge, False):
+            str_ += f"^{val:+}"
         return str_

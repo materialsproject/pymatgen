@@ -257,7 +257,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         ob_conv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
         inchi_text = ob_conv.WriteString(mol)
         match = re.search(
-            r"InChI=(?P<inchi>.+)\nAuxInfo=.+" r"/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9," r";\(\)]*)/)?",
+            r"InChI=(?P<inchi>.+)\nAuxInfo=.+/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9,;\(\)]*)/)?",
             inchi_text,
         )
         inchi = match.group("inchi")
@@ -887,7 +887,7 @@ class BruteForceOrderMatcher(KabschMatcher):
 
         if not ignore_warning and total_permutations > 1_000_000:
             raise ValueError(
-                "The number of all possible permutations " f"({total_permutations}) is not feasible to run this method!"
+                f"The number of all possible permutations ({total_permutations}) is not feasible to run this method!"
             )
 
         p_coord, q_coord = p.cart_coords, q.cart_coords
