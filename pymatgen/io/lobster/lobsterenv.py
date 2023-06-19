@@ -1363,8 +1363,8 @@ class ICOHPNeighborsInfo(NamedTuple):
         list_icohps (list): list of summed icohp values for all identified interactions with neighbors
         n_bonds (int): number of identified bonds to the selected sites
         labels (list(str)): labels (from ICOHPLIST) for all identified bonds
-        atoms (list(list(str)): list of list describing the species present in the identified interactions (names from ICOHPLIST), e.g.,
-            ['Ag3', 'O5']
+        atoms (list(list(str)): list of list describing the species present in the identified interactions
+            (names from ICOHPLIST), e.g., ['Ag3', 'O5']
         central_isites (list(int)): list of the central isite for each identified interaction.
 
 
