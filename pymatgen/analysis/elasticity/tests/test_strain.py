@@ -98,7 +98,10 @@ class StrainTest(PymatgenTest):
     def test_new(self):
         test_strain = Strain([[0, 0.01, 0], [0.01, 0.0002, 0], [0, 0, 0]])
         self.assert_all_close(test_strain, test_strain.get_deformation_matrix().green_lagrange_strain)
-        with pytest.raises(ValueError, match="Strain tensor must be symmetric."):
+        with pytest.raises(
+            ValueError,
+            match="Strain must be initialized with a symmetric array or a Voigt-notation vector",
+        ):
             Strain([[0.1, 0.1, 0], [0, 0, 0], [0, 0, 0]])
 
     def test_from_deformation(self):
