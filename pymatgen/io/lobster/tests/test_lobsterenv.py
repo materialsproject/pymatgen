@@ -238,7 +238,7 @@ class TestLobsterNeighbors(unittest.TestCase):
                 valences_from_charges=False,
                 additional_condition=1,
             )
-        assert str(exc.value) == "Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work"
+        assert str(exc.value) == "Valences cannot be assigned, additional_conditions 1, 3, 5 and 6 will not work"
         with pytest.raises(ValueError) as exc:
             _ = LobsterNeighbors(
                 are_coops=False,
@@ -248,7 +248,7 @@ class TestLobsterNeighbors(unittest.TestCase):
                 additional_condition=1,
                 valences=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             )
-        assert str(exc.value) == "All valences are equal to 0, additional_conditions 1 and 3 and 5 and 6 will not work"
+        assert str(exc.value) == "All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work"
 
     def test_wrong_additional_correction(self):
         with pytest.raises(ValueError):
