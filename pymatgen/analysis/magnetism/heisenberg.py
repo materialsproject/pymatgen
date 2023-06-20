@@ -34,7 +34,7 @@ class HeisenbergMapper:
     Class to compute exchange parameters from low energy magnetic orderings.
     """
 
-    def __init__(self, ordered_structures, energies, cutoff=0.0, tol: float = 0.02):
+    def __init__(self, ordered_structures, energies, cutoff=0, tol: float = 0.02):
         """
         Exchange parameters are computed by mapping to a classical Heisenberg
         model. Strategy is the scheme for generating neighbors. Currently only
@@ -197,7 +197,7 @@ class HeisenbergMapper:
         all_dists = [d for idx, d in enumerate(all_dists) if idx not in rm_list]
 
         if len(all_dists) < 3:  # pad with zeros
-            all_dists += [0.0] * (3 - len(all_dists))
+            all_dists += [0] * (3 - len(all_dists))
 
         all_dists = all_dists[:3]
         labels = ["nn", "nnn", "nnnn"]
@@ -336,7 +336,7 @@ class HeisenbergMapper:
                     #     if True in zeros:
                     #         sgraph_index -= 1  # keep looking
 
-            ex_mat[j_columns] = ex_mat[j_columns].div(2.0)  # 1/2 factor in Heisenberg Hamiltonian
+            ex_mat[j_columns] = ex_mat[j_columns].div(2)  # 1/2 factor in Heisenberg Hamiltonian
             ex_mat[["E0"]] = 1  # Nonmagnetic contribution
 
             # Check for singularities and delete columns with all zeros
@@ -406,7 +406,7 @@ class HeisenbergMapper:
         # epas = [e / len(s) for (e, s) in zip(self.energies, self.ordered_structures)]
 
         for s, e in zip(self.ordered_structures, self.energies):
-            ordering = CollinearMagneticStructureAnalyzer(s, threshold=0.0, make_primitive=False).ordering
+            ordering = CollinearMagneticStructureAnalyzer(s, threshold=0, make_primitive=False).ordering
             magmoms = s.site_properties["magmom"]
 
             # Try to find matching orderings first

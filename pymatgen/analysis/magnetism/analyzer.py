@@ -145,7 +145,9 @@ class CollinearMagneticStructureAnalyzer:
 
         # check for disorder
         if not structure.is_ordered:
-            raise NotImplementedError("Not implemented for disordered structures, make ordered approximation first.")
+            raise NotImplementedError(
+                f"{type(self).__name__} not implemented for disordered structures, make ordered approximation first."
+            )
 
         if detect_valences:
             trans = AutoOxiStateDecorationTransformation()
@@ -517,7 +519,7 @@ class CollinearMagneticStructureAnalyzer:
             return Ordering.AFM
         return Ordering.NM
 
-    def get_exchange_group_info(self, symprec: float = 1e-2, angle_tolerance: float = 5.0) -> tuple[str, int]:
+    def get_exchange_group_info(self, symprec: float = 1e-2, angle_tolerance: float = 5) -> tuple[str, int]:
         """Returns the information on the symmetry of the Hamiltonian
         describing the exchange energy of the system, taking into
         account relative direction of magnetic moments but not their
@@ -530,7 +532,7 @@ class CollinearMagneticStructureAnalyzer:
 
         Args:
           symprec: same as SpacegroupAnalyzer (Default value = 1e-2)
-          angle_tolerance: same as SpacegroupAnalyzer (Default value = 5.0)
+          angle_tolerance: same as SpacegroupAnalyzer (Default value = 5)
 
         Returns:
           spacegroup_symbol, international_number
@@ -879,7 +881,7 @@ class MagneticStructureEnumerator:
                 constraints = [
                     MagOrderParameterConstraint(0.5, site_constraint_name="wyckoff", site_constraints=symbol),
                     MagOrderParameterConstraint(
-                        1.0,
+                        1,
                         site_constraint_name="wyckoff",
                         site_constraints=list(wyckoff_symbols - {symbol}),
                     ),
@@ -902,7 +904,7 @@ class MagneticStructureEnumerator:
                 constraints = [
                     MagOrderParameterConstraint(0.5, species_constraints=str(sp)),
                     MagOrderParameterConstraint(
-                        1.0,
+                        1,
                         species_constraints=list(map(str, set(types_mag_species) - {sp})),
                     ),
                 ]

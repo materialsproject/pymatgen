@@ -145,10 +145,9 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("Algorithm only works correctly for ICOHPLIST.lobster")
 
         # will check if the additional condition is correctly delivered
-        if additional_condition in range(7):
-            self.additional_condition = additional_condition
-        else:
+        if additional_condition not in range(7):
             raise ValueError(f"Unexpected {additional_condition=}, must be one of {list(range(7))}")
+        self.additional_condition = additional_condition
 
         # will read in valences, will prefer manual setting of valences
         self.valences: list[float] | None
@@ -167,16 +166,15 @@ class LobsterNeighbors(NearNeighbors):
                     self.valences = None
                     if additional_condition in [1, 3, 5, 6]:
                         raise ValueError(
-                            "Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work"
+                            "Valences cannot be assigned, additional_conditions 1, 3, 5 and 6 will not work"
                         )
         else:
             self.valences = valences
         if np.allclose(np.array(self.valences), np.zeros_like(self.valences)) and additional_condition in [1, 3, 5, 6]:
-            raise ValueError("All valences are equal to 0, additional_conditions 1 and 3 and 5 and 6 will not work")
+            raise ValueError("All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work")
 
         if limits is None:
             self.lowerlimit = self.upperlimit = None
-
         else:
             self.lowerlimit, self.upperlimit = limits
 

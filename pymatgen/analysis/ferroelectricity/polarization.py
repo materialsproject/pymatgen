@@ -217,7 +217,7 @@ class Polarization:
             volumes = [s.lattice.volume for s in self.structures]
             e_to_muC = -1.6021766e-13
             cm2_to_A2 = 1e16
-            units = 1.0 / np.array(volumes)
+            units = 1 / np.array(volumes)
             units *= e_to_muC * cm2_to_A2
 
             p_elecs = np.matmul(units, p_elecs)
@@ -278,7 +278,7 @@ class Polarization:
 
         e_to_muC = -1.6021766e-13
         cm2_to_A2 = 1e16
-        units = 1.0 / np.array(volumes)
+        units = 1 / np.array(volumes)
         units *= e_to_muC * cm2_to_A2
 
         # convert polarizations and lattice lengths prior to adjustment
@@ -334,7 +334,7 @@ class Polarization:
 
         e_to_muC = -1.6021766e-13
         cm2_to_A2 = 1e16
-        units = 1.0 / np.array(volumes)
+        units = 1 / np.array(volumes)
         units *= e_to_muC * cm2_to_A2
 
         # convert polarizations and lattice lengths prior to adjustment

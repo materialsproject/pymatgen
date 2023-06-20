@@ -95,8 +95,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         nb_set_surface_points = [
             [1.0017922780870239, 0.99301365328679292],
-            [1.0017922780870239, 0.0],
-            [2.2237615554448569, 0.0],
+            [1.0017922780870239, 0],
+            [2.2237615554448569, 0],
             [2.2237615554448569, 0.0060837],
             [2.25, 0.0060837],
             [2.25, 0.99301365328679292],
@@ -120,7 +120,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
 
         norm_dist = nb_set.normalized_distances
-        assert sorted(norm_dist) == approx(sorted([1.001792, 1.001792, 1, 1.0]))
+        assert sorted(norm_dist) == approx(sorted([1.001792, 1.001792, 1, 1]))
         norm_ang = nb_set.normalized_angles
         assert sorted(norm_ang) == approx(sorted([0.999999, 1, 0.993013, 0.993013]))
         dist = nb_set.distances
@@ -153,7 +153,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         effective_csm_estimator = {
             "function": "power2_inverse_decreasing",
-            "options": {"max_csm": 8.0},
+            "options": {"max_csm": 8},
         }
         self_csm_weight = SelfCSMNbSetWeight()
         surface_definition = {
@@ -182,7 +182,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         )
         weight_estimator = {
             "function": "smootherstep",
-            "options": {"delta_csm_min": 0.5, "delta_csm_max": 3.0},
+            "options": {"delta_csm_min": 0.5, "delta_csm_max": 3},
         }
         symmetry_measure_type = "csm_wcs_ctwcc"
         delta_weight = DeltaCSMNbSetWeight(
@@ -190,8 +190,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
             weight_estimator=weight_estimator,
             symmetry_measure_type=symmetry_measure_type,
         )
-        bias_weight = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1.0, weight_cn13=4.0)
-        bias_weight_2 = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1.0, weight_cn13=5.0)
+        bias_weight = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1, weight_cn13=4)
+        bias_weight_2 = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1, weight_cn13=5)
         angle_weight = AngleNbSetWeight()
         nad_weight = NormalizedAngleDistanceNbSetWeight(average_type="geometric", aa=1, bb=1)
         multi_weights_strategy_1 = MultiWeightsChemenvStrategy(

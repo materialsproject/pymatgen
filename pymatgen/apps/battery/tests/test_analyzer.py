@@ -85,10 +85,10 @@ class BatteryAnalyzerTest(PymatgenTest):
         assert self.fepo4.get_max_capvol(volume=self.lifepo4.struc_oxid.volume) == approx(lifepo4_cap, abs=1e-3)
 
     def test_ion_removal(self):
-        assert self.lifemnpo4.get_removals_int_oxid() == {1.0, 2.0, 3.0, 4.0}
+        assert self.lifemnpo4.get_removals_int_oxid() == {1, 2, 3, 4}
 
-        assert self.li8nicofe208.get_removals_int_oxid() == {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}
+        assert self.li8nicofe208.get_removals_int_oxid() == {1, 2, 3, 4, 5, 6, 7, 8}
 
-        assert self.li3v2p3o12.get_removals_int_oxid() == {4.0, 6.0}
+        assert self.li3v2p3o12.get_removals_int_oxid() == {4, 6}
 
-        assert self.mgnif6.get_removals_int_oxid() == {1.0, 2.0}
+        assert self.mgnif6.get_removals_int_oxid() == {1, 2}

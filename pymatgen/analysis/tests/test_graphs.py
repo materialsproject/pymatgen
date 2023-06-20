@@ -94,10 +94,10 @@ class StructureGraphTest(PymatgenTest):
         c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(include_critical_points=False)
 
-        latt = Lattice.cubic(4.17)
+        lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        self.NiO = Structure.from_spacegroup(225, latt, species, coords).get_primitive_structure()
+        self.NiO = Structure.from_spacegroup(225, lattice, species, coords).get_primitive_structure()
 
         # BCC example.
         self.bcc = Structure(Lattice.cubic(5.0), ["He", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
@@ -285,7 +285,6 @@ from    to  to_image      bond_length (A)
    0     2  (0, 0, 0)     2.417e+00
 """
 
-        # don't care about testing Py 2.7 unicode support,
         # change Å to A
         self.mos2_sg.graph.graph["edge_weight_units"] = "A"
         self.assert_str_content_equal(str(self.square_sg), square_sg_str_ref)

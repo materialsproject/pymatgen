@@ -42,7 +42,7 @@ ions = np.array(
 class UtilsTest(PymatgenTest):
     def setUp(self):
         self.potcar = Potcar.from_file(test_dir + "/POTCAR")
-        self.zval_dict = {"Ba": 10.0, "Ti": 10.0, "O": 6.0}
+        self.zval_dict = {"Ba": 10, "Ti": 10, "O": 6}
         self.ions = ions
         self.structures = structures
 
@@ -60,16 +60,16 @@ class PolarizationTest(PymatgenTest):
         self.p_ions = ions
         self.p_ions_outcar = np.array(
             [
-                [0.0, 0.0, 43.93437],
-                [0.0, 0.0, 19.81697],
-                [0.0, 0.0, 19.76076],
-                [0.0, 0.0, 19.70306],
-                [0.0, 0.0, 19.64372],
-                [0.0, 0.0, -5.06619],
-                [0.0, 0.0, -5.18997],
-                [0.0, 0.0, -5.31457],
-                [0.0, 0.0, -5.44026],
-                [0.0, 0.0, -5.56684],
+                [0, 0, 43.93437],
+                [0, 0, 19.81697],
+                [0, 0, 19.76076],
+                [0, 0, 19.70306],
+                [0, 0, 19.64372],
+                [0, 0, -5.06619],
+                [0, 0, -5.18997],
+                [0, 0, -5.31457],
+                [0, 0, -5.44026],
+                [0, 0, -5.56684],
             ]
         )
         self.p_elecs = np.array(

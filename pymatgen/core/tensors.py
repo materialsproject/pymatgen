@@ -69,13 +69,11 @@ class Tensor(np.ndarray, MSONable):
         if vscale is not None:
             obj._vscale = vscale
         if obj._vscale.shape != vshape:
-            raise ValueError("Voigt scaling matrix must be the shape of the voigt notation matrix or vector.")
+            raise ValueError("Voigt scaling matrix must be the shape of the Voigt notation matrix or vector.")
         if not all(i == 3 for i in obj.shape):
             raise ValueError(
-                "Pymatgen only supports 3-dimensional tensors, "
-                "and default tensor constructor uses standard "
-                "notation. To construct from voigt notation, use"
-                f" {type(obj).__name__}.from_voigt"
+                "Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard "
+                f"notation. To construct from Voigt notation, use {type(obj).__name__}.from_voigt"
             )
         return obj
 

@@ -588,7 +588,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                     "cmax": 1,
                     "cmin": 0,
                     "color": intensities,
-                    "colorscale": [[0, "black"], [1.0, "white"]],
+                    "colorscale": [[0, "black"], [1, "white"]],
                 },
                 showlegend=False,
             ),
@@ -668,7 +668,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                     "cmax": 1,
                     "cmin": 0,
                     "color": intensities,
-                    "colorscale": [[0, "black"], [1.0, "white"]],
+                    "colorscale": [[0, "black"], [1, "white"]],
                 },
                 showlegend=False,
             )

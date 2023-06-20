@@ -179,7 +179,7 @@ class ElasticTensor(NthOrderElasticTensor):
         Returns the G_v shear modulus
         """
         return (
-            2.0 * self.voigt[:3, :3].trace() - np.triu(self.voigt[:3, :3]).sum() + 3 * self.voigt[3:, 3:].trace()
+            2 * self.voigt[:3, :3].trace() - np.triu(self.voigt[:3, :3]).sum() + 3 * self.voigt[3:, 3:].trace()
         ) / 15.0
 
     @property
@@ -187,17 +187,17 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         Returns the K_r bulk modulus
         """
-        return 1.0 / self.compliance_tensor.voigt[:3, :3].sum()
+        return 1 / self.compliance_tensor.voigt[:3, :3].sum()
 
     @property
     def g_reuss(self):
         """
         Returns the G_r shear modulus
         """
-        return 15.0 / (
-            8.0 * self.compliance_tensor.voigt[:3, :3].trace()
-            - 4.0 * np.triu(self.compliance_tensor.voigt[:3, :3]).sum()
-            + 3.0 * self.compliance_tensor.voigt[3:, 3:].trace()
+        return 15 / (
+            8 * self.compliance_tensor.voigt[:3, :3].trace()
+            - 4 * np.triu(self.compliance_tensor.voigt[:3, :3]).sum()
+            + 3 * self.compliance_tensor.voigt[3:, 3:].trace()
         )
 
     @property
@@ -220,7 +220,7 @@ class ElasticTensor(NthOrderElasticTensor):
         Calculates Young's modulus (in SI units) using the
         Voigt-Reuss-Hill averages of bulk and shear moduli
         """
-        return 9.0e9 * self.k_vrh * self.g_vrh / (3.0 * self.k_vrh + self.g_vrh)
+        return 9.0e9 * self.k_vrh * self.g_vrh / (3 * self.k_vrh + self.g_vrh)
 
     def directional_poisson_ratio(self, n, m, tol: float = 1e-8):
         """
@@ -284,7 +284,7 @@ class ElasticTensor(NthOrderElasticTensor):
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         if self.g_vrh < 0:
             raise ValueError("k_vrh or g_vrh is negative, sound velocity is undefined")
-        return (1e9 * (self.k_vrh + 4.0 / 3.0 * self.g_vrh) / mass_density) ** 0.5
+        return (1e9 * (self.k_vrh + 4 / 3 * self.g_vrh) / mass_density) ** 0.5
 
     @raise_error_if_unphysical
     def snyder_ac(self, structure: Structure):
@@ -305,8 +305,8 @@ class ElasticTensor(NthOrderElasticTensor):
         return (
             0.38483
             * avg_mass
-            * ((self.long_v(structure) + 2.0 * self.trans_v(structure)) / 3.0) ** 3.0
-            / (300.0 * num_density ** (-2.0 / 3.0) * nsites ** (1 / 3))
+            * ((self.long_v(structure) + 2 * self.trans_v(structure)) / 3) ** 3.0
+            / (300 * num_density ** (-2 / 3) * nsites ** (1 / 3))
         )
 
     @raise_error_if_unphysical
@@ -324,9 +324,9 @@ class ElasticTensor(NthOrderElasticTensor):
         num_density = 1e30 * nsites / volume
         return (
             1.66914e-23
-            * (self.long_v(structure) + 2.0 * self.trans_v(structure))
+            * (self.long_v(structure) + 2 * self.trans_v(structure))
             / 3.0
-            / num_density ** (-2.0 / 3.0)
+            / num_density ** (-2 / 3)
             * (1 - nsites ** (-1 / 3))
         )
 
@@ -359,7 +359,7 @@ class ElasticTensor(NthOrderElasticTensor):
         weight = float(structure.composition.weight)
         avg_mass = 1.6605e-27 * tot_mass / natoms
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
-        return 0.87 * 1.3806e-23 * avg_mass ** (-2.0 / 3.0) * mass_density ** (1.0 / 6.0) * self.y_mod**0.5
+        return 0.87 * 1.3806e-23 * avg_mass ** (-2 / 3) * mass_density ** (1 / 6) * self.y_mod**0.5
 
     @raise_error_if_unphysical
     def cahill_thermalcond(self, structure: Structure):
@@ -374,7 +374,7 @@ class ElasticTensor(NthOrderElasticTensor):
         nsites = structure.num_sites
         volume = structure.volume
         num_density = 1e30 * nsites / volume
-        return 1.3806e-23 / 2.48 * num_density ** (2.0 / 3.0) * (self.long_v(structure) + 2 * self.trans_v(structure))
+        return 1.3806e-23 / 2.48 * num_density ** (2 / 3) * (self.long_v(structure) + 2 * self.trans_v(structure))
 
     @raise_error_if_unphysical
     def debye_temperature(self, structure: Structure):
@@ -398,14 +398,14 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         Returns the universal anisotropy value
         """
-        return 5.0 * self.g_voigt / self.g_reuss + self.k_voigt / self.k_reuss - 6.0
+        return 5 * self.g_voigt / self.g_reuss + self.k_voigt / self.k_reuss - 6.0
 
     @property
     def homogeneous_poisson(self):
         """
         Returns the homogeneous poisson ratio
         """
-        return (1.0 - 2.0 / 3.0 * self.g_vrh / self.k_vrh) / (2.0 + 2.0 / 3.0 * self.g_vrh / self.k_vrh)
+        return (1 - 2 / 3 * self.g_vrh / self.k_vrh) / (2 + 2 / 3 * self.g_vrh / self.k_vrh)
 
     def green_kristoffel(self, u):
         """

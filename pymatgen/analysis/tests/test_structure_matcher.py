@@ -747,7 +747,7 @@ class StructureMatcherTest(PymatgenTest):
             comparator=OrderDisorderElementComparator(),
         )
         lp = Lattice.orthorhombic(10, 20, 30)
-        coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         s1 = Structure(lp, [{"Na": 0.5, "Cl": 0.5}, {"Na": 0.5, "Cl": 0.5}], coords)
         s2 = Structure(lp, [{"Na": 0.5, "Cl": 0.5}, {"Na": 0.5, "Br": 0.5}], coords)
 

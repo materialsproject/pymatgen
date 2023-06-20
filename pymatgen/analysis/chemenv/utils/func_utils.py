@@ -37,7 +37,7 @@ class AbstractRatioFunction:
         :param options_dict: Dictionary containing the parameters for the ratio function.
         """
         if function not in self.ALLOWED_FUNCTIONS:
-            raise ValueError(f'Function {function!r} is not allowed in RatioFunction of type "{type(self).__name__}"')
+            raise ValueError(f'{function=!r} is not allowed in RatioFunction of type "{type(self).__name__}"')
         self.eval = object.__getattribute__(self, function)
         self.function = function
         self.setup_parameters(options_dict=options_dict)
@@ -323,12 +323,12 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
         if len(data) == 0:
             return None
         close_to_zero = np.isclose(data, 0.0, atol=1e-10).tolist()
-        nzeros = close_to_zero.count(True)
-        if nzeros == 1:
+        n_zeros = close_to_zero.count(True)
+        if n_zeros == 1:
             fractions = [0.0] * len(data)
             fractions[close_to_zero.index(True)] = 1.0
             return fractions
-        if nzeros > 1:
+        if n_zeros > 1:
             raise RuntimeError("Should not have more than one continuous symmetry measure with value equal to 0.0")
         fractions = self.eval(np.array(data))
         total = np.sum(fractions)

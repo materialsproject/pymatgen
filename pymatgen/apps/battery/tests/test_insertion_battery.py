@@ -102,9 +102,9 @@ class InsertionElectrodeTest(unittest.TestCase):
         assert vpair.mass_discharge == approx(83.3363)
         assert vpair.vol_charge == approx(37.553684467)
         assert vpair.vol_discharge == approx(37.917719932)
-        assert vpair.frac_charge == approx(0.0)
+        assert vpair.frac_charge == approx(0)
         assert vpair.frac_discharge == approx(0.14285714285714285)
-        assert vpair.x_charge == approx(0.0)
+        assert vpair.x_charge == approx(0)
         assert vpair.x_discharge == approx(0.5)
         # reconstruct the voltage pair
         dct = vpair.as_dict()
@@ -125,18 +125,18 @@ class InsertionElectrodeTest(unittest.TestCase):
     def test_init_no_structure(self):
         def remove_structure(entries):
             ents = []
-            for ient in entries:
-                dd = ient.as_dict()
+            for entry in entries:
+                dd = entry.as_dict()
                 ent = ComputedEntry.from_dict(dd)
-                ent.data["volume"] = ient.structure.volume
+                ent.data["volume"] = entry.structure.volume
                 ents.append(ent)
             return ents
 
         ie_CMO_no_struct = InsertionElectrode.from_entries(remove_structure(self.entries_CMO), self.entry_Ca)
-        d = ie_CMO_no_struct.get_summary_dict()
-        assert d["stability_charge"] == approx(0.2346574583333325)
-        assert d["stability_discharge"] == approx(0.33379544031249786)
-        assert d["muO2_data"]["mp-714969"][0]["chempot"] == approx(-4.93552791875)
+        dct = ie_CMO_no_struct.get_summary_dict()
+        assert dct["stability_charge"] == approx(0.2346574583333325)
+        assert dct["stability_discharge"] == approx(0.33379544031249786)
+        assert dct["muO2_data"]["mp-714969"][0]["chempot"] == approx(-4.93552791875)
 
         ie_LTO_no_struct = InsertionElectrode.from_entries(self.entries_LTO, self.entry_Li, strip_structures=True)
         vols_no_struct = [ient.data["volume"] for ient in ie_LTO_no_struct.get_all_entries()]
