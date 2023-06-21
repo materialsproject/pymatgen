@@ -1,13 +1,11 @@
 """
-This module implements representations of slabs and surfaces, as well as
-algorithms for generating them. If you use this module, please consider
-citing the following work::
+This module implements representations of slabs and surfaces + algorithms for generating them.
+
+If you use this module, please consider citing the following work:
 
     R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
     S. P. Ong, "Surface Energies of Elemental Crystals", Scientific Data,
     2016, 3:160080, doi: 10.1038/sdata.2016.80.
-
-as well as::
 
     Sun, W.; Ceder, G. Efficient creation and convergence of surface slabs,
     Surface Science, 2013, 617, 53-59, doi:10.1016/j.susc.2013.05.016.

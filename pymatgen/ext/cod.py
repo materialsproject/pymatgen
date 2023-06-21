@@ -1,7 +1,7 @@
 """
 This module provides classes to interface with the Crystallography Open
 Database. If you use data from the COD, please cite the following works (as
-stipulated by the COD developers)::
+stipulated by the COD developers).
 
     Merkys, A., Vaitkus, A., Butkus, J., Okulič-Kazarinas, M., Kairys, V. &
     Gražulis, S. (2016) "COD::CIF::Parser: an error-correcting CIF parser for

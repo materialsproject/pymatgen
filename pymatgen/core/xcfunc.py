@@ -24,6 +24,7 @@ __date__ = "May 16, 2016"
 class XcFunc(MSONable):
     """
     This object stores information about the XC correlation functional.
+
     Client code usually creates the object by calling the class methods:
 
         - from_name

@@ -385,10 +385,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @property
     def ratio_prolate(self):
-        """
-        This will compute ratio between largest eigenvalue of Ucart and smallest one
-        Returns:
-        """
+        """This will compute ratio between largest and smallest eigenvalue of Ucart."""
         ratios = []
         for us in self.U1U2U3:
             ratios.append(np.max(us) / np.min(us))

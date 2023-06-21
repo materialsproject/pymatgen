@@ -57,20 +57,17 @@ def freq_units(units):
 
 class PhononDosPlotter:
     """
-    Class for plotting phonon DOSs. Note that the interface is extremely flexible
-    given that there are many different ways in which people want to view
-    DOS. The typical usage is::
+    Class for plotting phonon DOSs. The interface is extremely flexible given there are many
+    different ways in which people want to view DOS.
+    Typical usage is:
+        # Initializes plotter with some optional args. Defaults are usually fine
+        plotter = PhononDosPlotter().
 
-        # Initializes plotter with some optional args. Defaults are usually
-        # fine,
-        plotter = PhononDosPlotter()
-
-        # Adds a DOS with a label.
+        # Add DOS with a label
         plotter.add_dos("Total DOS", dos)
 
-        # Alternatively, you can add a dict of DOSs. This is the typical
-        # form returned by CompletePhononDos.get_element_dos().
-
+        # Alternatively, you can add a dict of DOSes. This is the typical form
+        # returned by CompletePhononDos.get_element_dos().
     """
 
     def __init__(self, stack=False, sigma=None):
@@ -78,8 +75,7 @@ class PhononDosPlotter:
         Args:
             stack: Whether to plot the DOS as a stacked area graph
             sigma: A float specifying a standard deviation for Gaussian smearing
-            the DOS for nicer looking plots. Defaults to None for no
-            smearing.
+                the DOS for nicer looking plots. Defaults to None for no smearing.
         """
         self.stack = stack
         self.sigma = sigma

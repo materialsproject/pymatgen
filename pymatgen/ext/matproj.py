@@ -83,12 +83,12 @@ class TaskType(Enum):
 
 class _MPResterLegacy:
     """
-    A class to conveniently interface with the Materials Project REST
-    interface. The recommended way to use MPRester is with the "with" context
-    manager to ensure that sessions are properly closed after usage::
+    A class to conveniently interface with the Materials Project REST interface.
+    The recommended way to use MPRester is with the "with" context manager to ensure
+    sessions are properly closed after usage.
 
-        with MPRester("API_KEY") as m:
-            do_something
+        with MPRester("API_KEY") as mpr:
+            mpr.some_method()
 
     MPRester uses the "requests" package, which provides for HTTP connection
     pooling. All connections are made via https for security.
@@ -1740,8 +1740,9 @@ class _MPResterLegacy:
 
 class MPRester:
     """
-    A class to conveniently interface with the new and legacy Materials Project REST
-    interface. The recommended way to use MPRester is as a context manager to ensure
+    A class to conveniently interface with the new and legacy Materials Project REST interface.
+
+    The recommended way to use MPRester is as a context manager to ensure
     that sessions are properly closed after usage:
 
         with MPRester("API_KEY") as mpr:

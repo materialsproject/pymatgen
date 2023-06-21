@@ -61,21 +61,26 @@ class JonesFaithfulTransformation:
 
     @classmethod
     def from_transformation_string(cls, transformation_string="a,b,c;0,0,0"):
-        """
-        Construct SpaceGroupTransformation from its transformation string.
-        :param P: matrix
-        :param p: origin shift vector
-        :return:
+        """Construct SpaceGroupTransformation from its transformation string.
+
+        Args:
+            transformation_string (str, optional): Defaults to "a,b,c;0,0,0".
+
+        Returns:
+            JonesFaithfulTransformation
         """
         P, p = JonesFaithfulTransformation.parse_transformation_string(transformation_string)
         return cls(P, p)
 
     @classmethod
     def from_origin_shift(cls, origin_shift="0,0,0"):
-        """
-        Construct SpaceGroupTransformation from its origin shift string.
-        :param p: origin shift vector
-        :return:
+        """Construct SpaceGroupTransformation from its origin shift string.
+
+        Args:
+            origin_shift (str, optional): Defaults to "0,0,0".
+
+        Returns:
+            JonesFaithfulTransformation
         """
         P = np.identity(3)
         p = [float(Fraction(x)) for x in origin_shift.split(",")]
@@ -160,11 +165,7 @@ class JonesFaithfulTransformation:
         return P_string + ";" + p_string
 
     def transform_symmop(self, symmop: SymmOp | MagSymmOp) -> SymmOp | MagSymmOp:
-        """
-        Takes a symmetry operation and transforms it.
-        :param symmop: SymmOp or MagSymmOp
-        :return:
-        """
+        """Takes a symmetry operation and transforms it."""
         W_rot = symmop.rotation_matrix
         w_translation = symmop.translation_vector
         Q = np.linalg.inv(self.P)
@@ -183,11 +184,7 @@ class JonesFaithfulTransformation:
         raise RuntimeError
 
     def transform_coords(self, coords: list[list[float]] | np.ndarray) -> list[list[float]]:
-        """
-        Takes a list of coordinates and transforms them.
-        :param coords: List of coords
-        :return:
-        """
+        """Takes a list of coordinates and transforms them."""
         new_coords = []
         for x in coords:
             x = np.array(x)
@@ -197,11 +194,7 @@ class JonesFaithfulTransformation:
         return new_coords
 
     def transform_lattice(self, lattice: Lattice) -> Lattice:
-        """
-        Takes a Lattice object and transforms it.
-        :param lattice: Lattice
-        :return:
-        """
+        """Transforms a lattice."""
         return Lattice(np.matmul(lattice.matrix, self.P))
 
     def __eq__(self, other: object) -> bool:

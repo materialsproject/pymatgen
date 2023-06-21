@@ -191,9 +191,7 @@ class ConversionElectrode(AbstractElectrode):
         return True
 
     def __eq__(self, conversion_electrode):
-        """
-        Check if two electrodes are exactly the same:
-        """
+        """Check if two electrodes are exactly the same."""
         if len(self) != len(conversion_electrode):
             return False
 

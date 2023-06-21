@@ -262,16 +262,15 @@ class Magmom(MSONable):
 
     def get_00t_magmom_with_xyz_saxis(self):
         """
-        For internal implementation reasons, in non-collinear calculations
-        VASP prefers:
+        For internal implementation reasons, in non-collinear calculations VASP prefers the following.
 
-        MAGMOM = 0 0 total_magnetic_moment
-        SAXIS = x y z
+            MAGMOM = 0 0 total_magnetic_moment
+            SAXIS = x y z
 
         to an equivalent:
 
-        MAGMOM = x y z
-        SAXIS = 0 0 1
+            MAGMOM = x y z
+            SAXIS = 0 0 1
 
         This method returns a Magmom object with magnetic moment [0, 0, t],
         where t is the total magnetic moment, and saxis rotated as required.

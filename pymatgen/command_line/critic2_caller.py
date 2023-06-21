@@ -245,8 +245,8 @@ class Critic2Caller:
     @classmethod
     def from_path(cls, path, suffix="", zpsp=None):
         """
-        Convenience method to run critic2 analysis on a folder containing
-        typical VASP output files.
+        Convenience method to run critic2 analysis on a folder with typical VASP output files.
+
         This method will:
 
         1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped

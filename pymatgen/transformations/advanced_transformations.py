@@ -835,11 +835,13 @@ class MagOrderingTransformation(AbstractTransformation):
         return structure
 
     def _add_spin_magnitudes(self, structure: Structure):
-        """
-        Replaces Spin.up/Spin.down with spin magnitudes specified
-        by mag_species_spin.
-        :param structure:
-        :return:
+        """Replaces Spin.up/Spin.down with spin magnitudes specified by mag_species_spin.
+
+        Args:
+            structure (Structure): Structure to modify.
+
+        Returns:
+            Structure: Structure with spin magnitudes added.
         """
         for idx, site in enumerate(structure):
             if getattr(site.specie, "_properties", None):

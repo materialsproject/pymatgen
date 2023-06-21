@@ -905,8 +905,9 @@ class SpacegroupAnalyzer:
 
 
 class PointGroupAnalyzer:
-    """A class to analyze the point group of a molecule. The general outline of the
-    algorithm is as follows:
+    """A class to analyze the point group of a molecule.
+
+    The general outline of the algorithm is as follows:
 
     1. Center the molecule around its center of mass.
     2. Compute the inertia tensor and the eigenvalues and eigenvectors.
@@ -922,9 +923,8 @@ class PointGroupAnalyzer:
         d. Spherical top molecules have all three eigenvalues equal. They
            have the rare T, O or I point groups.
 
-    .. attribute:: sch_symbol
-
-        Schoenflies symbol of the detected point group.
+    Attribute:
+        sch_symbol (str): Schoenflies symbol of the detected point group.
     """
 
     inversion_op = SymmOp.inversion()

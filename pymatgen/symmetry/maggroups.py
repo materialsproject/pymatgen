@@ -559,10 +559,8 @@ def _write_all_magnetic_space_groups_to_file(filename):
     """
     Write all magnetic space groups to a human-readable text file.
     Should contain same information as text files provided by ISO-MAG.
-    :param filename:
-    :return:
     """
-    s = (
+    out = (
         "Data parsed from raw data from:\n"
         "ISO-MAG, ISOTROPY Software Suite, iso.byu.edu\n"
         "http://stokes.byu.edu/iso/magnetic_data.txt\n"
@@ -572,6 +570,6 @@ def _write_all_magnetic_space_groups_to_file(filename):
     for i in range(1, 1652):
         all_msgs.append(MagneticSpaceGroup(i))
     for msg in all_msgs:
-        s += f"\n{msg.data_str()}\n\n--------\n"
+        out += f"\n{msg.data_str()}\n\n--------\n"
     with open(filename, "w") as f:
-        f.write(s)
+        f.write(out)

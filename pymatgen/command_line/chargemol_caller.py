@@ -1,7 +1,7 @@
 """
-This module implements an interface to Thomas Manz's
-Chargemol code (https://sourceforge.net/projects/ddec/files) for
-calculating DDEC3, DDEC6, and CM5 population analyses.
+This module implements an interface to Thomas Manz's Chargemol code
+https://sourceforge.net/projects/ddec for calculating DDEC3, DDEC6, and CM5 population analyses.
+
 This module depends on a compiled chargemol executable being available in the path.
 If you use this module, please cite the following based on which modules you use:
 

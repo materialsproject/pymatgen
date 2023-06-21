@@ -100,10 +100,11 @@ class Lattice(MSONable):
         """
         return all(abs(a - 90) < 1e-5 for a in self.angles)
 
-    def __format__(self, fmt_spec=""):
+    def __format__(self, fmt_spec: str = ""):
         """
-        Support format printing. Supported formats are:
+        Support format printing.
 
+        Supported fmt_spec (str) are:
         1. "l" for a list format that can be easily copied and pasted, e.g.,
            ".3fl" prints something like
            "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"

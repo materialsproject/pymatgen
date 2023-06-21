@@ -71,8 +71,9 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
 class VaspToComputedEntryDrone(AbstractDrone):
     """
     VaspToEntryDrone assimilates directories containing VASP output to
-    ComputedEntry/ComputedStructureEntry objects. There are some restrictions
-    on the valid directory structures:
+    ComputedEntry/ComputedStructureEntry objects.
+
+    There are some restrictions on the valid directory structures:
 
     1. There can be only one vasp run in each directory.
     2. Directories designated "relax1", "relax2" are considered to be 2 parts
