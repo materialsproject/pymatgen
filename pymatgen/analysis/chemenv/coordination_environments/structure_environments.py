@@ -638,7 +638,7 @@ class StructureEnvironments(MSONable):
             raise ChemenvError(
                 "StructureEnvironments",
                 "get_csm",
-                f"Number of csms for site #{isite!s} with mp_symbol {mp_symbol!r} = {len(csms)!s}",
+                f"Number of csms for site #{isite} with mp_symbol {mp_symbol!r} = {len(csms)}",
             )
         return csms[0]
 
@@ -2321,8 +2321,8 @@ class ChemicalEnvironments(MSONable):
             out += f"      csm2 (without central site) : {csm_wocs}"
             out += f"     algo : {self.coord_geoms[mp_symbol]['algo']}"
             out += f"     perm : {self.coord_geoms[mp_symbol]['permutation']}\n"
-            out += f"       local2perfect : {self.coord_geoms[mp_symbol]['local2perfect_map']!s}\n"
-            out += f"       perfect2local : {self.coord_geoms[mp_symbol]['perfect2local_map']!s}\n"
+            out += f"       local2perfect : {self.coord_geoms[mp_symbol]['local2perfect_map']}\n"
+            out += f"       perfect2local : {self.coord_geoms[mp_symbol]['perfect2local_map']}\n"
         return out
 
     def is_close_to(self, other, rtol=0.0, atol=1e-8) -> bool:

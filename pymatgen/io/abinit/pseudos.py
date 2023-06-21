@@ -14,6 +14,7 @@ from collections import defaultdict, namedtuple
 from typing import TYPE_CHECKING
 
 import numpy as np
+from frozendict import frozendict
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
@@ -691,22 +692,20 @@ class NcAbinitHeader(AbinitHeader):
 
     _attr_desc = namedtuple("_attr_desc", "default astype")
 
-    _VARS = {
-        # Mandatory
-        "zatom": _attr_desc(None, _int_from_str),
-        "zion": _attr_desc(None, float),
-        "pspdat": _attr_desc(None, float),
-        "pspcod": _attr_desc(None, int),
-        "pspxc": _attr_desc(None, int),
-        "lmax": _attr_desc(None, int),
-        "lloc": _attr_desc(None, int),
-        "r2well": _attr_desc(None, float),
-        "mmax": _attr_desc(None, float),
-        # Optional variables for non linear-core correction. HGH does not have it.
-        "rchrg": _attr_desc(0.0, float),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
-        "fchrg": _attr_desc(0.0, float),
-        "qchrg": _attr_desc(0.0, float),
-    }
+    _VARS = frozendict(
+        zatom=_attr_desc(None, _int_from_str),
+        zion=_attr_desc(None, float),
+        pspdat=_attr_desc(None, float),
+        pspcod=_attr_desc(None, int),
+        pspxc=_attr_desc(None, int),
+        lmax=_attr_desc(None, int),
+        lloc=_attr_desc(None, int),
+        r2well=_attr_desc(None, float),
+        mmax=_attr_desc(None, float),
+        rchrg=_attr_desc(0.0, float),
+        fchrg=_attr_desc(0.0, float),
+        qchrg=_attr_desc(0.0, float),
+    )
     del _attr_desc
 
     def __init__(self, summary, **kwargs):
@@ -934,7 +933,7 @@ class PawAbinitHeader(AbinitHeader):
             self[key] = value
 
         if kwargs:
-            raise RuntimeError(f"kwargs should be empty but got {kwargs!s}")
+            raise RuntimeError(f"kwargs should be empty but got {kwargs}")
 
     @staticmethod
     def paw_header(filename, ppdesc):
@@ -1037,17 +1036,19 @@ class PseudoParser:
     ppdesc = namedtuple("ppdesc", "pspcod name psp_type format")
 
     # TODO Recheck
-    _PSPCODES = {
-        1: ppdesc(1, "TM", "NC", None),
-        2: ppdesc(2, "GTH", "NC", None),
-        3: ppdesc(3, "HGH", "NC", None),
-        4: ppdesc(4, "Teter", "NC", None),
-        # 5: ppdesc(5, "NC",     , None),
-        6: ppdesc(6, "FHI", "NC", None),
-        7: ppdesc(6, "PAW_abinit_text", "PAW", None),
-        8: ppdesc(8, "ONCVPSP", "NC", None),
-        10: ppdesc(10, "HGHK", "NC", None),
-    }
+    _PSPCODES = frozendict(
+        {
+            1: ppdesc(1, "TM", "NC", None),
+            2: ppdesc(2, "GTH", "NC", None),
+            3: ppdesc(3, "HGH", "NC", None),
+            4: ppdesc(4, "Teter", "NC", None),
+            # 5: ppdesc(5, "NC",     , None),
+            6: ppdesc(6, "FHI", "NC", None),
+            7: ppdesc(6, "PAW_abinit_text", "PAW", None),
+            8: ppdesc(8, "ONCVPSP", "NC", None),
+            10: ppdesc(10, "HGHK", "NC", None),
+        }
+    )
     del ppdesc
 
     # renumber functionals from oncvpsp todo confirm that 3 is 2
@@ -1198,6 +1199,8 @@ class RadialFunction(namedtuple("RadialFunction", "mesh values")):
     """
     Radial Function class.
     """
+
+    __slots__ = ()
 
 
 class PawXmlSetup(Pseudo, PawPseudo):
@@ -1652,7 +1655,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             symbols = [p.symbol for p in pseudo_list]
             symbol = symbols[0]
             if any(symb != symbol for symb in symbols):
-                raise ValueError(f"All symbols must be equal while they are: {symbols!s}")
+                raise ValueError(f"All symbols must be equal while they are: {symbols}")
 
             setattr(self, symbol, pseudo_list)
 

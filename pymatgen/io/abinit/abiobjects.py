@@ -7,10 +7,10 @@ Low-level objects providing an abstraction for the objects involved in the calcu
 from __future__ import annotations
 
 import abc
-import collections
+from collections import namedtuple
 from enum import Enum
 from pprint import pformat
-from typing import cast
+from typing import Iterable, cast
 
 import numpy as np
 from monty.collections import AttrDict
@@ -52,9 +52,9 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         angdeg = np.reshape(angdeg, 3)
 
         if np.any(angdeg <= 0.0):
-            raise ValueError(f"Angles must be > 0 but got {angdeg!s}")
+            raise ValueError(f"Angles must be > 0 but got {angdeg}")
         if angdeg.sum() >= 360.0:
-            raise ValueError(f"The sum of angdeg must be lower that 360, angdeg {angdeg!s}")
+            raise ValueError(f"The sum of angdeg must be lower than 360, {angdeg=}")
 
         # This code follows the implementation in ingeo.F90
         # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
@@ -138,16 +138,16 @@ def structure_from_abivars(cls=None, *args, **kwargs):
         coords_are_cartesian = True
 
     if coords is None:
-        raise ValueError(f"Cannot extract coordinates from:\n {d!s}")
+        raise ValueError(f"Cannot extract coordinates from:\n {d}")
 
     coords = np.reshape(coords, (-1, 3))
 
     znucl_type, typat = d["znucl"], d["typat"]
 
-    if not isinstance(znucl_type, collections.abc.Iterable):
+    if not isinstance(znucl_type, Iterable):
         znucl_type = [znucl_type]
 
-    if not isinstance(typat, collections.abc.Iterable):
+    if not isinstance(typat, Iterable):
         typat = [typat]
 
     if len(typat) != len(coords):
@@ -347,11 +347,7 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class SpinMode(
-    collections.namedtuple("SpinMode", "mode nsppol nspinor nspden"),
-    AbivarAble,
-    MSONable,
-):
+class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble, MSONable):
     """
     Different configurations of the electron density as implemented in abinit:
     One can use as_spinmode to construct the object via SpinMode.as_spinmode
@@ -364,6 +360,8 @@ class SpinMode(
         - spinor_nomag (non-collinear, no magnetism)
     """
 
+    __slots__ = ()
+
     @classmethod
     def as_spinmode(cls, obj):
         """Converts obj into a `SpinMode` instance"""
@@ -374,7 +372,7 @@ class SpinMode(
         try:
             return _mode2spinvars[obj]
         except KeyError:
-            raise KeyError(f"Wrong value for spin_mode: {obj!s}")
+            raise KeyError(f"Wrong value for spin_mode: {obj}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
@@ -1217,7 +1215,7 @@ class PPModel(AbivarAble, MSONable):
         return self.mode != PPModelModes.noppmodel
 
     def __repr__(self):
-        return f"<{type(self).__name__} at {id(self)}, mode = {self.mode!s}>"
+        return f"<{type(self).__name__} at {id(self)}, mode = {self.mode}>"
 
     def to_abivars(self):
         """Return dictionary with Abinit variables."""
@@ -1325,16 +1323,10 @@ class Screening(AbivarAble):
     """
 
     # Approximations used for W
-    _WTYPES = {
-        "RPA": 0,
-    }
+    _WTYPES = {"RPA": 0}
 
     # Self-consistecy modes
-    _SC_MODES = {
-        "one_shot": 0,
-        "energy_only": 1,
-        "wavefunctions": 2,
-    }
+    _SC_MODES = {"one_shot": 0, "energy_only": 1, "wavefunctions": 2}
 
     def __init__(
         self,
@@ -1561,14 +1553,10 @@ class ExcHamiltonian(AbivarAble):
 
     # Algorithms used to compute the macroscopic dielectric function
     # and/or the exciton wavefunctions.
-    _ALGO2VAR = {
-        "direct_diago": 1,
-        "haydock": 2,
-        "cg": 3,
-    }
+    _ALGO2VAR = {"direct_diago": 1, "haydock": 2, "cg": 3}
 
     # Options specifying the treatment of the Coulomb term.
-    _COULOMB_MODES = ["diago", "full", "model_df"]
+    _COULOMB_MODES = ("diago", "full", "model_df")
 
     def __init__(
         self,

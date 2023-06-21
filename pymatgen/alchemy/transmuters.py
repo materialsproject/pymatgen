@@ -338,7 +338,7 @@ def batch_write_vasp_input(
     vasp_input_set: type[VaspInputSet] = MPRelaxSet,
     output_dir: str = ".",
     create_directory: bool = True,
-    subfolder: Callable[[TransformedStructure], str] = None,
+    subfolder: Callable[[TransformedStructure], str] | None = None,
     include_cif: bool = False,
     **kwargs,
 ):

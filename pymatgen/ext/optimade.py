@@ -69,7 +69,7 @@ class OptimadeRester:
     }
 
     # The set of OPTIMADE fields that are required to define a `pymatgen.core.Structure`
-    mandatory_response_fields: set[str] = {"lattice_vectors", "cartesian_site_positions", "species", "species_at_sites"}
+    mandatory_response_fields = ("lattice_vectors", "cartesian_site_positions", "species", "species_at_sites")
 
     def __init__(
         self, aliases_or_resource_urls: str | list[str] | None = None, refresh_aliases: bool = False, timeout: int = 5
@@ -533,7 +533,7 @@ class OptimadeRester:
             additional_response_fields = {additional_response_fields}
         if not additional_response_fields:
             additional_response_fields = set()
-        return ",".join({*additional_response_fields} | self.mandatory_response_fields)
+        return ",".join({*additional_response_fields, *self.mandatory_response_fields})
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
         """

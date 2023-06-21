@@ -727,7 +727,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         steps: int = 500,
         fmax: float = 0.1,
         stress_weight: float = 0.01,
-        opt_kwargs: dict = None,
+        opt_kwargs: dict | None = None,
         return_trajectory: bool = False,
         verbose: bool = False,
     ) -> Structure | Molecule | tuple[Structure | Molecule, TrajectoryObserver | Trajectory]:
@@ -2721,7 +2721,7 @@ class IStructure(SiteCollection, MSONable):
                 return None
             return s
         else:
-            raise ValueError(f"Invalid format: `{fmt!s}`")
+            raise ValueError(f"Invalid format: `{fmt}`")
 
         if filename:
             writer.write_file(filename)
@@ -4168,7 +4168,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         steps: int = 500,
         fmax: float = 0.1,
         stress_weight: float = 0.01,
-        opt_kwargs: dict = None,
+        opt_kwargs: dict | None = None,
         return_trajectory: bool = False,
         verbose: bool = False,
     ) -> Structure | tuple[Structure, TrajectoryObserver | Trajectory]:
@@ -4685,7 +4685,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         optimizer: str | Optimizer = "FIRE",
         steps: int = 500,
         fmax: float = 0.1,
-        opt_kwargs: dict = None,
+        opt_kwargs: dict | None = None,
         return_trajectory: bool = False,
         verbose: bool = False,
     ) -> Molecule | tuple[Molecule, TrajectoryObserver | Trajectory]:

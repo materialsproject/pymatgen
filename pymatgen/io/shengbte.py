@@ -35,7 +35,7 @@ class Control(MSONable, dict):
     detailed description and default values of CONTROL arguments.
     """
 
-    required_params = [
+    required_params = data_keys = (
         "nelements",
         "natoms",
         "ngrid",
@@ -44,9 +44,9 @@ class Control(MSONable, dict):
         "elements",
         "positions",
         "scell",
-    ]
-    allocations_keys = ["nelements", "natoms", "ngrid", "norientations"]
-    crystal_keys = [
+    )
+    allocations_keys = ("nelements", "natoms", "ngrid", "norientations")
+    crystal_keys = (
         "lfactor",
         "lattvec",
         "types",
@@ -58,8 +58,8 @@ class Control(MSONable, dict):
         "born",
         "scell",
         "orientations",
-    ]
-    params_keys = [
+    )
+    params_keys = (
         "t",
         "t_min",
         "t_max",
@@ -72,8 +72,8 @@ class Control(MSONable, dict):
         "maxiter",
         "nticks",
         "eps",
-    ]
-    flags_keys = [
+    )
+    flags_keys = (
         "nonanalytic",
         "convergence",
         "isotopes",
@@ -81,7 +81,7 @@ class Control(MSONable, dict):
         "nanowires",
         "onlyharmonic",
         "espresso",
-    ]
+    )
 
     def __init__(self, ngrid: list[int] | None = None, temperature: float | dict[str, float] = 300, **kwargs):
         """

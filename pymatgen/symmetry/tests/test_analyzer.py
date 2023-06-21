@@ -644,13 +644,13 @@ class PointGroupAnalyzerTest(PymatgenTest):
         np.random.seed(77)
         distortion = np.random.randn(len(C2H2F2Br2), 3) / 20
         dist_mol = Molecule(C2H2F2Br2.species, C2H2F2Br2.cart_coords + distortion)
-        PA1 = PointGroupAnalyzer(C2H2F2Br2, tolerance=0.1)
-        assert PA1.get_pointgroup().sch_symbol == "Ci"
-        PA2 = PointGroupAnalyzer(dist_mol, tolerance=0.1)
-        assert PA2.get_pointgroup().sch_symbol == "C1"
+        pa1 = PointGroupAnalyzer(C2H2F2Br2, tolerance=0.1)
+        assert pa1.get_pointgroup().sch_symbol == "Ci"
+        pa2 = PointGroupAnalyzer(dist_mol, tolerance=0.1)
+        assert pa2.get_pointgroup().sch_symbol == "C1"
         eq = iterative_symmetrize(dist_mol, tolerance=0.3)
-        PA3 = PointGroupAnalyzer(eq["sym_mol"], tolerance=0.1)
-        assert PA3.get_pointgroup().sch_symbol == "Ci"
+        pa3 = PointGroupAnalyzer(eq["sym_mol"], tolerance=0.1)
+        assert pa3.get_pointgroup().sch_symbol == "Ci"
 
     def test_get_kpoint_weights(self):
         for name in ["SrTiO3", "LiFePO4", "Graphite"]:

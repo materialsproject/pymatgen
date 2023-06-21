@@ -12,6 +12,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 from monty.json import MontyDecoder, MSONable
@@ -41,7 +42,7 @@ class PymatgenTest(unittest.TestCase):
         )
         TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
 
-    TEST_STRUCTURES = {}  # Dict for test structures to aid testing.
+    TEST_STRUCTURES: ClassVar[dict[str, Structure]] = {}  # Dict for test structures to aid testing.
     for fn in STRUCTURES_DIR.iterdir():
         TEST_STRUCTURES[fn.name.rsplit(".", 1)[0]] = loadfn(str(fn))
 

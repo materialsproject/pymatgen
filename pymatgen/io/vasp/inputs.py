@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import numpy as np
 import scipy.constants as const
+from frozendict import frozendict
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
@@ -1647,68 +1648,70 @@ class PotcarSingle:
     are raised if a POTCAR hash fails validation.
     """
 
-    functional_dir = {
-        "PBE": "POT_GGA_PAW_PBE",
-        "PBE_52": "POT_GGA_PAW_PBE_52",
-        "PBE_54": "POT_GGA_PAW_PBE_54",
-        "LDA": "POT_LDA_PAW",
-        "LDA_52": "POT_LDA_PAW_52",
-        "LDA_54": "POT_LDA_PAW_54",
-        "PW91": "POT_GGA_PAW_PW91",
-        "LDA_US": "POT_LDA_US",
-        "PW91_US": "POT_GGA_US_PW91",
-        "Perdew-Zunger81": "POT_LDA_PAW",
-    }
+    functional_dir = frozendict(
+        PBE="POT_GGA_PAW_PBE",
+        PBE_52="POT_GGA_PAW_PBE_52",
+        PBE_54="POT_GGA_PAW_PBE_54",
+        LDA="POT_LDA_PAW",
+        LDA_52="POT_LDA_PAW_52",
+        LDA_54="POT_LDA_PAW_54",
+        PW91="POT_GGA_PAW_PW91",
+        LDA_US="POT_LDA_US",
+        PW91_US="POT_GGA_US_PW91",
+        Perdew_Zunger81="POT_LDA_PAW",
+    )
 
-    functional_tags = {
-        "pe": {"name": "PBE", "class": "GGA"},
-        "91": {"name": "PW91", "class": "GGA"},
-        "rp": {"name": "revPBE", "class": "GGA"},
-        "am": {"name": "AM05", "class": "GGA"},
-        "ps": {"name": "PBEsol", "class": "GGA"},
-        "pw": {"name": "PW86", "class": "GGA"},
-        "lm": {"name": "Langreth-Mehl-Hu", "class": "GGA"},
-        "pb": {"name": "Perdew-Becke", "class": "GGA"},
-        "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
-        "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
-        "wi": {"name": "Wigner Interpolation", "class": "LDA"},
-    }
+    functional_tags = frozendict(
+        {
+            "pe": {"name": "PBE", "class": "GGA"},
+            "91": {"name": "PW91", "class": "GGA"},
+            "rp": {"name": "revPBE", "class": "GGA"},
+            "am": {"name": "AM05", "class": "GGA"},
+            "ps": {"name": "PBEsol", "class": "GGA"},
+            "pw": {"name": "PW86", "class": "GGA"},
+            "lm": {"name": "Langreth-Mehl-Hu", "class": "GGA"},
+            "pb": {"name": "Perdew-Becke", "class": "GGA"},
+            "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
+            "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
+            "wi": {"name": "Wigner Interpolation", "class": "LDA"},
+        }
+    )
 
-    parse_functions = {
-        "LULTRA": _parse_bool,
-        "LUNSCR": _parse_bool,
-        "LCOR": _parse_bool,
-        "LPAW": _parse_bool,
-        "EATOM": _parse_float,
-        "RPACOR": _parse_float,
-        "POMASS": _parse_float,
-        "ZVAL": _parse_float,
-        "RCORE": _parse_float,
-        "RWIGS": _parse_float,
-        "ENMAX": _parse_float,
-        "ENMIN": _parse_float,
-        "EMMIN": _parse_float,
-        "EAUG": _parse_float,
-        "DEXC": _parse_float,
-        "RMAX": _parse_float,
-        "RAUG": _parse_float,
-        "RDEP": _parse_float,
-        "RDEPT": _parse_float,
-        "QCUT": _parse_float,
-        "QGAM": _parse_float,
-        "RCLOC": _parse_float,
-        "IUNSCR": _parse_int,
-        "ICORE": _parse_int,
-        "NDATA": _parse_int,
-        "VRHFIN": _parse_string,
-        "LEXCH": _parse_string,
-        "TITEL": _parse_string,
-        "STEP": _parse_list,
-        "RRKJ": _parse_list,
-        "GGA": _parse_list,
-        "SHA256": _parse_string,
-        "COPYR": _parse_string,
-    }
+    parse_functions = frozendict(
+        LULTRA=_parse_bool,
+        LUNSCR=_parse_bool,
+        LCOR=_parse_bool,
+        LPAW=_parse_bool,
+        EATOM=_parse_float,
+        RPACOR=_parse_float,
+        POMASS=_parse_float,
+        ZVAL=_parse_float,
+        RCORE=_parse_float,
+        RWIGS=_parse_float,
+        ENMAX=_parse_float,
+        ENMIN=_parse_float,
+        EMMIN=_parse_float,
+        EAUG=_parse_float,
+        DEXC=_parse_float,
+        RMAX=_parse_float,
+        RAUG=_parse_float,
+        RDEP=_parse_float,
+        RDEPT=_parse_float,
+        QCUT=_parse_float,
+        QGAM=_parse_float,
+        RCLOC=_parse_float,
+        IUNSCR=_parse_int,
+        ICORE=_parse_int,
+        NDATA=_parse_int,
+        VRHFIN=_parse_string,
+        LEXCH=_parse_string,
+        TITEL=_parse_string,
+        STEP=_parse_list,
+        RRKJ=_parse_list,
+        GGA=_parse_list,
+        SHA256=_parse_string,
+        COPYR=_parse_string,
+    )
 
     def __init__(self, data, symbol=None):
         """
@@ -2231,7 +2234,7 @@ class Potcar(list, MSONable):
     list of PotcarSingle.
     """
 
-    FUNCTIONAL_CHOICES = list(PotcarSingle.functional_dir)
+    FUNCTIONAL_CHOICES = tuple(PotcarSingle.functional_dir)
 
     def __init__(self, symbols=None, functional=None, sym_potcar_map=None):
         """

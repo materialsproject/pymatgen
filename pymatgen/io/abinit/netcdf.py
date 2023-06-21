@@ -367,7 +367,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
 
 
 class _H:
-    __slots__ = ["name", "doc", "etsf_name"]
+    __slots__ = ("name", "doc", "etsf_name")
 
     def __init__(self, name, doc, etsf_name=None):
         self.name, self.doc, self.etsf_name = name, doc, etsf_name

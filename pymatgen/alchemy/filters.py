@@ -192,7 +192,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     This filter removes exact duplicate structures from the transmuter.
     """
 
-    def __init__(self, structure_matcher: dict | StructureMatcher | None = None, symprec: float = None) -> None:
+    def __init__(self, structure_matcher: dict | StructureMatcher | None = None, symprec: float | None = None) -> None:
         """
         Remove duplicate structures based on the structure matcher
         and symmetry (if symprec is given).

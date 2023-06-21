@@ -74,7 +74,7 @@ class CoordinationEnvironmentMorphing:
             morphing_description=morphing_description,
         )
 
-    def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] = None) -> None:
+    def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] | None = None) -> None:
         """
         Plot the fractions of the initial and final coordination environments as a function of the morphing factor.
 

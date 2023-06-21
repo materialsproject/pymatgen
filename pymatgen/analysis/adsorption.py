@@ -53,7 +53,9 @@ class AdsorbateSiteFinder:
             these sites
     """
 
-    def __init__(self, slab, selective_dynamics: bool = False, height: float = 0.9, mi_vec: ArrayLike = None) -> None:
+    def __init__(
+        self, slab, selective_dynamics: bool = False, height: float = 0.9, mi_vec: ArrayLike | None = None
+    ) -> None:
         """Create an AdsorbateSiteFinder object.
 
         Args:

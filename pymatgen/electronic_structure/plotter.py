@@ -1239,8 +1239,6 @@ class BSPlotterProjected(BSPlotter):
         return plt
 
     def _get_projections_by_branches_patom_pmorb(self, dictio, dictpa, sum_atoms, sum_morbs, selected_branches):
-        import copy
-
         setos = {
             "s": 0,
             "py": 1,
@@ -1319,8 +1317,6 @@ class BSPlotterProjected(BSPlotter):
 
         # Adjusting  projections for plot
         dictio_d, dictpa_d = self._summarize_keys_for_plot(dictio, dictpa, sum_atoms, sum_morbs)
-        print(f"dictio_d: {dictio_d!s}")
-        print(f"dictpa_d: {dictpa_d!s}")
 
         if (sum_atoms is None) and (sum_morbs is None):
             proj_br_d = copy.deepcopy(proj_br)
@@ -2975,7 +2971,7 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return plt
 
-    def plot_seebeck_mu(self, temp: float = 600, output: str = "eig", xlim: Sequence[float] = None):
+    def plot_seebeck_mu(self, temp: float = 600, output: str = "eig", xlim: Sequence[float] | None = None):
         """
         Plot the seebeck coefficient in function of Fermi level
 
@@ -3008,7 +3004,11 @@ class BoltztrapPlotter:
         return plt
 
     def plot_conductivity_mu(
-        self, temp: float = 600, output: str = "eig", relaxation_time: float = 1e-14, xlim: Sequence[float] = None
+        self,
+        temp: float = 600,
+        output: str = "eig",
+        relaxation_time: float = 1e-14,
+        xlim: Sequence[float] | None = None,
     ):
         """
         Plot the conductivity in function of Fermi level. Semi-log plot
@@ -3044,7 +3044,11 @@ class BoltztrapPlotter:
         return plt
 
     def plot_power_factor_mu(
-        self, temp: float = 600, output: str = "eig", relaxation_time: float = 1e-14, xlim: Sequence[float] = None
+        self,
+        temp: float = 600,
+        output: str = "eig",
+        relaxation_time: float = 1e-14,
+        xlim: Sequence[float] | None = None,
     ):
         """
         Plot the power factor in function of Fermi level. Semi-log plot
@@ -3079,7 +3083,11 @@ class BoltztrapPlotter:
         return plt
 
     def plot_zt_mu(
-        self, temp: float = 600, output: str = "eig", relaxation_time: float = 1e-14, xlim: Sequence[float] = None
+        self,
+        temp: float = 600,
+        output: str = "eig",
+        relaxation_time: float = 1e-14,
+        xlim: Sequence[float] | None = None,
     ):
         """
         Plot the ZT in function of Fermi level.

@@ -17,3 +17,4 @@ Cython==0.29.32
 pybtex==0.24.0
 mp-api==0.33.3
 tqdm==4.65.0
+frozendict==2.3.8
