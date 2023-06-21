@@ -8,6 +8,7 @@ import os
 import re
 from typing import Generator
 
+from frozendict import frozendict
 from monty.io import reverse_readline
 from monty.itertools import chunks
 from monty.json import MSONable
@@ -79,7 +80,7 @@ class AdfKey(MSONable):
     subkeys and a set of options.
     """
 
-    block_keys = {
+    block_keys = (
         "SCF",
         "GEOMETRY",
         "XC",
@@ -99,11 +100,11 @@ class AdfKey(MSONable):
         "EXACTDENSITY",
         "TOTALENERGY",
         "ANALYTICALFREQ",
-    }
-    sub_keys = {"AtomDepQuality"}
+    )
+    sub_keys = ("AtomDepQuality",)
 
     # Full blocks are blocks that must have an 'END'.
-    _full_blocks = {"GEOMETRY", "SCF", "UNITS", "BASIS", "ANALYTICALFREQ"}
+    _full_blocks = ("GEOMETRY", "SCF", "UNITS", "BASIS", "ANALYTICALFREQ")
 
     def __init__(self, name, options=None, subkeys=None):
         """
@@ -437,16 +438,15 @@ class AdfTask(MSONable):
     -----
     Unlike other quantum chemistry packages (NWChem, Gaussian, ...), ADF does
     not support calculating force/gradient.
-
     """
 
-    operations = {
-        "energy": "Evaluate the single point energy.",
-        "optimize": "Minimize the energy by varying the molecular structure.",
-        "frequencies": "Compute second derivatives and print out an analysis of molecular vibrations.",
-        "freq": "Same as frequencies.",
-        "numerical_frequencies": "Compute molecular frequencies using numerical method.",
-    }
+    operations = frozendict(
+        energy="Evaluate the single point energy.",
+        optimize="Minimize the energy by varying the molecular structure.",
+        frequencies="Compute second derivatives and print out an analysis of molecular vibrations.",
+        freq="Same as frequencies.",
+        numerical_frequencies="Compute molecular frequencies using numerical method.",
+    )
 
     def __init__(
         self,

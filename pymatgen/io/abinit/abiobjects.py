@@ -1325,16 +1325,10 @@ class Screening(AbivarAble):
     """
 
     # Approximations used for W
-    _WTYPES = {
-        "RPA": 0,
-    }
+    _WTYPES = {"RPA": 0}
 
     # Self-consistecy modes
-    _SC_MODES = {
-        "one_shot": 0,
-        "energy_only": 1,
-        "wavefunctions": 2,
-    }
+    _SC_MODES = {"one_shot": 0, "energy_only": 1, "wavefunctions": 2}
 
     def __init__(
         self,
@@ -1561,14 +1555,10 @@ class ExcHamiltonian(AbivarAble):
 
     # Algorithms used to compute the macroscopic dielectric function
     # and/or the exciton wavefunctions.
-    _ALGO2VAR = {
-        "direct_diago": 1,
-        "haydock": 2,
-        "cg": 3,
-    }
+    _ALGO2VAR = {"direct_diago": 1, "haydock": 2, "cg": 3}
 
     # Options specifying the treatment of the Coulomb term.
-    _COULOMB_MODES = ["diago", "full", "model_df"]
+    _COULOMB_MODES = ("diago", "full", "model_df")
 
     def __init__(
         self,

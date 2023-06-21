@@ -48,15 +48,15 @@ class Lobsterin(dict, MSONable):
     # reminder: lobster is not case sensitive
 
     # keyword + one float can be used in file
-    FLOATKEYWORDS = [
+    FLOAT_KEYWORDS = (
         "COHPstartEnergy",
         "COHPendEnergy",
         "gaussianSmearingWidth",
         "useDecimalPlaces",
         "COHPSteps",
-    ]
+    )
     # one of these keywords +endstring can be used in file
-    STRINGKEYWORDS = [
+    STRING_KEYWORDS = (
         "basisSet",
         "cohpGenerator",
         "realspaceHamiltonian",
@@ -65,9 +65,9 @@ class Lobsterin(dict, MSONable):
         "printLCAORealSpaceWavefunction",
         "kSpaceCOHP",
         "EwaldSum",
-    ]
+    )
     # the keyword alone will turn on or off a function
-    BOOLEANKEYWORDS = [
+    BOOLEAN_KEYWORDS = (
         "saveProjectionToFile",
         "skipdos",
         "skipcohp",
@@ -99,12 +99,12 @@ class Lobsterin(dict, MSONable):
         "bandwiseSpilling",
         "kpointwiseSpilling",
         "LSODOS",
-    ]
+    )
     # several of these keywords + ending can be used in a lobsterin file:
-    LISTKEYWORDS = ["basisfunctions", "cohpbetween", "createFatband"]
+    LISTKEYWORDS = ("basisfunctions", "cohpbetween", "createFatband")
 
     # all keywords known to this class so far
-    AVAILABLEKEYWORDS = FLOATKEYWORDS + STRINGKEYWORDS + BOOLEANKEYWORDS + LISTKEYWORDS
+    AVAILABLEKEYWORDS = FLOAT_KEYWORDS + STRING_KEYWORDS + BOOLEAN_KEYWORDS + LISTKEYWORDS
 
     def __init__(self, settingsdict: dict):
         """
@@ -261,16 +261,16 @@ class Lobsterin(dict, MSONable):
         with open(filename, "w") as f:
             for key in Lobsterin.AVAILABLEKEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
-                    if key.lower() in [element.lower() for element in Lobsterin.FLOATKEYWORDS]:
+                    if key.lower() in [element.lower() for element in Lobsterin.FLOAT_KEYWORDS]:
                         f.write(key + " " + str(self.get(key)) + "\n")
-                    elif key.lower() in [element.lower() for element in Lobsterin.BOOLEANKEYWORDS]:
+                    elif key.lower() in [element.lower() for element in Lobsterin.BOOLEAN_KEYWORDS]:
                         # checks if entry is True or False
                         for key_here in self:
                             if key.lower() == key_here.lower():
                                 new_key = key_here
                         if self.get(new_key):
                             f.write(key + "\n")
-                    elif key.lower() in [element.lower() for element in Lobsterin.STRINGKEYWORDS]:
+                    elif key.lower() in [element.lower() for element in Lobsterin.STRING_KEYWORDS]:
                         f.write(key + " " + str(self.get(key) + "\n"))
                     elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
                         for entry in self.get(key):
@@ -592,7 +592,7 @@ class Lobsterin(dict, MSONable):
             if len(raw_datum) > 1:
                 # check which type of keyword this is, handle accordingly
                 if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
-                    if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.FLOATKEYWORDS]:
+                    if raw_datum[0].lower() not in [datum2.lower() for datum2 in Lobsterin.FLOAT_KEYWORDS]:
                         if raw_datum[0].lower() not in Lobsterindict:
                             Lobsterindict[raw_datum[0].lower()] = " ".join(raw_datum[1:])
                         else:

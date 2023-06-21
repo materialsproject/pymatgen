@@ -136,24 +136,8 @@ class MoleculeStructureComparator(MSONable):
     same. The atom in the two molecule must be paired accordingly.
     """
 
-    ionic_element_list = [
-        "Na",
-        "Mg",
-        "Al",
-        "Sc",
-        "V",
-        "Cr",
-        "Mn",
-        "Fe",
-        "Co",
-        "Ni",
-        "Cu",
-        "Zn",
-        "Ga",
-        "Rb",
-        "Sr",
-    ]
-    halogen_list = ["F", "Cl", "Br", "I"]
+    ionic_element_list = ("Na", "Mg", "Al", "Sc", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Rb", "Sr")
+    halogen_list = ("F", "Cl", "Br", "I")
 
     def __init__(
         self,
@@ -279,7 +263,7 @@ class MoleculeStructureComparator(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
             d (dict): Dict representation
@@ -288,8 +272,8 @@ class MoleculeStructureComparator(MSONable):
             MoleculeStructureComparator
         """
         return cls(
-            bond_length_cap=d["bond_length_cap"],
-            covalent_radius=d["covalent_radius"],
-            priority_bonds=d["priority_bonds"],
-            priority_cap=d["priority_cap"],
+            bond_length_cap=dct["bond_length_cap"],
+            covalent_radius=dct["covalent_radius"],
+            priority_bonds=dct["priority_bonds"],
+            priority_cap=dct["priority_cap"],
         )

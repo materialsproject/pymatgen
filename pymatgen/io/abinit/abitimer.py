@@ -576,16 +576,16 @@ class ParallelEfficiency(dict):
 class AbinitTimerSection:
     """Record with the timing results associated to a section of code."""
 
-    STR_FIELDS = ["name"]
+    STR_FIELDS = ("name",)
 
-    NUMERIC_FIELDS = [
+    NUMERIC_FIELDS = (
         "wall_time",
         "wall_fract",
         "cpu_time",
         "cpu_fract",
         "ncalls",
         "gflops",
-    ]
+    )
 
     FIELDS = tuple(STR_FIELDS + NUMERIC_FIELDS)
 

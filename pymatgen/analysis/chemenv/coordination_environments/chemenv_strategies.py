@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import abc
 import os
+from typing import ClassVar
 
 import numpy as np
 from monty.json import MSONable
@@ -143,12 +144,12 @@ class CSMFloat(float, StrategyOption):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """Initialize CSM from dict.
 
         :param d: Dict representation of the CSM.
         """
-        return cls(d["value"])
+        return cls(dct["value"])
 
 
 class AdditionalConditionInt(int, StrategyOption):
@@ -176,12 +177,12 @@ class AdditionalConditionInt(int, StrategyOption):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """Initialize additional condition from dict.
 
         :param d: Dict representation of the additional condition.
         """
-        return cls(d["value"])
+        return cls(dct["value"])
 
 
 class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
@@ -191,9 +192,9 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS: dict[str, dict] = {}
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = {}
     STRATEGY_DESCRIPTION: str | None = None
-    STRATEGY_INFO_FIELDS: list = []
+    STRATEGY_INFO_FIELDS: ClassVar[list] = []
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
 
     def __init__(
@@ -471,7 +472,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: dict[str, dict] = {}
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = {}
     STRATEGY_OPTIONS["distance_cutoff"] = {
         "type": DistanceCutoffFloat,
         "internal": "_distance_cutoff",
@@ -862,7 +863,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: dict[str, dict] = {}
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = {}
     STRATEGY_OPTIONS["additional_condition"] = {
         "type": AdditionalConditionInt,
         "internal": "_additional_condition",

@@ -12,6 +12,7 @@ import time
 from typing import Sequence
 
 import numpy as np
+from frozendict import frozendict
 
 try:
     import vtk
@@ -196,7 +197,7 @@ class StructureVis:
             "# : Toggle showing of polyhedrons",
             "-: Toggle showing of bonds",
             "r : Reset camera direction",
-            "[/]: Decrease or increase poly_radii_tol_factor by 0.05. Value = " + str(self.poly_radii_tol_factor),
+            f"[/]: Decrease or increase poly_radii_tol_factor by 0.05. Value = {self.poly_radii_tol_factor}",
             "Up/Down: Rotate view along Up direction by 90 clockwise/anticlockwise",
             "Left/right: Rotate view along camera direction by 90 clockwise/anticlockwise",
             "s: Save view to image.png",
@@ -911,11 +912,11 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
     vis.redraw()
     vis.zoom(zoom)
     sigfig = int(math.floor(math.log10(len(structures))) + 1)
-    filename = "image{0:0" + str(sigfig) + "d}.png"
+    filename = f"image{{0:0{sigfig}d}}.png"
     for i, s in enumerate(structures):
         vis.set_structure(s)
         vis.write_image(filename.format(i), 3)
-    filename = "image%0" + str(sigfig) + "d.png"
+    filename = f"image%0{sigfig}d.png"
     args = [
         "ffmpeg",
         "-y",
@@ -938,12 +939,12 @@ class MultiStructuresVis(StructureVis):
     Visualization for multiple structures.
     """
 
-    DEFAULT_ANIMATED_MOVIE_OPTIONS = {
-        "time_between_frames": 0.1,
-        "looping_type": "restart",
-        "number_of_loops": 1,
-        "time_between_loops": 1.0,
-    }
+    DEFAULT_ANIMATED_MOVIE_OPTIONS = frozendict(
+        time_between_frames=0.1,
+        looping_type="restart",
+        number_of_loops=1,
+        time_between_loops=1.0,
+    )
 
     def __init__(
         self,
@@ -1126,7 +1127,7 @@ class MultiStructuresVis(StructureVis):
             "# : Toggle showing of polyhedrons",
             "-: Toggle showing of bonds",
             "r : Reset camera direction",
-            "[/]: Decrease or increase poly_radii_tol_factor by 0.05. Value = " + str(self.poly_radii_tol_factor),
+            f"[/]: Decrease or increase poly_radii_tol_factor by 0.05. Value = {self.poly_radii_tol_factor}",
             "Up/Down: Rotate view along Up direction by 90 clockwise/anticlockwise",
             "Left/right: Rotate view along camera direction by 90 clockwise/anticlockwise",
             "s: Save view to image.png",
