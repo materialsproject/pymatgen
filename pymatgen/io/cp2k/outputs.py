@@ -1455,11 +1455,11 @@ class Cp2kOutput:
         data["delta_g"] = []
         ionic = -1
         dat = None
-        for _, line in enumerate(lines):
+        for line in lines:
             first = line.strip()
             if first == "G tensor":
                 ionic += 1
-                for _, d in data.items():
+                for d in data.values():
                     d.append([])
             elif first in data:
                 dat = first
@@ -1497,11 +1497,11 @@ class Cp2kOutput:
         data["ANISO"] = []
         ionic = -1
         dat = None
-        for _, line in enumerate(lines):
+        for line in lines:
             first = line.strip()
             if first == "Magnetic Susceptibility Tensor":
                 ionic += 1
-                for _, d in data.items():
+                for d in data.values():
                     d.append([])
             elif first in data:
                 dat = first

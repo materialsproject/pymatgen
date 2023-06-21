@@ -7,7 +7,7 @@ Low-level objects providing an abstraction for the objects involved in the calcu
 from __future__ import annotations
 
 import abc
-import collections
+from collections import namedtuple
 from enum import Enum
 from pprint import pformat
 from typing import cast
@@ -347,11 +347,7 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class SpinMode(
-    collections.namedtuple("SpinMode", "mode nsppol nspinor nspden"),
-    AbivarAble,
-    MSONable,
-):
+class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble, MSONable):
     """
     Different configurations of the electron density as implemented in abinit:
     One can use as_spinmode to construct the object via SpinMode.as_spinmode
@@ -363,6 +359,8 @@ class SpinMode(
         - spinor (non-collinear magnetism)
         - spinor_nomag (non-collinear, no magnetism)
     """
+
+    __slots__ = ()
 
     @classmethod
     def as_spinmode(cls, obj):

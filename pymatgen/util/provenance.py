@@ -79,6 +79,8 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
         Structure (dict).
     """
 
+    __slots__ = ()
+
     def as_dict(self) -> dict[str, str]:
         """
         Returns: Dict
@@ -128,6 +130,8 @@ class Author(namedtuple("Author", ["name", "email"])):
 
         Email of author (String)
     """
+
+    __slots__ = ()
 
     def __str__(self):
         """
@@ -250,9 +254,9 @@ class StructureNL:
         self.remarks = [remarks] if isinstance(remarks, str) else remarks
 
         # check remarks limit
-        for r in self.remarks:
-            if len(r) > 140:
-                raise ValueError(f"The remark exceeds the maximum size of 140 characters: {r}")
+        for remark in self.remarks:
+            if len(remark) > 140:
+                raise ValueError(f"The remark exceeds the maximum size of 140 characters: {remark}")
 
         # check data limit
         self.data = data or {}
@@ -262,11 +266,11 @@ class StructureNL:
                 f"bytes (you have {sys.getsizeof(data)})"
             )
 
-        for k in self.data:
-            if not k.startswith("_"):
+        for key in self.data:
+            if not key.startswith("_"):
                 raise ValueError(
                     "data must contain properly namespaced data with keys starting with an underscore. "
-                    f"The key {k} does not start with an underscore."
+                    f"The key {key} does not start with an underscore."
                 )
 
         # check for valid history nodes

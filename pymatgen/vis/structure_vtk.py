@@ -435,13 +435,13 @@ class StructureVis:
         source.SetPoint1(start)
         source.SetPoint2(end)
 
-        vertexIDs = vtk.vtkStringArray()
-        vertexIDs.SetNumberOfComponents(1)
-        vertexIDs.SetName("VertexIDs")
+        vertex_ids = vtk.vtkStringArray()
+        vertex_ids.SetNumberOfComponents(1)
+        vertex_ids.SetName("VertexIDs")
         # Set the vertex labels
-        vertexIDs.InsertNextValue("a")
-        vertexIDs.InsertNextValue("b")
-        source.GetOutput().GetPointData().AddArray(vertexIDs)
+        vertex_ids.InsertNextValue("a")
+        vertex_ids.InsertNextValue("b")
+        source.GetOutput().GetPointData().AddArray(vertex_ids)
 
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputConnection(source.GetOutputPort())

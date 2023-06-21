@@ -1200,6 +1200,8 @@ class RadialFunction(namedtuple("RadialFunction", "mesh values")):
     Radial Function class.
     """
 
+    __slots__ = ()
+
 
 class PawXmlSetup(Pseudo, PawPseudo):
     """

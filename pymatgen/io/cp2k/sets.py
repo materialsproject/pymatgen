@@ -1352,10 +1352,10 @@ class DftSet(Cp2kInput):
         if self.check("force_eval/dft/kpoints") and self.check("force_eval/dft/xc/hf"):
             raise Cp2kValidationError("Does not support hartree fock with kpoints")
 
-        for _, v in self["force_eval"]["subsys"].subsections.items():
+        for val in self["force_eval"]["subsys"].subsections.values():
             if (
-                v.name.upper() == "KIND"
-                and v["POTENTIAL"].values[0].upper() == "ALL"  # noqa: PD011
+                val.name.upper() == "KIND"
+                and val["POTENTIAL"].values[0].upper() == "ALL"  # noqa: PD011
                 and self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW"  # noqa: PD011
             ):
                 raise Cp2kValidationError("All electron basis sets require GAPW method")

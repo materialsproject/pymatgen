@@ -14,7 +14,7 @@ with open("README.md") as file:
 
 # unlike GitHub readme's, PyPI doesn't support <picture> tags used for responsive images
 # (i.e. adaptive to OS light/dark mode)
-# TODO this manual fix won't work once we migrate to pyproject.toml
+# NOTE this manual fix won't work once we migrate to pyproject.toml
 logo_url = "https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.svg"
 long_description = (
     f"<h1 align='center'><img alt='Logo' src='{logo_url}' height='70'></h1>" + long_description.split("</picture>")[-1]
