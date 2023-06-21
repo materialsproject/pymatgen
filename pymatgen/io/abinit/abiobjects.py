@@ -10,7 +10,7 @@ import abc
 from collections import namedtuple
 from enum import Enum
 from pprint import pformat
-from typing import cast
+from typing import Iterable, cast
 
 import numpy as np
 from monty.collections import AttrDict
@@ -144,10 +144,10 @@ def structure_from_abivars(cls=None, *args, **kwargs):
 
     znucl_type, typat = d["znucl"], d["typat"]
 
-    if not isinstance(znucl_type, collections.abc.Iterable):
+    if not isinstance(znucl_type, Iterable):
         znucl_type = [znucl_type]
 
-    if not isinstance(typat, collections.abc.Iterable):
+    if not isinstance(typat, Iterable):
         typat = [typat]
 
     if len(typat) != len(coords):
