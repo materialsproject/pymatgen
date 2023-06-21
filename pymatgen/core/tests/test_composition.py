@@ -68,12 +68,11 @@ class CompositionTest(PymatgenTest):
         c = Composition("C2H5OH")
         assert c.hill_formula == "C2 H6 O"
         # A test case with both C and H, but not one after another (mp-1228185)
-        c = Composition('Ga8 As16 H102 C32 S36 O3')
-        assert c.hill_formula == 'C32 H102 As16 Ga8 O3 S36'
+        c = Composition("Ga8 As16 H102 C32 S36 O3")
+        assert c.hill_formula == "C32 H102 As16 Ga8 O3 S36"
         # A test case with H but no C
-        c = Composition('Ga8 As16 H102 S36 O3')
-        assert c.hill_formula == 'As16 Ga8 H102 O3 S36'
-
+        c = Composition("Ga8 As16 H102 S36 O3")
+        assert c.hill_formula == "As16 Ga8 H102 O3 S36"
 
     def test_init_(self):
         with pytest.raises(ValueError):
