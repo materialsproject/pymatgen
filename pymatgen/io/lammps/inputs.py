@@ -183,7 +183,7 @@ class LammpsInputFile(InputFile):
 
     def add_stage(
         self,
-        stage: dict = None,
+        stage: dict | None = None,
         commands: str | list[str] | dict[str, str | float] | None = None,
         stage_name: str | None = None,
         after_stage: str | int | None = None,

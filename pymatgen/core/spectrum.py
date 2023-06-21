@@ -64,12 +64,12 @@ class Spectrum(MSONable):
         self._args = args
         self._kwargs = kwargs
 
-    def __getattr__(self, item):
-        if item == self.XLABEL.lower():
+    def __getattr__(self, name):
+        if name == self.XLABEL.lower():
             return self.x
-        if item == self.YLABEL.lower():
+        if name == self.YLABEL.lower():
             return self.y
-        raise AttributeError(f"Invalid attribute name {item!s}")
+        raise AttributeError(f"Invalid attribute {name=}")
 
     def __len__(self):
         return self.ydim[0]

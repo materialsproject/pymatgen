@@ -248,7 +248,7 @@ def _get_shifts(shift_mode, structure):
             return shifts
         return ((0, 0, 0),)
 
-    raise ValueError(f"invalid shift_mode: `{shift_mode!s}`")
+    raise ValueError(f"invalid {shift_mode=}")
 
 
 def gs_input(
@@ -1106,7 +1106,7 @@ class BasicMultiDataset:
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:
-                raise self.Error(f"Cannot find the following pseudopotential files:\n{missing!s}")
+                raise self.Error(f"Cannot find the following pseudopotential files:\n{missing}")
 
             pseudos = PseudoTable(pseudo_paths)
 

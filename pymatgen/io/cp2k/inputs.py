@@ -2720,22 +2720,22 @@ class GthPotential(AtomicMetadata):
         """
         Convert model to a GTH-formatted string
         """
-        if (
-            self.info is None
-            or self.n_elecs is None
-            or self.r_loc is None
-            or self.nexp_ppl is None
-            or self.c_exp_ppl is None
-            or self.radii is None
-            or self.nprj is None
-            or self.nprj_ppnl is None
-            or self.hprj_ppnl is None
+        if None in (
+            self.info,
+            self.n_elecs,
+            self.r_loc,
+            self.nexp_ppl,
+            self.c_exp_ppl,
+            self.radii,
+            self.nprj,
+            self.nprj_ppnl,
+            self.hprj_ppnl,
         ):
             raise ValueError("Must initialize all attributes in order to get string")
 
-        out = f"{self.element!s} {self.name} {' '.join(self.alias_names)}\n"
+        out = f"{self.element} {self.name} {' '.join(self.alias_names)}\n"
         out += f"{' '.join(str(self.n_elecs[i]) for i in range(len(self.n_elecs)))}\n"
-        out += f"{self.r_loc: .14f} {self.nexp_ppl!s} "
+        out += f"{self.r_loc: .14f} {self.nexp_ppl} "
         for i in range(self.nexp_ppl):
             out += f"{self.c_exp_ppl[i]: .14f} "
         out += "\n"

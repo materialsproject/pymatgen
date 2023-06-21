@@ -1097,8 +1097,8 @@ class DopingTransformation(AbstractTransformation):
 
         lengths = structure.lattice.abc
         scaling = [max(1, int(round(math.ceil(self.min_length / x)))) for x in lengths]
-        logger.info(f"Lengths are {lengths!s}")
-        logger.info(f"Scaling = {scaling!s}")
+        logger.info(f"{lengths=}")
+        logger.info(f"{scaling=}")
 
         all_structures = []
         trafo = EnumerateStructureTransformation(**self.kwargs)

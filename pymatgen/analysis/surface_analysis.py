@@ -1227,8 +1227,8 @@ class SurfaceEnergyPlotter:
         delu_dict = delu_dict or {}
         plt = plt if plt else pretty_plot(12, 8)
         el1, el2 = str(elements[0]), str(elements[1])
-        delu1 = Symbol(f"delu_{elements[0]!s}")
-        delu2 = Symbol(f"delu_{elements[1]!s}")
+        delu1 = Symbol(f"delu_{elements[0]}")
+        delu2 = Symbol(f"delu_{elements[1]}")
         range1 = ranges[0]
         range2 = ranges[1]
 

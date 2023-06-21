@@ -164,7 +164,7 @@ def setup_potcars(potcar_dirs: list[str]):
                     with subprocess.Popen(["gzip", "-f", dest]) as p:
                         p.communicate()
                 except Exception as ex:
-                    print(f"An error has occurred. Message is {ex!s}. Trying to continue... ")
+                    print(f"An error has occurred. Message is {ex}. Trying to continue... ")
 
     print(
         "\nPSP resources directory generated. It is recommended that you "

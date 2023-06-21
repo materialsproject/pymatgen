@@ -269,7 +269,7 @@ class DictSet(VaspInputSet):
         user_potcar_settings=None,
         constrain_total_magmom: bool = False,
         sort_structure: bool = True,
-        user_potcar_functional: UserPotcarFunctional = None,
+        user_potcar_functional: UserPotcarFunctional | None = None,
         force_gamma: bool = False,
         reduce_structure=None,
         vdw=None,

@@ -110,7 +110,7 @@ class LammpsMinimization(BaseLammpsGenerator):
 
     def __init__(
         self,
-        template: str = None,
+        template: str | None = None,
         units: str = "metal",
         atom_style: str = "full",
         dimension: int = 3,

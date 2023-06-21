@@ -36,7 +36,7 @@ class Interface(Structure):
         in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 0,
         vacuum_over_film: float = 0,
-        interface_properties: dict = None,
+        interface_properties: dict | None = None,
     ):
         """
         Makes an interface structure, a structure object with additional information
@@ -343,7 +343,7 @@ class Interface(Structure):
         in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 1.6,
         vacuum_over_film: float = 0,
-        interface_properties: dict = None,
+        interface_properties: dict | None = None,
         center_slab: bool = True,
     ) -> Interface:
         """

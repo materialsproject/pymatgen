@@ -559,11 +559,11 @@ class AdfTask(MSONable):
 
     def __str__(self):
         s = f"""TITLE {self.title}\n
-{self.units!s}
-{self.xc!s}
-{self.basis_set!s}
-{self.scf!s}
-{self.geo!s}"""
+{self.units}
+{self.xc}
+{self.basis_set}
+{self.scf}
+{self.geo}"""
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
