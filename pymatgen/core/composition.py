@@ -440,10 +440,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         c = self.element_composition
         elements = sorted(el.symbol for el in c)
+        hill_elements = []
         if "C" in elements:
-            elements = ["C"] + [el for el in elements if el != "C"]
+            hill_elements.append("C")
+            elements.remove("C")
+            if "H" in elements:
+                hill_elements.append("H")
+                elements.remove("H")
+        hill_elements += elements
 
-        formula = [f"{el}{formula_double_format(c[el]) if c[el] != 1 else ''}" for el in elements]
+        formula = [f"{el}{formula_double_format(c[el]) if c[el] != 1 else ''}" for el in hill_elements]
         return " ".join(formula)
 
     @property
