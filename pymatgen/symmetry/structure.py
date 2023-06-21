@@ -39,7 +39,7 @@ class SymmetrizedStructure(Structure):
             structure (Structure): Original structure
             spacegroup (SpacegroupOperations): An input SpacegroupOperations from SpacegroupAnalyzer.
             equivalent_positions (list[int]): Equivalent positions from SpacegroupAnalyzer.
-            wyckoff_letters (list[str]): Wyckoff letters
+            wyckoff_letters (list[str]): Wyckoff letters.
         """
         self.spacegroup = spacegroup
         uniq, inverse = np.unique(equivalent_positions, return_inverse=True)
@@ -77,7 +77,7 @@ class SymmetrizedStructure(Structure):
 
     def find_equivalent_sites(self, site: PeriodicSite) -> list[PeriodicSite]:
         """
-        Finds all symmetrically equivalent sites for a particular site
+        Finds all symmetrically equivalent sites for a particular site.
 
         Args:
             site (PeriodicSite): A site in the structure

@@ -69,12 +69,10 @@ ignore = [
   "D200",    # One-line docstring should fit on one line with quotes
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
-  "D415",    # First line should end with a period, question mark, or exclamation point
   "PD901",   # pandas-df-variable-name
   "PLC0414", # useless-import-alias
   "PLC1901", # compare-to-empty-string
   "PLR",     # pylint refactor
-  "PLR2004", # Magic number
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT011",   # pytest-raises-too-broad
   "PT013",   # pytest-incorrect-pytest-import

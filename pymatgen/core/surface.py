@@ -422,7 +422,7 @@ class Slab(Structure):
     @property
     def normal(self):
         """
-        Calculates the surface normal vector of the slab
+        Calculates the surface normal vector of the slab.
         """
         normal = np.cross(self.lattice.matrix[0], self.lattice.matrix[1])
         normal /= np.linalg.norm(normal)
@@ -431,7 +431,7 @@ class Slab(Structure):
     @property
     def surface_area(self):
         """
-        Calculates the surface area of the slab
+        Calculates the surface area of the slab.
         """
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
@@ -439,7 +439,7 @@ class Slab(Structure):
     @property
     def center_of_mass(self):
         """
-        Calculates the center of mass of the slab
+        Calculates the center of mass of the slab.
         """
         weights = [s.species.weight for s in self]
         center_of_mass = np.average(self.frac_coords, weights=weights, axis=0)
@@ -448,7 +448,7 @@ class Slab(Structure):
     def add_adsorbate_atom(self, indices, specie, distance):
         """
         Gets the structure of single atom adsorption.
-        slab structure from the Slab class(in [0, 0, 1])
+        slab structure from the Slab class(in [0, 0, 1]).
 
         Args:
             indices ([int]): Indices of sites on which to put the absorbate.
@@ -1564,7 +1564,7 @@ class ReconstructionGenerator:
 def get_d(slab):
     """
     Determine the distance of space between
-    each layer of atoms along c
+    each layer of atoms along c.
     """
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
     for i, site in enumerate(sorted_sites):
@@ -1577,7 +1577,7 @@ def get_d(slab):
 def is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list) -> bool:
     """
     Helper function to check if a given Miller index is
-    part of the family of indices of any index in a list
+    part of the family of indices of any index in a list.
 
     Args:
         miller_index (tuple): The Miller index to analyze
@@ -1716,7 +1716,7 @@ def hkl_transformation(transf, miller_index):
     Args:
         transf (3x3 array): The transformation matrix
             that transforms a lattice of A to B
-        miller_index ([h, k, l]): Miller index to transform to setting B
+        miller_index ([h, k, l]): Miller index to transform to setting B.
     """
     # Get a matrix of whole numbers (ints)
 
@@ -1878,7 +1878,7 @@ def get_slab_regions(slab, blength=3.5):
         slab (Structure): Structure object modelling the surface
         blength (float, Ang): The bondlength between atoms. You generally
             want this value to be larger than the actual bondlengths in
-            order to find atoms that are part of the slab
+            order to find atoms that are part of the slab.
     """
     fcoords, indices, all_indices = [], [], []
     for site in slab:

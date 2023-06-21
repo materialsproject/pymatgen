@@ -1,5 +1,5 @@
 """
-This module provides
+This module provides.
 """
 
 from __future__ import annotations
@@ -128,7 +128,7 @@ class XcFunc(MSONable):
 
     @classmethod
     def from_abinit_ixc(cls, ixc):
-        """Build the object from Abinit ixc (integer)"""
+        """Build the object from Abinit ixc (integer)."""
         ixc = int(ixc)
         if ixc == 0:
             return None
@@ -148,7 +148,7 @@ class XcFunc(MSONable):
 
     @classmethod
     def from_name(cls, name):
-        """Build the object from one of the registered names"""
+        """Build the object from one of the registered names."""
         return cls.from_type_name(None, name)
 
     @classmethod
@@ -228,7 +228,7 @@ class XcFunc(MSONable):
     def name(self) -> str:
         """
         The name of the functional. If the functional is not found in the aliases,
-        the string has the form X_NAME+C_NAME
+        the string has the form X_NAME+C_NAME.
         """
         if self.xc in self.defined_aliases:
             return self.defined_aliases[self.xc].name

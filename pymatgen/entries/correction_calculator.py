@@ -93,7 +93,7 @@ class CorrectionCalculator:
                     {"formula": chemical formula, "exp energy": formation energy in eV/formula unit,
                     "uncertainty": uncertainty in formation energy}
             comp_gz: name of .json.gz file that contains computed entries
-                    data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry}
+                    data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry}.
         """
         exp_entries = loadfn(exp_gz)
         calc_entries = loadfn(comp_gz)

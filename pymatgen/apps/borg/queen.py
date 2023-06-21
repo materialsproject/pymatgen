@@ -91,7 +91,7 @@ class BorgQueen:
 
     def get_data(self):
         """
-        Returns an list of assimilated objects
+        Returns an list of assimilated objects.
         """
         return self._data
 
@@ -109,7 +109,7 @@ class BorgQueen:
 
     def load_data(self, filename):
         """
-        Load assimilated data from a file
+        Load assimilated data from a file.
         """
         with zopen(filename, "rt") as f:
             self._data = json.load(f, cls=MontyDecoder)
@@ -117,7 +117,7 @@ class BorgQueen:
 
 def order_assimilation(args):
     """
-    Internal helper method for BorgQueen to process assimilation
+    Internal helper method for BorgQueen to process assimilation.
     """
     (path, drone, data, status) = args
     newdata = drone.assimilate(path)

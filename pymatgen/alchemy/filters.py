@@ -54,7 +54,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             strict_compare: if true, compares objects by specie or element
                 object if false, compares atomic number
             exclude: If true, returns false for any structures with the specie
-                (excludes them from the Transmuter)
+                (excludes them from the Transmuter).
         """
         self._species = list(map(get_el_sp, species))
         self._strict = strict_compare
@@ -99,7 +99,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
 
     def as_dict(self):
         """
-        Returns: MSONable dict
+        Returns: MSONable dict.
         """
         return {
             "@module": type(self).__module__,
@@ -116,7 +116,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict representation
+            dct (dict): Dict representation.
 
         Returns:
             Filter
@@ -167,7 +167,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
 
     def as_dict(self):
         """
-        Returns: MSONable dict
+        Returns: MSONable dict.
         """
         return {
             "@module": type(self).__module__,
@@ -179,7 +179,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict representation
+            dct (dict): Dict representation.
 
         Returns:
             Filter
@@ -216,7 +216,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     def test(self, structure: Structure):
         """
         Args:
-            structure (Structure): Input structure to test
+            structure (Structure): Input structure to test.
 
         Returns: True if structure is not in list.
         """
@@ -293,7 +293,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
 
     def as_dict(self):
         """
-        Returns: MSONable dict
+        Returns: MSONable dict.
         """
         return {
             "@module": type(self).__module__,

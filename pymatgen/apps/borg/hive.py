@@ -143,7 +143,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     def get_valid_paths(self, path):
         """
-        Checks if paths contains vasprun.xml or (POSCAR+OSZICAR)
+        Checks if paths contains vasprun.xml or (POSCAR+OSZICAR).
 
         Args:
             path: input path as a tuple generated from os.walk, i.e.,
@@ -171,7 +171,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     def as_dict(self):
         """
-        Returns: MSONABle dict
+        Returns: MSONABle dict.
         """
         return {
             "init_args": {
@@ -187,7 +187,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             VaspToComputedEntryDrone
@@ -288,7 +288,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
     def as_dict(self):
         """
-        Returns: MSONable dict
+        Returns: MSONable dict.
         """
         return {
             "init_args": {"inc_structure": self._inc_structure},
@@ -300,7 +300,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             SimpleVaspToComputedEntryDrone
@@ -408,7 +408,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
     def as_dict(self):
         """
-        Returns: MSONable dict
+        Returns: MSONable dict.
         """
         return {
             "init_args": {
@@ -425,7 +425,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             GaussianToComputedEntryDrone

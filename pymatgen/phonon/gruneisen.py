@@ -53,7 +53,7 @@ class GruneisenParameter(MSONable):
             multiplicities: list of multiplicities
             structure: The crystal structure (as a pymatgen Structure object) associated with the gruneisen parameters.
             lattice: The reciprocal lattice as a pymatgen Lattice object. Pymatgen uses the physics convention of
-                     reciprocal lattice vectors WITH a 2*pi coefficient
+                     reciprocal lattice vectors WITH a 2*pi coefficient.
         """
         self.qpoints = qpoints
         self.gruneisen = gruneisen
@@ -157,13 +157,13 @@ class GruneisenParameter(MSONable):
     @requires(phonopy, "This method requires phonopy to be installed")
     def tdos(self):
         """
-        The total DOS (re)constructed from the gruneisen.yaml file
+        The total DOS (re)constructed from the gruneisen.yaml file.
         """
 
         # Here, we will reuse phonopy classes
         class TempMesh:
             """
-            Temporary Class
+            Temporary Class.
             """
 
         a = TempMesh()
@@ -178,7 +178,7 @@ class GruneisenParameter(MSONable):
     @property
     def phdos(self):
         """
-        Returns: PhononDos object
+        Returns: PhononDos object.
         """
         return PhononDos(self.tdos.frequency_points, self.tdos.dos)
 
@@ -271,7 +271,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
             coords_are_cartesian: Whether the qpoint coordinates are Cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
-                provide projections to the band structure
+                provide projections to the band structure.
         """
         PhononBandStructure.__init__(
             self,
@@ -290,7 +290,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
     def as_dict(self):
         """
         Returns:
-            MSONable (dict)
+            MSONable (dict).
         """
         d = {
             "@module": type(self).__module__,
@@ -321,7 +321,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict representation
+            dct (dict): Dict representation.
 
         Returns:
             GruneisenPhononBandStructure: Phonon band structure with Grueneisen parameters.
@@ -381,7 +381,7 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
             coords_are_cartesian: Whether the qpoint coordinates are cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
-                provide projections to the band structure
+                provide projections to the band structure.
         """
         GruneisenPhononBandStructure.__init__(
             self,
@@ -403,7 +403,7 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
     def from_dict(cls, dct):
         """
         Args:
-            dct: Dict representation
+            dct: Dict representation.
 
         Returns: GruneisenPhononBandStructureSymmLine
         """

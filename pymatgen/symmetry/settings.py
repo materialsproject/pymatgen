@@ -1,5 +1,5 @@
 """
-This module provides classes for non-standard space-group settings
+This module provides classes for non-standard space-group settings.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ __date__ = "Apr 2017"
 
 class JonesFaithfulTransformation:
     """
-    Transformation for space-groups defined in a non-standard setting
+    Transformation for space-groups defined in a non-standard setting.
     """
 
     def __init__(self, P, p):

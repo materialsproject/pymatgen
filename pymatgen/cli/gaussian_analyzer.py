@@ -64,7 +64,7 @@ def get_energies(rootdir, reanalyze, verbose):
 
 def main():
     """
-    Main function
+    Main function.
     """
     desc = """
     Convenient Gaussian run analyzer which can recursively go into a directory

@@ -36,7 +36,7 @@ __date__ = "August 09, 2022"
 class ThermalDisplacementMatrices(MSONable):
     """
     Class to handle thermal displacement matrices
-    This class stores thermal displacement matrices in Ucart format
+    This class stores thermal displacement matrices in Ucart format.
 
     An earlier implementation based on Matlab can be found here:
     https://github.com/JaGeo/MolecularToolbox
@@ -55,7 +55,7 @@ class ThermalDisplacementMatrices(MSONable):
             thermal_displacement_matrix_cif: 2D numpy array including the thermal_displacement matrix Ucif format
                 1st dimension atom types, then compressed thermal displacement matrix will follow
                 U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
-                convention similar to "thermal_displacement_matrices.yaml" in phonopy
+                convention similar to "thermal_displacement_matrices.yaml" in phonopy.
         """
         self.thermal_displacement_matrix_cart = np.array(thermal_displacement_matrix_cart)
         self.structure = structure
@@ -78,7 +78,7 @@ class ThermalDisplacementMatrices(MSONable):
     @staticmethod
     def get_full_matrix(thermal_displacement):
         """
-        Transfers the reduced matrix to the full matrix (order of reduced matrix U11, U22, U33, U23, U13, U12)
+        Transfers the reduced matrix to the full matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
 
         Args:
             thermal_displacement: 2d numpy array, first dimension are the atoms
@@ -103,7 +103,7 @@ class ThermalDisplacementMatrices(MSONable):
     @staticmethod
     def get_reduced_matrix(thermal_displacement):
         """
-        Transfers the full matrix to reduced matrix (order of reduced matrix U11, U22, U33, U23, U13, U12)
+        Transfers the full matrix to reduced matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
 
         Args:
             thermal_displacement: 2d numpy array, first dimension are the atoms
@@ -126,7 +126,7 @@ class ThermalDisplacementMatrices(MSONable):
     def Ustar(self):
         """
         Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-        Returns: Ustar as a numpy array, first dimension are the atoms in the structure
+        Returns: Ustar as a numpy array, first dimension are the atoms in the structure.
         """
         A = self.structure.lattice.matrix.T
         Ainv = np.linalg.inv(A)
@@ -140,7 +140,7 @@ class ThermalDisplacementMatrices(MSONable):
     def Ucif(self):
         """
         Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-        Returns: Ucif as a numpy array, first dimension are the atoms in the structure
+        Returns: Ucif as a numpy array, first dimension are the atoms in the structure.
         """
         if self.thermal_displacement_matrix_cif is None:
             # computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
@@ -161,7 +161,7 @@ class ThermalDisplacementMatrices(MSONable):
     def B(self):
         """
         Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-        Returns: B as a numpy array, first dimension are the atoms in the structure
+        Returns: B as a numpy array, first dimension are the atoms in the structure.
         """
         B = []
         for mat in self.Ucif:
@@ -173,7 +173,7 @@ class ThermalDisplacementMatrices(MSONable):
     def beta(self):
         """
         Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-        Returns: beta as a numpy array, first dimension are the atoms in the structure
+        Returns: beta as a numpy array, first dimension are the atoms in the structure.
         """
         # will compute beta based on Ustar
         beta = []
@@ -186,7 +186,7 @@ class ThermalDisplacementMatrices(MSONable):
     def U1U2U3(self):
         """
         Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
-        Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure
+        Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure.
         """
         U1U2U3 = []
         for mat in self.thermal_displacement_matrix_cart_matrixform:
@@ -195,7 +195,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     def write_cif(self, filename):
         """
-        Writes a cif including thermal displacements
+        Writes a cif including thermal displacements.
 
         Args:
             filename: name of the cif file
@@ -235,7 +235,7 @@ class ThermalDisplacementMatrices(MSONable):
     def compute_directionality_quality_criterion(self, other):
         """
         Will compute directionality of prolate displacement ellipsoids as described in
-        https://doi.org/10.1039/C9CE00794F with the earlier implementation: https://github.com/damMroz/Angle/
+        https://doi.org/10.1039/C9CE00794F with the earlier implementation: https://github.com/damMroz/Angle/.
 
         Args:
             other: ThermalDisplacementMatrix
@@ -398,7 +398,7 @@ class ThermalDisplacementMatrices(MSONable):
     @staticmethod
     def from_Ucif(thermal_displacement_matrix_cif, structure, temperature):
         """
-        Starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class
+        Starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class.
 
         Args:
             thermal_displacement_matrix_cif: np.array,
@@ -444,7 +444,7 @@ class ThermalDisplacementMatrices(MSONable):
         E.g., with code like this:
         def sort_order(site):
             return [site.specie.X, site.frac_coords[0], site.frac_coords[1], site.frac_coords[2]]
-        new_structure0 = Structure.from_sites(sorted(structure0, key=sort_order))
+        new_structure0 = Structure.from_sites(sorted(structure0, key=sort_order)).
 
         Returns: Structure object.
         """
@@ -499,7 +499,7 @@ class ThermalDisplacementMatrices(MSONable):
         Reads a cif with P1 symmetry including positions and ADPs.
         Currently, no check of symmetry is performed as CifParser methods cannot be easily reused
         Args:
-            filename: Filename of the cif
+            filename: Filename of the cif.
 
         Returns: ThermalDisplacementMatrices Object.
 

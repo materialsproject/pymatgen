@@ -22,7 +22,7 @@ __date__ = "Aug 13 2016"
 
 def convert_fmt(args):
     """
-    Convert files from one format to another
+    Convert files from one format to another.
 
     Args:
         args (dict): Args from argparse.

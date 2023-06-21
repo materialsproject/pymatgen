@@ -232,7 +232,7 @@ class TransformedStructure(MSONable):
 
     def set_parameter(self, key: str, value: Any) -> None:
         """
-        Set a parameter
+        Set a parameter.
 
         :param key: The string key
         :param value: The value.

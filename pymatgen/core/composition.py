@@ -219,7 +219,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __mul__(self, other: object) -> Composition:
         """
         Multiply a Composition by an integer or a float.
-        Fe2O3 * 4 -> Fe8O12
+        Fe2O3 * 4 -> Fe8O12.
         """
         if not isinstance(other, (int, float)):
             return NotImplemented
@@ -236,7 +236,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def __hash__(self) -> int:
         """
-        Hash based on the chemical system
+        Hash based on the chemical system.
         """
         return hash(frozenset(self._data))
 
@@ -313,7 +313,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         effectively follows the groups and rows of the periodic table, except
         the Lanthanides, Actinides and hydrogen. Polyanions are still determined
         based on the true electronegativity of the elements.
-        e.g. CH2(SO4)2
+        e.g. CH2(SO4)2.
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda s: get_el_sp(s).iupac_ordering)
@@ -473,14 +473,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def num_atoms(self) -> float:
         """
         Total number of atoms in Composition. For negative amounts, sum
-        of absolute values
+        of absolute values.
         """
         return self._natoms
 
     @property
     def weight(self) -> float:
         """
-        Total molecular weight of Composition
+        Total molecular weight of Composition.
         """
         return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")
 
@@ -552,7 +552,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def _parse_formula(self, formula: str) -> dict[str, float]:
         """
         Args:
-            formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
+            formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3.
 
         Returns:
             Composition with that formula.
@@ -669,7 +669,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         Returns:
             dict[str, float]: element symbol and (unreduced) amount. E.g.
-                {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
+                {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}.
         """
         dic: dict[str, float] = collections.defaultdict(float)
         for el, amt in self.items():
@@ -701,7 +701,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def to_weight_dict(self) -> dict[str, float]:
         """
         Returns:
-            dict[str, float] with weight fraction of each component {"Ti": 0.90, "V": 0.06, "Al": 0.04}
+            dict[str, float] with weight fraction of each component {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
         """
         return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
@@ -1020,7 +1020,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         Takes in a formula where capitalization might not be correctly entered,
         and suggests a ranked list of potential Composition matches.
-        Author: Anubhav Jain
+        Author: Anubhav Jain.
 
         Args:
             fuzzy_formula (str): A formula string, such as "co2o3" or "MN",
@@ -1062,7 +1062,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         A recursive helper method for formula parsing that helps in
         interpreting and ranking indeterminate formulas.
-        Author: Anubhav Jain
+        Author: Anubhav Jain.
 
         Args:
             fuzzy_formula (str): A formula string, such as "co2o3" or "MN",
@@ -1084,7 +1084,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             """
             A helper method for formula parsing that helps in interpreting and
             ranking indeterminate formulas
-            Author: Anubhav Jain
+            Author: Anubhav Jain.
 
             Args:
                 m: A regex match, with the first group being the element and
@@ -1255,7 +1255,7 @@ class ChemicalPotential(dict, MSONable):
         """
         Args:
             *args: any valid dict init arguments
-            **kwargs: any valid dict init arguments
+            **kwargs: any valid dict init arguments.
         """
         dct = dict(*args, **kwargs)
         super().__init__((get_el_sp(k), v) for k, v in dct.items())
@@ -1306,7 +1306,7 @@ class ChemicalPotential(dict, MSONable):
 
 
 class CompositionError(Exception):
-    """Exception class for composition errors"""
+    """Exception class for composition errors."""
 
 
 if __name__ == "__main__":

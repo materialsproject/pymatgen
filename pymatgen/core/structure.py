@@ -283,7 +283,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return self.types_of_species
 
     def group_by_types(self) -> Iterator[Site | PeriodicSite]:
-        """Iterate over species grouped by type"""
+        """Iterate over species grouped by type."""
         for sp_typ in self.types_of_species:
             for site in self:
                 if site.specie == sp_typ:
@@ -300,7 +300,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     def symbol_set(self) -> tuple[str, ...]:
         """
         Tuple with the set of chemical symbols.
-        Note that len(symbol_set) == len(types_of_specie)
+        Note that len(symbol_set) == len(types_of_specie).
         """
         return tuple(sorted(specie.symbol for specie in self.types_of_species))
 
@@ -368,7 +368,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     @property
     def composition(self) -> Composition:
         """
-        (Composition) Returns the composition
+        (Composition) Returns the composition.
         """
         elem_map: dict[Species, float] = collections.defaultdict(float)
         for site in self:
@@ -590,7 +590,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     def add_oxidation_state_by_guess(self, **kwargs) -> None:
         """
         Decorates the structure with oxidation state, guessing
-        using Composition.oxi_state_guesses()
+        using Composition.oxi_state_guesses().
 
         Args:
             **kwargs: parameters to pass into oxi_state_guesses()
@@ -649,7 +649,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     def extract_cluster(self, target_sites: list[Site], **kwargs) -> list[Site]:
         """
-        Extracts a cluster of atoms based on bond lengths
+        Extracts a cluster of atoms based on bond lengths.
 
         Args:
             target_sites (list[Site]): Initial sites from which to nucleate cluster.
@@ -1189,7 +1189,7 @@ class IStructure(SiteCollection, MSONable):
     @property
     def charge(self) -> float:
         """
-        Overall charge of the structure
+        Overall charge of the structure.
         """
         formal_charge = super().charge
         if self._charge is None:
@@ -1304,7 +1304,7 @@ class IStructure(SiteCollection, MSONable):
 
     def __mul__(self, scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]]) -> Structure:
         """
-        Makes a supercell. Allowing to have sites outside the unit cell
+        Makes a supercell. Allowing to have sites outside the unit cell.
 
         Args:
             scaling_matrix: A scaling matrix for transforming the lattice
@@ -2303,7 +2303,7 @@ class IStructure(SiteCollection, MSONable):
         def pbc_coord_intersection(fc1, fc2, tol):
             """
             Returns the fractional coords in fc1 that have coordinates
-            within tolerance to some coordinate in fc2
+            within tolerance to some coordinate in fc2.
             """
             d = fc1[:, None, :] - fc2[None, :, :]
             d -= np.round(d)
@@ -2973,7 +2973,7 @@ class IMolecule(SiteCollection, MSONable):
     @property
     def charge(self) -> float:
         """
-        Charge of molecule
+        Charge of molecule.
         """
         return self._charge
 
@@ -3144,7 +3144,7 @@ class IMolecule(SiteCollection, MSONable):
 
     def as_dict(self):
         """
-        JSON-serializable dict representation of Molecule
+        JSON-serializable dict representation of Molecule.
         """
         d = {
             "@module": type(self).__module__,
@@ -4153,7 +4153,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def set_charge(self, new_charge: float = 0.0) -> None:
         """
-        Sets the overall structure charge
+        Sets the overall structure charge.
 
         Args:
             new_charge (float): new charge to set

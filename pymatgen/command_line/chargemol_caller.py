@@ -356,7 +356,7 @@ class ChargemolAnalysis:
         compute_bond_orders=True,
     ):
         """
-        Writes job_script.txt for Chargemol execution
+        Writes job_script.txt for Chargemol execution.
 
         Args:
             net_charge (float): Net charge of the system.
@@ -422,7 +422,7 @@ class ChargemolAnalysis:
     @staticmethod
     def _get_dipole_info(filepath):
         """
-        Internal command to process dipoles
+        Internal command to process dipoles.
 
         Args:
             filepath (str): The path to the DDEC6_even_tempered_net_atomic_charges.xyz file
@@ -448,7 +448,7 @@ class ChargemolAnalysis:
     @staticmethod
     def _get_bond_order_info(filename):
         """
-        Internal command to process pairwise bond order information
+        Internal command to process pairwise bond order information.
 
         Args:
             filename (str): The path to the DDEC6_even_tempered_bond_orders.xyz file
@@ -520,7 +520,7 @@ class ChargemolAnalysis:
                 "cm5": {
                             "partial_charges": List[float],
                         }
-            }
+            }.
         """
         summary = {}
         ddec_summary = {
@@ -551,7 +551,7 @@ class ChargemolAnalysis:
     @staticmethod
     def _get_data_from_xyz(xyz_path):
         """
-        Internal command to process Chargemol XYZ files
+        Internal command to process Chargemol XYZ files.
 
         Args:
             xyz_path (str): Path to XYZ file
@@ -576,7 +576,7 @@ class ChargemolAnalysis:
     @staticmethod
     def _get_cm5_data_from_output(ddec_analysis_path):
         """
-        Internal command to process Chargemol CM5 data
+        Internal command to process Chargemol CM5 data.
 
         Args:
             ddec_analysis_path (str): Path VASP_DDEC_analysis.output file

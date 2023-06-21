@@ -3,7 +3,7 @@ BoltzTraP2 is a python software interpolating band structures and
 computing materials properties from dft band structure using Boltzmann
 semi-classical transport theory.
 This module provides a pymatgen interface to BoltzTraP2.
-Some of the code is written following the examples provided in BoltzTraP2
+Some of the code is written following the examples provided in BoltzTraP2.
 
 BoltzTraP2 has been developed by Georg Madsen, Jesús Carrete, Matthieu J. Verstraete.
 
@@ -59,7 +59,7 @@ __date__ = "August 2018"
 
 
 class VasprunBSLoader:
-    """Loader for Bandstructure and Vasprun pmg objects"""
+    """Loader for Bandstructure and Vasprun pmg objects."""
 
     def __init__(self, obj, structure=None, nelect=None):
         """
@@ -132,7 +132,7 @@ class VasprunBSLoader:
 
     @classmethod
     def from_file(cls, vasprun_file):
-        """Get a vasprun.xml file and return a VasprunBSLoader"""
+        """Get a vasprun.xml file and return a VasprunBSLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
         return cls(vrun_obj)
 
@@ -158,7 +158,7 @@ class VasprunBSLoader:
         return self.UCvol
 
     def bandana(self, emin=-np.inf, emax=np.inf):
-        """Cut out bands outside the range (emin,emax)"""
+        """Cut out bands outside the range (emin,emax)."""
         bandmin = np.min(self.ebands_all, axis=1)
         bandmax = np.max(self.ebands_all, axis=1)
         ntoolow = np.count_nonzero(bandmax <= emin)
@@ -185,7 +185,7 @@ class VasprunBSLoader:
 
 
 class BandstructureLoader:
-    """Loader for Bandstructure object"""
+    """Loader for Bandstructure object."""
 
     def __init__(self, bs_obj, structure=None, nelect=None, mommat=None, magmom=None):
         """
@@ -258,7 +258,7 @@ class BandstructureLoader:
         return self.lattvec
 
     def bandana(self, emin=-np.inf, emax=np.inf):
-        """Cut out bands outside the range (emin,emax)"""
+        """Cut out bands outside the range (emin,emax)."""
         bandmin = np.min(self.ebands_all, axis=1)
         bandmax = np.max(self.ebands_all, axis=1)
         ntoolow = np.count_nonzero(bandmax <= emin)
@@ -286,7 +286,7 @@ class BandstructureLoader:
     def set_upper_lower_bands(self, e_lower, e_upper):
         """
         Set fake upper/lower bands, useful to set the same energy
-        range in the spin up/down bands when calculating the DOS
+        range in the spin up/down bands when calculating the DOS.
         """
         warnings.warn(
             "This method does not work anymore in case of spin \
@@ -316,7 +316,7 @@ class BandstructureLoader:
 
 
 class VasprunLoader:
-    """Loader for Vasprun object"""
+    """Loader for Vasprun object."""
 
     def __init__(self, vrun_obj=None):
         """
@@ -360,7 +360,7 @@ class VasprunLoader:
 
     @classmethod
     def from_file(cls, vasprun_file):
-        """Get a vasprun.xml file and return a VasprunLoader"""
+        """Get a vasprun.xml file and return a VasprunLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
         return VasprunLoader(vrun_obj)
 
@@ -375,7 +375,7 @@ class VasprunLoader:
         return self.lattvec
 
     def bandana(self, emin=-np.inf, emax=np.inf):
-        """Cut out bands outside the range (emin,emax)"""
+        """Cut out bands outside the range (emin,emax)."""
         bandmin = np.min(self.ebands, axis=1)
         bandmax = np.max(self.ebands, axis=1)
         ii = np.nonzero(bandmin < emax)
@@ -412,7 +412,7 @@ class VasprunLoader:
 
 class BztInterpolator:
     """
-    Interpolate the dft band structures
+    Interpolate the dft band structures.
     """
 
     def __init__(
@@ -478,7 +478,7 @@ class BztInterpolator:
             self.save(fname, save_bands)
 
     def load(self, fname="bztInterp.json.gz"):
-        """Load the coefficient, equivalences, bands from fname"""
+        """Load the coefficient, equivalences, bands from fname."""
         d = loadfn(fname)
         if len(d) > 2:
             self.equivalences, coeffs, self.eband, self.vvband, self.cband = d
@@ -561,7 +561,7 @@ class BztInterpolator:
 
     def get_dos(self, partial_dos=False, npts_mu=10000, T=None, progress=False):
         """
-        Return a Dos object interpolating bands
+        Return a Dos object interpolating bands.
 
         Args:
             partial_dos: if True, projections will be interpolated as well
@@ -601,7 +601,7 @@ class BztInterpolator:
 
     def get_partial_doses(self, tdos, eband_ud, spins, enr, npts_mu, T, progress):
         """
-        Return a CompleteDos object interpolating the projections
+        Return a CompleteDos object interpolating the projections.
 
         tdos: total dos previously calculated
         npts_mu: number of energy points of the Dos
@@ -1220,7 +1220,7 @@ class BztPlotter:
 
     def plot_bands(self):
         """
-        Plot a band structure on symmetry line using BSPlotter()
+        Plot a band structure on symmetry line using BSPlotter().
         """
         if self.bzt_interp is None:
             raise BoltztrapError("BztInterpolator not present")
@@ -1231,7 +1231,7 @@ class BztPlotter:
 
     def plot_dos(self, T=None, npoints=10000):
         """
-        Plot the total Dos using DosPlotter()
+        Plot the total Dos using DosPlotter().
         """
         if self.bzt_interp is None:
             raise BoltztrapError("BztInterpolator not present")

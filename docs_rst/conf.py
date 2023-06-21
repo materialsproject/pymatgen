@@ -323,7 +323,7 @@ epub_copyright = copyright
 
 def linkcode_resolve(domain, info):
     """Resolve function for the linkcode extension.
-    Thanks to https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py
+    Thanks to https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py.
     """
 
     def find_source():

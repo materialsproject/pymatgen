@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
-    """Setup CP2K basis and potential data directory"""
+    """Setup CP2K basis and potential data directory."""
     data_dir, target_dir = (os.path.abspath(dir) for dir in cp2k_data_dirs)
     try:
         os.mkdir(target_dir)

@@ -79,7 +79,7 @@ class Critic2Caller:
     )
     def __init__(self, input_script):
         """
-        Run Critic2 on a given input script
+        Run Critic2 on a given input script.
 
         :param input_script: string defining the critic2 input
         """
@@ -385,7 +385,7 @@ class CriticalPoint(MSONable):
     @property
     def type(self):
         """
-        Returns: Instance of CriticalPointType
+        Returns: Instance of CriticalPointType.
         """
         return CriticalPointType(self._type)
 
@@ -395,7 +395,7 @@ class CriticalPoint(MSONable):
     @property
     def laplacian(self):
         """
-        Returns: The Laplacian of the field at the critical point
+        Returns: The Laplacian of the field at the critical point.
         """
         return np.trace(self.field_hessian)
 
@@ -406,7 +406,7 @@ class CriticalPoint(MSONable):
         can be physically interpreted as e.g. degree
         of pi-bonding in organic molecules. Consult
         literature for more information.
-        Returns: The ellpiticity of the field at the critical point
+        Returns: The ellpiticity of the field at the critical point.
         """
         eig, _ = np.linalg.eig(self.field_hessian)
         eig.sort()
@@ -599,7 +599,7 @@ class Critic2Analysis(MSONable):
     def get_critical_point_for_site(self, n: int):
         """
         Args:
-            n (int): Site index
+            n (int): Site index.
 
         Returns: A CriticalPoint instance
         """
@@ -608,7 +608,7 @@ class Critic2Analysis(MSONable):
     def get_volume_and_charge_for_site(self, n):
         """
         Args:
-            n: Site index n
+            n: Site index n.
 
         Returns: A dict containing "volume" and "charge" keys,
         or None if YT integration not performed

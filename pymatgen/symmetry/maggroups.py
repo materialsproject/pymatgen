@@ -341,7 +341,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     def symmetry_ops(self):
         """
         Retrieve magnetic symmetry operations of the space group.
-        :return: List of :class:`pymatgen.core.operations.MagSymmOp`
+        :return: List of :class:`pymatgen.core.operations.MagSymmOp`.
         """
         ops = [op_data["op"] for op_data in self._data["bns_operators"]]
 
@@ -436,7 +436,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     def data_str(self, include_og=True):
         """
         Get description of all data, including information for OG setting.
-        :return: str
+        :return: str.
         """
         # __str__() omits information on OG setting to reduce confusion
         # as to which set of symops are active, this property gives
@@ -550,7 +550,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         String representation of the space group, specifying the setting
         of the space group, its magnetic symmetry operators and Wyckoff
         positions.
-        :return: str
+        :return: str.
         """
         return self.data_str(include_og=False)
 

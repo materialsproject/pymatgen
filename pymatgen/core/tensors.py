@@ -1,7 +1,7 @@
 """
 This module provides a base class for tensor-like objects and methods for
 basic tensor manipulation. It also provides a class, SquareTensor,
-that provides basic methods for creating and manipulating rank 2 tensors
+that provides basic methods for creating and manipulating rank 2 tensors.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ DEFAULT_QUAD = loadfn(os.path.join(os.path.dirname(__file__), "quad_data.json"))
 class Tensor(np.ndarray, MSONable):
     """
     Base class for doing useful general operations on Nth order tensors,
-    without restrictions on the type (stress, elastic, strain, piezo, etc.)
+    without restrictions on the type (stress, elastic, strain, piezo, etc.).
     """
 
     symbol = "T"
@@ -87,7 +87,7 @@ class Tensor(np.ndarray, MSONable):
     def __array_wrap__(self, obj):
         """
         Overrides __array_wrap__ methods in ndarray superclass to avoid errors
-        associated with functions that return scalar values
+        associated with functions that return scalar values.
         """
         if len(obj.shape) == 0:
             return obj[()]
@@ -95,7 +95,7 @@ class Tensor(np.ndarray, MSONable):
 
     def __hash__(self):
         """
-        Define a hash function, since numpy arrays have their own __eq__ method
+        Define a hash function, since numpy arrays have their own __eq__ method.
         """
         return hash(self.tostring())
 
@@ -136,7 +136,7 @@ class Tensor(np.ndarray, MSONable):
 
     def einsum_sequence(self, other_arrays, einsum_string=None):
         """
-        Calculates the result of an einstein summation expression
+        Calculates the result of an einstein summation expression.
         """
         if not isinstance(other_arrays, list):
             raise ValueError("other tensors must be list of tensors or tensor input")
@@ -189,7 +189,7 @@ class Tensor(np.ndarray, MSONable):
 
     def get_grouped_indices(self, voigt=False, **kwargs):
         """
-        Gets index sets for equivalent tensor values
+        Gets index sets for equivalent tensor values.
 
         Args:
             voigt (bool): whether to get grouped indices
@@ -225,7 +225,7 @@ class Tensor(np.ndarray, MSONable):
 
     def get_symbol_dict(self, voigt=True, zero_index=False, **kwargs):
         """
-        Creates a summary dict for tensor with associated symbol
+        Creates a summary dict for tensor with associated symbol.
 
         Args:
             voigt (bool): whether to get symbol dict for voigt
@@ -262,7 +262,7 @@ class Tensor(np.ndarray, MSONable):
     def round(self, decimals=0):
         """
         Wrapper around numpy.round to ensure object
-        of same type is returned
+        of same type is returned.
 
         Args:
             decimals :Number of decimal places to round to (default: 0).
@@ -279,7 +279,7 @@ class Tensor(np.ndarray, MSONable):
         """
         Returns a generally symmetrized tensor, calculated by taking
         the sum of the tensor and its transpose with respect to all
-        possible permutations of indices
+        possible permutations of indices.
         """
         perms = list(itertools.permutations(range(self.rank)))
         return sum(np.transpose(self, ind) for ind in perms) / len(perms)
@@ -288,7 +288,7 @@ class Tensor(np.ndarray, MSONable):
     def voigt_symmetrized(self):
         """
         Returns a "voigt"-symmetrized tensor, i. e. a voigt-notation
-        tensor such that it is invariant wrt permutation of indices
+        tensor such that it is invariant wrt permutation of indices.
         """
         if not (self.rank % 2 == 0 and self.rank >= 2):
             raise ValueError("V-symmetrization requires rank even and >= 2")
@@ -301,7 +301,7 @@ class Tensor(np.ndarray, MSONable):
     def is_symmetric(self, tol: float = 1e-5):
         """
         Tests whether a tensor is symmetric or not based on the residual
-        with its symmetric part, from self.symmetrized
+        with its symmetric part, from self.symmetrized.
 
         Args:
             tol (float): tolerance to test for symmetry
@@ -311,7 +311,7 @@ class Tensor(np.ndarray, MSONable):
     def fit_to_structure(self, structure: Structure, symprec: float = 0.1):
         """
         Returns a tensor that is invariant with respect to symmetry
-        operations corresponding to a structure
+        operations corresponding to a structure.
 
         Args:
             structure (Structure): structure from which to generate
@@ -328,7 +328,7 @@ class Tensor(np.ndarray, MSONable):
         Tests whether a tensor is invariant with respect to the
         symmetry operations of a particular structure by testing
         whether the residual of the symmetric portion is below a
-        tolerance
+        tolerance.
 
         Args:
             structure (Structure): structure to be fit to
@@ -339,7 +339,7 @@ class Tensor(np.ndarray, MSONable):
     @property
     def voigt(self):
         """
-        Returns the tensor in Voigt notation
+        Returns the tensor in Voigt notation.
         """
         v_matrix = np.zeros(self._vscale.shape, dtype=self.dtype)
         this_voigt_map = self.get_voigt_dict(self.rank)
@@ -353,7 +353,7 @@ class Tensor(np.ndarray, MSONable):
         """
         Tests symmetry of tensor to that necessary for voigt-conversion
         by grouping indices into pairs and constructing a sequence of
-        possible permutations to be used in a tensor transpose
+        possible permutations to be used in a tensor transpose.
         """
         transpose_pieces = [[[0 for i in range(self.rank % 2)]]]
         transpose_pieces += [[list(range(j, j + 2))] for j in range(self.rank % 2, self.rank, 2)]
@@ -370,7 +370,7 @@ class Tensor(np.ndarray, MSONable):
     def get_voigt_dict(rank):
         """
         Returns a dictionary that maps indices in the tensor to those
-        in a voigt representation based on input rank
+        in a voigt representation based on input rank.
 
         Args:
             rank (int): Tensor rank to generate the voigt map
@@ -664,7 +664,7 @@ class Tensor(np.ndarray, MSONable):
 
     def as_dict(self, voigt: bool = False) -> dict:
         """
-        Serializes the tensor object
+        Serializes the tensor object.
 
         Args:
             voigt (bool): flag for whether to store entries in
@@ -699,7 +699,7 @@ class Tensor(np.ndarray, MSONable):
 class TensorCollection(collections.abc.Sequence, MSONable):
     """
     A sequence of tensors that can be used for fitting data
-    or for having a tensor expansion
+    or for having a tensor expansion.
     """
 
     def __init__(self, tensor_list, base_class=Tensor):
@@ -888,19 +888,19 @@ class SquareTensor(Tensor):
 
     @property
     def trans(self):
-        """Shorthand for transpose on SquareTensor"""
+        """Shorthand for transpose on SquareTensor."""
         return SquareTensor(np.transpose(self))
 
     @property
     def inv(self):
-        """Shorthand for matrix inverse on SquareTensor"""
+        """Shorthand for matrix inverse on SquareTensor."""
         if self.det == 0:
             raise ValueError("SquareTensor is non-invertible")
         return SquareTensor(np.linalg.inv(self))
 
     @property
     def det(self):
-        """Shorthand for the determinant of the SquareTensor"""
+        """Shorthand for the determinant of the SquareTensor."""
         return np.linalg.det(self)
 
     def is_rotation(self, tol: float = 1e-3, include_improper=True):
@@ -908,7 +908,7 @@ class SquareTensor(Tensor):
         Test to see if tensor is a valid rotation matrix, performs a
         test to check whether the inverse is equal to the transpose
         and if the determinant is equal to one within the specified
-        tolerance
+        tolerance.
 
         Args:
             tol (float): tolerance to both tests of whether the
@@ -927,7 +927,7 @@ class SquareTensor(Tensor):
         Helper method for refining rotation matrix by ensuring
         that second and third rows are perpendicular to the first.
         Gets new y vector from an orthogonal projection of x onto y
-        and the new z vector from a cross product of the new x and y
+        and the new z vector from a cross product of the new x and y.
 
         Args:
             tol to test for rotation
@@ -943,7 +943,7 @@ class SquareTensor(Tensor):
 
     def get_scaled(self, scale_factor):
         """
-        Scales the tensor by a certain multiplicative scale factor
+        Scales the tensor by a certain multiplicative scale factor.
 
         Args:
             scale_factor (float): scalar multiplier to be applied to the
@@ -956,19 +956,19 @@ class SquareTensor(Tensor):
         """
         Returns a list of principal invariants for the tensor,
         which are the values of the coefficients of the characteristic
-        polynomial for the matrix
+        polynomial for the matrix.
         """
         return np.poly(self)[1:] * np.array([-1, 1, -1])
 
     def polar_decomposition(self, side="right"):
         """
-        Calculates matrices for polar decomposition
+        Calculates matrices for polar decomposition.
         """
         return polar(self, side=side)
 
 
 def get_uvec(vec):
-    """Gets a unit vector parallel to input vector"""
+    """Gets a unit vector parallel to input vector."""
     norm = np.linalg.norm(vec)
     if norm < 1e-8:
         return vec
@@ -980,7 +980,7 @@ def symmetry_reduce(tensors, structure: Structure, tol: float = 1e-8, **kwargs):
     Function that converts a list of tensors corresponding to a structure
     and returns a dictionary consisting of unique tensor keys with symmop
     values corresponding to transformations that will result in derivative
-    tensors from the original list
+    tensors from the original list.
 
     Args:
         tensors (list of tensors): list of Tensor objects to test for
@@ -1022,7 +1022,7 @@ class TensorMapping(collections.abc.MutableMapping):
     """
 
     def __init__(self, tensors: Sequence[Tensor] = (), values: Sequence = (), tol: float = 1e-5):
-        """Initialize a TensorMapping
+        """Initialize a TensorMapping.
 
         Args:
             tensors (Sequence[Tensor], optional): Defaults to (,).
