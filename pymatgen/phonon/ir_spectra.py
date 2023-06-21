@@ -2,7 +2,7 @@
 This module provides classes to handle the calculation of the IR spectra
 This implementation is adapted from Abipy
 https://github.com/abinit/abipy
-where it was originally done by Guido Petretto and Matteo Giantomassi
+where it was originally done by Guido Petretto and Matteo Giantomassi.
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ class IRDielectricTensor(MSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        Returns IRDielectricTensor from dict representation
+        Returns IRDielectricTensor from dict representation.
         """
         structure = Structure.from_dict(d["structure"])
         oscillator_strength = d["oscillator_strength"]
@@ -57,12 +57,12 @@ class IRDielectricTensor(MSONable):
 
     @property
     def max_phfreq(self):
-        """Maximum phonon frequency"""
+        """Maximum phonon frequency."""
         return max(self.ph_freqs_gamma)
 
     @property
     def nph_freqs(self):
-        """Number of phonon frequencies"""
+        """Number of phonon frequencies."""
         return len(self.ph_freqs_gamma)
 
     def as_dict(self):
@@ -80,7 +80,7 @@ class IRDielectricTensor(MSONable):
 
     def write_json(self, filename):
         """
-        Save a json file with this data
+        Save a json file with this data.
         """
         import json
 
@@ -89,7 +89,7 @@ class IRDielectricTensor(MSONable):
 
     def get_ir_spectra(self, broad=0.00005, emin=0, emax=None, divs=500):
         """
-        The IR spectra is obtained for the different directions
+        The IR spectra is obtained for the different directions.
 
         Args:
             broad: a list of broadenings or a single broadening for the phonon peaks
@@ -126,7 +126,7 @@ class IRDielectricTensor(MSONable):
     @add_fig_kwargs
     def plot(self, components=("xx",), reim="reim", show_phonon_frequencies=True, xlim=None, ylim=None, **kwargs):
         """
-        Helper function to generate the Spectrum plotter and directly plot the results
+        Helper function to generate the Spectrum plotter and directly plot the results.
 
         Arguments:
             components: A list with the components of the dielectric tensor to plot.
@@ -151,7 +151,7 @@ class IRDielectricTensor(MSONable):
         """
         component: either two indexes or a string like 'xx' to plot the (0,0) component
         reim: only "re" or "im"
-        broad: a list of broadenings or a single broadening for the phonon peaks
+        broad: a list of broadenings or a single broadening for the phonon peaks.
         """
         # some check on component and reim value? but not really necessary maybe
 
@@ -168,7 +168,7 @@ class IRDielectricTensor(MSONable):
 
     def get_plotter(self, components=("xx",), reim="reim", broad=0.00005, emin=0, emax=None, divs=500, **kwargs):
         """
-        Return an instance of the Spectrum plotter containing the different requested components
+        Return an instance of the Spectrum plotter containing the different requested components.
 
         Arguments:
             components: A list with the components of the dielectric tensor to plot.

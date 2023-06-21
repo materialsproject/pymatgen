@@ -54,7 +54,7 @@ class Kpoint(MSONable):
                 Defaults to False.
             coords_are_cartesian: Boolean indicating if the coordinates given are
                 in Cartesian or fractional coordinates (by default fractional)
-            label: the label of the kpoint if any (None by default)
+            label: the label of the kpoint if any (None by default).
         """
         self._lattice = lattice
         self._fcoords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
@@ -70,61 +70,61 @@ class Kpoint(MSONable):
     def lattice(self):
         """
         The lattice associated with the kpoint. It's a
-        pymatgen.core.lattice.Lattice object
+        pymatgen.core.lattice.Lattice object.
         """
         return self._lattice
 
     @property
     def label(self):
         """
-        The label associated with the kpoint
+        The label associated with the kpoint.
         """
         return self._label
 
     @property
     def frac_coords(self):
         """
-        The fractional coordinates of the kpoint as a numpy array
+        The fractional coordinates of the kpoint as a numpy array.
         """
         return np.copy(self._fcoords)
 
     @property
     def cart_coords(self):
         """
-        The Cartesian coordinates of the kpoint as a numpy array
+        The Cartesian coordinates of the kpoint as a numpy array.
         """
         return np.copy(self._ccoords)
 
     @property
     def a(self):
         """
-        Fractional a coordinate of the kpoint
+        Fractional a coordinate of the kpoint.
         """
         return self._fcoords[0]
 
     @property
     def b(self):
         """
-        Fractional b coordinate of the kpoint
+        Fractional b coordinate of the kpoint.
         """
         return self._fcoords[1]
 
     @property
     def c(self):
         """
-        Fractional c coordinate of the kpoint
+        Fractional c coordinate of the kpoint.
         """
         return self._fcoords[2]
 
     def __str__(self):
         """
-        Returns a string with fractional, Cartesian coordinates and label
+        Returns a string with fractional, Cartesian coordinates and label.
         """
         return f"{self.frac_coords} {self.cart_coords} {self.label}"
 
     def as_dict(self):
         """
-        JSON-serializable dict representation of a kpoint
+        JSON-serializable dict representation of a kpoint.
         """
         return {
             "lattice": self.lattice.as_dict(),
@@ -157,7 +157,7 @@ class Kpoint(MSONable):
 class BandStructure:
     """
     This is the most generic band structure data possible
-    it's defined by a list of kpoints + energies for each of them
+    it's defined by a list of kpoints + energies for each of them.
 
     .. attribute:: kpoints:
         the list of kpoints (as Kpoint objects) in the band structure
@@ -291,7 +291,7 @@ class BandStructure:
     def get_projections_on_elements_and_orbitals(self, el_orb_spec):
         """
         Method returning a dictionary of projections on elements and specific
-        orbitals
+        orbitals.
 
         Args:
             el_orb_spec: A dictionary of Elements and Orbitals for which we want
@@ -512,7 +512,7 @@ class BandStructure:
     def get_direct_band_gap_dict(self):
         """
         Returns a dictionary of information about the direct
-        band gap
+        band gap.
 
         Returns:
             a dictionary of the band gaps indexed by spin
@@ -583,7 +583,7 @@ class BandStructure:
         Args:
             kpoint (1x3 array): coordinate of the k-point
             cartesian (bool): kpoint is in Cartesian or fractional coordinates
-            tol (float): tolerance below which coordinates are considered equal
+            tol (float): tolerance below which coordinates are considered equal.
 
         Returns:
             (int or None): degeneracy or None if structure is not available
@@ -1093,7 +1093,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
     def get_projections_on_elements_and_orbitals(self, el_orb_spec):
         """
         Method returning a dictionary of projections on elements and specific
-        orbitals
+        orbitals.
 
         Args:
             el_orb_spec: A dictionary of Elements and Orbitals for which we want

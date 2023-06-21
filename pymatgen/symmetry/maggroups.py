@@ -341,7 +341,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     def symmetry_ops(self):
         """
         Retrieve magnetic symmetry operations of the space group.
-        :return: List of :class:`pymatgen.core.operations.MagSymmOp`
+        :return: List of :class:`pymatgen.core.operations.MagSymmOp`.
         """
         ops = [op_data["op"] for op_data in self._data["bns_operators"]]
 
@@ -436,7 +436,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     def data_str(self, include_og=True):
         """
         Get description of all data, including information for OG setting.
-        :return: str
+        :return: str.
         """
         # __str__() omits information on OG setting to reduce confusion
         # as to which set of symops are active, this property gives
@@ -550,7 +550,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         String representation of the space group, specifying the setting
         of the space group, its magnetic symmetry operators and Wyckoff
         positions.
-        :return: str
+        :return: str.
         """
         return self.data_str(include_og=False)
 
@@ -559,10 +559,8 @@ def _write_all_magnetic_space_groups_to_file(filename):
     """
     Write all magnetic space groups to a human-readable text file.
     Should contain same information as text files provided by ISO-MAG.
-    :param filename:
-    :return:
     """
-    s = (
+    out = (
         "Data parsed from raw data from:\n"
         "ISO-MAG, ISOTROPY Software Suite, iso.byu.edu\n"
         "http://stokes.byu.edu/iso/magnetic_data.txt\n"
@@ -572,6 +570,6 @@ def _write_all_magnetic_space_groups_to_file(filename):
     for i in range(1, 1652):
         all_msgs.append(MagneticSpaceGroup(i))
     for msg in all_msgs:
-        s += f"\n{msg.data_str()}\n\n--------\n"
+        out += f"\n{msg.data_str()}\n\n--------\n"
     with open(filename, "w") as f:
-        f.write(s)
+        f.write(out)

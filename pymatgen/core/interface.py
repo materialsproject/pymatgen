@@ -101,7 +101,7 @@ class Interface(Structure):
     def in_plane_offset(self) -> np.ndarray:
         """
         The shift between the film and substrate in fractional
-        coordinates
+        coordinates.
         """
         return self._in_plane_offset
 
@@ -117,7 +117,7 @@ class Interface(Structure):
     @property
     def gap(self) -> float:
         """
-        The gap in Cartesian units between the film and the substrate
+        The gap in Cartesian units between the film and the substrate.
         """
         return self._gap
 
@@ -135,7 +135,7 @@ class Interface(Structure):
     @property
     def vacuum_over_film(self) -> float:
         """
-        The vacuum space over the film in Cartesian units
+        The vacuum space over the film in Cartesian units.
         """
         return self._vacuum_over_film
 
@@ -152,7 +152,7 @@ class Interface(Structure):
     @property
     def substrate_indices(self) -> list[int]:
         """
-        Site indices for the substrate atoms
+        Site indices for the substrate atoms.
         """
         sub_indices = [i for i, tag in enumerate(self.site_properties["interface_label"]) if "substrate" in tag]
         return sub_indices
@@ -160,7 +160,7 @@ class Interface(Structure):
     @property
     def substrate_sites(self) -> list[Site]:
         """
-        The site objects in the substrate
+        The site objects in the substrate.
         """
         sub_sites = [site for site, tag in zip(self, self.site_properties["interface_label"]) if "substrate" in tag]
         return sub_sites
@@ -168,14 +168,14 @@ class Interface(Structure):
     @property
     def substrate(self) -> Structure:
         """
-        A pymatgen Structure for just the substrate
+        A pymatgen Structure for just the substrate.
         """
         return Structure.from_sites(self.substrate_sites)
 
     @property
     def film_indices(self) -> list[int]:
         """
-        Site indices of the film sites
+        Site indices of the film sites.
         """
         f_indices = [i for i, tag in enumerate(self.site_properties["interface_label"]) if "film" in tag]
         return f_indices
@@ -191,7 +191,7 @@ class Interface(Structure):
     @property
     def film(self) -> Structure:
         """
-        A pymatgen Structure for just the film
+        A pymatgen Structure for just the film.
         """
         return Structure.from_sites(self.film_sites)
 
@@ -221,7 +221,7 @@ class Interface(Structure):
 
     def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> list[tuple[float, float]]:
         """
-        Computes possible in-plane shifts based on an adsorbate site  algorithm
+        Computes possible in-plane shifts based on an adsorbate site  algorithm.
 
         Args:
             tolerance: tolerance for "uniqueness" for shifts in Cartesian unit
@@ -260,17 +260,17 @@ class Interface(Structure):
 
     @property
     def film_termination(self) -> str:
-        """Label for the film termination chemistry"""
+        """Label for the film termination chemistry."""
         return label_termination(self.film)
 
     @property
     def substrate_termination(self) -> str:
-        """Label for the substrate termination chemistry"""
+        """Label for the substrate termination chemistry."""
         return label_termination(self.substrate)
 
     @property
     def film_layers(self) -> int:
-        """Number of layers of the minimum element in the film composition"""
+        """Number of layers of the minimum element in the film composition."""
         sorted_element_list = sorted(
             self.film.composition.element_composition.items(), key=lambda x: x[1], reverse=True
         )
@@ -278,7 +278,7 @@ class Interface(Structure):
 
     @property
     def substrate_layers(self) -> int:
-        """Number of layers of the minimum element in the substrate composition"""
+        """Number of layers of the minimum element in the substrate composition."""
         sorted_element_list = sorted(
             self.substrate.composition.element_composition.items(), key=lambda x: x[1], reverse=True
         )
@@ -287,7 +287,7 @@ class Interface(Structure):
     def __update_c(self, new_c: float) -> None:
         """
         Modifies the c-direction of the lattice without changing the site Cartesian coordinates
-        Be careful you can mess up the interface by setting a c-length that can't accommodate all the sites
+        Be careful you can mess up the interface by setting a c-length that can't accommodate all the sites.
         """
         if new_c <= 0:
             raise ValueError("New c-length must be greater than 0")
@@ -452,7 +452,7 @@ class Interface(Structure):
 
 
 def label_termination(slab: Structure) -> str:
-    """Labels the slab surface termination"""
+    """Labels the slab surface termination."""
     frac_coords = slab.frac_coords
     n = len(frac_coords)
 
@@ -495,7 +495,7 @@ def label_termination(slab: Structure) -> str:
 
 def count_layers(struct: Structure, el=None) -> int:
     """
-    Counts the number of 'layers' along the c-axis
+    Counts the number of 'layers' along the c-axis.
     """
     el = el or struct.composition.elements[0]
     frac_coords = [site.frac_coords for site in struct if site.species_string == str(el)]

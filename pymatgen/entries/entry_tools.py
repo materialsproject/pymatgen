@@ -232,7 +232,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     def chemsys(self) -> set:
         """
         Returns:
-            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}
+            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}.
         """
         chemsys = set()
         for e in self.entries:
@@ -260,7 +260,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
 
     def is_ground_state(self, entry) -> bool:
         """
-        Boolean indicating whether a given Entry is a ground state
+        Boolean indicating whether a given Entry is a ground state.
         """
         return entry in self.ground_states
 
@@ -297,7 +297,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
 
     def to_csv(self, filename: str, latexify_names: bool = False) -> None:
         """
-        Exports PDEntries to a csv
+        Exports PDEntries to a csv.
 
         Args:
             filename: Filename to write to.

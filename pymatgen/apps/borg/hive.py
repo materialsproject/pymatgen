@@ -71,8 +71,9 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
 class VaspToComputedEntryDrone(AbstractDrone):
     """
     VaspToEntryDrone assimilates directories containing VASP output to
-    ComputedEntry/ComputedStructureEntry objects. There are some restrictions
-    on the valid directory structures:
+    ComputedEntry/ComputedStructureEntry objects.
+
+    There are some restrictions on the valid directory structures:
 
     1. There can be only one vasp run in each directory.
     2. Directories designated "relax1", "relax2" are considered to be 2 parts
@@ -143,7 +144,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     def get_valid_paths(self, path):
         """
-        Checks if paths contains vasprun.xml or (POSCAR+OSZICAR)
+        Checks if paths contains vasprun.xml or (POSCAR+OSZICAR).
 
         Args:
             path: input path as a tuple generated from os.walk, i.e.,
@@ -171,7 +172,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     def as_dict(self):
         """
-        Returns: MSONABle dict
+        Returns: MSONABle dict.
         """
         return {
             "init_args": {
@@ -187,7 +188,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             VaspToComputedEntryDrone
@@ -288,7 +289,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
     def as_dict(self):
         """
-        Returns: MSONable dict
+        Returns: MSONable dict.
         """
         return {
             "init_args": {"inc_structure": self._inc_structure},
@@ -300,7 +301,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             SimpleVaspToComputedEntryDrone
@@ -408,7 +409,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
     def as_dict(self):
         """
-        Returns: MSONable dict
+        Returns: MSONable dict.
         """
         return {
             "init_args": {
@@ -425,7 +426,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             GaussianToComputedEntryDrone

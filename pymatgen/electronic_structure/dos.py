@@ -62,7 +62,7 @@ class DOS(Spectrum):
 
     def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """
-        Expects a DOS object and finds the gap
+        Expects a DOS object and finds the gap.
 
         Args:
             tol: tolerance in occupations for determining the gap
@@ -236,7 +236,7 @@ class Dos(MSONable):
     def get_smeared_densities(self, sigma: float):
         """
         Returns the Dict representation of the densities, {Spin: densities},
-        but with a Gaussian smearing of std dev sigma
+        but with a Gaussian smearing of std dev sigma.
 
         Args:
             sigma: Std dev of Gaussian smearing function.
@@ -283,7 +283,7 @@ class Dos(MSONable):
 
     def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """
-        Expects a DOS object and finds the gap
+        Expects a DOS object and finds the gap.
 
         Args:
             tol: tolerance in occupations for determining the gap
@@ -715,7 +715,7 @@ class CompleteDos(Dos):
 
     def get_site_spd_dos(self, site: PeriodicSite) -> dict[OrbitalType, Dos]:
         """
-        Get orbital projected Dos of a particular site
+        Get orbital projected Dos of a particular site.
 
         Args:
             site: Site in Structure associated with CompleteDos.
@@ -792,7 +792,7 @@ class CompleteDos(Dos):
 
     def get_element_spd_dos(self, el: SpeciesLike) -> dict[OrbitalType, Dos]:
         """
-        Get element and spd projected Dos
+        Get element and spd projected Dos.
 
         Args:
             el: Element in Structure.composition associated with CompleteDos
@@ -851,7 +851,7 @@ class CompleteDos(Dos):
     ) -> float:
         """
         Compute the orbital-projected band filling, defined as the zeroth moment
-        up to the Fermi level
+        up to the Fermi level.
 
         Args:
             band: Orbital type to get the band center of (default is d-band)
@@ -1190,7 +1190,7 @@ class CompleteDos(Dos):
         Generates the DOS fingerprint based on work of
         F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
         Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
-        Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno
+        Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
 
 
         Args:
@@ -1267,7 +1267,7 @@ class CompleteDos(Dos):
 
     @staticmethod
     def fp_to_dict(fp: NamedTuple) -> dict:
-        """Converts a fingerprint into a dictionary
+        """Converts a fingerprint into a dictionary.
 
         Args:
             fp: The DOS fingerprint to be converted into a dictionary
@@ -1289,7 +1289,7 @@ class CompleteDos(Dos):
         normalize: bool = False,
         tanimoto: bool = False,
     ) -> float:
-        """Calculates the similarity index (dot product) of two fingerprints
+        """Calculates the similarity index (dot product) of two fingerprints.
 
         Args:
             fp1 (NamedTuple): The 1st dos fingerprint object
@@ -1380,7 +1380,7 @@ class CompleteDos(Dos):
 
 class LobsterCompleteDos(CompleteDos):
     """
-    Extended CompleteDOS for Lobster
+    Extended CompleteDOS for Lobster.
     """
 
     def get_site_orbital_dos(self, site: PeriodicSite, orbital: str) -> Dos:  # type: ignore
@@ -1449,7 +1449,7 @@ class LobsterCompleteDos(CompleteDos):
         """
         Get orbital projected Dos.
         For example, if 3s and 4s are included in the basis of some element, they will be both summed in the orbital
-        projected DOS
+        projected DOS.
 
         Returns:
             dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
@@ -1467,7 +1467,7 @@ class LobsterCompleteDos(CompleteDos):
 
     def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:  # type: ignore
         """
-        Get element and spd projected Dos
+        Get element and spd projected Dos.
 
 
         Args:
@@ -1542,7 +1542,7 @@ def f0(E, fermi, T) -> float:
 def _get_orb_type_lobster(orb) -> OrbitalType | None:
     """
     Args:
-        orb: string representation of orbital
+        orb: string representation of orbital.
 
     Returns:
         OrbitalType
@@ -1563,7 +1563,7 @@ def _get_orb_lobster(orb):
     Args:
         orb: string representation of orbital
     Returns:
-         Orbital
+         Orbital.
     """
     orb_labs = [
         "s",

@@ -77,7 +77,7 @@ class EnergyAdjustment(MSONable):
     @property
     def uncertainty(self):
         """
-        Return the uncertainty in the value of the energy adjustment in eV
+        Return the uncertainty in the value of the energy adjustment in eV.
         """
         return self._uncertainty
 
@@ -148,7 +148,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """
         Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by
+        :param factor: factor to divide by.
         """
         self._value /= factor
         self._uncertainty /= factor
@@ -162,7 +162,7 @@ class ManualEnergyAdjustment(ConstantEnergyAdjustment):
     def __init__(self, value):
         """
         Args:
-            value: float, value of the energy adjustment in eV
+            value: float, value of the energy adjustment in eV.
         """
         name = "Manual energy adjustment"
         description = "Manual energy adjustment"
@@ -228,7 +228,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         """
         Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by
+        :param factor: factor to divide by.
         """
         self.n_atoms /= factor
 
@@ -295,7 +295,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         """
         Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by
+        :param factor: factor to divide by.
         """
         self.n_atoms /= factor
 
@@ -360,7 +360,7 @@ class ComputedEntry(Entry):
     def uncorrected_energy(self) -> float:
         """
         Returns:
-            float: the *uncorrected* energy of the entry
+            float: the *uncorrected* energy of the entry.
         """
         return self._energy
 
@@ -376,7 +376,7 @@ class ComputedEntry(Entry):
         """
         Returns:
             float: the *uncorrected* energy of the entry, normalized by atoms
-                (units of eV/atom)
+                (units of eV/atom).
         """
         return self.uncorrected_energy / self.composition.num_atoms
 
@@ -401,7 +401,7 @@ class ComputedEntry(Entry):
         """
         Returns:
             float: the total energy correction / adjustment applied to the entry,
-                normalized by atoms (units of eV/atom)
+                normalized by atoms (units of eV/atom).
         """
         return self.correction / self.composition.num_atoms
 
@@ -409,7 +409,7 @@ class ComputedEntry(Entry):
     def correction_uncertainty(self) -> float:
         """
         Returns:
-            float: the uncertainty of the energy adjustments applied to the entry, in eV
+            float: the uncertainty of the energy adjustments applied to the entry, in eV.
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         unc = ufloat(0.0, 0.0) + sum(
@@ -427,7 +427,7 @@ class ComputedEntry(Entry):
         """
         Returns:
             float: the uncertainty of the energy adjustments applied to the entry,
-                normalized by atoms (units of eV/atom)
+                normalized by atoms (units of eV/atom).
         """
         return self.correction_uncertainty / self.composition.num_atoms
 
@@ -805,7 +805,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
     def gf_sisso(self) -> float:
         """
         Gibbs Free Energy of formation as calculated by SISSO descriptor from Bartel
-        et al. (2018). Units: eV (not normalized)
+        et al. (2018). Units: eV (not normalized).
 
         WARNING: This descriptor only applies to solids. The implementation here
         attempts to detect and use downloaded NIST-JANAF data for common
@@ -878,7 +878,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
     @staticmethod
     def _reduced_mass(structure) -> float:
         """
-        Reduced mass as calculated via Eq. 6 in Bartel et al. (2018)
+        Reduced mass as calculated via Eq. 6 in Bartel et al. (2018).
 
         Args:
             structure (Structure): The pymatgen Structure object of the entry.
@@ -934,7 +934,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Constructor method for initializing a list of GibbsComputedStructureEntry
         objects from an existing T = 0 K phase diagram composed of
         ComputedStructureEntry objects, as acquired from a thermochemical database;
-        (e.g.. The Materials Project)
+        (e.g.. The Materials Project).
 
         Args:
             pd (PhaseDiagram): T = 0 K phase diagram as created in pymatgen. Must

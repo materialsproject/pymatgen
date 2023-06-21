@@ -100,10 +100,11 @@ class Lattice(MSONable):
         """
         return all(abs(a - 90) < 1e-5 for a in self.angles)
 
-    def __format__(self, fmt_spec=""):
+    def __format__(self, fmt_spec: str = ""):
         """
-        Support format printing. Supported formats are:
+        Support format printing.
 
+        Supported fmt_spec (str) are:
         1. "l" for a list format that can be easily copied and pasted, e.g.,
            ".3fl" prints something like
            "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
@@ -132,17 +133,17 @@ class Lattice(MSONable):
 
     @property
     def matrix(self) -> np.ndarray:
-        """Copy of matrix representing the Lattice"""
+        """Copy of matrix representing the Lattice."""
         return self._matrix
 
     @property
     def pbc(self) -> tuple[bool, bool, bool]:
-        """Tuple defining the periodicity of the Lattice"""
+        """Tuple defining the periodicity of the Lattice."""
         return self._pbc  # type: ignore
 
     @property
     def is_3d_periodic(self) -> bool:
-        """True if the Lattice is periodic in all directions"""
+        """True if the Lattice is periodic in all directions."""
         return all(self._pbc)
 
     @property
@@ -208,7 +209,7 @@ class Lattice(MSONable):
 
     def d_hkl(self, miller_index: ArrayLike) -> float:
         """
-        Returns the distance between the hkl plane and the origin
+        Returns the distance between the hkl plane and the origin.
 
         Args:
             miller_index ([h,k,l]): Miller index of plane
@@ -428,7 +429,7 @@ class Lattice(MSONable):
     @property
     def abc(self) -> tuple[float, float, float]:
         """
-        Lengths of the lattice vectors, i.e. (a, b, c)
+        Lengths of the lattice vectors, i.e. (a, b, c).
         """
         return self.lengths
 
@@ -1203,7 +1204,7 @@ class Lattice(MSONable):
         Get the Niggli reduced lattice using the numerically stable algo
         proposed by R. W. Grosse-Kunstleve, N. K. Sauter, & P. D. Adams,
         Acta Crystallographica Section A Foundations of Crystallography, 2003,
-        60(1), 1-6. doi:10.1107/S010876730302186X
+        60(1), 1-6. doi:10.1107/S010876730302186X.
 
         Args:
             tol (float): The numerical tolerance. The default of 1e-5 should
@@ -1802,7 +1803,7 @@ class Lattice(MSONable):
         Find the symmetric operations of the reciprocal lattice,
         to be used for hkl transformations
         Args:
-            symprec: default is 0.001
+            symprec: default is 0.001.
         """
         recp_lattice = self.reciprocal_lattice_crystallographic
         # get symmetry operations from input conventional unit cell
@@ -2012,7 +2013,7 @@ def _compute_cube_index(coords: np.ndarray, global_min: float, radius: float) ->
     Args:
         coords: (nx3 array) atom coordinates
         global_min: (float) lower boundary of coordinates
-        radius: (float) cutoff radius
+        radius: (float) cutoff radius.
 
     Returns: (nx3 array) int indices
 
@@ -2022,7 +2023,7 @@ def _compute_cube_index(coords: np.ndarray, global_min: float, radius: float) ->
 
 def _one_to_three(label1d: np.ndarray, ny: int, nz: int) -> np.ndarray:
     """
-    Convert a 1D index array to 3D index array
+    Convert a 1D index array to 3D index array.
 
     Args:
         label1d: (array) 1D index array
@@ -2040,7 +2041,7 @@ def _one_to_three(label1d: np.ndarray, ny: int, nz: int) -> np.ndarray:
 
 def _three_to_one(label3d: np.ndarray, ny: int, nz: int) -> np.ndarray:
     """
-    The reverse of _one_to_three
+    The reverse of _one_to_three.
     """
     return np.array(label3d[:, 0] * ny * nz + label3d[:, 1] * nz + label3d[:, 2]).reshape((-1, 1))
 

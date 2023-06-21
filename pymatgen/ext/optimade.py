@@ -439,7 +439,7 @@ class OptimadeRester:
 
         def is_url(url) -> bool:
             """
-            Basic URL validation thanks to https://stackoverflow.com/a/52455972
+            Basic URL validation thanks to https://stackoverflow.com/a/52455972.
             """
             try:
                 result = urlparse(url)

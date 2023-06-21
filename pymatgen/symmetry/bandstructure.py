@@ -142,7 +142,7 @@ class HighSymmKpath(KPathBase):
     def path_type(self):
         """
         Returns:
-        The type of kpath chosen
+        The type of kpath chosen.
         """
         return self._path_type
 

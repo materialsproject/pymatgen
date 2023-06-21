@@ -1,6 +1,6 @@
 """
 Module to call mcsqs, distributed with AT-AT
-https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
+https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/.
 """
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ def run_mcsqs(
             function (default = 1)
         wn (int or float): Multiplicative decrease in weight per additional point in cluster (default: 1)
         wd (int or float): Exponent of decay in weight as function of cluster diameter (default: 0.5)
-        tol (int or float): Tolerance for matching correlations (default: 1e-3)
+        tol (int or float): Tolerance for matching correlations (default: 1e-3).
 
     Returns:
         Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
@@ -174,7 +174,7 @@ def _parse_sqs_path(path) -> Sqs:
     """
     Private function to parse mcsqs output directory
     Args:
-        path: directory to perform parsing
+        path: directory to perform parsing.
 
     Returns:
         Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
@@ -236,7 +236,7 @@ def _parse_clusters(filename):
     """
     Private function to parse clusters.out file
     Args:
-        path: directory to perform parsing
+        path: directory to perform parsing.
 
     Returns:
         List of dicts

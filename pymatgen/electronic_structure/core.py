@@ -214,7 +214,7 @@ class Magmom(MSONable):
         Get magnetic moment relative to a given spin quantization axis.
         If no axis is provided, moment will be given relative to the
         Magmom's internal spin quantization axis, i.e. equivalent to
-        Magmom.moment
+        Magmom.moment.
 
         :param saxis: (list/numpy array) spin quantization axis
         :return: np.ndarray of length 3
@@ -262,16 +262,15 @@ class Magmom(MSONable):
 
     def get_00t_magmom_with_xyz_saxis(self):
         """
-        For internal implementation reasons, in non-collinear calculations
-        VASP prefers:
+        For internal implementation reasons, in non-collinear calculations VASP prefers the following.
 
-        MAGMOM = 0 0 total_magnetic_moment
-        SAXIS = x y z
+            MAGMOM = 0 0 total_magnetic_moment
+            SAXIS = x y z
 
         to an equivalent:
 
-        MAGMOM = x y z
-        SAXIS = 0 0 1
+            MAGMOM = x y z
+            SAXIS = 0 0 1
 
         This method returns a Magmom object with magnetic moment [0, 0, t],
         where t is the total magnetic moment, and saxis rotated as required.
@@ -305,7 +304,7 @@ class Magmom(MSONable):
         consistent spin quantization axis. To write MAGMOM tags to a
         VASP INCAR, a global SAXIS value for all magmoms has to be used.
         If saxis are inconsistent, can create consistent set with:
-        Magmom.get_consistent_set(magmoms)
+        Magmom.get_consistent_set(magmoms).
 
         :param magmoms: list of magmoms (Magmoms, scalars or vectors)
         :return: bool
@@ -363,7 +362,7 @@ class Magmom(MSONable):
         Method checks to see if a set of magnetic moments are collinear
         with each other.
         :param magmoms: list of magmoms (Magmoms, scalars or vectors)
-        :return: bool
+        :return: bool.
         """
         magmoms = [Magmom(magmom) for magmom in magmoms]
         if not Magmom.have_consistent_saxis(magmoms):

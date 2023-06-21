@@ -42,7 +42,7 @@ class ConversionElectrode(AbstractElectrode):
     @property
     def initial_comp(self) -> Composition:
         """
-        The pymatgen Composition representation of the initial composition
+        The pymatgen Composition representation of the initial composition.
         """
         return Composition(self.initial_comp_formula)
 
@@ -130,7 +130,7 @@ class ConversionElectrode(AbstractElectrode):
         For example, an LiTiO2 electrode might contain three subelectrodes:
         [LiTiO2 --> TiO2, LiTiO2 --> Li0.5TiO2, Li0.5TiO2 --> TiO2]
         This method can be used to return all the subelectrodes with some
-        options
+        options.
 
         Args:
             adjacent_only: Only return electrodes from compounds that are
@@ -191,9 +191,7 @@ class ConversionElectrode(AbstractElectrode):
         return True
 
     def __eq__(self, conversion_electrode):
-        """
-        Check if two electrodes are exactly the same:
-        """
+        """Check if two electrodes are exactly the same."""
         if len(self) != len(conversion_electrode):
             return False
 

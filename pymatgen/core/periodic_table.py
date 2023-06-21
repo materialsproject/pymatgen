@@ -340,7 +340,7 @@ class ElementBase(Enum):
     def electronic_structure(self) -> str:
         """
         Electronic structure as string, with only valence electrons.
-        E.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'
+        E.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'.
         """
         return re.sub("</*sup>", "", self._data["Electronic structure"])
 
@@ -395,37 +395,37 @@ class ElementBase(Enum):
 
     @property
     def number(self) -> int:
-        """Alternative attribute for atomic number Z"""
+        """Alternative attribute for atomic number Z."""
         return self.Z
 
     @property
     def max_oxidation_state(self) -> float:
-        """Maximum oxidation state for element"""
+        """Maximum oxidation state for element."""
         if "Oxidation states" in self._data:
             return max(self._data["Oxidation states"])
         return 0
 
     @property
     def min_oxidation_state(self) -> float:
-        """Minimum oxidation state for element"""
+        """Minimum oxidation state for element."""
         if "Oxidation states" in self._data:
             return min(self._data["Oxidation states"])
         return 0
 
     @property
     def oxidation_states(self) -> tuple[int, ...]:
-        """Tuple of all known oxidation states"""
+        """Tuple of all known oxidation states."""
         return tuple(int(x) for x in self._data.get("Oxidation states", []))
 
     @property
     def common_oxidation_states(self) -> tuple[int, ...]:
-        """Tuple of common oxidation states"""
+        """Tuple of common oxidation states."""
         return tuple(self._data.get("Common oxidation states", []))
 
     @property
     def icsd_oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all oxidation states with at least 10 instances in
-        ICSD database AND at least 1% of entries for that element
+        ICSD database AND at least 1% of entries for that element.
         """
         return tuple(self._data.get("ICSD oxidation states", []))
 
@@ -442,7 +442,7 @@ class ElementBase(Enum):
         Full electronic structure as tuple.
         E.g., The electronic structure for Fe is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (3, "d", 6), (4, "s", 2)]
+        (3, "d", 6), (4, "s", 2)].
         """
         e_str = self.electronic_structure
 
@@ -461,7 +461,7 @@ class ElementBase(Enum):
     @property
     def valence(self):
         """
-        From full electron config obtain valence subshell angular moment (L) and number of valence e- (v_e)
+        From full electron config obtain valence subshell angular moment (L) and number of valence e- (v_e).
         """
         # The number of valence of noble gas is 0
         if self.group == 18:
@@ -486,7 +486,7 @@ class ElementBase(Enum):
     def term_symbols(self) -> list[list[str]]:
         """
         All possible  Russell-Saunders term symbol of the Element.
-        eg. L = 1, n_e = 2 (s2) returns [['1D2'], ['3P0', '3P1', '3P2'], ['1S0']]
+        eg. L = 1, n_e = 2 (s2) returns [['1D2'], ['3P0', '3P1', '3P2'], ['1S0']].
         """
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
@@ -531,7 +531,7 @@ class ElementBase(Enum):
     def ground_state_term_symbol(self):
         """
         Ground state term symbol
-        Selected based on Hund's Rule
+        Selected based on Hund's Rule.
         """
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
@@ -726,7 +726,7 @@ class ElementBase(Enum):
     @property
     def block(self) -> str:
         """
-        Return the block character "s,p,d,f"
+        Return the block character "s,p,d,f".
         """
         if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
             return "f"
@@ -848,7 +848,7 @@ class ElementBase(Enum):
     def nmr_quadrupole_moment(self) -> dict[str, FloatWithUnit]:
         """
         Get a dictionary the nuclear electric quadrupole moment in units of
-        e*millibarns for various isotopes
+        e*millibarns for various isotopes.
         """
         return {k: FloatWithUnit(v, "mbarn") for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
 
@@ -1140,7 +1140,7 @@ class Species(MSONable, Stringify):
     @property
     def element(self):
         """
-        Underlying element object
+        Underlying element object.
         """
         return self._el
 
@@ -1239,7 +1239,7 @@ class Species(MSONable, Stringify):
     def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:
         """
         Gets the nuclear electric quadrupole moment in units of
-        e*millibarns
+        e*millibarns.
 
         Args:
             isotope (str): the isotope to get the quadrupole moment for
@@ -1461,7 +1461,7 @@ class DummySpecies(Species):
     @property
     def oxi_state(self) -> float | None:
         """
-        Oxidation state associated with DummySpecies
+        Oxidation state associated with DummySpecies.
         """
         return self._oxi_state
 

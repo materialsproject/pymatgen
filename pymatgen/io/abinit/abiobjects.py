@@ -34,27 +34,26 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
     """
     cls = Lattice if cls is None else cls
     kwargs.update(dict(*args))
-    d = kwargs
 
-    rprim = d.get("rprim")
-    angdeg = d.get("angdeg")
-    acell = d["acell"]
+    rprim = kwargs.get("rprim")
+    ang_deg = kwargs.get("angdeg")
+    acell = kwargs["acell"]
 
     if rprim is not None:
-        if angdeg is not None:
+        if ang_deg is not None:
             raise ValueError("angdeg and rprimd are mutually exclusive")
         rprim = np.reshape(rprim, (3, 3))
         rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
         # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
-    if angdeg is not None:
-        angdeg = np.reshape(angdeg, 3)
+    if ang_deg is not None:
+        ang_deg = np.reshape(ang_deg, 3)
 
-        if np.any(angdeg <= 0.0):
-            raise ValueError(f"Angles must be > 0 but got {angdeg}")
-        if angdeg.sum() >= 360.0:
-            raise ValueError(f"The sum of angdeg must be lower than 360, {angdeg=}")
+        if np.any(ang_deg <= 0.0):
+            raise ValueError(f"Angles must be > 0 but got {ang_deg}")
+        if ang_deg.sum() >= 360.0:
+            raise ValueError(f"The sum of angdeg must be lower than 360, {ang_deg=}")
 
         # This code follows the implementation in ingeo.F90
         # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
@@ -62,14 +61,14 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         pi, sin, cos, sqrt = np.pi, np.sin, np.cos, np.sqrt
         rprim = np.zeros((3, 3))
         if (
-            abs(angdeg[0] - angdeg[1]) < tol12
-            and abs(angdeg[1] - angdeg[2]) < tol12
-            and abs(angdeg[0] - 90.0) + abs(angdeg[1] - 90.0) + abs(angdeg[2] - 90) > tol12
+            abs(ang_deg[0] - ang_deg[1]) < tol12
+            and abs(ang_deg[1] - ang_deg[2]) < tol12
+            and abs(ang_deg[0] - 90.0) + abs(ang_deg[1] - 90.0) + abs(ang_deg[2] - 90) > tol12
         ):
             # Treat the case of equal angles (except all right angles):
             # generates trigonal symmetry wrt third axis
-            cosang = cos(pi * angdeg[0] / 180.0)
-            a2 = 2.0 / 3.0 * (1.0 - cosang)
+            cos_ang = cos(pi * ang_deg[0] / 180.0)
+            a2 = 2.0 / 3.0 * (1.0 - cos_ang)
             aa = sqrt(a2)
             cc = sqrt(1.0 - a2)
             rprim[0, 0] = aa
@@ -84,17 +83,17 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         else:
             # Treat all the other cases
             rprim[0, 0] = 1.0
-            rprim[1, 0] = cos(pi * angdeg[2] / 180.0)
-            rprim[1, 1] = sin(pi * angdeg[2] / 180.0)
-            rprim[2, 0] = cos(pi * angdeg[1] / 180.0)
-            rprim[2, 1] = (cos(pi * angdeg[0] / 180.0) - rprim[1, 0] * rprim[2, 0]) / rprim[1, 1]
+            rprim[1, 0] = cos(pi * ang_deg[2] / 180.0)
+            rprim[1, 1] = sin(pi * ang_deg[2] / 180.0)
+            rprim[2, 0] = cos(pi * ang_deg[1] / 180.0)
+            rprim[2, 1] = (cos(pi * ang_deg[0] / 180.0) - rprim[1, 0] * rprim[2, 0]) / rprim[1, 1]
             rprim[2, 2] = sqrt(1.0 - rprim[2, 0] ** 2 - rprim[2, 1] ** 2)
 
         # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
         rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
-    raise ValueError(f"Don't know how to construct a Lattice from dict:\n{pformat(d)}")
+    raise ValueError(f"Don't know how to construct a Lattice from dict:\n{pformat(kwargs)}")
 
 
 def structure_from_abivars(cls=None, *args, **kwargs):

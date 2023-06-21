@@ -898,15 +898,16 @@ class SpacegroupAnalyzer:
         return [w / sum(weights) for w in weights]
 
     def is_laue(self) -> bool:
-        """Check if the point group of the structure has Laue symmetry (centrosymmetry)"""
+        """Check if the point group of the structure has Laue symmetry (centrosymmetry)."""
         laue = ("-1", "2/m", "mmm", "4/m", "4/mmm", "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m")
 
         return str(self.get_point_group_symbol()) in laue
 
 
 class PointGroupAnalyzer:
-    """A class to analyze the point group of a molecule. The general outline of the
-    algorithm is as follows:
+    """A class to analyze the point group of a molecule.
+
+    The general outline of the algorithm is as follows:
 
     1. Center the molecule around its center of mass.
     2. Compute the inertia tensor and the eigenvalues and eigenvectors.
@@ -922,9 +923,8 @@ class PointGroupAnalyzer:
         d. Spherical top molecules have all three eigenvalues equal. They
            have the rare T, O or I point groups.
 
-    .. attribute:: sch_symbol
-
-        Schoenflies symbol of the detected point group.
+    Attribute:
+        sch_symbol (str): Schoenflies symbol of the detected point group.
     """
 
     inversion_op = SymmOp.inversion()

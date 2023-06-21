@@ -336,7 +336,7 @@ class FloatWithUnit(float):
         return cls(num, unit, unit_type=unit_type)
 
     def __new__(cls, val, unit, unit_type=None):
-        """Overrides __new__ since we are subclassing a Python primitive/"""
+        """Overrides __new__ since we are subclassing a Python primitive/."""
         new = float.__new__(cls, val)
         new._unit = Unit(unit)
         new._unit_type = unit_type

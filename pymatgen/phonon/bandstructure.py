@@ -15,7 +15,7 @@ from pymatgen.electronic_structure.bandstructure import Kpoint
 def get_reasonable_repetitions(n_atoms: int) -> tuple[int, int, int]:
     """
     Choose the number of repetitions in a supercell
-    according to the number of atoms in the system
+    according to the number of atoms in the system.
     """
     if n_atoms < 4:
         return (3, 3, 3)
@@ -29,7 +29,7 @@ def get_reasonable_repetitions(n_atoms: int) -> tuple[int, int, int]:
 
 def eigenvectors_from_displacements(disp, masses):
     """
-    Calculate the eigenvectors from the atomic displacements
+    Calculate the eigenvectors from the atomic displacements.
     """
     sqrt_masses = np.sqrt(masses)
     return np.einsum("nax,a->nax", disp, sqrt_masses)
@@ -37,7 +37,7 @@ def eigenvectors_from_displacements(disp, masses):
 
 def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order):
     """
-    A function to order the phonon eigenvectors taken from phonopy
+    A function to order the phonon eigenvectors taken from phonopy.
     """
     metric = np.abs(np.dot(prev_eigvecs.conjugate().T, eigvecs))
     connection_order = []
@@ -108,7 +108,7 @@ class PhononBandStructure(MSONable):
             coords_are_cartesian: Whether the qpoint coordinates are Cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
-                provide projections to the band structure
+                provide projections to the band structure.
         """
         self.lattice_rec = lattice
         self.qpoints = []
@@ -149,7 +149,7 @@ class PhononBandStructure(MSONable):
 
     def min_freq(self) -> tuple[Kpoint, float]:
         """
-        Returns the point where the minimum frequency is reached and its value
+        Returns the point where the minimum frequency is reached and its value.
         """
         i = np.unravel_index(np.argmin(self.bands), self.bands.shape)
 
@@ -343,7 +343,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             coords_are_cartesian: Whether the qpoint coordinates are cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
-                provide projections to the band structure
+                provide projections to the band structure.
         """
         super().__init__(
             qpoints=qpoints,
@@ -475,7 +475,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
     def write_phononwebsite(self, filename):
         """
         Write a json file for the phononwebsite:
-        http://henriquemiranda.github.io/phononwebsite
+        http://henriquemiranda.github.io/phononwebsite.
         """
         import json
 
@@ -485,7 +485,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
     def as_phononwebsite(self):
         """
         Return a dictionary with the phononwebsite format:
-        http://henriquemiranda.github.io/phononwebsite
+        http://henriquemiranda.github.io/phononwebsite.
         """
         dct = {}
 
@@ -564,7 +564,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def band_reorder(self):
         """
-        Re-order the eigenvalues according to the similarity of the eigenvectors
+        Re-order the eigenvalues according to the similarity of the eigenvectors.
         """
         eiv = self.eigendisplacements
         eig = self.bands
@@ -595,7 +595,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def as_dict(self):
         """
-        Returns: MSONable dict
+        Returns: MSONable dict.
         """
         d = super().as_dict()
         # remove nac_frequencies and nac_eigendisplacements as they are reconstructed
@@ -609,7 +609,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
     def from_dict(cls, dct):
         """
         Args:
-            dct: Dict representation
+            dct: Dict representation.
 
         Returns: PhononBandStructureSymmLine
         """

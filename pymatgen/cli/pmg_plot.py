@@ -79,7 +79,7 @@ def get_chgint_plot(args):
 
 def get_xrd_plot(args):
     """
-    Plot XRD
+    Plot XRD.
 
     Args:
         args (dict): Args from argparse

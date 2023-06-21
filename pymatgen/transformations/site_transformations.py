@@ -79,12 +79,12 @@ class InsertSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None"""
+        """Return: None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False"""
+        """Return: False."""
         return False
 
 
@@ -131,12 +131,12 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None"""
+        """Return: None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False"""
+        """Return: False."""
         return False
 
 
@@ -148,7 +148,7 @@ class RemoveSitesTransformation(AbstractTransformation):
     def __init__(self, indices_to_remove):
         """
         Args:
-            indices_to_remove: List of indices to remove. E.g., [0, 1, 2]
+            indices_to_remove: List of indices to remove. E.g., [0, 1, 2].
         """
         self.indices_to_remove = indices_to_remove
 
@@ -175,12 +175,12 @@ class RemoveSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None"""
+        """Return: None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False"""
+        """Return: False."""
         return False
 
 
@@ -244,7 +244,7 @@ class TranslateSitesTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False"""
+        """Return: False."""
         return False
 
     def as_dict(self):
@@ -533,24 +533,24 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None"""
+        """Return: None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: True"""
+        """Return: True."""
         return True
 
 
 class AddSitePropertyTransformation(AbstractTransformation):
     """
-    Simple transformation to add site properties to a given structure
+    Simple transformation to add site properties to a given structure.
     """
 
     def __init__(self, site_properties):
         """
         Args:
-            site_properties (dict): site properties to be added to a structure
+            site_properties (dict): site properties to be added to a structure.
         """
         self.site_properties = site_properties
 
@@ -572,12 +572,12 @@ class AddSitePropertyTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None"""
+        """Return: None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False"""
+        """Return: False."""
         return False
 
 

@@ -48,19 +48,17 @@ logger = logging.getLogger(__name__)
 
 class DosPlotter:
     """
-    Class for plotting DOSs. Note that the interface is extremely flexible
-    given that there are many different ways in which people want to view
-    DOS. The typical usage is::
+    Class for plotting phonon DOSs. The interface is extremely flexible given there are many
+    different ways in which people want to view DOS.
+    Typical usage is:
+        # Initializes plotter with some optional args. Defaults are usually fine
+        plotter = PhononDosPlotter().
 
-        # Initializes plotter with some optional args. Defaults are usually
-        # fine,
-        plotter = DosPlotter()
-
-        # Adds a DOS with a label.
+        # Add DOS with a label
         plotter.add_dos("Total DOS", dos)
 
-        # Alternatively, you can add a dict of DOSs. This is the typical
-        # form returned by CompleteDos.get_spd/element/others_dos().
+        # Alternatively, you can add a dict of DOSes. This is the typical form
+        # returned by CompletePhononDos.get_element_dos().
         plotter.add_dos_dict({"dos1": dos1, "dos2": dos2})
         plotter.add_dos_dict(complete_dos.get_spd_dos())
     """
@@ -330,7 +328,7 @@ class BSPlotter:
 
     def add_bs(self, bs: BandStructureSymmLine | list[BandStructureSymmLine]) -> None:
         """
-        Method to add bands objects to the BSPlotter
+        Method to add bands objects to the BSPlotter.
         """
         if not isinstance(bs, list):
             bs = [bs]
@@ -343,7 +341,7 @@ class BSPlotter:
 
     def _maketicks(self, plt):
         """
-        Utility private method to add ticks to a band structure
+        Utility private method to add ticks to a band structure.
         """
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
@@ -383,7 +381,7 @@ class BSPlotter:
     @staticmethod
     def _get_branch_steps(branches):
         """
-        Method to find discontinuous branches
+        Method to find discontinuous branches.
         """
         steps = [0]
         for b1, b2 in zip(branches[:-1], branches[1:]):
@@ -419,7 +417,7 @@ class BSPlotter:
 
     def bs_plot_data(self, zero_to_efermi=True, bs=None, bs_ref=None, split_branches=True):
         """
-        Get the data nicely formatted for a plot
+        Get the data nicely formatted for a plot.
 
         Args:
             zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
@@ -860,7 +858,7 @@ class BSPlotter:
         Plot two band structure for comparison. One is in red the other in blue
         (no difference in spins). The two band structures need to be defined
         on the same symmetry lines! and the distance between symmetry lines is
-        the one of the band structure used to build the BSPlotter
+        the one of the band structure used to build the BSPlotter.
 
         Args:
             other_plotter: Another band structure object defined along the same symmetry lines
@@ -905,7 +903,7 @@ class BSPlotter:
         return plt
 
     def plot_brillouin(self):
-        """Plot the Brillouin zone"""
+        """Plot the Brillouin zone."""
         # get labels and lines
         labels = {}
         for k in self._bs[0].kpoints:
@@ -1071,7 +1069,7 @@ class BSPlotterProjected(BSPlotter):
 
     def get_elt_projected_plots(self, zero_to_efermi=True, ylim=None, vbm_cbm_marker=False):
         """
-        Method returning a plot composed of subplots along different elements
+        Method returning a plot composed of subplots along different elements.
 
         Returns:
             a pyplot object with different subfigures for each projection
@@ -1166,7 +1164,7 @@ class BSPlotterProjected(BSPlotter):
         line color depends on the character of the band (along different
         elements). Each element is associated with red, green or blue
         and the corresponding rgb color depending on the character of the band
-        is used. The method can only deal with binary and ternary compounds
+        is used. The method can only deal with binary and ternary compounds.
 
         spin up and spin down are differientiated by a '-' and a '--' line
 
@@ -2126,7 +2124,7 @@ class BSPlotterProjected(BSPlotter):
 
     def _maketicks_selected(self, plt, branches):
         """
-        Utility private method to add ticks to a band structure with selected branches
+        Utility private method to add ticks to a band structure with selected branches.
         """
         ticks = self.get_ticks()
         distance = []
@@ -2222,7 +2220,7 @@ class BSDOSPlotter:
     """
     A joint, aligned band structure and density of states plot. Contributions
     from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
-    http://gvallver.perso.univ-pau.fr/?p=587
+    http://gvallver.perso.univ-pau.fr/?p=587.
     """
 
     def __init__(
@@ -2562,7 +2560,7 @@ class BSDOSPlotter:
             green: green data
             blue: blue data
             alpha: alpha values data
-            linestyles: linestyle for plot (e.g., "solid" or "dotted")
+            linestyles: linestyle for plot (e.g., "solid" or "dotted").
         """
         from matplotlib.collections import LineCollection
 
@@ -2580,7 +2578,7 @@ class BSDOSPlotter:
     @staticmethod
     def _get_colordata(bs, elements, bs_projection):
         """
-        Get color data, including projected band structures
+        Get color data, including projected band structures.
 
         Args:
             bs: Bandstructure object
@@ -2636,7 +2634,7 @@ class BSDOSPlotter:
     @staticmethod
     def _cmyk_triangle(ax, c_label, m_label, y_label, k_label, loc):
         """
-        Draw an RGB triangle legend on the desired axis
+        Draw an RGB triangle legend on the desired axis.
         """
         if loc not in range(1, 11):
             loc = 2
@@ -2689,7 +2687,7 @@ class BSDOSPlotter:
     @staticmethod
     def _rgb_triangle(ax, r_label, g_label, b_label, loc):
         """
-        Draw an RGB triangle legend on the desired axis
+        Draw an RGB triangle legend on the desired axis.
         """
         if loc not in range(1, 11):
             loc = 2
@@ -2810,7 +2808,7 @@ class BoltztrapPlotter:
     def __init__(self, bz):
         """
         Args:
-            bz: a BoltztrapAnalyzer object
+            bz: a BoltztrapAnalyzer object.
         """
         self._bz = bz
 
@@ -2973,7 +2971,7 @@ class BoltztrapPlotter:
 
     def plot_seebeck_mu(self, temp: float = 600, output: str = "eig", xlim: Sequence[float] | None = None):
         """
-        Plot the seebeck coefficient in function of Fermi level
+        Plot the seebeck coefficient in function of Fermi level.
 
         Args:
             temp (float): the temperature
@@ -3011,7 +3009,7 @@ class BoltztrapPlotter:
         xlim: Sequence[float] | None = None,
     ):
         """
-        Plot the conductivity in function of Fermi level. Semi-log plot
+        Plot the conductivity in function of Fermi level. Semi-log plot.
 
         Args:
             temp (float): the temperature
@@ -3051,7 +3049,7 @@ class BoltztrapPlotter:
         xlim: Sequence[float] | None = None,
     ):
         """
-        Plot the power factor in function of Fermi level. Semi-log plot
+        Plot the power factor in function of Fermi level. Semi-log plot.
 
         Args:
             temp (float): the temperature
@@ -3663,7 +3661,7 @@ class BoltztrapPlotter:
         return plt
 
     def plot_dos(self, sigma=0.05):
-        """Plot dos
+        """Plot dos.
 
         Args:
             sigma: a smearing
@@ -3677,7 +3675,7 @@ class BoltztrapPlotter:
 
     def plot_carriers(self, temp=300):
         """
-        Plot the carrier concentration in function of Fermi level
+        Plot the carrier concentration in function of Fermi level.
 
         Args:
             temp: the temperature
@@ -3701,7 +3699,7 @@ class BoltztrapPlotter:
 
     def plot_hall_carriers(self, temp=300):
         """
-        Plot the Hall carrier concentration in function of Fermi level
+        Plot the Hall carrier concentration in function of Fermi level.
 
         Args:
             temp: the temperature
@@ -3739,7 +3737,7 @@ class CohpPlotter:
             are_coops: Switch to indicate that these are COOPs, not COHPs.
                 Defaults to False for COHPs.
             are_cobis: Switch to indicate that these are COBIs, not COHPs/COOPs.
-                Defaults to False for COHPs
+                Defaults to False for COHPs.
         """
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
@@ -4161,7 +4159,7 @@ def plot_fermi_surface(
 
 def plot_wigner_seitz(lattice, ax=None, **kwargs):
     """
-    Adds the skeleton of the Wigner-Seitz cell of the lattice to a matplotlib Axes
+    Adds the skeleton of the Wigner-Seitz cell of the lattice to a matplotlib Axes.
 
     Args:
         lattice: Lattice object
@@ -4196,7 +4194,7 @@ def plot_wigner_seitz(lattice, ax=None, **kwargs):
 
 def plot_lattice_vectors(lattice, ax=None, **kwargs):
     """
-    Adds the basis vectors of the lattice provided to a matplotlib Axes
+    Adds the basis vectors of the lattice provided to a matplotlib Axes.
 
     Args:
         lattice: Lattice object
@@ -4227,7 +4225,7 @@ def plot_lattice_vectors(lattice, ax=None, **kwargs):
 
 def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs):
     """
-    Adds a line passing through the coordinates listed in 'line' to a matplotlib Axes
+    Adds a line passing through the coordinates listed in 'line' to a matplotlib Axes.
 
     Args:
         line: list of coordinates.
@@ -4264,7 +4262,7 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs)
 
 def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax=None, **kwargs):
     """
-    Adds labels to a matplotlib Axes
+    Adds labels to a matplotlib Axes.
 
     Args:
         labels: dict containing the label as a key and the coordinates as value.
@@ -4339,7 +4337,7 @@ def fold_point(p, lattice, coords_are_cartesian=False):
 
 def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax=None, **kwargs):
     """
-    Adds Points to a matplotlib Axes
+    Adds Points to a matplotlib Axes.
 
     Args:
         points: list of coordinates
@@ -4413,7 +4411,7 @@ def plot_brillouin_zone(
 ):
     """
     Plots a 3D representation of the Brillouin zone of the structure.
-    Can add to the plot paths, labels and kpoints
+    Can add to the plot paths, labels and kpoints.
 
     Args:
         bz_lattice: Lattice object of the Brillouin zone

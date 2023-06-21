@@ -47,7 +47,7 @@ AnyComputedEntry = Union[ComputedEntry, ComputedStructureEntry]
 class CompatibilityError(Exception):
     """
     Exception class for Compatibility. Raised by attempting correction
-    on incompatible calculation
+    on incompatible calculation.
     """
 
 
@@ -121,7 +121,7 @@ class PotcarCorrection(Correction):
         """
         Args:
             input_set: InputSet object used to generate the runs (used to check
-                for correct potcar symbols)
+                for correct potcar symbols).
 
             check_hash (bool): If true, uses the potcar hash to check for valid
                 potcars. If false, uses the potcar symbol (Less reliable).

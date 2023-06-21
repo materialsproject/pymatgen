@@ -63,7 +63,7 @@ def get_chunks(sequence: Sequence[Any], size=1):
 
 @unique
 class TaskType(Enum):
-    """task types available in legacy MP data"""
+    """task types available in legacy MP data."""
 
     GGA_OPT = "GGA Structure Optimization"
     GGAU_OPT = "GGA+U Structure Optimization"
@@ -83,12 +83,12 @@ class TaskType(Enum):
 
 class _MPResterLegacy:
     """
-    A class to conveniently interface with the Materials Project REST
-    interface. The recommended way to use MPRester is with the "with" context
-    manager to ensure that sessions are properly closed after usage::
+    A class to conveniently interface with the Materials Project REST interface.
+    The recommended way to use MPRester is with the "with" context manager to ensure
+    sessions are properly closed after usage.
 
-        with MPRester("API_KEY") as m:
-            do_something
+        with MPRester("API_KEY") as mpr:
+            mpr.some_method()
 
     MPRester uses the "requests" package, which provides for HTTP connection
     pooling. All connections are made via https for security.
@@ -314,7 +314,7 @@ class _MPResterLegacy:
     def get_materials_id_from_task_id(self, task_id):
         """
         Returns a new MP materials id from a task id (which can be
-        equivalent to an old materials id)
+        equivalent to an old materials id).
 
         Args:
             task_id (str): A task id.
@@ -1412,7 +1412,7 @@ class _MPResterLegacy:
     def get_all_substrates(self):
         """
         Gets the list of all possible substrates considered in the
-        Materials Project substrate database
+        Materials Project substrate database.
 
         Returns:
             list of material_ids corresponding to possible substrates
@@ -1583,7 +1583,7 @@ class _MPResterLegacy:
 
     def get_download_info(self, material_ids, task_types=None, file_patterns=None):
         """
-        Get a list of URLs to retrieve raw VASP output files from the NoMaD repository
+        Get a list of URLs to retrieve raw VASP output files from the NoMaD repository.
 
         Args:
             material_ids (list): list of material identifiers (mp-id's)
@@ -1740,8 +1740,9 @@ class _MPResterLegacy:
 
 class MPRester:
     """
-    A class to conveniently interface with the new and legacy Materials Project REST
-    interface. The recommended way to use MPRester is as a context manager to ensure
+    A class to conveniently interface with the new and legacy Materials Project REST interface.
+
+    The recommended way to use MPRester is as a context manager to ensure
     that sessions are properly closed after usage:
 
         with MPRester("API_KEY") as mpr:

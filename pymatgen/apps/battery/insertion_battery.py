@@ -271,7 +271,7 @@ class InsertionElectrode(AbstractElectrode):
         For example, an LiTiO2 electrode might contain three subelectrodes:
         [LiTiO2 --> TiO2, LiTiO2 --> Li0.5TiO2, Li0.5TiO2 --> TiO2]
         This method can be used to return all the subelectrodes with some
-        options
+        options.
 
         Args:
             adjacent_only: Only return electrodes from compounds that are
@@ -374,7 +374,7 @@ class InsertionElectrode(AbstractElectrode):
     def from_dict_legacy(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             InsertionElectrode
@@ -389,7 +389,7 @@ class InsertionElectrode(AbstractElectrode):
 
     def as_dict_legacy(self):
         """
-        Returns: MSONable dict
+        Returns: MSONable dict.
         """
         return {
             "@module": type(self).__module__,

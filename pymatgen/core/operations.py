@@ -415,7 +415,7 @@ class SymmOp(MSONable):
     @staticmethod
     def rotoreflection(axis: ArrayLike, angle: float, origin: ArrayLike = (0, 0, 0)) -> SymmOp:
         """
-        Returns a roto-reflection symmetry operation
+        Returns a roto-reflection symmetry operation.
 
         Args:
             axis (3x1 array): Axis of rotation / mirror normal
@@ -445,7 +445,7 @@ class SymmOp(MSONable):
     def as_xyz_string(self) -> str:
         """
         Returns a string of the form 'x, y, z', '-x, -y, z',
-        '-y+1/2, x+1/2, z+1/2', etc. Only works for integer rotation matrices
+        '-y+1/2, x+1/2, z+1/2', etc. Only works for integer rotation matrices.
         """
         # test for invalid rotation matrix
         if not np.all(np.isclose(self.rotation_matrix, np.round(self.rotation_matrix))):
@@ -628,7 +628,7 @@ class MagSymmOp(SymmOp):
     def as_xyzt_string(self) -> str:
         """
         Returns a string of the form 'x, y, z, +1', '-x, -y, z, -1',
-        '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices
+        '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices.
         """
         xyzt_string = SymmOp.as_xyz_string(self)
         return f"{xyzt_string}, {self.time_reversal:+}"

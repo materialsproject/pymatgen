@@ -81,7 +81,7 @@ class PhononDos(MSONable):
 
     def __radd__(self, other):
         """
-        Reflected addition of two DOS objects
+        Reflected addition of two DOS objects.
 
         Args:
             other: Another DOS object.
@@ -140,14 +140,14 @@ class PhononDos(MSONable):
     @lazy_property
     def _positive_frequencies(self):
         """
-        Numpy array containing the list of positive frequencies
+        Numpy array containing the list of positive frequencies.
         """
         return self.frequencies[self.ind_zero_freq :]
 
     @lazy_property
     def _positive_densities(self):
         """
-        Numpy array containing the list of densities corresponding to positive frequencies
+        Numpy array containing the list of densities corresponding to positive frequencies.
         """
         return self.densities[self.ind_zero_freq :]
 
@@ -158,7 +158,7 @@ class PhononDos(MSONable):
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
-        the division is performed internally and the result is in J/(K*mol)
+        the division is performed internally and the result is in J/(K*mol).
 
         Args:
             t: a temperature in K
@@ -193,7 +193,7 @@ class PhononDos(MSONable):
         Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
-        the division is performed internally and the result is in J/(K*mol)
+        the division is performed internally and the result is in J/(K*mol).
 
         Args:
             t: a temperature in K
@@ -226,7 +226,7 @@ class PhononDos(MSONable):
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
-        the division is performed internally and the result is in J/mol
+        the division is performed internally and the result is in J/mol.
 
         Args:
             t: a temperature in K
@@ -259,7 +259,7 @@ class PhononDos(MSONable):
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
-        the division is performed internally and the result is in J/mol
+        the division is performed internally and the result is in J/mol.
 
         Args:
             t: a temperature in K
@@ -291,7 +291,7 @@ class PhononDos(MSONable):
         Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
         of Avogadro times the atoms in a unit cell. To compare with experimental data the result
         should be divided by the number of unit formulas in the cell. If the structure is provided
-        the division is performed internally and the result is in J/mol
+        the division is performed internally and the result is in J/mol.
 
         Args:
             structure: the structure of the system. If not None it will be used to determine the number of
@@ -326,7 +326,7 @@ class CompletePhononDos(PhononDos):
         Args:
             structure: Structure associated with this particular DOS.
             total_dos: total Dos for structure
-            pdoss: The pdoss are supplied as an {Site: Densities}
+            pdoss: The pdoss are supplied as an {Site: Densities}.
         """
         super().__init__(frequencies=total_dos.frequencies, densities=total_dos.densities)
         self.pdos = {site: np.array(dens) for site, dens in pdoss.items()}
