@@ -31,7 +31,7 @@ from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import PymatgenTest
 
 
-class DosPlotterTest(unittest.TestCase):
+class DosPlotterTest(PymatgenTest):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
@@ -42,17 +42,16 @@ class DosPlotterTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_add_dos_dict(self):
-        d = self.plotter.get_dos_dict()
-        assert len(d) == 0
+        dct = self.plotter.get_dos_dict()
+        assert len(dct) == 0
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
-        d = self.plotter.get_dos_dict()
-        assert len(d) == 4
+        dct = self.plotter.get_dos_dict()
+        assert len(dct) == 4
 
     def test_get_dos_dict(self):
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
-        d = self.plotter.get_dos_dict()
-        for el in ["Li", "Fe", "P", "O"]:
-            assert el in d
+        dct = self.plotter.get_dos_dict()
+        assert list(dct) == ["Li", "Fe", "P", "O"]
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
@@ -63,9 +62,9 @@ class DosPlotterTest(unittest.TestCase):
         rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         plt = self.plotter.get_plot()
-        self.plotter.save_plot("dosplot.png")
-        assert os.path.isfile("dosplot.png")
-        os.remove("dosplot.png")
+        out_path = f"{self.tmp_path}/dosplot.png"
+        self.plotter.save_plot(out_path)
+        assert os.path.isfile(out_path)
         plt.close("all")
 
     def test_get_plot_limits(self):
@@ -84,10 +83,10 @@ class DosPlotterTest(unittest.TestCase):
             param_dict = self.get_plot_attributes(plt)
             plt_invert = self.plotter.get_plot(invert_axes=True, xlim=item["DOS_limit"], ylim=item["energy_limit"])
             param_dict_invert = self.get_plot_attributes(plt_invert)
-            assert item["energy_result"] == param_dict["xaxis_limits"]
-            assert item["energy_result"] == param_dict_invert["yaxis_limits"]
-            assert item["DOS_result"] == param_dict["yaxis_limits"]
-            assert item["DOS_result"] == param_dict_invert["xaxis_limits"]
+            assert item["energy_result"] == approx(param_dict["xaxis_limits"])
+            assert item["energy_result"] == approx(param_dict_invert["yaxis_limits"])
+            assert item["DOS_result"] == approx(param_dict["yaxis_limits"])
+            assert item["DOS_result"] == approx(param_dict_invert["xaxis_limits"])
 
     @staticmethod
     def get_plot_attributes(plt):
