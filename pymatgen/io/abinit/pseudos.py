@@ -229,7 +229,8 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             text = fh.read()
             # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
             # https://github.com/materialsproject/pymatgen/issues/2804
-            md5 = hashlib.md5(text.encode("utf-8"), usedforsecurity=False)
+            md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+            md5.update(text.encode("utf-8"))
             return md5.hexdigest()
 
     @property

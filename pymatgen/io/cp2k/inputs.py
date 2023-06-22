@@ -24,13 +24,13 @@ A quick overview of the module:
 from __future__ import annotations
 
 import copy
+import hashlib
 import itertools
 import os
 import re
 import textwrap
 import typing
 from dataclasses import dataclass, field
-from hashlib import md5
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence
 
@@ -2418,7 +2418,9 @@ class AtomicMetadata(MSONable):
         """Get a hash of this object"""
         # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
         # https://github.com/materialsproject/pymatgen/issues/2804
-        return md5(self.get_string().lower().encode("utf-8"), usedforsecurity=False).hexdigest()
+        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5.update(self.get_string().lower().encode("utf-8"))
+        return md5.hexdigest()
 
     def get_string(self):
         """Get string representation"""

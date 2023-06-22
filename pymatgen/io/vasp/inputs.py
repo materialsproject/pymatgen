@@ -5,6 +5,7 @@ files.
 
 from __future__ import annotations
 
+import hashlib
 import itertools
 import json
 import logging
@@ -2177,7 +2178,9 @@ class PotcarSingle:
         """
         # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
         # https://github.com/materialsproject/pymatgen/issues/2804
-        return md5(self.data.encode("utf-8"), usedforsecurity=False).hexdigest()
+        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5.update(self.data.encode("utf-8"))
+        return md5.hexdigest()
 
     def get_potcar_hash(self):
         """
