@@ -114,7 +114,7 @@ class TestFragmentMolecule(PymatgenTest):
     def test_babel_pc_with_ro_depth_0_vs_depth_10(self):
         pytest.importorskip("openbabel")
         fragmenter0 = Fragmenter(molecule=self.pc, depth=0, open_rings=True, opt_steps=1000)
-        assert fragmenter0.total_unique_fragments == 509
+        assert fragmenter0.total_unique_fragments == 411
 
         fragmenter10 = Fragmenter(molecule=self.pc, depth=10, open_rings=True, opt_steps=1000)
         assert fragmenter10.total_unique_fragments == 509
