@@ -21,7 +21,7 @@ bond_params = loadfn(os.path.join(MODULE_DIR, "DLS_bond_params.yaml"))
 def _is_ox(structure):
     for elem in structure.composition:
         try:
-            elem.oxi_state
+            elem.oxi_state  # noqa: B018
         except AttributeError:
             return False
     return True

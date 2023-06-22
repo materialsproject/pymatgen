@@ -274,7 +274,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert test.limits == [-100000, 0]
 
     def test_molecules_allowed(self):
-        self.chemenvlobster1.molecules_allowed
+        assert not self.chemenvlobster1.molecules_allowed
 
     def test_get_anion_types(self):
         assert self.chemenvlobster0_second.get_anion_types() == {Element("O")}

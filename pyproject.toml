@@ -56,7 +56,6 @@ select = [
   "YTT",  # flake8-2020
 ]
 ignore = [
-  "B018",    # Found useless expression. Either assign it to a variable or remove it.
   "B019",    # functools.lru_cache on methods can lead to memory leaks
   "B023",    # Function definition does not bind loop variable
   "B028",    # No explicit stacklevel keyword argument found

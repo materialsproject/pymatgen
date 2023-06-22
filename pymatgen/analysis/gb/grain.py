@@ -975,9 +975,9 @@ class GrainBoundaryGenerator:
                     c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
                     metric = np.array([[1, 0, 0], [0, 1, 0], [0, 0, c2_a2_ratio]])
                 elif lat_type.lower() == "o":
-                    for i in range(3):
-                        if ratio[i] is None:
-                            ratio[i] = 1
+                    for idx in range(3):
+                        if ratio[idx] is None:
+                            ratio[idx] = 1
                     metric = np.array(
                         [
                             [1, 0, 0],
@@ -1252,13 +1252,13 @@ class GrainBoundaryGenerator:
         scale[hh, hh] = 1
         scale[kk, kk] = least_mul
         scale[ll, ll] = sigma / least_mul
-        for i in range(least_mul):
-            check_int = i * new_rot[:, kk] + (sigma / least_mul) * new_rot[:, ll]
+        for idx in range(least_mul):
+            check_int = idx * new_rot[:, kk] + (sigma / least_mul) * new_rot[:, ll]
             if all(np.round(x, 5).is_integer() for x in list(check_int)):
-                n_final = i
+                n_final = idx
                 break
         try:
-            n_final
+            n_final  # noqa: B018
         except NameError:
             raise RuntimeError("Something is wrong. Check if this GB exists or not")
         scale[kk, ll] = n_final

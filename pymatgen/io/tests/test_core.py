@@ -78,7 +78,7 @@ class TestInputSet(PymatgenTest):
         assert inp_set.kwarg1 == 1
         assert inp_set.kwarg2 == "hello"
         with pytest.raises(AttributeError):
-            inp_set.kwarg3
+            _ = inp_set.kwarg3
         expected = [("cif1", sif1), ("cif2", sif2), ("cif3", sif3)]
 
         for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected):

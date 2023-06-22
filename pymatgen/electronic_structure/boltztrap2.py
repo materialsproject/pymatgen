@@ -141,7 +141,7 @@ class VasprunBSLoader:
         :return: The lattice vectors.
         """
         try:
-            self.lattvec
+            return self.lattvec
         except AttributeError:
             self.lattvec = self.atoms.get_cell().T * units.Angstrom
         return self.lattvec
@@ -151,7 +151,7 @@ class VasprunBSLoader:
         :return: Volume
         """
         try:
-            self.UCvol
+            return self.UCvol
         except AttributeError:
             lattvec = self.get_lattvec()
             self.UCvol = np.abs(np.linalg.det(lattvec))
@@ -252,7 +252,7 @@ class BandstructureLoader:
         :return: The lattice vectors.
         """
         try:
-            self.lattvec
+            return self.lattvec
         except AttributeError:
             self.lattvec = self.atoms.get_cell().T * units.Angstrom
         return self.lattvec
@@ -308,7 +308,7 @@ class BandstructureLoader:
         :return: Volume
         """
         try:
-            self.UCvol
+            return self.UCvol
         except AttributeError:
             lattvec = self.get_lattvec()
             self.UCvol = np.abs(np.linalg.det(lattvec))
@@ -369,44 +369,44 @@ class VasprunLoader:
         :return: Lattice vectors
         """
         try:
-            self.lattvec
+            return self.lattvec
         except AttributeError:
             self.lattvec = self.atoms.get_cell().T * units.Angstrom
         return self.lattvec
 
     def bandana(self, emin=-np.inf, emax=np.inf):
         """Cut out bands outside the range (emin,emax)."""
-        bandmin = np.min(self.ebands, axis=1)
-        bandmax = np.max(self.ebands, axis=1)
-        ii = np.nonzero(bandmin < emax)
-        nemax = ii[0][-1]
-        ii = np.nonzero(bandmax > emin)
-        nemin = ii[0][0]
+        band_min = np.min(self.ebands, axis=1)
+        band_max = np.max(self.ebands, axis=1)
+        ii = np.nonzero(band_min < emax)
+        n_emax = ii[0][-1]
+        ii = np.nonzero(band_max > emin)
+        n_emin = ii[0][0]
         # BoltzTraP2.misc.info("BANDANA output")
         # for iband in range(len(self.ebands)):
         # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
         # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
-        self.ebands = self.ebands[nemin : nemax + 1]
+        self.ebands = self.ebands[n_emin : n_emax + 1]
 
         if isinstance(self.proj, np.ndarray):
-            self.proj = self.proj[:, nemin : nemax + 1, :, :]
+            self.proj = self.proj[:, n_emin : n_emax + 1, :, :]
 
         if self.mommat is not None:
-            self.mommat = self.mommat[:, nemin : nemax + 1, :]
+            self.mommat = self.mommat[:, n_emin : n_emax + 1, :]
         # Removing bands may change the number of valence electrons
         if self.nelect is not None:
-            self.nelect -= self.dosweight * nemin
-        return nemin, nemax
+            self.nelect -= self.dosweight * n_emin
+        return n_emin, n_emax
 
     def get_volume(self):
         """
         :return: Volume of cell
         """
         try:
-            self.UCvol
+            return self.UCvol
         except AttributeError:
-            lattvec = self.get_lattvec()
-            self.UCvol = np.abs(np.linalg.det(lattvec))
+            latt_vec = self.get_lattvec()
+            self.UCvol = np.abs(np.linalg.det(latt_vec))
         return self.UCvol
 
 

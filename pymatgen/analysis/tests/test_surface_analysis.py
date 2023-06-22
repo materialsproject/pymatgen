@@ -191,7 +191,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             # Test WulffShape for adsorbed surfaces
             # chempot = analyzer.max_adsorption_chempot_range(0)
             wulff = analyzer.wulff_from_chempot(delu_default=-6)
-            wulff.weighted_surface_energy
+            _ = wulff.weighted_surface_energy
 
         # Test if a different Wulff shape is generated
         # for Ni when adsorption comes into play

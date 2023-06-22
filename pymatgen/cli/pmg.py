@@ -449,7 +449,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        args.func
+        args.func  # noqa: B018
     except AttributeError:
         parser.print_help()
         raise SystemExit("Please specify a command.")
@@ -457,4 +457,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -421,14 +421,13 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
     for ii, item in enumerate(species):
         if item not in ldict:
             species[ii] = str(Species.from_string(item).element)
-    latmat = struct.lattice.matrix
     connected_matrix = np.zeros((n_atoms, n_atoms))
 
     for ii in range(n_atoms):
         for jj in range(ii + 1, n_atoms):
             max_bond_length = ldict[species[ii]] + ldict[species[jj]] + tolerance
             frac_diff = fc_diff[jj] - fc_copy[ii]
-            distance_ij = np.dot(latmat.T, frac_diff)
+            distance_ij = np.dot(struct.lattice.matrix.T, frac_diff)
             # print(np.linalg.norm(distance_ij,axis=0))
             if sum(np.linalg.norm(distance_ij, axis=0) < max_bond_length) > 0:
                 connected_matrix[ii, jj] = 1
@@ -444,8 +443,8 @@ def find_clusters(struct, connected_matrix):
     If there are atoms that are not bonded to anything, returns [0,1,0]. (For
     faster computation time)
 
-    Author: "Gowoon Cheon"
-    Email: "gcheon@stanford.edu"
+    Author: Gowoon Cheon
+    Email: gcheon@stanford.edu
 
     Args:
         struct (Structure): Input structure

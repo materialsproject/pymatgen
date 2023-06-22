@@ -166,7 +166,7 @@ class ElementTestCase(PymatgenTest):
             assert Element(k).valence == v
 
         with pytest.raises(ValueError, match="U has ambiguous valence"):
-            Element("U").valence
+            _ = Element("U").valence
 
         valence = Element("He").valence
         assert np.isnan(valence[0])

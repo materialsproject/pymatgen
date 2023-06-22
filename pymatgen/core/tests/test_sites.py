@@ -30,7 +30,7 @@ class SiteTest(PymatgenTest):
         assert not self.disordered_site.is_ordered
         # TODO (janosh): this doesn't raise the expected error (match="specie property only works for ordered sites")
         with pytest.raises(AttributeError):
-            self.disordered_site.specie
+            _ = self.disordered_site.specie
         assert isinstance(self.ordered_site.specie, Element)
         assert self.propertied_site.properties["magmom"] == 5.1
         assert self.propertied_site.properties["charge"] == 4.2

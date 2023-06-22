@@ -208,7 +208,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         with self.monkeypatch.context() as m:
             m.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(self.TEST_FILES_DIR / "wrong_potcars"))
             with pytest.warns(BadInputSetWarning, match="not known by pymatgen"):
-                MITRelaxSet(structure).potcar
+                _ = MITRelaxSet(structure).potcar
 
     def test_potcar_special_defaults(self):
         # https://github.com/materialsproject/pymatgen/pull/3022

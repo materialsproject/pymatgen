@@ -1064,7 +1064,7 @@ class DopingTransformation(AbstractTransformation):
 
         for sp in comp:
             try:
-                sp.oxi_state
+                sp.oxi_state  # noqa: B018
             except AttributeError:
                 analyzer = BVAnalyzer()
                 structure = analyzer.get_oxi_state_decorated_structure(structure)
@@ -1078,7 +1078,7 @@ class DopingTransformation(AbstractTransformation):
             sp for sp in comp if sp.oxi_state == ox and abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol
         ]
 
-        if (not compatible_species) and self.alio_tol:
+        if not compatible_species and self.alio_tol:
             # We only consider aliovalent doping if there are no compatible
             # isovalent species.
             compatible_species = [

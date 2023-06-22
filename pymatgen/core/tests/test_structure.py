@@ -793,7 +793,7 @@ class StructureTest(PymatgenTest):
 
     def test_not_hashable(self):
         with pytest.raises(TypeError):
-            {self.structure: 1}
+            _ = {self.structure: 1}
 
     def test_sort(self):
         s = self.structure
@@ -867,7 +867,7 @@ class StructureTest(PymatgenTest):
         assert s[0].magmom == 3
         s.remove_site_property("magmom")
         with pytest.raises(AttributeError):
-            s[0].magmom
+            _ = s[0].magmom
 
     def test_propertied_structure(self):
         # Make sure that site properties are set to None for missing values.
@@ -946,7 +946,7 @@ class StructureTest(PymatgenTest):
 
         nio.remove_spin()
         with pytest.raises(AttributeError):
-            nio[0].specie.spin
+            _ = nio[0].specie.spin
 
         spins = [5, -5, -5, 5, 0, 0, 0, 0]  # AFM on (001)
         nio.add_spin_by_site(spins)
@@ -1256,7 +1256,7 @@ class StructureTest(PymatgenTest):
 
         # https://github.com/materialsproject/pymatgen/issues/3033
         with pytest.raises(AttributeError, match="species property only supports ordered structures!"):
-            self.disordered.species
+            _ = self.disordered.species
 
     def test_set_item(self):
         s = self.structure.copy()
@@ -1770,7 +1770,7 @@ class MoleculeTest(PymatgenTest):
         mol.append("N", [1, 1, 1])
         assert mol.formula == "H3 C1 N1 O1"
         with pytest.raises(TypeError):
-            {mol: 1}
+            _ = {mol: 1}
         mol.remove_sites([0, 1])
         assert mol.formula == "H3 N1"
 
@@ -1811,7 +1811,7 @@ class MoleculeTest(PymatgenTest):
         assert self.mol[0].magmom == 3
         self.mol.remove_site_property("magmom")
         with pytest.raises(AttributeError):
-            self.mol[0].magmom
+            _ = self.mol[0].magmom
 
     def test_to_from_dict(self):
         self.mol.append("X", [2, 0, 0])

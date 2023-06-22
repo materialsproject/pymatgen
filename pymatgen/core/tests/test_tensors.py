@@ -510,7 +510,7 @@ class SquareTensorTest(PymatgenTest):
         # inverse
         assert self.non_symm.inv == approx(np.linalg.inv(self.non_symm))
         with pytest.raises(ValueError):
-            self.non_invertible.inv
+            _ = self.non_invertible.inv
 
         # determinant
         assert self.rand_sqtensor.det == np.linalg.det(self.rand_sqtensor)
