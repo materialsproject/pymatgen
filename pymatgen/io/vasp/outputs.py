@@ -394,11 +394,7 @@ class Vasprun(MSONable):
                 self.update_potcar_spec(parse_potcar_file)
                 self.update_charge_from_potcar(parse_potcar_file)
 
-        if (
-            self.incar.get("ALGO", "") not in ["CHI", "BSE"]
-            and (not self.converged)
-            and self.parameters.get("IBRION", -1) != 0
-        ):
+        if self.incar.get("ALGO") not in ["CHI", "BSE"] and not self.converged and self.parameters.get("IBRION") != 0:
             msg = f"{filename} is an unconverged VASP run.\n"
             msg += f"Electronic convergence reached: {self.converged_electronic}.\n"
             msg += f"Ionic convergence reached: {self.converged_ionic}."
@@ -479,15 +475,17 @@ class Vasprun(MSONable):
                     self.final_structure = self._parse_structure(elem)
                 elif tag == "dynmat":
                     hessian, eigenvalues, eigenvectors = self._parse_dynmat(elem)
-                    natoms = len(self.atomic_symbols)
+                    # n_atoms is not the total number of atoms, only those for which force constants were calculated
+                    # https://github.com/materialsproject/pymatgen/issues/3084
+                    n_atoms = len(hessian) // 3
                     hessian = np.array(hessian)
-                    self.force_constants = np.zeros((natoms, natoms, 3, 3), dtype="double")
-                    for i in range(natoms):
-                        for j in range(natoms):
-                            self.force_constants[i, j] = hessian[i * 3 : (i + 1) * 3, j * 3 : (j + 1) * 3]
+                    self.force_constants = np.zeros((n_atoms, n_atoms, 3, 3), dtype="double")
+                    for ii in range(n_atoms):
+                        for jj in range(n_atoms):
+                            self.force_constants[ii, jj] = hessian[ii * 3 : (ii + 1) * 3, jj * 3 : (jj + 1) * 3]
                     phonon_eigenvectors = []
                     for ev in eigenvectors:
-                        phonon_eigenvectors.append(np.array(ev).reshape(natoms, 3))
+                        phonon_eigenvectors.append(np.array(ev).reshape(n_atoms, 3))
                     self.normalmode_eigenvals = np.array(eigenvalues)
                     self.normalmode_eigenvecs = np.array(phonon_eigenvectors)
                 elif self.incar.get("ML_LMLFF"):
