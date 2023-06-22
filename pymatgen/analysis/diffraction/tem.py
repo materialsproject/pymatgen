@@ -1,5 +1,3 @@
-# Credit to Dr. Shyue Ping Ong for the template of the calculator
-
 """
 This module implements a TEM pattern calculator.
 """
@@ -10,7 +8,6 @@ import json
 import os
 from collections import namedtuple
 from fractions import Fraction
-from functools import lru_cache
 from typing import TYPE_CHECKING, List, Tuple, cast
 
 import numpy as np
@@ -78,24 +75,16 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         self.debye_waller_factors = debye_waller_factors or {}
         self.cs = cs
 
-    @lru_cache(1)
     def wavelength_rel(self) -> float:
         """
         Calculates the wavelength of the electron beam with relativistic kinematic effects taken
             into account.
 
-        Args:
-            none
         Returns:
-            Relativistic Wavelength (in angstroms)
+            float: Relativistic Wavelength (in angstroms)
         """
-        wavelength_rel = (
-            sc.h
-            / np.sqrt(
-                2 * sc.m_e * sc.e * 1000 * self.voltage * (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c**2))
-            )
-            * (10**10)
-        )
+        sqr = 2 * sc.m_e * sc.e * 1000 * self.voltage * (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c**2))
+        wavelength_rel = sc.h / np.sqrt(sqr) * (10**10)
         return wavelength_rel
 
     @staticmethod

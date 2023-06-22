@@ -593,7 +593,7 @@ class ChemicalPotentialDiagram(MSONable):
         return axes_layout
 
     @property  # type: ignore
-    @lru_cache(maxsize=1)
+    @lru_cache(maxsize=1)  # noqa: B019
     def domains(self) -> dict[str, np.ndarray]:
         """Mapping of formulas to array of domain boundary points"""
         return self._get_domains()

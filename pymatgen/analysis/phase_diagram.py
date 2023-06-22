@@ -531,7 +531,7 @@ class PhaseDiagram(MSONable):
         """
         return set(self._stable_entries)
 
-    @lru_cache(1)
+    @lru_cache(1)  # noqa: B019
     def _get_stable_entries_in_space(self, space) -> list[Entry]:
         """
         Args:
@@ -588,7 +588,7 @@ class PhaseDiagram(MSONable):
         ]
         return "\n".join(output)
 
-    @lru_cache(1)
+    @lru_cache(1)  # noqa: B019
     def _get_facet_and_simplex(self, comp: Composition) -> tuple[Simplex, Simplex]:
         """
         Get any facet that a composition falls into. Cached so successive
@@ -2540,7 +2540,7 @@ class PDPlotter:
         return plt
 
     @property  # type: ignore
-    @lru_cache(1)
+    @lru_cache(1)  # noqa: B019
     def pd_plot_data(self):
         """
         Plotting data for phase diagram. Cached for repetitive calls.
@@ -2591,10 +2591,7 @@ class PDPlotter:
             if entry not in stable:
                 if self._dim < 3:
                     x = [all_data[i][0], all_data[i][0]]
-                    y = [
-                        pd.get_form_energy_per_atom(entry),
-                        pd.get_form_energy_per_atom(entry),
-                    ]
+                    y = [pd.get_form_energy_per_atom(entry), pd.get_form_energy_per_atom(entry)]
                     coord = [x, y]
                 elif self._dim == 3:
                     coord = triangular_coord([all_data[i, 0:2], all_data[i, 0:2]])

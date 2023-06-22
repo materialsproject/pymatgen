@@ -56,12 +56,10 @@ select = [
   "YTT",  # flake8-2020
 ]
 ignore = [
-  "B019",    # functools.lru_cache on methods can lead to memory leaks
   "B023",    # Function definition does not bind loop variable
   "B028",    # No explicit stacklevel keyword argument found
   "B904",    # Within an except clause, raise exceptions with ...
   "C408",    # unnecessary-collection-call
-  "D100",    # Missing docstring in public module
   "D104",    # Missing docstring in public package
   "D105",    # Missing docstring in magic method
   "D107",    # Missing docstring in __init__

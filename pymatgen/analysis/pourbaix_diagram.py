@@ -18,7 +18,7 @@ import logging
 import re
 import warnings
 from copy import deepcopy
-from functools import cmp_to_key, lru_cache, partial
+from functools import cmp_to_key, partial
 from multiprocessing import Pool
 
 import numpy as np
@@ -288,12 +288,10 @@ class MultiEntry(PourbaixEntry):
             self.weights = weights
         self.entry_list = entry_list
 
-    @lru_cache
     def __getattr__(self, item):
         """
-        Because most of the attributes here are just weighted
-        averages of the entry_list, we save some space by
-        having a set of conditionals to define the attributes
+        Because most of the attributes here are just weighted averages of the entry_list,
+        we save some space by having a set of conditionals to define the attributes
         """
         # Attributes that are weighted averages of entry attributes
         if item in [
