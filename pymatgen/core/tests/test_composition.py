@@ -77,37 +77,28 @@ class CompositionTest(PymatgenTest):
     def test_init(self):
         with pytest.raises(ValueError, match="Amounts in Composition cannot be negative"):
             Composition({"H": -0.1})
-        f = {"Fe": 4, "Li": 4, "O": 16, "P": 4}
-        assert Composition(f).formula == "Li4 Fe4 P4 O16"
-        f = {None: 4, "Li": 4, "O": 16, "P": 4}
+
+        assert Composition({"Fe": 4, "Li": 4, "O": 16, "P": 4}).formula == "Li4 Fe4 P4 O16"
+
         with pytest.raises(TypeError, match="expected string or bytes-like object"):
-            Composition(f)
-        f = {1: 2, 8: 1}
-        assert Composition(f).formula == "H2 O1"
+            Composition({None: 4, "Li": 4, "O": 16, "P": 4})
+
+        assert Composition({1: 2, 8: 1}).formula == "H2 O1"
         assert Composition(Na=2, O=1).formula == "Na2 O1"
 
         c = Composition({"S": Composition.amount_tolerance / 2})
         assert len(c.elements) == 0
 
     def test_average_electroneg(self):
-        val = [
-            2.7224999999999997,
-            2.4160000000000004,
-            2.5485714285714285,
-            2.21,
-            2.718,
-            3.08,
-            1.21,
-            2.43,
-        ]
-        for i, c in enumerate(self.comp):
-            assert round(abs(c.average_electroneg - val[i]), 7) == 0
+        electro_negs = (2.7224999999999997, 2.4160000000000004, 2.5485714285714285, 2.21, 2.718, 3.08, 1.21, 2.43)
+        for elem, val in zip(self.comp, electro_negs):
+            assert elem.average_electroneg == approx(val)
 
     def test_total_electrons(self):
         test_cases = {"C": 6, "SrTiO3": 84}
         for key, val in test_cases.items():
-            c = Composition(key)
-            assert round(abs(c.total_electrons - val), 7) == 0
+            comp = Composition(key)
+            assert comp.total_electrons == val
 
     def test_formula(self):
         correct_formulas = [
