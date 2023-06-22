@@ -463,9 +463,8 @@ class ElementBase(Enum):
         """
         From full electron config obtain valence subshell angular moment (L) and number of valence e- (v_e).
         """
-        # The number of valence of noble gas is 0
         if self.group == 18:
-            return np.nan, 0
+            return np.nan, 0  # The number of valence of noble gas is 0
 
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
         valence = []
@@ -478,7 +477,7 @@ class ElementBase(Enum):
             ):  # check for full last shell (e.g. column 2)
                 valence.append((idx, ne))
         if len(valence) > 1:
-            raise ValueError("Ambiguous valence")
+            raise ValueError(f"{self} has ambiguous valence")
 
         return valence[0]
 
@@ -1314,10 +1313,10 @@ class Species(MSONable, Stringify):
             ValueError if invalid coordination or spin_config.
         """
         if coordination not in ("oct", "tet") or spin_config not in ("high", "low"):
-            raise ValueError("Invalid coordination or spin config.")
+            raise ValueError("Invalid coordination or spin config")
         elec = self.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
-            raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation.")
+            raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation")
         n_electrons = elec[-1][2] + elec[-2][2] - self.oxi_state
         if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {self.oxi_state} for element {self.symbol}")

@@ -304,9 +304,9 @@ def lattice_points_in_supercell(supercell_matrix):
 
     frac_points = np.dot(all_points, np.linalg.inv(supercell_matrix))
 
-    tvects = frac_points[np.all(frac_points < 1 - 1e-10, axis=1) & np.all(frac_points >= -1e-10, axis=1)]
-    assert len(tvects) == round(abs(np.linalg.det(supercell_matrix)))
-    return tvects
+    t_vecs = frac_points[np.all(frac_points < 1 - 1e-10, axis=1) & np.all(frac_points >= -1e-10, axis=1)]
+    assert len(t_vecs) == round(abs(np.linalg.det(supercell_matrix)))
+    return t_vecs
 
 
 def barycentric_coords(coords, simplex):

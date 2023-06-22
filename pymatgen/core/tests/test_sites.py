@@ -4,6 +4,7 @@ import pickle
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -26,6 +27,8 @@ class SiteTest(PymatgenTest):
         self.dummy_site = Site("X", [0, 0, 0])
 
     def test_properties(self):
+        assert not self.disordered_site.is_ordered
+        # TODO (janosh): this doesn't raise the expected error (match="specie property only works for ordered sites")
         with pytest.raises(AttributeError):
             self.disordered_site.specie
         assert isinstance(self.ordered_site.specie, Element)
@@ -58,8 +61,8 @@ class SiteTest(PymatgenTest):
 
     def test_distance(self):
         osite = self.ordered_site
-        assert round(abs(np.linalg.norm([0.25, 0.35, 0.45]) - osite.distance_from_point([0, 0, 0])), 7) == 0
-        assert round(abs(osite.distance(self.disordered_site) - 0), 7) == 0
+        assert np.linalg.norm([0.25, 0.35, 0.45]) == osite.distance_from_point([0, 0, 0])
+        assert osite.distance(self.disordered_site) == 0
 
     def test_pickle(self):
         o = pickle.dumps(self.propertied_site)
@@ -112,19 +115,18 @@ class PeriodicSiteTest(PymatgenTest):
 
     def test_distance(self):
         other_site = PeriodicSite("Fe", np.array([0, 0, 0]), self.lattice)
-        assert round(abs(self.site.distance(other_site) - 6.22494979899), 5) == 0
+        assert self.site.distance(other_site) == approx(6.22494979899)
 
     def test_distance_from_point(self):
-        assert round(abs(self.site.distance_from_point([0.1, 0.1, 0.1]) - 6.22494979899), 5) != 0
-        assert round(abs(self.site.distance_from_point([0.1, 0.1, 0.1]) - 6.0564015718906887), 5) == 0
+        assert self.site.distance_from_point([0.1, 0.1, 0.1]) == approx(6.0564015718906887)
 
     def test_distance_and_image(self):
         other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
         distance, image = self.site.distance_and_image(other_site)
-        assert round(abs(distance - 6.22494979899), 5) == 0
+        assert distance == approx(6.22494979899)
         assert ([-1, -1, -1] == image).all()
         distance, image = self.site.distance_and_image(other_site, [1, 0, 0])
-        assert round(abs(distance - 19.461500456028563), 5) == 0
+        assert distance == approx(19.461500456028563)
         # Test that old and new distance algo give the same ans for
         # "standard lattices"
         lattice = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -146,7 +148,7 @@ class PeriodicSiteTest(PymatgenTest):
         site = PeriodicSite("Fe", [0.1, 0.1, 0.1], latt)
         site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], latt)
         dist, img = site.distance_and_image(site2)
-        assert round(abs(dist - 0.15495358379511573), 7) == 0
+        assert dist == approx(0.15495358379511573)
         assert list(img) == [-11, 6, 0]
 
     def test_is_periodic_image(self):

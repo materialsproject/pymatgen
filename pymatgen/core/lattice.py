@@ -1404,16 +1404,14 @@ class Lattice(MSONable):
         Returns:
             one-dimensional `numpy` array.
         """
-        coords_a, coords_b = (
-            np.reshape(coords_a, (-1, 3)),
-            np.reshape(coords_b, (-1, 3)),
-        )
+        coords_a, coords_b = np.reshape(coords_a, (-1, 3)), np.reshape(coords_b, (-1, 3))
 
         if len(coords_a) != len(coords_b):
-            raise ValueError("")
+            raise ValueError("Coordinates must have same length!")
 
-        if np.iscomplexobj(coords_a) or np.iscomplexobj(coords_b):
-            raise TypeError("Complex array!")
+        for coord in (coords_a, coords_b):
+            if np.iscomplexobj(coord):
+                raise TypeError(f"Complex array are not supported, got {coord=}")
 
         if not frac_coords:
             cart_a, cart_b = coords_a, coords_b
