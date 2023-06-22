@@ -3821,11 +3821,11 @@ class Procar:
                     headers.pop(0)
                     headers.pop(-1)
 
-                    data = defaultdict(lambda: np.zeros((nkpoints, nbands, nions, len(headers))))
+                    data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
 
                     phase_factors = defaultdict(
                         lambda: np.full(
-                            (nkpoints, nbands, nions, len(headers)),
+                            (n_kpoints, n_bands, n_ions, len(headers)),
                             np.NaN,
                             dtype=np.complex128,
                         )
@@ -3852,14 +3852,14 @@ class Procar:
                     done = True
                 elif preambleexpr.match(line):
                     m = preambleexpr.match(line)
-                    nkpoints = int(m.group(1))
-                    nbands = int(m.group(2))
-                    nions = int(m.group(3))
-                    weights = np.zeros(nkpoints)
+                    n_kpoints = int(m.group(1))
+                    n_bands = int(m.group(2))
+                    n_ions = int(m.group(3))
+                    weights = np.zeros(n_kpoints)
 
-            self.nkpoints = nkpoints
-            self.nbands = nbands
-            self.nions = nions
+            self.nkpoints = n_kpoints
+            self.nbands = n_bands
+            self.nions = n_ions
             self.weights = weights
             self.orbitals = headers
             self.data = data

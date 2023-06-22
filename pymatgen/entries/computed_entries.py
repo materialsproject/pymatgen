@@ -754,7 +754,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
                 be interpolated. Defaults to 300 K.
             gibbs_model ('SISSO'): Model for Gibbs Free energy. "SISSO", the descriptor
                 created by Bartel et al. (2018) -- see reference in documentation, is
-                currently the only supported) option.
+                currently the only supported option.
             composition (Composition): The composition of the entry. Defaults to None.
             correction (float): A correction to be applied to the energy. Defaults to 0.
             energy_adjustments (list): A list of energy adjustments to be applied to

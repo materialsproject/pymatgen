@@ -308,25 +308,19 @@ class KabschMatcherTest(unittest.TestCase):
 
         mm = KabschMatcher(mol1)
 
-        with pytest.raises(ValueError):
-            _, rmsd = mm.fit(mol2)
+        with pytest.raises(ValueError, match="The order of the species aren't matching! Please try using "):
+            mm.fit(mol2)
 
-    def test_missmatched_atom_order(self):
-        mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
-        mol2 = Molecule.from_file(os.path.join(test_dir, "benzene2.xyz"))
+    def test_mismatched_atom_order(self):
+        for mol_name in ("benzene", "c"):
+            mol1 = Molecule.from_file(f"{test_dir}/{mol_name}1.xyz")
+            mol2 = Molecule.from_file(f"{test_dir}/{mol_name}2.xyz")
 
-        mm = KabschMatcher(mol1)
+            mm = KabschMatcher(mol1)
 
-        with pytest.raises(ValueError):
-            _, rmsd = mm.fit(mol2)
-
-        mol1 = Molecule.from_file(os.path.join(test_dir, "c1.xyz"))
-        mol2 = Molecule.from_file(os.path.join(test_dir, "c2.xyz"))
-
-        mm = KabschMatcher(mol1)
-
-        with pytest.raises(ValueError):
-            _, rmsd = mm.fit(mol2)
+            expected_msg = "The order of the species aren't matching! Please try using "
+            with pytest.raises(ValueError, match=expected_msg):
+                mm.fit(mol2)
 
     def test_fit(self):
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))

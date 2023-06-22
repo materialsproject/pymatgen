@@ -29,14 +29,14 @@ class XYZTest(unittest.TestCase):
         self.multi_xyz = XYZ(self.multi_mols)
 
     def test_str(self):
-        ans = """5
+        expected = """5
 H4 C1
 C 0.000000 0.000000 0.000000
 H 0.000000 0.000000 1.089000
 H 1.026719 0.000000 -0.363000
 H -0.513360 -0.889165 -0.363000
 H -0.513360 0.889165 -0.363000"""
-        assert str(self.xyz) == ans
+        assert str(self.xyz) == expected
 
         mxyz = XYZ(self.multi_mols, coord_precision=3)
         mxyz_text = str(mxyz)
@@ -57,14 +57,14 @@ H 9.487 10.889 9.637"""
         assert mxyz_text == ans_multi
 
     def test_from_string(self):
-        ans = """5
+        expected = """5
 H4 C1
 C 0.000000 0.000000 0.000000
 H 0.000000 0.000000 1.089000
 H 1.026719 0.000000 -0.363000
 H -0.513360 -0.889165 -0.363000
 H -0.513360 0.889165 -0.363000"""
-        xyz = XYZ.from_string(ans)
+        xyz = XYZ.from_string(expected)
         mol = xyz.molecule
         sp = ["C", "H", "H", "H", "H"]
         for i, site in enumerate(mol):
@@ -139,7 +139,7 @@ C32-C2-1
         poscar = Poscar.from_file(filepath)
         struct = poscar.structure
         xyz = XYZ(struct)
-        ans = """24
+        expected = """24
 Fe4 P4 O16
 Fe 2.277347 4.550379 2.260125
 Fe 2.928536 1.516793 4.639870
@@ -165,7 +165,7 @@ O 8.686436 3.313115 3.401208
 O 8.686436 5.787643 3.401208
 O 9.405548 4.550379 1.231183
 O 9.960184 1.516793 1.393875"""
-        assert str(xyz) == ans
+        assert str(xyz) == expected
 
     def test_as_dataframe(self):
         coords = [

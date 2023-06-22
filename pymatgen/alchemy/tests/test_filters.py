@@ -57,15 +57,15 @@ class ContainsSpecieFilterTest(PymatgenTest):
 
 class SpecieProximityFilterTest(PymatgenTest):
     def test_filter(self):
-        s = self.get_structure("Li10GeP2S12")
+        struct = self.get_structure("Li10GeP2S12")
         sf = SpecieProximityFilter({"Li": 1})
-        assert sf.test(s)
+        assert sf.test(struct)
         sf = SpecieProximityFilter({"Li": 2})
-        assert not sf.test(s)
+        assert not sf.test(struct)
         sf = SpecieProximityFilter({"P": 1})
-        assert sf.test(s)
+        assert sf.test(struct)
         sf = SpecieProximityFilter({"P": 5})
-        assert not sf.test(s)
+        assert not sf.test(struct)
 
     def test_to_from_dict(self):
         sf = SpecieProximityFilter({"Li": 1})

@@ -1132,8 +1132,8 @@ class MPNMRSetTest(PymatgenTest):
 @skip_if_no_psp_dir
 class MVLSlabSetTest(PymatgenTest):
     def setUp(self):
-        s = self.get_structure("Li2O")
-        gen = SlabGenerator(s, (1, 0, 0), 10, 10)
+        struct = self.get_structure("Li2O")
+        gen = SlabGenerator(struct, (1, 0, 0), 10, 10)
         self.slab = gen.get_slab()
         self.bulk = self.slab.oriented_unit_cell
 

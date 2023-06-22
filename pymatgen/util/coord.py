@@ -399,8 +399,8 @@ class Simplex(MSONable):
         """
         try:
             return np.dot(np.concatenate([point, [1]]), self._aug_inv)
-        except AttributeError:
-            raise ValueError("Simplex is not full-dimensional")
+        except AttributeError as exc:
+            raise ValueError("Simplex is not full-dimensional") from exc
 
     def point_from_bary_coords(self, bary_coords):
         """
@@ -412,8 +412,8 @@ class Simplex(MSONable):
         """
         try:
             return np.dot(bary_coords, self._aug[:, :-1])
-        except AttributeError:
-            raise ValueError("Simplex is not full-dimensional")
+        except AttributeError as exc:
+            raise ValueError("Simplex is not full-dimensional") from exc
 
     def in_simplex(self, point, tolerance=1e-8):
         """
