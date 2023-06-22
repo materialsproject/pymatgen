@@ -2416,7 +2416,9 @@ class AtomicMetadata(MSONable):
 
     def get_hash(self) -> str:
         """Get a hash of this object"""
-        return md5(self.get_string().lower().encode("utf-8")).hexdigest()
+        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+        # https://github.com/materialsproject/pymatgen/issues/2804
+        return md5(self.get_string().lower().encode("utf-8"), usedforsecurity=False).hexdigest()
 
     def get_string(self):
         """Get string representation"""

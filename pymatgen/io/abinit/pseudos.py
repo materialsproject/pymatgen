@@ -101,7 +101,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         return obj if isinstance(obj, cls) else cls.from_file(obj)
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename) -> Pseudo:
         """
         Build an instance of a concrete Pseudo subclass from filename.
         Note: the parser knows the concrete class that should be instantiated
@@ -118,20 +118,20 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             and self.__class__ == other.__class__
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         try:
             return f"<{type(self).__name__} at {os.path.relpath(self.filepath)}>"
         except Exception:
             # relpath can fail if the code is executed in demon mode.
             return f"<{type(self).__name__} at {self.filepath}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.to_string()
 
-    def to_string(self, verbose=0):
+    def to_string(self, verbose=0) -> str:
         """String representation."""
         # pylint: disable=E1101
-        lines = []
+        lines: list[str] = []
         app = lines.append
         app(f"<{type(self).__name__}: {self.basename}>")
         app("  summary: " + self.summary.strip())
@@ -153,38 +153,36 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def summary(self):
+    def summary(self) -> str:
         """String summarizing the most important properties."""
 
     @property
-    def filepath(self):
+    def filepath(self) -> str:
         """Absolute path to pseudopotential file."""
-        # pylint: disable=E1101
         return os.path.abspath(self.path)
 
     @property
-    def basename(self):
+    def basename(self) -> str:
         """File basename."""
-        # pylint: disable=E1101
         return os.path.basename(self.filepath)
 
     @property
     @abc.abstractmethod
-    def Z(self):
+    def Z(self) -> int:
         """The atomic number of the atom."""
 
     @property
     @abc.abstractmethod
-    def Z_val(self):
+    def Z_val(self) -> int:
         """Valence charge."""
 
     @property
-    def type(self):
+    def type(self) -> str:
         """Type of pseudo."""
         return type(self).__name__
 
     @property
-    def element(self):
+    def element(self) -> Element:
         """Pymatgen :class:`Element`."""
         try:
             return Element.from_Z(self.Z)
@@ -192,27 +190,27 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             return Element.from_Z(int(self.Z))
 
     @property
-    def symbol(self):
+    def symbol(self) -> str:
         """Element symbol."""
         return self.element.symbol
 
     @property
     @abc.abstractmethod
-    def l_max(self):
+    def l_max(self) -> int:
         """Maximum angular momentum."""
 
     @property
     @abc.abstractmethod
-    def l_local(self):
+    def l_local(self) -> int:
         """Angular momentum used for the local part."""
 
     @property
-    def isnc(self):
+    def isnc(self) -> bool:
         """True if norm-conserving pseudopotential."""
         return isinstance(self, NcPseudo)
 
     @property
-    def ispaw(self):
+    def ispaw(self) -> bool:
         """True if PAW pseudopotential."""
         return isinstance(self, PawPseudo)
 
@@ -223,14 +221,16 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         return self.compute_md5()
 
     def compute_md5(self):
-        """Compute and erturn MD5 hash value."""
+        """Compute and return MD5 hash value."""
         # pylint: disable=E1101
         import hashlib
 
         with open(self.path) as fh:
             text = fh.read()
-            m = hashlib.md5(text.encode("utf-8"))
-            return m.hexdigest()
+            # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+            # https://github.com/materialsproject/pymatgen/issues/2804
+            md5 = hashlib.md5(text.encode("utf-8"), usedforsecurity=False)
+            return md5.hexdigest()
 
     @property
     @abc.abstractmethod
@@ -242,7 +242,6 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def as_dict(self, **kwargs):
         """Return dictionary for MSONable protocol."""
-        # pylint: disable=E1101
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

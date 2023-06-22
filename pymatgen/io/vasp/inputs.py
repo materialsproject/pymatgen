@@ -2175,7 +2175,9 @@ class PotcarSingle:
 
         :return: Hash value.
         """
-        return md5(self.data.encode("utf-8")).hexdigest()
+        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+        # https://github.com/materialsproject/pymatgen/issues/2804
+        return md5(self.data.encode("utf-8"), usedforsecurity=False).hexdigest()
 
     def get_potcar_hash(self):
         """
@@ -2212,7 +2214,9 @@ class PotcarSingle:
                 hash_str += v.replace(" ", "")
 
         self.hash_str = hash_str
-        return md5(hash_str.lower().encode("utf-8")).hexdigest()
+        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+        # https://github.com/materialsproject/pymatgen/issues/2804
+        return md5(hash_str.lower().encode("utf-8"), usedforsecurity=False).hexdigest()
 
     def __getattr__(self, a):
         """
