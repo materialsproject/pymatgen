@@ -49,8 +49,8 @@ class FloatWithUnitTest(PymatgenTest):
             Energy(1, "m")
 
         d = Energy(1, "Ha")
-        assert a == approx(d - 28.311386245987997)
-        assert a == approx(d - -26.111386245987994)
+        assert a + d == approx(28.311386245987997)
+        assert a - d == approx(-26.111386245987994)
         assert a + 1 == 2.1
         assert str(a / d) == "1.1 eV Ha^-1"
 
