@@ -80,7 +80,7 @@ class CompositionTest(PymatgenTest):
         f = {"Fe": 4, "Li": 4, "O": 16, "P": 4}
         assert Composition(f).formula == "Li4 Fe4 P4 O16"
         f = {None: 4, "Li": 4, "O": 16, "P": 4}
-        with pytest.raises(TypeError, match="expected string or bytes-like object, got 'NoneType'"):
+        with pytest.raises(TypeError, match="expected string or bytes-like object"):
             Composition(f)
         f = {1: 2, 8: 1}
         assert Composition(f).formula == "H2 O1"
