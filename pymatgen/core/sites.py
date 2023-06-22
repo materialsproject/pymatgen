@@ -77,7 +77,7 @@ class Site(collections.abc.Hashable, MSONable):
         props = object.__getattribute__(self, "properties")
         if attr in props:
             return props[attr]
-        raise AttributeError(attr)
+        raise AttributeError(f"{attr=} not found on {type(self).__name__}")
 
     @property
     def species(self) -> Composition:

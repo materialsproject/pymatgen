@@ -1595,8 +1595,7 @@ class GrainBoundaryGenerator:
                     m = -1 * m
                     F = mu * m**2 + d * n**2
                     all_list = R_list_inv + R_list + [F]
-                    # Compute the max common factors for the elements of the rotation matrix
-                    #  and its inverse.
+                    # Compute the max common factors for the elements of the rotation matrix and its inverse.
                     com_fac = reduce(gcd, all_list)
                     sigma = int(round(abs(F / com_fac)))
                     if 1 < sigma <= cutoff:

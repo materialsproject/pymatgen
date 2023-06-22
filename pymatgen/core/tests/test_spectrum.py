@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from pytest import approx
 from scipy import stats
 
 from pymatgen.core.spectrum import Spectrum
@@ -17,17 +18,17 @@ class SpectrumTest(PymatgenTest):
 
     def test_normalize(self):
         self.spec1.normalize(mode="max")
-        assert round(abs(np.max(self.spec1.y) - 1), 7) == 0
+        assert np.max(self.spec1.y) == approx(1)
         self.spec1.normalize(mode="sum")
-        assert round(abs(np.sum(self.spec1.y) - 1), 7) == 0
+        assert np.sum(self.spec1.y) == approx(1)
 
         self.multi_spec1.normalize(mode="sum")
-        assert round(abs(np.sum(self.multi_spec1.y[:, 0]) - 1), 7) == 0
-        assert round(abs(np.sum(self.multi_spec1.y[:, 1]) - 1), 7) == 0
+        assert np.sum(self.multi_spec1.y[:, 0]) == approx(1)
+        assert np.sum(self.multi_spec1.y[:, 1]) == approx(1)
 
         # XRD style mode.
         self.spec1.normalize(mode="max", value=100)
-        assert round(abs(np.max(self.spec1.y) - 100), 7) == 0
+        assert np.max(self.spec1.y) == approx(100)
 
     def test_operators(self):
         scaled_spect = 3 * self.spec1 + self.spec2

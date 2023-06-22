@@ -165,7 +165,7 @@ class ElementTestCase(PymatgenTest):
         for k, v in testsets.items():
             assert Element(k).valence == v
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="U has ambiguous valence"):
             Element("U").valence
 
         valence = Element("He").valence
@@ -276,8 +276,8 @@ class ElementTestCase(PymatgenTest):
         ]
 
         # Test all elements up to Uranium
-        for i in range(1, 104):
-            el = Element.from_Z(i)
+        for idx in range(1, 104):
+            el = Element.from_Z(idx)
             d = el.data
             for k in keys:
                 k_str = k.capitalize().replace("_", " ")
@@ -288,7 +288,7 @@ class ElementTestCase(PymatgenTest):
                 elif k == "iupac_ordering":
                     assert "IUPAC ordering" in d
                     assert getattr(el, k) is not None
-            el = Element.from_Z(i)
+            el = Element.from_Z(idx)
             if len(el.oxidation_states) > 0:
                 assert max(el.oxidation_states) == el.max_oxidation_state
                 assert min(el.oxidation_states) == el.min_oxidation_state
@@ -300,9 +300,9 @@ class ElementTestCase(PymatgenTest):
             Element.from_Z(1000)
 
     def test_ie_ea(self):
-        assert round(abs(Element.Fe.ionization_energies[2] - 30.651), 7) == 0
+        assert Element.Fe.ionization_energies[2] == pytest.approx(30.651)
         assert Element.Fe.ionization_energy == Element.Fe.ionization_energies[0]
-        assert round(abs(Element.Br.electron_affinity - 3.3635883), 7) == 0
+        assert Element.Br.electron_affinity == pytest.approx(3.3635883)
 
     def test_oxidation_states(self):
         el = Element.Fe
@@ -360,13 +360,13 @@ class SpeciesTestCase(PymatgenTest):
         self.specie4 = Species("Fe", 2, {"spin": 5})
 
     def test_init(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="magmom is not a supported property"):
             Species("Fe", 2, {"magmom": 5})
 
     def test_ionic_radius(self):
         assert self.specie2.ionic_radius == 78.5 / 100
         assert self.specie3.ionic_radius == 92 / 100
-        assert round(abs(Species("Mn", 4).ionic_radius - 0.67), 7) == 0
+        assert Species("Mn", 4).ionic_radius == pytest.approx(0.67)
 
     def test_eq(self):
         assert self.specie1 == self.specie3, "Static and actual constructor gives unequal result!"
@@ -413,15 +413,13 @@ class SpeciesTestCase(PymatgenTest):
         assert Species("Ni", 3).get_crystal_field_spin(spin_config="low") == 1
         assert Species("Ni", 4).get_crystal_field_spin(spin_config="low") == 0
 
-        with pytest.raises(AttributeError):
-            Species("Li", 1).get_crystal_field_spin()
-        with pytest.raises(AttributeError):
-            Species("Ge", 4).get_crystal_field_spin()
-        with pytest.raises(AttributeError):
-            Species("H", 1).get_crystal_field_spin()
-        with pytest.raises(AttributeError):
+        for elem in ("Li+", "Ge4+", "H+"):
+            symbol = Species(elem).symbol
+            with pytest.raises(AttributeError, match=f"Invalid element {symbol} for crystal field calculation"):
+                Species(elem).get_crystal_field_spin()
+        with pytest.raises(AttributeError, match="Invalid oxidation state 10 for element Fe"):
             Species("Fe", 10).get_crystal_field_spin()
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Invalid coordination or spin config"):
             Species("Fe", 2).get_crystal_field_spin("hex")
 
         s = Species("Co", 3).get_crystal_field_spin("tet", spin_config="low")
