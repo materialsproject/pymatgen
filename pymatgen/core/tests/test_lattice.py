@@ -347,7 +347,6 @@ class LatticeTestCase(PymatgenTest):
         frac_basis = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 
         for lattice in self.families.values():
-            # print(family_name)
             self.assert_all_close(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
             self.assert_all_close(lattice.norm(frac_basis), lattice.abc, 5)
             for i, vec in enumerate(frac_basis):
@@ -357,11 +356,11 @@ class LatticeTestCase(PymatgenTest):
                 assert hasattr(length, "shape")
 
         # Passing complex arrays should raise TypeError
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="Complex array"):
             lattice.norm(np.zeros(3, dtype=np.complex128))
 
         # Cannot reshape the second argument.
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="cannot reshape array"):
             lattice.dot(np.zeros(6), np.zeros(8))
 
         # Passing vectors of different length is invalid.

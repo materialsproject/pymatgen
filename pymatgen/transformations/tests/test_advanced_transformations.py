@@ -351,24 +351,24 @@ class MagOrderingTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
-        s = p.structure
-        alls = trans.apply_transformation(s, 10)
+        struct = p.structure
+        alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
         f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
         assert f.get_space_group_number() == 31
 
         model = IsingModel(5, 5)
         trans = MagOrderingTransformation({"Fe": 5}, energy_model=model)
-        alls2 = trans.apply_transformation(s, 10)
+        alls2 = trans.apply_transformation(struct, 10)
         # Ising model with +J penalizes similar neighbor magmom.
         assert alls[0]["structure"] != alls2[0]["structure"]
         assert alls[0]["structure"] == alls2[2]["structure"]
 
-        s = self.get_structure("Li2O")
+        struct = self.get_structure("Li2O")
         # Li2O doesn't have magnetism of course, but this is to test the
         # enumeration.
         trans = MagOrderingTransformation({"Li+": 1}, max_cell_size=3)
-        alls = trans.apply_transformation(s, 100)
+        alls = trans.apply_transformation(struct, 100)
         # TODO: check this is correct, unclear what len(alls) should be
         assert len(alls) == 12
 
@@ -400,12 +400,12 @@ class MagOrderingTransformationTest(PymatgenTest):
 
     def test_zero_spin_case(self):
         # ensure that zero spin case maintains sites and formula
-        s = self.get_structure("Li2O")
+        struct = self.get_structure("Li2O")
         trans = MagOrderingTransformation({"Li+": 0.0}, order_parameter=0.5)
-        alls = trans.apply_transformation(s)
+        alls = trans.apply_transformation(struct)
         Li_site = alls.indices_from_symbol("Li")[0]
         # Ensure s does not have a spin property
-        assert "spin" not in s.sites[Li_site].specie._properties
+        assert "spin" not in struct.sites[Li_site].specie._properties
         # ensure sites are assigned a spin property in alls
         assert "spin" in alls.sites[Li_site].specie._properties
         assert alls.sites[Li_site].specie._properties["spin"] == 0
@@ -610,11 +610,11 @@ class DopingTransformationTest(PymatgenTest):
 
 class SlabTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        s = self.get_structure("LiFePO4")
+        struct = self.get_structure("LiFePO4")
         trans = SlabTransformation([0, 0, 1], 10, 10, shift=0.25)
-        gen = SlabGenerator(s, [0, 0, 1], 10, 10)
+        gen = SlabGenerator(struct, [0, 0, 1], 10, 10)
         slab_from_gen = gen.get_slab(0.25)
-        slab_from_trans = trans.apply_transformation(s)
+        slab_from_trans = trans.apply_transformation(struct)
         self.assert_all_close(slab_from_gen.lattice.matrix, slab_from_trans.lattice.matrix)
         self.assert_all_close(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
 
@@ -786,14 +786,14 @@ class SubstituteSurfaceSiteTransformationTest(PymatgenTest):
 @unittest.skipIf(not hiphive, "hiphive not present. Skipping...")
 class MonteCarloRattleTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        s = self.get_structure("Si")
+        struct = self.get_structure("Si")
         mcrt = MonteCarloRattleTransformation(0.01, 2, seed=1)
-        s_trans = mcrt.apply_transformation(s)
+        s_trans = mcrt.apply_transformation(struct)
 
-        assert not np.allclose(s.cart_coords, s_trans.cart_coords, atol=0.01)
-        assert np.allclose(s.cart_coords, s_trans.cart_coords, atol=1)
+        assert not np.allclose(struct.cart_coords, s_trans.cart_coords, atol=0.01)
+        assert np.allclose(struct.cart_coords, s_trans.cart_coords, atol=1)
 
         # test using same seed gives same coords
         mcrt = MonteCarloRattleTransformation(0.01, 2, seed=1)
-        s_trans2 = mcrt.apply_transformation(s)
+        s_trans2 = mcrt.apply_transformation(struct)
         assert np.allclose(s_trans.cart_coords, s_trans2.cart_coords)

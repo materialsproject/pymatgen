@@ -17,9 +17,9 @@ class BatteryAnalyzerTest(PymatgenTest):
         return BatteryAnalyzer(s, working_ion)
 
     def load_from_internal(self, name, oxidations, working_ion="Li"):
-        s = self.get_structure(name).copy()
-        s.add_oxidation_state_by_element(oxidations)
-        return BatteryAnalyzer(s, working_ion)
+        struct = self.get_structure(name).copy()
+        struct.add_oxidation_state_by_element(oxidations)
+        return BatteryAnalyzer(struct, working_ion)
 
     def setUp(self):
         self.lifepo4 = self.load_from_internal("LiFePO4", {"Li": 1, "Fe": 2, "P": 5, "O": -2})
@@ -35,9 +35,9 @@ class BatteryAnalyzerTest(PymatgenTest):
         self.mgnif6 = self.load_from_cif("MgNiF6.cif", {"Mg": 2, "Ni": 4, "F": -1}, working_ion="F")
 
     def test_oxid_check(self):
-        s = self.get_structure("LiFePO4")
+        struct = self.get_structure("LiFePO4")
         with pytest.raises(ValueError):
-            BatteryAnalyzer(s, "Li")
+            BatteryAnalyzer(struct, "Li")
 
     def test_capacitygrav_calculations(self):
         lifepo4_cap = 169.89053  # same as fepo4 cap

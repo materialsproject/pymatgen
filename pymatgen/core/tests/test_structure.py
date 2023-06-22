@@ -1557,7 +1557,7 @@ class IMoleculeTest(PymatgenTest):
         assert self.mol.formula == "H4 C1"
 
     def test_repr_str(self):
-        ans = """Full Formula (H4 C1)
+        expected = """Full Formula (H4 C1)
 Reduced Formula: H4C
 Charge = 0.0, Spin Mult = 1
 Sites (5)
@@ -1566,14 +1566,14 @@ Sites (5)
 2 H     1.026719     0.000000    -0.363000
 3 H    -0.513360    -0.889165    -0.363000
 4 H    -0.513360     0.889165    -0.363000"""
-        assert str(self.mol) == ans
-        ans = """Molecule Summary
+        assert str(self.mol) == expected
+        expected = """Molecule Summary
 Site: C (0.0000, 0.0000, 0.0000)
 Site: H (0.0000, 0.0000, 1.0890)
 Site: H (1.0267, 0.0000, -0.3630)
 Site: H (-0.5134, -0.8892, -0.3630)
 Site: H (-0.5134, 0.8892, -0.3630)"""
-        assert repr(self.mol) == ans
+        assert repr(self.mol) == expected
 
     def test_site_properties(self):
         propertied_mol = Molecule(

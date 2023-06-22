@@ -301,9 +301,9 @@ class SlabTest(PymatgenTest):
         # the cell (noncontiguous), check that get_slab_regions will
         # be able to identify where the slab layers are located
 
-        s = self.get_structure("LiFePO4")
-        slabgen = SlabGenerator(s, (0, 0, 1), 15, 15)
-        slab = slabgen.get_slabs()[0]
+        struct = self.get_structure("LiFePO4")
+        slab_gen = SlabGenerator(struct, (0, 0, 1), 15, 15)
+        slab = slab_gen.get_slabs()[0]
         slab.translate_sites([i for i, site in enumerate(slab)], [0, 0, -0.25])
         bottom_c, top_c = [], []
         for site in slab:
@@ -381,10 +381,10 @@ class SlabGeneratorTest(PymatgenTest):
         self.Dy = Structure(lattice_Dy, species_Dy, frac_coords_Dy)
 
     def test_get_slab(self):
-        s = self.get_structure("LiFePO4")
-        gen = SlabGenerator(s, [0, 0, 1], 10, 10)
-        s = gen.get_slab(0.25)
-        assert round(abs(s.lattice.abc[2] - 20.820740000000001), 7) == 0
+        struct = self.get_structure("LiFePO4")
+        gen = SlabGenerator(struct, [0, 0, 1], 10, 10)
+        struct = gen.get_slab(0.25)
+        assert round(abs(struct.lattice.abc[2] - 20.820740000000001), 7) == 0
 
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, max_normal_search=1)
@@ -429,7 +429,7 @@ class SlabGeneratorTest(PymatgenTest):
             else:
                 # Cubic lattice is compatible with all other space groups.
                 latt = Lattice.cubic(5)
-            s = Structure.from_spacegroup(i, latt, ["H"], [[0, 0, 0]])
+            struct = Structure.from_spacegroup(i, latt, ["H"], [[0, 0, 0]])
             miller = (0, 0, 0)
             while miller == (0, 0, 0):
                 miller = (
@@ -437,7 +437,7 @@ class SlabGeneratorTest(PymatgenTest):
                     random.randint(0, 6),
                     random.randint(0, 6),
                 )
-            gen = SlabGenerator(s, miller, 10, 10)
+            gen = SlabGenerator(struct, miller, 10, 10)
             a, b, c = gen.oriented_unit_cell.lattice.matrix
             assert round(abs(np.dot(a, gen._normal) - 0), 7) == 0
             assert round(abs(np.dot(b, gen._normal) - 0), 7) == 0
@@ -476,8 +476,8 @@ class SlabGeneratorTest(PymatgenTest):
 
         assert len(gen.get_slabs()) == 1
 
-        s = self.get_structure("LiFePO4")
-        gen = SlabGenerator(s, [0, 0, 1], 10, 10)
+        struct = self.get_structure("LiFePO4")
+        gen = SlabGenerator(struct, [0, 0, 1], 10, 10)
         assert len(gen.get_slabs()) == 5
 
         assert len(gen.get_slabs(bonds={("P", "O"): 3})) == 2
@@ -514,8 +514,8 @@ class SlabGeneratorTest(PymatgenTest):
         # min_slab_size and min_vac_size will give us the same number of atoms
         natoms = []
         for a in [1, 1.4, 2.5, 3.6]:
-            s = Structure.from_spacegroup("Im-3m", Lattice.cubic(a), ["Fe"], [[0, 0, 0]])
-            slabgen = SlabGenerator(s, (1, 1, 1), 10, 10, in_unit_planes=True, max_normal_search=2)
+            struct = Structure.from_spacegroup("Im-3m", Lattice.cubic(a), ["Fe"], [[0, 0, 0]])
+            slabgen = SlabGenerator(struct, (1, 1, 1), 10, 10, in_unit_planes=True, max_normal_search=2)
             natoms.append(len(slabgen.get_slab()))
         n = natoms[0]
         for i in natoms:
@@ -600,8 +600,8 @@ class SlabGeneratorTest(PymatgenTest):
 
     def test_move_to_other_side(self):
         # Tests to see if sites are added to opposite side
-        s = self.get_structure("LiFePO4")
-        slabgen = SlabGenerator(s, (0, 0, 1), 10, 10, center_slab=True)
+        struct = self.get_structure("LiFePO4")
+        slabgen = SlabGenerator(struct, (0, 0, 1), 10, 10, center_slab=True)
         slab = slabgen.get_slab()
         surface_sites = slab.get_surface_sites()
 
@@ -619,10 +619,10 @@ class SlabGeneratorTest(PymatgenTest):
 
     def test_bonds_broken(self):
         # Querying the Materials Project database for Si
-        s = self.get_structure("Si")
+        struct = self.get_structure("Si")
         # Conventional unit cell is supplied to ensure miller indices
         # correspond to usual crystallographic definitions
-        conv_bulk = SpacegroupAnalyzer(s).get_conventional_standard_structure()
+        conv_bulk = SpacegroupAnalyzer(struct).get_conventional_standard_structure()
         slabgen = SlabGenerator(conv_bulk, [1, 1, 1], 10, 10, center_slab=True)
         # Setting a generous estimate for max_broken_bonds
         # so that all terminations are generated. These slabs

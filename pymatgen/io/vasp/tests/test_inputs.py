@@ -272,20 +272,20 @@ direct
         assert p.predictor_corrector[0][0][0] == 0.33387820e00
         assert p.predictor_corrector[0][1][1] == -0.10583589e-02
 
-    def test_write_MD_poscar(self):
+    def test_write_md_poscar(self):
         # Parsing from an MD type run with velocities and predictor corrector data
         # And writing a new POSCAR from the new structure
         p = Poscar.from_file(PymatgenTest.TEST_FILES_DIR / "CONTCAR.MD", check_for_POTCAR=False)
 
-        tempfname = Path("POSCAR.testing.md")
-        p.write_file(tempfname)
-        p3 = Poscar.from_file(tempfname)
+        path = Path("POSCAR.testing.md")
+        p.write_file(path)
+        p3 = Poscar.from_file(path)
 
         self.assert_all_close(p.structure.lattice.abc, p3.structure.lattice.abc, 5)
         self.assert_all_close(p.velocities, p3.velocities, 5)
         self.assert_all_close(p.predictor_corrector, p3.predictor_corrector, 5)
         assert p.predictor_corrector_preamble == p3.predictor_corrector_preamble
-        tempfname.unlink()
+        path.unlink()
 
     def test_setattr(self):
         filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
@@ -293,7 +293,7 @@ direct
         with pytest.raises(ValueError):
             poscar.velocities = [[0, 0, 0]]
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
-        ans = """
+        expected = """
         Fe4P4O16
 1.0
   10.4117668699494264    0.0000000000000000    0.0000000000000000
@@ -327,7 +327,7 @@ direct
    0.8342902600000000    0.9539276700000000    0.7146160600000000 T F F O
    0.9033575600000000    0.7500000000000000    0.2586796500000000 T F F O
    0.9566276900000000    0.2500000000000000    0.2928623300000000 T F F O"""
-        assert str(poscar).strip() == ans.strip()
+        assert str(poscar).strip() == expected.strip()
 
     def test_velocities(self):
         si = 14
@@ -576,7 +576,7 @@ class IncarTest(PymatgenTest):
 
     def test_get_string(self):
         s = self.incar.get_string(pretty=True, sort_keys=True)
-        ans = """ALGO       =  Damped
+        expected = """ALGO       =  Damped
 EDIFF      =  0.0001
 ENCUT      =  500
 ENCUTFOCK  =  0.0
@@ -604,7 +604,7 @@ PREC       =  Accurate
 SIGMA      =  0.05
 SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
 TIME       =  0.4"""
-        assert s == ans
+        assert s == expected
 
     def test_lsorbit_magmom(self):
         magmom1 = [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]

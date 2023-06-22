@@ -74,13 +74,13 @@ class CompositionTest(PymatgenTest):
         c = Composition("Ga8 As16 H102 S36 O3")
         assert c.hill_formula == "As16 Ga8 H102 O3 S36"
 
-    def test_init_(self):
-        with pytest.raises(ValueError):
+    def test_init(self):
+        with pytest.raises(ValueError, match="Amounts in Composition cannot be negative"):
             Composition({"H": -0.1})
         f = {"Fe": 4, "Li": 4, "O": 16, "P": 4}
         assert Composition(f).formula == "Li4 Fe4 P4 O16"
         f = {None: 4, "Li": 4, "O": 16, "P": 4}
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="expected string or bytes-like object, got 'NoneType'"):
             Composition(f)
         f = {1: 2, 8: 1}
         assert Composition(f).formula == "H2 O1"
@@ -122,7 +122,7 @@ class CompositionTest(PymatgenTest):
         ]
         all_formulas = [c.formula for c in self.comp]
         assert all_formulas == correct_formulas
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="co2 is an invalid formula"):
             Composition("(co2)(po4)2")
 
         assert Composition("K Na 2").reduced_formula == "KNa2"
@@ -359,7 +359,7 @@ class CompositionTest(PymatgenTest):
         assert (self.comp[0] - Composition("Li2O")).formula == "Li1 Fe2 P3 O11", "Incorrect composition after addition!"
         assert (self.comp[0] - {"Fe": 2, "O": 3}).formula == "Li3 P3 O9"
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Amounts in Composition cannot be negative"):
             Composition("O") - Composition("H")
 
         # check that S is completely removed by subtraction
@@ -423,7 +423,7 @@ class CompositionTest(PymatgenTest):
         Fe = Element("Fe")
         assert c1 != Fe, NotImplemented
         assert c1 != Fe
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="'<' not supported between instances of 'Composition' and 'Element'"):
             c1 < Fe  # noqa: B015
 
     def test_almost_equals(self):
@@ -550,10 +550,10 @@ class CompositionTest(PymatgenTest):
         # to under the abs(max_sites) number of sites. Will also timeout if
         # incorrect.
         assert Composition("Sb10000O10000F10000").oxi_state_guesses(max_sites=-3)[0] == {"Sb": 3, "O": -2, "F": -1}
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Composition Li1 O1 F1 cannot accommodate max_sites setting"):
             Composition("LiOF").oxi_state_guesses(max_sites=-2)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Composition V2 O3 cannot accommodate max_sites setting"):
             Composition("V2O3").oxi_state_guesses(max_sites=1)
 
     def test_oxi_state_decoration(self):
@@ -603,7 +603,7 @@ class CompositionTest(PymatgenTest):
         cmp = Composition(formula)
         assert not cmp.valid
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Composition is not valid, contains: Na, Cl, X0+"):
             Composition("NaClX", strict=True)
 
     def test_remove_charges(self):
@@ -669,38 +669,38 @@ class CompositionTest(PymatgenTest):
 
 class ChemicalPotentialTest(unittest.TestCase):
     def test_init(self):
-        d = {"Fe": 1, Element("Fe"): 1}
-        with pytest.raises(ValueError):
-            ChemicalPotential(d)
-        for k in ChemicalPotential(Fe=1):
-            assert isinstance(k, Element)
+        dct = {"Fe": 1, Element("Fe"): 1}
+        with pytest.raises(ValueError, match="Duplicate potential specified"):
+            ChemicalPotential(dct)
+        for key in ChemicalPotential(Fe=1):
+            assert isinstance(key, Element)
 
     def test_math(self):
-        fepot = ChemicalPotential({"Fe": 1})
-        opot = ChemicalPotential({"O": 2.1})
+        fe_pot = ChemicalPotential({"Fe": 1})
+        o_pot = ChemicalPotential({"O": 2.1})
         pots = ChemicalPotential({"Fe": 1, "O": 2.1})
-        potsx2 = ChemicalPotential({"Fe": 2, "O": 4.2})
-        feo2 = Composition("FeO2")
+        pots_x2 = ChemicalPotential({"Fe": 2, "O": 4.2})
+        fe_o2 = Composition("FeO2")
 
         # test get_energy()
-        assert round(abs(pots.get_energy(feo2) - 5.2), 7) == 0
-        assert round(abs(fepot.get_energy(feo2, False) - 1), 7) == 0
-        with pytest.raises(ValueError):
-            fepot.get_energy(feo2)
+        assert round(abs(pots.get_energy(fe_o2) - 5.2), 7) == 0
+        assert round(abs(fe_pot.get_energy(fe_o2, False) - 1), 7) == 0
+        with pytest.raises(ValueError, match="Potentials not specified for {Element O}"):
+            fe_pot.get_energy(fe_o2)
 
         # test multiplication
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="unsupported operand type"):
             pots * pots
-        assert pots * 2 == potsx2
-        assert 2 * pots == potsx2
+        assert pots * 2 == pots_x2
+        assert 2 * pots == pots_x2
 
         # test division
-        assert potsx2 / 2 == pots
+        assert pots_x2 / 2 == pots
         assert pots.__div__(pots) == NotImplemented
-        assert pots.__div__(feo2) == NotImplemented
+        assert pots.__div__(fe_o2) == NotImplemented
 
         # test add/subtract
-        assert pots + pots == potsx2
-        assert potsx2 - pots == pots
-        assert fepot + opot == pots
-        assert fepot - opot == pots - opot - opot
+        assert pots + pots == pots_x2
+        assert pots_x2 - pots == pots
+        assert fe_pot + o_pot == pots
+        assert fe_pot - o_pot == pots - o_pot - o_pot

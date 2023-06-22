@@ -273,7 +273,7 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
         comp_i, image_i, site_i = queue.pop(0)
 
         if comp_i in [x[0] for x in seen_indices]:
-            raise ValueError("Graph component is not 0D")
+            raise ValueError("Graph component is not zero-dimensional")
 
         seen_indices.append((comp_i, image_i))
         sites.append(site_i)

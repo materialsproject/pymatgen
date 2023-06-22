@@ -2106,10 +2106,7 @@ class MoleculeGraph(MSONable):
             original.break_edge(bond[0], bond[1], allow_reverse=allow_reverse)
 
         if nx.is_weakly_connected(original.graph):
-            raise MolGraphSplitError(
-                "Cannot split molecule; \
-                                MoleculeGraph is still connected."
-            )
+            raise MolGraphSplitError("Cannot split molecule; MoleculeGraph is still connected.")
 
         # alter any bonds before partition, to avoid remapping
         if alterations is not None:

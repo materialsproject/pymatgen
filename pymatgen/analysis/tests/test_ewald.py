@@ -38,7 +38,10 @@ class EwaldSummationTest(unittest.TestCase):
         assert sum(ham.point_energy_matrix) == approx(ham.point_energy, abs=1e-4)
         assert sum(sum(ham.total_energy_matrix)) + ham._charged_cell_energy == approx(ham.total_energy, abs=1e-2)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="Ewald summation can only be performed on structures that are either oxidation state decorated",
+        ):
             EwaldSummation(self.original_s)
         # try sites with charge.
         charges = []
