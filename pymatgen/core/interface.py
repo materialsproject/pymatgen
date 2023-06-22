@@ -1,6 +1,4 @@
-"""
-This module provides classes to store, generate, and manipulate material interfaces.
-"""
+"""This module provides classes to store, generate, and manipulate material interfaces."""
 
 from __future__ import annotations
 
@@ -116,9 +114,7 @@ class Interface(Structure):
 
     @property
     def gap(self) -> float:
-        """
-        The gap in Cartesian units between the film and the substrate.
-        """
+        """The gap in Cartesian units between the film and the substrate."""
         return self._gap
 
     @gap.setter
@@ -134,9 +130,7 @@ class Interface(Structure):
 
     @property
     def vacuum_over_film(self) -> float:
-        """
-        The vacuum space over the film in Cartesian units.
-        """
+        """The vacuum space over the film in Cartesian units."""
         return self._vacuum_over_film
 
     @vacuum_over_film.setter
@@ -151,48 +145,36 @@ class Interface(Structure):
 
     @property
     def substrate_indices(self) -> list[int]:
-        """
-        Site indices for the substrate atoms.
-        """
+        """Site indices for the substrate atoms."""
         sub_indices = [i for i, tag in enumerate(self.site_properties["interface_label"]) if "substrate" in tag]
         return sub_indices
 
     @property
     def substrate_sites(self) -> list[Site]:
-        """
-        The site objects in the substrate.
-        """
+        """The site objects in the substrate."""
         sub_sites = [site for site, tag in zip(self, self.site_properties["interface_label"]) if "substrate" in tag]
         return sub_sites
 
     @property
     def substrate(self) -> Structure:
-        """
-        A pymatgen Structure for just the substrate.
-        """
+        """A pymatgen Structure for just the substrate."""
         return Structure.from_sites(self.substrate_sites)
 
     @property
     def film_indices(self) -> list[int]:
-        """
-        Site indices of the film sites.
-        """
+        """Site indices of the film sites."""
         f_indices = [i for i, tag in enumerate(self.site_properties["interface_label"]) if "film" in tag]
         return f_indices
 
     @property
     def film_sites(self) -> list[Site]:
-        """
-        Return the film sites of the interface.
-        """
+        """Return the film sites of the interface."""
         film_sites = [site for site, tag in zip(self, self.site_properties["interface_label"]) if "film" in tag]
         return film_sites
 
     @property
     def film(self) -> Structure:
-        """
-        A pymatgen Structure for just the film.
-        """
+        """A pymatgen Structure for just the film."""
         return Structure.from_sites(self.film_sites)
 
     def copy(self):
@@ -301,9 +283,7 @@ class Interface(Structure):
             site.coords = c_coords  # Put back into original Cartesian space
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         d = super().as_dict()
         d["in_plane_offset"] = self.in_plane_offset.tolist()
         d["gap"] = self.gap
@@ -494,9 +474,7 @@ def label_termination(slab: Structure) -> str:
 
 
 def count_layers(struct: Structure, el=None) -> int:
-    """
-    Counts the number of 'layers' along the c-axis.
-    """
+    """Counts the number of 'layers' along the c-axis."""
     el = el or struct.composition.elements[0]
     frac_coords = [site.frac_coords for site in struct if site.species_string == str(el)]
     n = len(frac_coords)

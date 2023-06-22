@@ -1,6 +1,4 @@
-"""
-This module provides classes to define everything related to band structures.
-"""
+"""This module provides classes to define everything related to band structures."""
 
 from __future__ import annotations
 
@@ -76,56 +74,40 @@ class Kpoint(MSONable):
 
     @property
     def label(self):
-        """
-        The label associated with the kpoint.
-        """
+        """The label associated with the kpoint."""
         return self._label
 
     @property
     def frac_coords(self):
-        """
-        The fractional coordinates of the kpoint as a numpy array.
-        """
+        """The fractional coordinates of the kpoint as a numpy array."""
         return np.copy(self._fcoords)
 
     @property
     def cart_coords(self):
-        """
-        The Cartesian coordinates of the kpoint as a numpy array.
-        """
+        """The Cartesian coordinates of the kpoint as a numpy array."""
         return np.copy(self._ccoords)
 
     @property
     def a(self):
-        """
-        Fractional a coordinate of the kpoint.
-        """
+        """Fractional a coordinate of the kpoint."""
         return self._fcoords[0]
 
     @property
     def b(self):
-        """
-        Fractional b coordinate of the kpoint.
-        """
+        """Fractional b coordinate of the kpoint."""
         return self._fcoords[1]
 
     @property
     def c(self):
-        """
-        Fractional c coordinate of the kpoint.
-        """
+        """Fractional c coordinate of the kpoint."""
         return self._fcoords[2]
 
     def __str__(self):
-        """
-        Returns a string with fractional, Cartesian coordinates and label.
-        """
+        """Returns a string with fractional, Cartesian coordinates and label."""
         return f"{self.frac_coords} {self.cart_coords} {self.label}"
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of a kpoint.
-        """
+        """JSON-serializable dict representation of a kpoint."""
         return {
             "lattice": self.lattice.as_dict(),
             "fcoords": self.frac_coords.tolist(),
@@ -594,9 +576,7 @@ class BandStructure:
         return None
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of BandStructure.
-        """
+        """JSON-serializable dict representation of BandStructure."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -935,23 +915,17 @@ class BandStructureSymmLine(BandStructure, MSONable):
         return self.from_dict(old_dict)
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of BandStructureSymmLine.
-        """
+        """JSON-serializable dict representation of BandStructureSymmLine."""
         dct = super().as_dict()
         dct["branches"] = self.branches
         return dct
 
 
 class LobsterBandStructureSymmLine(BandStructureSymmLine):
-    """
-    Lobster subclass of BandStructure with customized functions.
-    """
+    """Lobster subclass of BandStructure with customized functions."""
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of BandStructureSymmLine.
-        """
+        """JSON-serializable dict representation of BandStructureSymmLine."""
         dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

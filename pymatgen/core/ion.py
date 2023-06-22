@@ -1,6 +1,4 @@
-"""
-Module containing class to create an ion.
-"""
+"""Module containing class to create an ion."""
 
 from __future__ import annotations
 
@@ -199,9 +197,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @property
     def charge(self) -> float:
-        """
-        Charge of the ion.
-        """
+        """Charge of the ion."""
         return self._charge
 
     def as_dict(self) -> dict[str, float]:
@@ -290,25 +286,19 @@ class Ion(Composition, MSONable, Stringify):
         return True
 
     def __add__(self, other):
-        """
-        Addition of two ions.
-        """
+        """Addition of two ions."""
         new_composition = self.composition + other.composition
         new_charge = self.charge + other.charge
         return Ion(new_composition, new_charge)
 
     def __sub__(self, other):
-        """
-        Subtraction of two ions.
-        """
+        """Subtraction of two ions."""
         new_composition = self.composition - other.composition
         new_charge = self.charge - other.charge
         return Ion(new_composition, new_charge)
 
     def __mul__(self, other):
-        """
-        Multiplication of an Ion with a factor.
-        """
+        """Multiplication of an Ion with a factor."""
         new_composition = self.composition * other
         new_charge = self.charge * other
         return Ion(new_composition, new_charge)
@@ -323,9 +313,7 @@ class Ion(Composition, MSONable, Stringify):
         return "Ion: " + self.formula
 
     def to_pretty_string(self) -> str:
-        """
-        :return: Pretty string with proper superscripts.
-        """
+        """:return: Pretty string with proper superscripts."""
         str_ = super().reduced_formula
         if val := formula_double_format(self.charge, False):
             str_ += f"^{val:+}"

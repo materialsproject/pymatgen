@@ -1,6 +1,4 @@
-"""
-This module define the various drones used to assimilate data.
-"""
+"""This module define the various drones used to assimilate data."""
 
 from __future__ import annotations
 
@@ -171,9 +169,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         return " VaspToComputedEntryDrone"
 
     def as_dict(self):
-        """
-        Returns: MSONABle dict.
-        """
+        """Returns: MSONABle dict."""
         return {
             "init_args": {
                 "inc_structure": self._inc_structure,
@@ -288,9 +284,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         return "SimpleVaspToComputedEntryDrone"
 
     def as_dict(self):
-        """
-        Returns: MSONable dict.
-        """
+        """Returns: MSONable dict."""
         return {
             "init_args": {"inc_structure": self._inc_structure},
             "@module": type(self).__module__,
@@ -408,9 +402,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         return " GaussianToComputedEntryDrone"
 
     def as_dict(self):
-        """
-        Returns: MSONable dict.
-        """
+        """Returns: MSONable dict."""
         return {
             "init_args": {
                 "inc_structure": self._inc_structure,
@@ -435,9 +427,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
 
 def _get_transformation_history(path):
-    """
-    Checks for a transformations.json* file and returns the history.
-    """
+    """Checks for a transformations.json* file and returns the history."""
     trans_json = glob(os.path.join(path, "transformations.json*"))
     if trans_json:
         try:

@@ -69,16 +69,12 @@ class EnergyAdjustment(MSONable):
 
     @property
     def value(self):
-        """
-        Return the value of the energy correction in eV.
-        """
+        """Return the value of the energy correction in eV."""
         return self._value
 
     @property
     def uncertainty(self):
-        """
-        Return the uncertainty in the value of the energy adjustment in eV.
-        """
+        """Return the uncertainty in the value of the energy adjustment in eV."""
         return self._uncertainty
 
     @abc.abstractmethod
@@ -93,9 +89,7 @@ class EnergyAdjustment(MSONable):
     @property
     @abc.abstractmethod
     def explain(self):
-        """
-        Return an explanation of how the energy adjustment is calculated.
-        """
+        """Return an explanation of how the energy adjustment is calculated."""
 
     def __repr__(self):
         output = [
@@ -139,9 +133,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
 
     @property
     def explain(self):
-        """
-        Return an explanation of how the energy adjustment is calculated.
-        """
+        """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self.value:.3f} eV)"
 
     def normalize(self, factor):
@@ -155,9 +147,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
 
 
 class ManualEnergyAdjustment(ConstantEnergyAdjustment):
-    """
-    A manual energy adjustment applied to a ComputedEntry.
-    """
+    """A manual energy adjustment applied to a ComputedEntry."""
 
     def __init__(self, value):
         """
@@ -205,23 +195,17 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
 
     @property
     def value(self):
-        """
-        Return the value of the energy adjustment in eV.
-        """
+        """Return the value of the energy adjustment in eV."""
         return self._adj_per_atom * self.n_atoms
 
     @property
     def uncertainty(self):
-        """
-        Return the value of the energy adjustment in eV.
-        """
+        """Return the value of the energy adjustment in eV."""
         return self.uncertainty_per_atom * self.n_atoms
 
     @property
     def explain(self):
-        """
-        Return an explanation of how the energy adjustment is calculated.
-        """
+        """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
@@ -272,23 +256,17 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
 
     @property
     def value(self):
-        """
-        Return the value of the energy correction in eV.
-        """
+        """Return the value of the energy correction in eV."""
         return self._adj_per_deg * self.temp * self.n_atoms
 
     @property
     def uncertainty(self):
-        """
-        Return the value of the energy adjustment in eV.
-        """
+        """Return the value of the energy adjustment in eV."""
         return self.uncertainty_per_deg * self.temp * self.n_atoms
 
     @property
     def explain(self):
-        """
-        Return an explanation of how the energy adjustment is calculated.
-        """
+        """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
@@ -366,9 +344,7 @@ class ComputedEntry(Entry):
 
     @property
     def energy(self) -> float:
-        """
-        :return: the *corrected* energy of the entry.
-        """
+        """:return: the *corrected* energy of the entry."""
         return self.uncorrected_energy + self.correction
 
     @property
@@ -541,9 +517,7 @@ class ComputedEntry(Entry):
         )
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         return_dict = super().as_dict()
         return_dict.update(
             {
@@ -565,9 +539,7 @@ class ComputedEntry(Entry):
         return super().__hash__()
 
     def copy(self) -> ComputedEntry:
-        """
-        Returns a copy of the ComputedEntry.
-        """
+        """Returns a copy of the ComputedEntry."""
         return ComputedEntry(
             composition=self.composition,
             energy=self.uncorrected_energy,
@@ -640,15 +612,11 @@ class ComputedStructureEntry(ComputedEntry):
 
     @property
     def structure(self) -> Structure:
-        """
-        :return: the structure of the entry.
-        """
+        """:return: the structure of the entry."""
         return self._structure
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         d = super().as_dict()
         d["structure"] = self.structure.as_dict()
         return d
@@ -710,9 +678,7 @@ class ComputedStructureEntry(ComputedEntry):
         return entry
 
     def copy(self) -> ComputedStructureEntry:
-        """
-        Returns a copy of the ComputedStructureEntry.
-        """
+        """Returns a copy of the ComputedStructureEntry."""
         return ComputedStructureEntry(
             structure=self.structure.copy(),
             energy=self.uncorrected_energy,
@@ -987,9 +953,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return cls.from_pd(pd, temp, gibbs_model)
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         d = super().as_dict()
         d["formation_enthalpy_per_atom"] = self.formation_enthalpy_per_atom
         d["temp"] = self.temp

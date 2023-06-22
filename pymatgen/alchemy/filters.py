@@ -1,6 +1,4 @@
-"""
-This module defines filters for Transmuter object.
-"""
+"""This module defines filters for Transmuter object."""
 
 from __future__ import annotations
 
@@ -98,9 +96,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         )
 
     def as_dict(self):
-        """
-        Returns: MSONable dict.
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -166,9 +162,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         return True
 
     def as_dict(self):
-        """
-        Returns: MSONable dict.
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -188,9 +182,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
 
 
 class RemoveDuplicatesFilter(AbstractStructureFilter):
-    """
-    This filter removes exact duplicate structures from the transmuter.
-    """
+    """This filter removes exact duplicate structures from the transmuter."""
 
     def __init__(self, structure_matcher: dict | StructureMatcher | None = None, symprec: float | None = None) -> None:
         """
@@ -240,9 +232,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
 
 
 class RemoveExistingFilter(AbstractStructureFilter):
-    """
-    This filter removes structures existing in a given list from the transmuter.
-    """
+    """This filter removes structures existing in a given list from the transmuter."""
 
     def __init__(self, existing_structures, structure_matcher=None, symprec=None):
         """
@@ -292,9 +282,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
         return True
 
     def as_dict(self):
-        """
-        Returns: MSONable dict.
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -311,9 +299,7 @@ class ChargeBalanceFilter(AbstractStructureFilter):
     """
 
     def __init__(self):
-        """
-        No args required.
-        """
+        """No args required."""
 
     def test(self, structure: Structure):
         """

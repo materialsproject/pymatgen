@@ -255,15 +255,11 @@ class _MPResterLegacy:
                 pass
 
     def __enter__(self):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         self.session.close()
 
     def _make_request(
@@ -1327,9 +1323,7 @@ class _MPResterLegacy:
         )
 
     def get_stability(self, entries):
-        """
-        Returns the stability of all entries.
-        """
+        """Returns the stability of all entries."""
         try:
             payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
             response = self.session.post(

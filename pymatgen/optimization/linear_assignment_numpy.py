@@ -86,18 +86,14 @@ class LinearAssignment:
 
     @property
     def min_cost(self):
-        """
-        Returns the cost of the best assignment.
-        """
+        """Returns the cost of the best assignment."""
         if self._min_cost:
             return self._min_cost
         self._min_cost = np.sum(self.c[np.arange(self.nx), self.solution])
         return self._min_cost
 
     def _column_reduction(self):
-        """
-        Column reduction and reduction transfer steps from LAPJV algorithm.
-        """
+        """Column reduction and reduction transfer steps from LAPJV algorithm."""
         # assign each column to its lowest cost row, ensuring that only row
         # or column is assigned once
         i1, j = np.unique(np.argmin(self.c, axis=0), return_index=True)
@@ -119,9 +115,7 @@ class LinearAssignment:
         return True
 
     def _augmenting_row_reduction(self):
-        """
-        Augmenting row reduction step from LAPJV algorithm.
-        """
+        """Augmenting row reduction step from LAPJV algorithm."""
         unassigned = np.where(self._x == -1)[0]
         for i in unassigned:
             for _ in range(self.c.size):
@@ -159,9 +153,7 @@ class LinearAssignment:
         self.cred = self.c - ui[:, None] - self._v[None, :]
 
     def _augment(self):
-        """
-        Finds a minimum cost path and adds it to the matching.
-        """
+        """Finds a minimum cost path and adds it to the matching."""
         # build a minimum cost tree
         _pred, _ready, istar, j, mu = self._build_tree()
 

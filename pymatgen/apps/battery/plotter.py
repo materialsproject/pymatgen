@@ -1,6 +1,4 @@
-"""
-This module provides plotting capabilities for battery related applications.
-"""
+"""This module provides plotting capabilities for battery related applications."""
 
 
 from __future__ import annotations
@@ -18,9 +16,7 @@ __date__ = "Jul 12, 2012"
 
 
 class VoltageProfilePlotter:
-    """
-    A plotter to make voltage profile plots for batteries.
-    """
+    """A plotter to make voltage profile plots for batteries."""
 
     def __init__(self, xaxis="capacity", hide_negative=False):
         """

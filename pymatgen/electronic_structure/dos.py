@@ -1,6 +1,4 @@
-"""
-This module defines classes to represent the density of states, etc.
-"""
+"""This module defines classes to represent the density of states, etc."""
 
 from __future__ import annotations
 
@@ -161,9 +159,7 @@ class DOS(Spectrum):
         return max(cbm - vbm, 0.0)
 
     def __str__(self):
-        """
-        Returns a string which can be easily plotted (using gnuplot).
-        """
+        """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
@@ -371,9 +367,7 @@ class Dos(MSONable):
         return max(cbm - vbm, 0.0)
 
     def __str__(self):
-        """
-        Returns a string which can be easily plotted (using gnuplot).
-        """
+        """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
@@ -386,9 +380,7 @@ class Dos(MSONable):
 
     @classmethod
     def from_dict(cls, d) -> Dos:
-        """
-        Returns Dos object from dict representation of Dos.
-        """
+        """Returns Dos object from dict representation of Dos."""
         return Dos(
             d["efermi"],
             d["energies"],
@@ -396,9 +388,7 @@ class Dos(MSONable):
         )
 
     def as_dict(self) -> dict:
-        """
-        JSON-serializable dict representation of Dos.
-        """
+        """JSON-serializable dict representation of Dos."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -607,9 +597,7 @@ class FermiDos(Dos, MSONable):
 
     @classmethod
     def from_dict(cls, d) -> FermiDos:
-        """
-        Returns Dos object from dict representation of Dos.
-        """
+        """Returns Dos object from dict representation of Dos."""
         dos = Dos(
             d["efermi"],
             d["energies"],
@@ -618,9 +606,7 @@ class FermiDos(Dos, MSONable):
         return FermiDos(dos, structure=Structure.from_dict(d["structure"]), nelecs=d["nelecs"])
 
     def as_dict(self) -> dict:
-        """
-        JSON-serializable dict representation of Dos.
-        """
+        """JSON-serializable dict representation of Dos."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -675,9 +661,7 @@ class CompleteDos(Dos):
         self.structure = structure
 
     def get_normalized(self) -> CompleteDos:
-        """
-        Returns a normalized version of the CompleteDos.
-        """
+        """Returns a normalized version of the CompleteDos."""
         if self.norm_vol is not None:
             return self
         return CompleteDos(
@@ -1334,9 +1318,7 @@ class CompleteDos(Dos):
 
     @classmethod
     def from_dict(cls, d) -> CompleteDos:
-        """
-        Returns CompleteDos object from dict representation.
-        """
+        """Returns CompleteDos object from dict representation."""
         tdos = Dos.from_dict(d)
         struct = Structure.from_dict(d["structure"])
         pdoss = {}
@@ -1350,9 +1332,7 @@ class CompleteDos(Dos):
         return CompleteDos(struct, tdos, pdoss)
 
     def as_dict(self) -> dict:
-        """
-        JSON-serializable dict representation of CompleteDos.
-        """
+        """JSON-serializable dict representation of CompleteDos."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1379,9 +1359,7 @@ class CompleteDos(Dos):
 
 
 class LobsterCompleteDos(CompleteDos):
-    """
-    Extended CompleteDOS for Lobster.
-    """
+    """Extended CompleteDOS for Lobster."""
 
     def get_site_orbital_dos(self, site: PeriodicSite, orbital: str) -> Dos:  # type: ignore
         """

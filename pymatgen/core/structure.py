@@ -83,9 +83,7 @@ class Neighbor(Site):
         self.index = index
 
     def __len__(self) -> Literal[3]:
-        """
-        Make neighbor Tuple-like to retain backwards compatibility.
-        """
+        """Make neighbor Tuple-like to retain backwards compatibility."""
         return 3
 
     def __getitem__(self, idx: int):
@@ -156,21 +154,15 @@ class PeriodicNeighbor(PeriodicSite):
 
     @property  # type: ignore
     def coords(self) -> np.ndarray:  # type: ignore
-        """
-        :return: Cartesian coords.
-        """
+        """:return: Cartesian coords."""
         return self._lattice.get_cartesian_coords(self._frac_coords)
 
     def __len__(self):
-        """
-        Make neighbor Tuple-like to retain backwards compatibility.
-        """
+        """Make neighbor Tuple-like to retain backwards compatibility."""
         return 4
 
     def __getitem__(self, idx: int | slice):
-        """
-        Make neighbor Tuple-like to retain backwards compatibility.
-        """
+        """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index, self.image)[idx]
 
     def as_dict(self) -> dict:  # type: ignore
@@ -209,9 +201,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     @property
     @abstractmethod
     def sites(self) -> tuple[Site, ...]:
-        """
-        Returns a tuple of sites.
-        """
+        """Returns a tuple of sites."""
 
     @abstractmethod
     def get_distance(self, i: int, j: int) -> float:
@@ -252,9 +242,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def species_and_occu(self) -> list[Composition]:
-        """
-        List of species and occupancies at each site of the structure.
-        """
+        """List of species and occupancies at each site of the structure."""
         return [site.species for site in self]
 
     @property
@@ -264,9 +252,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def types_of_species(self) -> tuple[Element | Species | DummySpecies]:
-        """
-        List of types of specie.
-        """
+        """List of types of specie."""
         # Cannot use set since we want a deterministic algorithm.
         types: list[Element | Species | DummySpecies] = []
         for site in self:
@@ -277,9 +263,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def types_of_specie(self) -> tuple[Element | Species | DummySpecies]:
-        """
-        Specie->Species rename. Maintained for backwards compatibility.
-        """
+        """Specie->Species rename. Maintained for backwards compatibility."""
         return self.types_of_species
 
     def group_by_types(self) -> Iterator[Site | PeriodicSite]:
@@ -345,9 +329,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def num_sites(self) -> int:
-        """
-        Number of sites.
-        """
+        """Number of sites."""
         return len(self)
 
     @property
@@ -360,16 +342,12 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def formula(self) -> str:
-        """
-        (str) Returns the formula.
-        """
+        """(str) Returns the formula."""
         return self.composition.formula
 
     @property
     def composition(self) -> Composition:
-        """
-        (Composition) Returns the composition.
-        """
+        """(Composition) Returns the composition."""
         elem_map: dict[Species, float] = collections.defaultdict(float)
         for site in self:
             for species, occu in site.species.items():
@@ -463,17 +441,13 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def from_str(cls, input_string: str, fmt: Any):
-        """
-        Reads in SiteCollection from a string.
-        """
+        """Reads in SiteCollection from a string."""
         raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def from_file(cls, filename: str):
-        """
-        Reads in SiteCollection from a filename.
-        """
+        """Reads in SiteCollection from a filename."""
         raise NotImplementedError
 
     def add_site_property(self, property_name: str, values: list):
@@ -577,9 +551,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             site.species = Composition(new_sp)
 
     def remove_oxidation_states(self) -> None:
-        """
-        Removes oxidation states from a structure.
-        """
+        """Removes oxidation states from a structure."""
         for site in self:
             new_sp: dict[Element, float] = collections.defaultdict(float)
             for el, occu in site.species.items():
@@ -637,9 +609,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             site.species = Composition(new_species)
 
     def remove_spin(self) -> None:
-        """
-        Remove spin states from structure.
-        """
+        """Remove spin states from structure."""
         for site in self:
             new_sp: dict[Element, float] = collections.defaultdict(float)
             for sp, occu in site.species.items():
@@ -1181,16 +1151,12 @@ class IStructure(SiteCollection, MSONable):
         return cls(latt, all_sp, all_coords, site_properties=all_site_properties)
 
     def unset_charge(self):
-        """
-        Reset the charge to None, i.e., computed dynamically based on oxidation states.
-        """
+        """Reset the charge to None, i.e., computed dynamically based on oxidation states."""
         self._charge = None
 
     @property
     def charge(self) -> float:
-        """
-        Overall charge of the structure.
-        """
+        """Overall charge of the structure."""
         formal_charge = super().charge
         if self._charge is None:
             return super().charge
@@ -1211,31 +1177,23 @@ class IStructure(SiteCollection, MSONable):
 
     @property
     def sites(self) -> tuple[PeriodicSite, ...]:
-        """
-        Returns an iterator for the sites in the Structure.
-        """
+        """Returns an iterator for the sites in the Structure."""
         return self._sites
 
     @property
     def lattice(self) -> Lattice:
-        """
-        Lattice of the structure.
-        """
+        """Lattice of the structure."""
         return self._lattice
 
     @property
     def density(self) -> float:
-        """
-        Returns the density in units of g/cm^3.
-        """
+        """Returns the density in units of g/cm^3."""
         m = Mass(self.composition.weight, "amu")
         return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property
     def pbc(self) -> tuple[bool, bool, bool]:
-        """
-        Returns the periodicity of the structure.
-        """
+        """Returns the periodicity of the structure."""
         return self._lattice.pbc
 
     @property
@@ -1354,23 +1312,17 @@ class IStructure(SiteCollection, MSONable):
         return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True)
 
     def __rmul__(self, scaling_matrix):
-        """
-        Similar to __mul__ to preserve commutativeness.
-        """
+        """Similar to __mul__ to preserve commutativeness."""
         return self.__mul__(scaling_matrix)
 
     @property
     def frac_coords(self):
-        """
-        Fractional coordinates as a Nx3 numpy array.
-        """
+        """Fractional coordinates as a Nx3 numpy array."""
         return np.array([site.frac_coords for site in self._sites])
 
     @property
     def volume(self) -> float:
-        """
-        Returns the volume of the structure in Angstrom^3.
-        """
+        """Returns the volume of the structure in Angstrom^3."""
         return self._lattice.volume
 
     def get_distance(self, i: int, j: int, jimage=None) -> float:
@@ -2972,30 +2924,22 @@ class IMolecule(SiteCollection, MSONable):
 
     @property
     def charge(self) -> float:
-        """
-        Charge of molecule.
-        """
+        """Charge of molecule."""
         return self._charge
 
     @property
     def spin_multiplicity(self) -> float:
-        """
-        Spin multiplicity of molecule.
-        """
+        """Spin multiplicity of molecule."""
         return self._spin_multiplicity
 
     @property
     def nelectrons(self) -> float:
-        """
-        Number of electrons in the molecule.
-        """
+        """Number of electrons in the molecule."""
         return self._nelectrons
 
     @property
     def center_of_mass(self) -> np.ndarray:
-        """
-        Center of mass of molecule.
-        """
+        """Center of mass of molecule."""
         center = np.zeros(3)
         total_weight: float = 0
         for site in self:
@@ -3006,9 +2950,7 @@ class IMolecule(SiteCollection, MSONable):
 
     @property
     def sites(self) -> tuple[Site, ...]:
-        """
-        Returns a tuple of sites in the Molecule.
-        """
+        """Returns a tuple of sites in the Molecule."""
         return self._sites
 
     @classmethod
@@ -3143,9 +3085,7 @@ class IMolecule(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of Molecule.
-        """
+        """JSON-serializable dict representation of Molecule."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -3507,9 +3447,7 @@ class IMolecule(SiteCollection, MSONable):
 
 
 class Structure(IStructure, collections.abc.MutableSequence):
-    """
-    Mutable version of structure.
-    """
+    """Mutable version of structure."""
 
     __hash__ = None  # type: ignore
 
@@ -3643,9 +3581,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     @property
     def lattice(self) -> Lattice:
-        """
-        :return: Lattice associated with structure.
-        """
+        """:return: Lattice associated with structure."""
         return self._lattice
 
     @lattice.setter

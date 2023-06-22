@@ -419,26 +419,20 @@ class Slab(Structure):
 
     @property
     def normal(self):
-        """
-        Calculates the surface normal vector of the slab.
-        """
+        """Calculates the surface normal vector of the slab."""
         normal = np.cross(self.lattice.matrix[0], self.lattice.matrix[1])
         normal /= np.linalg.norm(normal)
         return normal
 
     @property
     def surface_area(self):
-        """
-        Calculates the surface area of the slab.
-        """
+        """Calculates the surface area of the slab."""
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
     @property
     def center_of_mass(self):
-        """
-        Calculates the center of mass of the slab.
-        """
+        """Calculates the center of mass of the slab."""
         weights = [s.species.weight for s in self]
         center_of_mass = np.average(self.frac_coords, weights=weights, axis=0)
         return center_of_mass
@@ -491,9 +485,7 @@ class Slab(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         d = super().as_dict()
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -1549,9 +1541,7 @@ class ReconstructionGenerator:
         return recon_slabs
 
     def get_unreconstructed_slabs(self):
-        """
-        Generates the unreconstructed or pristine super slab.
-        """
+        """Generates the unreconstructed or pristine super slab."""
         slabs = []
         for slab in SlabGenerator(**self.slabgen_params).get_slabs():
             slab.make_supercell(self.trans_matrix)

@@ -1,6 +1,4 @@
-"""
-This module defines Entry classes for containing experimental data.
-"""
+"""This module defines Entry classes for containing experimental data."""
 
 from __future__ import annotations
 
@@ -63,9 +61,7 @@ class ExpEntry(PDEntry, MSONable):
         return cls(d["composition"], thermodata, d["temperature"])
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

@@ -1,6 +1,4 @@
-"""
-This module provides classes for non-standard space-group settings.
-"""
+"""This module provides classes for non-standard space-group settings."""
 
 from __future__ import annotations
 
@@ -23,9 +21,7 @@ __date__ = "Apr 2017"
 
 
 class JonesFaithfulTransformation:
-    """
-    Transformation for space-groups defined in a non-standard setting.
-    """
+    """Transformation for space-groups defined in a non-standard setting."""
 
     def __init__(self, P, p):
         """
@@ -130,31 +126,23 @@ class JonesFaithfulTransformation:
 
     @property
     def P(self) -> list[list[float]]:
-        """
-        :return: transformation matrix
-        """
+        """:return: transformation matrix"""
         return self._P
 
     @property
     def p(self) -> list[float]:
-        """
-        :return: translation vector
-        """
+        """:return: translation vector"""
         return self._p
 
     @property
     def inverse(self) -> JonesFaithfulTransformation:
-        """
-        :return: JonesFaithfulTransformation
-        """
+        """:return: JonesFaithfulTransformation"""
         Q = np.linalg.inv(self.P)
         return JonesFaithfulTransformation(Q, -np.matmul(Q, self.p))
 
     @property
     def transformation_string(self) -> str:
-        """
-        :return: transformation string
-        """
+        """:return: transformation string"""
         return self._get_transformation_string_from_Pp(self.P, self.p)
 
     @staticmethod

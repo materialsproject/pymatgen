@@ -149,9 +149,7 @@ def _get_si_unit(unit):
 
 
 class UnitError(BaseException):
-    """
-    Exception class for unit errors.
-    """
+    """Exception class for unit errors."""
 
 
 def _check_mappings(u):
@@ -424,16 +422,12 @@ class FloatWithUnit(float):
 
     @property
     def unit_type(self) -> str:
-        """
-        :return: The type of unit. Energy, Charge, etc.
-        """
+        """:return: The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
     @property
     def unit(self) -> str:
-        """
-        :return: The unit, e.g., "eV".
-        """
+        """:return: The unit, e.g., "eV"."""
         return self._unit
 
     def to(self, new_unit):
@@ -471,9 +465,7 @@ class FloatWithUnit(float):
 
     @property
     def supported_units(self):
-        """
-        Supported units for specific unit type.
-        """
+        """Supported units for specific unit type."""
         return tuple(ALL_UNITS[self._unit_type])
 
 
@@ -499,9 +491,7 @@ class ArrayWithUnit(np.ndarray):
     Error = UnitError
 
     def __new__(cls, input_array, unit, unit_type=None):
-        """
-        Override __new__.
-        """
+        """Override __new__."""
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
         obj = np.asarray(input_array).view(cls)
@@ -522,16 +512,12 @@ class ArrayWithUnit(np.ndarray):
 
     @property
     def unit_type(self) -> str:
-        """
-        :return: The type of unit. Energy, Charge, etc.
-        """
+        """:return: The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
     @property
     def unit(self) -> str:
-        """
-        :return: The unit, e.g., "eV".
-        """
+        """:return: The unit, e.g., "eV"."""
         return self._unit
 
     def __reduce__(self):
@@ -659,9 +645,7 @@ class ArrayWithUnit(np.ndarray):
     # TODO abstract base class property?
     @property
     def supported_units(self):
-        """
-        Supported units for specific unit type.
-        """
+        """Supported units for specific unit type."""
         return ALL_UNITS[self.unit_type]
 
     # TODO abstract base class method?

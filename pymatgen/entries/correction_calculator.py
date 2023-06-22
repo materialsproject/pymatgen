@@ -264,9 +264,7 @@ class CorrectionCalculator:
         return self.corrections_dict
 
     def graph_residual_error(self) -> go.Figure:
-        """
-        Graphs the residual errors for all compounds after applying computed corrections.
-        """
+        """Graphs the residual errors for all compounds after applying computed corrections."""
         if len(self.corrections) == 0:
             raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 

@@ -1,6 +1,4 @@
-"""
-This module provides classes that operate on points or vectors in 3D space.
-"""
+"""This module provides classes that operate on points or vectors in 3D space."""
 
 from __future__ import annotations
 
@@ -230,16 +228,12 @@ class SymmOp(MSONable):
 
     @property
     def rotation_matrix(self) -> np.ndarray:
-        """
-        A 3x3 numpy.array representing the rotation matrix.
-        """
+        """A 3x3 numpy.array representing the rotation matrix."""
         return self.affine_matrix[0:3][:, 0:3]
 
     @property
     def translation_vector(self) -> np.ndarray:
-        """
-        A rank 1 numpy.array of dim 3 representing the translation vector.
-        """
+        """A rank 1 numpy.array of dim 3 representing the translation vector."""
         return self.affine_matrix[0:3][:, 3]
 
     def __mul__(self, other):
@@ -252,9 +246,7 @@ class SymmOp(MSONable):
 
     @property
     def inverse(self) -> SymmOp:
-        """
-        Returns inverse of transformation.
-        """
+        """Returns inverse of transformation."""
         invr = np.linalg.inv(self.affine_matrix)
         return SymmOp(invr)
 
@@ -432,9 +424,7 @@ class SymmOp(MSONable):
         return SymmOp(m)
 
     def as_dict(self) -> dict[str, Any]:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -634,9 +624,7 @@ class MagSymmOp(SymmOp):
         return f"{xyzt_string}, {self.time_reversal:+}"
 
     def as_dict(self) -> dict[str, Any]:
-        """
-        :return: MSONABle dict
-        """
+        """:return: MSONABle dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

@@ -137,9 +137,7 @@ class VasprunBSLoader:
         return cls(vrun_obj)
 
     def get_lattvec(self):
-        """
-        :return: The lattice vectors.
-        """
+        """:return: The lattice vectors."""
         try:
             return self.lattvec
         except AttributeError:
@@ -147,9 +145,7 @@ class VasprunBSLoader:
         return self.lattvec
 
     def get_volume(self):
-        """
-        :return: Volume
-        """
+        """:return: Volume"""
         try:
             return self.UCvol
         except AttributeError:
@@ -248,9 +244,7 @@ class BandstructureLoader:
             self.nelect_all = nelect
 
     def get_lattvec(self):
-        """
-        :return: The lattice vectors.
-        """
+        """:return: The lattice vectors."""
         try:
             return self.lattvec
         except AttributeError:
@@ -304,9 +298,7 @@ class BandstructureLoader:
                 self.proj[sp] = np.concatenate((proj_lower, proj, proj_upper), axis=1)
 
     def get_volume(self):
-        """
-        :return: Volume
-        """
+        """:return: Volume"""
         try:
             return self.UCvol
         except AttributeError:
@@ -319,9 +311,7 @@ class VasprunLoader:
     """Loader for Vasprun object."""
 
     def __init__(self, vrun_obj=None):
-        """
-        vrun_obj: Vasprun object.
-        """
+        """vrun_obj: Vasprun object."""
         warnings.warn("Deprecated Loader. Use VasprunBSLoader instead.")
 
         if vrun_obj:
@@ -365,9 +355,7 @@ class VasprunLoader:
         return VasprunLoader(vrun_obj)
 
     def get_lattvec(self):
-        """
-        :return: Lattice vectors
-        """
+        """:return: Lattice vectors"""
         try:
             return self.lattvec
         except AttributeError:
@@ -399,9 +387,7 @@ class VasprunLoader:
         return n_emin, n_emax
 
     def get_volume(self):
-        """
-        :return: Volume of cell
-        """
+        """:return: Volume of cell"""
         try:
             return self.UCvol
         except AttributeError:
@@ -411,9 +397,7 @@ class VasprunLoader:
 
 
 class BztInterpolator:
-    """
-    Interpolate the dft band structures.
-    """
+    """Interpolate the dft band structures."""
 
     def __init__(
         self,
@@ -1219,9 +1203,7 @@ class BztPlotter:
         return plt
 
     def plot_bands(self):
-        """
-        Plot a band structure on symmetry line using BSPlotter().
-        """
+        """Plot a band structure on symmetry line using BSPlotter()."""
         if self.bzt_interp is None:
             raise BoltztrapError("BztInterpolator not present")
 
@@ -1230,9 +1212,7 @@ class BztPlotter:
         return BSPlotter(sbs).get_plot()
 
     def plot_dos(self, T=None, npoints=10000):
-        """
-        Plot the total Dos using DosPlotter().
-        """
+        """Plot the total Dos using DosPlotter()."""
         if self.bzt_interp is None:
             raise BoltztrapError("BztInterpolator not present")
 

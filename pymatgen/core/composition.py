@@ -235,23 +235,17 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     __div__ = __truediv__
 
     def __hash__(self) -> int:
-        """
-        Hash based on the chemical system.
-        """
+        """Hash based on the chemical system."""
         return hash(frozenset(self._data))
 
     @property
     def average_electroneg(self) -> float:
-        """
-        :return: Average electronegativity of the composition.
-        """
+        """:return: Average electronegativity of the composition."""
         return sum((el.X * abs(amt) for el, amt in self.items())) / self.num_atoms
 
     @property
     def total_electrons(self) -> float:
-        """
-        :return: Total number of electrons in composition.
-        """
+        """:return: Total number of electrons in composition."""
         return sum((el.Z * abs(amt) for el, amt in self.items()))
 
     def almost_equals(self, other: Composition, rtol: float = 0.1, atol: float = 1e-8) -> bool:
@@ -274,15 +268,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def is_element(self) -> bool:
-        """
-        True if composition is an element.
-        """
+        """True if composition is an element."""
         return len(self) == 1
 
     def copy(self) -> Composition:
-        """
-        :return: A copy of the composition.
-        """
+        """:return: A copy of the composition."""
         return Composition(self, allow_negative=self.allow_negative)
 
     @property
@@ -454,9 +444,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def elements(self) -> list[Element | Species | DummySpecies]:
-        """
-        Returns view of elements in Composition.
-        """
+        """Returns view of elements in Composition."""
         return list(self)
 
     def __str__(self):
@@ -479,9 +467,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def weight(self) -> float:
-        """
-        Total molecular weight of Composition.
-        """
+        """Total molecular weight of Composition."""
         return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")
 
     def get_atomic_fraction(self, el: SpeciesLike) -> float:

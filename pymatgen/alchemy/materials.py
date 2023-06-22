@@ -331,9 +331,7 @@ class TransformedStructure(MSONable):
         return TransformedStructure(s, transformations, history=[source_info])
 
     def as_dict(self) -> dict[str, Any]:
-        """
-        Dict representation of the TransformedStructure.
-        """
+        """Dict representation of the TransformedStructure."""
         d = self.final_structure.as_dict()
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -344,9 +342,7 @@ class TransformedStructure(MSONable):
 
     @classmethod
     def from_dict(cls, d) -> TransformedStructure:
-        """
-        Creates a TransformedStructure from a dict.
-        """
+        """Creates a TransformedStructure from a dict."""
         struct = Structure.from_dict(d)
         return cls(struct, history=d["history"], other_parameters=d.get("other_parameters"))
 

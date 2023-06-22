@@ -1,6 +1,4 @@
-"""
-This module implements plotter for DOS and band structure.
-"""
+"""This module implements plotter for DOS and band structure."""
 
 from __future__ import annotations
 
@@ -229,9 +227,7 @@ class PhononDosPlotter:
 
 
 class PhononBSPlotter:
-    """
-    Class to plot or get data to facilitate the plot of band structure objects.
-    """
+    """Class to plot or get data to facilitate the plot of band structure objects."""
 
     def __init__(self, bs):
         """
@@ -248,9 +244,7 @@ class PhononBSPlotter:
         self._nb_bands = self._bs.nb_bands
 
     def _maketicks(self, plt):
-        """
-        utility private method to add ticks to a band structure.
-        """
+        """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
         uniq_d = []
@@ -389,10 +383,7 @@ class PhononBSPlotter:
 
     @staticmethod
     def _make_color(colors: list[int]) -> list[int]:
-        """
-        convert the eigendisplacements to rgb colors.
-
-        """
+        """Convert the eigendisplacements to rgb colors."""
         # if there are two groups, use red and blue
         if len(colors) == 2:
             return [colors[0], 0, colors[1]]
@@ -631,9 +622,7 @@ class PhononBSPlotter:
         return plt
 
     def plot_brillouin(self):
-        """
-        plot the Brillouin zone.
-        """
+        """Plot the Brillouin zone."""
         # get labels and lines
         labels = {}
         for q in self._bs.qpoints:
@@ -858,9 +847,7 @@ class ThermoPlotter:
 
 
 class GruneisenPlotter:
-    """
-    Class to plot Gruneisenparameter Object.
-    """
+    """Class to plot Gruneisenparameter Object."""
 
     def __init__(self, gruneisen):
         """
@@ -928,9 +915,7 @@ class GruneisenPlotter:
 
 
 class GruneisenPhononBSPlotter(PhononBSPlotter):
-    """
-    Class to plot or get data to facilitate the plot of band structure objects.
-    """
+    """Class to plot or get data to facilitate the plot of band structure objects."""
 
     def __init__(self, bs):
         """

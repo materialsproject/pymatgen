@@ -731,9 +731,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     @staticmethod
     def display_entries(entries):
-        """
-        Generate a pretty printout of key properties of a list of ComputedEntry.
-        """
+        """Generate a pretty printout of key properties of a list of ComputedEntry."""
         entries = sorted(entries, key=lambda e: (e.composition.reduced_formula, e.energy_per_atom))
         try:
             pd = PhaseDiagram(entries)

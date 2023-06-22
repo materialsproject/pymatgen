@@ -1,6 +1,4 @@
-"""
-Optimade support.
-"""
+"""Optimade support."""
 
 from __future__ import annotations
 
@@ -150,9 +148,7 @@ class OptimadeRester:
         return self.describe()
 
     def describe(self):
-        """
-        Provides human-readable information about the resources being searched by the OptimadeRester.
-        """
+        """Provides human-readable information about the resources being searched by the OptimadeRester."""
         provider_text = "\n".join(map(str, (provider for provider in self._providers.values() if provider)))
         description = f"OptimadeRester connected to:\n{provider_text}"
         return description
@@ -173,9 +169,7 @@ class OptimadeRester:
         chemical_formula_anonymous: str | None = None,
         chemical_formula_hill: str | None = None,
     ):
-        """
-        Convenience method to build an OPTIMADE filter.
-        """
+        """Convenience method to build an OPTIMADE filter."""
         filters = []
 
         if elements:
@@ -438,9 +432,7 @@ class OptimadeRester:
         """
 
         def is_url(url) -> bool:
-            """
-            Basic URL validation thanks to https://stackoverflow.com/a/52455972.
-            """
+            """Basic URL validation thanks to https://stackoverflow.com/a/52455972."""
             try:
                 result = urlparse(url)
                 return all([result.scheme, result.netloc])
@@ -553,13 +545,9 @@ class OptimadeRester:
 
     # TODO: revisit context manager logic here and in MPRester
     def __enter__(self):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         self.session.close()

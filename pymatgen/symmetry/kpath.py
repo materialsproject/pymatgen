@@ -1,6 +1,4 @@
-"""
-Provides classes for generating high-symmetry k-paths using different conventions.
-"""
+"""Provides classes for generating high-symmetry k-paths using different conventions."""
 
 from __future__ import annotations
 
@@ -308,9 +306,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return self._rec_lattice
 
     def cubic(self):
-        """
-        CUB Path.
-        """
+        """CUB Path."""
         self.name = "CUB"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -322,9 +318,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def fcc(self):
-        """
-        FCC Path.
-        """
+        """FCC Path."""
         self.name = "FCC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -341,9 +335,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bcc(self):
-        """
-        BCC Path.
-        """
+        """BCC Path."""
         self.name = "BCC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -355,9 +347,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def tet(self):
-        """
-        TET Path.
-        """
+        """TET Path."""
         self.name = "TET"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -375,9 +365,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bctet1(self, c, a):
-        """
-        BCT1 Path.
-        """
+        """BCT1 Path."""
         self.name = "BCT1"
         eta = (1 + c**2 / a**2) / 4.0
         kpoints = {
@@ -393,9 +381,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bctet2(self, c, a):
-        """
-        BCT2 Path.
-        """
+        """BCT2 Path."""
         self.name = "BCT2"
         eta = (1 + a**2 / c**2) / 4.0
         zeta = a**2 / (2 * c**2)
@@ -429,9 +415,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orc(self):
-        """
-        ORC Path.
-        """
+        """ORC Path."""
         self.name = "ORC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -452,9 +436,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf1(self, a, b, c):
-        """
-        ORFC1 Path.
-        """
+        """ORFC1 Path."""
         self.name = "ORCF1"
         zeta = (1 + a**2 / b**2 - a**2 / c**2) / 4
         eta = (1 + a**2 / b**2 + a**2 / c**2) / 4
@@ -479,9 +461,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf2(self, a, b, c):
-        """
-        ORFC2 Path.
-        """
+        """ORFC2 Path."""
         self.name = "ORCF2"
         phi = (1 + c**2 / b**2 - c**2 / a**2) / 4
         eta = (1 + a**2 / b**2 - a**2 / c**2) / 4
@@ -509,9 +489,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf3(self, a, b, c):
-        """
-        ORFC3 Path.
-        """
+        """ORFC3 Path."""
         self.name = "ORCF3"
         zeta = (1 + a**2 / b**2 - a**2 / c**2) / 4
         eta = (1 + a**2 / b**2 + a**2 / c**2) / 4
@@ -534,9 +512,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orci(self, a, b, c):
-        """
-        ORCI Path.
-        """
+        """ORCI Path."""
         self.name = "ORCI"
         zeta = (1 + a**2 / c**2) / 4
         eta = (1 + b**2 / c**2) / 4
@@ -565,9 +541,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcc(self, a, b, c):
-        """
-        ORCC Path.
-        """
+        """ORCC Path."""
         self.name = "ORCC"
         zeta = (1 + a**2 / b**2) / 4
         kpoints = {
@@ -602,9 +576,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def hex(self):
-        """
-        HEX Path.
-        """
+        """HEX Path."""
         self.name = "HEX"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -622,9 +594,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def rhl1(self, alpha):
-        """
-        RHL1 Path.
-        """
+        """RHL1 Path."""
         self.name = "RHL1"
         eta = (1 + 4 * cos(alpha)) / (2 + 4 * cos(alpha))
         nu = 3 / 4 - eta / 2.0
@@ -651,9 +621,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def rhl2(self, alpha):
-        """
-        RHL2 Path.
-        """
+        """RHL2 Path."""
         self.name = "RHL2"
         eta = 1 / (2 * tan(alpha / 2.0) ** 2)
         nu = 3 / 4 - eta / 2.0
@@ -671,9 +639,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mcl(self, b, c, beta):
-        """
-        MCL Path.
-        """
+        """MCL Path."""
         self.name = "MCL"
         eta = (1 - b * cos(beta) / c) / (2 * sin(beta) ** 2)
         nu = 0.5 - eta * c * cos(beta) / b
@@ -703,9 +669,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc1(self, a, b, c, alpha):
-        """
-        MCLC1 Path.
-        """
+        """MCLC1 Path."""
         self.name = "MCLC1"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -739,9 +703,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc2(self, a, b, c, alpha):
-        """
-        MCLC2 Path.
-        """
+        """MCLC2 Path."""
         self.name = "MCLC2"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -774,9 +736,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc3(self, a, b, c, alpha):
-        """
-        MCLC3 Path.
-        """
+        """MCLC3 Path."""
         self.name = "MCLC3"
         mu = (1 + b**2 / a**2) / 4.0
         delta = b * c * cos(alpha) / (2 * a**2)
@@ -811,9 +771,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc4(self, a, b, c, alpha):
-        """
-        MCLC4 Path.
-        """
+        """MCLC4 Path."""
         self.name = "MCLC4"
         mu = (1 + b**2 / a**2) / 4.0
         delta = b * c * cos(alpha) / (2 * a**2)
@@ -848,9 +806,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc5(self, a, b, c, alpha):
-        """
-        MCLC5 Path.
-        """
+        """MCLC5 Path."""
         self.name = "MCLC5"
         zeta = (b**2 / a**2 + (1 - b * cos(alpha) / c) / sin(alpha) ** 2) / 4
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -889,9 +845,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def tria(self):
-        """
-        TRI1a Path.
-        """
+        """TRI1a Path."""
         self.name = "TRI1a"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -912,9 +866,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def trib(self):
-        """
-        TRI1b Path.
-        """
+        """TRI1b Path."""
         self.name = "TRI1b"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -2275,9 +2227,7 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def LabelPoints(index):
-        """
-        Axes used in generating labels for Latimer-Munro convention.
-        """
+        """Axes used in generating labels for Latimer-Munro convention."""
         points = [
             [1, 0, 0],
             [0, 1, 0],
@@ -2311,9 +2261,7 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def LabelSymbol(index):
-        """
-        Letters used in generating labels for the Latimer-Munro convention.
-        """
+        """Letters used in generating labels for the Latimer-Munro convention."""
         symbols = [
             "a",
             "b",

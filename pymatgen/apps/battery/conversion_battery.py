@@ -1,6 +1,4 @@
-"""
-This module contains the classes to build a ConversionElectrode.
-"""
+"""This module contains the classes to build a ConversionElectrode."""
 
 from __future__ import annotations
 
@@ -41,9 +39,7 @@ class ConversionElectrode(AbstractElectrode):
 
     @property
     def initial_comp(self) -> Composition:
-        """
-        The pymatgen Composition representation of the initial composition.
-        """
+        """The pymatgen Composition representation of the initial composition."""
         return Composition(self.initial_comp_formula)
 
     @classmethod

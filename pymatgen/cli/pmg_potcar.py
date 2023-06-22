@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Implementation for `pmg potcar` CLI.
-"""
+"""Implementation for `pmg potcar` CLI."""
 
 
 from __future__ import annotations

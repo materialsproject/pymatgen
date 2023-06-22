@@ -41,14 +41,10 @@ from pymatgen.core.structure import Structure
 
 
 class COD:
-    """
-    An interface to the Crystallography Open Database.
-    """
+    """An interface to the Crystallography Open Database."""
 
     def __init__(self):
-        """
-        Blank __init__. No args required.
-        """
+        """Blank __init__. No args required."""
         self.url = "www.crystallography.net"
 
     def query(self, sql: str) -> str:

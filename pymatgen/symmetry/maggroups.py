@@ -1,6 +1,4 @@
-"""
-Magnetic space groups.
-"""
+"""Magnetic space groups."""
 
 from __future__ import annotations
 
@@ -30,9 +28,7 @@ MAGSYMM_DATA = os.path.join(os.path.dirname(__file__), "symm_data_magnetic.sqlit
 
 @cached_class
 class MagneticSpaceGroup(SymmetryGroup):
-    """
-    Representation of a magnetic space group.
-    """
+    """Representation of a magnetic space group."""
 
     def __init__(self, label, setting_transformation="a,b,c;0,0,0"):
         """
@@ -312,9 +308,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @property
     def crystal_system(self):
-        """
-        :return: Crystal system, e.g., cubic, hexagonal, etc.
-        """
+        """:return: Crystal system, e.g., cubic, hexagonal, etc."""
         i = self._data["bns_number"][0]
         if i <= 2:
             return "triclinic"
@@ -332,9 +326,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @property
     def sg_symbol(self):
-        """
-        :return: Space group symbol
-        """
+        """:return: Space group symbol"""
         return self._data["bns_label"]
 
     @property

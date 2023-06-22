@@ -1,6 +1,4 @@
-"""
-Defines the classes relating to 3D lattices.
-"""
+"""Defines the classes relating to 3D lattices."""
 
 from __future__ import annotations
 
@@ -95,9 +93,7 @@ class Lattice(MSONable):
 
     @property
     def is_orthogonal(self) -> bool:
-        """
-        :return: Whether all angles are 90 degrees.
-        """
+        """:return: Whether all angles are 90 degrees."""
         return all(abs(a - 90) < 1e-5 for a in self.angles)
 
     def __format__(self, fmt_spec: str = ""):
@@ -148,9 +144,7 @@ class Lattice(MSONable):
 
     @property
     def inv_matrix(self) -> np.ndarray:
-        """
-        Inverse of lattice matrix.
-        """
+        """Inverse of lattice matrix."""
         if self._inv_matrix is None:
             self._inv_matrix = inv(self._matrix)
             self._inv_matrix.setflags(write=False)
@@ -158,9 +152,7 @@ class Lattice(MSONable):
 
     @property
     def metric_tensor(self) -> np.ndarray:
-        """
-        The metric tensor of the lattice.
-        """
+        """The metric tensor of the lattice."""
         return np.dot(self._matrix, self._matrix.T)
 
     def get_cartesian_coords(self, fractional_coords: ArrayLike) -> np.ndarray:
@@ -407,66 +399,48 @@ class Lattice(MSONable):
 
     @property
     def a(self) -> float:
-        """
-        *a* lattice parameter.
-        """
+        """*a* lattice parameter."""
         return self.lengths[0]
 
     @property
     def b(self) -> float:
-        """
-        *b* lattice parameter.
-        """
+        """*b* lattice parameter."""
         return self.lengths[1]
 
     @property
     def c(self) -> float:
-        """
-        *c* lattice parameter.
-        """
+        """*c* lattice parameter."""
         return self.lengths[2]
 
     @property
     def abc(self) -> tuple[float, float, float]:
-        """
-        Lengths of the lattice vectors, i.e. (a, b, c).
-        """
+        """Lengths of the lattice vectors, i.e. (a, b, c)."""
         return self.lengths
 
     @property
     def alpha(self) -> float:
-        """
-        Angle alpha of lattice in degrees.
-        """
+        """Angle alpha of lattice in degrees."""
         return self.angles[0]
 
     @property
     def beta(self) -> float:
-        """
-        Angle beta of lattice in degrees.
-        """
+        """Angle beta of lattice in degrees."""
         return self.angles[1]
 
     @property
     def gamma(self) -> float:
-        """
-        Angle gamma of lattice in degrees.
-        """
+        """Angle gamma of lattice in degrees."""
         return self.angles[2]
 
     @property
     def volume(self) -> float:
-        """
-        Volume of the unit cell in Angstrom^3.
-        """
+        """Volume of the unit cell in Angstrom^3."""
         matrix = self._matrix
         return float(abs(np.dot(np.cross(matrix[0], matrix[1]), matrix[2])))
 
     @property
     def parameters(self) -> tuple[float, float, float, float, float, float]:
-        """
-        Returns: (a, b, c, alpha, beta, gamma).
-        """
+        """Returns: (a, b, c, alpha, beta, gamma)."""
         return (*self.lengths, *self.angles)
 
     @property
@@ -491,9 +465,7 @@ class Lattice(MSONable):
 
     @property
     def lll_matrix(self) -> np.ndarray:
-        """
-        :return: The matrix for LLL reduction
-        """
+        """:return: The matrix for LLL reduction"""
         if 0.75 not in self._lll_matrix_mappings:
             self._lll_matrix_mappings[0.75] = self._calculate_lll()
         return self._lll_matrix_mappings[0.75][0]
@@ -510,16 +482,12 @@ class Lattice(MSONable):
 
     @property
     def lll_inverse(self) -> np.ndarray:
-        """
-        :return: Inverse of self.lll_mapping.
-        """
+        """:return: Inverse of self.lll_mapping."""
         return np.linalg.inv(self.lll_mapping)
 
     @property
     def selling_vector(self) -> np.ndarray:
-        """
-        Returns the (1,6) array of Selling Scalars.
-        """
+        """Returns the (1,6) array of Selling Scalars."""
         a, b, c = self.matrix
         d = -(a + b + c)
         tol = 1e-10
@@ -607,9 +575,7 @@ class Lattice(MSONable):
         return selling_vector
 
     def selling_dist(self, other):
-        """
-        Returns the minimum Selling distance between two lattices.
-        """
+        """Returns the minimum Selling distance between two lattices."""
         vcp_matrices = [
             np.array(
                 [
@@ -2038,9 +2004,7 @@ def _one_to_three(label1d: np.ndarray, ny: int, nz: int) -> np.ndarray:
 
 
 def _three_to_one(label3d: np.ndarray, ny: int, nz: int) -> np.ndarray:
-    """
-    The reverse of _one_to_three.
-    """
+    """The reverse of _one_to_three."""
     return np.array(label3d[:, 0] * ny * nz + label3d[:, 1] * nz + label3d[:, 2]).reshape((-1, 1))
 
 

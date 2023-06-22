@@ -1,6 +1,4 @@
-"""
-This module implements symmetry-related structure forms.
-"""
+"""This module implements symmetry-related structure forms."""
 
 from __future__ import annotations
 
@@ -65,9 +63,7 @@ class SymmetrizedStructure(Structure):
         self.wyckoff_symbols = [f"{len(symb)}{symb[0]}" for symb in wyckoff_symbols]
 
     def copy(self):
-        """
-        :return: Copy of structure.
-        """
+        """:return: Copy of structure."""
         return SymmetrizedStructure(
             self,
             spacegroup=self.spacegroup,
@@ -128,9 +124,7 @@ class SymmetrizedStructure(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         structure = Structure.from_sites(self.sites)
         return {
             "structure": structure.as_dict(),

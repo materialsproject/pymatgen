@@ -59,9 +59,7 @@ __date__ = "August 23, 2013"
 
 
 class BoltztrapRunner(MSONable):
-    """
-    This class is used to run Boltztrap on a band structure object.
-    """
+    """This class is used to run Boltztrap on a band structure object."""
 
     @requires(
         which("x_trans"),
@@ -244,16 +242,12 @@ class BoltztrapRunner(MSONable):
 
     @property
     def bs(self):
-        """
-        :return: The BandStructure
-        """
+        """:return: The BandStructure"""
         return self._bs
 
     @property
     def nelec(self):
-        """
-        :return: Number of electrons
-        """
+        """:return: Number of electrons"""
         return self._nelec
 
     def write_energy(self, output_file):
@@ -691,9 +685,7 @@ class BoltztrapRunner(MSONable):
             return path_dir
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         results = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -728,9 +720,7 @@ class BoltztrapError(Exception):
 
 
 class BoltztrapAnalyzer:
-    """
-    Class used to store all the data from a boltztrap run.
-    """
+    """Class used to store all the data from a boltztrap run."""
 
     def __init__(
         self,
@@ -2058,9 +2048,7 @@ class BoltztrapAnalyzer:
         raise ValueError(f"Run type: {run_type} not recognized!")
 
     def as_dict(self):
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         results = {
             "gap": self.gap,
             "mu_steps": self.mu_steps,
@@ -2333,9 +2321,7 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
 
 
 def seebeck_spb(eta, Lambda=0.5):
-    """
-    Seebeck analytic formula in the single parabolic model.
-    """
+    """Seebeck analytic formula in the single parabolic model."""
     try:
         from fdint import fdk
     except ImportError:

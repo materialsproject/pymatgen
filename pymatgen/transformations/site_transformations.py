@@ -27,9 +27,7 @@ if TYPE_CHECKING:
 
 
 class InsertSitesTransformation(AbstractTransformation):
-    """
-    This transformation substitutes certain sites with certain species.
-    """
+    """This transformation substitutes certain sites with certain species."""
 
     def __init__(self, species, coords, coords_are_cartesian=False, validate_proximity=True):
         """
@@ -89,9 +87,7 @@ class InsertSitesTransformation(AbstractTransformation):
 
 
 class ReplaceSiteSpeciesTransformation(AbstractTransformation):
-    """
-    This transformation substitutes certain sites with certain species.
-    """
+    """This transformation substitutes certain sites with certain species."""
 
     def __init__(self, indices_species_map):
         """
@@ -141,9 +137,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
 
 
 class RemoveSitesTransformation(AbstractTransformation):
-    """
-    Remove certain sites in a structure.
-    """
+    """Remove certain sites in a structure."""
 
     def __init__(self, indices_to_remove):
         """
@@ -185,9 +179,7 @@ class RemoveSitesTransformation(AbstractTransformation):
 
 
 class TranslateSitesTransformation(AbstractTransformation):
-    """
-    This class translates a set of sites by a certain vector.
-    """
+    """This class translates a set of sites by a certain vector."""
 
     def __init__(self, indices_to_move, translation_vector, vector_in_frac_coords=True):
         """
@@ -248,9 +240,7 @@ class TranslateSitesTransformation(AbstractTransformation):
         return False
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation.
-        """
+        """JSON-serializable dict representation."""
         d = MSONable.as_dict(self)
         d["translation_vector"] = self.translation_vector.tolist()
         return d
@@ -543,9 +533,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
 
 class AddSitePropertyTransformation(AbstractTransformation):
-    """
-    Simple transformation to add site properties to a given structure.
-    """
+    """Simple transformation to add site properties to a given structure."""
 
     def __init__(self, site_properties):
         """

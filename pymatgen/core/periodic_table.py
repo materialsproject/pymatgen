@@ -317,23 +317,17 @@ class ElementBase(Enum):
 
     @property
     def data(self) -> dict[str, Any]:
-        """
-        Returns dict of data for element.
-        """
+        """Returns dict of data for element."""
         return self._data.copy()
 
     @property
     def ionization_energy(self) -> float:
-        """
-        First ionization energy of element.
-        """
+        """First ionization energy of element."""
         return self._data["Ionization energies"][0]
 
     @property
     def electron_affinity(self) -> float:
-        """
-        The amount of energy released when an electron is attached to a neutral atom.
-        """
+        """The amount of energy released when an electron is attached to a neutral atom."""
         return self._data["Electron affinity"]
 
     @property
@@ -431,9 +425,7 @@ class ElementBase(Enum):
 
     @property
     def metallic_radius(self) -> float:
-        """
-        Metallic radius of the element. Radius is given in ang.
-        """
+        """Metallic radius of the element. Radius is given in ang."""
         return FloatWithUnit(self._data["Metallic radius"], "ang")
 
     @property
@@ -460,9 +452,7 @@ class ElementBase(Enum):
 
     @property
     def valence(self):
-        """
-        From full electron config obtain valence subshell angular moment (L) and number of valence e- (v_e).
-        """
+        """From full electron config obtain valence subshell angular moment (L) and number of valence e- (v_e)."""
         if self.group == 18:
             return np.nan, 0  # The number of valence of noble gas is 0
 
@@ -724,9 +714,7 @@ class ElementBase(Enum):
 
     @property
     def block(self) -> str:
-        """
-        Return the block character "s,p,d,f".
-        """
+        """Return the block character "s,p,d,f"."""
         if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
             return "f"
         if self.is_actinoid or self.is_lanthanoid:
@@ -741,16 +729,12 @@ class ElementBase(Enum):
 
     @property
     def is_noble_gas(self) -> bool:
-        """
-        True if element is noble gas.
-        """
+        """True if element is noble gas."""
         return self.Z in (2, 10, 18, 36, 54, 86, 118)
 
     @property
     def is_transition_metal(self) -> bool:
-        """
-        True if element is a transition metal.
-        """
+        """True if element is a transition metal."""
         ns = list(range(21, 31))
         ns.extend(list(range(39, 49)))
         ns.append(57)
@@ -761,23 +745,17 @@ class ElementBase(Enum):
 
     @property
     def is_post_transition_metal(self) -> bool:
-        """
-        True if element is a post-transition or poor metal.
-        """
+        """True if element is a post-transition or poor metal."""
         return self.symbol in ("Al", "Ga", "In", "Tl", "Sn", "Pb", "Bi")
 
     @property
     def is_rare_earth_metal(self) -> bool:
-        """
-        True if element is a rare earth metal.
-        """
+        """True if element is a rare earth metal."""
         return self.is_lanthanoid or self.is_actinoid
 
     @property
     def is_metal(self) -> bool:
-        """
-        True if is a metal.
-        """
+        """True if is a metal."""
         return (
             self.is_alkali
             or self.is_alkaline
@@ -789,58 +767,42 @@ class ElementBase(Enum):
 
     @property
     def is_metalloid(self) -> bool:
-        """
-        True if element is a metalloid.
-        """
+        """True if element is a metalloid."""
         return self.symbol in ("B", "Si", "Ge", "As", "Sb", "Te", "Po")
 
     @property
     def is_alkali(self) -> bool:
-        """
-        True if element is an alkali metal.
-        """
+        """True if element is an alkali metal."""
         return self.Z in (3, 11, 19, 37, 55, 87)
 
     @property
     def is_alkaline(self) -> bool:
-        """
-        True if element is an alkaline earth metal (group II).
-        """
+        """True if element is an alkaline earth metal (group II)."""
         return self.Z in (4, 12, 20, 38, 56, 88)
 
     @property
     def is_halogen(self) -> bool:
-        """
-        True if element is a halogen.
-        """
+        """True if element is a halogen."""
         return self.Z in (9, 17, 35, 53, 85)
 
     @property
     def is_chalcogen(self) -> bool:
-        """
-        True if element is a chalcogen.
-        """
+        """True if element is a chalcogen."""
         return self.Z in (8, 16, 34, 52, 84)
 
     @property
     def is_lanthanoid(self) -> bool:
-        """
-        True if element is a lanthanoid.
-        """
+        """True if element is a lanthanoid."""
         return 56 < self.Z < 72
 
     @property
     def is_actinoid(self) -> bool:
-        """
-        True if element is a actinoid.
-        """
+        """True if element is a actinoid."""
         return 88 < self.Z < 104
 
     @property
     def is_quadrupolar(self) -> bool:
-        """
-        Checks if this element can be quadrupolar.
-        """
+        """Checks if this element can be quadrupolar."""
         return len(self.data.get("NMR Quadrupole Moment", {})) > 0
 
     @property
@@ -1096,9 +1058,7 @@ class Species(MSONable, Stringify):
         return getattr(self._el, a)
 
     def __eq__(self, other: object) -> bool:
-        """
-        Species is equal to other only if element and oxidation states are exactly the same.
-        """
+        """Species is equal to other only if element and oxidation states are exactly the same."""
         if not hasattr(other, "oxi_state") or not hasattr(other, "symbol") or not hasattr(other, "_properties"):
             return NotImplemented
 
@@ -1138,16 +1098,12 @@ class Species(MSONable, Stringify):
 
     @property
     def element(self):
-        """
-        Underlying element object.
-        """
+        """Underlying element object."""
         return self._el
 
     @property
     def ionic_radius(self) -> float | None:
-        """
-        Ionic radius of specie. Returns None if data is not present.
-        """
+        """Ionic radius of specie. Returns None if data is not present."""
         if self._oxi_state in self.ionic_radii:
             return self.ionic_radii[self._oxi_state]
         if self._oxi_state:
@@ -1164,9 +1120,7 @@ class Species(MSONable, Stringify):
 
     @property
     def oxi_state(self) -> float | None:
-        """
-        Oxidation state of Species.
-        """
+        """Oxidation state of Species."""
         return self._oxi_state
 
     @staticmethod
@@ -1227,9 +1181,7 @@ class Species(MSONable, Stringify):
         return output
 
     def to_pretty_string(self) -> str:
-        """
-        :return: String without properties.
-        """
+        """:return: String without properties."""
         output = self.symbol
         if self.oxi_state is not None:
             output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
@@ -1347,9 +1299,7 @@ class Species(MSONable, Stringify):
         return Species(self.symbol, self.oxi_state, self._properties)
 
     def as_dict(self) -> dict:
-        """
-        :return: Json-able dictionary representation.
-        """
+        """:return: Json-able dictionary representation."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1459,9 +1409,7 @@ class DummySpecies(Species):
 
     @property
     def oxi_state(self) -> float | None:
-        """
-        Oxidation state associated with DummySpecies.
-        """
+        """Oxidation state associated with DummySpecies."""
         return self._oxi_state
 
     @property
@@ -1474,9 +1422,7 @@ class DummySpecies(Species):
 
     @property
     def symbol(self) -> str:
-        """
-        :return: Symbol for DummySpecies.
-        """
+        """:return: Symbol for DummySpecies."""
         return self._symbol
 
     def __deepcopy__(self, memo):
@@ -1513,9 +1459,7 @@ class DummySpecies(Species):
         raise ValueError("Invalid DummySpecies String")
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict representation.
-        """
+        """:return: MSONable dict representation."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

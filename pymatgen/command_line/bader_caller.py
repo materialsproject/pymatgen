@@ -378,9 +378,7 @@ class BaderAnalysis:
 
     @property
     def summary(self):
-        """
-        :return: Dict summary of key analysis, e.g., atomic volume, charge, etc.
-        """
+        """:return: Dict summary of key analysis, e.g., atomic volume, charge, etc."""
         summary = {
             "min_dist": [d["min_dist"] for d in self.data],
             "charge": [d["charge"] for d in self.data],

@@ -1,6 +1,4 @@
-"""
-This module defines classes to represent the phonon density of states, etc.
-"""
+"""This module defines classes to represent the phonon density of states, etc."""
 
 from __future__ import annotations
 
@@ -101,9 +99,7 @@ class PhononDos(MSONable):
         return get_linear_interpolated_value(self.frequencies, self.densities, frequency)
 
     def __str__(self):
-        """
-        Returns a string which can be easily plotted (using gnuplot).
-        """
+        """Returns a string which can be easily plotted (using gnuplot)."""
         stringarray = [f"#{'Frequency':30s} {'Density':30s}"]
         for i, frequency in enumerate(self.frequencies):
             stringarray.append(f"{frequency:.5f} {self.densities[i]:.5f}")
@@ -111,15 +107,11 @@ class PhononDos(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Returns PhononDos object from dict representation of PhononDos.
-        """
+        """Returns PhononDos object from dict representation of PhononDos."""
         return cls(d["frequencies"], d["densities"])
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of PhononDos.
-        """
+        """JSON-serializable dict representation of PhononDos."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -129,9 +121,7 @@ class PhononDos(MSONable):
 
     @lazy_property
     def ind_zero_freq(self):
-        """
-        Index of the first point for which the frequencies are equal or greater than zero.
-        """
+        """Index of the first point for which the frequencies are equal or greater than zero."""
         ind = np.searchsorted(self.frequencies, 0)
         if ind >= len(self.frequencies):
             raise ValueError("No positive frequencies found")
@@ -139,16 +129,12 @@ class PhononDos(MSONable):
 
     @lazy_property
     def _positive_frequencies(self):
-        """
-        Numpy array containing the list of positive frequencies.
-        """
+        """Numpy array containing the list of positive frequencies."""
         return self.frequencies[self.ind_zero_freq :]
 
     @lazy_property
     def _positive_densities(self):
-        """
-        Numpy array containing the list of densities corresponding to positive frequencies.
-        """
+        """Numpy array containing the list of densities corresponding to positive frequencies."""
         return self.densities[self.ind_zero_freq :]
 
     def cv(self, t, structure=None):
@@ -362,9 +348,7 @@ class CompletePhononDos(PhononDos):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Returns CompleteDos object from dict representation.
-        """
+        """Returns CompleteDos object from dict representation."""
         tdos = PhononDos.from_dict(d)
         struct = Structure.from_dict(d["structure"])
         pdoss = {}
@@ -374,9 +358,7 @@ class CompletePhononDos(PhononDos):
         return cls(struct, tdos, pdoss)
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of CompletePhononDos.
-        """
+        """JSON-serializable dict representation of CompletePhononDos."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

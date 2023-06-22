@@ -1,9 +1,7 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-"""
-Implementation for `pmg query` CLI.
-"""
+"""Implementation for `pmg query` CLI."""
 
 from __future__ import annotations
 

@@ -259,9 +259,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         self.entries = self.ground_states
 
     def is_ground_state(self, entry) -> bool:
-        """
-        Boolean indicating whether a given Entry is a ground state.
-        """
+        """Boolean indicating whether a given Entry is a ground state."""
         return entry in self.ground_states
 
     def get_subset_in_chemsys(self, chemsys: list[str]):
@@ -290,9 +288,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return EntrySet(subset)
 
     def as_dict(self) -> dict[Literal["entries"], list[Entry]]:
-        """
-        Returns MSONable dict.
-        """
+        """Returns MSONable dict."""
         return {"entries": list(self.entries)}
 
     def to_csv(self, filename: str, latexify_names: bool = False) -> None:

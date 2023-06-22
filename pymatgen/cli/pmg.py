@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-A master convenience script with many tools for vasp and structure analysis.
-"""
+"""A master convenience script with many tools for vasp and structure analysis."""
 
 from __future__ import annotations
 
@@ -81,9 +79,7 @@ def diff_incar(args):
 
 
 def main():
-    """
-    Handle main.
-    """
+    """Handle main."""
     parser = argparse.ArgumentParser(
         description="""
     pmg is a convenient script that uses pymatgen to perform many

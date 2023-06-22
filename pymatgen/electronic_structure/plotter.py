@@ -1,6 +1,4 @@
-"""
-This module implements plotter for DOS and band structure.
-"""
+"""This module implements plotter for DOS and band structure."""
 
 from __future__ import annotations
 
@@ -279,9 +277,7 @@ class DosPlotter:
 
 
 class BSPlotter:
-    """
-    Class to plot or get data to facilitate the plot of band structure objects.
-    """
+    """Class to plot or get data to facilitate the plot of band structure objects."""
 
     def __init__(self, bs: BandStructureSymmLine) -> None:
         """
@@ -327,9 +323,7 @@ class BSPlotter:
         return True
 
     def add_bs(self, bs: BandStructureSymmLine | list[BandStructureSymmLine]) -> None:
-        """
-        Method to add bands objects to the BSPlotter.
-        """
+        """Method to add bands objects to the BSPlotter."""
         if not isinstance(bs, list):
             bs = [bs]
 
@@ -340,9 +334,7 @@ class BSPlotter:
             self._nb_bands.extend([b.nb_bands for b in bs])
 
     def _maketicks(self, plt):
-        """
-        Utility private method to add ticks to a band structure.
-        """
+        """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
         uniq_d = []
@@ -380,9 +372,7 @@ class BSPlotter:
 
     @staticmethod
     def _get_branch_steps(branches):
-        """
-        Method to find discontinuous branches.
-        """
+        """Method to find discontinuous branches."""
         steps = [0]
         for b1, b2 in zip(branches[:-1], branches[1:]):
             if b2["name"].split("-")[0] != b1["name"].split("-")[-1]:
@@ -2123,9 +2113,7 @@ class BSPlotterProjected(BSPlotter):
         return dictio_d, dictpa_d
 
     def _maketicks_selected(self, plt, branches):
-        """
-        Utility private method to add ticks to a band structure with selected branches.
-        """
+        """Utility private method to add ticks to a band structure with selected branches."""
         ticks = self.get_ticks()
         distance = []
         label = []
@@ -2633,9 +2621,7 @@ class BSDOSPlotter:
 
     @staticmethod
     def _cmyk_triangle(ax, c_label, m_label, y_label, k_label, loc):
-        """
-        Draw an RGB triangle legend on the desired axis.
-        """
+        """Draw an RGB triangle legend on the desired axis."""
         if loc not in range(1, 11):
             loc = 2
 
@@ -2686,9 +2672,7 @@ class BSDOSPlotter:
 
     @staticmethod
     def _rgb_triangle(ax, r_label, g_label, b_label, loc):
-        """
-        Draw an RGB triangle legend on the desired axis.
-        """
+        """Draw an RGB triangle legend on the desired axis."""
         if loc not in range(1, 11):
             loc = 2
 
@@ -2801,9 +2785,7 @@ class BSDOSPlotter:
 
 class BoltztrapPlotter:
     # TODO: We need a unittest for this. Come on folks.
-    """
-    class containing methods to plot the data from Boltztrap.
-    """
+    """class containing methods to plot the data from Boltztrap."""
 
     def __init__(self, bz):
         """

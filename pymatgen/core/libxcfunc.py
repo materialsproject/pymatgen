@@ -504,9 +504,7 @@ class LibxcFunc(Enum):
         return LibxcFunc[d["name"]]
 
     def to_json(self):
-        """
-        Returns a json string representation of the MSONable object.
-        """
+        """Returns a json string representation of the MSONable object."""
         return json.dumps(self.as_dict(), cls=MontyEncoder)
 
 

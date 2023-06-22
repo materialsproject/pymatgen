@@ -68,9 +68,7 @@ logger = logging.getLogger(__name__)
 
 
 class Critic2Caller:
-    """
-    Class to call critic2 and store standard output for further processing.
-    """
+    """Class to call critic2 and store standard output for further processing."""
 
     @requires(
         which("critic2"),
@@ -304,9 +302,7 @@ class Critic2Caller:
 
 
 class CriticalPointType(Enum):
-    """
-    Enum type for the different varieties of critical point.
-    """
+    """Enum type for the different varieties of critical point."""
 
     nucleus = "nucleus"  # (3, -3)
     bond = "bond"  # (3, -1)
@@ -339,9 +335,7 @@ def get_filepath(filename, warning, path, suffix):
 
 
 class CriticalPoint(MSONable):
-    """
-    Access information about a critical point and the field values at that point.
-    """
+    """Access information about a critical point and the field values at that point."""
 
     def __init__(
         self,
@@ -384,9 +378,7 @@ class CriticalPoint(MSONable):
 
     @property
     def type(self):
-        """
-        Returns: Instance of CriticalPointType.
-        """
+        """Returns: Instance of CriticalPointType."""
         return CriticalPointType(self._type)
 
     def __str__(self):
@@ -394,9 +386,7 @@ class CriticalPoint(MSONable):
 
     @property
     def laplacian(self):
-        """
-        Returns: The Laplacian of the field at the critical point.
-        """
+        """Returns: The Laplacian of the field at the critical point."""
         return np.trace(self.field_hessian)
 
     @property
@@ -414,9 +404,7 @@ class CriticalPoint(MSONable):
 
 
 class Critic2Analysis(MSONable):
-    """
-    Class to process the standard output from critic2 into pymatgen-compatible objects.
-    """
+    """Class to process the standard output from critic2 into pymatgen-compatible objects."""
 
     def __init__(self, structure: Structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None):
         """

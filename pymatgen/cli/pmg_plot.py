@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Implementation for `pmg plot` CLI.
-"""
+"""Implementation for `pmg plot` CLI."""
 
 
 from __future__ import annotations

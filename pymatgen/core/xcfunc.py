@@ -1,6 +1,4 @@
-"""
-This module provides.
-"""
+"""This module provides."""
 
 from __future__ import annotations
 
@@ -177,15 +175,11 @@ class XcFunc(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
-        """
+        """Makes XcFunc obey the general json interface used in pymatgen for easier serialization."""
         return cls(xc=d.get("xc"), x=d.get("x"), c=d.get("c"))
 
     def as_dict(self):
-        """
-        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
-        """
+        """Makes XcFunc obey the general json interface used in pymatgen for easier serialization."""
         d = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
             d["x"] = self.x.as_dict()

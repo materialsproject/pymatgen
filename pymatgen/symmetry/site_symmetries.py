@@ -1,6 +1,4 @@
-"""
-Provides analysis of site symmetries.
-"""
+"""Provides analysis of site symmetries."""
 
 from __future__ import annotations
 

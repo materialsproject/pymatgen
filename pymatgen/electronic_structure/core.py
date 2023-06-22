@@ -78,9 +78,7 @@ class Orbital(Enum):
 
     @property
     def orbital_type(self):
-        """
-        Returns OrbitalType of an orbital.
-        """
+        """Returns OrbitalType of an orbital."""
         # pylint: disable=E1136
         return OrbitalType[self.name[0]]
 
@@ -426,9 +424,7 @@ class Magmom(MSONable):
         return np.linalg.norm(self.moment)
 
     def __eq__(self, other: object) -> bool:
-        """
-        Equal if 'global' magnetic moments are the same, saxis can differ.
-        """
+        """Equal if 'global' magnetic moments are the same, saxis can differ."""
         try:
             other_magmom = Magmom(other)
         except (TypeError, ValueError):

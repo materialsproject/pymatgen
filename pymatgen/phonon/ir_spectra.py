@@ -46,9 +46,7 @@ class IRDielectricTensor(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Returns IRDielectricTensor from dict representation.
-        """
+        """Returns IRDielectricTensor from dict representation."""
         structure = Structure.from_dict(d["structure"])
         oscillator_strength = d["oscillator_strength"]
         ph_freqs_gamma = d["ph_freqs_gamma"]
@@ -66,9 +64,7 @@ class IRDielectricTensor(MSONable):
         return len(self.ph_freqs_gamma)
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of IRDielectricTensor.
-        """
+        """JSON-serializable dict representation of IRDielectricTensor."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -79,9 +75,7 @@ class IRDielectricTensor(MSONable):
         }
 
     def write_json(self, filename):
-        """
-        Save a json file with this data.
-        """
+        """Save a json file with this data."""
         import json
 
         with open(filename, "w") as f:

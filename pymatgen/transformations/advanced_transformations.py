@@ -1,6 +1,4 @@
-"""
-This module implements more advanced transformations.
-"""
+"""This module implements more advanced transformations."""
 
 from __future__ import annotations
 
@@ -639,9 +637,7 @@ class MagOrderParameterConstraint(MSONable):
         self.site_constraints = site_constraints
 
     def satisfies_constraint(self, site):
-        """
-        Checks if a periodic site satisfies the constraint.
-        """
+        """Checks if a periodic site satisfies the constraint."""
         if not site.is_ordered:
             return False
 
@@ -711,9 +707,7 @@ class MagOrderingTransformation(AbstractTransformation):
         """
 
         def lcm(n1, n2):
-            """
-            Find least common multiple of two numbers.
-            """
+            """Find least common multiple of two numbers."""
             return n1 * n2 / gcd(n1, n2)
 
         # assumes all order parameters for a given species are the same
@@ -761,9 +755,7 @@ class MagOrderingTransformation(AbstractTransformation):
         dummy_struct = structure.copy()
 
         def generate_dummy_specie():
-            """
-            Generator which returns DummySpecies symbols Mma, Mmb, etc.
-            """
+            """Generator which returns DummySpecies symbols Mma, Mmb, etc."""
             subscript_length = 1
             while True:
                 for subscript in product(ascii_lowercase, repeat=subscript_length):
@@ -997,9 +989,7 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
 
 
 class DopingTransformation(AbstractTransformation):
-    """
-    A transformation that performs doping of a structure.
-    """
+    """A transformation that performs doping of a structure."""
 
     def __init__(
         self,
@@ -1198,9 +1188,7 @@ class DopingTransformation(AbstractTransformation):
 
 
 class SlabTransformation(AbstractTransformation):
-    """
-    A transformation that creates a slab from a structure.
-    """
+    """A transformation that creates a slab from a structure."""
 
     def __init__(
         self,
@@ -1418,9 +1406,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
 
 
 class GrainBoundaryTransformation(AbstractTransformation):
-    """
-    A transformation that creates a gb from a bulk structure.
-    """
+    """A transformation that creates a gb from a bulk structure."""
 
     def __init__(
         self,
@@ -1697,9 +1683,7 @@ class CubicSupercellTransformation(AbstractTransformation):
 
 
 class AddAdsorbateTransformation(AbstractTransformation):
-    """
-    Create absorbate structures.
-    """
+    """Create absorbate structures."""
 
     def __init__(
         self,
@@ -1954,9 +1938,7 @@ def _proj(b, a):
 
 
 class SQSTransformation(AbstractTransformation):
-    """
-    A transformation that creates a special quasirandom structure (SQS) from a structure with partial occupancies.
-    """
+    """A transformation that creates a special quasirandom structure (SQS) from a structure with partial occupancies."""
 
     def __init__(
         self,
@@ -2281,14 +2263,10 @@ class MonteCarloRattleTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """
-        Returns: None.
-        """
+        """Returns: None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """
-        Returns: False.
-        """
+        """Returns: False."""
         return False

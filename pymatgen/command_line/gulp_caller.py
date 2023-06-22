@@ -234,9 +234,7 @@ _gulp_kw = {
 
 
 class GulpIO:
-    """
-    To generate GULP input and process output.
-    """
+    """To generate GULP input and process output."""
 
     @staticmethod
     def keyword_line(*args):
@@ -636,9 +634,7 @@ class GulpIO:
 
 
 class GulpCaller:
-    """
-    Class to run gulp from commandline.
-    """
+    """Class to run gulp from commandline."""
 
     def __init__(self, cmd="gulp"):
         """
@@ -880,14 +876,10 @@ class BuckinghamPotential:
 
 
 class TersoffPotential:
-    """
-    Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file.
-    """
+    """Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file."""
 
     def __init__(self):
-        """
-        Init TersoffPotential.
-        """
+        """Init TersoffPotential."""
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "OxideTersoffPotentials")) as f:
             data = {}

@@ -94,18 +94,14 @@ class Tensor(np.ndarray, MSONable):
         return np.ndarray.__array_wrap__(self, obj)
 
     def __hash__(self):
-        """
-        Define a hash function, since numpy arrays have their own __eq__ method.
-        """
+        """Define a hash function, since numpy arrays have their own __eq__ method."""
         return hash(self.tostring())
 
     def __repr__(self):
         return f"{type(self).__name__}({self})"
 
     def zeroed(self, tol: float = 1e-3):
-        """
-        Returns the matrix with all entries below a certain threshold (i.e. tol) set to zero.
-        """
+        """Returns the matrix with all entries below a certain threshold (i.e. tol) set to zero."""
         new_tensor = self.copy()
         new_tensor[abs(new_tensor) < tol] = 0
         return new_tensor
@@ -135,9 +131,7 @@ class Tensor(np.ndarray, MSONable):
         return self.transform(sop)
 
     def einsum_sequence(self, other_arrays, einsum_string=None):
-        """
-        Calculates the result of an einstein summation expression.
-        """
+        """Calculates the result of an einstein summation expression."""
         if not isinstance(other_arrays, list):
             raise ValueError("other tensors must be list of tensors or tensor input")
 
@@ -338,9 +332,7 @@ class Tensor(np.ndarray, MSONable):
 
     @property
     def voigt(self):
-        """
-        Returns the tensor in Voigt notation.
-        """
+        """Returns the tensor in Voigt notation."""
         v_matrix = np.zeros(self._vscale.shape, dtype=self.dtype)
         this_voigt_map = self.get_voigt_dict(self.rank)
         for ind, v in this_voigt_map.items():
@@ -746,9 +738,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @property
     def symmetrized(self):
-        """
-        :return: TensorCollection where all tensors are symmetrized.
-        """
+        """:return: TensorCollection where all tensors are symmetrized."""
         return self.__class__([t.symmetrized for t in self])
 
     def is_symmetric(self, tol: float = 1e-5):
@@ -778,16 +768,12 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @property
     def voigt(self):
-        """
-        :return: TensorCollection where all tensors are in voight form.
-        """
+        """:return: TensorCollection where all tensors are in voight form."""
         return [t.voigt for t in self]
 
     @property
     def ranks(self):
-        """
-        :return: Ranks for all tensors.
-        """
+        """:return: Ranks for all tensors."""
         return [t.rank for t in self]
 
     def is_voigt_symmetric(self, tol: float = 1e-6):
@@ -831,9 +817,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @property
     def voigt_symmetrized(self):
-        """
-        :return: TensorCollection where all tensors are voigt symmetrized.
-        """
+        """:return: TensorCollection where all tensors are voigt symmetrized."""
         return self.__class__([t.voigt_symmetrized for t in self])
 
     def as_dict(self, voigt=False):
@@ -961,9 +945,7 @@ class SquareTensor(Tensor):
         return np.poly(self)[1:] * np.array([-1, 1, -1])
 
     def polar_decomposition(self, side="right"):
-        """
-        Calculates matrices for polar decomposition.
-        """
+        """Calculates matrices for polar decomposition."""
         return polar(self, side=side)
 
 
@@ -1065,15 +1047,11 @@ class TensorMapping(collections.abc.MutableMapping):
         yield from self._tensor_list
 
     def values(self):
-        """
-        :return: Values in mapping.
-        """
+        """:return: Values in mapping."""
         return self._value_list
 
     def items(self):
-        """
-        :return: Items in mapping.
-        """
+        """:return: Items in mapping."""
         return zip(self._tensor_list, self._value_list)
 
     def __contains__(self, item):

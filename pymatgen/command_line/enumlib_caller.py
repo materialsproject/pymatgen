@@ -131,9 +131,7 @@ class EnumlibAdaptor:
         self.timeout = timeout
 
     def run(self):
-        """
-        Run the enumeration.
-        """
+        """Run the enumeration."""
         # Create a temporary directory for working.
         with ScratchDir(".") as tmp_dir:
             logger.debug(f"Temp dir : {tmp_dir}")
@@ -408,6 +406,4 @@ class EnumlibAdaptor:
 
 
 class EnumError(BaseException):
-    """
-    Error subclass for enumeration errors.
-    """
+    """Error subclass for enumeration errors."""

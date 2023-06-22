@@ -218,7 +218,5 @@ class Spectrum(MSONable):
         return f"{type(self).__name__}\n{self.XLABEL}: {self.x}\n{self.YLABEL}: {self.y}"
 
     def __repr__(self):
-        """
-        Returns a printable representation of the class.
-        """
+        """Returns a printable representation of the class."""
         return str(self)

@@ -1,6 +1,4 @@
-"""
-Analysis classes for batteries.
-"""
+"""Analysis classes for batteries."""
 
 from __future__ import annotations
 
@@ -25,9 +23,7 @@ ELECTRON_TO_AMPERE_HOURS = EV_PER_ATOM_TO_J_PER_MOL / 3600
 
 
 class BatteryAnalyzer:
-    """
-    A suite of methods for starting with an oxidized structure and determining its potential as a battery.
-    """
+    """A suite of methods for starting with an oxidized structure and determining its potential as a battery."""
 
     def __init__(self, struc_oxid, working_ion="Li", oxi_override=None):
         """

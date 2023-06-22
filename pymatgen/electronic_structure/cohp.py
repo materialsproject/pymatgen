@@ -31,9 +31,7 @@ __date__ = "Dec 13, 2017"
 
 
 class Cohp(MSONable):
-    """
-    Basic COHP object.
-    """
+    """Basic COHP object."""
 
     def __init__(self, efermi, energies, cohp, are_coops=False, are_cobis=False, icohp=None):
         """
@@ -56,9 +54,7 @@ class Cohp(MSONable):
         return str(self)
 
     def __str__(self):
-        """
-        Returns a string that can be easily plotted (e.g. using gnuplot).
-        """
+        """Returns a string that can be easily plotted (e.g. using gnuplot)."""
         if self.are_coops:
             cohpstring = "COOP"
         elif self.are_cobis:
@@ -84,9 +80,7 @@ class Cohp(MSONable):
         return "\n".join(stringarray)
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of COHP.
-        """
+        """JSON-serializable dict representation of COHP."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -128,9 +122,7 @@ class Cohp(MSONable):
         return {spin: populations[spin]}
 
     def get_icohp(self, spin=None):
-        """
-        Convenient alternative to get the ICOHP for a particular spin.
-        """
+        """Convenient alternative to get the ICOHP for a particular spin."""
         return self.get_cohp(spin=spin, integrated=True)
 
     def get_interpolated_value(self, energy, integrated=False):
@@ -187,9 +179,7 @@ class Cohp(MSONable):
 
     @classmethod
     def from_dict(cls, dct):
-        """
-        Returns a COHP object from a dict representation of the COHP.
-        """
+        """Returns a COHP object from a dict representation of the COHP."""
         icohp = {Spin(int(key)): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
         are_cobis = False if "are_cobis" not in dct else dct["are_cobis"]
         return Cohp(
@@ -296,9 +286,7 @@ class CompleteCohp(Cohp):
         return "Complete COHPs for " + str(self.structure)
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of CompleteCohp.
-        """
+        """JSON-serializable dict representation of CompleteCohp."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -566,9 +554,7 @@ class CompleteCohp(Cohp):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Returns CompleteCohp object from dict representation.
-        """
+        """Returns CompleteCohp object from dict representation."""
         cohp_dict = {}
         efermi = d["efermi"]
         energies = d["energies"]
@@ -1236,23 +1222,17 @@ class IcohpCollection(MSONable):
 
     @property
     def is_spin_polarized(self) -> bool:
-        """
-        :return: Whether it is spin polarized.
-        """
+        """:return: Whether it is spin polarized."""
         return self._is_spin_polarized
 
     @property
     def are_coops(self) -> bool:
-        """
-        :return: Whether this is a coop.
-        """
+        """:return: Whether this is a coop."""
         return self._are_coops
 
     @property
     def are_cobis(self) -> bool:
-        """
-        :return: Whether this a cobi.
-        """
+        """:return: Whether this a cobi."""
         return self._are_cobis
 
 

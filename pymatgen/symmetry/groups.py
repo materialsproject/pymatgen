@@ -34,9 +34,7 @@ SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
 
 
 class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
-    """
-    Abstract class representing a symmetry group.
-    """
+    """Abstract class representing a symmetry group."""
 
     @property
     @abstractmethod

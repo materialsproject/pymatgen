@@ -1,6 +1,4 @@
-"""
-This module provides classes to define a Grueneisen band structure.
-"""
+"""This module provides classes to define a Grueneisen band structure."""
 
 from __future__ import annotations
 
@@ -32,9 +30,7 @@ __date__ = "Apr 11, 2021"
 
 
 class GruneisenParameter(MSONable):
-    """
-    Class for Grueneisen parameters on a regular grid.
-    """
+    """Class for Grueneisen parameters on a regular grid."""
 
     def __init__(
         self,
@@ -156,15 +152,11 @@ class GruneisenParameter(MSONable):
     @property  # type: ignore
     @requires(phonopy, "This method requires phonopy to be installed")
     def tdos(self):
-        """
-        The total DOS (re)constructed from the gruneisen.yaml file.
-        """
+        """The total DOS (re)constructed from the gruneisen.yaml file."""
 
         # Here, we will reuse phonopy classes
         class TempMesh:
-            """
-            Temporary Class.
-            """
+            """Temporary Class."""
 
         a = TempMesh()
         a.frequencies = np.transpose(self.frequencies)
@@ -177,16 +169,12 @@ class GruneisenParameter(MSONable):
 
     @property
     def phdos(self):
-        """
-        Returns: PhononDos object.
-        """
+        """Returns: PhononDos object."""
         return PhononDos(self.tdos.frequency_points, self.tdos.dos)
 
     @property
     def debye_temp_limit(self):
-        """
-        Debye temperature in K. Adapted from apipy.
-        """
+        """Debye temperature in K. Adapted from apipy."""
         from scipy.interpolate import UnivariateSpline
 
         f_mesh = self.tdos.frequency_points * const.tera

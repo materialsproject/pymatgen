@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Implementation for `pmg config` CLI.
-"""
+"""Implementation for `pmg config` CLI."""
 
 from __future__ import annotations
 

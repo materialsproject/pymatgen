@@ -22,9 +22,7 @@ __date__ = "April 7, 2012"
 
 
 def main():
-    """
-    Main function.
-    """
+    """Main function."""
     parser = argparse.ArgumentParser(
         description="""Convenient DOS Plotter for Feff runs.
     Author: Alan Dozier

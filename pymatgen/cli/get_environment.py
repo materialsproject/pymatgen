@@ -1,6 +1,4 @@
-"""
-Command line script to get the chemical environment of a structure.
-"""
+"""Command line script to get the chemical environment of a structure."""
 
 from __future__ import annotations
 
