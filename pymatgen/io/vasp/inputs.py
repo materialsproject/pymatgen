@@ -5,6 +5,7 @@ files.
 
 from __future__ import annotations
 
+import hashlib
 import itertools
 import json
 import logging
@@ -16,7 +17,7 @@ import warnings
 from collections import namedtuple
 from enum import Enum
 from glob import glob
-from hashlib import md5, sha256
+from hashlib import sha256
 from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import numpy as np
@@ -2175,7 +2176,11 @@ class PotcarSingle:
 
         :return: Hash value.
         """
-        return md5(self.data.encode("utf-8")).hexdigest()
+        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+        # https://github.com/materialsproject/pymatgen/issues/2804
+        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5.update(self.data.encode("utf-8"))
+        return md5.hexdigest()
 
     def get_potcar_hash(self):
         """
@@ -2212,7 +2217,11 @@ class PotcarSingle:
                 hash_str += v.replace(" ", "")
 
         self.hash_str = hash_str
-        return md5(hash_str.lower().encode("utf-8")).hexdigest()
+        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+        # https://github.com/materialsproject/pymatgen/issues/2804
+        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5.update(hash_str.lower().encode("utf-8"))
+        return md5.hexdigest()
 
     def __getattr__(self, a):
         """
