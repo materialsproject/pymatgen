@@ -371,45 +371,11 @@ class GaussianInput:
         with zopen(filename, "r") as f:
             return GaussianInput.from_string(f.read())
 
-    def _find_nn_pos_before_site(self, site_idx):
-        """
-        Returns index of nearest neighbor atoms.
-        """
-        all_dist = [(self._mol.get_distance(site_idx, idx), idx) for idx in range(site_idx)]
-        all_dist = sorted(all_dist, key=lambda x: x[0])
-        return [d[1] for d in all_dist]
-
     def get_zmatrix(self):
         """
         Returns a z-matrix representation of the molecule.
         """
-        output = []
-        output_var = []
-        for idx, site in enumerate(self._mol):
-            if idx == 0:
-                output.append(f"{site.specie}")
-            elif idx == 1:
-                nn = self._find_nn_pos_before_site(idx)
-                bond_length = self._mol.get_distance(idx, nn[0])
-                output.append(f"{self._mol[idx].specie} {nn[0] + 1} B{idx}")
-                output_var.append(f"B{idx}={bond_length:.6f}")
-            elif idx == 2:
-                nn = self._find_nn_pos_before_site(idx)
-                bond_length = self._mol.get_distance(idx, nn[0])
-                angle = self._mol.get_angle(idx, nn[0], nn[1])
-                output.append(f"{self._mol[idx].specie} {nn[0] + 1} B{idx} {nn[1] + 1} A{idx}")
-                output_var.append(f"B{idx}={bond_length:.6f}")
-                output_var.append(f"A{idx}={angle:.6f}")
-            else:
-                nn = self._find_nn_pos_before_site(idx)
-                bond_length = self._mol.get_distance(idx, nn[0])
-                angle = self._mol.get_angle(idx, nn[0], nn[1])
-                dih = self._mol.get_dihedral(idx, nn[0], nn[1], nn[2])
-                output.append(f"{self._mol[idx].specie} {nn[0] + 1} B{idx} {nn[1] + 1} A{idx} {nn[2] + 1} D{idx}")
-                output_var.append(f"B{idx}={bond_length:.6f}")
-                output_var.append(f"A{idx}={angle:.6f}")
-                output_var.append(f"D{idx}={dih:.6f}")
-        return "\n".join(output) + "\n\n" + "\n".join(output_var)
+        return self._mol.get_zmatrix()
 
     def get_cart_coords(self) -> str:
         """Return the Cartesian coordinates of the molecule"""
