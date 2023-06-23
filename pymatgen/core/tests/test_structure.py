@@ -1645,21 +1645,22 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
     def test_get_zmatrix(self):
         mol = IMolecule(["C", "H", "H", "H", "H"], self.coords)
         zmatrix = """C
-H 1 B1
-H 1 B2 2 A2
-H 1 B3 2 A3 3 D3
-H 1 B4 2 A4 4 D4
+            H 1 B1
+            H 1 B2 2 A2
+            H 1 B3 2 A3 3 D3
+            H 1 B4 2 A4 4 D4
 
-B1=1.089000
-B2=1.089000
-A2=109.471221
-B3=1.089000
-A3=109.471213
-D3=120.000017
-B4=1.089000
-A4=109.471213
-D4=119.999966"""
-        assert mol.get_zmatrix() == zmatrix
+            B1=1.089000
+            B2=1.089000
+            A2=109.471221
+            B3=1.089000
+            A3=109.471213
+            D3=120.000017
+            B4=1.089000
+            A4=109.471213
+            D4=119.999966
+        """
+        assert self.assert_str_content_equal(mol.get_zmatrix(), zmatrix)
 
     def test_break_bond(self):
         (mol1, mol2) = self.mol.break_bond(0, 1)

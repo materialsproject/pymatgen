@@ -858,7 +858,7 @@ class BruteForceOrderMatcher(KabschMatcher):
         of atoms from the same species.
     """
 
-    def match(self, p: Molecule, ignore_warning=False):
+    def match(self, mol: Molecule, ignore_warning: bool = False) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
         """Similar as `KabschMatcher.match` but this method also finds the order of
         atoms which belongs to the best match.
 
@@ -866,7 +866,7 @@ class BruteForceOrderMatcher(KabschMatcher):
         become unfeasible (more than a million combination).
 
         Args:
-            p: a `Molecule` object what will be matched with the target one.
+            mol: a `Molecule` object what will be matched with the target one.
             ignore_warning: ignoring error when the number of combination is too large
 
         Returns:
@@ -875,12 +875,12 @@ class BruteForceOrderMatcher(KabschMatcher):
             V: Translation vector
             rmsd: Root mean squared deviation between P and Q
         """
-        q = self.target
+        target_mol = self.target
 
-        if sorted(p.atomic_numbers) != sorted(q.atomic_numbers):
+        if sorted(mol.atomic_numbers) != sorted(target_mol.atomic_numbers):
             raise ValueError("The number of the same species aren't matching!")
 
-        _, count = np.unique(p.atomic_numbers, return_counts=True)
+        _, count = np.unique(mol.atomic_numbers, return_counts=True)
         total_permutations = 1
         for c in count:
             total_permutations *= np.math.factorial(c)  # type: ignore
@@ -890,8 +890,8 @@ class BruteForceOrderMatcher(KabschMatcher):
                 f"The number of all possible permutations ({total_permutations}) is not feasible to run this method!"
             )
 
-        p_coord, q_coord = p.cart_coords, q.cart_coords
-        p_atoms, q_atoms = np.array(p.atomic_numbers), np.array(q.atomic_numbers)
+        p_coord, q_coord = mol.cart_coords, target_mol.cart_coords
+        p_atoms, q_atoms = np.array(mol.atomic_numbers), np.array(target_mol.atomic_numbers)
 
         # Both sets of coordinates must be translated first, so that
         # their centroid coincides with the origin of the coordinate system.
@@ -921,9 +921,9 @@ class BruteForceOrderMatcher(KabschMatcher):
         V = q_trans - np.dot(p_trans, U)
 
         # Using the original order of the indices
-        inds = p_inds[np.argsort(q_inds)]
+        indices = p_inds[np.argsort(q_inds)]
 
-        return inds, U, V, rmsd
+        return indices, U, V, rmsd
 
     def fit(self, p: Molecule, ignore_warning=False):
         """Order, rotate and transform `p` molecule according to the best match.

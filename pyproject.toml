@@ -32,6 +32,7 @@ select = [
   "E",    # pycodestyle error
   "EXE",  # flake8-executable
   "F",    # pyflakes
+  "FA",   # flake8-future-annotations
   "FLY",  # flynt
   "I",    # isort
   "ICN",  # flake8-import-conventions
