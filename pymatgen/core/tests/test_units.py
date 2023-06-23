@@ -45,7 +45,7 @@ class FloatWithUnitTest(PymatgenTest):
         assert b == approx(0.0404242579378)
         c = Energy(3.14, "J")
         assert c.to("eV") == approx(1.9598338493806797e19)
-        with pytest.raises(UnitError):
+        with pytest.raises(UnitError, match="m is not a supported unit for energy"):
             Energy(1, "m")
 
         d = Energy(1, "Ha")
@@ -138,8 +138,9 @@ class FloatWithUnitTest(PymatgenTest):
         form_e = FloatWithUnit(10, unit="kJ mol^-1").to("eV atom^-1")
         assert form_e == approx(0.103642691905)
         assert str(form_e.unit) == "eV atom^-1"
-        with pytest.raises(UnitError):
+        with pytest.raises(UnitError) as exc:
             form_e.to("m s^-1")
+        assert "Units ('mol', -1) and ('m', 1) are not compatible" in str(exc.value)
         a = FloatWithUnit(1.0, "Ha^3")
         b = a.to("J^3")
         assert b == approx(8.28672661615e-53)

@@ -61,7 +61,7 @@ class IStructureTest(PymatgenTest):
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.0, 0, 0.0000001])
-        with pytest.raises(StructureError):
+        with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
             IStructure(self.lattice, ["Si"] * 2, coords, validate_proximity=True)
         self.propertied_structure = IStructure(self.lattice, ["Si"] * 2, coords, site_properties={"magmom": [5, -5]})
 
@@ -313,9 +313,9 @@ class IStructureTest(PymatgenTest):
             assert int_s[0].lattice == s.lattice
         assert_array_equal(int_s[1][1].frac_coords, [0.625, 0.5, 0.625])
 
-        badlattice = [[1, 0.00, 0.00], [0, 1, 0.00], [0.00, 0, 1]]
-        struct2 = IStructure(badlattice, ["Si"] * 2, coords2)
-        with pytest.raises(ValueError):
+        bad_lattice = [[1, 0.00, 0.00], [0, 1, 0.00], [0.00, 0, 1]]
+        struct2 = IStructure(bad_lattice, ["Si"] * 2, coords2)
+        with pytest.raises(ValueError, match="Structures with different lattices"):
             struct.interpolate(struct2)
 
         coords2 = []
@@ -760,48 +760,48 @@ class StructureTest(PymatgenTest):
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
 
     def test_mutable_sequence_methods(self):
-        s = self.structure
-        s[0] = "Fe"
-        assert s.formula == "Fe1 Si1"
-        s[0] = "Fe", [0.5, 0.5, 0.5]
-        assert s.formula == "Fe1 Si1"
-        self.assert_all_close(s[0].frac_coords, [0.5, 0.5, 0.5])
-        s.reverse()
-        assert s[0].specie == Element("Si")
-        self.assert_all_close(s[0].frac_coords, [0.75, 0.5, 0.75])
-        s[0] = {"Mn": 0.5}
-        assert s.formula == "Mn0.5 Fe1"
-        del s[1]
-        assert s.formula == "Mn0.5"
-        s[0] = "Fe", [0.9, 0.9, 0.9], {"magmom": 5}
-        assert s.formula == "Fe1"
-        assert s[0].magmom == 5
+        struct = self.structure
+        struct[0] = "Fe"
+        assert struct.formula == "Fe1 Si1"
+        struct[0] = "Fe", [0.5, 0.5, 0.5]
+        assert struct.formula == "Fe1 Si1"
+        self.assert_all_close(struct[0].frac_coords, [0.5, 0.5, 0.5])
+        struct.reverse()
+        assert struct[0].specie == Element("Si")
+        self.assert_all_close(struct[0].frac_coords, [0.75, 0.5, 0.75])
+        struct[0] = {"Mn": 0.5}
+        assert struct.formula == "Mn0.5 Fe1"
+        del struct[1]
+        assert struct.formula == "Mn0.5"
+        struct[0] = "Fe", [0.9, 0.9, 0.9], {"magmom": 5}
+        assert struct.formula == "Fe1"
+        assert struct[0].magmom == 5
 
         # Test atomic replacement.
-        s["Fe"] = "Mn"
-        assert s.formula == "Mn1"
+        struct["Fe"] = "Mn"
+        assert struct.formula == "Mn1"
 
         # Test slice replacement.
-        s = PymatgenTest.get_structure("Li2O")
-        s[0:2] = "S"
-        assert s.formula == "Li1 S2"
+        struct = PymatgenTest.get_structure("Li2O")
+        struct[0:2] = "S"
+        assert struct.formula == "Li1 S2"
 
     def test_not_hashable(self):
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="unhashable type: 'Structure'"):
             _ = {self.structure: 1}
 
     def test_sort(self):
-        s = self.structure
-        s[0] = "F"
-        s.sort()
-        assert s[0].species_string == "Si"
-        assert s[1].species_string == "F"
-        s.sort(key=lambda site: site.species_string)
-        assert s[0].species_string == "F"
-        assert s[1].species_string == "Si"
-        s.sort(key=lambda site: site.species_string, reverse=True)
-        assert s[0].species_string == "Si"
-        assert s[1].species_string == "F"
+        struct = self.structure
+        struct[0] = "F"
+        struct.sort()
+        assert struct[0].species_string == "Si"
+        assert struct[1].species_string == "F"
+        struct.sort(key=lambda site: site.species_string)
+        assert struct[0].species_string == "F"
+        assert struct[1].species_string == "Si"
+        struct.sort(key=lambda site: site.species_string, reverse=True)
+        assert struct[0].species_string == "Si"
+        assert struct[1].species_string == "F"
 
     def test_append_insert_remove_replace_substitute(self):
         s = self.structure
@@ -853,16 +853,16 @@ class StructureTest(PymatgenTest):
         assert s.formula == "Si1"
 
     def test_add_remove_site_property(self):
-        s = self.structure
-        s.add_site_property("charge", [4.1, -5])
-        assert s[0].charge == 4.1
-        assert s[1].charge == -5
-        s.add_site_property("magmom", [3, 2])
-        assert s[0].charge == 4.1
-        assert s[0].magmom == 3
-        s.remove_site_property("magmom")
-        with pytest.raises(AttributeError):
-            _ = s[0].magmom
+        struct = self.structure
+        struct.add_site_property("charge", [4.1, -5])
+        assert struct[0].charge == 4.1
+        assert struct[1].charge == -5
+        struct.add_site_property("magmom", [3, 2])
+        assert struct[0].charge == 4.1
+        assert struct[0].magmom == 3
+        struct.remove_site_property("magmom")
+        with pytest.raises(AttributeError, match="attr='magmom' not found on PeriodicSite"):
+            _ = struct[0].magmom
 
     def test_propertied_structure(self):
         # Make sure that site properties are set to None for missing values.
@@ -902,7 +902,9 @@ class StructureTest(PymatgenTest):
     def test_add_oxidation_states_by_site(self):
         self.structure.add_oxidation_state_by_site([2, -4])
         assert self.structure[0].specie.oxi_state == 2
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="Oxidation states of all sites must be specified, expected 2 values, got 1"
+        ):
             self.structure.add_oxidation_state_by_site([1])
 
     def test_remove_oxidation_states(self):
@@ -940,7 +942,7 @@ class StructureTest(PymatgenTest):
         assert nio[0].specie.spin == 5, "Failed to add spin states"
 
         nio.remove_spin()
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, match="Element has no attribute spin"):
             _ = nio[0].specie.spin
 
         spins = [5, -5, -5, 5, 0, 0, 0, 0]  # AFM on (001)
@@ -1117,7 +1119,10 @@ class StructureTest(PymatgenTest):
         s = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         assert s.formula == "Cs1 Cl1"
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="Supplied lattice with parameters \\(.+\\) is incompatible with supplied spacegroup Pm-3m",
+        ):
             Structure.from_spacegroup(
                 "Pm-3m",
                 Lattice.tetragonal(1, 3),
@@ -1125,7 +1130,7 @@ class StructureTest(PymatgenTest):
                 [[0, 0, 0], [0.5, 0.5, 0.5]],
             )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Supplied species and coords lengths (1 vs 2) are different"):
             Structure.from_spacegroup(
                 "Pm-3m",
                 Lattice.cubic(3),
@@ -1271,7 +1276,7 @@ class StructureTest(PymatgenTest):
         assert s.formula == "Si1.25 C0.125"
 
     def test_init_error(self):
-        with pytest.raises(StructureError):
+        with pytest.raises(StructureError, match="atomic species and fractional coordinates must have same length"):
             Structure(
                 Lattice.cubic(3),
                 ["Si"],
@@ -1461,7 +1466,7 @@ class StructureTest(PymatgenTest):
             struct = Structure.from_prototype(prototype, ["C"], a=3, c=4)
             assert isinstance(struct, Structure)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Required parameter 'c' not specified as a kwargs"):
             Structure.from_prototype("hcp", ["C"], a=3)
 
         struct = Structure.from_prototype("rocksalt", ["Li", "Cl"], a=2.56)
@@ -1584,7 +1589,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         # C atom should be in center of box.
         self.assert_all_close(s[4].frac_coords, [0.50000001, 0.5, 0.5])
         self.assert_all_close(s[1].frac_coords, [0.6140799, 0.5, 0.45966667])
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Box is not big enough to contain Molecule"):
             self.mol.get_boxed_structure(1, 1, 1)
         s2 = self.mol.get_boxed_structure(5, 5, 5, (2, 3, 4))
         assert len(s2) == 24 * 5
@@ -1594,14 +1599,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         s3 = self.mol.get_boxed_structure(9, 9, 9, offset=[0.5, 0.5, 0.5])
         self.assert_all_close(s3[4].coords, [5, 5, 5])
         # Test no_cross option
-        with pytest.raises(ValueError):
-            self.mol.get_boxed_structure(
-                5,
-                5,
-                5,
-                offset=[10, 10, 10],
-                no_cross=True,
-            )
+        with pytest.raises(ValueError, match="Molecule crosses boundary of box"):
+            self.mol.get_boxed_structure(5, 5, 5, offset=[10, 10, 10], no_cross=True)
 
         # Test reorder option
         no_reorder = self.mol.get_boxed_structure(10, 10, 10, reorder=False)
@@ -1609,7 +1608,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert str(no_reorder[0].specie) == "C"
 
     def test_get_distance(self):
-        assert round(abs(self.mol.get_distance(0, 1) - 1.089), 7) == 0
+        assert self.mol.get_distance(0, 1) == approx(1.089)
 
     def test_get_neighbors(self):
         nn = self.mol.get_neighbors(self.mol[0], 1)
@@ -1667,7 +1666,9 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert self.mol.spin_multiplicity == 1
         assert self.mol.nelectrons == 10
         self.assert_all_close(self.mol.center_of_mass, [0, 0, 0])
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="Charge of 1 and spin multiplicity of 1 is not possible for this molecule"
+        ):
             Molecule(
                 ["C", "H", "H", "H", "H"],
                 self.coords,
@@ -1689,7 +1690,9 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             [1.026719, 0.000000, -0.363000],
             [-0.513360, -0.889165, -0.363000],
         ]
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="Charge of 0 and spin multiplicity of 1 is not possible for this molecule"
+        ):
             mol = IMolecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
         mol = IMolecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
         assert mol.spin_multiplicity == 1
@@ -1784,7 +1787,7 @@ class MoleculeTest(PymatgenTest):
         assert mol.spin_multiplicity == 2
         mol.append("N", [1, 1, 1])
         assert mol.formula == "H3 C1 N1 O1"
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="unhashable type: 'Molecule'"):
             _ = {mol: 1}
         mol.remove_sites([0, 1])
         assert mol.formula == "H3 N1"
@@ -1825,7 +1828,7 @@ class MoleculeTest(PymatgenTest):
         assert self.mol[0].charge == 4.1
         assert self.mol[0].magmom == 3
         self.mol.remove_site_property("magmom")
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, match="attr='magmom' not found on Site"):
             _ = self.mol[0].magmom
 
     def test_to_from_dict(self):
@@ -1912,10 +1915,11 @@ class MoleculeTest(PymatgenTest):
             [1.026719, 0.000000, -0.363000],
             [-0.513360, -0.889165, -0.363000],
         ]
-        with pytest.raises(ValueError):
+        expected_msg = "Charge of 0 and spin multiplicity of 1 is not possible for this molecule"
+        with pytest.raises(ValueError, match=expected_msg):
             mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1)
         mol_valid = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=2)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=expected_msg):
             mol_valid.set_charge_and_spin(0, 1)
         mol = Molecule(["C", "H", "H", "H"], coords, charge=0, spin_multiplicity=1, charge_spin_check=False)
         assert mol.spin_multiplicity == 1

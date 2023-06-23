@@ -76,7 +76,7 @@ class SiteTest(PymatgenTest):
         assert self.disordered_site.coords[0] == 1.25
         assert self.disordered_site.coords[1] == 1.35
 
-        with pytest.raises(ValueError, match="Species occupancies do not add up to 1!"):
+        with pytest.raises(ValueError, match="Species occupancies sum to more than 1"):
             self.disordered_site.species = {"Cu": 0.5, "Gd": 0.6}
 
 

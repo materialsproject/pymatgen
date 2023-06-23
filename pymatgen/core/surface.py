@@ -692,9 +692,9 @@ class Slab(Structure):
                 if slab_copy[i2].frac_coords[2] == slab_copy[i1].frac_coords[2]:
                     continue
                 # Test site remove to see if it results in symmetric slab
-                s = self.copy()
-                s.remove_sites([i1, i2])
-                if s.is_symmetric():
+                slab = self.copy()
+                slab.remove_sites([i1, i2])
+                if slab.is_symmetric():
                     removal_list.extend([i1, i2])
                     break
 

@@ -3297,7 +3297,7 @@ class IMolecule(SiteCollection, MSONable):
                         y_max, y_min = max(new_coords[:, 1]), min(new_coords[:, 1])
                         z_max, z_min = max(new_coords[:, 2]), min(new_coords[:, 2])
                         if x_max > a or x_min < 0 or y_max > b or y_min < 0 or z_max > c or z_min < 0:
-                            raise ValueError("Molecule crosses boundary of box.")
+                            raise ValueError("Molecule crosses boundary of box")
                     if len(all_coords) == 0:
                         break
                     distances = lattice.get_all_distances(
@@ -3313,7 +3313,7 @@ class IMolecule(SiteCollection, MSONable):
                     y_max, y_min = max(new_coords[:, 1]), min(new_coords[:, 1])
                     z_max, z_min = max(new_coords[:, 2]), min(new_coords[:, 2])
                     if x_max > a or x_min < 0 or y_max > b or y_min < 0 or z_max > c or z_min < 0:
-                        raise ValueError("Molecule crosses boundary of box.")
+                        raise ValueError("Molecule crosses boundary of box")
             all_coords.extend(new_coords)
         sprops = {k: v * nimages for k, v in self.site_properties.items()}  # type: ignore
 
@@ -4066,12 +4066,12 @@ class Structure(IStructure, collections.abc.MutableSequence):
                    same factor.
             to_unit_cell: Whether or not to fall back sites into the unit cell
         """
-        s = self * scaling_matrix
+        supercell = self * scaling_matrix
         if to_unit_cell:
-            for site in s:
+            for site in supercell:
                 site.to_unit_cell(in_place=True)
-        self._sites = s.sites
-        self._lattice = s.lattice
+        self._sites = supercell.sites
+        self._lattice = supercell.lattice
 
     def scale_lattice(self, volume: float) -> None:
         """
