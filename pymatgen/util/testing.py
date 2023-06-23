@@ -9,6 +9,7 @@ right away.
 from __future__ import annotations
 
 import json
+import string
 import tempfile
 import unittest
 from pathlib import Path
@@ -74,19 +75,12 @@ class PymatgenTest(unittest.TestCase):
         return assert_allclose(actual, desired, atol=10**-decimal, err_msg=err_msg, verbose=verbose)
 
     @staticmethod
-    def assert_str_content_equal(actual, desired, err_msg="", verbose=True):
+    def assert_str_content_equal(actual, expected):
         """
         Tests if two strings are equal, ignoring things like trailing spaces, etc.
         """
-        lines1 = actual.split("\n")
-        lines2 = desired.split("\n")
-        if len(lines1) != len(lines2):
-            return False
-        failed = []
-        for l1, l2 in zip(lines1, lines2):
-            if l1.strip() != l2.strip():
-                failed.append(f"{l1} != {l2}")
-        return len(failed) == 0
+        strip_whitespace = {ord(c): None for c in string.whitespace}
+        return actual.translate(strip_whitespace) == expected.translate(strip_whitespace)
 
     def serialize_with_pickle(self, objects, protocols=None, test_eq=True):
         """
