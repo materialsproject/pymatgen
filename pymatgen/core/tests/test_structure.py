@@ -1130,7 +1130,7 @@ class StructureTest(PymatgenTest):
                 [[0, 0, 0], [0.5, 0.5, 0.5]],
             )
 
-        with pytest.raises(ValueError, match="Supplied species and coords lengths (1 vs 2) are different"):
+        with pytest.raises(ValueError, match=r"Supplied species and coords lengths \(1 vs 2\) are different"):
             Structure.from_spacegroup(
                 "Pm-3m",
                 Lattice.cubic(3),
