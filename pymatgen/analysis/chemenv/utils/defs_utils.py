@@ -73,7 +73,7 @@ class AdditionalConditions:
         ONLY_ELEMENT_TO_OXYGEN_BONDS: "Only element-oxygen bonds",
     }
 
-    ALL = [NONE, ONLY_ACB, NO_E2SEB, ONLY_ACB_AND_NO_E2SEB, ONLY_E2OB]
+    ALL = (NONE, ONLY_ACB, NO_E2SEB, ONLY_ACB_AND_NO_E2SEB, ONLY_E2OB)
 
     def check_condition(self, condition, structure: Structure, parameters):
         """

@@ -1391,7 +1391,7 @@ class CutOffDictNNTest(PymatgenTest):
         assert nn.get_cn(self.diamond, 0) == 4
 
         # test error thrown on unknown preset
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Unknown preset='test'"):
             CutOffDictNN.from_preset("test")
 
 

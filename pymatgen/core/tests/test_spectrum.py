@@ -33,7 +33,7 @@ class SpectrumTest(PymatgenTest):
     def test_operators(self):
         scaled_spect = 3 * self.spec1 + self.spec2
         assert np.allclose(scaled_spect.y, 3 * self.spec1.y + self.spec2.y)
-        assert round(abs(self.spec1.get_interpolated_value(0.05) - (self.spec1.y[0] + self.spec1.y[1]) / 2), 7) == 0
+        assert self.spec1.get_interpolated_value(0.05) == approx((self.spec1.y[0] + self.spec1.y[1]) / 2)
 
         scaled_spect = self.spec1 - self.spec2
         assert np.allclose(scaled_spect.y, self.spec1.y - self.spec2.y)
@@ -56,7 +56,7 @@ class SpectrumTest(PymatgenTest):
         spec = Spectrum(np.linspace(-10, 10, 100), y)
         spec.smear(0.3)
         assert not np.allclose(y, spec.y)
-        assert round(abs(sum(y) - sum(spec.y)), 7) == 0
+        assert sum(y) == approx(sum(spec.y))
 
         # Test direct callable use of smearing.
         spec2 = Spectrum(np.linspace(-10, 10, 100), y)
@@ -66,7 +66,7 @@ class SpectrumTest(PymatgenTest):
         spec = Spectrum(np.linspace(-10, 10, 100), y)
         spec.smear(0.3, func="lorentzian")
         assert not np.allclose(y, spec.y)
-        assert round(abs(sum(y) - sum(spec.y)), 7) == 0
+        assert sum(y) == approx(sum(spec.y))
 
         y = np.array(self.multi_spec1.y)
         self.multi_spec1.smear(0.2)

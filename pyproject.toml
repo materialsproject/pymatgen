@@ -65,7 +65,6 @@ ignore = [
   "D212",    # Multi-line docstring summary should start at the first line
   "PD901",   # pandas-df-variable-name
   "PLC0414", # useless-import-alias
-  "PLC1901", # compare-to-empty-string
   "PLR",     # pylint refactor
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT011",   # pytest-raises-too-broad

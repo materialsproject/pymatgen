@@ -4236,7 +4236,7 @@ class CutOffDictNN(NearNeighbors):
             cut_offs = loadfn(os.path.join(_directory, "vesta_cutoffs.yaml"))
             return CutOffDictNN(cut_off_dict=cut_offs)
 
-        raise ValueError(f"Unrecognised preset: {preset}")
+        raise ValueError(f"Unknown {preset=}")
 
     def get_nn_info(self, structure: Structure, n: int):
         """

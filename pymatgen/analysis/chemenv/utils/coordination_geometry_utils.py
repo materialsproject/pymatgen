@@ -574,7 +574,7 @@ class Plane:
     Class used to describe a plane
     """
 
-    TEST_2D_POINTS = [
+    TEST_2D_POINTS = (
         np.array([0, 0], np.float_),
         np.array([1, 0], np.float_),
         np.array([0, 1], np.float_),
@@ -596,7 +596,7 @@ class Plane:
         np.array([2, -1], np.float_),
         np.array([-2, 1], np.float_),
         np.array([-2, -1], np.float_),
-    ]
+    )
 
     def __init__(self, coefficients, p1=None, p2=None, p3=None):
         """

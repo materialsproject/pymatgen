@@ -888,26 +888,26 @@ class PawAbinitHeader(AbinitHeader):
 
     _attr_desc = namedtuple("_attr_desc", "default astype")
 
-    _VARS = {
-        "zatom": _attr_desc(None, _int_from_str),
-        "zion": _attr_desc(None, float),
-        "pspdat": _attr_desc(None, float),
-        "pspcod": _attr_desc(None, int),
-        "pspxc": _attr_desc(None, int),
-        "lmax": _attr_desc(None, int),
-        "lloc": _attr_desc(None, int),
-        "mmax": _attr_desc(None, int),
-        "r2well": _attr_desc(None, float),
-        "pspfmt": _attr_desc(None, str),
-        "creatorID": _attr_desc(None, int),
-        "basis_size": _attr_desc(None, int),
-        "lmn_size": _attr_desc(None, int),
-        "orbitals": _attr_desc(None, list),
-        "number_of_meshes": _attr_desc(None, int),
-        "r_cut": _attr_desc(None, float),  # r_cut(PAW) in the header
-        "shape_type": _attr_desc(None, int),
-        "rshape": _attr_desc(None, float),
-    }
+    _VARS = frozendict(
+        zatom=_attr_desc(None, _int_from_str),
+        zion=_attr_desc(None, float),
+        pspdat=_attr_desc(None, float),
+        pspcod=_attr_desc(None, int),
+        pspxc=_attr_desc(None, int),
+        lmax=_attr_desc(None, int),
+        lloc=_attr_desc(None, int),
+        mmax=_attr_desc(None, int),
+        r2well=_attr_desc(None, float),
+        pspfmt=_attr_desc(None, str),
+        creatorID=_attr_desc(None, int),
+        basis_size=_attr_desc(None, int),
+        lmn_size=_attr_desc(None, int),
+        orbitals=_attr_desc(None, list),
+        number_of_meshes=_attr_desc(None, int),
+        r_cut=_attr_desc(None, float),  # r_cut(PAW) in the header
+        shape_type=_attr_desc(None, int),
+        rshape=_attr_desc(None, float),
+    )
     del _attr_desc
 
     def __init__(self, summary, **kwargs):

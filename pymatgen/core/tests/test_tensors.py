@@ -341,12 +341,12 @@ class TensorTest(PymatgenTest):
         indices = [(0, 0), (0, 1), (3, 3)]
         values = [259.31, 160.71, 73.48]
         et = Tensor.from_values_indices(values, indices, structure=sn, populate=True).voigt.round(4)
-        assert round(abs(et[1, 1] - 259.31), 7) == 0
-        assert round(abs(et[2, 2] - 259.31), 7) == 0
-        assert round(abs(et[0, 2] - 160.71), 7) == 0
-        assert round(abs(et[1, 2] - 160.71), 7) == 0
-        assert round(abs(et[4, 4] - 73.48), 7) == 0
-        assert round(abs(et[5, 5] - 73.48), 7) == 0
+        assert et[1, 1] == approx(259.31)
+        assert et[2, 2] == approx(259.31)
+        assert et[0, 2] == approx(160.71)
+        assert et[1, 2] == approx(160.71)
+        assert et[4, 4] == approx(73.48)
+        assert et[5, 5] == approx(73.48)
 
     def test_serialization(self):
         # Test base serialize-deserialize
@@ -359,8 +359,8 @@ class TensorTest(PymatgenTest):
         self.assert_all_close(new, self.symm_rank3)
 
     def test_projection_methods(self):
-        assert round(abs(self.rand_rank2.project([1, 0, 0]) - self.rand_rank2[0, 0]), 7) == 0
-        assert round(abs(self.rand_rank2.project([1, 1, 1]) - np.sum(self.rand_rank2) / 3), 7) == 0
+        assert self.rand_rank2.project([1, 0, 0]) == approx(self.rand_rank2[0, 0])
+        assert self.rand_rank2.project([1, 1, 1]) == approx(np.sum(self.rand_rank2) / 3)
         # Test integration
         self.assert_all_close(self.ones.average_over_unit_sphere(), 1)
 

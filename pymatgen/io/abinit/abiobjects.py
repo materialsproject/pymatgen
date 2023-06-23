@@ -13,6 +13,7 @@ from pprint import pformat
 from typing import Iterable, cast
 
 import numpy as np
+from frozendict import frozendict
 from monty.collections import AttrDict
 from monty.design_patterns import singleton
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -1322,10 +1323,10 @@ class Screening(AbivarAble):
     """
 
     # Approximations used for W
-    _WTYPES = {"RPA": 0}
+    _WTYPES = frozendict(RPA=0)
 
     # Self-consistecy modes
-    _SC_MODES = {"one_shot": 0, "energy_only": 1, "wavefunctions": 2}
+    _SC_MODES = frozendict(one_shot=0, energy_only=1, wavefunctions=2)
 
     def __init__(
         self,
@@ -1411,20 +1412,20 @@ class SelfEnergy(AbivarAble):
     This object defines the parameters used for the computation of the self-energy.
     """
 
-    _SIGMA_TYPES = {
-        "gw": 0,
-        "hartree_fock": 5,
-        "sex": 6,
-        "cohsex": 7,
-        "model_gw_ppm": 8,
-        "model_gw_cd": 9,
-    }
+    _SIGMA_TYPES = frozendict(
+        gw=0,
+        hartree_fock=5,
+        sex=6,
+        cohsex=7,
+        model_gw_ppm=8,
+        model_gw_cd=9,
+    )
 
-    _SC_MODES = {
-        "one_shot": 0,
-        "energy_only": 1,
-        "wavefunctions": 2,
-    }
+    _SC_MODES = frozendict(
+        one_shot=0,
+        energy_only=1,
+        wavefunctions=2,
+    )
 
     def __init__(
         self,
@@ -1545,14 +1546,14 @@ class ExcHamiltonian(AbivarAble):
     """This object contains the parameters for the solution of the Bethe-Salpeter equation."""
 
     # Types of excitonic Hamiltonian.
-    _EXC_TYPES = {
-        "TDA": 0,  # Tamm-Dancoff approximation.
-        "coupling": 1,  # Calculation with coupling.
-    }
+    _EXC_TYPES = frozendict(
+        TDA=0,  # Tamm-Dancoff approximation.
+        coupling=1,  # Calculation with coupling.
+    )
 
     # Algorithms used to compute the macroscopic dielectric function
     # and/or the exciton wavefunctions.
-    _ALGO2VAR = {"direct_diago": 1, "haydock": 2, "cg": 3}
+    _ALGO2VAR = frozendict(direct_diago=1, haydock=2, cg=3)
 
     # Options specifying the treatment of the Coulomb term.
     _COULOMB_MODES = ("diago", "full", "model_df")

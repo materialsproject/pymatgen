@@ -487,7 +487,7 @@ class GeneticOrderMatcherTest(unittest.TestCase):
         mol2 = Molecule.from_file(os.path.join(test_dir, "t2.xyz"))
         mm = GeneticOrderMatcher(mol1, threshold=0.3)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
             _, rmsd = mm.fit(mol2)[0]
 
     def test_fit(self):
@@ -560,7 +560,7 @@ class KabschMatcherSiTest(unittest.TestCase):
         mm = KabschMatcher.from_dict(d)
         assert d == mm.as_dict()
 
-    def test_missmatched_atoms(self):
+    def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
         with pytest.raises(ValueError):
             _, rmsd = self.mm.fit(mol2)
@@ -597,8 +597,10 @@ class BruteForceOrderMatcherSiTest(unittest.TestCase):
     def test_random_match(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_2.xyz"))
 
-        # ValueError: The number of all possible permuataions (20922789888000) is not feasible to run this method!
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="The number of all possible permutations \\(20922789888000\\) is not feasible to run this method",
+        ):
             _, rmsd = self.mm.fit(mol2)
 
 
@@ -613,7 +615,7 @@ class HungarianOrderMatcherSiTest(unittest.TestCase):
         mm = HungarianOrderMatcher.from_dict(d)
         assert d == mm.as_dict()
 
-    def test_missmatched_atoms(self):
+    def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))
         with pytest.raises(ValueError):
             _, rmsd = self.mm.fit(mol2)
@@ -652,9 +654,9 @@ class GeneticOrderMatcherSiTest(unittest.TestCase):
         mm = GeneticOrderMatcher.from_dict(d)
         assert d == mm.as_dict()
 
-    def test_missmatched_atoms(self):
+    def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The number of atoms is not the same"):
             self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
@@ -684,7 +686,7 @@ class KabschMatcherSi2OTest(unittest.TestCase):
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
         cls.mm = KabschMatcher(cls.mol1)
 
-    def test_missmatched_atoms(self):
+    def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
         with pytest.raises(ValueError):
             _, rmsd = self.mm.fit(mol2)
@@ -713,7 +715,7 @@ class BruteForceOrderMatcherSi2OTest(unittest.TestCase):
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
         cls.mm = BruteForceOrderMatcher(cls.mol1)
 
-    def test_missmatched_atoms(self):
+    def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
         with pytest.raises(ValueError):
             _, rmsd = self.mm.fit(mol2)
@@ -745,7 +747,7 @@ class HungarianOrderMatcherSi2OTest(unittest.TestCase):
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
         cls.mm = HungarianOrderMatcher(cls.mol1)
 
-    def test_missmatched_atoms(self):
+    def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
         with pytest.raises(ValueError):
             _, rmsd = self.mm.fit(mol2)
@@ -777,7 +779,7 @@ class GeneticOrderMatcherSi2OTest(unittest.TestCase):
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
         cls.mm = GeneticOrderMatcher(cls.mol1, threshold=0.3)
 
-    def test_missmatched_atoms(self):
+    def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster.xyz"))
         with pytest.raises(ValueError):
             self.mm.fit(mol2)

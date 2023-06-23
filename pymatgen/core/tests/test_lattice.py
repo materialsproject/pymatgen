@@ -151,7 +151,7 @@ class LatticeTestCase(PymatgenTest):
         assert lattice.a == 10.0
         assert lattice.b == 10.0
         assert lattice.c == 10.0
-        assert round(abs(lattice.volume - 1000.0), 7) == 0
+        assert lattice.volume == 1000.0
         xyz = lattice.get_cartesian_coords([0.25, 0.35, 0.45])
         assert xyz[0] == 2.5
         assert xyz[1] == 3.5
@@ -304,7 +304,7 @@ class LatticeTestCase(PymatgenTest):
         new_volume = 10
         for lattice in self.families.values():
             new_lattice = lattice.scale(new_volume)
-            assert round(abs(new_lattice.volume - new_volume), 7) == 0
+            assert new_lattice.volume == approx(new_volume)
             self.assert_all_close(new_lattice.angles, lattice.angles)
 
     def test_get_wigner_seitz_cell(self):
@@ -419,7 +419,7 @@ class LatticeTestCase(PymatgenTest):
 
     def test_get_distance_and_image(self):
         dist, image = self.cubic.get_distance_and_image([0, 0, 0.1], [0, 0.0, 0.9])
-        assert round(abs(dist - 2), 7) == 0
+        assert dist == approx(2)
         self.assert_all_close(image, [0, 0, -1])
 
     def test_get_distance_and_image_strict(self):
