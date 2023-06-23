@@ -113,21 +113,16 @@ class IStructureTest(PymatgenTest):
         assert struct != struct_2
 
     def test_matches(self):
-        ss = self.struct * 2
-        assert ss.matches(self.struct)
+        supercell = self.struct * 2
+        assert supercell.matches(self.struct)
 
     def test_bad_structure(self):
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         coords.append([0.75, 0.5, 0.75])
-        with pytest.raises(StructureError):
-            IStructure(
-                self.lattice,
-                ["Si"] * 3,
-                coords,
-                validate_proximity=True,
-            )
+        with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
+            IStructure(self.lattice, ["Si"] * 3, coords, validate_proximity=True)
         # these shouldn't raise an error
         IStructure(self.lattice, ["Si"] * 2, coords[:2], True)
         IStructure(self.lattice, ["Si"], coords[:1], True)
@@ -327,7 +322,7 @@ class IStructureTest(PymatgenTest):
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
         struct2 = IStructure(self.struct.lattice, ["Si", "Fe"], coords2)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Different species"):
             struct.interpolate(struct2)
 
         # Test autosort feature.
@@ -730,9 +725,9 @@ Direct
         struct = Structure.from_file("Si_testing.yml")
         assert struct == self.struct
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Format not specified and could not infer from filename='whatever'"):
             self.struct.to(filename="whatever")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Invalid format='badformat'"):
             self.struct.to(fmt="badformat")
 
         self.struct.to(filename="POSCAR.testing.gz")

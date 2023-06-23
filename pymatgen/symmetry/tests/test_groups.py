@@ -187,7 +187,7 @@ class SpaceGroupTest(unittest.TestCase):
         sg = SpaceGroup("Pbnm")
         assert sg.int_number == 62
         assert sg.order == 8
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Bad international symbol 'hello'"):
             SpaceGroup("hello")
 
     def test_subgroup_supergroup(self):

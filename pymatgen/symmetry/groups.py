@@ -258,7 +258,7 @@ class SpaceGroup(SymmetryGroup):
                 break
         else:
             if int_symbol not in SpaceGroup.sgencoding:
-                raise ValueError(f"Bad international symbol {int_symbol}")
+                raise ValueError(f"Bad international symbol {int_symbol!r}")
 
             data = SpaceGroup.sgencoding[int_symbol]
 

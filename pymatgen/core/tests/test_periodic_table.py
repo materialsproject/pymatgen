@@ -16,12 +16,12 @@ from pymatgen.util.testing import PymatgenTest
 
 class ElementTestCase(PymatgenTest):
     def test_init(self):
-        assert Element("Fe").symbol == "Fe", "Fe test failed"
+        assert Element("Fe").symbol == "Fe"
 
         fictional_symbols = ["D", "T", "Zebra"]
 
         for sym in fictional_symbols:
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError, match=f"{sym!r} is not a valid Element"):
                 Element(sym)
 
         # Test caching
@@ -44,7 +44,7 @@ class ElementTestCase(PymatgenTest):
         assert fe == Element.from_dict(d)
 
     def test_block(self):
-        testsets = {
+        cases = {
             "O": "p",
             "Fe": "d",
             "Li": "s",
@@ -53,11 +53,11 @@ class ElementTestCase(PymatgenTest):
             "Lu": "d",
             "Lr": "d",
         }
-        for k, v in testsets.items():
-            assert Element(k).block == v
+        for key, val in cases.items():
+            assert Element(key).block == val
 
     def test_full_electronic_structure(self):
-        testsets = {
+        cases = {
             "O": [(1, "s", 2), (2, "s", 2), (2, "p", 4)],
             "Fe": [
                 (1, "s", 2),
@@ -90,13 +90,13 @@ class ElementTestCase(PymatgenTest):
                 (7, "s", 2),
             ],
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert Element(k).full_electronic_structure == v
 
         assert Element.Ac.electronic_structure == "[Rn].6d1.7s2"
 
     def test_group(self):
-        testsets = {
+        cases = {
             "H": 1,
             "He": 18,
             "Li": 1,
@@ -109,11 +109,11 @@ class ElementTestCase(PymatgenTest):
             "Lr": 3,
             "Og": 18,
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert Element(k).group == v
 
     def test_row(self):
-        testsets = {
+        cases = {
             "H": 1,
             "He": 1,
             "Li": 2,
@@ -126,11 +126,11 @@ class ElementTestCase(PymatgenTest):
             "Lr": 7,
             "Og": 7,
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert Element(k).row == v
 
     def test_from_name(self):
-        testsets = {
+        cases = {
             "H": "hydrogen",
             "He": "Helium",
             "Li": "lithium",
@@ -140,11 +140,11 @@ class ElementTestCase(PymatgenTest):
             "Ce": "Cerium",
             "U": "Uranium",
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert ElementBase.from_name(v) == Element(k)
 
     def test_from_row_and_group(self):
-        testsets = {
+        cases = {
             "H": (1, 1),
             "He": (1, 18),
             "Li": (2, 1),
@@ -157,12 +157,12 @@ class ElementTestCase(PymatgenTest):
             "Lr": (9, 17),
             "Og": (7, 18),
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert ElementBase.from_row_and_group(v[0], v[1]) == Element(k)
 
     def test_valence(self):
-        testsets = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}
-        for k, v in testsets.items():
+        cases = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}
+        for k, v in cases.items():
             assert Element(k).valence == v
 
         with pytest.raises(ValueError, match="U has ambiguous valence"):
@@ -173,7 +173,7 @@ class ElementTestCase(PymatgenTest):
         assert valence[1] == 0
 
     def test_term_symbols(self):
-        testsets = {
+        cases = {
             "Li": [["2S0.5"]],  # s1
             "C": [["1D2.0"], ["3P0.0", "3P1.0", "3P2.0"], ["1S0.0"]],  # p2
             "Ti": [
@@ -203,18 +203,18 @@ class ElementTestCase(PymatgenTest):
                 ["4S1.5"],
             ],  # f3
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert Element(k).term_symbols == v
 
     def test_ground_state_term_symbol(self):
-        testsets = {
+        cases = {
             "Li": "2S0.5",  # s1
             "C": "3P0.0",  # p2
             "O": "3P2.0",  # p4
             "Ti": "3F2.0",  # d2
             "Pr": "4I4.5",
         }  # f3
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert Element(k).ground_state_term_symbol == v
 
     def test_attributes(self):
@@ -296,7 +296,7 @@ class ElementTestCase(PymatgenTest):
             if el.symbol not in ["He", "Ne", "Ar"]:
                 assert el.X > 0, f"No electroneg for {el}"
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Unexpected atomic number Z=1000"):
             Element.from_Z(1000)
 
     def test_ie_ea(self):
@@ -430,7 +430,7 @@ class SpeciesTestCase(PymatgenTest):
         assert Species("Li").get_nmr_quadrupole_moment() == -0.808
         assert Species("Li").get_nmr_quadrupole_moment("Li-7") == -40.1
         assert Species("Si").get_nmr_quadrupole_moment() == 0.0
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="No quadrupole moment for isotope='Li-109'"):
             Species("Li").get_nmr_quadrupole_moment("Li-109")
 
     def test_get_shannon_radius(self):
@@ -507,11 +507,11 @@ def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
 class DummySpeciesTestCase(unittest.TestCase):
     def test_init(self):
         self.specie1 = DummySpecies("X")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Xe contains Xe, which is a valid element symbol"):
             DummySpecies("Xe")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Xec contains Xe, which is a valid element symbol"):
             DummySpecies("Xec")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Vac contains V, which is a valid element symbol"):
             DummySpecies("Vac")
         self.specie2 = DummySpecies("X", 2, {"spin": 3})
         assert self.specie2.spin == 3

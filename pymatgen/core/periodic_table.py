@@ -1049,13 +1049,13 @@ class Species(MSONable, Stringify):
             if key not in Species.supported_properties:
                 raise ValueError(f"{key} is not a supported property")
 
-    def __getattr__(self, a):
+    def __getattr__(self, attr):
         # overriding getattr doesn't play nice with pickle, so we
         # can't use self._properties
         props = object.__getattribute__(self, "_properties")
-        if a in props:
-            return props[a]
-        return getattr(self._el, a)
+        if attr in props:
+            return props[attr]
+        return getattr(self._el, attr)
 
     def __eq__(self, other: object) -> bool:
         """Species is equal to other only if element and oxidation states are exactly the same."""
@@ -1366,7 +1366,7 @@ class DummySpecies(Species):
 
         for idx in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:idx]):
-                raise ValueError(f"{symbol} contains {symbol[:idx]}, which is a valid element symbol.")
+                raise ValueError(f"{symbol} contains {symbol[:idx]}, which is a valid element symbol")
 
         # Set required attributes for DummySpecies to function like a Species in
         # most instances.
@@ -1376,13 +1376,12 @@ class DummySpecies(Species):
         if invalid := set(self._properties) - set(Species.supported_properties):
             raise ValueError(f"Invalid properties: {invalid}")
 
-    def __getattr__(self, a):
-        # overriding getattr doesn't play nice with pickle, so we
-        # can't use self._properties
-        p = object.__getattribute__(self, "_properties")
-        if a in p:
-            return p[a]
-        raise AttributeError(a)
+    def __getattr__(self, attr):
+        # overriding getattr doesn't play nice with pickle, so we can't use self._properties
+        props = object.__getattribute__(self, "_properties")
+        if attr in props:
+            return props[attr]
+        raise AttributeError(attr)
 
     def __lt__(self, other):
         """

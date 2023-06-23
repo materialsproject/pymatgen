@@ -48,7 +48,7 @@ class FuncTestCase(unittest.TestCase):
         for v, val in enumerate(vals):
             for s, sig in enumerate(sigfigs):
                 assert round_to_sigfigs(val, sig) == rounded_vals[v][s]
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Number of significant figures must be positive"):
             round_to_sigfigs(3.5, -2)
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="Number of significant figures must be integer"):
             round_to_sigfigs(3.5, 3.5)

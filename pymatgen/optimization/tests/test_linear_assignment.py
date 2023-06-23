@@ -92,25 +92,14 @@ class LinearAssignmentTest(unittest.TestCase):
                 [42, 17, 60, 73, 37, 36, 79, 3, 60, 82],
                 [14, 57, 23, 69, 93, 78, 56, 49, 83, 36],
                 [11, 37, 24, 70, 62, 35, 64, 18, 99, 20],
-                [
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                ],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             ]
         )
         la1 = LinearAssignment(w1)
         assert len(la1.solution) == 10
         assert la0.min_cost == la1.min_cost
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="cost matrix must have at least as many columns as rows"):
             LinearAssignment(w0.T)
 
     def another_test_case(self):

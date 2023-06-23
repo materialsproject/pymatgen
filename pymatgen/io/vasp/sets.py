@@ -2772,7 +2772,7 @@ class LobsterSet(MPRelaxSet):
         warnings.warn("Make sure that all parameters are okay! This is a brand new implementation.")
 
         if isym not in (-1, 0):
-            raise ValueError("Lobster cannot digest WAVEFUNCTIONS with symmetry")
+            raise ValueError("Lobster cannot digest WAVEFUNCTIONS with symmetry. isym must be -1 or 0")
         if ismear not in (-5, 0):
             raise ValueError("Lobster usually works with ismear=-5 or ismear=0")
 

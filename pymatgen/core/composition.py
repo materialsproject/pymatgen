@@ -292,7 +292,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns a formula string, with elements sorted by alphabetically
         e.g., Fe4 Li4 O16 P4.
         """
-        return " ".join(sorted(self.formula.split(" ")))
+        return " ".join(sorted(self.formula.split()))
 
     @property
     def iupac_formula(self) -> str:

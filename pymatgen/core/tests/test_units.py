@@ -245,7 +245,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         for obj in objects_without_unit:
             assert not hasattr(obj, "unit")
 
-        with pytest.raises(UnitError):
+        with pytest.raises(UnitError, match="Adding different types of units is not allowed"):
             ene_ha + time_s
 
     def test_factors(self):

@@ -102,21 +102,21 @@ def monotonic(values, mode="<", atol=1.0e-8):
     raise ValueError(f"Wrong {mode=}")
 
 
-def round_to_sigfigs(num, sigfigs):
+def round_to_sigfigs(num, sig_figs):
     """
     Rounds a number rounded to a specific number of significant
     figures instead of to a specific precision.
     """
-    if not isinstance(sigfigs, int):
-        raise TypeError("Number of significant figures must be integer.")
+    if not isinstance(sig_figs, int):
+        raise TypeError("Number of significant figures must be integer")
 
-    if sigfigs < 1:
-        raise ValueError("Number of significant figures must be larger than zero.")
+    if sig_figs < 1:
+        raise ValueError("Number of significant figures must be positive")
 
     if num == 0:
         return num
 
-    prec = int(sigfigs - np.ceil(np.log10(np.absolute(num))))
+    prec = int(sig_figs - np.ceil(np.log10(np.absolute(num))))
     return round(num, prec)
 
 

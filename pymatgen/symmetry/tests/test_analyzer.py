@@ -36,10 +36,10 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.structure4 = graphite
 
     def test_primitive(self):
-        s = Structure.from_spacegroup("Fm-3m", np.eye(3) * 3, ["Cu"], [[0, 0, 0]])
-        a = SpacegroupAnalyzer(s)
-        assert len(s) == 4
-        assert len(a.find_primitive()) == 1
+        struct = Structure.from_spacegroup("Fm-3m", np.eye(3) * 3, ["Cu"], [[0, 0, 0]])
+        spga = SpacegroupAnalyzer(struct)
+        assert len(struct) == 4
+        assert len(spga.find_primitive()) == 1
 
     def test_is_laue(self):
         struct = Structure.from_spacegroup("Fm-3m", np.eye(3) * 3, ["Cu"], [[0, 0, 0]])
@@ -655,32 +655,34 @@ class PointGroupAnalyzerTest(PymatgenTest):
     def test_get_kpoint_weights(self):
         for name in ["SrTiO3", "LiFePO4", "Graphite"]:
             s = PymatgenTest.get_structure(name)
-            a = SpacegroupAnalyzer(s)
-            ir_mesh = a.get_ir_reciprocal_mesh((4, 4, 4))
+            spga = SpacegroupAnalyzer(s)
+            ir_mesh = spga.get_ir_reciprocal_mesh((4, 4, 4))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for i, w in zip(weights, a.get_kpoint_weights([i[0] for i in ir_mesh])):
+            for i, w in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
                 assert i == approx(w)
 
         for name in ["SrTiO3", "LiFePO4", "Graphite"]:
             s = PymatgenTest.get_structure(name)
-            a = SpacegroupAnalyzer(s)
-            ir_mesh = a.get_ir_reciprocal_mesh((1, 2, 3))
+            spga = SpacegroupAnalyzer(s)
+            ir_mesh = spga.get_ir_reciprocal_mesh((1, 2, 3))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for i, w in zip(weights, a.get_kpoint_weights([i[0] for i in ir_mesh])):
+            for i, w in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
                 assert i == approx(w)
 
         v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml"))
-        a = SpacegroupAnalyzer(v.final_structure)
-        wts = a.get_kpoint_weights(v.actual_kpoints)
+        spga = SpacegroupAnalyzer(v.final_structure)
+        wts = spga.get_kpoint_weights(v.actual_kpoints)
 
         for w1, w2 in zip(v.actual_kpoints_weights, wts):
             assert w1 == approx(w2)
 
         kpts = [[0, 0, 0], [0.15, 0.15, 0.15], [0.2, 0.2, 0.2]]
-        with pytest.raises(ValueError):
-            a.get_kpoint_weights(kpts)
+        with pytest.raises(
+            ValueError, match="Unable to find 1:1 corresponding between input kpoints and irreducible grid"
+        ):
+            spga.get_kpoint_weights(kpts)
 
 
 class FuncTest(unittest.TestCase):

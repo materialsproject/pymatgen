@@ -1716,10 +1716,9 @@ class LobsterSetTest(PymatgenTest):
         self.lobsterset1 = LobsterSet(self.struct, isym=-1, ismear=-5)
         self.lobsterset2 = LobsterSet(self.struct, isym=0, ismear=0)
         # only allow isym=-1 and isym=0
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Lobster cannot digest WAVEFUNCTIONS with symmetry. isym must be -1 or 0"):
             self.lobsterset_new = LobsterSet(self.struct, isym=2, ismear=0)
-        # only allow ismear=-5 and ismear=0
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Lobster usually works with ismear=-5 or ismear=0"):
             self.lobsterset_new = LobsterSet(self.struct, isym=-1, ismear=2)
         # test if one can still hand over grid density of kpoints
         self.lobsterset3 = LobsterSet(self.struct, isym=0, ismear=0, user_kpoints_settings={"grid_density": 6000})
@@ -1730,7 +1729,7 @@ class LobsterSetTest(PymatgenTest):
             self.struct,
             user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s", "O": "2p 2s"},
         )
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="There are no basis functions for the atom type O"):
             self.lobsterset6 = LobsterSet(self.struct, user_supplied_basis={"Fe": "3d 3p 4s", "P": "3p 3s"})
         self.lobsterset7 = LobsterSet(
             self.struct,
@@ -1759,11 +1758,11 @@ class LobsterSetTest(PymatgenTest):
 
     def test_kpoints(self):
         kpoints1 = self.lobsterset1.kpoints
-        assert kpoints1.comment.split(" ")[6], 6138
+        assert kpoints1.comment.split()[6], 6138
         kpoints2 = self.lobsterset2.kpoints
-        assert kpoints2.comment.split(" ")[6], 6138
+        assert kpoints2.comment.split()[6], 6138
         kpoints3 = self.lobsterset3.kpoints
-        assert kpoints3.comment.split(" ")[6], 6000
+        assert kpoints3.comment.split()[6], 6000
 
     @skip_if_no_psp_dir
     def test_potcar(self):
@@ -1784,7 +1783,7 @@ class LobsterSetTest(PymatgenTest):
         assert incar1["ISYM"] == -1
         assert incar1["ALGO"] == "Normal"
         kpoints1 = lobsterset_new.kpoints
-        assert kpoints1.comment.split(" ")[6], 6138
+        assert kpoints1.comment.split()[6], 6138
         assert lobsterset_new.user_potcar_functional == "PBE_54"
 
 

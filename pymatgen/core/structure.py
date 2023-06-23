@@ -1217,8 +1217,8 @@ class IStructure(SiteCollection, MSONable):
         # Import within method needed to avoid cyclic dependency.
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-        a = SpacegroupAnalyzer(self, symprec=symprec, angle_tolerance=angle_tolerance)
-        return a.get_space_group_symbol(), a.get_space_group_number()
+        spga = SpacegroupAnalyzer(self, symprec=symprec, angle_tolerance=angle_tolerance)
+        return spga.get_space_group_symbol(), spga.get_space_group_number()
 
     def matches(self, other: IStructure | Structure, anonymous: bool = False, **kwargs) -> bool:
         """
@@ -2673,7 +2673,9 @@ class IStructure(SiteCollection, MSONable):
                 return None
             return s
         else:
-            raise ValueError(f"Invalid format: `{fmt}`")
+            if fmt == "":
+                raise ValueError(f"Format not specified and could not infer from {filename=}")
+            raise ValueError(f"Invalid format={fmt!r}")
 
         if filename:
             writer.write_file(filename)

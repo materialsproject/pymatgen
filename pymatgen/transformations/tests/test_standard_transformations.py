@@ -383,7 +383,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
             ]
         )
         struct = Structure(lattice, [{"X4+": 0.33, "O2-": 0.33, "P5+": 0.33}], coords)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Occupancy fractions not consistent with size of unit cell"):
             t.apply_transformation(struct)
 
     def test_best_first(self):
@@ -564,7 +564,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
         }
 
         dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.05, fix_denominator=True)
-        with pytest.raises(RuntimeError):
+        with pytest.raises(RuntimeError, match="Cannot discretize structure within tolerance"):
             dot.apply_transformation(s_orig_2)
 
 

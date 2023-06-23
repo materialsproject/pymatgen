@@ -29,7 +29,7 @@ class SiteTest(PymatgenTest):
     def test_properties(self):
         assert not self.disordered_site.is_ordered
         # TODO (janosh): this doesn't raise the expected error (match="specie property only works for ordered sites")
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, match="attr='specie' not found on Site"):
             _ = self.disordered_site.specie
         assert isinstance(self.ordered_site.specie, Element)
         assert self.propertied_site.properties["magmom"] == 5.1
@@ -76,11 +76,8 @@ class SiteTest(PymatgenTest):
         assert self.disordered_site.coords[0] == 1.25
         assert self.disordered_site.coords[1] == 1.35
 
-        def set_bad_species():
+        with pytest.raises(ValueError, match="Species occupancies do not add up to 1!"):
             self.disordered_site.species = {"Cu": 0.5, "Gd": 0.6}
-
-        with pytest.raises(ValueError):
-            set_bad_species()
 
 
 class PeriodicSiteTest(PymatgenTest):
@@ -204,11 +201,8 @@ class PeriodicSiteTest(PymatgenTest):
         site.lattice = Lattice.cubic(100)
         assert site.x == 12.5
 
-        def set_bad_species():
+        with pytest.raises(ValueError, match="Species occupancies sum to more than 1"):
             site.species = {"Cu": 0.5, "Gd": 0.6}
-
-        with pytest.raises(ValueError):
-            set_bad_species()
 
         site.frac_coords = [0, 0, 0.1]
         self.assert_all_close(site.coords, [0, 0, 10])

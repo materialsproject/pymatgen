@@ -214,16 +214,16 @@ class Slab(Structure):
         sites = list(self.sites)
         slabs = []
 
-        sortedcsites = sorted(sites, key=lambda site: site.c)
+        sorted_csites = sorted(sites, key=lambda site: site.c)
 
         # Determine what fraction the slab is of the total cell size in the
         # c direction. Round to nearest rational number.
-        nlayers_total = int(round(self.lattice.c / self.oriented_unit_cell.lattice.c))
-        nlayers_slab = int(round((sortedcsites[-1].c - sortedcsites[0].c) * nlayers_total))
-        slab_ratio = nlayers_slab / nlayers_total
+        n_layers_total = int(round(self.lattice.c / self.oriented_unit_cell.lattice.c))
+        n_layers_slab = int(round((sorted_csites[-1].c - sorted_csites[0].c) * n_layers_total))
+        slab_ratio = n_layers_slab / n_layers_total
 
-        a = SpacegroupAnalyzer(self)
-        symm_structure = a.get_symmetrized_structure()
+        spga = SpacegroupAnalyzer(self)
+        symm_structure = spga.get_symmetrized_structure()
 
         def equi_index(site):
             for i, equi_sites in enumerate(symm_structure.equivalent_sites):
@@ -232,8 +232,8 @@ class Slab(Structure):
             raise ValueError("Cannot determine equi index!")
 
         for surface_site, shift in [
-            (sortedcsites[0], slab_ratio),
-            (sortedcsites[-1], -slab_ratio),
+            (sorted_csites[0], slab_ratio),
+            (sorted_csites[-1], -slab_ratio),
         ]:
             tomove = []
             fixed = []
@@ -550,8 +550,8 @@ class Slab(Structure):
 
         # Get a dictionary of coordination numbers
         # for each distinct site in the structure
-        a = SpacegroupAnalyzer(self.oriented_unit_cell)
-        u_cell = a.get_symmetrized_structure()
+        spga = SpacegroupAnalyzer(self.oriented_unit_cell)
+        u_cell = spga.get_symmetrized_structure()
         cn_dict = {}
         voronoi_nn = VoronoiNN()
         unique_indices = [equ[0] for equ in u_cell.equivalent_indices]

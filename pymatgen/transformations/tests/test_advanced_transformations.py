@@ -525,9 +525,7 @@ class MagOrderingTransformationTest(PymatgenTest):
 
         # now order on multiple species
         magtypes = {"Fe2+": 5, "Fe3+": 5}
-        order_parameters = [
-            MagOrderParameterConstraint(0.5, species_constraints=["Fe2+", "Fe3+"]),
-        ]
+        order_parameters = [MagOrderParameterConstraint(0.5, species_constraints=["Fe2+", "Fe3+"])]
         trans = MagOrderingTransformation(magtypes, order_parameter=order_parameters)
         alls = trans.apply_transformation(self.Fe3O4_oxi, return_ranked_list=10)
         struct = alls[0]["structure"]
@@ -548,8 +546,8 @@ class DopingTransformationTest(PymatgenTest):
 
     def test_apply_transformation(self):
         structure = PymatgenTest.get_structure("LiFePO4")
-        a = SpacegroupAnalyzer(structure, 0.1)
-        structure = a.get_refined_structure()
+        spga = SpacegroupAnalyzer(structure, 0.1)
+        structure = spga.get_refined_structure()
         t = DopingTransformation("Ca2+", min_length=10)
         ss = t.apply_transformation(structure, 100)
         assert len(ss) == 1
@@ -559,15 +557,15 @@ class DopingTransformationTest(PymatgenTest):
         assert len(ss) == 0
 
         # Aliovalent doping with vacancies
-        for dopant, nstructures in [("Al3+", 2), ("N3-", 235), ("Cl-", 8)]:
+        for dopant, n_structures in [("Al3+", 2), ("N3-", 235), ("Cl-", 8)]:
             t = DopingTransformation(dopant, min_length=4, alio_tol=1, max_structures_per_enum=1000)
             ss = t.apply_transformation(structure, 1000)
-            assert len(ss) == nstructures
+            assert len(ss) == n_structures
             for d in ss:
                 assert d["structure"].charge == 0
 
         # Aliovalent doping with codopant
-        for dopant, nstructures in [("Al3+", 3), ("N3-", 37), ("Cl-", 37)]:
+        for dopant, n_structures in [("Al3+", 3), ("N3-", 37), ("Cl-", 37)]:
             t = DopingTransformation(
                 dopant,
                 min_length=4,
@@ -576,7 +574,7 @@ class DopingTransformationTest(PymatgenTest):
                 max_structures_per_enum=1000,
             )
             ss = t.apply_transformation(structure, 1000)
-            assert len(ss) == nstructures
+            assert len(ss) == n_structures
             for d in ss:
                 assert d["structure"].charge == 0
 
