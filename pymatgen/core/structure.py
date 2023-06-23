@@ -3064,9 +3064,7 @@ class IMolecule(SiteCollection, MSONable):
         return all(site in other for site in self)
 
     def get_zmatrix(self):
-        """
-        Returns a z-matrix representation of the molecule.
-        """
+        """Returns a z-matrix representation of the molecule."""
         # TODO: allow more z-matrix conventions for element/site description
 
         output = []
@@ -3098,9 +3096,7 @@ class IMolecule(SiteCollection, MSONable):
         return "\n".join(output) + "\n\n" + "\n".join(output_var)
 
     def _find_nn_pos_before_site(self, site_idx):
-        """
-        Returns index of nearest neighbor atoms.
-        """
+        """Returns index of nearest neighbor atoms."""
         all_dist = [(self.get_distance(site_idx, idx), idx) for idx in range(site_idx)]
         all_dist = sorted(all_dist, key=lambda x: x[0])
         return [d[1] for d in all_dist]
