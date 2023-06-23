@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -120,7 +122,7 @@
   <section id="module-pymatgen.command_line.mcsqs_caller">
 <span id="pymatgen-command-line-mcsqs-caller-module"></span><h1>pymatgen.command_line.mcsqs_caller module<a class="headerlink" href="#module-pymatgen.command_line.mcsqs_caller" title="Permalink to this heading"></a></h1>
 <p>Module to call mcsqs, distributed with AT-AT
-<a class="reference external" href="https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/">https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/</a></p>
+<a class="reference external" href="https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/">https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/</a>.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.command_line.mcsqs_caller.Sqs">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Sqs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bestsqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allsqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clusters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs" title="Permalink to this definition"></a></dt>
@@ -197,7 +199,7 @@ runs calculations in a temp directory)</p></li>
 function (default = 1)</p></li>
 <li><p><strong>wn</strong> (<em>int</em><em> or </em><em>float</em>) – Multiplicative decrease in weight per additional point in cluster (default: 1)</p></li>
 <li><p><strong>wd</strong> (<em>int</em><em> or </em><em>float</em>) – Exponent of decay in weight as function of cluster diameter (default: 0.5)</p></li>
-<li><p><strong>tol</strong> (<em>int</em><em> or </em><em>float</em>) – Tolerance for matching correlations (default: 1e-3)</p></li>
+<li><p><strong>tol</strong> (<em>int</em><em> or </em><em>float</em>) – Tolerance for matching correlations (default: 1e-3).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

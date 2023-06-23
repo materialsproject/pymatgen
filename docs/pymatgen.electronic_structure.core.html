@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -123,7 +125,7 @@
 such as the Spin, Orbital, etc.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Magmom">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Magmom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saxis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L88-L478"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Magmom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saxis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L86-L473"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>New class in active development. Use with caution, feedback is
 appreciated.</p>
@@ -174,16 +176,16 @@ be converted to unit vector (default is [0, 0, 1])</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Magmom.are_collinear">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">are_collinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magmoms</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L360-L384"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.are_collinear" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">are_collinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magmoms</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L357-L381"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.are_collinear" title="Permalink to this definition"></a></dt>
 <dd><p>Method checks to see if a set of magnetic moments are collinear
 with each other.
 :param magmoms: list of magmoms (Magmoms, scalars or vectors)
-:return: bool</p>
+:return: bool.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Magmom.from_global_moment_and_saxis">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_global_moment_and_saxis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_moment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saxis</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L155-L170"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.from_global_moment_and_saxis" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_global_moment_and_saxis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_moment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saxis</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L153-L168"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.from_global_moment_and_saxis" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to initialize Magmom from a given global
 magnetic moment, i.e. magnetic moment with saxis=(0,0,1), and
 provided saxis.</p>
@@ -204,7 +206,7 @@ magnetic moment in frame of your desired saxis.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Magmom.from_moment_relative_to_crystal_axes">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_moment_relative_to_crystal_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L386-L402"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.from_moment_relative_to_crystal_axes" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_moment_relative_to_crystal_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L383-L399"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.from_moment_relative_to_crystal_axes" title="Permalink to this definition"></a></dt>
 <dd><p>Obtaining a Magmom object from a magnetic moment provided
 relative to crystal axes.</p>
 <p>Used for obtaining moments from magCIF file.
@@ -215,14 +217,17 @@ relative to crystal axes.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Magmom.get_00t_magmom_with_xyz_saxis">
-<span class="sig-name descname"><span class="pre">get_00t_magmom_with_xyz_saxis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L263-L299"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_00t_magmom_with_xyz_saxis" title="Permalink to this definition"></a></dt>
-<dd><p>For internal implementation reasons, in non-collinear calculations
-VASP prefers:</p>
-<p>MAGMOM = 0 0 total_magnetic_moment
+<span class="sig-name descname"><span class="pre">get_00t_magmom_with_xyz_saxis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L261-L296"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_00t_magmom_with_xyz_saxis" title="Permalink to this definition"></a></dt>
+<dd><p>For internal implementation reasons, in non-collinear calculations VASP prefers the following.</p>
+<blockquote>
+<div><p>MAGMOM = 0 0 total_magnetic_moment
 SAXIS = x y z</p>
+</div></blockquote>
 <p>to an equivalent:</p>
-<p>MAGMOM = x y z
+<blockquote>
+<div><p>MAGMOM = x y z
 SAXIS = 0 0 1</p>
+</div></blockquote>
 <p>This method returns a Magmom object with magnetic moment [0, 0, t],
 where t is the total magnetic moment, and saxis rotated as required.</p>
 <p>A consistent direction of saxis is applied such that t might be positive
@@ -238,7 +243,7 @@ t is always positive.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Magmom.get_consistent_set_and_saxis">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_consistent_set_and_saxis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magmoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saxis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L320-L333"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_consistent_set_and_saxis" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_consistent_set_and_saxis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magmoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saxis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L317-L330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_consistent_set_and_saxis" title="Permalink to this definition"></a></dt>
 <dd><p>Method to ensure a list of magmoms use the same spin axis.
 Returns a tuple of a list of Magmoms and their global spin axis.</p>
 <dl class="field-list simple">
@@ -256,11 +261,11 @@ Returns a tuple of a list of Magmoms and their global spin axis.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Magmom.get_moment">
-<span class="sig-name descname"><span class="pre">get_moment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">saxis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L212-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_moment" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_moment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">saxis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">1)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L210-L231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_moment" title="Permalink to this definition"></a></dt>
 <dd><p>Get magnetic moment relative to a given spin quantization axis.
 If no axis is provided, moment will be given relative to the
 Magmom’s internal spin quantization axis, i.e. equivalent to
-Magmom.moment</p>
+Magmom.moment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>saxis</strong> – (list/numpy array) spin quantization axis</p>
@@ -273,7 +278,7 @@ Magmom.moment</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Magmom.get_moment_relative_to_crystal_axes">
-<span class="sig-name descname"><span class="pre">get_moment_relative_to_crystal_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L404-L418"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_moment_relative_to_crystal_axes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_moment_relative_to_crystal_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L401-L415"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_moment_relative_to_crystal_axes" title="Permalink to this definition"></a></dt>
 <dd><p>If scalar magmoms, moments will be given arbitrarily along z.
 Used for writing moments to magCIF file.</p>
 <dl class="field-list simple">
@@ -288,7 +293,7 @@ Used for writing moments to magCIF file.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Magmom.get_suggested_saxis">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_suggested_saxis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magmoms</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L335-L358"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_suggested_saxis" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_suggested_saxis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magmoms</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L332-L355"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_suggested_saxis" title="Permalink to this definition"></a></dt>
 <dd><p>This method returns a suggested spin axis for a set of magmoms,
 taking the largest magnetic moment as the reference. For calculations
 with collinear spins, this would give a sensible saxis for a ncl
@@ -305,7 +310,7 @@ calculation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Magmom.get_xyz_magmom_with_001_saxis">
-<span class="sig-name descname"><span class="pre">get_xyz_magmom_with_001_saxis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L254-L261"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_xyz_magmom_with_001_saxis" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_xyz_magmom_with_001_saxis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L252-L259"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_xyz_magmom_with_001_saxis" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a Magmom in the default setting of saxis = [0, 0, 1] and
 the magnetic moment rotated as required.</p>
 <dl class="field-list simple">
@@ -328,12 +333,12 @@ the magnetic moment rotated as required.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Magmom.have_consistent_saxis">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">have_consistent_saxis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magmoms</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L301-L318"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.have_consistent_saxis" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">have_consistent_saxis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">magmoms</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L298-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.have_consistent_saxis" title="Permalink to this definition"></a></dt>
 <dd><p>This method checks that all Magmom objects in a list have a
 consistent spin quantization axis. To write MAGMOM tags to a
 VASP INCAR, a global SAXIS value for all magmoms has to be used.
 If saxis are inconsistent, can create consistent set with:
-Magmom.get_consistent_set(magmoms)</p>
+Magmom.get_consistent_set(magmoms).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</p>
@@ -360,7 +365,7 @@ collinear approximation for slightly non-collinear magmoms.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.electronic_structure.core.Orbital">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Orbital</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L49-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Orbital</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../electronic_structure/core.py#L49-L83"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>Enum type for specific orbitals. The indices are basically the order in
 which the orbitals are reported in VASP and has no special meaning.</p>

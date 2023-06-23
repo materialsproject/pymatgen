@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -139,7 +141,7 @@ representing the deformation gradient</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure">
-<span class="sig-name descname"><span class="pre">apply_to_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/elasticity/strain.py#L75-L87"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">apply_to_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/elasticity/strain.py#L75-L87"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Apply the deformation gradient to a structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -225,7 +227,7 @@ subclassing numpy ndarrays. Note also that the default constructor
 does not include the deformation gradient</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>strain_matrix</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
+<dd class="field-odd"><p><strong>strain_matrix</strong> (<em>ArrayLike</em>) – 3x3 matrix or length-6 Voigt notation vector
 representing the Green-Lagrange strain</p>
 </dd>
 </dl>
@@ -245,7 +247,7 @@ gradient</p>
 <dt class="sig sig-object py" id="pymatgen.analysis.elasticity.strain.Strain.from_index_amount">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_index_amount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/elasticity/strain.py#L204-L225"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.from_index_amount" title="Permalink to this definition"></a></dt>
 <dd><p>Like Deformation.from_index_amount, except generates
-a strain from the zero 3x3 tensor or voigt vector with
+a strain from the zero 3x3 tensor or Voigt vector with
 the amount specified in the index location. Ensures
 symmetric strain.</p>
 <dl class="field-list simple">

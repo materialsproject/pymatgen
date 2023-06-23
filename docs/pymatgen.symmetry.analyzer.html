@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -132,8 +134,8 @@ as an interface to spglib for pymatgen Structures.</p>
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupAnalyzer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PointGroupAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigen_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../symmetry/analyzer.py#L907-L1471"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A class to analyze the point group of a molecule. The general outline of the
-algorithm is as follows:</p>
+<p>A class to analyze the point group of a molecule.</p>
+<p>The general outline of the algorithm is as follows:</p>
 <ol class="arabic">
 <li><p>Center the molecule around its center of mass.</p></li>
 <li><p>Compute the inertia tensor and the eigenvalues and eigenvectors.</p></li>
@@ -153,12 +155,10 @@ have the rare T, O or I point groups.</p></li>
 </div></blockquote>
 </li>
 </ol>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.sch_symbol">
-<span class="sig-name descname"><span class="pre">sch_symbol</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/symmetry/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.sch_symbol" title="Permalink to this definition"></a></dt>
-<dd><p>Schoenflies symbol of the detected point group.</p>
-</dd></dl>
-
+<dl class="simple">
+<dt>Attribute:</dt><dd><p>sch_symbol (str): Schoenflies symbol of the detected point group.</p>
+</dd>
+</dl>
 <p>The default settings are usually sufficient.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -702,7 +702,7 @@ fractional coord symmops. But Cartesian can be returned too.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.is_laue">
 <span class="sig-name descname"><span class="pre">is_laue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../symmetry/analyzer.py#L900-L904"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.is_laue" title="Permalink to this definition"></a></dt>
-<dd><p>Check if the point group of the structure has Laue symmetry (centrosymmetry)</p>
+<dd><p>Check if the point group of the structure has Laue symmetry (centrosymmetry).</p>
 </dd></dl>
 
 </dd></dl>

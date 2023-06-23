@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -119,10 +121,9 @@
              
   <section id="module-pymatgen.command_line.chargemol_caller">
 <span id="pymatgen-command-line-chargemol-caller-module"></span><h1>pymatgen.command_line.chargemol_caller module<a class="headerlink" href="#module-pymatgen.command_line.chargemol_caller" title="Permalink to this heading"></a></h1>
-<p>This module implements an interface to Thomas Manz’s
-Chargemol code (<a class="reference external" href="https://sourceforge.net/projects/ddec/files">https://sourceforge.net/projects/ddec/files</a>) for
-calculating DDEC3, DDEC6, and CM5 population analyses.
-This module depends on a compiled chargemol executable being available in the path.
+<p>This module implements an interface to Thomas Manz’s Chargemol code
+<a class="reference external" href="https://sourceforge.net/projects/ddec">https://sourceforge.net/projects/ddec</a> for calculating DDEC3, DDEC6, and CM5 population analyses.</p>
+<p>This module depends on a compiled chargemol executable being available in the path.
 If you use this module, please cite the following based on which modules you use:</p>
 <p>Chargemol:
 (1) T. A. Manz and N. Gabaldon Limas, Chargemol program for performing DDEC analysis,
@@ -155,7 +156,7 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 (2010) 2455-2468.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChargemolAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_densities_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_chargemol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L71-L605"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChargemolAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_densities_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_chargemol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L71-L602"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Chargemol analysis for DDEC3, DDEC6, and/or CM5 population analyses,
 including the calculation of partial atomic charges, atomic spin moments,
@@ -178,7 +179,7 @@ bond orders, and related properties.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_bond_order">
-<span class="sig-name descname"><span class="pre">get_bond_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_from</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_to</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L338-L352"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_bond_order" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_bond_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_from</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_to</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L335-L349"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_bond_order" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to get the bond order between two atoms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -198,7 +199,7 @@ bond orders, and related properties.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge">
-<span class="sig-name descname"><span class="pre">get_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ddec'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L288-L319"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ddec'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L285-L316"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to get the charge on a particular atom using the same
 sign convention as the BaderAnalysis. Note that this is <em>not</em> the partial
 atomic charge. This value is nelect (e.g. ZVAL from the POTCAR) + the
@@ -227,7 +228,7 @@ get_partial_charge().</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge_transfer">
-<span class="sig-name descname"><span class="pre">get_charge_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ddec'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L265-L286"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge_transfer" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_charge_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ddec'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L262-L283"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge_transfer" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the charge transferred for a particular atom. A positive value means
 that the site has gained electron density (i.e. exhibits anionic character)
 whereas a negative value means the site has lost electron density (i.e. exhibits
@@ -251,7 +252,7 @@ charge.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_partial_charge">
-<span class="sig-name descname"><span class="pre">get_partial_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ddec'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L321-L336"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_partial_charge" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_partial_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ddec'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L318-L333"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_partial_charge" title="Permalink to this definition"></a></dt>
 <dd><p>Convenience method to get the partial atomic charge on a particular atom.
 This is the value printed in the Chargemol analysis.</p>
 <dl class="field-list simple">
@@ -266,7 +267,7 @@ This is the value printed in the Chargemol analysis.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_property_decorated_structure">
-<span class="sig-name descname"><span class="pre">get_property_decorated_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L489-L507"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_property_decorated_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_property_decorated_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../command_line/chargemol_caller.py#L486-L504"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_property_decorated_structure" title="Permalink to this definition"></a></dt>
 <dd><p>Takes CHGCAR’s structure object and updates it with properties
 from the Chargemol analysis.</p>
 <dl class="field-list simple">
@@ -301,7 +302,7 @@ from the Chargemol analysis.</p>
 </dd>
 </dl>
 </div></blockquote>
-<p>}</p>
+<p>}.</p>
 </dd></dl>
 
 </dd></dl>
