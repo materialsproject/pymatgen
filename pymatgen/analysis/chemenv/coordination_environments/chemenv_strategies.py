@@ -193,7 +193,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = {}
+    STRATEGY_OPTIONS: ClassVar[frozendict[str, dict]] = frozendict()
     STRATEGY_DESCRIPTION: str | None = None
     STRATEGY_INFO_FIELDS: ClassVar[list] = []
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
@@ -473,7 +473,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict | frozendict]] = frozendict(
+    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(
         distance_cutoff=frozendict(
             type=DistanceCutoffFloat,
             internal="_distance_cutoff",
@@ -864,11 +864,13 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = {"surface_calculation_type": {}}
-    STRATEGY_OPTIONS["additional_condition"] = frozendict(
-        type=AdditionalConditionInt,
-        internal="_additional_condition",
-        default=DEFAULT_ADDITIONAL_CONDITION,
+    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(
+        surface_calculation_type={},
+        additional_condition=frozendict(
+            type=AdditionalConditionInt,
+            internal="_additional_condition",
+            default=DEFAULT_ADDITIONAL_CONDITION,
+        ),
     )
     STRATEGY_DESCRIPTION = (
         '    Simple Abundance ChemenvStrategy using the most "abundant" neighbors map \n'
