@@ -28,8 +28,8 @@ class TransformedStructureTest(PymatgenTest):
         self.trans = TransformedStructure(structure, trans)
 
     def test_append_transformation(self):
-        t = SubstitutionTransformation({"Fe": "Mn"})
-        self.trans.append_transformation(t)
+        trafo = SubstitutionTransformation({"Fe": "Mn"})
+        self.trans.append_transformation(trafo)
         assert self.trans.final_structure.composition.reduced_formula == "NaMnPO4"
         assert len(self.trans.structures) == 3
         coords = []

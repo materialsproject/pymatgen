@@ -31,7 +31,7 @@ class AbstractRatioFunction:
     Abstract class for all ratio functions
     """
 
-    ALLOWED_FUNCTIONS: ClassVar[frozendict[str, list]] = {}
+    ALLOWED_FUNCTIONS: ClassVar[frozendict[str, list]] = {}  # type: ignore[assignment]
 
     def __init__(self, function, options_dict=None):
         """Constructor for AbstractRatioFunction

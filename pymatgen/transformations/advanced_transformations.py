@@ -900,9 +900,9 @@ class MagOrderingTransformation(AbstractTransformation):
         else:
             enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
 
-        t = EnumerateStructureTransformation(**enum_kwargs)
+        trafo = EnumerateStructureTransformation(**enum_kwargs)
 
-        alls = t.apply_transformation(structure, return_ranked_list=return_ranked_list)
+        alls = trafo.apply_transformation(structure, return_ranked_list=return_ranked_list)
 
         # handle the fact that EnumerateStructureTransformation can either
         # return a single Structure or a list
@@ -1257,8 +1257,7 @@ class SlabTransformation(AbstractTransformation):
             self.primitive,
             self.max_normal_search,
         )
-        slab = sg.get_slab(self.shift, self.tol)
-        return slab
+        return sg.get_slab(self.shift, self.tol)
 
     @property
     def inverse(self):
@@ -1373,15 +1372,11 @@ class DisorderOrderedTransformation(AbstractTransformation):
 
             partition_indices.pop(0)  # this is just the input structure
 
-            sorted_partitions = [partitions_to_sort[x[0]] for x in partition_indices]
-
-            return sorted_partitions
+            return [partitions_to_sort[x[0]] for x in partition_indices]
 
         collection = list(composition)
         partitions = list(_partition(collection))
-        partitions = _sort_partitions(partitions)
-
-        return partitions
+        return _sort_partitions(partitions)
 
     @staticmethod
     def _get_disorder_mappings(composition, partitions):
@@ -1400,9 +1395,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
                         dct[sp] = merged_comp
             return dct
 
-        disorder_mapping = [_get_replacement_dict_from_partition(p) for p in partitions]
-
-        return disorder_mapping
+        return [_get_replacement_dict_from_partition(p) for p in partitions]
 
 
 class GrainBoundaryTransformation(AbstractTransformation):
@@ -1506,7 +1499,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
             Grain boundary Structures.
         """
         gbg = GrainBoundaryGenerator(structure)
-        gb_struct = gbg.gb_from_parameters(
+        return gbg.gb_from_parameters(
             self.rotation_axis,
             self.rotation_angle,
             expand_times=self.expand_times,
@@ -1520,7 +1513,6 @@ class GrainBoundaryTransformation(AbstractTransformation):
             rm_ratio=self.rm_ratio,
             quick_gen=self.quick_gen,
         )
-        return gb_struct
 
     @property
     def inverse(self):
@@ -2246,14 +2238,12 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         seed = self.random_state.randint(1, 1000000000)
         displacements = mc_rattle(atoms, self.rattle_std, self.min_distance, seed=seed, **self.kwargs)
 
-        transformed_structure = Structure(
+        return Structure(
             structure.lattice,
             structure.species,
             structure.cart_coords + displacements,
             coords_are_cartesian=True,
         )
-
-        return transformed_structure
 
     def __str__(self):
         return f"{__name__} : rattle_std = {self.rattle_std}"

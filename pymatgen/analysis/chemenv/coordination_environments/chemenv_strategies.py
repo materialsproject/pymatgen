@@ -473,26 +473,27 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict | frozendict]] = {}
-    STRATEGY_OPTIONS["distance_cutoff"] = frozendict(
-        type=DistanceCutoffFloat,
-        internal="_distance_cutoff",
-        default=DEFAULT_DISTANCE_CUTOFF,
-    )
-    STRATEGY_OPTIONS["angle_cutoff"] = frozendict(
-        type=AngleCutoffFloat,
-        internal="_angle_cutoff",
-        default=DEFAULT_ANGLE_CUTOFF,
-    )
-    STRATEGY_OPTIONS["additional_condition"] = frozendict(
-        type=AdditionalConditionInt,
-        internal="_additional_condition",
-        default=DEFAULT_ADDITIONAL_CONDITION,
-    )
-    STRATEGY_OPTIONS["continuous_symmetry_measure_cutoff"] = frozendict(
-        type=CSMFloat,
-        internal="_continuous_symmetry_measure_cutoff",
-        default=DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict | frozendict]] = frozendict(
+        distance_cutoff=frozendict(
+            type=DistanceCutoffFloat,
+            internal="_distance_cutoff",
+            default=DEFAULT_DISTANCE_CUTOFF,
+        ),
+        angle_cutoff=frozendict(
+            type=AngleCutoffFloat,
+            internal="_angle_cutoff",
+            default=DEFAULT_ANGLE_CUTOFF,
+        ),
+        additional_condition=frozendict(
+            type=AdditionalConditionInt,
+            internal="_additional_condition",
+            default=DEFAULT_ADDITIONAL_CONDITION,
+        ),
+        continuous_symmetry_measure_cutoff=frozendict(
+            type=CSMFloat,
+            internal="_continuous_symmetry_measure_cutoff",
+            default=DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
+        ),
     )
 
     STRATEGY_DESCRIPTION = (
@@ -760,8 +761,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             ce_dict["ce_map"] = ce_map
         if return_strategy_dict_info:
             ce_dict["strategy_info"] = {}
-        fractions_info_list = [ce_dict]
-        return fractions_info_list
+        return [ce_dict]
 
     def get_site_coordination_environments(
         self,

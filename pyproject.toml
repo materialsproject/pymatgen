@@ -70,9 +70,7 @@ ignore = [
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT011",   # pytest-raises-too-broad
   "PT013",   # pytest-incorrect-pytest-import
-  "RET504",  # unnecessary-assign
-  # "RUF012",  # mutable-class-default
-  "SIM105", # Use contextlib.suppress(OSError) instead of try-except-pass
+  "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
