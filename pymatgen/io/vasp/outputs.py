@@ -498,9 +498,9 @@ class Vasprun(MSONable):
                         d = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
                         if "kinetic" in d:
                             md_data[-1]["energy"] = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
-        except ET.ParseError as ex:
+        except ET.ParseError as exc:
             if self.exception_on_bad_xml:
-                raise ex
+                raise exc
             warnings.warn(
                 "XML is malformed. Parsing has stopped but partial data is available.",
                 UserWarning,
@@ -591,8 +591,7 @@ class Vasprun(MSONable):
                 equation, the unit is in cm-1
                 """
                 hc = 1.23984 * 1e-4  # plank constant times speed of light, in the unit of eV*cm
-                coeff = 2 * 3.14159 * np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hc * freq
-                return coeff
+                return 2 * 3.14159 * np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hc * freq
 
             absorption_coeff = [
                 f(freq, real, imag) for freq, real, imag in zip(self.dielectric_data["density"][0], real_avg, imag_avg)
@@ -886,7 +885,7 @@ class Vasprun(MSONable):
         if not kpoints_filename:
             kpoints_filename = zpath(os.path.join(os.path.dirname(self.filename), "KPOINTS"))
         if kpoints_filename and not os.path.exists(kpoints_filename) and line_mode is True:
-            raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
+            raise VaspParserError("KPOINTS not found but needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
             e_fermi = self.calculate_efermi()
@@ -1268,12 +1267,12 @@ class Vasprun(MSONable):
                         params[name] = _parse_parameters(ptype, val)
                     else:
                         params[name] = _parse_v_parameters(ptype, val, self.filename, name)
-                except Exception as ex:
+                except Exception as exc:
                     if name == "RANDOM_SEED":
                         # Handles the case where RANDOM SEED > 99999, which results in *****
                         params[name] = None
                     else:
-                        raise ex
+                        raise exc
         elem.clear()
         return Incar(params)
 
@@ -2090,7 +2089,7 @@ class Outcar:
 
         # Store the individual contributions to the final total energy
         final_energy_contribs = {}
-        for k in [
+        for key in [
             "PSCENC",
             "TEWEN",
             "DENC",
@@ -2102,13 +2101,13 @@ class Outcar:
             "EATOM",
             "Ediel_sol",
         ]:
-            if k == "PAW double counting":
-                self.read_pattern({k: rf"{k}\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)"})
+            if key == "PAW double counting":
+                self.read_pattern({key: rf"{key}\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)"})
             else:
-                self.read_pattern({k: rf"{k}\s+=\s+([\d\-\.]+)"})
-            if not self.data[k]:
+                self.read_pattern({key: rf"{key}\s+=\s+([\d\-\.]+)"})
+            if not self.data[key]:
                 continue
-            final_energy_contribs[k] = sum(float(f) for f in self.data[k][-1])
+            final_energy_contribs[key] = sum(float(f) for f in self.data[key][-1])
         self.final_energy_contribs = final_energy_contribs
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
@@ -3168,9 +3167,9 @@ class Outcar:
                     self.p_sp1 *= -1
                     self.p_sp2 *= -1
 
-        except Exception as ex:
-            print(ex.args)
-            raise Exception("LCALCPOL OUTCAR could not be parsed.")
+        except Exception as exc:
+            print(exc.args)
+            raise Exception("LCALCPOL OUTCAR could not be parsed.") from exc
 
     def read_pseudo_zval(self):
         """
@@ -3963,10 +3962,8 @@ class Oszicar:
         def smart_convert(header, num):
             try:
                 if header in ("N", "ncg"):
-                    v = int(num)
-                    return v
-                v = float(num)
-                return v
+                    return int(num)
+                return float(num)
             except ValueError:
                 return "--"
 
@@ -4551,8 +4548,12 @@ class Wavecar:
                              (only first letter is required)
         """
         self.filename = filename
-        if not (vasp_type is None or vasp_type.lower()[0] in ["s", "g", "n"]):
-            raise ValueError(f"invalid {vasp_type=}")
+        valid_types = ["std", "gam", "ncl"]
+        initials = {x[0] for x in valid_types}
+        if not (vasp_type is None or vasp_type.lower()[0] in initials):
+            raise ValueError(
+                f"invalid {vasp_type=}, must be one of {valid_types} (we only check the first letter {initials})"
+            )
         self.vasp_type = vasp_type
 
         # c = 0.26246582250210965422
@@ -4567,13 +4568,14 @@ class Wavecar:
             self.spin = spin
 
             # check to make sure we have precision correct
-            if rtag not in (45200, 45210, 53300, 53310):
+            valid_rtags = {45200, 45210, 53300, 53310}
+            if rtag not in valid_rtags:
                 # note that rtag=45200 and 45210 may not work if file was actually
                 # generated by old version of VASP, since that would write eigenvalues
                 # and occupations in way that does not span FORTRAN records, but
                 # reader below appears to assume that record boundaries can be ignored
                 # (see OUTWAV vs. OUTWAV_4 in vasp fileio.F)
-                raise ValueError(f"invalid rtag of {rtag}")
+                raise ValueError(f"invalid {rtag=}, must be one of {valid_rtags}")
 
             # padding to end of fortran REC=1
             np.fromfile(f, dtype=np.float64, count=recl8 - 3)
@@ -4676,8 +4678,7 @@ class Wavecar:
 
                     if len(self.Gpoints[ink]) != nplane and 2 * len(self.Gpoints[ink]) != nplane:
                         raise ValueError(
-                            f"Incorrect value of vasp_type given ({vasp_type})."
-                            " Please open an issue if you are certain this WAVECAR"
+                            f"Incorrect {vasp_type=}. Please open an issue if you are certain this WAVECAR"
                             " was generated with the given vasp_type."
                         )
 
@@ -4791,7 +4792,7 @@ class Wavecar:
                             extra_gpoints.append(-G)
                             extra_coeff_inds.append(G_ind)
                         G_ind += 1
-        return (gpoints, extra_gpoints, extra_coeff_inds)
+        return gpoints, extra_gpoints, extra_coeff_inds
 
     def evaluate_wavefunc(self, kpoint: int, band: int, r: np.ndarray, spin: int = 0, spinor: int = 0) -> np.complex64:
         r"""

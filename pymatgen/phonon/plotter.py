@@ -717,9 +717,7 @@ class ThermoPlotter:
 
         ylabel = "$C_v$ (J/K/mol)" if self.structure else "$C_v$ (J/K/mol-c)"
 
-        fig = self._plot_thermo(self.dos.cv, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
-
-        return fig
+        return self._plot_thermo(self.dos.cv, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
     @add_fig_kwargs
     def plot_entropy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
@@ -740,9 +738,7 @@ class ThermoPlotter:
 
         ylabel = "$S$ (J/K/mol)" if self.structure else "$S$ (J/K/mol-c)"
 
-        fig = self._plot_thermo(self.dos.entropy, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
-
-        return fig
+        return self._plot_thermo(self.dos.entropy, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
     @add_fig_kwargs
     def plot_internal_energy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
@@ -763,9 +759,9 @@ class ThermoPlotter:
 
         ylabel = "$\\Delta E$ (kJ/mol)" if self.structure else "$\\Delta E$ (kJ/mol-c)"
 
-        fig = self._plot_thermo(self.dos.internal_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs)
-
-        return fig
+        return self._plot_thermo(
+            self.dos.internal_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs
+        )
 
     @add_fig_kwargs
     def plot_helmholtz_free_energy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
@@ -786,11 +782,9 @@ class ThermoPlotter:
 
         ylabel = "$\\Delta F$ (kJ/mol)" if self.structure else "$\\Delta F$ (kJ/mol-c)"
 
-        fig = self._plot_thermo(
+        return self._plot_thermo(
             self.dos.helmholtz_free_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs
         )
-
-        return fig
 
     @add_fig_kwargs
     def plot_thermodynamic_properties(self, tmin, tmax, ntemp, ylim=None, **kwargs):

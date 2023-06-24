@@ -222,13 +222,12 @@ class Cohpcar:
         else:
             orbitals = orb_label = None
 
-        bond_data = {
+        return {
             "length": length,
             "sites": site_indices,
             "orbitals": orbitals,
             "orb_label": orb_label,
         }
-        return bond_data
 
 
 class Icohplist:
@@ -666,8 +665,7 @@ class Charge:
         Mulliken = self.Mulliken
         Loewdin = self.Loewdin
         site_properties = {"Mulliken Charges": Mulliken, "Loewdin Charges": Loewdin}
-        new_struct = struct.copy(site_properties=site_properties)
-        return new_struct
+        return struct.copy(site_properties=site_properties)
 
 
 class Lobsterout:
@@ -1426,8 +1424,7 @@ class Grosspop:
             "Total Mulliken GP": mullikengp,
             "Total Loewdin GP": loewdingp,
         }
-        new_struct = struct.copy(site_properties=site_properties)
-        return new_struct
+        return struct.copy(site_properties=site_properties)
 
 
 class Wavefunction:
@@ -1709,8 +1706,7 @@ class SitePotential:
             "Mulliken Site Potentials (eV)": Mulliken,
             "Loewdin Site Potentials (eV)": Loewdin,
         }
-        new_struct = struct.copy(site_properties=site_properties)
-        return new_struct
+        return struct.copy(site_properties=site_properties)
 
 
 def get_orb_from_str(orbs):

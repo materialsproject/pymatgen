@@ -174,7 +174,7 @@ class VoronoiNNTest(PymatgenTest):
             assert len(nn_info["adj_neighbors"]) == 4
 
             for adj_key in nn_info["adj_neighbors"]:
-                assert np.dot(nn_info["normal"], neighbors[adj_key]["normal"]) == 0
+                assert np.dot(nn_info["normal"], neighbors[adj_key]["normal"]) == approx(0)
 
     def test_all_at_once(self):
         # Get all of the sites for LiFePO4

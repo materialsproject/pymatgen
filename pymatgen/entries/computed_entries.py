@@ -869,9 +869,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
             mass_sum += (alpha_i + alpha_j) * (m_i * m_j) / (m_i + m_j)
 
-        reduced_mass = (1 / denominator) * mass_sum
-
-        return reduced_mass
+        return (1 / denominator) * mass_sum
 
     @staticmethod
     def _g_delta_sisso(vol_per_atom, reduced_mass, temp) -> float:

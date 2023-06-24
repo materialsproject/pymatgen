@@ -173,7 +173,7 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
 
     labels_dict = labels_dict or phonopy_labels_dict
 
-    ph_bs = PhononBandStructureSymmLine(
+    return PhononBandStructureSymmLine(
         qpts,
         frequencies,
         rec_latt,
@@ -182,8 +182,6 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
         structure=structure,
         eigendisplacements=eigendisplacements,
     )
-
-    return ph_bs
 
 
 def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):

@@ -8,8 +8,8 @@ from pytest import approx
 try:
     import phonopy
     from phonopy.phonon.dos import TotalDos
-except ImportError as ex:
-    print(ex)
+except ImportError as exc:
+    print(exc)
     phonopy = TotalDos = None
 
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line, get_gruneisenparameter

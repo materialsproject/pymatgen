@@ -152,14 +152,14 @@ class PymatgenTest(unittest.TestCase):
             return [o[0] for o in objects_by_protocol]
         return objects_by_protocol
 
-    def assert_msonable(self, obj, test_if_subclass=True):
+    def assert_msonable(self, obj, test_is_subclass=True):
         """
         Test if obj is MSONable and verify the contract is fulfilled.
 
         By default, the method tests whether obj is an instance of MSONable.
-        This check can be deactivated by setting test_if_subclass=False.
+        This check can be deactivated by setting test_is_subclass=False.
         """
-        if test_if_subclass:
+        if test_is_subclass:
             assert isinstance(obj, MSONable)
         assert obj.as_dict() == obj.__class__.from_dict(obj.as_dict()).as_dict()
         json.loads(obj.to_json(), cls=MontyDecoder)

@@ -248,9 +248,7 @@ def unicodeify_spacegroup(spacegroup_symbol):
     symbol = symbol.replace("$", "")
     symbol = symbol.replace("{", "")
     # overline unicode symbol comes after the character with the overline
-    symbol = symbol.replace("}", overline)
-
-    return symbol
+    return symbol.replace("}", overline)
 
 
 def unicodeify_species(specie_string):

@@ -69,8 +69,7 @@ def get_table():
     data_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "struct_predictor")
     json_file = os.path.join(data_dir, "test_lambda.json")
     with open(json_file) as f:
-        lambda_table = json.load(f)
-    return lambda_table
+        return json.load(f)
 
 
 enum_cmd = which("enum.x") or which("multienum.x")
@@ -87,11 +86,9 @@ class SuperTransformationTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_apply_transformation(self):
-        tl = [
-            SubstitutionTransformation({"Li+": "Na+"}),
-            SubstitutionTransformation({"Li+": "K+"}),
-        ]
-        t = SuperTransformation(tl)
+        trafo = SuperTransformation(
+            [SubstitutionTransformation({"Li+": "Na+"}), SubstitutionTransformation({"Li+": "K+"})]
+        )
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
@@ -110,7 +107,7 @@ class SuperTransformationTest(unittest.TestCase):
             ]
         )
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
-        s = t.apply_transformation(struct, return_ranked_list=True)
+        s = trafo.apply_transformation(struct, return_ranked_list=True)
 
         for s_and_t in s:
             assert s_and_t["transformation"].apply_transformation(struct) == s_and_t["structure"]
@@ -129,10 +126,10 @@ class SuperTransformationTest(unittest.TestCase):
             EnumerateStructureTransformation(),
             OrderDisorderedStructureTransformation(),
         ]
-        t = SuperTransformation(tl, nstructures_per_trans=10)
-        assert len(t.apply_transformation(disord, return_ranked_list=20)) == 8
-        t = SuperTransformation(tl)
-        assert len(t.apply_transformation(disord, return_ranked_list=20)) == 2
+        trafo = SuperTransformation(tl, nstructures_per_trans=10)
+        assert len(trafo.apply_transformation(disord, return_ranked_list=20)) == 8
+        trafo = SuperTransformation(tl)
+        assert len(trafo.apply_transformation(disord, return_ranked_list=20)) == 2
 
 
 class MultipleSubstitutionTransformationTest(unittest.TestCase):
@@ -144,7 +141,7 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
         sub_dict = {1: ["Na", "K"]}
-        t = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
+        trafo = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
@@ -158,12 +155,12 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
             ]
         )
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        assert len(t.apply_transformation(struct, return_ranked_list=True)) == 2
+        assert len(trafo.apply_transformation(struct, return_ranked_list=True)) == 2
 
 
 class ChargeBalanceTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        t = ChargeBalanceTransformation("Li+")
+        trafo = ChargeBalanceTransformation("Li+")
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
@@ -182,7 +179,7 @@ class ChargeBalanceTransformationTest(unittest.TestCase):
             ]
         )
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
-        s = t.apply_transformation(struct)
+        s = trafo.apply_transformation(struct)
 
         assert s.charge == approx(0, abs=1e-5)
 
@@ -290,7 +287,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
 
 class SubstitutionPredictorTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        t = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
+        trafo = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
@@ -304,15 +301,15 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
         )
         struct = Structure(lattice, ["O2-", "Li1+", "Li1+"], coords)
 
-        outputs = t.apply_transformation(struct, return_ranked_list=True)
+        outputs = trafo.apply_transformation(struct, return_ranked_list=True)
         assert len(outputs) == 4, "incorrect number of structures"
 
     def test_as_dict(self):
-        t = SubstitutionPredictorTransformation(threshold=2, alpha=-2, lambda_table=get_table())
-        d = t.as_dict()
-        t = SubstitutionPredictorTransformation.from_dict(d)
-        assert t.threshold == 2, "incorrect threshold passed through dict"
-        assert t._substitutor.p.alpha == -2, "incorrect alpha passed through dict"
+        trafo = SubstitutionPredictorTransformation(threshold=2, alpha=-2, lambda_table=get_table())
+        d = trafo.as_dict()
+        trafo = SubstitutionPredictorTransformation.from_dict(d)
+        assert trafo.threshold == 2, "incorrect threshold passed through dict"
+        assert trafo._substitutor.p.alpha == -2, "incorrect alpha passed through dict"
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
@@ -548,46 +545,46 @@ class DopingTransformationTest(PymatgenTest):
         structure = PymatgenTest.get_structure("LiFePO4")
         spga = SpacegroupAnalyzer(structure, 0.1)
         structure = spga.get_refined_structure()
-        t = DopingTransformation("Ca2+", min_length=10)
-        ss = t.apply_transformation(structure, 100)
+        trafo = DopingTransformation("Ca2+", min_length=10)
+        ss = trafo.apply_transformation(structure, 100)
         assert len(ss) == 1
 
-        t = DopingTransformation("Al3+", min_length=15, ionic_radius_tol=0.1)
-        ss = t.apply_transformation(structure, 100)
+        trafo = DopingTransformation("Al3+", min_length=15, ionic_radius_tol=0.1)
+        ss = trafo.apply_transformation(structure, 100)
         assert len(ss) == 0
 
         # Aliovalent doping with vacancies
         for dopant, n_structures in [("Al3+", 2), ("N3-", 235), ("Cl-", 8)]:
-            t = DopingTransformation(dopant, min_length=4, alio_tol=1, max_structures_per_enum=1000)
-            ss = t.apply_transformation(structure, 1000)
+            trafo = DopingTransformation(dopant, min_length=4, alio_tol=1, max_structures_per_enum=1000)
+            ss = trafo.apply_transformation(structure, 1000)
             assert len(ss) == n_structures
             for d in ss:
                 assert d["structure"].charge == 0
 
         # Aliovalent doping with codopant
         for dopant, n_structures in [("Al3+", 3), ("N3-", 37), ("Cl-", 37)]:
-            t = DopingTransformation(
+            trafo = DopingTransformation(
                 dopant,
                 min_length=4,
                 alio_tol=1,
                 codopant=True,
                 max_structures_per_enum=1000,
             )
-            ss = t.apply_transformation(structure, 1000)
+            ss = trafo.apply_transformation(structure, 1000)
             assert len(ss) == n_structures
             for d in ss:
                 assert d["structure"].charge == 0
 
         # Make sure compensation is done with lowest oxi state
         structure = PymatgenTest.get_structure("SrTiO3")
-        t = DopingTransformation(
+        trafo = DopingTransformation(
             "Nb5+",
             min_length=5,
             alio_tol=1,
             max_structures_per_enum=1000,
             allowed_doping_species=["Ti4+"],
         )
-        ss = t.apply_transformation(structure, 1000)
+        ss = trafo.apply_transformation(structure, 1000)
         assert len(ss) == 3
         for d in ss:
             assert d["structure"].formula == "Sr7 Ti6 Nb2 O24"

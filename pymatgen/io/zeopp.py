@@ -354,7 +354,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         prop.append(site.properties["voronoi_radius"])
 
     lattice = Lattice.from_parameters(*structure.lattice.parameters)
-    vor_node_struct = Structure(
+    return Structure(
         lattice,
         species,
         coords,
@@ -362,8 +362,6 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         to_unit_cell=True,
         site_properties={"voronoi_radius": prop},
     )
-
-    return vor_node_struct
 
 
 @requires(

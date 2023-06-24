@@ -1734,8 +1734,7 @@ def parse_energy_file(energy_file):
     df["potential_energy"] = df["potential_energy"] * Ha_to_eV
     df["conserved_quantity"] = df["conserved_quantity"] * Ha_to_eV
     df.astype(float)
-    d = {c: df[c].to_numpy() for c in columns}
-    return d
+    return {c: df[c].to_numpy() for c in columns}
 
 
 # TODO The DOS file that cp2k outputs as of 2022.1 seems to have a lot of problems.

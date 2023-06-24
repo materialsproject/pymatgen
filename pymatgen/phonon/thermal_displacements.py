@@ -18,8 +18,8 @@ space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # t
 
 try:
     import phonopy
-except ImportError as ex:
-    print(ex)
+except ImportError as exc:
+    print(exc)
     phonopy = None
 
 __author__ = "J. George"
@@ -227,8 +227,7 @@ class ThermalDisplacementMatrices(MSONable):
         prod_of_norms = np.linalg.norm(a) * np.linalg.norm(b)
         divided = dot_product / prod_of_norms
         angle_rad = np.arccos(np.round(divided, 10))
-        angle = np.degrees(angle_rad)
-        return angle
+        return np.degrees(angle_rad)
 
     def compute_directionality_quality_criterion(self, other):
         """

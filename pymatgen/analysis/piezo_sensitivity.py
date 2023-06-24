@@ -662,9 +662,7 @@ class ForceConstantMatrix:
         converter.set_dynamical_matrices(dynmat=[dyn])
 
         converter.run()
-        fc = converter.get_force_constants()
-
-        return fc
+        return converter.get_force_constants()
 
 
 def get_piezo(BEC, IST, FCM, rcond=0.0001):

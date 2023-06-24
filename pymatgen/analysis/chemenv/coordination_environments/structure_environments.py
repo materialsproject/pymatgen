@@ -344,8 +344,7 @@ class StructureEnvironments(MSONable):
                 sorted_points.append((idp, iap))
                 move_ap_index = not move_ap_index
 
-            points = [(pdists[idp], pangs[iap]) for (idp, iap) in sorted_points]
-            return points
+            return [(pdists[idp], pangs[iap]) for (idp, iap) in sorted_points]
 
         @property
         def source(self):
@@ -1387,7 +1386,7 @@ class LightStructureEnvironments(MSONable):
     """
 
     DELTA_MAX_OXIDATION_STATE = 0.1
-    DEFAULT_STATISTICS_FIELDS = [
+    DEFAULT_STATISTICS_FIELDS = (
         "anion_list",
         "anion_atom_list",
         "cation_list",
@@ -1400,7 +1399,7 @@ class LightStructureEnvironments(MSONable):
         "fraction_ion_coordination_environments_present",
         "coordination_environments_atom_present",
         "coordination_environments_ion_present",
-    ]
+    )
 
     class NeighborsSet:
         """

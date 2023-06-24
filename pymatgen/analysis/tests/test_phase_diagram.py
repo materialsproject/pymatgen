@@ -844,7 +844,7 @@ class ReactionDiagramTest(unittest.TestCase):
         # # Unless someone wants to make an effort to write a PROPER test which do not fail with changes in
         # # OS or numpy versions, DO NOT UNCOMMENT!
         # for formula in expected_formula:
-        #     self.assertTrue(formula in formed_formula, f"{formed_formula} not in {expected_formula}")
+        #     assert formula in formed_formula, f"{formed_formula=} not in {expected_formula=}"
 
 
 class PDPlotterTest(unittest.TestCase):

@@ -51,10 +51,10 @@ direct
         assert poscar.structure.composition == Composition("SiF")
 
         poscar_string = ""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Empty POSCAR"):
             Poscar.from_string(poscar_string)
 
-        # VASP 4 tyle file with default names, i.e. no element symbol found.
+        # VASP 4 style file with default names, i.e. no element symbol found.
         poscar_string = """Test2
 1.0
 3.840198 0.000000 0.000000
@@ -69,7 +69,7 @@ direct
             warnings.simplefilter("ignore")
             poscar = Poscar.from_string(poscar_string)
         assert poscar.structure.composition == Composition("HHe")
-        # VASP 4 tyle file with default names, i.e. no element symbol found.
+        # VASP 4 style file with default names, i.e. no element symbol found.
         poscar_string = """Test3
 1.0
 3.840198 0.000000 0.000000
@@ -290,7 +290,7 @@ direct
     def test_setattr(self):
         filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="velocities array must be same length as the structure"):
             poscar.velocities = [[0, 0, 0]]
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
         expected = """
@@ -959,11 +959,11 @@ class PotcarSingleTest(PymatgenTest):
             assert getattr(self.psingle, k) is not None
 
     def test_found_unknown_key(self):
-        with pytest.raises(KeyError):
+        with pytest.raises(KeyError, match="BAD_KEY"):
             PotcarSingle.parse_functions["BAD_KEY"]
 
     def test_bad_value(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="could not convert string to float"):
             PotcarSingle.parse_functions["ENMAX"]("ThisShouldBeAFloat")
 
     def test_hash(self):

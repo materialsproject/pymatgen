@@ -398,8 +398,8 @@ class EwaldSummation(MSONable):
             new_ereals = erfcval * qi * qj / rij
 
             # insert new_ereals
-            for k in range(numsites):
-                ereal[k, i] = np.sum(new_ereals[js == k])
+            for key in range(numsites):
+                ereal[key, i] = np.sum(new_ereals[js == key])
 
             if self._compute_forces:
                 nccoords = self._s.lattice.get_cartesian_coords(nfcoords)
@@ -448,7 +448,7 @@ class EwaldSummation(MSONable):
             verbosity (int): Verbosity level. Default of 0 only includes the
                 matrix representation. Set to 1 for more details.
         """
-        d = {
+        return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "structure": self._s.as_dict(),
@@ -462,8 +462,6 @@ class EwaldSummation(MSONable):
             "_point": None if self._point is None else self._point.tolist(),
             "_forces": None if self._forces is None else self._forces.tolist(),
         }
-
-        return d
 
     @classmethod
     def from_dict(cls, d: dict[str, Any], fmt: str | None = None, **kwargs) -> EwaldSummation:
@@ -651,9 +649,7 @@ class EwaldMinimizer:
                 1 - speedup_parameter
             )
 
-        best_case = np.sum(matrix) + np.inner(sums[::-1], fractions - 1) + interaction_correction
-
-        return best_case
+        return np.sum(matrix) + np.inner(sums[::-1], fractions - 1) + interaction_correction
 
     @classmethod
     def get_next_index(cls, matrix, manipulation, indices_left):
@@ -665,9 +661,7 @@ class EwaldMinimizer:
         f = manipulation[0]
         indices = list(indices_left.intersection(manipulation[2]))
         sums = np.sum(matrix[indices], axis=1)
-        next_index = indices[sums.argmax(axis=0)] if f < 1 else indices[sums.argmin(axis=0)]
-
-        return next_index
+        return indices[sums.argmax(axis=0)] if f < 1 else indices[sums.argmin(axis=0)]
 
     def _recurse(self, matrix, m_list, indices, output_m_list=None):
         """
@@ -761,8 +755,7 @@ def compute_average_oxidation_state(site):
         Average oxidation state of site.
     """
     try:
-        avg_oxi = sum(sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None)
-        return avg_oxi
+        return sum(sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None)
     except AttributeError:
         pass
     try:

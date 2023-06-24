@@ -484,8 +484,7 @@ def bader_analysis_from_path(path, suffix=""):
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
             warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
-        path = paths[0]
-        return path
+        return paths[0]
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
     chgcar = Chgcar.from_file(chgcar_path)

@@ -53,8 +53,7 @@ def average_coordination_number(structures, freq=10):
             cn = vnn.get_cn(s, j, use_weights=True)
             coordination_numbers[atom.species_string] += cn
     elements = structures[0].composition.as_dict()
-    coordination_numbers = {el: v / elements[el] / count for el, v in coordination_numbers.items()}
-    return coordination_numbers
+    return {el: v / elements[el] / count for el, v in coordination_numbers.items()}
 
 
 class VoronoiAnalyzer:
@@ -217,8 +216,7 @@ class RelaxationAnalyzer:
         """
         initial_latt = self.initial.lattice
         final_latt = self.final.lattice
-        dct = {length: getattr(final_latt, length) / getattr(initial_latt, length) - 1 for length in ["a", "b", "c"]}
-        return dct
+        return {length: getattr(final_latt, length) / getattr(initial_latt, length) - 1 for length in ["a", "b", "c"]}
 
     def get_percentage_bond_dist_changes(self, max_radius=3.0):
         """

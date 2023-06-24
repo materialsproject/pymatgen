@@ -82,11 +82,7 @@ class BaseLammpsGenerator(InputGenerator):
         input_file = LammpsInputFile.from_string(input_str, keep_stages=self.keep_stages)
 
         # Get the LammpsInputSet from the InputFile and data
-        input_set = LammpsInputSet(
-            inputfile=input_file, data=data, calc_type=self.calc_type, template_file=self.template
-        )
-
-        return input_set
+        return LammpsInputSet(inputfile=input_file, data=data, calc_type=self.calc_type, template_file=self.template)
 
 
 class LammpsMinimization(BaseLammpsGenerator):

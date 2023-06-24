@@ -163,8 +163,7 @@ class CoordinationEnvironmentMorphing:
             else:
                 raise ValueError(f"Key \"site_type\" is {morphing['site_type']} while it can only be neighbor")
 
-        structure = Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
-        return structure
+        return Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
 
     def estimate_parameters(self, dist_factor_min, dist_factor_max, symmetry_measure_type="csm_wcs_ctwcc"):
         only_symbols = [self.initial_environment_symbol, self.expected_final_environment_symbol]
@@ -253,7 +252,7 @@ class CoordinationEnvironmentMorphing:
 
         nad_weight = NormalizedAngleDistanceNbSetWeight(average_type="geometric", aa=1, bb=1)
 
-        weights = {
+        return {
             "DistAngArea": da_area_weight,
             "SelfCSM": self_csm_weight,
             "DeltaCSM": delta_csm_weight,
@@ -261,8 +260,6 @@ class CoordinationEnvironmentMorphing:
             "Angle": angle_weight,
             "NormalizedAngDist": nad_weight,
         }
-
-        return weights
 
 
 if __name__ == "__main__":

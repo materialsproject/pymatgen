@@ -311,8 +311,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         """The path of the djrepo file. None if file does not exist."""
         # pylint: disable=E1101
         root, ext = os.path.splitext(self.filepath)
-        path = root + ".djrepo"
-        return path
+        return root + ".djrepo"
         # if os.path.exists(path): return path
         # return None
 
@@ -647,8 +646,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
             keys[0] = keys[0][1:]
 
         if len(values) != len(keys):
-            msg = f"line: {line}\n len(keys) != len(value)\nkeys: {keys}\n values: {values}"
-            raise ValueError(msg)
+            raise ValueError(f"{line=}\n {len(keys)=} must equal {len(values)=}")
 
         kwargs.update(zip(keys, values))
 

@@ -20,8 +20,7 @@ class ChemenvConfigTest(unittest.TestCase):
         else:
             assert not config.has_materials_project_access
 
-        package_options = ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS
-        package_options["default_max_distance_factor"] = 1.8
+        package_options = {**ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS, "default_max_distance_factor": 1.8}
 
         config = ChemEnvConfig(package_options=package_options)
 

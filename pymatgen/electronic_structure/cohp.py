@@ -967,8 +967,7 @@ class IcohpValue(MSONable):
         Returns:
              icohp value in eV.
         """
-        sum_icohp = self._icohp[Spin.down] + self._icohp[Spin.up] if self._is_spin_polarized else self._icohp[Spin.up]
-        return sum_icohp
+        return self._icohp[Spin.down] + self._icohp[Spin.up] if self._is_spin_polarized else self._icohp[Spin.up]
 
     @property
     def summed_orbital_icohp(self):

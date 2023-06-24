@@ -20,8 +20,7 @@ __date__ = "Aug 24, 2017"
 
 
 def get_path(path_str):
-    path = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
-    return path
+    return os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
 
 
 class SlabEntryTest(PymatgenTest):

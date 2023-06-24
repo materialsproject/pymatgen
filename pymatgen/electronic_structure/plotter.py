@@ -541,7 +541,7 @@ class BSPlotter:
                 f"WARNING! Distance / branch, band cannot be "
                 f"interpolated. See full warning in source. "
                 f"If this is not a mistake, try increasing "
-                f"smooth_tol. Current smooth_tol is {smooth_tol}."
+                f"smooth_tol. Current {smooth_tol=}."
             )
 
             warning_m_fewer_k = (

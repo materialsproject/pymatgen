@@ -318,9 +318,7 @@ class Polarization:
         for s, d in zip(sites, d_structs):
             lattice = d.lattice
             adjust_pol.append(np.multiply(s.frac_coords, np.array(lattice.lengths)).ravel())
-        adjust_pol = np.array(adjust_pol)
-
-        return adjust_pol
+        return np.array(adjust_pol)
 
     def get_lattice_quanta(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
@@ -348,9 +346,7 @@ class Polarization:
                 lattice = lattices[-1]
                 lattices[i] = Lattice.from_parameters(*(np.array(lattice.lengths) * units.ravel()[-1]), *lattice.angles)
 
-        quanta = np.array([np.array(latt.lengths) for latt in lattices])
-
-        return quanta
+        return np.array([np.array(latt.lengths) for latt in lattices])
 
     def get_polarization_change(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
@@ -374,8 +370,7 @@ class Polarization:
         P = self.get_polarization_change(
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
         ).ravel()
-        P_norm = np.linalg.norm(a * P[0] + b * P[1] + c * P[2])
-        return P_norm
+        return np.linalg.norm(a * P[0] + b * P[1] + c * P[2])
 
     def same_branch_splines(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
@@ -431,8 +426,7 @@ class Polarization:
             return None
         sp_latt = [sp[i](range(L)) for i in range(3)]
         diff = [sp_latt[i] - tot[:, i].ravel() for i in range(3)]
-        rms = [np.sqrt(np.sum(np.square(diff[i])) / L) for i in range(3)]
-        return rms
+        return [np.sqrt(np.sum(np.square(diff[i])) / L) for i in range(3)]
 
 
 class EnergyTrend:
@@ -452,8 +446,7 @@ class EnergyTrend:
         """
         from scipy.interpolate import UnivariateSpline
 
-        sp = UnivariateSpline(range(len(self.energies)), self.energies, k=4)
-        return sp
+        return UnivariateSpline(range(len(self.energies)), self.energies, k=4)
 
     def smoothness(self):
         """
@@ -467,8 +460,7 @@ class EnergyTrend:
             return None
         spline_energies = sp(range(len(energies)))
         diff = spline_energies - energies
-        rms = np.sqrt(np.sum(np.square(diff)) / len(energies))
-        return rms
+        return np.sqrt(np.sum(np.square(diff)) / len(energies))
 
     def max_spline_jump(self):
         """

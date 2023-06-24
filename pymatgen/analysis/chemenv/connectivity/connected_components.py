@@ -534,8 +534,7 @@ class ConnectedComponent(MSONable):
 
         Returns:
         """
-        supergraph = make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
-        return supergraph
+        return make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
 
     def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True) -> None:
         """
@@ -747,7 +746,7 @@ class ConnectedComponent(MSONable):
                         nbunch=[node_neighbor], data=True, keys=True
                     )
                     logging.debug(
-                        f"            Delta image from node {node} to neighbor {node_neighbor} : "
+                        f"            Delta image from {node=} to {node_neighbor=} : "
                         f"({', '.join(map(str, myddelta))})"
                     )
                     # Loop on the edges of this neighbor

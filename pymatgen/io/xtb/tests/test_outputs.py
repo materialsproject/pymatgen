@@ -10,7 +10,7 @@ from pymatgen.io.xtb.outputs import CRESTOutput
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    from openbabel import openbabel as openbabel
+    from openbabel import openbabel
 except ImportError:
     openbabel = None
     print("OpenBabel not found, parsed molecules structures will not be  checked")

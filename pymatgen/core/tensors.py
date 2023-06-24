@@ -519,8 +519,7 @@ class Tensor(np.ndarray, MSONable):
         # Get the ieee format tensor
         new = self.rotate(trans_1)
         # Reverse the ieee format rotation for the second structure
-        new = new.rotate(np.transpose(trans_2))
-        return new
+        return new.rotate(np.transpose(trans_2))
 
     @classmethod
     def from_values_indices(

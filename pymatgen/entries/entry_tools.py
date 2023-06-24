@@ -279,7 +279,9 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """
         chem_sys = set(chemsys)
         if not chem_sys.issubset(self.chemsys):
-            raise ValueError(f"{chem_sys} is not a subset of {self.chemsys}")
+            raise ValueError(
+                f"{sorted(chem_sys)} is not a subset of {sorted(self.chemsys)}, extra: {chem_sys - self.chemsys}"
+            )
         subset = set()
         for e in self.entries:
             elements = [sp.symbol for sp in e.composition]

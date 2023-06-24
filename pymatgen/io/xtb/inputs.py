@@ -99,12 +99,10 @@ class CRESTInput(MSONable):
         allowed_mtd_string = ",".join(
             [f"{interval_list[i]}-{interval_list[i + 1]}" for i in range(len(interval_list)) if i % 2 == 0]
         )
-        constrains_file_string = (
+        return (
             "$constrain\n"
             f"  atoms: {','.join(map(str, atoms_to_constrain))}\n"
             f"  force constant={force_constant}\n"
             f"  reference={reference_fnm}\n$metadyn\n"
             f"  atoms: {allowed_mtd_string}\n$end"
         )
-
-        return constrains_file_string

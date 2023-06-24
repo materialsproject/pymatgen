@@ -197,7 +197,7 @@ class JahnTellerAnalyzer:
                         {
                             "site_indices": indices,
                             "strength": "none",
-                            "reason": f"motif is {motif}",
+                            "reason": f"{motif=}",
                         }
                     )
 

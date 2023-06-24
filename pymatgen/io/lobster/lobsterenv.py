@@ -1063,14 +1063,13 @@ class LobsterNeighbors(NearNeighbors):
 
         Returns:
         """
-        icohps = icohpcollection.get_icohp_dict_of_site(
+        return icohpcollection.get_icohp_dict_of_site(
             site=isite,
             maxbondlength=6.0,
             minsummedicohp=lowerlimit,
             maxsummedicohp=upperlimit,
             only_bonds_to=only_bonds_to,
         )
-        return icohps
 
     @staticmethod
     def _get_atomnumber(atomstring):

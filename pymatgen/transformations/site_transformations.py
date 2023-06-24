@@ -392,8 +392,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 self.logger.debug(f"{len(all_structures)} symmetrically distinct structures found.")
 
         self.logger.debug(f"Total symmetrically distinct structures found = {len(all_structures)}")
-        all_structures = sorted(all_structures, key=lambda s: s["energy"])
-        return all_structures
+        return sorted(all_structures, key=lambda s: s["energy"])
 
     def _fast_ordering(self, structure: Structure, num_remove_dict, num_to_return=1):
         """

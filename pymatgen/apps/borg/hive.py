@@ -131,14 +131,13 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
         try:
             vasprun = Vasprun(filepath)
-        except Exception as ex:
-            logger.debug(f"error in {filepath}: {ex}")
+        except Exception as exc:
+            logger.debug(f"error in {filepath}: {exc}")
             return None
 
-        entry = vasprun.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
+        return vasprun.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
 
         # entry.parameters["history"] = _get_transformation_history(path)
-        return entry
 
     def get_valid_paths(self, path):
         """
@@ -276,8 +275,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 return ComputedStructureEntry(structure, energy, parameters=param, data=data)
             return ComputedEntry(structure.composition, energy, parameters=param, data=data)
 
-        except Exception as ex:
-            logger.debug(f"error in {path}: {ex}")
+        except Exception as exc:
+            logger.debug(f"error in {path}: {exc}")
             return None
 
     def __str__(self):
@@ -364,8 +363,8 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         """
         try:
             gaurun = GaussianOutput(path)
-        except Exception as ex:
-            logger.debug(f"error in {path}: {ex}")
+        except Exception as exc:
+            logger.debug(f"error in {path}: {exc}")
             return None
         param = {}
         for p in self._parameters:

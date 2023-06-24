@@ -277,10 +277,7 @@ $theory_spec
         if spin_multiplicity is not None:
             spin_multiplicity = spin_multiplicity
             if (nelectrons + spin_multiplicity) % 2 != 1:
-                raise ValueError(
-                    f"Charge of {charge} and spin multiplicity of {spin_multiplicity} is"
-                    " not possible for this molecule"
-                )
+                raise ValueError(f"{charge=} and {spin_multiplicity=} is not possible for this molecule")
         elif charge == mol.charge:
             spin_multiplicity = mol.spin_multiplicity
         else:

@@ -216,7 +216,7 @@ class CorrectionCalculator:
                         try:
                             coeff.append(comp[specie])
                         except ValueError:
-                            raise ValueError(f"We can't detect this specie: {specie}")
+                            raise ValueError(f"We can't detect this {specie=} in {name=}")
 
                 self.names.append(name)
                 self.diffs.append((cmpd_info["exp energy"] - energy) / comp.num_atoms)
