@@ -55,7 +55,7 @@ setup(
         "tblite": ["tblite[ase]>=0.3.0"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
-        "relaxation": ["matgl"],
+        "relaxation": ["matgl", "chgnet"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
             "black",
@@ -72,20 +72,21 @@ setup(
             "doc2dash",
         ],
         "optional": [
-            # "hiphive>=0.6",
-            "matgl",
             "ase>=3.22.1",
             # https://peps.python.org/pep-0508/#environment-markers
             "BoltzTraP2>=22.3.2; platform_system!='Windows'",
             "chemview>=0.6",
+            "chgnet",
             "f90nml>=1.1.2",
             "galore>=0.6.1",
             "h5py>=3.8.0",
             "jarvis-tools>=2020.7.14",
+            "matgl",
             "netCDF4>=1.5.8",
             "phonopy>=2.4.2",
             "seekpath>=1.9.4",
             "tblite[ase]>=0.3.0; platform_system=='Linux'",
+            # "hiphive>=0.6",
         ],
         "numba": [
             "numba",

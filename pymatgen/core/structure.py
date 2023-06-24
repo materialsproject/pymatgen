@@ -657,7 +657,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             verbose (bool): whether to print stdout. Defaults to False.
 
         Returns:
-            Structure: Structure or Molelcule following ASE calculation.
+            Structure: Structure or Molecule following ASE calculation.
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -722,6 +722,17 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns:
             Structure | Molecule: Relaxed structure or molecule
         """
+        # implement chgnet
+        if calculator == "chgnet":
+            from chgnet.model import StructOptimizer
+
+            relaxer = StructOptimizer()
+            out = relaxer.relax(self)
+
+            if return_trajectory:
+                return out["final_structure"], out["trajectory"]
+            return out["final_structure"]
+
         from ase import optimize
         from ase.constraints import ExpCellFilter
         from ase.io import read
