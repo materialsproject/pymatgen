@@ -382,8 +382,8 @@ class IStructureTest(PymatgenTest):
         self.assert_all_close(int_angles, int_s[1].lattice.angles)
 
         # Assert that volume is monotonic
-        assert struct2.lattice.volume >= int_s[1].lattice.volume
-        assert int_s[1].lattice.volume >= struct.lattice.volume
+        assert struct2.volume >= int_s[1].volume
+        assert int_s[1].volume >= struct.volume
 
     def test_interpolate_lattice_rotation(self):
         l1 = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -394,8 +394,8 @@ class IStructureTest(PymatgenTest):
         int_s = struct1.interpolate(struct2, 2, interpolate_lattices=True)
 
         # Assert that volume is monotonic
-        assert struct2.lattice.volume >= int_s[1].lattice.volume
-        assert int_s[1].lattice.volume >= struct1.lattice.volume
+        assert struct2.volume >= int_s[1].volume
+        assert int_s[1].volume >= struct1.volume
 
     def test_get_primitive_structure(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
@@ -1372,6 +1372,48 @@ class StructureTest(PymatgenTest):
         assert not hasattr(out_struct, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
 
+    def test_relax_chgnet(self):
+        pytest.importorskip("chgnet")
+        struct_copy = self.cu_structure.copy()
+        relaxed = self.cu_structure.relax(calculator="chgnet")
+        assert relaxed != self.cu_structure
+        assert relaxed.calc.results["energy"] == approx(-5.27813243)
+        assert relaxed.calc.results["free_energy"] == approx(-5.2781327)
+        assert relaxed.volume == approx(44.98351422)
+        assert relaxed.calc.parameters == {}
+        assert self.cu_structure == struct_copy, "original structure was modified"
+        assert relaxed.volume > self.cu_structure.volume
+
+        # test custom params
+        from chgnet.model import CHGNet
+
+        custom_relaxed = self.cu_structure.relax(
+            calculator="chgnet",
+            optimizer="BFGS",
+            steps=1,
+            fmax=1,
+            stress_weight=0.1,
+            opt_kwargs={"model": CHGNet.load()},
+        )
+        assert custom_relaxed != self.cu_structure
+        assert custom_relaxed.calc.results.get("energy") == approx(-4.47970533)
+        assert custom_relaxed.volume == approx(71.94544488)
+        assert custom_relaxed.volume > relaxed.volume  # on account of steps=1
+
+    def test_calculate_chgnet(self):
+        pytest.importorskip("chgnet")
+        structure = self.get_structure("Si")
+        out_struct = structure.calculate(calculator="chgnet")
+        assert out_struct.lattice == structure.lattice
+        assert list(out_struct.calc) == ["m", "f", "s", "e"]
+        assert out_struct.calc["e"] == approx(-5.3700404167)
+        assert out_struct.calc["m"] == approx([0.00262399, 0.00262396])
+        assert np.allclose(
+            out_struct.calc["f"],
+            [[1.1518598e-05, 6.8321824e-06, -4.5634806e-06], [-1.1488795e-05, -6.8247318e-06, 4.5634806e-06]],
+        )
+        assert not hasattr(out_struct, "dynamics")
+
     def test_relax_ase(self):
         pytest.importorskip("ase")
         struct_copy = self.cu_structure.copy()
@@ -1382,7 +1424,7 @@ class StructureTest(PymatgenTest):
         assert relaxed.calc.results.get("energies") is not None
         assert relaxed.calc.results.get("free_energy")
         assert relaxed.calc.results["energy"] == approx(1.82559661)
-        assert relaxed.lattice.volume == approx(self.cu_structure.lattice.volume)
+        assert relaxed.volume == approx(self.cu_structure.volume)
         assert relaxed.calc.parameters == {"asap_cutoff": False}
         assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics.get("optimizer") == "BFGS"
