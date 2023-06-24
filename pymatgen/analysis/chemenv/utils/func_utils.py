@@ -5,6 +5,7 @@ This module contains some utility functions and classes that are used in the che
 from __future__ import annotations
 
 import numpy as np
+from frozendict import frozendict
 
 from pymatgen.analysis.chemenv.utils.math_utils import (
     power2_decreasing_exp,
@@ -366,7 +367,7 @@ class DeltaCSMRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = {"smootherstep": ["delta_csm_min", "delta_csm_max"]}
+    ALLOWED_FUNCTIONS = frozendict(smootherstep=["delta_csm_min", "delta_csm_max"])
 
     def smootherstep(self, vals):
         """Get the evaluation of the smootherstep ratio function: f(x)=6*x^5-15*x^4+10*x^3.

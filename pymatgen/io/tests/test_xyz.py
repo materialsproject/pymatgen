@@ -105,7 +105,7 @@ C  -4.440892098501D-01 -1.116307996198d+01  1.933502166311E+01
         assert mol[1].y == approx(11.16307996198)
         assert mol[2].x == approx(-0.4440892098501)
         assert mol[2].y == approx(-11.16307996198)
-        # self.assertTrue(abs(mol[1].z) < 1e-5)
+        # assert abs(mol[1].z) < 1e-05
 
         mol_str = """    5
 C32-C2-1

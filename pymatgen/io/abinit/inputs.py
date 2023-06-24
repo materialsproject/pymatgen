@@ -683,7 +683,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         removed = {}
         for key in list_strings(keys):
             if strict and key not in self:
-                raise KeyError(f"key: {key} not in self:\n {list(self)}")
+                raise KeyError(f"{key=} not in self:\n {list(self)}")
             if key in self:
                 removed[key] = self.pop(key)
 

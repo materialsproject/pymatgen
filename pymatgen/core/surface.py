@@ -1454,8 +1454,8 @@ class ReconstructionGenerator:
         """
         if reconstruction_name not in reconstructions_archive:
             raise KeyError(
-                f"The reconstruction_name entered ({reconstruction_name}) does not exist in the "
-                f"archive. Please select from one of the following reconstructions: {list(reconstructions_archive)} "
+                f"{reconstruction_name=} does not exist in the archive. Please select "
+                f"from one of the following reconstructions: {list(reconstructions_archive)} "
                 "or add the appropriate dictionary to the archive file "
                 "reconstructions_archive.json."
             )

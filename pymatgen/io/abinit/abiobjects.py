@@ -151,7 +151,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
         typat = [typat]
 
     if len(typat) != len(coords):
-        raise ValueError(f"len(typat) != len(coords):\ntypat: {typat}\ncoords: {coords}")
+        raise ValueError(f"{len(typat)=} must equal {len(coords)=}")
 
     # Note conversion to int and Fortran --> C indexing
     typat = np.array(typat, dtype=int)
@@ -211,7 +211,7 @@ or the Virtual Crystal Approximation."""
         )
 
     natom = structure.num_sites
-    ntypat = structure.ntypesp
+    n_types_atom = structure.ntypesp
     enforce_order = False
 
     if enforce_znucl is not None or enforce_typat is not None:
@@ -225,8 +225,8 @@ or the Virtual Crystal Approximation."""
                 f"enforce_typat contains {len(enforce_typat)} entries while it should be natom: {len(structure)}"
             )
 
-        if len(enforce_znucl) != ntypat:
-            raise ValueError(f"enforce_znucl contains {len(enforce_znucl)} entries while it should be ntypat: {ntypat}")
+        if len(enforce_znucl) != n_types_atom:
+            raise ValueError(f"enforce_znucl contains {len(enforce_znucl)} entries while it should be {n_types_atom=}")
 
     if not enforce_order:
         types_of_specie = species_by_znucl(structure)
@@ -252,7 +252,7 @@ or the Virtual Crystal Approximation."""
     # Info on atoms.
     d = {
         "natom": natom,
-        "ntypat": ntypat,
+        "ntypat": n_types_atom,
         "typat": typat,
         "znucl": znucl_type,
         "xred": xred,
@@ -282,7 +282,7 @@ or the Virtual Crystal Approximation."""
             angdeg=angdeg,
         )
     else:
-        raise ValueError(f"Wrong value for geomode: {geomode}")
+        raise ValueError(f"Wrong value for {geomode=}")
 
     return d
 
@@ -411,14 +411,14 @@ class Smearing(AbivarAble, MSONable):
     """
 
     #: Mapping string_mode --> occopt
-    _mode2occopt = {
-        "nosmearing": 1,
-        "fermi_dirac": 3,
-        "marzari4": 4,
-        "marzari5": 5,
-        "methfessel": 6,
-        "gaussian": 7,
-    }
+    _mode2occopt = frozendict(
+        nosmearing=1,
+        fermi_dirac=3,
+        marzari4=4,
+        marzari5=5,
+        methfessel=6,
+        gaussian=7,
+    )
 
     def __init__(self, occopt, tsmear):
         """Build object with occopt and tsmear"""
@@ -513,26 +513,26 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
     """Variables controlling the SCF/NSCF algorithm."""
 
     # None indicates that we use abinit defaults.
-    _DEFAULT = {
-        "iprcell": None,
-        "iscf": None,
-        "diemac": None,
-        "diemix": None,
-        "diemixmag": None,
-        "dielam": None,
-        "diegap": None,
-        "dielng": None,
-        "diecut": None,
-        "nstep": 50,
-    }
+    _DEFAULT = frozendict(
+        iprcell=None,
+        iscf=None,
+        diemac=None,
+        diemix=None,
+        diemixmag=None,
+        dielam=None,
+        diegap=None,
+        dielng=None,
+        diecut=None,
+        nstep=50,
+    )
 
     def __init__(self, *args, **kwargs):
         """Initialize object."""
         super().__init__(*args, **kwargs)
 
-        for k in self:
-            if k not in self._DEFAULT:
-                raise ValueError(f"{type(self).__name__}: No default value has been provided for key {k}")
+        for key in self:
+            if key not in self._DEFAULT:
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for {key=}")
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
@@ -1031,17 +1031,17 @@ class RelaxationMethod(AbivarAble, MSONable):
     The set of variables are constructed in to_abivars depending on ionmov and optcell.
     """
 
-    _default_vars = {
-        "ionmov": MANDATORY,
-        "optcell": MANDATORY,
-        "ntime": 80,
-        "dilatmx": 1.05,
-        "ecutsm": 0.5,
-        "strfact": None,
-        "tolmxf": None,
-        "strtarget": None,
-        "atoms_constraints": {},  # Constraints are stored in a dictionary. {} means if no constraint is enforced.
-    }
+    _default_vars = frozendict(
+        ionmov=MANDATORY,
+        optcell=MANDATORY,
+        ntime=80,
+        dilatmx=1.05,
+        ecutsm=0.5,
+        strfact=None,
+        tolmxf=None,
+        strtarget=None,
+        atoms_constraints={},  # Constraints are stored in a dictionary. {} means if no constraint is enforced.
+    )
 
     IONMOV_DEFAULT = 3
     OPTCELL_DEFAULT = 2
@@ -1056,13 +1056,13 @@ class RelaxationMethod(AbivarAble, MSONable):
 
         self.abivars = AttrDict(self.abivars)
 
-        for k in self.abivars:
-            if k not in self._default_vars:
-                raise ValueError(f"{type(self).__name__}: No default value has been provided for key {k}")
+        for key in self.abivars:
+            if key not in self._default_vars:
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for {key=}")
 
-        for k in self.abivars:
-            if k is MANDATORY:
-                raise ValueError(f"{type(self).__name__}: No default value has been provided for the mandatory key {k}")
+        for key in self.abivars:
+            if key is MANDATORY:
+                raise ValueError(f"{type(self).__name__}: No default value has been provided for the mandatory {key=}")
 
     @classmethod
     def atoms_only(cls, atoms_constraints=None):
@@ -1627,7 +1627,7 @@ class ExcHamiltonian(AbivarAble):
         if any(bs_loband < 0):
             raise ValueError(f"bs_loband <= 0 while it is {bs_loband}")
         if any(bs_loband >= nband):
-            raise ValueError(f"bs_loband ({bs_loband}) >= nband ({nband})")
+            raise ValueError(f"({bs_loband=}) >= ({nband=})")
 
     @property
     def inclvkb(self):

@@ -647,8 +647,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
             keys[0] = keys[0][1:]
 
         if len(values) != len(keys):
-            msg = f"line: {line}\n len(keys) != len(value)\nkeys: {keys}\n values: {values}"
-            raise ValueError(msg)
+            raise ValueError(f"{line=}\n {len(keys)=} must equal {len(values)=}")
 
         kwargs.update(zip(keys, values))
 

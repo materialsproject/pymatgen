@@ -1313,7 +1313,7 @@ class GeneticOrderMatcher(KabschMatcher):
                     if rmsd > self.threshold:
                         continue
 
-                    logger.debug(f"match - rmsd: {rmsd}, inds: {inds}")
+                    logger.debug(f"match - {rmsd=}, {inds=}")
                     matches.append(inds)
 
             partial_matches = matches

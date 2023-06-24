@@ -886,12 +886,12 @@ class StructureGraph(MSONable):
         g.graph = {"nodesep": 10.0, "dpi": 300, "overlap": "false"}
 
         # add display options for nodes
-        for n in g.nodes():
+        for node in g.nodes():
             # get label by species name
-            label = f"{self.structure[n].specie}({n})" if node_labels else ""
+            label = f"{self.structure[node].specie}({node})" if node_labels else ""
 
             # use standard color scheme for nodes
-            c = EL_COLORS[color_scheme].get(str(self.structure[n].specie.symbol), [0, 0, 0])
+            c = EL_COLORS[color_scheme].get(str(self.structure[node].specie.symbol), [0, 0, 0])
 
             # get contrasting font color
             # magic numbers account for perceived luminescence
@@ -902,7 +902,7 @@ class StructureGraph(MSONable):
             color = f"#{c[0]:02x}{c[1]:02x}{c[2]:02x}"
 
             g.add_node(
-                n,
+                node,
                 fillcolor=color,
                 fontcolor=fontcolor,
                 label=label,
@@ -2575,12 +2575,12 @@ class MoleculeGraph(MSONable):
         g.graph = {"nodesep": 10.0, "dpi": 300, "overlap": "false"}
 
         # add display options for nodes
-        for n in g.nodes():
+        for node in g.nodes():
             # get label by species name
-            label = f"{self.molecule[n].specie}({n})" if node_labels else ""
+            label = f"{self.molecule[node].specie}({node})" if node_labels else ""
 
             # use standard color scheme for nodes
-            c = EL_COLORS[color_scheme].get(str(self.molecule[n].specie.symbol), [0, 0, 0])
+            c = EL_COLORS[color_scheme].get(str(self.molecule[node].specie.symbol), [0, 0, 0])
 
             # get contrasting font color
             # magic numbers account for perceived luminescence
@@ -2591,7 +2591,7 @@ class MoleculeGraph(MSONable):
             color = f"#{c[0]:02x}{c[1]:02x}{c[2]:02x}"
 
             g.add_node(
-                n,
+                node,
                 fillcolor=color,
                 fontcolor=fontcolor,
                 label=label,

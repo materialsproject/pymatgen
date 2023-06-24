@@ -208,31 +208,27 @@ class NetcdfReader:
         """Returns the variable with name varname in the group specified by path."""
         return self._read_variables(varname, path=path)[0]
 
-    def _read_dimensions(self, *dimnames, **kwargs):
+    def _read_dimensions(self, *dim_names, **kwargs):
         path = kwargs.get("path", "/")
         try:
             if path == "/":
-                return [self.rootgrp.dimensions[dname] for dname in dimnames]
+                return [self.rootgrp.dimensions[dname] for dname in dim_names]
             group = self.path2group[path]
-            return [group.dimensions[dname] for dname in dimnames]
+            return [group.dimensions[dname] for dname in dim_names]
 
         except KeyError:
-            raise self.Error(
-                f"In file {self.path}:\nError while reading dimensions: `{dimnames}` with kwargs: `{kwargs}`"
-            )
+            raise self.Error(f"In file {self.path}:\nError while reading dimensions: {dim_names} with {kwargs=}")
 
-    def _read_variables(self, *varnames, **kwargs):
+    def _read_variables(self, *var_names, **kwargs):
         path = kwargs.get("path", "/")
         try:
             if path == "/":
-                return [self.rootgrp.variables[vname] for vname in varnames]
+                return [self.rootgrp.variables[vname] for vname in var_names]
             group = self.path2group[path]
-            return [group.variables[vname] for vname in varnames]
+            return [group.variables[vname] for vname in var_names]
 
         except KeyError:
-            raise self.Error(
-                f"In file {self.path}:\nError while reading variables: `{varnames}` with kwargs `{kwargs}`."
-            )
+            raise self.Error(f"In file {self.path}:\nError while reading variables: {var_names} with {kwargs=}.")
 
     def read_keys(self, keys, dict_cls=AttrDict, path="/"):
         """

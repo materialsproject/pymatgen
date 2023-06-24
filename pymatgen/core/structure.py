@@ -3380,7 +3380,7 @@ class IMolecule(SiteCollection, MSONable):
         writer: Any
         if fmt == "xyz" or fnmatch(filename.lower(), "*.xyz*"):
             writer = XYZ(self)
-        elif any(fmt == r or fnmatch(filename.lower(), f"*.{r}*") for r in ["gjf", "g03", "g09", "com", "inp"]):
+        elif any(fmt == ext or fnmatch(filename.lower(), f"*.{ext}*") for ext in ["gjf", "g03", "g09", "com", "inp"]):
             writer = GaussianInput(self)
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
             if filename:

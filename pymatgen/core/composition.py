@@ -14,6 +14,7 @@ from functools import total_ordering
 from itertools import combinations_with_replacement, product
 from typing import Generator, Iterator, Union, cast
 
+from frozendict import frozendict
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
 from monty.serialization import loadfn
@@ -72,19 +73,19 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     # Special formula handling for peroxides and certain elements. This is so
     # that formula output does not write LiO instead of Li2O2 for example.
-    special_formulas = {
-        "LiO": "Li2O2",
-        "NaO": "Na2O2",
-        "KO": "K2O2",
-        "HO": "H2O2",
-        "CsO": "Cs2O2",
-        "RbO": "Rb2O2",
-        "O": "O2",
-        "N": "N2",
-        "F": "F2",
-        "Cl": "Cl2",
-        "H": "H2",
-    }
+    special_formulas = frozendict(
+        LiO="Li2O2",
+        NaO="Na2O2",
+        KO="K2O2",
+        HO="H2O2",
+        CsO="Cs2O2",
+        RbO="Rb2O2",
+        O="O2",
+        N="N2",
+        F="F2",
+        Cl="Cl2",
+        H="H2",
+    )
 
     oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
 

@@ -210,7 +210,7 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif issue := "".join(s).strip():
-                warnings.warn(f"Possible issue in cif file at line: {issue}")
+                warnings.warn(f"Possible issue in CIF file at line: {issue}")
         return cls(data, loops, header)
 
 

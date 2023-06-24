@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import namedtuple
 
+from frozendict import frozendict
 from monty.functools import lazy_property
 from monty.json import MSONable
 from monty.string import is_string
@@ -99,16 +100,18 @@ class XcFunc(MSONable):
     # see: http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#ixc
     # and 42_libpaw/m_pawpsp.F90 for the implementation.
     # Fortunately, all the other cases are handled with libxc.
-    abinitixc_to_libxc = {
-        1: {"xc": xcf.LDA_XC_TETER93},
-        2: {"x": xcf.LDA_X, "c": xcf.LDA_C_PZ},  # PZ  001009
-        4: {"x": xcf.LDA_X, "c": xcf.LDA_C_WIGNER},  # W
-        5: {"x": xcf.LDA_X, "c": xcf.LDA_C_HL},  # HL
-        7: {"x": xcf.LDA_X, "c": xcf.LDA_C_PW},  # PW 001012
-        11: {"x": xcf.GGA_X_PBE, "c": xcf.GGA_C_PBE},  # PBE
-        14: {"x": xcf.GGA_X_PBE_R, "c": xcf.GGA_C_PBE},  # revPBE
-        15: {"x": xcf.GGA_X_RPBE, "c": xcf.GGA_C_PBE},  # RPBE
-    }
+    abinitixc_to_libxc = frozendict(
+        {
+            1: {"xc": xcf.LDA_XC_TETER93},
+            2: {"x": xcf.LDA_X, "c": xcf.LDA_C_PZ},  # PZ  001009
+            4: {"x": xcf.LDA_X, "c": xcf.LDA_C_WIGNER},  # W
+            5: {"x": xcf.LDA_X, "c": xcf.LDA_C_HL},  # HL
+            7: {"x": xcf.LDA_X, "c": xcf.LDA_C_PW},  # PW 001012
+            11: {"x": xcf.GGA_X_PBE, "c": xcf.GGA_C_PBE},  # PBE
+            14: {"x": xcf.GGA_X_PBE_R, "c": xcf.GGA_C_PBE},  # revPBE
+            15: {"x": xcf.GGA_X_RPBE, "c": xcf.GGA_C_PBE},  # RPBE
+        }
+    )
     del xcf
 
     @classmethod

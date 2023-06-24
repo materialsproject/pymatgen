@@ -1636,7 +1636,7 @@ class _MPResterLegacy:
     def _print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types):
         non_exist_ids = set(task_ids) - set(nomad_exist_task_ids)
         warnings.warn(
-            f"For file patterns [{file_patterns}] and task_types [{task_types}], \n"
+            f"For {file_patterns=}] and {task_types=}, \n"
             f"the following ids are not found on NOMAD [{list(non_exist_ids)}]. \n"
             f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov"
         )
