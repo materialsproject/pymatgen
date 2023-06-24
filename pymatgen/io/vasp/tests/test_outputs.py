@@ -91,11 +91,8 @@ class VasprunTest(PymatgenTest):
         assert absorption_coeff[1] == 0.8327903762077188
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
-        with pytest.raises(NotImplementedError):
-            Vasprun(
-                self.TEST_FILES_DIR / "vasprun.xml.dielectric_bad",
-                parse_potcar_file=False,
-            )
+        with pytest.raises(NotImplementedError, match="This vasprun.xml has >2 unlabelled dielectric functions"):
+            Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dielectric_bad")
 
     def test_bad_vasprun(self):
         with pytest.raises(ET.ParseError):
@@ -502,7 +499,9 @@ class VasprunTest(PymatgenTest):
 
             # Check for error if no KPOINTS file
             vasprun = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
-            with pytest.raises(VaspParserError):
+            with pytest.raises(
+                VaspParserError, match="KPOINTS not found but needed to obtain band structure along symmetry lines"
+            ):
                 _ = vasprun.get_band_structure(line_mode=True)
 
             # Check KPOINTS.gz successfully inferred and used if present
@@ -624,57 +623,27 @@ class VasprunTest(PymatgenTest):
 
         vasprun.update_potcar_spec(potcar_path)
         assert vasprun.potcar_spec == [
-            {
-                "titel": "PAW_PBE Li 17Jan2003",
-                "hash": "65e83282d1707ec078c1012afbd05be8",
-            },
-            {
-                "titel": "PAW_PBE Fe 06Sep2000",
-                "hash": "9530da8244e4dac17580869b4adab115",
-            },
-            {
-                "titel": "PAW_PBE Fe 06Sep2000",
-                "hash": "9530da8244e4dac17580869b4adab115",
-            },
-            {
-                "titel": "PAW_PBE P 17Jan2003",
-                "hash": "7dc3393307131ae67785a0cdacb61d5f",
-            },
-            {
-                "titel": "PAW_PBE O 08Apr2002",
-                "hash": "7a25bc5b9a5393f46600a4939d357982",
-            },
+            {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+            {"titel": "PAW_PBE P 17Jan2003", "hash": "7dc3393307131ae67785a0cdacb61d5f"},
+            {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
         ]
 
         vasprun2 = Vasprun(filepath, parse_potcar_file=False)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
             vasprun2.update_potcar_spec(potcar_path2)
         vasprun = Vasprun(filepath, parse_potcar_file=potcar_path)
 
         assert vasprun.potcar_spec == [
-            {
-                "titel": "PAW_PBE Li 17Jan2003",
-                "hash": "65e83282d1707ec078c1012afbd05be8",
-            },
-            {
-                "titel": "PAW_PBE Fe 06Sep2000",
-                "hash": "9530da8244e4dac17580869b4adab115",
-            },
-            {
-                "titel": "PAW_PBE Fe 06Sep2000",
-                "hash": "9530da8244e4dac17580869b4adab115",
-            },
-            {
-                "titel": "PAW_PBE P 17Jan2003",
-                "hash": "7dc3393307131ae67785a0cdacb61d5f",
-            },
-            {
-                "titel": "PAW_PBE O 08Apr2002",
-                "hash": "7a25bc5b9a5393f46600a4939d357982",
-            },
+            {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+            {"titel": "PAW_PBE P 17Jan2003", "hash": "7dc3393307131ae67785a0cdacb61d5f"},
+            {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
         ]
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
 
     def test_search_for_potcar(self):
@@ -1441,7 +1410,7 @@ class OutcarTest(PymatgenTest):
         ]
         assert pots == ref_first
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="last_one_only and first_one_only options are incompatible"):
             outcar.read_table_pattern(
                 header_pattern, table_pattern, footer_pattern, last_one_only=True, first_one_only=True
             )
@@ -1589,9 +1558,13 @@ class ChgcarTest(PymatgenTest):
             # Verify some things
             assert len(w) == 1
             assert "Structures are different. Make sure you know what you are doing..." in str(w[-1].message)
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match=r"operands could not be broadcast together with shapes \(48,48,48\) \(72,72,72\)"
+        ):
             self.chgcar_spin + self.chgcar_fe3o4
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="Data have different keys! Maybe one is spin-polarized and the other is not"
+        ):
             self.chgcar_spin + self.chgcar_no_spin
 
     def test_as_dict_and_from_dict(self):
@@ -1633,7 +1606,7 @@ class ProcarTest(PymatgenTest):
         assert p.get_occupation(0, "d")[Spin.up] == approx(0)
         assert p.get_occupation(0, "s")[Spin.up] == approx(0.35381249999999997)
         assert p.get_occupation(0, "p")[Spin.up] == approx(1.19540625)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="'m' is not in list"):
             p.get_occupation(1, "m")
         assert p.nbands == 10
         assert p.nkpoints == 10
@@ -1735,13 +1708,7 @@ class WavecarTest(PymatgenTest):
         w = self.w
         a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0], [0.0, 0.0, 10.0]])
         vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
-        b = np.array(
-            [
-                np.cross(a[1, :], a[2, :]),
-                np.cross(a[2, :], a[0, :]),
-                np.cross(a[0, :], a[1, :]),
-            ]
-        )
+        b = np.array([np.cross(a[1, :], a[2, :]), np.cross(a[2, :], a[0, :]), np.cross(a[0, :], a[1, :])])
         b = 2 * np.pi * b / vol
 
         assert w.filename == self.TEST_FILES_DIR / "WAVECAR.N2"
@@ -1766,16 +1733,18 @@ class WavecarTest(PymatgenTest):
         assert self.w_frac_encut.encut == 100.5
 
         # Test malformed WAVECARs
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="invalid rtag of -9223372036854775808"):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.malformed")
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="invalid vasp_type='poop'"):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2", vasp_type="poop")
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match=r"Incorrect value of vasp_type given \(g\). Please open an issue if you are certain"
+        ):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2", vasp_type="g")
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"cannot reshape array of size 257 into shape \(2,128\)"):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2", vasp_type="n")
 
         import sys
@@ -1819,7 +1788,7 @@ class WavecarTest(PymatgenTest):
         temp_ggp = Wavecar._generate_G_points
         try:
             Wavecar._generate_G_points = lambda x, y, gamma: []
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError, match="not enough values to unpack (expected 3, got 0)"):
                 Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2")
         finally:
             Wavecar._generate_G_points = temp_ggp
@@ -1969,7 +1938,7 @@ class WavecarTest(PymatgenTest):
         unk_std = Unk.from_file(self.TEST_FILES_DIR / "UNK.N2.std")
         unk_ncl = Unk.from_file(self.TEST_FILES_DIR / "UNK.H2.ncl")
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="invalid directory"):
             self.w.write_unks(self.TEST_FILES_DIR / "UNK.N2.std")
 
         # different grids

@@ -886,7 +886,7 @@ class Vasprun(MSONable):
         if not kpoints_filename:
             kpoints_filename = zpath(os.path.join(os.path.dirname(self.filename), "KPOINTS"))
         if kpoints_filename and not os.path.exists(kpoints_filename) and line_mode is True:
-            raise VaspParserError("KPOINTS needed to obtain band structure along symmetry lines.")
+            raise VaspParserError("KPOINTS not found but needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
             e_fermi = self.calculate_efermi()
@@ -4551,8 +4551,12 @@ class Wavecar:
                              (only first letter is required)
         """
         self.filename = filename
-        if not (vasp_type is None or vasp_type.lower()[0] in ["s", "g", "n"]):
-            raise ValueError(f"invalid {vasp_type=}")
+        valid_types = ["std", "gam", "ncl"]
+        initials = {x[0] for x in valid_types}
+        if not (vasp_type is None or vasp_type.lower()[0] in initials):
+            raise ValueError(
+                f"invalid {vasp_type=}, must be one of {valid_types} (we only check the first letter {initials})"
+            )
         self.vasp_type = vasp_type
 
         # c = 0.26246582250210965422

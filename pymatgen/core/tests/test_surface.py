@@ -6,6 +6,7 @@ import random
 import unittest
 
 import numpy as np
+from pytest import approx
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
@@ -82,7 +83,7 @@ class SlabTest(PymatgenTest):
         )
         m = self.zno55.lattice.matrix
         area = np.linalg.norm(np.cross(m[0], m[1]))
-        assert round(abs(zno_slab.surface_area - area), 7) == 0
+        assert zno_slab.surface_area == approx(area)
         assert zno_slab.lattice.parameters == self.zno55.lattice.parameters
         assert zno_slab.oriented_unit_cell.composition == self.zno1.composition
         assert len(zno_slab) == 8
@@ -127,11 +128,11 @@ class SlabTest(PymatgenTest):
 
         assert len(zno_slab) == 9
         assert str(zno_slab[8].specie) == "H"
-        assert round(abs(zno_slab.get_distance(1, 8) - 1.0), 7) == 0
+        assert zno_slab.get_distance(1, 8) == approx(1.0)
         assert zno_slab[8].c > zno_slab[0].c
         m = self.zno55.lattice.matrix
         area = np.linalg.norm(np.cross(m[0], m[1]))
-        assert round(abs(zno_slab.surface_area - area), 7) == 0
+        assert zno_slab.surface_area == approx(area)
         assert zno_slab.lattice.parameters == self.zno55.lattice.parameters
 
     def test_get_sorted_structure(self):
@@ -293,7 +294,7 @@ class SlabTest(PymatgenTest):
         for slab in all_slabs:
             ouc = slab.oriented_unit_cell
 
-            assert round(abs(surface_area(slab) - surface_area(ouc)), 7) == 0
+            assert surface_area(slab) == approx(surface_area(ouc))
             assert len(slab) >= len(ouc)
 
     def test_get_slab_regions(self):
@@ -384,7 +385,7 @@ class SlabGeneratorTest(PymatgenTest):
         struct = self.get_structure("LiFePO4")
         gen = SlabGenerator(struct, [0, 0, 1], 10, 10)
         struct = gen.get_slab(0.25)
-        assert round(abs(struct.lattice.abc[2] - 20.820740000000001), 7) == 0
+        assert struct.lattice.abc[2] == approx(20.820740000000001)
 
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, max_normal_search=1)
@@ -439,8 +440,8 @@ class SlabGeneratorTest(PymatgenTest):
                 )
             gen = SlabGenerator(struct, miller, 10, 10)
             a, b, c = gen.oriented_unit_cell.lattice.matrix
-            assert round(abs(np.dot(a, gen._normal) - 0), 7) == 0
-            assert round(abs(np.dot(b, gen._normal) - 0), 7) == 0
+            assert np.dot(a, gen._normal) == 0
+            assert np.dot(b, gen._normal) == 0
 
     def test_normal_search(self):
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
@@ -448,8 +449,8 @@ class SlabGeneratorTest(PymatgenTest):
             gen = SlabGenerator(fcc, miller, 10, 10)
             gen_normal = SlabGenerator(fcc, miller, 10, 10, max_normal_search=max(miller))
             slab = gen_normal.get_slab()
-            assert round(abs(slab.lattice.alpha - 90), 7) == 0
-            assert round(abs(slab.lattice.beta - 90), 7) == 0
+            assert slab.lattice.alpha == 90
+            assert slab.lattice.beta == 90
             assert len(gen_normal.oriented_unit_cell) >= len(gen.oriented_unit_cell)
 
         graphite = self.get_structure("Graphite")
@@ -464,15 +465,15 @@ class SlabGeneratorTest(PymatgenTest):
             [[1 / 3, 2 / 3, 0.25], [2 / 3, 1 / 3, 0.75]],
         )
         gen = SlabGenerator(sc, (1, 1, 1), 10, 10, max_normal_search=1)
-        assert round(abs(gen.oriented_unit_cell.lattice.angles[1] - 90), 7) == 0
+        assert gen.oriented_unit_cell.lattice.angles[1] == 90
 
     def test_get_slabs(self):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
 
         # Test orthogonality of some internal variables.
         a, b, c = gen.oriented_unit_cell.lattice.matrix
-        assert round(abs(np.dot(a, gen._normal) - 0), 7) == 0
-        assert round(abs(np.dot(b, gen._normal) - 0), 7) == 0
+        assert np.dot(a, gen._normal) == 0
+        assert np.dot(b, gen._normal) == 0
 
         assert len(gen.get_slabs()) == 1
 
@@ -499,8 +500,8 @@ class SlabGeneratorTest(PymatgenTest):
         lco = gen.get_slabs(bonds={("Co", "O"): 3})
         assert len(lco) == 1
         a, b, c = gen.oriented_unit_cell.lattice.matrix
-        assert round(abs(np.dot(a, gen._normal) - 0), 7) == 0
-        assert round(abs(np.dot(b, gen._normal) - 0), 7) == 0
+        assert np.dot(a, gen._normal) == approx(0)
+        assert np.dot(b, gen._normal) == approx(0)
 
         scc = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         gen = SlabGenerator(scc, [0, 0, 1], 10, 10)
@@ -540,8 +541,8 @@ class SlabGeneratorTest(PymatgenTest):
         TeI_slabs = trclnc_TeI.get_slabs()
         slab = TeI_slabs[0]
         norm_slab = slab.get_orthogonal_c_slab()
-        assert round(abs(norm_slab.lattice.angles[0] - 90), 7) == 0
-        assert round(abs(norm_slab.lattice.angles[1] - 90), 7) == 0
+        assert norm_slab.lattice.angles[0] == 90
+        assert norm_slab.lattice.angles[1] == 90
 
     def test_get_orthogonal_c_slab_site_props(self):
         TeI = Structure.from_file(get_path("icsd_TeI.cif"), primitive=False)
@@ -706,7 +707,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         recon2 = ReconstructionGenerator(self.Si, 20, 10, "diamond_100_2x1")
         s1 = recon.get_unreconstructed_slabs()[0]
         s2 = recon2.get_unreconstructed_slabs()[0]
-        assert round(abs(get_d(s1) - get_d(s2)), 7) == 0
+        assert get_d(s1) == approx(get_d(s2))
 
     @unittest.skip("This test relies on neighbor orders and is hard coded. Disable temporarily")
     def test_previous_reconstructions(self):
