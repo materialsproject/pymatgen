@@ -473,7 +473,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = {}
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict | frozendict]] = {}
     STRATEGY_OPTIONS["distance_cutoff"] = frozendict(
         type=DistanceCutoffFloat,
         internal="_distance_cutoff",

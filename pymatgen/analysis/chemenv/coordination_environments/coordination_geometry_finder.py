@@ -19,8 +19,8 @@ import logging
 import time
 from random import shuffle
 
-import frozendict
 import numpy as np
+from frozendict import frozendict
 from numpy.linalg import norm, svd
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
