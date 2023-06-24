@@ -473,7 +473,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(
+    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(  # type: ignore
         distance_cutoff=frozendict(
             type=DistanceCutoffFloat,
             internal="_distance_cutoff",
@@ -864,7 +864,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(
+    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(  # type: ignore
         surface_calculation_type={},
         additional_condition=frozendict(
             type=AdditionalConditionInt,

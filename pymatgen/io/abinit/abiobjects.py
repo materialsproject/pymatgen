@@ -337,6 +337,9 @@ class MandatoryVariable:
     the cool syntax: variable is MANDATORY!
     """
 
+    def as_dict(self):
+        return {}
+
 
 @singleton
 class DefaultVariable:
