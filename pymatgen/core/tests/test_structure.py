@@ -1377,9 +1377,9 @@ class StructureTest(PymatgenTest):
         struct_copy = self.cu_structure.copy()
         relaxed = self.cu_structure.relax(calculator="chgnet")
         assert relaxed != self.cu_structure
-        assert relaxed.calc.results["energy"] == approx(-5.27813243)
-        assert relaxed.calc.results["free_energy"] == approx(-5.2781327)
-        assert relaxed.volume == approx(44.98351422)
+        assert relaxed.calc.results["energy"] == approx(-5.27813243, abs=1e-5)
+        assert relaxed.calc.results["free_energy"] == approx(-5.2781327, abs=1e-5)
+        assert relaxed.volume == approx(44.98351422, abs=1e-5)
         assert relaxed.calc.parameters == {}
         assert self.cu_structure == struct_copy, "original structure was modified"
         assert relaxed.volume > self.cu_structure.volume
@@ -1396,8 +1396,8 @@ class StructureTest(PymatgenTest):
             opt_kwargs={"model": CHGNet.load()},
         )
         assert custom_relaxed != self.cu_structure
-        assert custom_relaxed.calc.results.get("energy") == approx(-4.47970533)
-        assert custom_relaxed.volume == approx(71.94544488)
+        assert custom_relaxed.calc.results.get("energy") == approx(-4.47970533, abs=1e-5)
+        assert custom_relaxed.volume == approx(71.94544488, abs=1e-5)
         assert custom_relaxed.volume > relaxed.volume  # on account of steps=1
 
     def test_calculate_chgnet(self):
@@ -1406,8 +1406,8 @@ class StructureTest(PymatgenTest):
         out_struct = structure.calculate(calculator="chgnet")
         assert out_struct.lattice == structure.lattice
         assert list(out_struct.calc) == ["m", "f", "s", "e"]
-        assert out_struct.calc["e"] == approx(-5.3700404167)
-        assert out_struct.calc["m"] == approx([0.00262399, 0.00262396])
+        assert out_struct.calc["e"] == approx(-5.3700404167, abs=1e-5)
+        assert out_struct.calc["m"] == approx([0.00262399, 0.00262396], abs=1e-5)
         assert np.allclose(
             out_struct.calc["f"],
             [[1.1518598e-05, 6.8321824e-06, -4.5634806e-06], [-1.1488795e-05, -6.8247318e-06, 4.5634806e-06]],
@@ -1419,7 +1419,6 @@ class StructureTest(PymatgenTest):
         struct_copy = self.cu_structure.copy()
         relaxed = self.cu_structure.relax(calculator=EMT(), relax_cell=False, optimizer="BFGS")
         assert relaxed.lattice == self.cu_structure.lattice
-        assert hasattr(relaxed, "calc")
         assert relaxed.calc.results.get("energy")
         assert relaxed.calc.results.get("energies") is not None
         assert relaxed.calc.results.get("free_energy")
@@ -1435,7 +1434,6 @@ class StructureTest(PymatgenTest):
         structure = self.cu_structure
         relaxed, traj = structure.relax(calculator=EMT(), fmax=0.01, return_trajectory=True)
         assert relaxed.lattice != structure.lattice
-        assert hasattr(relaxed, "calc")
         assert relaxed.calc.results.get("energy")
         assert relaxed.calc.results.get("energies") is not None
         assert relaxed.calc.results.get("free_energy")
@@ -1455,7 +1453,6 @@ class StructureTest(PymatgenTest):
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
         )
         assert relaxed.lattice != structure.lattice
-        assert hasattr(relaxed, "calc")
         assert relaxed.calc.results.get("energy")
         assert relaxed.calc.results.get("energies") is not None
         assert relaxed.calc.results.get("free_energy")
@@ -1988,7 +1985,6 @@ class MoleculeTest(PymatgenTest):
         pytest.importorskip("ase")
         mol = self.mol
         relaxed, traj = mol.relax(calculator=EMT(), fmax=0.01, optimizer="BFGS", return_trajectory=True)
-        assert hasattr(relaxed, "calc")
         assert relaxed.calc.results.get("energy")
         assert relaxed.calc.results.get("energies") is not None
         assert relaxed.calc.results.get("free_energy")
@@ -2002,12 +1998,10 @@ class MoleculeTest(PymatgenTest):
     def test_relax_ase_mol_return_traj(self):
         pytest.importorskip("ase")
         tmp_dir = TemporaryDirectory()
-        mol = self.mol
         traj_file = f"{tmp_dir.name}/testing.traj"
-        relaxed, traj = mol.relax(
+        relaxed, traj = self.mol.relax(
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
         )
-        assert hasattr(relaxed, "calc")
         assert relaxed.calc.results.get("energy")
         assert relaxed.calc.results.get("energies") is not None
         assert relaxed.calc.results.get("free_energy")

@@ -404,10 +404,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             np.deg2rad(structure.lattice.beta),
             np.deg2rad(structure.lattice.gamma),
         )
-        v = structure.lattice.volume
-        a_star = b * c * np.sin(alpha) / v
-        b_star = a * c * np.sin(beta) / v
-        c_star = a * b * np.sin(gamma) / v
+        vol = structure.volume
+        a_star = b * c * np.sin(alpha) / vol
+        b_star = a * c * np.sin(beta) / vol
+        c_star = a * b * np.sin(gamma) / vol
         cos_alpha_star = (np.cos(beta) * np.cos(gamma) - np.cos(alpha)) / (np.sin(beta) * np.sin(gamma))
         cos_beta_star = (np.cos(alpha) * np.cos(gamma) - np.cos(beta)) / (np.sin(alpha) * np.sin(gamma))
         cos_gamma_star = (np.cos(alpha) * np.cos(beta) - np.cos(gamma)) / (np.sin(alpha) * np.sin(beta))

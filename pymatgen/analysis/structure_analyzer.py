@@ -202,9 +202,7 @@ class RelaxationAnalyzer:
         Returns:
             Volume change in percentage, e.g., 0.055 implies a 5.5% increase.
         """
-        initial_vol = self.initial.lattice.volume
-        final_vol = self.final.lattice.volume
-        return final_vol / initial_vol - 1
+        return self.final.volume / self.initial.volume - 1
 
     def get_percentage_lattice_parameter_changes(self):
         """

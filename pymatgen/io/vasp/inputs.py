@@ -1274,7 +1274,7 @@ class Kpoints(MSONable):
         return Kpoints(comment, num_kpts, style, [num_div], (0, 0, 0))
 
     @staticmethod
-    def automatic_density_by_vol(structure: Structure, kppvol: int, force_gamma: bool = False):
+    def automatic_density_by_vol(structure: Structure, kppvol: int, force_gamma: bool = False) -> Kpoints:
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density per inverse Angstrom^3 of reciprocal cell.

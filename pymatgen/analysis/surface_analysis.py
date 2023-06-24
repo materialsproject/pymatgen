@@ -1812,7 +1812,7 @@ class NanoscaleStability:
         e = e / 1000 if e_units == "keV" else e
         e = e / ((4 / 3) * np.pi * new_r**3) if normalize else e
         bulk_struct = bulk_entry.structure
-        density = len(bulk_struct) / bulk_struct.lattice.volume
+        density = len(bulk_struct) / bulk_struct.volume
         e = e / (density * w_vol) if scale_per_atom else e
 
         return e, new_r
@@ -1820,11 +1820,15 @@ class NanoscaleStability:
     @staticmethod
     def bulk_gform(bulk_entry):
         """
-        Returns the formation energy of the bulk
+        Returns the formation energy of the bulk.
+
         Args:
             bulk_entry (ComputedStructureEntry): Entry of the corresponding bulk.
+
+        Returns:
+            float: bulk formation energy (in eV)
         """
-        return bulk_entry.energy / bulk_entry.structure.lattice.volume
+        return bulk_entry.energy / bulk_entry.structure.volume
 
     def scaled_wulff(self, wulffshape, r):
         """
