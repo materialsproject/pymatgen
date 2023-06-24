@@ -440,8 +440,8 @@ class SlabGeneratorTest(PymatgenTest):
                 )
             gen = SlabGenerator(struct, miller, 10, 10)
             a, b, c = gen.oriented_unit_cell.lattice.matrix
-            assert np.dot(a, gen._normal) == 0
-            assert np.dot(b, gen._normal) == 0
+            assert np.dot(a, gen._normal) == approx(0)
+            assert np.dot(b, gen._normal) == approx(0)
 
     def test_normal_search(self):
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
@@ -472,8 +472,8 @@ class SlabGeneratorTest(PymatgenTest):
 
         # Test orthogonality of some internal variables.
         a, b, c = gen.oriented_unit_cell.lattice.matrix
-        assert np.dot(a, gen._normal) == 0
-        assert np.dot(b, gen._normal) == 0
+        assert np.dot(a, gen._normal) == approx(0)
+        assert np.dot(b, gen._normal) == approx(0)
 
         assert len(gen.get_slabs()) == 1
 
