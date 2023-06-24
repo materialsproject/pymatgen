@@ -687,14 +687,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         with contextlib.redirect_stdout(stream):
             atoms.get_potential_energy()
 
-        # Ensure Calculator state is preserved because it contains parameters and results
-        calc = atoms.calc
-
         # Get Molecule/Structure object
         struct: Structure | Molecule = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
 
         # Attach important ASE results
-        struct.calc = calc
+        struct.calc = atoms.calc
 
         return struct
 

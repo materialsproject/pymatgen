@@ -282,14 +282,14 @@ class IStructureTest(PymatgenTest):
         coords.append([0, 0, 0])
         coords.append([0.0, 0, 0.0000001])
 
-        structure = IStructure(self.lattice, ["O", "Si"], coords, site_properties={"magmom": [5, -5]})
+        struct = IStructure(self.lattice, ["O", "Si"], coords, site_properties={"magmom": [5, -5]})
 
-        new_struct = structure.copy(site_properties={"charge": [2, 3]}, sanitize=True)
+        new_struct = struct.copy(site_properties={"charge": [2, 3]}, sanitize=True)
         assert new_struct[0].magmom == -5
         assert new_struct[1].magmom == 5
         assert new_struct[0].charge == 3
         assert new_struct[1].charge == 2
-        assert round(abs(new_struct.volume - structure.volume), 7) == 0
+        assert round(abs(new_struct.volume - struct.volume), 7) == 0
 
     def test_interpolate(self):
         coords = []
@@ -1368,7 +1368,7 @@ class StructureTest(PymatgenTest):
         assert out_struct.calc.results.get("free_energy")
         assert out_struct.calc.results["energy"] == approx(1.82609895)
         assert out_struct.calc.parameters == {"asap_cutoff": True}
-        assert out_struct.volume == approx(self.cu_structure.volume)
+        assert out_struct.volume == self.cu_structure.volume
         assert not hasattr(out_struct, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
 
@@ -1419,14 +1419,11 @@ class StructureTest(PymatgenTest):
         struct_copy = self.cu_structure.copy()
         relaxed = self.cu_structure.relax(calculator=EMT(), relax_cell=False, optimizer="BFGS")
         assert relaxed.lattice == self.cu_structure.lattice
-        assert relaxed.calc.results.get("energy")
-        assert relaxed.calc.results.get("energies") is not None
-        assert relaxed.calc.results.get("free_energy")
+        assert {*relaxed.calc.results} >= {"energy", "energies", "free_energy"}
         assert relaxed.calc.results["energy"] == approx(1.82559661)
         assert relaxed.volume == approx(self.cu_structure.volume)
         assert relaxed.calc.parameters == {"asap_cutoff": False}
-        assert hasattr(relaxed, "dynamics")
-        assert relaxed.dynamics.get("optimizer") == "BFGS"
+        assert relaxed.dynamics["optimizer"] == "BFGS"
         assert self.cu_structure == struct_copy, "original structure was modified"
 
     def test_relax_ase_return_traj(self):
@@ -1434,12 +1431,9 @@ class StructureTest(PymatgenTest):
         structure = self.cu_structure
         relaxed, traj = structure.relax(calculator=EMT(), fmax=0.01, return_trajectory=True)
         assert relaxed.lattice != structure.lattice
-        assert relaxed.calc.results.get("energy")
-        assert relaxed.calc.results.get("energies") is not None
-        assert relaxed.calc.results.get("free_energy")
+        assert {*relaxed.calc.results} >= {"energy", "energies", "free_energy"}
         assert relaxed.calc.parameters == {"asap_cutoff": False}
-        assert hasattr(relaxed, "dynamics")
-        assert relaxed.dynamics.get("optimizer") == "FIRE"
+        assert relaxed.dynamics["optimizer"] == "FIRE"
         assert len(traj) == 7
         assert traj[0] != traj[-1]
         os.remove("opt.traj")  # fails if file missing
@@ -1453,46 +1447,41 @@ class StructureTest(PymatgenTest):
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
         )
         assert relaxed.lattice != structure.lattice
-        assert relaxed.calc.results.get("energy")
-        assert relaxed.calc.results.get("energies") is not None
-        assert relaxed.calc.results.get("free_energy")
+        assert {*relaxed.calc.results} >= {"energy", "energies", "free_energy"}
         assert relaxed.calc.parameters == {"asap_cutoff": False}
-        assert hasattr(relaxed, "dynamics")
-        assert relaxed.dynamics.get("optimizer") == "FIRE"
+        assert relaxed.dynamics["optimizer"] == "FIRE"
         assert len(traj) == 3  # there is an off-by-one in how ASE counts steps
         assert traj[0] != traj[-1]
         assert os.path.isfile(traj_file)
 
     def test_calculate_matgl(self):
         pytest.importorskip("matgl")
-        structure = self.get_structure("Si")
-        out_struct = structure.calculate()
-        assert out_struct.lattice == structure.lattice
+        struct = self.get_structure("Si")
+        out_struct = struct.calculate()
+        assert out_struct.lattice == struct.lattice
         assert hasattr(out_struct, "calc")
         assert not hasattr(out_struct, "dynamics")
 
     def test_relax_matgl(self):
         pytest.importorskip("matgl")
-        structure = self.get_structure("Si")
-        relaxed = structure.relax()
+        struct = self.get_structure("Si")
+        relaxed = struct.relax()
         assert relaxed.lattice.a == approx(3.857781624313035)
         assert hasattr(relaxed, "calc")
-        assert hasattr(relaxed, "dynamics")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
 
     def test_relax_matgl_fixed_lattice(self):
         pytest.importorskip("matgl")
-        structure = self.get_structure("Si")
-        relaxed = structure.relax(relax_cell=False, optimizer="BFGS")
-        assert relaxed.lattice == structure.lattice
+        struct = self.get_structure("Si")
+        relaxed = struct.relax(relax_cell=False, optimizer="BFGS")
+        assert relaxed.lattice == struct.lattice
         assert hasattr(relaxed, "calc")
-        assert hasattr(relaxed, "dynamics")
-        assert relaxed.dynamics.get("optimizer") == "BFGS"
+        assert relaxed.dynamics["optimizer"] == "BFGS"
 
     def test_relax_matgl_with_traj(self):
         pytest.importorskip("matgl")
-        structure = self.get_structure("Si")
-        relaxed, trajectory = structure.relax(return_trajectory=True)
+        struct = self.get_structure("Si")
+        relaxed, trajectory = struct.relax(return_trajectory=True)
         assert relaxed.lattice.a == approx(3.857781624313035)
         expected_attrs = ["atom_positions", "atoms", "cells", "energies", "forces", "stresses"]
         assert sorted(trajectory.__dict__) == expected_attrs
@@ -1973,9 +1962,7 @@ class MoleculeTest(PymatgenTest):
         mol_copy = mol.copy()
         new_mol = mol.calculate(calculator=EMT(asap_cutoff=True))
         assert hasattr(new_mol, "calc")
-        assert new_mol.calc.results.get("energy")
-        assert new_mol.calc.results.get("energies") is not None
-        assert new_mol.calc.results.get("free_energy")
+        assert {*new_mol.calc.results} >= {"energy", "energies", "free_energy"}
         assert new_mol.calc.results["energy"] == approx(1.99570042)
         assert new_mol.calc.parameters == {"asap_cutoff": True}
         assert not hasattr(new_mol, "dynamics")
@@ -1985,12 +1972,9 @@ class MoleculeTest(PymatgenTest):
         pytest.importorskip("ase")
         mol = self.mol
         relaxed, traj = mol.relax(calculator=EMT(), fmax=0.01, optimizer="BFGS", return_trajectory=True)
-        assert relaxed.calc.results.get("energy")
-        assert relaxed.calc.results.get("energies") is not None
-        assert relaxed.calc.results.get("free_energy")
+        assert {*relaxed.calc.results} >= {"energy", "energies", "free_energy"}
         assert relaxed.calc.parameters == {"asap_cutoff": False}
-        assert hasattr(relaxed, "dynamics")
-        assert relaxed.dynamics.get("optimizer") == "BFGS"
+        assert relaxed.dynamics["optimizer"] == "BFGS"
         assert len(traj) == 5
         assert traj[0] != traj[-1]
         os.remove("opt.traj")  # fails if file missing
@@ -2002,12 +1986,9 @@ class MoleculeTest(PymatgenTest):
         relaxed, traj = self.mol.relax(
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
         )
-        assert relaxed.calc.results.get("energy")
-        assert relaxed.calc.results.get("energies") is not None
-        assert relaxed.calc.results.get("free_energy")
+        assert {*relaxed.calc.results} >= {"energy", "energies", "free_energy"}
         assert relaxed.calc.parameters == {"asap_cutoff": False}
-        assert hasattr(relaxed, "dynamics")
-        assert relaxed.dynamics.get("optimizer") == "FIRE"
+        assert relaxed.dynamics["optimizer"] == "FIRE"
         assert len(traj) == 3  # there is an off-by-one in how ASE counts steps
         assert traj[0] != traj[-1]
         assert os.path.isfile(traj_file)

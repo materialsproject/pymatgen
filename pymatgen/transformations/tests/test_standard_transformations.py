@@ -590,7 +590,7 @@ class ScaleToRelaxedTransformationTest(unittest.TestCase):
         slab_scaling = ScaleToRelaxedTransformation(Cu_init, Cu_fin)
         Au_init = Structure.from_file(os.path.join(f, "Au_slab_init.cif"))
         Au_fin = slab_scaling.apply_transformation(Au_init)
-        assert Au_fin.lattice.volume == approx(Au_init.lattice.volume)
+        assert Au_fin.volume == approx(Au_init.volume)
 
         # Test on gb relaxation
         f = os.path.join(PymatgenTest.TEST_FILES_DIR, "grain_boundary")
