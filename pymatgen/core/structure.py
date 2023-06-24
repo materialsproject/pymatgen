@@ -644,31 +644,40 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             others = new_others
         return cluster
 
-    def _calculate(
-        self, struct: Structure | Molecule, calculator: str | Calculator, verbose: bool = False
-    ) -> Structure | Molecule:
+    def _calculate(self, calculator: str | Calculator, verbose: bool = False) -> Structure | Molecule:
         """
         Performs an ASE calculation.
 
         Args:
-            struct: Structure or Molecule to run ASE calculation on.
-            calculator: An ASE Calculator or a string from the following options: "m3gnet",
-                "gfn2-xtb".
+            calculator (str | Calculator): An ASE Calculator or a string from the following case-insensitive
+                options: "m3gnet", "gfn2-xtb", "chgnet".
             verbose (bool): whether to print stdout. Defaults to False.
+                Has no effect when calculator=='chgnet'.
 
         Returns:
-            Structure: Structure or Molecule following ASE calculation.
+            Structure | Molecule: Structure or Molecule with new calc attribute containing
+                result of ASE calculation.
         """
+        if isinstance(calculator, str) and calculator.lower() == "chgnet":
+            from chgnet.model import CHGNet
+
+            chgnet = CHGNet.load()
+            preds = chgnet.predict_structure(self)
+
+            out = self.copy()  # type: ignore[attr-defined]
+            out.calc = preds
+            return out
+
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        is_molecule = isinstance(struct, Molecule)
-        if is_molecule and calculator == "m3gnet":
+        is_molecule = isinstance(self, Molecule)
+        if is_molecule and isinstance(calculator, str) and calculator.lower() == "m3gnet":
             raise ValueError(f"Can't use {calculator=} for a Molecule.")
         calculator = self._prep_calculator(calculator)
 
         # Get Atoms object
         adaptor = AseAtomsAdaptor()
-        atoms = adaptor.get_atoms(struct)
+        atoms = adaptor.get_atoms(self)
 
         # Set calculator
         atoms.calc = calculator
@@ -682,7 +691,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         calc = atoms.calc
 
         # Get Molecule/Structure object
-        struct = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
+        struct: Structure | Molecule = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
 
         # Attach important ASE results
         struct.calc = calc
@@ -705,7 +714,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Performs a structure relaxation using an ASE calculator.
 
         Args:
-            calculator: An ASE Calculator or a string from the following options: "M3GNet",
+            calculator (str | ase.Calculator): An ASE Calculator or a string from the following options: "M3GNet",
                 "gfn2-xtb".
             relax_cell (bool): whether to relax the lattice cell. Defaults to True.
             optimizer (str): name of the ASE optimizer class to use
@@ -722,12 +731,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns:
             Structure | Molecule: Relaxed structure or molecule
         """
-        # implement chgnet
-        if calculator == "chgnet":
+        if isinstance(calculator, str) and calculator.lower() == "chgnet":
             from chgnet.model import StructOptimizer
 
-            relaxer = StructOptimizer()
-            out = relaxer.relax(self)
+            relaxer = StructOptimizer(optimizer_class=optimizer, stress_weight=stress_weight, **(opt_kwargs or {}))
+            out = relaxer.relax(self, steps=steps, fmax=fmax, relax_cell=relax_cell)
 
             if return_trajectory:
                 return out["final_structure"], out["trajectory"]
@@ -4209,7 +4217,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Returns:
             Structure: Structure following ASE calculation.
         """
-        return self._calculate(self, calculator, verbose=verbose)
+        return self._calculate(calculator, verbose=verbose)
 
     @classmethod
     def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Structure:
@@ -4722,7 +4730,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         Returns:
             Molecule: Molecule following ASE calculation.
         """
-        return self._calculate(self, calculator, verbose=verbose)
+        return self._calculate(calculator, verbose=verbose)
 
 
 class StructureError(Exception):
