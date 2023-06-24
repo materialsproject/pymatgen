@@ -1049,7 +1049,7 @@ class RelaxationMethod(AbivarAble, MSONable):
     def __init__(self, *args, **kwargs):
         """Initialize object."""
         # Initialize abivars with the default values.
-        self.abivars = self._default_vars
+        self.abivars = {**self._default_vars}
 
         # Overwrite the keys with the args and kwargs passed to constructor.
         self.abivars.update(*args, **kwargs)
