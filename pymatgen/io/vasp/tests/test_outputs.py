@@ -1733,15 +1733,13 @@ class WavecarTest(PymatgenTest):
         assert self.w_frac_encut.encut == 100.5
 
         # Test malformed WAVECARs
-        with pytest.raises(ValueError, match="invalid rtag of -9223372036854775808"):
+        with pytest.raises(ValueError, match="invalid rtag=-9223372036854775808"):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2.malformed")
 
         with pytest.raises(ValueError, match="invalid vasp_type='poop'"):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2", vasp_type="poop")
 
-        with pytest.raises(
-            ValueError, match=r"Incorrect value of vasp_type given \(g\). Please open an issue if you are certain"
-        ):
+        with pytest.raises(ValueError, match=r"Incorrect vasp_type='g'. Please open an issue if you are certain"):
             Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2", vasp_type="g")
 
         with pytest.raises(ValueError, match=r"cannot reshape array of size 257 into shape \(2,128\)"):
@@ -1788,7 +1786,7 @@ class WavecarTest(PymatgenTest):
         temp_ggp = Wavecar._generate_G_points
         try:
             Wavecar._generate_G_points = lambda x, y, gamma: []
-            with pytest.raises(ValueError, match="not enough values to unpack (expected 3, got 0)"):
+            with pytest.raises(ValueError, match=r"not enough values to unpack \(expected 3, got 0\)"):
                 Wavecar(self.TEST_FILES_DIR / "WAVECAR.N2")
         finally:
             Wavecar._generate_G_points = temp_ggp

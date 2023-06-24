@@ -1881,7 +1881,7 @@ class MoleculeTest(PymatgenTest):
         benzene.substitute(1, sub)
         assert benzene.formula == "H8 C7"
         # Carbon attached should be in plane.
-        assert benzene[11].coords[2] == 0
+        assert benzene[11].coords[2] == approx(0)
         benzene[14] = "Br"
         benzene.substitute(13, sub)
         assert benzene.formula == "H9 C8 Br1"
