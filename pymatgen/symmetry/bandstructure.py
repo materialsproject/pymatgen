@@ -396,7 +396,7 @@ class HighSymmKpath(KPathBase):
 
         new_labels_dict = {label: point.frac_coords for label, point in bandstructure.labels_dict.items()}
 
-        new_bandstructure = BandStructureSymmLine(
+        return BandStructureSymmLine(
             kpoints=new_kpoints,
             eigenvals=new_bands,
             lattice=bandstructure.lattice_rec,
@@ -405,5 +405,3 @@ class HighSymmKpath(KPathBase):
             structure=bandstructure.structure,
             projections=new_projections,
         )
-
-        return new_bandstructure

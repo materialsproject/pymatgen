@@ -135,10 +135,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
             logger.debug(f"error in {filepath}: {ex}")
             return None
 
-        entry = vasprun.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
+        return vasprun.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
 
         # entry.parameters["history"] = _get_transformation_history(path)
-        return entry
 
     def get_valid_paths(self, path):
         """

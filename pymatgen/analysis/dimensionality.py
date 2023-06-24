@@ -291,9 +291,7 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
     sorted_sites = np.array(sites, dtype=object)[indices_ordering]
     sorted_graph = nx.convert_node_labels_to_integers(graph, ordering="sorted")
     mol = Molecule([s.specie for s in sorted_sites], [s.coords for s in sorted_sites])
-    mol_graph = MoleculeGraph.with_edges(mol, nx.Graph(sorted_graph).edges())
-
-    return mol_graph
+    return MoleculeGraph.with_edges(mol, nx.Graph(sorted_graph).edges())
 
 
 def get_dimensionality_cheon(

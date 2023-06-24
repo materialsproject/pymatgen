@@ -344,8 +344,7 @@ class StructureEnvironments(MSONable):
                 sorted_points.append((idp, iap))
                 move_ap_index = not move_ap_index
 
-            points = [(pdists[idp], pangs[iap]) for (idp, iap) in sorted_points]
-            return points
+            return [(pdists[idp], pangs[iap]) for (idp, iap) in sorted_points]
 
         @property
         def source(self):

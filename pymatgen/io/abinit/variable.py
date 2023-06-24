@@ -154,9 +154,7 @@ class InputVariable:
 
         sval = f"{fval:>{ndec + addlen}.{ndec}{form}}"
 
-        sval = sval.replace("e", "d")
-
-        return sval
+        return sval.replace("e", "d")
 
     @staticmethod
     def format_list2d(values, floatdecimal=0):

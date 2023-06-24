@@ -390,8 +390,7 @@ class ElasticTensor(NthOrderElasticTensor):
         v0 = structure.volume * 1e-30 / structure.num_sites
         vl, vt = self.long_v(structure), self.trans_v(structure)
         vm = 3 ** (1 / 3) * (1 / vl**3 + 2 / vt**3) ** (-1 / 3)
-        td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1 / 3)
-        return td
+        return 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1 / 3)
 
     @property
     def universal_anisotropy(self):
@@ -519,8 +518,7 @@ class ElasticTensor(NthOrderElasticTensor):
         if vasp:
             c_ij *= -0.1  # Convert units/sign convention of vasp stress tensor
         c = cls.from_voigt(c_ij)
-        c = c.zeroed(tol)
-        return c
+        return c.zeroed(tol)
 
 
 class ComplianceTensor(Tensor):
@@ -603,10 +601,9 @@ class ElasticTensorExpansion(TensorCollection):
             u (3x1 array-like): polarization direction
         """
         gk = self[0].einsum_sequence([n, u, n, u])
-        result = -(
-            2 * gk * np.outer(u, u) + self[0].einsum_sequence([n, n]) + self[1].einsum_sequence([n, u, n, u])
-        ) / (2 * gk)
-        return result
+        return -(2 * gk * np.outer(u, u) + self[0].einsum_sequence([n, n]) + self[1].einsum_sequence([n, u, n, u])) / (
+            2 * gk
+        )
 
     def get_tgt(self, temperature=None, structure=None, quad=None):
         """

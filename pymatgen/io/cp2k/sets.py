@@ -564,8 +564,7 @@ class DftSet(Cp2kInput):
 
         exponents = [get_soft_exponents(b) for b in basis_sets if b.exponents]
         exponents = list(itertools.chain.from_iterable(exponents))
-        cutoff = np.ceil(max(itertools.chain.from_iterable(exponents))) * rel_cutoff
-        return cutoff
+        return np.ceil(max(itertools.chain.from_iterable(exponents))) * rel_cutoff
 
     @staticmethod
     def get_xc_functionals(xc_functionals: list | str | None = None) -> list:

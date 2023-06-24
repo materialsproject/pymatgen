@@ -2025,7 +2025,7 @@ class ReactionDiagram:
         entry1 = PDEntry(self.entry1.composition, 0)
         entry2 = PDEntry(self.entry2.composition, 0)
 
-        cpd = CompoundPhaseDiagram(
+        return CompoundPhaseDiagram(
             [*self.rxn_entries, entry1, entry2],
             [
                 Composition(entry1.composition.reduced_formula),
@@ -2033,7 +2033,6 @@ class ReactionDiagram:
             ],
             normalize_terminal_compositions=False,
         )
-        return cpd
 
 
 class PhaseDiagramError(Exception):

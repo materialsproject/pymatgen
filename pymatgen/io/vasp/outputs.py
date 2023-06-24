@@ -591,8 +591,7 @@ class Vasprun(MSONable):
                 equation, the unit is in cm-1
                 """
                 hc = 1.23984 * 1e-4  # plank constant times speed of light, in the unit of eV*cm
-                coeff = 2 * 3.14159 * np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hc * freq
-                return coeff
+                return 2 * 3.14159 * np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hc * freq
 
             absorption_coeff = [
                 f(freq, real, imag) for freq, real, imag in zip(self.dielectric_data["density"][0], real_avg, imag_avg)
@@ -3963,10 +3962,8 @@ class Oszicar:
         def smart_convert(header, num):
             try:
                 if header in ("N", "ncg"):
-                    v = int(num)
-                    return v
-                v = float(num)
-                return v
+                    return int(num)
+                return float(num)
             except ValueError:
                 return "--"
 

@@ -1080,14 +1080,12 @@ class StructureGraph(MSONable):
         with using `to_dict_of_dicts` from NetworkX
         to store graph information.
         """
-        d = {
+        return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "graphs": json_graph.adjacency_data(self.graph),
         }
-
-        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -1298,9 +1296,7 @@ class StructureGraph(MSONable):
             "graphs": json_graph.adjacency_data(new_g),
         }
 
-        sg = StructureGraph.from_dict(d)
-
-        return sg
+        return StructureGraph.from_dict(d)
 
     def __rmul__(self, other):
         return self.__mul__(other)

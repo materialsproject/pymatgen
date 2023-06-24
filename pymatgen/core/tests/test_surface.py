@@ -28,8 +28,7 @@ from pymatgen.util.testing import PymatgenTest
 
 
 def get_path(path_str):
-    path = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
-    return path
+    return os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
 
 
 class SlabTest(PymatgenTest):

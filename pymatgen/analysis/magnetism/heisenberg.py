@@ -113,9 +113,7 @@ class HeisenbergMapper:
         strategy = MinimumDistanceNN(cutoff=cutoff, get_all_sites=True) if cutoff else MinimumDistanceNN()  # only NN
 
         # Generate structure graphs
-        sgraphs = [StructureGraph.with_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
-
-        return sgraphs
+        return [StructureGraph.with_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
 
     @staticmethod
     def _get_unique_sites(structure):
@@ -656,7 +654,7 @@ class HeisenbergMapper:
         hm_javg = self.estimate_exchange()
         hm_igraph = self.get_interaction_graph()
 
-        hmodel = HeisenbergModel(
+        return HeisenbergModel(
             hm_formula,
             hm_structures,
             hm_energies,
@@ -672,8 +670,6 @@ class HeisenbergMapper:
             hm_javg,
             hm_igraph,
         )
-
-        return hmodel
 
 
 class HeisenbergScreener:
@@ -945,7 +941,7 @@ class HeisenbergModel(MSONable):
         except SyntaxError:  # if ex_mat is empty
             ex_mat = pd.DataFrame(columns=["E", "E0"])
 
-        hmodel = HeisenbergModel(
+        return HeisenbergModel(
             formula=d["formula"],
             structures=structures,
             energies=d["energies"],
@@ -961,8 +957,6 @@ class HeisenbergModel(MSONable):
             javg=d["javg"],
             igraph=igraph,
         )
-
-        return hmodel
 
     def _get_j_exc(self, i, j, dist):
         """

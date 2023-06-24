@@ -534,14 +534,13 @@ class BztInterpolator:
         else:
             bands_dict = {Spin.up: (egrid / units.eV)}
 
-        sbs = BandStructureSymmLine(
+        return BandStructureSymmLine(
             kpoints,
             bands_dict,
             self.data.structure.lattice.reciprocal_lattice,
             self.efermi / units.eV,
             labels_dict=kpoints_lbls_dict,
         )
-        return sbs
 
     def get_dos(self, partial_dos=False, npts_mu=10000, T=None, progress=False):
         """

@@ -163,8 +163,7 @@ def run_mcsqs(
             process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
-            sqs = _parse_sqs_path(".")
-            return sqs
+            return _parse_sqs_path(".")
 
         os.chdir(original_directory)
         raise TimeoutError("Cluster expansion took too long.")

@@ -391,8 +391,7 @@ class QCInput(InputFile):
             # the delimiter between QChem jobs is @@@
             multi_job_strings = f.read().split("@@@")
             # list of individual QChem jobs
-            input_list = [cls.from_string(i) for i in multi_job_strings]
-            return input_list
+            return [cls.from_string(i) for i in multi_job_strings]
 
     @staticmethod
     def molecule_template(molecule: Molecule | list[Molecule] | Literal["read"]) -> str:

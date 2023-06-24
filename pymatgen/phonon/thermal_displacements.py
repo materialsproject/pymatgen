@@ -227,8 +227,7 @@ class ThermalDisplacementMatrices(MSONable):
         prod_of_norms = np.linalg.norm(a) * np.linalg.norm(b)
         divided = dot_product / prod_of_norms
         angle_rad = np.arccos(np.round(divided, 10))
-        angle = np.degrees(angle_rad)
-        return angle
+        return np.degrees(angle_rad)
 
     def compute_directionality_quality_criterion(self, other):
         """

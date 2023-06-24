@@ -890,11 +890,9 @@ class BoltztrapAnalyzer:
             bz_bands_in_eV = (self._bz_bands * Energy(1, "Ry").to("eV") + efermi).T
             bands_dict = {Spin.up: bz_bands_in_eV[:, idx_list[:, 1]].tolist()}  # type: ignore
 
-            sbs = BandStructureSymmLine(
+            return BandStructureSymmLine(
                 kpt_line, bands_dict, structure.lattice.reciprocal_lattice, efermi, labels_dict=labels_dict
             )
-
-            return sbs
 
         except Exception:
             raise BoltztrapError(
@@ -2373,5 +2371,4 @@ def seebeck_eff_mass_from_seebeck_carr(seeb, n, T, Lambda):
     a certain carrier concentration n.
     """
     eta = eta_from_seebeck(seeb, Lambda)
-    mass = seebeck_eff_mass_from_carr(eta, n, T, Lambda)
-    return mass
+    return seebeck_eff_mass_from_carr(eta, n, T, Lambda)

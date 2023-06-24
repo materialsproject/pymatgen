@@ -459,8 +459,7 @@ class FreeVolumePotential(StaticPotential):
                     d_f = sorted(s.get_sites_in_sphere(coords_f, s.lattice.a), key=lambda x: x[1])[0][1]
                     # logger.debug(d_f)
                     gauss_dist[int(a_d)][int(b_d)][int(c_d)] = d_f / r
-        v = scipy.stats.norm.pdf(gauss_dist)
-        return v
+        return scipy.stats.norm.pdf(gauss_dist)
 
 
 class MixedPotential(StaticPotential):

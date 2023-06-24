@@ -417,8 +417,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
         canon_inchi_orig_map2 = list(zip(canon_label2, list(range(1, nheavy + 1)), ilabel2))
         canon_inchi_orig_map2.sort(key=lambda m: m[0])
-        heavy_atom_indices2 = tuple(x[2] for x in canon_inchi_orig_map2)
-        return heavy_atom_indices2
+        return tuple(x[2] for x in canon_inchi_orig_map2)
 
     @staticmethod
     def _align_hydrogen_atoms(mol1, mol2, heavy_indices1, heavy_indices2):
@@ -498,8 +497,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Returns:
             Elements. List of integers.
         """
-        elements = [int(mol.GetAtom(i).GetAtomicNum()) for i in label]
-        return elements
+        return [int(mol.GetAtom(i).GetAtomicNum()) for i in label]
 
     def _is_molecule_linear(self, mol):
         """
@@ -572,8 +570,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Return inchi as molecular hash
         """
         obmol = BabelMolAdaptor(mol).openbabel_mol
-        inchi = self._inchi_labels(obmol)[2]
-        return inchi
+        return self._inchi_labels(obmol)[2]
 
 
 class MoleculeMatcher(MSONable):
@@ -704,8 +701,7 @@ class MoleculeMatcher(MSONable):
                 group_indices.append(sorted(current_group))
 
         group_indices.sort(key=lambda x: (len(x), -x[0]), reverse=True)
-        all_groups = [[mol_list[i] for i in g] for g in group_indices]
-        return all_groups
+        return [[mol_list[i] for i in g] for g in group_indices]
 
     def as_dict(self):
         """
@@ -844,9 +840,7 @@ class KabschMatcher(MSONable):
 
         # And finally calculating the optimal rotation matrix R
         # we need to correct our rotation matrix to ensure a right-handed coordinate system.
-        U = np.dot(np.dot(V, np.diag([1, 1, d])), WT)
-
-        return U
+        return np.dot(np.dot(V, np.diag([1, 1, d])), WT)
 
 
 class BruteForceOrderMatcher(KabschMatcher):
@@ -1135,8 +1129,7 @@ class HungarianOrderMatcher(KabschMatcher):
 
         eigvals, eigvecs = np.linalg.eigh(inertia_tensor)
 
-        principal_axis = eigvecs[:, 0]
-        return principal_axis
+        return eigvecs[:, 0]
 
     @staticmethod
     def rotation_matrix_vectors(v1, v2):

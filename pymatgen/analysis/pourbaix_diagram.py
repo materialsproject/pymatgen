@@ -392,8 +392,7 @@ class IonEntry(PDEntry):
         """
         Creates a dict of composition, energy, and ion name
         """
-        d = {"ion": self.ion.as_dict(), "energy": self.energy, "name": self.name}
-        return d
+        return {"ion": self.ion.as_dict(), "energy": self.energy, "name": self.name}
 
     def __repr__(self):
         return f"IonEntry : {self.composition} with energy = {self.energy:.4f}"
@@ -881,8 +880,7 @@ class PourbaixDiagram(MSONable):
             (float or [float]) minimum Pourbaix energy at conditions
         """
         all_gs = np.array([e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries])
-        base = np.min(all_gs, axis=0)
-        return base
+        return np.min(all_gs, axis=0)
 
     def get_stable_entry(self, pH, V):
         """

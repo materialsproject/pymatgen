@@ -56,9 +56,7 @@ def read_matrix_pattern(header_pattern, footer_pattern, elements_pattern, text, 
     elements = re.findall(elements_pattern, text_between_header_and_footer)
 
     # Apply postprocessing to all the elements
-    elements = [postprocess(e) for e in elements]
-
-    return elements
+    return [postprocess(e) for e in elements]
 
 
 def read_table_pattern(

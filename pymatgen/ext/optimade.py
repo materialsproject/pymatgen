@@ -153,8 +153,7 @@ class OptimadeRester:
     def describe(self):
         """Provides human-readable information about the resources being searched by the OptimadeRester."""
         provider_text = "\n".join(map(str, (provider for provider in self._providers.values() if provider)))
-        description = f"OptimadeRester connected to:\n{provider_text}"
-        return description
+        return f"OptimadeRester connected to:\n{provider_text}"
 
     # @retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=2000)
     def _get_json(self, url):

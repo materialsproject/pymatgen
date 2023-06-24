@@ -66,8 +66,7 @@ def to_matrix(xx, yy, zz, xy, yz, xz):
     Returns:
         (np.array): The matrix, as a 3x3 numpy array.
     """
-    matrix = np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
-    return matrix
+    return np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
 
 
 def parse_dielectric_data(data):
@@ -252,12 +251,10 @@ def slme(
     J_sc = e * simps(solar_spectra_photon_flux * absorbed_by_wavelength, solar_spectra_wavelength)
 
     def J(V):
-        J = J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)
-        return J
+        return J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)
 
     def power(V):
-        p = J(V) * V
-        return p
+        return J(V) * V
 
     test_voltage = 0
     voltage_step = 0.001

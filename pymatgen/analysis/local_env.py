@@ -82,8 +82,7 @@ class ValenceIonicRadiusEvaluator:
         List of ionic radii of elements in the order of sites.
         """
         elems = [site.species_string for site in self._structure]
-        radii_dict = dict(zip(elems, self._ionic_radii))
-        return radii_dict
+        return dict(zip(elems, self._ionic_radii))
 
     @property
     def valences(self):
@@ -91,8 +90,7 @@ class ValenceIonicRadiusEvaluator:
         List of oxidation states of elements in the order of sites.
         """
         el = [site.species_string for site in self._structure]
-        valence_dict = dict(zip(el, self._valences))
-        return valence_dict
+        return dict(zip(el, self._valences))
 
     @property
     def structure(self):
@@ -570,8 +568,7 @@ class NearNeighbors:
         """
         original_site = structure[NearNeighbors._get_original_site(structure, site)]
         image = np.around(np.subtract(site.frac_coords, original_site.frac_coords))
-        image = tuple(image.astype(int))
-        return image
+        return tuple(image.astype(int))
 
     @staticmethod
     def _get_original_site(structure, site):
@@ -1519,9 +1516,7 @@ class OpenBabelNN(NearNeighbors):
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        mg = MoleculeGraph.with_local_env_strategy(structure, self)
-
-        return mg
+        return MoleculeGraph.with_local_env_strategy(structure, self)
 
     def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
@@ -1666,9 +1661,7 @@ class CovalentBondNN(NearNeighbors):
             order_parameters = [self.get_local_order_parameters(structure, n) for n in range(len(structure))]
             structure.add_site_property("order_parameters", order_parameters)
 
-        mg = MoleculeGraph.with_local_env_strategy(structure, self)
-
-        return mg
+        return MoleculeGraph.with_local_env_strategy(structure, self)
 
     def get_nn_shell_info(self, structure: Structure, site_idx, shell):
         """Get a certain nearest neighbor shell for a certain site.
@@ -1965,8 +1958,7 @@ def vol_tetra(vt1, vt2, vt3, vt4):
     Returns:
         (float): volume of the tetrahedron.
     """
-    vol_tetra = np.abs(np.dot((vt1 - vt4), np.cross((vt2 - vt4), (vt3 - vt4)))) / 6
-    return vol_tetra
+    return np.abs(np.dot((vt1 - vt4), np.cross((vt2 - vt4), (vt3 - vt4)))) / 6
 
 
 def get_okeeffe_params(el_symbol):
@@ -2499,8 +2491,7 @@ class LocalStructOrderParams:
             imag += pre_y_2_2[i] * self._sin_n_p[2][i]
         acc += real * real + imag * imag
 
-        q2 = sqrt(4 * pi * acc / (5 * float(nnn * nnn)))
-        return q2
+        return sqrt(4 * pi * acc / (5 * float(nnn * nnn)))
 
     def get_q4(self, thetas=None, phis=None):
         """
@@ -2606,8 +2597,7 @@ class LocalStructOrderParams:
             imag += pre_y_4_4[i] * self._sin_n_p[4][i]
         acc += real * real + imag * imag
 
-        q4 = sqrt(4 * pi * acc / (9 * float(nnn * nnn)))
-        return q4
+        return sqrt(4 * pi * acc / (9 * float(nnn * nnn)))
 
     def get_q6(self, thetas=None, phis=None):
         """
@@ -2774,8 +2764,7 @@ class LocalStructOrderParams:
             imag += pre_y_6_6[idx] * self._sin_n_p[6][idx]
         acc += real * real + imag * imag
 
-        q6 = sqrt(4 * pi * acc / (13 * float(nnn * nnn)))
-        return q6
+        return sqrt(4 * pi * acc / (13 * float(nnn * nnn)))
 
     def get_type(self, index):
         """

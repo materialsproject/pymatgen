@@ -179,13 +179,11 @@ class Magmom(MSONable):
         sin_a = np.sin(alpha)
         sin_b = np.sin(beta)
 
-        m = [
+        return [
             [cos_b * cos_a, -sin_a, sin_b * cos_a],
             [cos_b * sin_a, cos_a, sin_b * sin_a],
             [-sin_b, 0, cos_b],
         ]
-
-        return m
 
     @classmethod
     def _get_transformation_matrix_inv(cls, saxis):
@@ -199,13 +197,11 @@ class Magmom(MSONable):
         sin_a = np.sin(alpha)
         sin_b = np.sin(beta)
 
-        m = [
+        return [
             [cos_b * cos_a, cos_b * sin_a, -sin_b],
             [-sin_a, cos_a, 0],
             [sin_b * cos_a, sin_b * sin_a, cos_b],
         ]
-
-        return m
 
     def get_moment(self, saxis=(0, 0, 1)):
         """

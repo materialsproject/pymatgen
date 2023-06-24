@@ -2648,8 +2648,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
             from pymatgen.io.prismatic import Prismatic
 
-            s = Prismatic(self).to_string()
-            return s
+            return Prismatic(self).to_string()
         elif fmt == "yaml" or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             if filename:

@@ -184,9 +184,7 @@ class GruneisenParameter(MSONable):
         i_b = UnivariateSpline(f_mesh, dos, s=0).integral(f_mesh[0], f_mesh[-1])
 
         integrals = i_a / i_b
-        t_d = np.sqrt(5 / 3 * integrals) / const.value("Boltzmann constant in Hz/K")
-
-        return t_d
+        return np.sqrt(5 / 3 * integrals) / const.value("Boltzmann constant in Hz/K")
 
     def debye_temp_phonopy(self, freq_max_fit=None):
         """
@@ -204,9 +202,7 @@ class GruneisenParameter(MSONable):
         t.set_Debye_frequency(num_atoms=self.structure.num_sites, freq_max_fit=freq_max_fit)
         f_d = t.get_Debye_frequency()  # in THz
         # f_d in THz is converted in a temperature (K)
-        t_d = const.value("Planck constant") * f_d * const.tera / const.value("Boltzmann constant")
-
-        return t_d
+        return const.value("Planck constant") * f_d * const.tera / const.value("Boltzmann constant")
 
     @property
     def acoustic_debye_temp(self):

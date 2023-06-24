@@ -317,8 +317,7 @@ def find_rotation(points_distorted, points_perfect):
     """
     H = np.matmul(points_distorted.T, points_perfect)
     U, S, Vt = svd(H)
-    rot = np.matmul(Vt.T, U.T)
-    return rot
+    return np.matmul(Vt.T, U.T)
 
 
 def find_scaling_factor(points_distorted, points_perfect, rot):

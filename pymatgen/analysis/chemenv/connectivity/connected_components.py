@@ -534,8 +534,7 @@ class ConnectedComponent(MSONable):
 
         Returns:
         """
-        supergraph = make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
-        return supergraph
+        return make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
 
     def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True) -> None:
         """

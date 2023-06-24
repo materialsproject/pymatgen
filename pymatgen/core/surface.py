@@ -293,8 +293,7 @@ class Slab(Structure):
                 )
                 slabs.append(slab)
         s = StructureMatcher()
-        unique = [ss[0] for ss in s.group_structures(slabs)]
-        return unique
+        return [ss[0] for ss in s.group_structures(slabs)]
 
     def is_symmetric(self, symprec: float = 0.1):
         """
@@ -434,8 +433,7 @@ class Slab(Structure):
     def center_of_mass(self):
         """Calculates the center of mass of the slab."""
         weights = [s.species.weight for s in self]
-        center_of_mass = np.average(self.frac_coords, weights=weights, axis=0)
-        return center_of_mass
+        return np.average(self.frac_coords, weights=weights, axis=0)
 
     def add_adsorbate_atom(self, indices, specie, distance):
         """
@@ -1054,8 +1052,7 @@ class SlabGenerator:
             else:
                 shift = (possible_c[i] + possible_c[i + 1]) * 0.5
             shifts.append(shift - math.floor(shift))
-        shifts = sorted(shifts)
-        return shifts
+        return sorted(shifts)
 
     def _get_c_ranges(self, bonds):
         c_ranges = []
@@ -2002,6 +1999,4 @@ def _reduce_vector(vector):
     # small function to reduce vectors
 
     d = abs(reduce(gcd, vector))
-    vector = tuple(int(i / d) for i in vector)
-
-    return vector
+    return tuple(int(i / d) for i in vector)

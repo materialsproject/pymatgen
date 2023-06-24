@@ -913,14 +913,13 @@ class _MPResterLegacy:
         if additional_criteria:
             criteria.update(additional_criteria)
 
-        entries = self.get_entries(
+        return self.get_entries(
             criteria,
             compatible_only=compatible_only,
             inc_structure=inc_structure,
             property_data=property_data,
             conventional_unit_cell=conventional_unit_cell,
         )
-        return entries
 
     def get_exp_thermo_data(self, formula):
         """

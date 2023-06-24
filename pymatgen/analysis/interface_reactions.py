@@ -227,8 +227,7 @@ class InterfacialReactivity(MSONable):
             for _, ratio, reactivity, rxn, rxn_energy in self.get_kinks()
         ]
 
-        df = DataFrame(rxns)
-        return df
+        return DataFrame(rxns)
 
     def get_critical_original_kink_ratio(self):
         """
@@ -396,8 +395,7 @@ class InterfacialReactivity(MSONable):
         layout["xaxis"]["title"] = self._get_xaxis_title(latex=False)
         layout["annotations"] = annotations
 
-        fig = Figure(data=data, layout=layout)
-        return fig
+        return Figure(data=data, layout=layout)
 
     def _get_matplotlib_figure(self) -> plt.Figure:
         """Returns a matplotlib figure of reaction kinks diagram"""

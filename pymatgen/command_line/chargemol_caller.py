@@ -345,8 +345,7 @@ class ChargemolAnalysis:
         """
         bonded_set = self.bond_order_dict[index_from]["bonded_to"]
         bond_orders = [v["bond_order"] for v in bonded_set if v["index"] == index_to]
-        sum_bo = 0.0 if bond_orders == [] else np.sum(bond_orders)
-        return sum_bo
+        return 0.0 if bond_orders == [] else np.sum(bond_orders)
 
     def _write_jobscript_for_chargemol(
         self,

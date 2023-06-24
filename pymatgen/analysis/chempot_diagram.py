@@ -297,9 +297,7 @@ class ChemicalPotentialDiagram(MSONable):
 
         data = self._get_2d_domain_lines(draw_domains)
 
-        fig = Figure(data, layout)
-
-        return fig
+        return Figure(data, layout)
 
     def _get_3d_plot(
         self,
@@ -385,9 +383,7 @@ class ChemicalPotentialDiagram(MSONable):
         if draw_formula_meshes:
             data.extend(self._get_3d_formula_meshes(draw_domains, formula_colors))
 
-        fig = Figure(data, layout)
-
-        return fig
+        return Figure(data, layout)
 
     @staticmethod
     def _get_new_limits_from_padding(
@@ -422,7 +418,7 @@ class ChemicalPotentialDiagram(MSONable):
             x.extend([*pts[:, 0].tolist(), None])
             y.extend([*pts[:, 1].tolist(), None])
 
-        lines = [
+        return [
             Scatter(
                 x=x,
                 y=y,
@@ -431,7 +427,6 @@ class ChemicalPotentialDiagram(MSONable):
                 showlegend=False,
             )
         ]
-        return lines
 
     @staticmethod
     def _get_3d_domain_lines(domains: dict[str, list[Simplex] | None]) -> list[Scatter3d]:
@@ -447,7 +442,7 @@ class ChemicalPotentialDiagram(MSONable):
                     y.extend([*s.coords[:, 1].tolist(), None])
                     z.extend([*s.coords[:, 2].tolist(), None])
 
-        lines = [
+        return [
             Scatter3d(
                 x=x,
                 y=y,
@@ -457,7 +452,6 @@ class ChemicalPotentialDiagram(MSONable):
                 showlegend=False,
             )
         ]
-        return lines
 
     @staticmethod
     def _get_3d_domain_simplexes_and_ann_loc(
@@ -695,9 +689,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
         a += common_term
 
     prefactor = 0.5 / (6 * a)
-    centroid = np.array([prefactor * cx, prefactor * cy])
-
-    return centroid
+    return np.array([prefactor * cx, prefactor * cy])
 
 
 def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
@@ -720,9 +712,7 @@ def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
 
     theta = np.pi / 2 if np.isclose(x_diff, 0) else np.arctan(y_diff / x_diff)
 
-    vec = np.array([np.sin(theta), np.cos(theta)])
-
-    return vec
+    return np.array([np.sin(theta), np.cos(theta)])
 
 
 def _renormalize_entry(entry: PDEntry, renormalization_energy_per_atom: float) -> PDEntry:
@@ -733,5 +723,4 @@ def _renormalize_entry(entry: PDEntry, renormalization_energy_per_atom: float) -
     renormalized_entry_dict["energy"] = entry.energy - renormalization_energy_per_atom * sum(
         entry.composition.values()
     )  # entry.energy includes MP corrections as desired
-    renormalized_entry = PDEntry.from_dict(renormalized_entry_dict)
-    return renormalized_entry
+    return PDEntry.from_dict(renormalized_entry_dict)
