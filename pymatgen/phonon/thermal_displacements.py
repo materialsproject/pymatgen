@@ -18,8 +18,8 @@ space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # t
 
 try:
     import phonopy
-except ImportError as ex:
-    print(ex)
+except ImportError as exc:
+    print(exc)
     phonopy = None
 
 __author__ = "J. George"

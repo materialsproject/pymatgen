@@ -175,23 +175,23 @@ class InputVariable:
         # Determine the format
         width = max(len(str(s)) for s in lvals)
         if type_all == int:
-            formatspec = f">{width}d"
+            fmt_spec = f">{width}d"
         elif type_all == str:
-            formatspec = f">{width}"
+            fmt_spec = f">{width}"
         else:
             # Number of decimal
-            maxdec = max(len(str(f - int(f))) - 2 for f in lvals)
-            ndec = min(max(maxdec, floatdecimal), 10)
+            max_dec = max(len(str(f - int(f))) - 2 for f in lvals)
+            ndec = min(max(max_dec, floatdecimal), 10)
 
             if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in lvals):
-                formatspec = f">{ndec + 5}.{ndec}f"
+                fmt_spec = f">{ndec + 5}.{ndec}f"
             else:
-                formatspec = f">{ndec + 8}.{ndec}e"
+                fmt_spec = f">{ndec + 8}.{ndec}e"
 
         line = "\n"
         for L in values:
             for val in L:
-                line += f" {val:{{formatspec}}}"
+                line += f" {val:{{fmt_spec}}}"
             line += "\n"
 
         return line.rstrip("\n")

@@ -149,12 +149,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __iter__(self) -> Iterator[Species | Element | DummySpecies]:
         return self._data.__iter__()
 
-    def __contains__(self, item) -> bool:
+    def __contains__(self, key) -> bool:
         try:
-            sp = get_el_sp(item)
+            sp = get_el_sp(key)
             return sp in self._data
-        except ValueError as ex:
-            raise TypeError(f"Invalid key {item}, {type(item)} for Composition\nValueError exception:\n{ex}")
+        except ValueError as exc:
+            raise TypeError(f"Invalid {key=} for Composition") from exc
 
     def __eq__(self, other: object) -> bool:
         """Defines == for Compositions."""

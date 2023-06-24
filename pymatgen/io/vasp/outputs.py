@@ -498,9 +498,9 @@ class Vasprun(MSONable):
                         d = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
                         if "kinetic" in d:
                             md_data[-1]["energy"] = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
-        except ET.ParseError as ex:
+        except ET.ParseError as exc:
             if self.exception_on_bad_xml:
-                raise ex
+                raise exc
             warnings.warn(
                 "XML is malformed. Parsing has stopped but partial data is available.",
                 UserWarning,
@@ -1267,12 +1267,12 @@ class Vasprun(MSONable):
                         params[name] = _parse_parameters(ptype, val)
                     else:
                         params[name] = _parse_v_parameters(ptype, val, self.filename, name)
-                except Exception as ex:
+                except Exception as exc:
                     if name == "RANDOM_SEED":
                         # Handles the case where RANDOM SEED > 99999, which results in *****
                         params[name] = None
                     else:
-                        raise ex
+                        raise exc
         elem.clear()
         return Incar(params)
 
@@ -3167,9 +3167,9 @@ class Outcar:
                     self.p_sp1 *= -1
                     self.p_sp2 *= -1
 
-        except Exception as ex:
-            print(ex.args)
-            raise Exception("LCALCPOL OUTCAR could not be parsed.")
+        except Exception as exc:
+            print(exc.args)
+            raise Exception("LCALCPOL OUTCAR could not be parsed.") from exc
 
     def read_pseudo_zval(self):
         """

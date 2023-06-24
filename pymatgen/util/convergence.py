@@ -373,8 +373,8 @@ def measure(function, xs, ys, popt, weights):
             else:
                 raise NotImplementedError
             n += 1
-        except IndexError:
-            raise RuntimeError(f"y does not exist for {x = }, this should not happen")
+        except IndexError as exc:
+            raise IndexError(f"y does not exist for {x = }, this should not happen") from exc
 
     return m
 

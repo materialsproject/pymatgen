@@ -398,8 +398,8 @@ class EwaldSummation(MSONable):
             new_ereals = erfcval * qi * qj / rij
 
             # insert new_ereals
-            for k in range(numsites):
-                ereal[k, i] = np.sum(new_ereals[js == k])
+            for key in range(numsites):
+                ereal[key, i] = np.sum(new_ereals[js == key])
 
             if self._compute_forces:
                 nccoords = self._s.lattice.get_cartesian_coords(nfcoords)

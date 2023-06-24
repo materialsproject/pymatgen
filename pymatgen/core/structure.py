@@ -4249,8 +4249,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 return Structure.from_spacegroup(
                     "F-43m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 3 / 4]]
                 )
-        except KeyError as ex:
-            raise ValueError(f"Required parameter {ex} not specified as a kwargs!")
+        except KeyError as exc:
+            raise ValueError(f"Required parameter {exc} not specified as a kwargs!") from exc
         raise ValueError(f"Unsupported {prototype=}!")
 
 

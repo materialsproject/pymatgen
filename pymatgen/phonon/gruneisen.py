@@ -16,8 +16,8 @@ from pymatgen.phonon.dos import PhononDos
 try:
     import phonopy
     from phonopy.phonon.dos import TotalDos
-except ImportError as ex:
-    print(ex)
+except ImportError as exc:
+    print(exc)
     phonopy = None
 
 __author__ = "A. Bonkowski, J. George, G. Petretto"

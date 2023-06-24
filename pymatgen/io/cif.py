@@ -1439,8 +1439,8 @@ def str2float(text):
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
             return float(re.sub(r"\(.+\)*", "", text[0]))
-    except ValueError as ex:
+    except ValueError as exc:
         if text.strip() == ".":
             return 0
-        raise ex
+        raise exc
     raise ValueError(f"{text} cannot be converted to float")

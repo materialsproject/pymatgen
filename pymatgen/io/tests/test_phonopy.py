@@ -33,8 +33,8 @@ from pymatgen.util.testing import PymatgenTest
 try:
     from phonopy import Phonopy
     from phonopy.file_IO import parse_FORCE_CONSTANTS
-except ImportError as ex:
-    print(ex)
+except ImportError as exc:
+    print(exc)
     Phonopy = None
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "phonopy")

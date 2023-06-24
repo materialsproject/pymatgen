@@ -286,8 +286,8 @@ class _MPResterLegacy:
 
             raise MPRestError(f"REST query returned with error status code {response.status_code}")
 
-        except Exception as ex:
-            msg = f"{ex}. Content: {getattr(response, 'content', str(ex))}"
+        except Exception as exc:
+            msg = f"{exc}. Content: {getattr(response, 'content', str(exc))}"
             raise MPRestError(msg)
 
     def get_database_version(self) -> str:
@@ -471,23 +471,20 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            if isinstance(filename_or_structure, str):
-                s = Structure.from_file(filename_or_structure)
-            elif isinstance(filename_or_structure, Structure):
-                s = filename_or_structure
-            else:
-                raise MPRestError("Provide filename or Structure object.")
-            payload = {"structure": json.dumps(s.as_dict(), cls=MontyEncoder)}
-            response = self.session.post(f"{self.preamble}/find_structure", data=payload)
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    return resp["response"]
-                raise MPRestError(resp["error"])
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        if isinstance(filename_or_structure, str):
+            s = Structure.from_file(filename_or_structure)
+        elif isinstance(filename_or_structure, Structure):
+            s = filename_or_structure
+        else:
+            raise MPRestError("Provide filename or Structure object.")
+        payload = {"structure": json.dumps(s.as_dict(), cls=MontyEncoder)}
+        response = self.session.post(f"{self.preamble}/find_structure", data=payload)
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                return resp["response"]
+            raise MPRestError(resp["error"])
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_entries(
         self,
@@ -1151,23 +1148,19 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            snl = snl if isinstance(snl, list) else [snl]
-            jsondata = [s.as_dict() for s in snl]
-            payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
-            response = self.session.post(f"{self.preamble}/snl/submit", data=payload)
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp["inserted_ids"]
-                raise MPRestError(resp["error"])
+        snl = snl if isinstance(snl, list) else [snl]
+        jsondata = [s.as_dict() for s in snl]
+        payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
+        response = self.session.post(f"{self.preamble}/snl/submit", data=payload)
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp["inserted_ids"]
+            raise MPRestError(resp["error"])
 
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def delete_snl(self, snl_ids):
         """
@@ -1185,22 +1178,18 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            payload = {"ids": json.dumps(snl_ids)}
-            response = self.session.post(f"{self.preamble}/snl/delete", data=payload)
+        payload = {"ids": json.dumps(snl_ids)}
+        response = self.session.post(f"{self.preamble}/snl/delete", data=payload)
 
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp
-                raise MPRestError(resp["error"])
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp
+            raise MPRestError(resp["error"])
 
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def query_snl(self, criteria):
         """
@@ -1221,21 +1210,17 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            payload = {"criteria": json.dumps(criteria)}
-            response = self.session.post(f"{self.preamble}/snl/query", data=payload)
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp["response"]
-                raise MPRestError(resp["error"])
+        payload = {"criteria": json.dumps(criteria)}
+        response = self.session.post(f"{self.preamble}/snl/query", data=payload)
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp["response"]
+            raise MPRestError(resp["error"])
 
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def submit_vasp_directory(
         self,
@@ -1323,22 +1308,19 @@ class _MPResterLegacy:
 
     def get_stability(self, entries):
         """Returns the stability of all entries."""
-        try:
-            payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
-            response = self.session.post(
-                f"{self.preamble}/phase_diagram/calculate_stability",
-                data=payload,
-            )
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp["response"]
-                raise MPRestError(resp["error"])
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
+        response = self.session.post(
+            f"{self.preamble}/phase_diagram/calculate_stability",
+            data=payload,
+        )
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp["response"]
+            raise MPRestError(resp["error"])
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_cohesive_energy(self, material_id, per_atom=False):
         """
