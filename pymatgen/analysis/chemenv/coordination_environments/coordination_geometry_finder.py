@@ -19,6 +19,7 @@ import logging
 import time
 from random import shuffle
 
+import frozendict
 import numpy as np
 from numpy.linalg import norm, svd
 
@@ -342,27 +343,27 @@ class LocalGeometryFinder:
     """
 
     DEFAULT_BVA_DISTANCE_SCALE_FACTOR = 1.0
-    BVA_DISTANCE_SCALE_FACTORS = {
-        "experimental": 1.0,
-        "GGA_relaxed": 1.015,
-        "LDA_relaxed": 0.995,
-    }
-    DEFAULT_SPG_ANALYZER_OPTIONS = {"symprec": 1e-3, "angle_tolerance": 5}
+    BVA_DISTANCE_SCALE_FACTORS = frozendict(
+        experimental=1.0,
+        GGA_relaxed=1.015,
+        LDA_relaxed=0.995,
+    )
+    DEFAULT_SPG_ANALYZER_OPTIONS = frozendict(symprec=1e-3, angle_tolerance=5)
     STRUCTURE_REFINEMENT_NONE = "none"
     STRUCTURE_REFINEMENT_REFINED = "refined"
     STRUCTURE_REFINEMENT_SYMMETRIZED = "symmetrized"
 
     DEFAULT_STRATEGY = MultiWeightsChemenvStrategy.stats_article_weights_parameters()
 
-    PRESETS = {
-        "DEFAULT": {
+    PRESETS = frozendict(
+        DEFAULT={
             "maximum_distance_factor": 2.0,
             "minimum_angle_factor": 0.05,
             "voronoi_normalized_distance_tolerance": 0.05,
             "voronoi_normalized_angle_tolerance": 0.03,
             "optimization": 2,
         }
-    }
+    )
 
     def __init__(
         self,

@@ -1387,7 +1387,7 @@ class LightStructureEnvironments(MSONable):
     """
 
     DELTA_MAX_OXIDATION_STATE = 0.1
-    DEFAULT_STATISTICS_FIELDS = [
+    DEFAULT_STATISTICS_FIELDS = (
         "anion_list",
         "anion_atom_list",
         "cation_list",
@@ -1400,7 +1400,7 @@ class LightStructureEnvironments(MSONable):
         "fraction_ion_coordination_environments_present",
         "coordination_environments_atom_present",
         "coordination_environments_ion_present",
-    ]
+    )
 
     class NeighborsSet:
         """

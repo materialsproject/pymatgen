@@ -42,7 +42,7 @@ class OptimadeRester:
 
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
-    aliases: dict[str, str] = frozendict(
+    aliases = frozendict(
         {
             "aflow": "http://aflow.org/API/optimade/",
             "cod": "https://www.crystallography.net/cod/optimade",
