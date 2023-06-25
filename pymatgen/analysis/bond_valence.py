@@ -283,8 +283,8 @@ class BVAnalyzer:
 
             def evaluate_assignment(v_set):
                 el_oxi = collections.defaultdict(list)
-                for i, sites in enumerate(equi_sites):
-                    el_oxi[sites[0].specie.symbol].append(v_set[i])
+                for idx, sites in enumerate(equi_sites):
+                    el_oxi[sites[0].specie.symbol].append(v_set[idx])
                 max_diff = max(max(v) - min(v) for v in el_oxi.values())
                 if max_diff > 1:
                     return

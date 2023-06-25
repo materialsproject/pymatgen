@@ -166,8 +166,8 @@ class IsingModel(EnergyModel):
         """
         all_nn = structure.get_all_neighbors(r=self.max_radius)
         energy = 0
-        for i, nns in enumerate(all_nn):
-            s1 = getattr(structure[i].specie, "spin", 0)
+        for idx, nns in enumerate(all_nn):
+            s1 = getattr(structure[idx].specie, "spin", 0)
             for nn in nns:
                 energy += self.j * s1 * getattr(nn.specie, "spin", 0) / (nn.nn_distance**2)
         return energy

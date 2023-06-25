@@ -267,10 +267,10 @@ class EwaldSummation(MSONable):
             self._calc_ewald_terms()
             self._initialized = True
 
-        totalenergy = self._recip + self._real
-        for i, energy in enumerate(self._point):
-            totalenergy[i, i] += energy
-        return totalenergy
+        total_energy = self._recip + self._real
+        for idx, energy in enumerate(self._point):
+            total_energy[idx, idx] += energy
+        return total_energy
 
     @property
     def forces(self):
