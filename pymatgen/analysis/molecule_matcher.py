@@ -84,7 +84,7 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
     def from_dict(cls, d):
         """
         Args:
-            d (): Dict
+            d (): Dict.
 
         Returns:
             AbstractMolAtomMapper
@@ -105,15 +105,13 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
 
 
 class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
-    """
-    Pair atoms by isomorphism permutations in the OpenBabel::OBAlign class
-    """
+    """Pair atoms by isomorphism permutations in the OpenBabel::OBAlign class."""
 
     def uniform_labels(self, mol1, mol2):
         """
         Pair the geometrically equivalent atoms of the molecules.
         Calculate RMSD on all possible isomorphism mappings and return mapping
-        with the least RMSD
+        with the least RMSD.
 
         Args:
             mol1: First molecule. OpenBabel OBMol or pymatgen Molecule object.
@@ -169,9 +167,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         return label1, best_label2
 
     def get_molecule_hash(self, mol):
-        """
-        Return inchi as molecular hash
-        """
+        """Return inchi as molecular hash."""
         obconv = openbabel.OBConversion()
         obconv.SetOutFormat("inchi")
         obconv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
@@ -194,7 +190,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             IsomorphismMolAtomMapper
@@ -203,9 +199,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
 
 
 class InchiMolAtomMapper(AbstractMolAtomMapper):
-    """
-    Pair atoms by inchi labels.
-    """
+    """Pair atoms by inchi labels."""
 
     def __init__(self, angle_tolerance=10.0):
         """
@@ -231,7 +225,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict Representation
+            d (dict): Dict Representation.
 
         Returns:
             InchiMolAtomMapper
@@ -241,7 +235,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     @staticmethod
     def _inchi_labels(mol):
         """
-        Get the inchi canonical labels of the heavy atoms in the molecule
+        Get the inchi canonical labels of the heavy atoms in the molecule.
 
         Args:
             mol: The molecule. OpenBabel OBMol object
@@ -273,7 +267,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     @staticmethod
     def _group_centroid(mol, ilabels, group_atoms):
         """
-        Calculate the centroids of a group atoms indexed by the labels of inchi
+        Calculate the centroids of a group atoms indexed by the labels of inchi.
 
         Args:
             mol: The molecule. OpenBabel OBMol object
@@ -298,7 +292,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     def _virtual_molecule(self, mol, ilabels, eq_atoms):
         """
         Create a virtual molecule by unique atoms, the centroids of the
-        equivalent atoms
+        equivalent atoms.
 
         Args:
             mol: The molecule. OpenBabel OBMol object
@@ -345,7 +339,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     def _align_heavy_atoms(mol1, mol2, vmol1, vmol2, ilabel1, ilabel2, eq_atoms):
         """
         Align the label of topologically identical atoms of second molecule
-        towards first molecule
+        towards first molecule.
 
         Args:
             mol1: First molecule. OpenBabel OBMol object
@@ -423,7 +417,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     def _align_hydrogen_atoms(mol1, mol2, heavy_indices1, heavy_indices2):
         """
         Align the label of topologically identical atoms of second molecule
-        towards first molecule
+        towards first molecule.
 
         Args:
             mol1: First molecule. OpenBabel OBMol object
@@ -488,7 +482,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     @staticmethod
     def _get_elements(mol, label):
         """
-        The elements of the atoms in the specified order
+        The elements of the atoms in the specified order.
 
         Args:
             mol: The molecule. OpenBabel OBMol object.
@@ -501,7 +495,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
     def _is_molecule_linear(self, mol):
         """
-        Is the molecule a linear one
+        Is the molecule a linear one.
 
         Args:
             mol: The molecule. OpenBabel OBMol object.
@@ -527,7 +521,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         """
         Args:
             mol1 (Molecule): Molecule 1
-            mol2 (Molecule): Molecule 2
+            mol2 (Molecule): Molecule 2.
 
         Returns:
             Labels
@@ -566,17 +560,13 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         return clabel1, clabel2
 
     def get_molecule_hash(self, mol):
-        """
-        Return inchi as molecular hash
-        """
+        """Return inchi as molecular hash."""
         obmol = BabelMolAdaptor(mol).openbabel_mol
         return self._inchi_labels(obmol)[2]
 
 
 class MoleculeMatcher(MSONable):
-    """
-    Class to match molecules and identify whether molecules are the same.
-    """
+    """Class to match molecules and identify whether molecules are the same."""
 
     @requires(
         openbabel,
@@ -590,7 +580,7 @@ class MoleculeMatcher(MSONable):
             tolerance (float): RMSD difference threshold whether two molecules are
                 different
             mapper (AbstractMolAtomMapper): MolAtomMapper object that is able to map the atoms of two
-                molecule to uniform order
+                molecule to uniform order.
         """
         self._tolerance = tolerance
         self._mapper = mapper or InchiMolAtomMapper()
@@ -720,7 +710,7 @@ class MoleculeMatcher(MSONable):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             MoleculeMatcher
@@ -732,7 +722,7 @@ class MoleculeMatcher(MSONable):
 
 
 class KabschMatcher(MSONable):
-    """Molecule matcher using Kabsch algorithm
+    """Molecule matcher using Kabsch algorithm.
 
     The Kabsch algorithm capable aligning two molecules by finding the parameters
     (translation, rotation) which minimize the root-mean-square-deviation (RMSD) of
@@ -756,7 +746,7 @@ class KabschMatcher(MSONable):
         happens in three steps:
         - translate the P and Q into their centroid
         - compute of the optimal rotation matrix (U) using Kabsch algorithm
-        - compute the translation (V) and rmsd
+        - compute the translation (V) and rmsd.
 
         The function returns the rotation matrix (U), translation vector (V),
         and RMSD between Q and P', where P' is:

@@ -30,9 +30,7 @@ __date__ = "June 2019"
 
 
 class HeisenbergMapper:
-    """
-    Class to compute exchange parameters from low energy magnetic orderings.
-    """
+    """Class to compute exchange parameters from low energy magnetic orderings."""
 
     def __init__(self, ordered_structures, energies, cutoff=0, tol: float = 0.02):
         """
@@ -673,9 +671,7 @@ class HeisenbergMapper:
 
 
 class HeisenbergScreener:
-    """
-    Class to clean and screen magnetic orderings.
-    """
+    """Class to clean and screen magnetic orderings."""
 
     def __init__(self, structures, energies, screen=False):
         """
@@ -871,9 +867,7 @@ class HeisenbergModel(MSONable):
         self.igraph = igraph
 
     def as_dict(self):
-        """
-        Because some dicts have tuple keys, some sanitization is required for json compatibility.
-        """
+        """Because some dicts have tuple keys, some sanitization is required for json compatibility."""
         dct = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__

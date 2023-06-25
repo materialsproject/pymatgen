@@ -62,7 +62,7 @@ __date__ = "April 15, 2017"
 def zval_dict_from_potcar(potcar):
     """
     Creates zval_dictionary for calculating the ionic polarization from
-    Potcar object
+    Potcar object.
 
     potcar: Potcar object
     """
@@ -74,7 +74,7 @@ def zval_dict_from_potcar(potcar):
 
 def calc_ionic(site, structure: Structure, zval):
     """
-    Calculate the ionic dipole moment using ZVAL from pseudopotential
+    Calculate the ionic dipole moment using ZVAL from pseudopotential.
 
     site: PeriodicSite
     structure: Structure
@@ -103,9 +103,7 @@ def get_total_ionic_dipole(structure, zval_dict):
 
 
 class PolarizationLattice(Structure):
-    """
-    Why is a Lattice inheriting a structure? This is ridiculous.
-    """
+    """Why is a Lattice inheriting a structure? This is ridiculous."""
 
     def get_nearest_site(self, coords, site, r=None):
         """
@@ -349,9 +347,7 @@ class Polarization:
         return np.array([np.array(latt.lengths) for latt in lattices])
 
     def get_polarization_change(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
-        Get difference between nonpolar and polar same branch polarization.
-        """
+        """Get difference between nonpolar and polar same branch polarization."""
         tot = self.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
         )
@@ -398,9 +394,7 @@ class Polarization:
         return sp_a, sp_b, sp_c
 
     def max_spline_jumps(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
-        Get maximum difference between spline and same branch polarization data.
-        """
+        """Get maximum difference between spline and same branch polarization data."""
         tot = self.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
         )
@@ -412,9 +406,7 @@ class Polarization:
         return max_jumps
 
     def smoothness(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
-        Get rms average difference between spline and same branch polarization data.
-        """
+        """Get rms average difference between spline and same branch polarization data."""
         tot = self.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
         )
@@ -430,28 +422,20 @@ class Polarization:
 
 
 class EnergyTrend:
-    """
-    Class for fitting trends to energies.
-    """
+    """Class for fitting trends to energies."""
 
     def __init__(self, energies):
-        """
-        :param energies: Energies
-        """
+        """:param energies: Energies"""
         self.energies = energies
 
     def spline(self):
-        """
-        Fit spline to energy trend data.
-        """
+        """Fit spline to energy trend data."""
         from scipy.interpolate import UnivariateSpline
 
         return UnivariateSpline(range(len(self.energies)), self.energies, k=4)
 
     def smoothness(self):
-        """
-        Get rms average difference between spline and energy trend.
-        """
+        """Get rms average difference between spline and energy trend."""
         energies = self.energies
         try:
             sp = self.spline()
@@ -463,16 +447,12 @@ class EnergyTrend:
         return np.sqrt(np.sum(np.square(diff)) / len(energies))
 
     def max_spline_jump(self):
-        """
-        Get maximum difference between spline and energy trend.
-        """
+        """Get maximum difference between spline and energy trend."""
         sp = self.spline()
         return max(self.energies - sp(range(len(self.energies))))
 
     def endpoints_minima(self, slope_cutoff=5e-3):
-        """
-        Test if spline endpoints are at minima for a given slope cutoff.
-        """
+        """Test if spline endpoints are at minima for a given slope cutoff."""
         energies = self.energies
         try:
             sp = self.spline()

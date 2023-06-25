@@ -202,7 +202,7 @@ class MoleculeStructureComparator(MSONable):
 
     def _get_bonds(self, mol):
         """
-        Find all the bond in a molcule
+        Find all the bond in a molcule.
 
         Args:
             mol: the molecule. pymatgen Molecule object
@@ -249,9 +249,7 @@ class MoleculeStructureComparator(MSONable):
         return [bond for bond, dist, cap in zip(all_pairs, pair_dists, max_length) if dist <= cap]
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -266,7 +264,7 @@ class MoleculeStructureComparator(MSONable):
     def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             MoleculeStructureComparator

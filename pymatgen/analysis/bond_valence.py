@@ -1,6 +1,4 @@
-"""
-This module implements classes to perform bond valence analyses.
-"""
+"""This module implements classes to perform bond valence analyses."""
 
 from __future__ import annotations
 

@@ -1,6 +1,4 @@
-"""
-Connected components.
-"""
+"""Connected components."""
 
 from __future__ import annotations
 
@@ -199,9 +197,7 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
 
 
 class ConnectedComponent(MSONable):
-    """
-    Class used to describe the connected components in a structure in terms of coordination environments.
-    """
+    """Class used to describe the connected components in a structure in terms of coordination environments."""
 
     def __init__(
         self,
@@ -396,9 +392,7 @@ class ConnectedComponent(MSONable):
         self._order_periodicity_vectors()
 
     def compute_periodicity_all_simple_paths_algorithm(self):
-        """
-        Returns:
-        """
+        """Returns:"""
         self_loop_nodes = list(nx.nodes_with_selfloops(self._connected_subgraph))
         all_nodes_independent_cell_image_vectors = []
         my_simple_graph = nx.Graph(self._connected_subgraph)
@@ -483,9 +477,7 @@ class ConnectedComponent(MSONable):
                     break
 
     def compute_periodicity_cycle_basis(self):
-        """
-        Returns:
-        """
+        """Returns:"""
         my_simple_graph = nx.Graph(self._connected_subgraph)
         cycles = nx.cycle_basis(my_simple_graph)
         all_deltas = []
@@ -583,16 +575,12 @@ class ConnectedComponent(MSONable):
 
     @property
     def is_periodic(self) -> bool:
-        """
-        Returns:
-        """
+        """Returns:"""
         return not self.is_0d
 
     @property
     def is_0d(self) -> bool:
-        """
-        Returns:
-        """
+        """Returns:"""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
@@ -600,9 +588,7 @@ class ConnectedComponent(MSONable):
 
     @property
     def is_1d(self) -> bool:
-        """
-        Returns:
-        """
+        """Returns:"""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
@@ -610,9 +596,7 @@ class ConnectedComponent(MSONable):
 
     @property
     def is_2d(self) -> bool:
-        """
-        Returns:
-        """
+        """Returns:"""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
@@ -620,9 +604,7 @@ class ConnectedComponent(MSONable):
 
     @property
     def is_3d(self) -> bool:
-        """
-        Returns:
-        """
+        """Returns:"""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
@@ -658,18 +640,14 @@ class ConnectedComponent(MSONable):
 
     @property
     def periodicity_vectors(self):
-        """
-        Returns:
-        """
+        """Returns:"""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return [np.array(pp) for pp in self._periodicity_vectors]
 
     @property
     def periodicity(self):
-        """
-        Returns:
-        """
+        """Returns:"""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return f"{len(self._periodicity_vectors):d}D"
@@ -889,7 +867,7 @@ class ConnectedComponent(MSONable):
     @classmethod
     def from_graph(cls, g):
         """
-        Constructor for the ConnectedComponent object from a graph of the connected component
+        Constructor for the ConnectedComponent object from a graph of the connected component.
 
         Args:
             g (MultiGraph): Graph of the connected component.

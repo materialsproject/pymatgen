@@ -64,13 +64,13 @@ with open(os.path.join(_directory, "ionic_radii.json")) as fp:
 class ValenceIonicRadiusEvaluator:
     """
     Computes site valences and ionic radii for a structure using bond valence
-    analyzer
+    analyzer.
     """
 
     def __init__(self, structure: Structure):
         """
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure: pymatgen.core.structure.Structure.
         """
         self._structure = structure.copy()
         self._valences = self._get_valences()
@@ -78,25 +78,19 @@ class ValenceIonicRadiusEvaluator:
 
     @property
     def radii(self):
-        """
-        List of ionic radii of elements in the order of sites.
-        """
+        """List of ionic radii of elements in the order of sites."""
         elems = [site.species_string for site in self._structure]
         return dict(zip(elems, self._ionic_radii))
 
     @property
     def valences(self):
-        """
-        List of oxidation states of elements in the order of sites.
-        """
+        """List of oxidation states of elements in the order of sites."""
         el = [site.species_string for site in self._structure]
         return dict(zip(el, self._valences))
 
     @property
     def structure(self):
-        """
-        Returns oxidation state decorated structure.
-        """
+        """Returns oxidation state decorated structure."""
         return self._structure.copy()
 
     def _get_ionic_radii(self):
@@ -169,9 +163,7 @@ class ValenceIonicRadiusEvaluator:
         return radii
 
     def _get_valences(self):
-        """
-        Computes ionic valences of elements for all sites in the structure.
-        """
+        """Computes ionic valences of elements for all sites in the structure."""
         try:
             bv = BVAnalyzer()
             self._structure = bv.get_oxi_state_decorated_structure(self._structure)
@@ -317,7 +309,7 @@ class NearNeighbors:
 
     def get_cn_dict(self, structure: Structure, n: int, use_weights: bool = False):
         """
-        Get coordination number, CN, of each element bonded to site with index n in structure
+        Get coordination number, CN, of each element bonded to site with index n in structure.
 
         Args:
             structure (Structure): input structure
@@ -411,7 +403,7 @@ class NearNeighbors:
         raise NotImplementedError("get_nn_info(structure, n) is not defined!")
 
     def get_all_nn_info(self, structure: Structure):
-        """Get a listing of all neighbors for all sites in a structure
+        """Get a listing of all neighbors for all sites in a structure.
 
         Args:
             structure (Structure): Input structure
@@ -474,7 +466,7 @@ class NearNeighbors:
         _previous_steps=frozenset(),
         _cur_image=(0, 0, 0),
     ):
-        """Private method for computing the neighbor shell information
+        """Private method for computing the neighbor shell information.
 
         Args:
             structure (Structure) - Structure being assessed
@@ -698,7 +690,7 @@ class VoronoiNN(NearNeighbors):
                 available in get_voronoi_polyhedra)
             extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
             compute_adj_neighbors (bool) - Whether to compute which neighbors are
-                adjacent. Turn off for faster performance
+                adjacent. Turn off for faster performance.
         """
         super().__init__()
         self.tol = tol
@@ -784,7 +776,7 @@ class VoronoiNN(NearNeighbors):
         return cell_info
 
     def get_all_voronoi_polyhedra(self, structure: Structure):
-        """Get the Voronoi polyhedra for all site in a simulation cell
+        """Get the Voronoi polyhedra for all site in a simulation cell.
 
         Args:
             structure (Structure): Structure to be evaluated
@@ -847,7 +839,7 @@ class VoronoiNN(NearNeighbors):
         ]
 
     def _extract_cell_info(self, site_idx, sites, targets, voro, compute_adj_neighbors=False):
-        """Get the information about a certain atom from the results of a tessellation
+        """Get the information about a certain atom from the results of a tessellation.
 
         Args:
             site_idx (int) - Index of the atom in question
@@ -1009,7 +1001,7 @@ class VoronoiNN(NearNeighbors):
         return [self._extract_nn_info(structure, cell) for cell in all_voro_cells]
 
     def _extract_nn_info(self, structure: Structure, nns):
-        """Given Voronoi NNs, extract the NN info in the form needed by NearestNeighbors
+        """Given Voronoi NNs, extract the NN info in the form needed by NearestNeighbors.
 
         Args:
             structure (Structure): Structure being evaluated
@@ -1044,7 +1036,7 @@ class VoronoiNN(NearNeighbors):
 
 class IsayevNN(VoronoiNN):
     """
-    Uses the algorithm defined in 10.1038/ncomms15679
+    Uses the algorithm defined in 10.1038/ncomms15679.
 
     Sites are considered neighbors if (i) they share a Voronoi facet and (ii) the
     bond distance is less than the sum of the Cordero covalent radii + 0.25 Å.
@@ -1158,7 +1150,7 @@ class IsayevNN(VoronoiNN):
 
 def _is_in_targets(site, targets):
     """
-    Test whether a site contains elements in the target list
+    Test whether a site contains elements in the target list.
 
     Args:
         site (Site): Site to assess
@@ -1172,7 +1164,7 @@ def _is_in_targets(site, targets):
 
 def _get_elements(site):
     """
-    Get the list of elements for a Site
+    Get the list of elements for a Site.
 
     Args:
          site (Site): Site to assess
@@ -1208,7 +1200,7 @@ class JmolNN(NearNeighbors):
             min_bond_distance (float): minimum bond distance for consideration
                 Defaults to 0.4.
             el_radius_updates: (dict) symbol->float to override default atomic
-                radii table values
+                radii table values.
         """
         self.tol = tol
         self.min_bond_distance = min_bond_distance
@@ -1253,7 +1245,7 @@ class JmolNN(NearNeighbors):
         Use Jmol algorithm to determine bond length from atomic parameters
         Args:
             el1_sym: (str) symbol of atom 1
-            el2_sym: (str) symbol of atom 2
+            el2_sym: (str) symbol of atom 2.
 
         Returns: (float) max bond length
         """
@@ -1319,7 +1311,7 @@ class MinimumDistanceNN(NearNeighbors):
             cutoff (float): cutoff radius in Angstrom to look for trial
                 near-neighbor sites (default: 10).
             get_all_sites (bool): If this is set to True then the neighbor
-                sites are only determined by the cutoff radius, tol is ignored
+                sites are only determined by the cutoff radius, tol is ignored.
         """
         self.tol = tol
         self.cutoff = cutoff
@@ -1572,7 +1564,7 @@ class CovalentBondNN(NearNeighbors):
         Args:
             tol (float): Tolerance for covalent bond checking.
             order (bool): If True (default), this class will compute bond
-                orders. If False, bond lengths will be computed
+                orders. If False, bond lengths will be computed.
         """
         self.tol = tol
         self.order = order
@@ -4025,7 +4017,7 @@ class CrystalNN(NearNeighbors):
 
     def get_cn_dict(self, structure: Structure, n: int, use_weights: bool = False, **kwargs):
         """
-        Get coordination number, CN, of each element bonded to site with index n in structure
+        Get coordination number, CN, of each element bonded to site with index n in structure.
 
         Args:
             structure (Structure): input structure
@@ -4076,7 +4068,7 @@ class CrystalNN(NearNeighbors):
         Given NNData, transforms data to the specified fingerprint length
         Args:
             nn_data: (NNData)
-            length: (int) desired length of NNData
+            length: (int) desired length of NNData.
         """
         if length is None:
             return nn_data
@@ -4092,7 +4084,7 @@ class CrystalNN(NearNeighbors):
 
 def _get_default_radius(site):
     """
-    An internal method to get a "default" covalent/element radius
+    An internal method to get a "default" covalent/element radius.
 
     Args:
         site: (Site)
@@ -4168,7 +4160,7 @@ class CutOffDictNN(NearNeighbors):
             in the cut-off dictionary.
             If your structure is oxidation state decorated,
             the cut-off distances will have to explicitly include
-            the oxidation state, e.g. {('Fe2+', 'O2-'): 2.0}
+            the oxidation state, e.g. {('Fe2+', 'O2-'): 2.0}.
         """
         self.cut_off_dict = cut_off_dict or {}
 
@@ -4275,9 +4267,7 @@ class Critic2NN(NearNeighbors):
     """
 
     def __init__(self):
-        """
-        Init for Critic2NN.
-        """
+        """Init for Critic2NN."""
         # we cache the last-used structure, in case user
         # calls get_nn_info() repeatedly for different
         # sites in the same structure to save redundant
@@ -4398,7 +4388,7 @@ def metal_edge_extender(
     coordinators: list | tuple = ("O", "N", "F", "S", "Cl"),
 ):
     """
-    Function to identify and add missed coordinate bond edges for metals
+    Function to identify and add missed coordinate bond edges for metals.
 
     Args:
         mol_graph: pymatgen.analysis.graphs.MoleculeGraph object

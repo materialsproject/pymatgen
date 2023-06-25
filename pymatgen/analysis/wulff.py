@@ -47,7 +47,7 @@ def hkl_tuple_to_str(hkl):
     Prepare for display on plots
     "(hkl)" for surfaces
     Agrs:
-        hkl: in the form of [h, k, l] or (h, k, l)
+        hkl: in the form of [h, k, l] or (h, k, l).
     """
     str_format = "($"
     for x in hkl:
@@ -74,9 +74,7 @@ def get_tri_area(pts):
 
 
 class WulffFacet:
-    """
-    Helper container for each Wulff plane.
-    """
+    """Helper container for each Wulff plane."""
 
     def __init__(self, normal, e_surf, normal_pt, dual_pt, index, m_ind_orig, miller):
         """
@@ -228,7 +226,7 @@ class WulffShape:
         From self: get miller_list(unique_miller), e_surf_list and symmetry operations(symmops)
         according to lattice apply symmops to get all the miller index, then get normal, get
         all the facets functions for Wulff shape calculation: |normal| = 1, e_surf is plane's
-        distance to (0, 0, 0), normal[0]x + normal[1]y + normal[2]z = e_surf
+        distance to (0, 0, 0), normal[0]x + normal[1]y + normal[2]z = e_surf.
 
         Returns:
             [WulffFacet]
@@ -259,7 +257,7 @@ class WulffShape:
         """
         |normal| = 1, e_surf is plane's distance to (0, 0, 0),
         plane function:
-            normal[0]x + normal[1]y + normal[2]z = e_surf
+            normal[0]x + normal[1]y + normal[2]z = e_surf.
 
         from self:
             normal_e_m to get the plane functions
@@ -355,9 +353,7 @@ class WulffShape:
         self.get_plot(*args, **kwargs).show()
 
     def get_line_in_facet(self, facet):
-        """
-        Returns the sorted pts in a facet used to draw a line
-        """
+        """Returns the sorted pts in a facet used to draw a line."""
         lines = list(facet.outer_lines)
         pt = []
         prev = None
@@ -657,7 +653,7 @@ class WulffShape:
     def _get_azimuth_elev(self, miller_index):
         """
         Args:
-            miller_index: viewing direction
+            miller_index: viewing direction.
 
         Returns:
             azim, elev for plotting
@@ -672,37 +668,29 @@ class WulffShape:
 
     @property
     def volume(self):
-        """
-        Volume of the Wulff shape
-        """
+        """Volume of the Wulff shape."""
         return self.wulff_convex.volume
 
     @property
     def miller_area_dict(self):
-        """
-        Returns {hkl: area_hkl on wulff}
-        """
+        """Returns {hkl: area_hkl on wulff}."""
         return dict(zip(self.miller_list, self.color_area))
 
     @property
     def miller_energy_dict(self):
-        """
-        Returns {hkl: surface energy_hkl}
-        """
+        """Returns {hkl: surface energy_hkl}."""
         return dict(zip(self.miller_list, self.e_surf_list))
 
     @property
     def surface_area(self):
-        """
-        Total surface area of Wulff shape.
-        """
+        """Total surface area of Wulff shape."""
         return sum(self.miller_area_dict.values())
 
     @property
     def weighted_surface_energy(self):
         """
         Returns:
-            sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)
+            sum(surface_energy_hkl * area_hkl)/ sum(area_hkl).
         """
         return self.total_surface_energy / self.surface_area
 
@@ -710,7 +698,7 @@ class WulffShape:
     def area_fraction_dict(self):
         """
         Returns:
-            (dict): {hkl: area_hkl/total area on wulff}
+            (dict): {hkl: area_hkl/total area on wulff}.
         """
         return {hkl: area / self.surface_area for hkl, area in self.miller_area_dict.items()}
 
@@ -736,7 +724,7 @@ class WulffShape:
         This is useful for determining the critical nucleus size.
         A large shape factor indicates great anisotropy.
         See Ballufi, R. W., Allen, S. M. & Carter, W. C. Kinetics
-            of Materials. (John Wiley & Sons, 2005), p.461
+            of Materials. (John Wiley & Sons, 2005), p.461.
 
         Returns:
             (float) Shape factor.

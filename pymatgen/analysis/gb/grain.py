@@ -1,6 +1,4 @@
-"""
-Module containing classes to generate grain boundaries.
-"""
+"""Module containing classes to generate grain boundaries."""
 
 from __future__ import annotations
 
@@ -208,9 +206,7 @@ class GrainBoundary(Structure):
 
     @property
     def top_grain(self) -> Structure:
-        """
-        return the top grain (Structure) of the GB.
-        """
+        """Return the top grain (Structure) of the GB."""
         top_sites = []
         for i, tag in enumerate(self.site_properties["grain_label"]):
             if "top" in tag:
@@ -219,9 +215,7 @@ class GrainBoundary(Structure):
 
     @property
     def bottom_grain(self) -> Structure:
-        """
-        return the bottom grain (Structure) of the GB.
-        """
+        """Return the bottom grain (Structure) of the GB."""
         bottom_sites = []
         for i, tag in enumerate(self.site_properties["grain_label"]):
             if "bottom" in tag:
@@ -230,9 +224,7 @@ class GrainBoundary(Structure):
 
     @property
     def coincidents(self) -> list[Site]:
-        """
-        return the a list of coincident sites.
-        """
+        """Return the a list of coincident sites."""
         coincident_sites = []
         for idx, tag in enumerate(self.site_properties["grain_label"]):
             if "incident" in tag:
@@ -273,7 +265,7 @@ class GrainBoundary(Structure):
     def as_dict(self):
         """
         Returns:
-            Dictionary representation of GrainBoundary object
+            Dictionary representation of GrainBoundary object.
         """
         d = super().as_dict()
         d["@module"] = type(self).__module__
@@ -1297,7 +1289,7 @@ class GrainBoundaryGenerator:
         """
         Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in cubic system.
-        The algorithm for this code is from reference, Acta Cryst, A40,108(1984)
+        The algorithm for this code is from reference, Acta Cryst, A40,108(1984).
 
         Args:
             cutoff (int): the cutoff of sigma values.
@@ -1371,7 +1363,7 @@ class GrainBoundaryGenerator:
         """
         Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in hexagonal system.
-        The algorithm for this code is from reference, Acta Cryst, A38,550(1982)
+        The algorithm for this code is from reference, Acta Cryst, A38,550(1982).
 
         Args:
             cutoff (int): the cutoff of sigma values.
@@ -1614,7 +1606,7 @@ class GrainBoundaryGenerator:
         """
         Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in tetragonal system.
-        The algorithm for this code is from reference, Acta Cryst, B46,117(1990)
+        The algorithm for this code is from reference, Acta Cryst, B46,117(1990).
 
         Args:
             cutoff (int): the cutoff of sigma values.
@@ -1716,7 +1708,7 @@ class GrainBoundaryGenerator:
         """
         Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in orthorhombic system.
-        The algorithm for this code is from reference, Scipta Metallurgica 27, 291(1992)
+        The algorithm for this code is from reference, Scipta Metallurgica 27, 291(1992).
 
         Args:
             cutoff (int): the cutoff of sigma values.
@@ -2213,7 +2205,7 @@ class GrainBoundaryGenerator:
         """
         Reduce integer array mat's determinant mag times by linear combination
         of its row vectors, so that the new array after rotation (r_matrix) is
-        still an integer array
+        still an integer array.
 
         Args:
             mat (3 by 3 array): input matrix

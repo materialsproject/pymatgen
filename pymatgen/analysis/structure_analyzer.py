@@ -1,6 +1,4 @@
-"""
-This module provides classes to perform topological analyses of structures.
-"""
+"""This module provides classes to perform topological analyses of structures."""
 
 from __future__ import annotations
 
@@ -76,7 +74,7 @@ class VoronoiAnalyzer:
         Args:
             cutoff (float): cutoff distance to search for neighbors of a given atom
                 (default = 5.0)
-            qhull_options (str): options to pass to qhull (optional)
+            qhull_options (str): options to pass to qhull (optional).
         """
         self.cutoff = cutoff
         self.qhull_options = qhull_options
@@ -173,9 +171,7 @@ class VoronoiAnalyzer:
 
 
 class RelaxationAnalyzer:
-    """
-    This class analyzes the relaxation in a calculation.
-    """
+    """This class analyzes the relaxation in a calculation."""
 
     def __init__(self, initial_structure, final_structure):
         """
@@ -315,7 +311,7 @@ class VoronoiConnectivity:
     def max_connectivity(self):
         """
         Returns the 2d array [site_i, site_j] that represents the maximum connectivity of
-        site i to any periodic image of site j
+        site i to any periodic image of site j.
         """
         return np.max(self.connectivity_array, axis=2)
 
@@ -337,7 +333,7 @@ class VoronoiConnectivity:
         """
         Assuming there is some value in the connectivity array at indices
         (1, 3, 12). sitei can be obtained directly from the input structure
-        (structure[1]). sitej can be obtained by passing 3, 12 to this function
+        (structure[1]). sitej can be obtained by passing 3, 12 to this function.
 
         Args:
             site_index (int): index of the site (3 in the example)
@@ -416,9 +412,7 @@ def contains_peroxide(structure, relative_cutoff=1.1):
 
 
 class OxideType:
-    """
-    Separate class for determining oxide type.
-    """
+    """Separate class for determining oxide type."""
 
     def __init__(self, structure: Structure, relative_cutoff=1.1):
         """
@@ -505,7 +499,7 @@ def oxide_type(
     structure: Structure, relative_cutoff: float = 1.1, return_nbonds: bool = False
 ) -> str | tuple[str, int]:
     """
-    Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide
+    Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
     Args:
         structure (Structure): Input structure.
@@ -521,7 +515,7 @@ def oxide_type(
 
 def sulfide_type(structure):
     """
-    Determines if a structure is a sulfide/polysulfide/sulfate
+    Determines if a structure is a sulfide/polysulfide/sulfate.
 
     Args:
         structure (Structure): Input structure.

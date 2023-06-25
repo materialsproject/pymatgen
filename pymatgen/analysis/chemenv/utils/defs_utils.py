@@ -1,6 +1,4 @@
-"""
-This module contains the definition of some objects used in the chemenv package.
-"""
+"""This module contains the definition of some objects used in the chemenv package."""
 
 from __future__ import annotations
 
@@ -37,9 +35,7 @@ STATS_ENV_PAPER = (
 
 
 def chemenv_citations():
-    """
-    :return:
-    """
+    """:return:"""
     out = ""
     out += "\nIf you use the ChemEnv tool for your research, please consider citing the following reference(s) :\n"
     out += "==================================================================================================\n"
@@ -48,9 +44,7 @@ def chemenv_citations():
 
 
 class AdditionalConditions:
-    """
-    Class for additional conditions.
-    """
+    """Class for additional conditions."""
 
     NO_ADDITIONAL_CONDITION = 0
     ONLY_ANION_CATION_BONDS = 1

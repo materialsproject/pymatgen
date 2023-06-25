@@ -47,9 +47,7 @@ except Exception:
 
 @unique
 class Ordering(Enum):
-    """
-    Enumeration defining possible magnetic orderings.
-    """
+    """Enumeration defining possible magnetic orderings."""
 
     FM = "FM"  # Ferromagnetic
     AFM = "AFM"  # Antiferromagnetic
@@ -60,9 +58,7 @@ class Ordering(Enum):
 
 @unique
 class OverwriteMagmomMode(Enum):
-    """
-    Enumeration defining different modes for analyzer.
-    """
+    """Enumeration defining different modes for analyzer."""
 
     none = "none"
     respect_sign = "respect_sign"
@@ -429,9 +425,7 @@ class CollinearMagneticStructureAnalyzer:
     def types_of_magnetic_specie(
         self,
     ) -> tuple[Element | Species | DummySpecies, ...]:
-        """
-        Specie->Species rename. Used to maintain backwards compatibility.
-        """
+        """Specie->Species rename. Used to maintain backwards compatibility."""
         return self.types_of_magnetic_species
 
     @property
@@ -467,7 +461,7 @@ class CollinearMagneticStructureAnalyzer:
         """
         Args:
           symprec: same as in SpacegroupAnalyzer (Default value = 1e-3)
-          angle_tolerance: same as in SpacegroupAnalyzer (Default value = 5)
+          angle_tolerance: same as in SpacegroupAnalyzer (Default value = 5).
 
         Returns: Number of symmetrically-distinct magnetic sites present
         in structure.

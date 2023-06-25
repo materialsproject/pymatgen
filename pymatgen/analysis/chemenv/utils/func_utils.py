@@ -1,6 +1,4 @@
-"""
-This module contains some utility functions and classes that are used in the chemenv package.
-"""
+"""This module contains some utility functions and classes that are used in the chemenv package."""
 
 from __future__ import annotations
 
@@ -27,14 +25,12 @@ __date__ = "Feb 20, 2016"
 
 
 class AbstractRatioFunction:
-    """
-    Abstract class for all ratio functions
-    """
+    """Abstract class for all ratio functions."""
 
     ALLOWED_FUNCTIONS: ClassVar[frozendict[str, list]] = {}  # type: ignore[assignment]
 
     def __init__(self, function, options_dict=None):
-        """Constructor for AbstractRatioFunction
+        """Constructor for AbstractRatioFunction.
 
         :param function: Ration function name.
         :param options_dict: Dictionary containing the parameters for the ratio function.
