@@ -1,6 +1,4 @@
-"""
-Classes for reading/writing mcsqs files following the rndstr.in format.
-"""
+"""Classes for reading/writing mcsqs files following the rndstr.in format."""
 
 from __future__ import annotations
 
@@ -26,14 +24,15 @@ class Mcsqs:
 
     def __init__(self, structure: Structure):
         """
-        :param structure: input Structure
+        Args:
+            Structure: input Structure.
         """
         self.structure = structure
 
     def to_string(self):
         """
-        Returns a structure in mcsqs rndstr.in format.
-        :return (str):
+        Returns:
+            str: a structure in mcsqs rndstr.in format.
         """
         # add lattice vectors
         mat = self.structure.lattice.matrix

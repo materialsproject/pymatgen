@@ -9,6 +9,7 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.core.periodic_table import DummySpecies, Element, ElementBase, Species, get_el_sp
 from pymatgen.util.testing import PymatgenTest
@@ -24,8 +25,7 @@ class ElementTestCase(PymatgenTest):
             with pytest.raises(ValueError, match=f"{sym!r} is not a valid Element"):
                 Element(sym)
 
-        # Test caching
-        assert id(Element("Fe")) == id(Element("Fe"))
+        assert id(Element("Fe")) == id(Element("Fe"))  # Test caching
 
     def test_is_metal(self):
         for metal in ["Fe", "Eu", "Li", "Ca", "In"]:
@@ -300,9 +300,9 @@ class ElementTestCase(PymatgenTest):
             Element.from_Z(1000)
 
     def test_ie_ea(self):
-        assert Element.Fe.ionization_energies[2] == pytest.approx(30.651)
+        assert Element.Fe.ionization_energies[2] == approx(30.651)
         assert Element.Fe.ionization_energy == Element.Fe.ionization_energies[0]
-        assert Element.Br.electron_affinity == pytest.approx(3.3635883)
+        assert Element.Br.electron_affinity == approx(3.3635883)
 
     def test_oxidation_states(self):
         el = Element.Fe
@@ -366,7 +366,7 @@ class SpeciesTestCase(PymatgenTest):
     def test_ionic_radius(self):
         assert self.specie2.ionic_radius == 78.5 / 100
         assert self.specie3.ionic_radius == 92 / 100
-        assert Species("Mn", 4).ionic_radius == pytest.approx(0.67)
+        assert Species("Mn", 4).ionic_radius == approx(0.67)
 
     def test_eq(self):
         assert self.specie1 == self.specie3, "Static and actual constructor gives unequal result!"

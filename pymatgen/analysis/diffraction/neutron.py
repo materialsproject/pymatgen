@@ -1,6 +1,4 @@
-"""
-This module implements a neutron diffraction (ND) pattern calculator.
-"""
+"""This module implements a neutron diffraction (ND) pattern calculator."""
 
 from __future__ import annotations
 

@@ -396,7 +396,7 @@ class TensorCollectionTest(PymatgenTest):
     def list_based_function_check(self, attribute, coll, *args, **kwargs):
         """
         This function allows for more efficient testing of list-based
-        functions in a "collection"-style class like TensorCollection
+        functions in a "collection"-style class like TensorCollection.
 
         It ensures that the test function
         """

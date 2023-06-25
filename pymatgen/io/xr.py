@@ -27,9 +27,7 @@ __date__ = "June 23, 2016"
 
 
 class Xr:
-    """
-    Basic object for working with xr files.
-    """
+    """Basic object for working with xr files."""
 
     def __init__(self, structure: Structure):
         """

@@ -1,6 +1,4 @@
-"""
-Support for reading XCrysDen files.
-"""
+"""Support for reading XCrysDen files."""
 
 from __future__ import annotations
 
@@ -18,20 +16,19 @@ __maintainer__ = "Matteo Giantomassi"
 
 
 class XSF:
-    """
-    Class for parsing XCrysden files.
-    """
+    """Class for parsing XCrysden files."""
 
     def __init__(self, structure: Structure):
         """
-        :param structure: Structure object.
+        Args:
+            structure (Structure): Structure object.
         """
         self.structure = structure
 
     def to_string(self, atom_symbol=True):
         """
         Returns a string with the structure in XSF format
-        See http://www.xcrysden.org/doc/XSF.html
+        See http://www.xcrysden.org/doc/XSF.html.
 
         Args:
             atom_symbol (bool): Uses atom symbol instead of atomic number. Defaults to True.

@@ -1,6 +1,4 @@
-"""
-This module defines classes to represent all xas and stitching methods
-"""
+"""This module defines classes to represent all xas and stitching methods."""
 
 from __future__ import annotations
 
@@ -71,9 +69,7 @@ class XAS(Spectrum):
         spectrum_type="XANES",
         absorbing_index=None,
     ):
-        """
-        Initializes a spectrum object.
-        """
+        """Initializes a spectrum object."""
         super().__init__(x, y, structure, absorbing_element, edge)
         self.structure = structure
         self.absorbing_element = absorbing_element

@@ -106,9 +106,7 @@ ATOMS_HEADERS = {
 
 
 class LammpsBox(MSONable):
-    """
-    Object for representing a simulation box in LAMMPS settings.
-    """
+    """Object for representing a simulation box in LAMMPS settings."""
 
     def __init__(self, bounds, tilt=None):
         """
@@ -145,9 +143,7 @@ class LammpsBox(MSONable):
 
     @property
     def volume(self):
-        """
-        Volume of simulation box.
-        """
+        """Volume of simulation box."""
         m = self._matrix
         return np.dot(np.cross(m[0], m[1]), m[2])
 
@@ -229,9 +225,7 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
 
 
 class LammpsData(MSONable):
-    """
-    Object for representing the data in a LAMMPS data file.
-    """
+    """Object for representing the data in a LAMMPS data file."""
 
     def __init__(
         self,
@@ -858,7 +852,7 @@ class LammpsData(MSONable):
 
     def set_charge_atom_type(self, charges: dict[str | int, float]):
         """
-        Add or modify charges of all atoms of a given type in the data
+        Add or modify charges of all atoms of a given type in the data.
 
         Args:
             charges: Dict containing the charges for the atom types to set.
@@ -906,7 +900,7 @@ class Topology(MSONable):
                     "Angles": [[i, j, k], ...],
                     "Dihedrals": [[i, j, k, l], ...],
                     "Impropers": [[i, j, k, l], ...]
-                }
+                }.
         """
         if not isinstance(sites, (Molecule, Structure)):
             sites = Molecule.from_sites(sites)
@@ -1344,22 +1338,18 @@ class CombinedData(LammpsData):
 
     @classmethod
     def from_ff_and_topologies(cls):
-        """
-        Unsupported constructor for CombinedData objects.
-        """
+        """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects.")
 
     @classmethod
     def from_structure(cls):
-        """
-        Unsupported constructor for CombinedData objects.
-        """
+        """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects.")
 
     @classmethod
     def parse_xyz(cls, filename):
         """
-        Load xyz file generated from packmol (for those who find it hard to install openbabel)
+        Load xyz file generated from packmol (for those who find it hard to install openbabel).
 
         Returns:
             pandas.DataFrame
@@ -1434,7 +1424,7 @@ class CombinedData(LammpsData):
         as a comment. For single molecule ID data, the info format is:
             num name
         For data with multiple molecule ID, the format is:
-            num(mols_per_data) name
+            num(mols_per_data) name.
 
         Args:
             distance (int): No. of significant figures to output for

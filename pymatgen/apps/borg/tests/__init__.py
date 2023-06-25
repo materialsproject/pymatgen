@@ -1,3 +1,1 @@
-"""
-Tests for borg
-"""
+"""Tests for borg."""

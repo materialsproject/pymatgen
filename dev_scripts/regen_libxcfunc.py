@@ -17,7 +17,7 @@ import sys
 def parse_libxc_docs(path):
     """
     Parse libxc_docs.txt file, return dictionary with mapping:
-    libxc_id --> info_dict
+    libxc_id --> info_dict.
     """
 
     def parse_section(section):

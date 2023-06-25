@@ -21,9 +21,7 @@ __version__ = "0.1"
 
 
 class EnergyModel(MSONable, metaclass=abc.ABCMeta):
-    """
-    Abstract structure filter class.
-    """
+    """Abstract structure filter class."""
 
     @abc.abstractmethod
     def get_energy(self, structure) -> float:
@@ -37,7 +35,7 @@ class EnergyModel(MSONable, metaclass=abc.ABCMeta):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict representation
+            dct (dict): Dict representation.
 
         Returns:
             EnergyModel
@@ -46,9 +44,7 @@ class EnergyModel(MSONable, metaclass=abc.ABCMeta):
 
 
 class EwaldElectrostaticModel(EnergyModel):
-    """
-    Wrapper around EwaldSum to calculate the electrostatic energy.
-    """
+    """Wrapper around EwaldSum to calculate the electrostatic energy."""
 
     def __init__(self, real_space_cut=None, recip_space_cut=None, eta=None, acc_factor=8.0):
         """
@@ -88,9 +84,7 @@ class EwaldElectrostaticModel(EnergyModel):
         return e.total_energy
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -131,9 +125,7 @@ class SymmetryModel(EnergyModel):
         return -f.get_space_group_number()
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -146,9 +138,7 @@ class SymmetryModel(EnergyModel):
 
 
 class IsingModel(EnergyModel):
-    """
-    A very simple Ising model, with r^2 decay.
-    """
+    """A very simple Ising model, with r^2 decay."""
 
     def __init__(self, j, max_radius):
         """
@@ -166,16 +156,14 @@ class IsingModel(EnergyModel):
         """
         all_nn = structure.get_all_neighbors(r=self.max_radius)
         energy = 0
-        for i, nns in enumerate(all_nn):
-            s1 = getattr(structure[i].specie, "spin", 0)
+        for idx, nns in enumerate(all_nn):
+            s1 = getattr(structure[idx].specie, "spin", 0)
             for nn in nns:
                 energy += self.j * s1 * getattr(nn.specie, "spin", 0) / (nn.nn_distance**2)
         return energy
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -199,9 +187,7 @@ class NsitesModel(EnergyModel):
         return len(structure)
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         return {
             "version": __version__,
             "@module": type(self).__module__,

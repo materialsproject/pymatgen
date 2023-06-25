@@ -1,6 +1,4 @@
-"""
-Script to visualize the model coordination environments
-"""
+"""Script to visualize the model coordination environments."""
 
 from __future__ import annotations
 
@@ -40,9 +38,7 @@ allcg = AllCoordinationGeometries()
 
 
 class CoordinationEnvironmentMorphing:
-    """
-    Class to morph a coordination environment into another one.
-    """
+    """Class to morph a coordination environment into another one."""
 
     def __init__(self, initial_environment_symbol, expected_final_environment_symbol, morphing_description):
         self.initial_environment_symbol = initial_environment_symbol

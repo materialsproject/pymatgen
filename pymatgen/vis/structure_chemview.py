@@ -1,6 +1,4 @@
-"""
-Visualization for structures using chemview.
-"""
+"""Visualization for structures using chemview."""
 
 from __future__ import annotations
 

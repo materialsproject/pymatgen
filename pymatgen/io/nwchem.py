@@ -40,9 +40,7 @@ if os.getenv("NWCHEM_BASIS_LIBRARY"):
 
 
 class NwTask(MSONable):
-    """
-    Base task for Nwchem.
-    """
+    """Base task for Nwchem."""
 
     theories = frozendict(
         {
@@ -188,9 +186,7 @@ $theory_spec
         return output
 
     def as_dict(self):
-        """
-        Returns: MSONable dict.
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -209,7 +205,7 @@ $theory_spec
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             NwTask
@@ -360,7 +356,7 @@ class NwInput(MSONable):
             symmetry_options: Addition list of option to be supplied to the
                 symmetry. E.g. ["c1"] to turn off the symmetry
             memory_options: Memory controlling options. str.
-                E.g "total 1000 mb stack 400 mb"
+                E.g "total 1000 mb stack 400 mb".
         """
         self._mol = mol
         self.directives = directives if directives is not None else []
@@ -371,9 +367,7 @@ class NwInput(MSONable):
 
     @property
     def molecule(self):
-        """
-        Returns molecule associated with this GaussianInput.
-        """
+        """Returns molecule associated with this GaussianInput."""
         return self._mol
 
     def __str__(self):
@@ -396,15 +390,13 @@ class NwInput(MSONable):
     def write_file(self, filename):
         """
         Args:
-            filename (str): Filename
+            filename (str): Filename.
         """
         with zopen(filename, "w") as f:
             f.write(str(self))
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "mol": self._mol.as_dict(),
             "tasks": [t.as_dict() for t in self.tasks],
@@ -418,7 +410,7 @@ class NwInput(MSONable):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             NwInput
@@ -543,9 +535,7 @@ class NwInput(MSONable):
 
 
 class NwInputError(Exception):
-    """
-    Error class for NwInput.
-    """
+    """Error class for NwInput."""
 
 
 class NwOutput:

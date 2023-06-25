@@ -33,16 +33,12 @@ symbol_cn_mapping = allcg.get_symbol_cn_mapping()
 
 
 class StructureEnvironments(MSONable):
-    """
-    Class used to store the chemical environments of a given structure.
-    """
+    """Class used to store the chemical environments of a given structure."""
 
     AC = AdditionalConditions()
 
     class NeighborsSet:
-        """
-        Class used to store a given set of neighbors of a given site (based on the detailed_voronoi).
-        """
+        """Class used to store a given set of neighbors of a given site (based on the detailed_voronoi)."""
 
         def __init__(self, structure: Structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
             """
@@ -85,30 +81,22 @@ class StructureEnvironments(MSONable):
 
         @property
         def neighb_coords(self):
-            """
-            Coordinates of neighbors for this NeighborsSet.
-            """
+            """Coordinates of neighbors for this NeighborsSet."""
             return [self.voronoi[inb]["site"].coords for inb in self.site_voronoi_indices]
 
         @property
         def neighb_coordsOpt(self):
-            """
-            Optimized access to the coordinates of neighbors for this NeighborsSet.
-            """
+            """Optimized access to the coordinates of neighbors for this NeighborsSet."""
             return self.detailed_voronoi.voronoi_list_coords[self.isite].take(self.site_voronoi_indices, axis=0)
 
         @property
         def neighb_sites(self):
-            """
-            Neighbors for this NeighborsSet as pymatgen Sites.
-            """
+            """Neighbors for this NeighborsSet as pymatgen Sites."""
             return [self.voronoi[inb]["site"] for inb in self.site_voronoi_indices]
 
         @property
         def neighb_sites_and_indices(self):
-            """
-            List of neighbors for this NeighborsSet as pymatgen Sites and their index in the original structure.
-            """
+            """List of neighbors for this NeighborsSet as pymatgen Sites and their index in the original structure."""
             return [
                 {"site": self.voronoi[inb]["site"], "index": self.voronoi[inb]["index"]}
                 for inb in self.site_voronoi_indices
@@ -116,39 +104,29 @@ class StructureEnvironments(MSONable):
 
         @property
         def coords(self):
-            """
-            Coordinates of the current central atom and its neighbors for this NeighborsSet.
-            """
+            """Coordinates of the current central atom and its neighbors for this NeighborsSet."""
             coords = [self.structure[self.isite].coords]
             coords.extend(self.neighb_coords)
             return coords
 
         @property
         def normalized_distances(self):
-            """
-            Normalized distances to each neighbor in this NeighborsSet.
-            """
+            """Normalized distances to each neighbor in this NeighborsSet."""
             return [self.voronoi[inb]["normalized_distance"] for inb in self.site_voronoi_indices]
 
         @property
         def normalized_angles(self):
-            """
-            Normalized angles for each neighbor in this NeighborsSet.
-            """
+            """Normalized angles for each neighbor in this NeighborsSet."""
             return [self.voronoi[inb]["normalized_angle"] for inb in self.site_voronoi_indices]
 
         @property
         def distances(self):
-            """
-            Distances to each neighbor in this NeighborsSet.
-            """
+            """Distances to each neighbor in this NeighborsSet."""
             return [self.voronoi[inb]["distance"] for inb in self.site_voronoi_indices]
 
         @property
         def angles(self):
-            """
-            Angles for each neighbor in this NeighborsSet.
-            """
+            """Angles for each neighbor in this NeighborsSet."""
             return [self.voronoi[inb]["angle"] for inb in self.site_voronoi_indices]
 
         # @property
@@ -157,9 +135,7 @@ class StructureEnvironments(MSONable):
 
         @property
         def info(self):
-            """
-            Summarized information about this NeighborsSet.
-            """
+            """Summarized information about this NeighborsSet."""
             was = self.normalized_angles
             wds = self.normalized_distances
             angles = self.angles
@@ -190,9 +166,7 @@ class StructureEnvironments(MSONable):
             }
 
         def distance_plateau(self):
-            """
-            Returns the distances plateau's for this NeighborsSet.
-            """
+            """Returns the distances plateau's for this NeighborsSet."""
             all_nbs_normalized_distances_sorted = sorted(
                 (nb["normalized_distance"] for nb in self.voronoi), reverse=True
             )
@@ -212,9 +186,7 @@ class StructureEnvironments(MSONable):
             return plateau
 
         def angle_plateau(self):
-            """
-            Returns the angles plateau's for this NeighborsSet.
-            """
+            """Returns the angles plateau's for this NeighborsSet."""
             all_nbs_normalized_angles_sorted = sorted(nb["normalized_angle"] for nb in self.voronoi)
             minang = np.min(self.normalized_angles)
             for nb in self.voronoi:
@@ -386,9 +358,7 @@ class StructureEnvironments(MSONable):
             return out
 
         def as_dict(self):
-            """
-            A JSON-serializable dict representation of the NeighborsSet.
-            """
+            """A JSON-serializable dict representation of the NeighborsSet."""
             return {
                 "isite": self.isite,
                 "site_voronoi_indices": self.site_voronoi_indices,
@@ -1428,23 +1398,17 @@ class LightStructureEnvironments(MSONable):
 
         @property
         def neighb_coords(self):
-            """
-            Coordinates of neighbors for this NeighborsSet.
-            """
+            """Coordinates of neighbors for this NeighborsSet."""
             return [self.all_nbs_sites[inb]["site"].coords for inb in self.all_nbs_sites_indices_unsorted]
 
         @property
         def neighb_sites(self):
-            """
-            Neighbors for this NeighborsSet as pymatgen Sites.
-            """
+            """Neighbors for this NeighborsSet as pymatgen Sites."""
             return [self.all_nbs_sites[inb]["site"] for inb in self.all_nbs_sites_indices_unsorted]
 
         @property
         def neighb_sites_and_indices(self):
-            """
-            List of neighbors for this NeighborsSet as pymatgen Sites and their index in the original structure.
-            """
+            """List of neighbors for this NeighborsSet as pymatgen Sites and their index in the original structure."""
             return [
                 {
                     "site": self.all_nbs_sites[inb]["site"],
@@ -1455,9 +1419,7 @@ class LightStructureEnvironments(MSONable):
 
         @property
         def neighb_indices_and_images(self) -> list[dict[str, int]]:
-            """
-            List of indices and images with respect to the original unit cell sites for this NeighborsSet.
-            """
+            """List of indices and images with respect to the original unit cell sites for this NeighborsSet."""
             return [
                 {
                     "index": self.all_nbs_sites[inb]["index"],
@@ -1488,9 +1450,7 @@ class LightStructureEnvironments(MSONable):
             )
 
         def as_dict(self):
-            """
-            A JSON-serializable dict representation of the NeighborsSet.
-            """
+            """A JSON-serializable dict representation of the NeighborsSet."""
             return {
                 "isite": self.isite,
                 "all_nbs_sites_indices": self.all_nbs_sites_indices_unsorted,
@@ -1647,9 +1607,7 @@ class LightStructureEnvironments(MSONable):
         )
 
     def setup_statistic_lists(self):
-        """
-        Set up the statistics of environments for this LightStructureEnvironments.
-        """
+        """Set up the statistics of environments for this LightStructureEnvironments."""
         self.statistics_dict = {
             "valences_origin": self.valences_origin,
             "anion_list": {},  # OK
@@ -2025,9 +1983,7 @@ class LightStructureEnvironments(MSONable):
 
     @property
     def uniquely_determines_coordination_environments(self):
-        """
-        True if the coordination environments are uniquely determined.
-        """
+        """True if the coordination environments are uniquely determined."""
         return self.strategy.uniquely_determines_coordination_environments
 
     def __eq__(self, other: object) -> bool:

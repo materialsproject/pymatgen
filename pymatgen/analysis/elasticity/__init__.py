@@ -1,6 +1,4 @@
-"""
-Package for analyzing elastic tensors and properties.
-"""
+"""Package for analyzing elastic tensors and properties."""
 
 from __future__ import annotations
 

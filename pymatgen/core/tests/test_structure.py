@@ -463,7 +463,7 @@ class IStructureTest(PymatgenTest):
         assert len(sprim) == 6
 
     def test_get_miller_index(self):
-        """Test for get miller index convenience method"""
+        """Test for get miller index convenience method."""
         struct = Structure(
             [2.319, -4.01662582, 0.0, 2.319, 4.01662582, 0.0, 0.0, 0.0, 7.252],
             ["Sn", "Sn", "Sn"],

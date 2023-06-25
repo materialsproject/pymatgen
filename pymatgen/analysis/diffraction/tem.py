@@ -1,6 +1,4 @@
-"""
-This module implements a TEM pattern calculator.
-"""
+"""This module implements a TEM pattern calculator."""
 
 from __future__ import annotations
 
@@ -39,7 +37,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     Code partially inspired from XRD calculation implementation. X-ray factor to electron factor
         conversion based on the International Table of Crystallography.
     #TODO: Could add "number of iterations", "magnification", "critical value of beam",
-            "twin direction" for certain materials, "sample thickness", and "excitation error s"
+            "twin direction" for certain materials, "sample thickness", and "excitation error s".
     """
 
     def __init__(

@@ -1,8 +1,6 @@
 # Distributed under the terms of the MIT License
 
-"""
-This module implements reading and writing of ShengBTE CONTROL files.
-"""
+"""This module implements reading and writing of ShengBTE CONTROL files."""
 
 from __future__ import annotations
 
@@ -133,7 +131,7 @@ class Control(MSONable, dict):
     )
     def from_file(cls, filepath: str):
         """
-        Read a CONTROL namelist file and output a 'Control' object
+        Read a CONTROL namelist file and output a 'Control' object.
 
         Args:
             filepath: Path of the CONTROL file.
@@ -173,7 +171,7 @@ class Control(MSONable, dict):
     )
     def to_file(self, filename: str = "CONTROL"):
         """
-        Writes ShengBTE CONTROL file from 'Control' object
+        Writes ShengBTE CONTROL file from 'Control' object.
 
         Args:
             filename: A file name.
@@ -268,12 +266,10 @@ class Control(MSONable, dict):
         return Structure(cell, species, self["positions"])
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return dict(self)
 
 
 def _get_subdict(master_dict, subkeys):
-    """Helper method to get a set of keys from a larger dictionary"""
+    """Helper method to get a set of keys from a larger dictionary."""
     return {k: master_dict[k] for k in subkeys if k in master_dict and master_dict[k] is not None}

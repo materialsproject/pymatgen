@@ -1,6 +1,4 @@
-"""
-This module defines utility classes and functions.
-"""
+"""This module defines utility classes and functions."""
 
 from __future__ import annotations
 
@@ -64,7 +62,7 @@ class Polymer:
             n_units (int): number of monomer units excluding the start and
                 terminal molecules
             link_distance (float): distance between consecutive monomers
-            linear_chain (bool): linear or random walk polymer chain
+            linear_chain (bool): linear or random walk polymer chain.
         """
         self.start = s_head
         self.end = s_tail
@@ -99,7 +97,7 @@ class Polymer:
 
     def _create(self, monomer, mon_vector):
         """
-        create the polymer from the monomer
+        create the polymer from the monomer.
 
         Args:
             monomer (Molecule)
@@ -114,9 +112,7 @@ class Polymer:
             self._add_monomer(monomer.copy(), mon_vector, move_direction)
 
     def _next_move_direction(self):
-        """
-        pick a move at random from the list of moves
-        """
+        """Pick a move at random from the list of moves."""
         nmoves = len(self.moves)
         move = np.random.randint(1, nmoves + 1)
         while self.prev_move == (move + 3) % nmoves:
@@ -126,7 +122,7 @@ class Polymer:
 
     def _align_monomer(self, monomer, mon_vector, move_direction):
         """
-        rotate the monomer so that it is aligned along the move direction
+        rotate the monomer so that it is aligned along the move direction.
 
         Args:
             monomer (Molecule)
@@ -143,7 +139,7 @@ class Polymer:
 
     def _add_monomer(self, monomer, mon_vector, move_direction):
         """
-        extend the polymer molecule by adding a monomer along mon_vector direction
+        extend the polymer molecule by adding a monomer along mon_vector direction.
 
         Args:
             monomer (Molecule): monomer molecule
@@ -208,7 +204,7 @@ class PackmolRunner:
                 put the molecule assembly in a box
             output_file:
                 output file name. The extension will be adjusted
-                according to the filetype
+                according to the filetype.
         """
         self.packmol_bin = bin.split()
         if not which(self.packmol_bin[-1]):
@@ -236,7 +232,7 @@ class PackmolRunner:
     @staticmethod
     def _format_param_val(param_val):
         """
-        Internal method to format values in the packmol parameter dictionaries
+        Internal method to format values in the packmol parameter dictionaries.
 
         Args:
             param_val:
@@ -250,9 +246,7 @@ class PackmolRunner:
         return str(param_val)
 
     def _set_box(self):
-        """
-        Set the box size for the molecular assembly
-        """
+        """Set the box size for the molecular assembly."""
         net_volume = 0.0
         for idx, mol in enumerate(self.mols):
             length = max(np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3)) + 2.0
@@ -325,9 +319,7 @@ class PackmolRunner:
 
     @staticmethod
     def write_pdb(mol, filename, name=None, num=None):
-        """
-        dump the molecule into pdb file with custom residue name and number.
-        """
+        """Dump the molecule into pdb file with custom residue name and number."""
         # ugly hack to get around the openbabel issues with inconsistent
         # residue labelling.
         with ScratchDir("."):
@@ -346,9 +338,7 @@ class PackmolRunner:
         pbm.write(format="pdb", filename=filename, overwrite=True)
 
     def _set_residue_map(self):
-        """
-        map each residue to the corresponding molecule.
-        """
+        """Map each residue to the corresponding molecule."""
         self.map_residue_to_mol = {}
         lookup = {}
         for idx, mol in enumerate(self.mols):
@@ -436,15 +426,13 @@ class PackmolRunner:
 
 
 class LammpsRunner:
-    """
-    LAMMPS wrapper
-    """
+    """LAMMPS wrapper."""
 
     def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
         Args:
             input_filename (str): input file name
-            bin (str): command to run, excluding the input file name
+            bin (str): command to run, excluding the input file name.
         """
         self.lammps_bin = bin.split()
         if not which(self.lammps_bin[-1]):
@@ -457,9 +445,7 @@ class LammpsRunner:
         self.input_filename = input_filename
 
     def run(self):
-        """
-        Write the input/data files and run LAMMPS.
-        """
+        """Write the input/data files and run LAMMPS."""
         lammps_cmd = [*self.lammps_bin, "-in", self.input_filename]
         print(f"Running: {' '.join(lammps_cmd)}")
         with Popen(lammps_cmd, stdout=PIPE, stderr=PIPE) as p:

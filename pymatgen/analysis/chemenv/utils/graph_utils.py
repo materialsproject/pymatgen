@@ -1,6 +1,4 @@
-"""
-This module contains some graph utils that are used in the chemenv package.
-"""
+"""This module contains some graph utils that are used in the chemenv package."""
 
 from __future__ import annotations
 
@@ -291,9 +289,7 @@ class SimpleGraphCycle(MSONable):
         return cls(nodes)
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         d = MSONable.as_dict(self)
         # Transforming tuple object to a list to allow BSON and MongoDB
         d["nodes"] = list(d["nodes"])

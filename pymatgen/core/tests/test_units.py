@@ -264,7 +264,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
 
 class DataPersistenceTest(PymatgenTest):
     def test_pickle(self):
-        """Test whether FloatWithUnit and ArrayWithUnit support pickle"""
+        """Test whether FloatWithUnit and ArrayWithUnit support pickle."""
         for cls in [FloatWithUnit, ArrayWithUnit]:
             a = cls(1, "eV")
             b = cls(10, "N bohr")

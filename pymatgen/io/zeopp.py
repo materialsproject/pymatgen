@@ -63,7 +63,7 @@ class ZeoCssr(Cssr):
     def __init__(self, structure: Structure):
         """
         Args:
-            structure: A structure to create ZeoCssr object
+            structure: A structure to create ZeoCssr object.
         """
         super().__init__(structure)
 
@@ -72,7 +72,7 @@ class ZeoCssr(Cssr):
         CSSR.__str__ method is modified to pad 0's to the CSSR site data.
         The padding is to conform with the CSSR format supported Zeo++.
         The oxidation state is stripped from site.specie
-        Also coordinate system is rotated from xyz to zxy
+        Also coordinate system is rotated from xyz to zxy.
         """
         a, b, c = self.structure.lattice.lengths
         alpha, beta, gamma = self.structure.lattice.angles
@@ -153,7 +153,7 @@ class ZeoVoronoiXYZ(XYZ):
     def __init__(self, mol):
         """
         Args:
-            mol: Input molecule holding the voronoi node information
+            mol: Input molecule holding the voronoi node information.
         """
         super().__init__(mol)
 

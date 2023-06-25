@@ -1,6 +1,4 @@
-"""
-Utilities for Qchem io.
-"""
+"""Utilities for Qchem io."""
 
 from __future__ import annotations
 
@@ -15,7 +13,7 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 
 
 def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
-    r"""General pattern reading on an input string
+    r"""General pattern reading on an input string.
 
     Args:
         text_str (str): the input string to search for patterns

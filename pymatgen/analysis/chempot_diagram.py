@@ -199,7 +199,7 @@ class ChemicalPotentialDiagram(MSONable):
         return fig
 
     def _get_domains(self) -> dict[str, np.ndarray]:
-        """Returns a dictionary of domains as {formula: np.ndarray}"""
+        """Returns a dictionary of domains as {formula: np.ndarray}."""
         hyperplanes = self._hyperplanes
         border_hyperplanes = self._border_hyperplanes
         entries = self._hyperplane_entries
@@ -220,7 +220,7 @@ class ChemicalPotentialDiagram(MSONable):
         return {k: np.array(v) for k, v in domains.items() if v}
 
     def _get_border_hyperplanes(self) -> np.ndarray:
-        """Returns an array of the bounding hyperplanes given by elemental limits"""
+        """Returns an array of the bounding hyperplanes given by elemental limits."""
         border_hyperplanes = np.array([[0] * (self.dim + 1)] * (2 * self.dim))
 
         for idx, limit in enumerate(self.lims):
@@ -256,7 +256,7 @@ class ChemicalPotentialDiagram(MSONable):
         return hyperplanes, hyperplane_entries
 
     def _get_2d_plot(self, elements: list[Element], label_stable: bool | None, element_padding: float | None) -> Figure:
-        """Returns a Plotly figure for a 2-dimensional chemical potential diagram"""
+        """Returns a Plotly figure for a 2-dimensional chemical potential diagram."""
         domains = self.domains.copy()
         elem_indices = [self.elements.index(e) for e in elements]
 
@@ -506,7 +506,7 @@ class ChemicalPotentialDiagram(MSONable):
         draw_domains: dict[str, np.ndarray],
         formula_colors: list[str] | None,
     ) -> list[Scatter3d]:
-        """Returns a list of Scatter3d objects defining the bounding polyhedra"""
+        """Returns a list of Scatter3d objects defining the bounding polyhedra."""
         if formula_colors is None:
             formula_colors = px.colors.qualitative.Dark2
 
@@ -557,7 +557,7 @@ class ChemicalPotentialDiagram(MSONable):
 
     @staticmethod
     def _get_annotation(ann_loc: np.ndarray, formula: str) -> dict[str, str | float]:
-        """Returns a Plotly annotation dict given a formula and location"""
+        """Returns a Plotly annotation dict given a formula and location."""
         formula = htmlify(formula)
         annotation = plotly_layouts["default_annotation_layout"].copy()
         annotation.update({"x": ann_loc[0], "y": ann_loc[1], "text": formula})
@@ -567,7 +567,7 @@ class ChemicalPotentialDiagram(MSONable):
 
     @staticmethod
     def _get_axis_layout_dict(elements: list[Element]) -> dict[str, str]:
-        """Returns a Plotly layout dict for either 2-d or 3-d axes"""
+        """Returns a Plotly layout dict for either 2-d or 3-d axes."""
         axes = ["xaxis", "yaxis"]
         layout_name = "default_2d_axis_layout"
 
@@ -589,12 +589,12 @@ class ChemicalPotentialDiagram(MSONable):
     @property  # type: ignore
     @lru_cache(maxsize=1)  # noqa: B019
     def domains(self) -> dict[str, np.ndarray]:
-        """Mapping of formulas to array of domain boundary points"""
+        """Mapping of formulas to array of domain boundary points."""
         return self._get_domains()
 
     @property
     def lims(self) -> np.ndarray:
-        """Returns array of limits used in constructing hyperplanes"""
+        """Returns array of limits used in constructing hyperplanes."""
         lims = np.array([[self.default_min_limit, 0]] * self.dim)
         for idx, elem in enumerate(self.elements):
             if self.limits and elem in self.limits:
@@ -603,32 +603,32 @@ class ChemicalPotentialDiagram(MSONable):
 
     @property
     def entry_dict(self) -> dict[str, ComputedEntry]:
-        """Mapping between reduced formula and ComputedEntry"""
+        """Mapping between reduced formula and ComputedEntry."""
         return self._entry_dict
 
     @property
     def hyperplanes(self) -> np.ndarray:
-        """Returns array of hyperplane data"""
+        """Returns array of hyperplane data."""
         return self._hyperplanes
 
     @property
     def hyperplane_entries(self) -> list[PDEntry]:
-        """Returns list of entries corresponding to hyperplanes"""
+        """Returns list of entries corresponding to hyperplanes."""
         return self._hyperplane_entries
 
     @property
     def border_hyperplanes(self) -> np.ndarray:
-        """Returns bordering hyperplanes"""
+        """Returns bordering hyperplanes."""
         return self._border_hyperplanes
 
     @property
     def el_refs(self) -> dict[Element, PDEntry]:
-        """Returns a dictionary of elements and reference entries"""
+        """Returns a dictionary of elements and reference entries."""
         return self._el_refs
 
     @property
     def chemical_system(self) -> str:
-        """Returns the chemical system (A-B-C-...) of diagram object"""
+        """Returns the chemical system (A-B-C-...) of diagram object."""
         return "-".join(sorted(e.symbol for e in self.elements))
 
     def __repr__(self):
@@ -716,9 +716,7 @@ def get_2d_orthonormal_vector(line_pts: np.ndarray) -> np.ndarray:
 
 
 def _renormalize_entry(entry: PDEntry, renormalization_energy_per_atom: float) -> PDEntry:
-    """
-    Regenerate the input entry with an energy per atom decreased by renormalization_energy_per_atom
-    """
+    """Regenerate the input entry with an energy per atom decreased by renormalization_energy_per_atom."""
     renormalized_entry_dict = entry.as_dict()
     renormalized_entry_dict["energy"] = entry.energy - renormalization_energy_per_atom * sum(
         entry.composition.values()

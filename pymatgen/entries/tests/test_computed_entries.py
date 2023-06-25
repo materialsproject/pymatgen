@@ -154,18 +154,14 @@ class ComputedEntryTest(unittest.TestCase):
         assert e.energy == approx(-269.38319884)
 
     def test_to_from_dict_with_adjustment(self):
-        """
-        Legacy case where adjustment was provided manually
-        """
+        """Legacy case where adjustment was provided manually."""
         d = self.entry6.as_dict()
         e = ComputedEntry.from_dict(d)
         assert e.uncorrected_energy == approx(6.9)
         assert e.energy_adjustments[0].value == self.entry6.energy_adjustments[0].value
 
     def test_to_from_dict_with_adjustment_2(self):
-        """
-        Modern case where correction was provided manually
-        """
+        """Modern case where correction was provided manually."""
         d = self.entry7.as_dict()
         e = ComputedEntry.from_dict(d)
         assert e.uncorrected_energy == approx(6.9)
@@ -174,7 +170,7 @@ class ComputedEntryTest(unittest.TestCase):
     def test_to_from_dict_with_adjustment_3(self):
         """
         Legacy case where the entry was serialized before the energy_adjustment
-        attribute was part of ComputedEntry
+        attribute was part of ComputedEntry.
         """
         # same as entry6
         d = {
@@ -250,7 +246,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
     def test_to_from_dict_structure_with_adjustment_3(self):
         """
         Legacy case where the structure entry was serialized before the energy_adjustment
-        attribute was part of ComputedEntry
+        attribute was part of ComputedEntry.
         """
         # ComputedStructureEntry for Oxygen, mp-12957, as of April 2020
         # with an arbitrary 1 eV correction added

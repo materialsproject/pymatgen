@@ -1,6 +1,4 @@
-"""
-This module contains the classes for configuration of the chemenv package.
-"""
+"""This module contains the classes for configuration of the chemenv package."""
 
 from __future__ import annotations
 
@@ -27,7 +25,7 @@ class ChemEnvConfig:
     Class used to store the configuration of the chemenv package :
      - Materials project access
      - ICSD database access
-     - Default options (strategies, ...)
+     - Default options (strategies, ...).
     """
 
     DEFAULT_PACKAGE_OPTIONS = frozendict(
@@ -46,9 +44,7 @@ class ChemEnvConfig:
     )
 
     def __init__(self, package_options=None):
-        """
-        :param package_options:
-        """
+        """:param package_options:"""
         if SETTINGS.get("PMG_MAPI_KEY"):
             self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY")
         else:
@@ -60,9 +56,7 @@ class ChemEnvConfig:
             self.package_options = package_options
 
     def setup(self):
-        """
-        Setup the class.
-        """
+        """Setup the class."""
         while True:
             print("\n=> Configuration of the ChemEnv package <=")
             print("Current configuration :")
@@ -99,9 +93,7 @@ class ChemEnvConfig:
         return self.materials_project_configuration is not None
 
     def setup_package_options(self):
-        """
-        Setup the package options.
-        """
+        """Setup the package options."""
         self.package_options = self.DEFAULT_PACKAGE_OPTIONS
         print("Choose between the following strategies : ")
         strategies = list(strategies_class_lookup)
@@ -132,9 +124,7 @@ class ChemEnvConfig:
                         print(f"Wrong input for {option=}")
 
     def package_options_description(self):
-        """
-        Describe package options.
-        """
+        """Describe package options."""
         out = "Package options :\n"
         out += f" - Maximum distance factor : {self.package_options['default_max_distance_factor']:.4f}\n"
         out += f" - Default strategy is \"{self.package_options['default_strategy']['strategy']}\" :\n"

@@ -75,11 +75,11 @@ def as_etsfreader(file):
 
 
 class NetcdfReaderError(Exception):
-    """Base error class for NetcdfReader"""
+    """Base error class for NetcdfReader."""
 
 
 class NO_DEFAULT:
-    """Signal that read_value should raise an Error"""
+    """Signal that read_value should raise an Error."""
 
 
 class NetcdfReader:
@@ -277,9 +277,7 @@ class ETSF_Reader(NetcdfReader):
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
-        """
-        Read ixc from an Abinit file. Return :class:`XcFunc` object.
-        """
+        """Read ixc from an Abinit file. Return :class:`XcFunc` object."""
         ixc = int(self.read_value("ixc"))
         return XcFunc.from_abinit_ixc(ixc)
 

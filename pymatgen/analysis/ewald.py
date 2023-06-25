@@ -1,6 +1,4 @@
-"""
-This module provides classes for calculating the Ewald sum of a structure.
-"""
+"""This module provides classes for calculating the Ewald sum of a structure."""
 
 from __future__ import annotations
 
@@ -182,9 +180,7 @@ class EwaldSummation(MSONable):
 
     @property
     def reciprocal_space_energy(self):
-        """
-        The reciprocal space energy.
-        """
+        """The reciprocal space energy."""
         if not self._initialized:
             self._calc_ewald_terms()
             self._initialized = True
@@ -204,9 +200,7 @@ class EwaldSummation(MSONable):
 
     @property
     def real_space_energy(self):
-        """
-        The real space energy.
-        """
+        """The real space energy."""
         if not self._initialized:
             self._calc_ewald_terms()
             self._initialized = True
@@ -225,9 +219,7 @@ class EwaldSummation(MSONable):
 
     @property
     def point_energy(self):
-        """
-        The point energy.
-        """
+        """The point energy."""
         if not self._initialized:
             self._calc_ewald_terms()
             self._initialized = True
@@ -246,9 +238,7 @@ class EwaldSummation(MSONable):
 
     @property
     def total_energy(self):
-        """
-        The total energy.
-        """
+        """The total energy."""
         if not self._initialized:
             self._calc_ewald_terms()
             self._initialized = True
@@ -267,10 +257,10 @@ class EwaldSummation(MSONable):
             self._calc_ewald_terms()
             self._initialized = True
 
-        totalenergy = self._recip + self._real
-        for i, energy in enumerate(self._point):
-            totalenergy[i, i] += energy
-        return totalenergy
+        total_energy = self._recip + self._real
+        for idx, energy in enumerate(self._point):
+            total_energy[idx, idx] += energy
+        return total_energy
 
     @property
     def forces(self):
@@ -287,7 +277,7 @@ class EwaldSummation(MSONable):
         return self._forces
 
     def get_site_energy(self, site_index):
-        """Compute the energy for a single site in the structure
+        """Compute the energy for a single site in the structure.
 
         Args:
             site_index (int): Index of site
@@ -303,9 +293,7 @@ class EwaldSummation(MSONable):
         return np.sum(self._recip[:, site_index]) + np.sum(self._real[:, site_index]) + self._point[site_index]
 
     def _calc_ewald_terms(self):
-        """
-        Calculates and sets all Ewald terms (point, real and reciprocal)
-        """
+        """Calculates and sets all Ewald terms (point, real and reciprocal)."""
         self._recip, recip_forces = self._calc_recip()
         self._real, self._point, real_point_forces = self._calc_real_and_point()
         if self._compute_forces:
@@ -317,7 +305,7 @@ class EwaldSummation(MSONable):
         E_recip = 1/(2PiV) sum_{G < Gmax} exp(-(G.G/4/eta))/(G.G) S(G)S(-G)
         where
         S(G) = sum_{k=1,N} q_k exp(-i G.r_k)
-        S(G)S(-G) = |S(G)|**2
+        S(G)S(-G) = |S(G)|**2.
 
         This method is heavily vectorized to utilize numpy's C backend for
         speed.
@@ -365,9 +353,7 @@ class EwaldSummation(MSONable):
         return erecip, forces
 
     def _calc_real_and_point(self):
-        """
-        Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2
-        """
+        """Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2."""
         fcoords = self._s.frac_coords
         forcepf = 2 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
@@ -416,9 +402,7 @@ class EwaldSummation(MSONable):
 
     @property
     def eta(self):
-        """
-        Returns: eta value used in Ewald summation.
-        """
+        """Returns: eta value used in Ewald summation."""
         return self._eta
 
     def __str__(self):
@@ -538,7 +522,7 @@ class EwaldMinimizer:
                 energy structures. This is likely to return a number of duplicate
                 structures so it may be necessary to overestimate and then
                 remove the duplicates later. (duplicate checking in this
-                process is extremely expensive)
+                process is extremely expensive).
         """
         # Setup and checking of inputs
         self._matrix = copy(matrix)
@@ -576,7 +560,7 @@ class EwaldMinimizer:
     def minimize_matrix(self):
         """
         This method finds and returns the permutations that produce the lowest
-        Ewald sum calls recursive function to iterate through permutations
+        Ewald sum calls recursive function to iterate through permutations.
         """
         if self._algo in (EwaldMinimizer.ALGO_FAST, EwaldMinimizer.ALGO_BEST_FIRST):
             return self._recurse(self._matrix, self._m_list, set(range(len(self._matrix))))
@@ -655,7 +639,7 @@ class EwaldMinimizer:
     def get_next_index(cls, matrix, manipulation, indices_left):
         """
         Returns an index that should have the most negative effect on the
-        matrix sum
+        matrix sum.
         """
         # pylint: disable=E1126
         f = manipulation[0]
@@ -724,29 +708,23 @@ class EwaldMinimizer:
 
     @property
     def best_m_list(self):
-        """
-        Returns: Best m_list found.
-        """
+        """Returns: Best m_list found."""
         return self._best_m_list
 
     @property
     def minimized_sum(self):
-        """
-        Returns: Minimized sum
-        """
+        """Returns: Minimized sum."""
         return self._minimized_sum
 
     @property
     def output_lists(self):
-        """
-        Returns: output lists.
-        """
+        """Returns: output lists."""
         return self._output_lists
 
 
 def compute_average_oxidation_state(site):
     """
-    Calculates the average oxidation state of a site
+    Calculates the average oxidation state of a site.
 
     Args:
         site: Site to compute average oxidation state

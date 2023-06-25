@@ -12,9 +12,7 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class ThermalDisplacementTest(PymatgenTest):
-    """
-    Test data from J. George's matlab code https://github.com/JaGeo/MolecularToolbox
-    """
+    """Test data from J. George's matlab code https://github.com/JaGeo/MolecularToolbox."""
 
     def setUp(self) -> None:
         self.thermal = ThermalDisplacementMatrices(

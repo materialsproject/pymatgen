@@ -96,9 +96,7 @@ class PeriodicSiteTest(PymatgenTest):
         self.dummy_site = PeriodicSite("X", [0, 0, 0], self.lattice)
 
     def test_properties(self):
-        """
-        Test the properties for a site
-        """
+        """Test the properties for a site."""
         assert self.site.a == 0.25
         assert self.site.b == 0.35
         assert self.site.c == 0.45

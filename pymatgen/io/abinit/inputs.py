@@ -585,9 +585,7 @@ def num_valence_electrons(structure, pseudos):
 
 
 class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
-    """
-    Abstract class defining the methods that must be implemented by Input objects.
-    """
+    """Abstract class defining the methods that must be implemented by Input objects."""
 
     # ABC protocol: __delitem__, __getitem__, __iter__, __len__, __setitem__
     def __delitem__(self, key):
@@ -613,9 +611,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return self.to_string()
 
     def write(self, filepath="run.abi"):
-        """
-        Write the input file to file to ``filepath``.
-        """
+        """Write the input file to file to ``filepath``."""
         dirname = os.path.dirname(os.path.abspath(filepath))
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -707,9 +703,7 @@ class BasicAbinitInputError(Exception):
 
 
 class BasicAbinitInput(AbstractInput, MSONable):
-    """
-    This object stores the ABINIT variables for a single dataset.
-    """
+    """This object stores the ABINIT variables for a single dataset."""
 
     Error = BasicAbinitInputError
 
@@ -733,7 +727,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             ndtset: Number of datasets.
             comment: Optional string with a comment that will be placed at the beginning of the file.
             abi_args: list of tuples (key, value) with the initial set of variables. Default: Empty
-            abi_kwargs: Dictionary with the initial set of variables. Default: Empty
+            abi_kwargs: Dictionary with the initial set of variables. Default: Empty.
         """
         # Internal dict with variables. we use an ordered dict so that
         # variables will be likely grouped by `topics` when we fill the input.
@@ -766,9 +760,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             self.set_comment(comment)
 
     def as_dict(self):
-        """
-        JSON interface used in pymatgen for easier serialization.
-        """
+        """JSON interface used in pymatgen for easier serialization."""
         # Use a list of (key, value) to serialize the dict
         abi_args = []
         for key, value in self.items():
@@ -792,9 +784,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        JSON interface used in pymatgen for easier serialization.
-        """
+        """JSON interface used in pymatgen for easier serialization."""
         pseudos = [Pseudo.from_file(p["filepath"]) for p in d["pseudos"]]
         return cls(d["structure"], pseudos, comment=d["comment"], abi_args=d["abi_args"])
 
@@ -1176,7 +1166,7 @@ class BasicMultiDataset:
         return on_all
 
     def __add__(self, other):
-        """Self + other"""
+        """Self + other."""
         if isinstance(other, BasicAbinitInput):
             new_mds = BasicMultiDataset.from_inputs(self)
             new_mds.append(other)
@@ -1309,7 +1299,7 @@ class BasicMultiDataset:
     def write(self, filepath="run.abi"):
         """
         Write ``ndset`` input files to disk. The name of the file
-        is constructed from the dataset index e.g. run0.abi
+        is constructed from the dataset index e.g. run0.abi.
         """
         root, ext = os.path.splitext(filepath)
         for i, inp in enumerate(self):

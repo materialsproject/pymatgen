@@ -1,8 +1,6 @@
 #
 # pylint: disable=no-member, chained-comparison
-"""
-Low-level objects providing an abstraction for the objects involved in the calculation.
-"""
+"""Low-level objects providing an abstraction for the objects involved in the calculation."""
 
 from __future__ import annotations
 
@@ -25,7 +23,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
     """
     Returns a `Lattice` object from a dictionary
     with the Abinit variables `acell` and either `rprim` in Bohr or `angdeg`
-    If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
+    If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr.
 
     Args:
         cls: Lattice class to be instantiated. pymatgen.core.lattice.Lattice if `cls` is None
@@ -290,7 +288,7 @@ or the Virtual Crystal Approximation."""
 def contract(s):
     """
     >>> assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
-    >>> assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3"
+    >>> assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3".
     """
     if not s:
         return s
@@ -343,7 +341,7 @@ class MandatoryVariable:
 
 @singleton
 class DefaultVariable:
-    """Singleton used to tag variables that will have the default value"""
+    """Singleton used to tag variables that will have the default value."""
 
 
 MANDATORY = MandatoryVariable()
@@ -367,7 +365,7 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
     @classmethod
     def as_spinmode(cls, obj):
-        """Converts obj into a `SpinMode` instance"""
+        """Converts obj into a `SpinMode` instance."""
         if isinstance(obj, cls):
             return obj
 
@@ -410,7 +408,7 @@ _mode2spinvars = {
 class Smearing(AbivarAble, MSONable):
     """
     Variables defining the smearing technique. The preferred way to instantiate
-    a `Smearing` object is via the class method Smearing.as_smearing(string)
+    a `Smearing` object is via the class method Smearing.as_smearing(string).
     """
 
     #: Mapping string_mode --> occopt
@@ -424,7 +422,7 @@ class Smearing(AbivarAble, MSONable):
     )
 
     def __init__(self, occopt, tsmear):
-        """Build object with occopt and tsmear"""
+        """Build object with occopt and tsmear."""
         self.occopt = occopt
         self.tsmear = tsmear
 
@@ -498,7 +496,7 @@ class Smearing(AbivarAble, MSONable):
         return {"occopt": self.occopt, "tsmear": self.tsmear}
 
     def as_dict(self):
-        """JSON-friendly dict representation of Smearing"""
+        """JSON-friendly dict representation of Smearing."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -555,7 +553,7 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
 
 
 class Electrons(AbivarAble, MSONable):
-    """The electronic degrees of freedom"""
+    """The electronic degrees of freedom."""
 
     def __init__(
         self,
@@ -600,7 +598,7 @@ class Electrons(AbivarAble, MSONable):
         return self.spin_mode.nspden
 
     def as_dict(self):
-        """Json friendly dict representation"""
+        """Json friendly dict representation."""
         dct = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
@@ -656,9 +654,7 @@ class KSamplingModes(Enum):
 
 
 class KSampling(AbivarAble, MSONable):
-    """
-    Input variables defining the K-point sampling.
-    """
+    """Input variables defining the K-point sampling."""
 
     def __init__(
         self,
@@ -792,7 +788,7 @@ class KSampling(AbivarAble, MSONable):
 
     @classmethod
     def gamma_only(cls):
-        """Gamma-only sampling"""
+        """Gamma-only sampling."""
         return cls(kpt_shifts=(0.0, 0.0, 0.0), comment="Gamma-only sampling")
 
     @classmethod
@@ -926,7 +922,7 @@ class KSampling(AbivarAble, MSONable):
 
     @classmethod
     def path_from_structure(cls, ndivsm, structure):
-        """See _path for the meaning of the variables"""
+        """See _path for the meaning of the variables."""
         return cls._path(
             ndivsm,
             structure=structure,
@@ -935,7 +931,7 @@ class KSampling(AbivarAble, MSONable):
 
     @classmethod
     def explicit_path(cls, ndivsm, kpath_bounds):
-        """See _path for the meaning of the variables"""
+        """See _path for the meaning of the variables."""
         return cls._path(ndivsm, kpath_bounds=kpath_bounds, comment="Explicit K-path")
 
     @classmethod
@@ -1017,7 +1013,7 @@ class KSampling(AbivarAble, MSONable):
 
 
 class Constraints(AbivarAble):
-    """This object defines the constraints for structural relaxation"""
+    """This object defines the constraints for structural relaxation."""
 
     def to_abivars(self):
         """Dictionary with Abinit variables."""
@@ -1076,7 +1072,7 @@ class RelaxationMethod(AbivarAble, MSONable):
 
     @classmethod
     def atoms_and_cell(cls, atoms_constraints=None):
-        """Relax atomic positions as well as unit cell"""
+        """Relax atomic positions as well as unit cell."""
         if atoms_constraints is None:
             return cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT)
         return cls(
@@ -1096,7 +1092,7 @@ class RelaxationMethod(AbivarAble, MSONable):
         return self.abivars.optcell != 0
 
     def to_abivars(self):
-        """Returns a dictionary with the abinit variables"""
+        """Returns a dictionary with the abinit variables."""
         # These variables are always present.
         out_vars = {
             "ionmov": self.abivars.ionmov,
@@ -1160,7 +1156,7 @@ class PPModelModes(Enum):
 class PPModel(AbivarAble, MSONable):
     """
     Parameters defining the plasmon-pole technique.
-    The common way to instantiate a PPModel object is via the class method PPModel.as_ppmodel(string)
+    The common way to instantiate a PPModel object is via the class method PPModel.as_ppmodel(string).
     """
 
     @classmethod
@@ -1250,7 +1246,7 @@ class HilbertTransform(AbivarAble):
     """
     Parameters for the Hilbert-transform method (Screening code)
     i.e. the parameters defining the frequency mesh used for the spectral function
-    and the frequency mesh used for the polarizability
+    and the frequency mesh used for the polarizability.
     """
 
     def __init__(
@@ -1285,7 +1281,7 @@ class HilbertTransform(AbivarAble):
         self.nfreqim = nfreqim
 
     def to_abivars(self):
-        """Returns a dictionary with the abinit variables"""
+        """Returns a dictionary with the abinit variables."""
         return {
             # Spectral function
             "nomegasf": self.nomegasf,
@@ -1300,7 +1296,7 @@ class HilbertTransform(AbivarAble):
 
 
 class ModelDielectricFunction(AbivarAble):
-    """Model dielectric function used for BSE calculation"""
+    """Model dielectric function used for BSE calculation."""
 
     def __init__(self, mdf_epsinf):
         """
@@ -1389,7 +1385,7 @@ class Screening(AbivarAble):
     #    return dig1.strip() + dig0.strip()
 
     def to_abivars(self):
-        """Returns a dictionary with the abinit variables"""
+        """Returns a dictionary with the abinit variables."""
         abivars = {
             "ecuteps": self.ecuteps,
             "ecutwfn": self.ecutwfn,
@@ -1411,9 +1407,7 @@ class Screening(AbivarAble):
 
 
 class SelfEnergy(AbivarAble):
-    """
-    This object defines the parameters used for the computation of the self-energy.
-    """
+    """This object defines the parameters used for the computation of the self-energy."""
 
     _SIGMA_TYPES = frozendict(
         gw=0,
@@ -1592,7 +1586,7 @@ class ExcHamiltonian(AbivarAble):
             bs_freq_mesh: Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.
             zcut: Broadening parameter in Ha.
             **kwargs:
-                Extra keywords
+                Extra keywords.
         """
         spin_mode = SpinMode.as_spinmode(spin_mode)
 
@@ -1634,7 +1628,7 @@ class ExcHamiltonian(AbivarAble):
 
     @property
     def inclvkb(self):
-        """Treatment of the dipole matrix element (NC pseudos, default is 2)"""
+        """Treatment of the dipole matrix element (NC pseudos, default is 2)."""
         return self.kwargs.get("inclvkb", 2)
 
     @property

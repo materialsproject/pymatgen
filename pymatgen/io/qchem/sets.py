@@ -1,6 +1,4 @@
-"""
-Input sets for Qchem
-"""
+"""Input sets for Qchem."""
 
 from __future__ import annotations
 
@@ -130,9 +128,7 @@ CMIRS_SETTINGS = {
 
 
 class QChemDictSet(QCInput):
-    """
-    Build a QCInput given all the various input parameters. Can be extended by standard implementations below.
-    """
+    """Build a QCInput given all the various input parameters. Can be extended by standard implementations below."""
 
     def __init__(
         self,
@@ -178,7 +174,7 @@ class QChemDictSet(QCInput):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 
@@ -639,7 +635,7 @@ class QChemDictSet(QCInput):
     def write(self, input_file: str):
         """
         Args:
-            input_file (str): Filename
+            input_file (str): Filename.
         """
         self.write_file(input_file)
         if self.smd_solvent in ("custom", "other") and self.qchem_version == 5:
@@ -648,9 +644,7 @@ class QChemDictSet(QCInput):
 
 
 class SinglePointSet(QChemDictSet):
-    """
-    QChemDictSet for a single point calculation
-    """
+    """QChemDictSet for a single point calculation."""
 
     def __init__(
         self,
@@ -692,7 +686,7 @@ class SinglePointSet(QChemDictSet):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 
@@ -875,9 +869,7 @@ class SinglePointSet(QChemDictSet):
 
 
 class OptSet(QChemDictSet):
-    """
-    QChemDictSet for a geometry optimization
-    """
+    """QChemDictSet for a geometry optimization."""
 
     def __init__(
         self,
@@ -919,7 +911,7 @@ class OptSet(QChemDictSet):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 
@@ -1087,9 +1079,7 @@ class OptSet(QChemDictSet):
 
 
 class TransitionStateSet(QChemDictSet):
-    """
-    QChemDictSet for a transition-state search
-    """
+    """QChemDictSet for a transition-state search."""
 
     def __init__(
         self,
@@ -1128,7 +1118,7 @@ class TransitionStateSet(QChemDictSet):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 
@@ -1223,9 +1213,7 @@ class TransitionStateSet(QChemDictSet):
 
 
 class ForceSet(QChemDictSet):
-    """
-    QChemDictSet for a force (gradient) calculation
-    """
+    """QChemDictSet for a force (gradient) calculation."""
 
     def __init__(
         self,
@@ -1262,7 +1250,7 @@ class ForceSet(QChemDictSet):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 
@@ -1415,9 +1403,7 @@ class ForceSet(QChemDictSet):
 
 
 class FreqSet(QChemDictSet):
-    """
-    QChemDictSet for a frequency calculation
-    """
+    """QChemDictSet for a frequency calculation."""
 
     def __init__(
         self,
@@ -1454,7 +1440,7 @@ class FreqSet(QChemDictSet):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 

@@ -1,6 +1,4 @@
-"""
-Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/
-"""
+"""Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/."""
 
 from __future__ import annotations
 
@@ -662,7 +660,7 @@ def get_thermal_displacement_matrices(
     ThermalDisplacementMatrices objects
     Args:
         thermal_displacements_yaml: path to thermal_displacement_matrices.yaml
-        structure_path: path to POSCAR
+        structure_path: path to POSCAR.
 
     Returns:
     """
