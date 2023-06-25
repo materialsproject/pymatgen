@@ -8,6 +8,7 @@ from __future__ import annotations
 import collections
 import contextlib
 import functools
+import inspect
 import io
 import itertools
 import json
@@ -793,9 +794,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns:
             Calculator: ASE calculator object.
         """
-        from ase.calculators.calculator import Calculator
-
-        if isinstance(calculator, Calculator):
+        if inspect.isclass(calculator):
+            return calculator(**params)
+        if not isinstance(calculator, str):
             return calculator
 
         if calculator.lower() == "chgnet":

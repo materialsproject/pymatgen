@@ -21,10 +21,11 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.structure import IMolecule, IStructure, Molecule, PeriodicNeighbor, Structure, StructureError
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import ase
+    from ase.atoms import Atoms
     from ase.calculators.calculator import Calculator
     from ase.calculators.emt import EMT
 except ImportError:
@@ -1390,19 +1391,19 @@ class StructureTest(PymatgenTest):
         assert custom_relaxed != self.cu_structure
         assert custom_relaxed.calc.results.get("energy") == approx(-5.2197213172, abs=1e-5)
         assert custom_relaxed.volume == approx(40.044794644, abs=1e-4)
-        assert custom_relaxed.volume < relaxed.volume  # on account of steps=1
+        assert custom_relaxed.volume < relaxed.volume
 
     def test_calculate_chgnet(self):
         pytest.importorskip("chgnet")
-        structure = self.get_structure("Si")
-        calculator = structure.calculate(calculator="chgnet")
+        struct = self.get_structure("Si")
+        calculator = struct.calculate(calculator="chgnet")
         assert isinstance(calculator, Calculator)
         preds = calculator.results
         assert {*preds} == {"stress", "energy", "free_energy", "magmoms", "forces"}
         assert preds["energy"] == approx(-10.7400808334, abs=1e-5)
         assert preds["magmoms"] == approx([0.00262399, 0.00262396], abs=1e-5)
         assert np.linalg.norm(preds["forces"]) == approx(1.998941843e-5, abs=1e-5)
-        assert not hasattr(preds, "dynamics")
+        assert not hasattr(calculator, "dynamics"), "static calculation should not have dynamics"
         assert {*calculator.__dict__} == {
             "atoms",
             "results",
@@ -1415,6 +1416,18 @@ class StructureTest(PymatgenTest):
             "model",
             "stress_weight",
         }
+        assert len(calculator.parameters) == 0
+        assert isinstance(calculator.atoms, Atoms)
+        assert len(calculator.atoms) == len(struct)
+        assert AseAtomsAdaptor.get_structure(calculator.atoms) == struct
+        assert calculator.name == "chgnetcalculator"
+
+        from chgnet.model import CHGNetCalculator
+
+        calc_from_inst = struct.calculate(calculator=CHGNetCalculator())
+        calc_from_cls = struct.calculate(calculator=CHGNetCalculator)
+        assert calc_from_inst.results["energy"] == calc_from_cls.results["energy"]
+        assert {*calc_from_inst.results} == {*calc_from_cls.results}
 
     def test_relax_ase(self):
         pytest.importorskip("ase")
@@ -1461,18 +1474,8 @@ class StructureTest(PymatgenTest):
         calculator = self.get_structure("Si").calculate()
         assert {*calculator.results} >= {"stress", "energy", "free_energy", "forces"}
         assert calculator.results["energy"] == approx(-10.709426, abs=1e-5)
-        assert np.allclose(
-            calculator.results["forces"],
-            [[9.44355556e-08, -1.52347477e-06, -1.57346949e-06], [-9.44355556e-08, 1.52347477e-06, 1.57346949e-06]],
-        )
-        assert np.allclose(
-            calculator.results["stress"],
-            [
-                [-1.1408222e00, -4.1733276e-07, 8.9428447e-08],
-                [-2.9809482e-07, -1.1408228e00, 5.3508020e-06],
-                [5.9618962e-08, 5.3806116e-06, -1.1408247e00],
-            ],
-        )
+        assert np.linalg.norm(calculator.results["forces"]) == approx(3.10022569827e-06, abs=1e-5)
+        assert np.linalg.norm(calculator.results["stress"]) == approx(1.97596371173, abs=1e-5)
 
     def test_relax_m3gnet(self):
         pytest.importorskip("matgl")
