@@ -298,18 +298,18 @@ class IStructureTest(PymatgenTest):
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
         struct2 = IStructure(self.struct.lattice, ["Si"] * 2, coords2)
-        int_s = struct.interpolate(struct2, 10)
-        for struct in int_s:
-            assert struct is not None, "Interpolation Failed!"
-            assert int_s[0].lattice == struct.lattice
-        assert_array_equal(int_s[1][1].frac_coords, [0.725, 0.5, 0.725])
+        interpolated_structs = struct.interpolate(struct2, 10)
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+        assert_array_equal(interpolated_structs[1][1].frac_coords, [0.725, 0.5, 0.725])
 
         # test ximages
-        int_s = struct.interpolate(struct2, nimages=np.linspace(0.0, 1.0, 3))
-        for struct in int_s:
-            assert struct is not None, "Interpolation Failed!"
-            assert int_s[0].lattice == struct.lattice
-        assert_array_equal(int_s[1][1].frac_coords, [0.625, 0.5, 0.625])
+        interpolated_structs = struct.interpolate(struct2, nimages=np.linspace(0.0, 1.0, 3))
+        for inter_struct in interpolated_structs:
+            assert inter_struct is not None, "Interpolation Failed!"
+            assert interpolated_structs[0].lattice == inter_struct.lattice
+        assert_array_equal(interpolated_structs[1][1].frac_coords, [0.625, 0.5, 0.625])
 
         bad_lattice = [[1, 0.00, 0.00], [0, 1, 0.00], [0.00, 0, 1]]
         struct2 = IStructure(bad_lattice, ["Si"] * 2, coords2)
