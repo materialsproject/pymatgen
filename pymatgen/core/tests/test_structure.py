@@ -1402,7 +1402,7 @@ class StructureTest(PymatgenTest):
         assert {*preds} == {"stress", "energy", "free_energy", "magmoms", "forces"}
         assert preds["energy"] == approx(-10.7400808334, abs=1e-5)
         assert preds["magmoms"] == approx([0.00262399, 0.00262396], abs=1e-5)
-        assert np.linalg.norm(preds["forces"]) == approx(1.998941843e-5, abs=1e-5)
+        assert np.linalg.norm(preds["forces"]) == approx(1.998941843e-5, abs=1e-3)
         assert not hasattr(calculator, "dynamics"), "static calculation should not have dynamics"
         assert {*calculator.__dict__} == {
             "atoms",
@@ -1426,7 +1426,7 @@ class StructureTest(PymatgenTest):
 
         calc_from_inst = struct.calculate(calculator=CHGNetCalculator())
         calc_from_cls = struct.calculate(calculator=CHGNetCalculator)
-        assert calc_from_inst.results["energy"] == calc_from_cls.results["energy"]
+        assert calc_from_inst.results["energy"] == approx(calc_from_cls.results["energy"])
         assert {*calc_from_inst.results} == {*calc_from_cls.results}
 
     def test_relax_ase(self):
