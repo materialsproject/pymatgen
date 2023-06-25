@@ -10,15 +10,20 @@ import warnings
 from fractions import Fraction
 from functools import reduce
 from math import cos, floor, gcd
-from typing import Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 
 import numpy as np
 from monty.fractions import lcm
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.util.typing import CompositionLike
 
 # This module implements representations of grain boundaries, as well as
 # algorithms for generating them.
@@ -35,46 +40,42 @@ logger = logging.getLogger(__name__)
 
 class GrainBoundary(Structure):
     """
-    Subclass of Structure representing a GrainBoundary (gb) object.
-    Implements additional attributes pertaining to gbs, but the
-    init method does not actually implement any algorithm that
-    creates a gb. This is a DUMMY class who's init method only holds
-    information about the gb. Also has additional methods that returns
-    other information about a gb such as sigma value.
+    Subclass of Structure representing a GrainBoundary (GB) object. Implements additional
+    attributes pertaining to gbs, but the init method does not actually implement any
+    algorithm that creates a GB. This is a DUMMY class who's init method only holds
+    information about the GB. Also has additional methods that returns other information
+    about a GB such as sigma value.
 
-    Note that all gbs have the gb surface normal oriented in the c-direction.
-    This means the lattice vectors a and b are in the gb surface plane (at
-     least for one grain) and the c vector is out of the surface plane
-     (though not necessary perpendicular to the surface.)
+    Note that all gbs have the GB surface normal oriented in the c-direction. This means
+    the lattice vectors a and b are in the GB surface plane (at least for one grain) and
+    the c vector is out of the surface plane (though not necessarily perpendicular to the
+    surface).
     """
 
     def __init__(
         self,
-        lattice,
-        species,
-        coords,
-        rotation_axis,
-        rotation_angle,
-        gb_plane,
-        join_plane,
-        init_cell,
-        vacuum_thickness,
-        ab_shift,
-        site_properties,
-        oriented_unit_cell,
-        validate_proximity=False,
-        coords_are_cartesian=False,
-    ):
+        lattice: np.ndarray | Lattice,
+        species: Sequence[CompositionLike],
+        coords: Sequence[ArrayLike],
+        rotation_axis: tuple[float, float, float],
+        rotation_angle: float,
+        gb_plane: tuple[float, float, float],
+        join_plane: tuple[float, float, float],
+        init_cell: Structure,
+        vacuum_thickness: float,
+        ab_shift: tuple[float, float],
+        site_properties: dict[str, Any],
+        oriented_unit_cell: Structure,
+        validate_proximity: bool = False,
+        coords_are_cartesian: bool = False,
+    ) -> None:
         """
-        Makes a gb structure, a structure object with additional information
+        Makes a GB structure, a structure object with additional information
         and methods pertaining to gbs.
 
         Args:
-            lattice (Lattice/3x3 array): The lattice, either as a
-                :class:`pymatgen.core.lattice.Lattice` or
-                simply as any 2D array. Each row should correspond to a lattice
-                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+            lattice (Lattice/3x3 array): The lattice, either as an instance or
+                any 2D array. Each row should correspond to a lattice vector.
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
@@ -85,10 +86,8 @@ class GrainBoundary(Structure):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            coords (Nx3 array): list of fractional/cartesian coordinates of
-                each species.
-            rotation_axis (list): Rotation axis of GB in the form of a list of
-                integers, e.g. [1, 1, 0].
+            coords (Nx3 array): list of fractional/cartesian coordinates for each species.
+            rotation_axis (list[int]): Rotation axis of GB in the form of a list of integers, e.g. [1, 1, 0].
             rotation_angle (float, in unit of degree): rotation angle of GB.
             gb_plane (list): Grain boundary plane in the form of a list of integers
                 e.g.: [1, 2, 3].
@@ -97,7 +96,7 @@ class GrainBoundary(Structure):
             init_cell (Structure): initial bulk structure to form the GB.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, The sequences have to be the same length as
-                the atomic species and fractional_coords. For gb, you should
+                the atomic species and fractional_coords. For GB, you should
                 have the 'grain_label' properties to classify the sites as 'top',
                 'bottom', 'top_incident', or 'bottom_incident'.
             vacuum_thickness (float in angstrom): The thickness of vacuum inserted
@@ -105,8 +104,8 @@ class GrainBoundary(Structure):
             ab_shift (list of float, in unit of crystal vector a, b): The relative
                 shift along a, b vectors.
             oriented_unit_cell (Structure): oriented unit cell of the bulk init_cell.
-                Help to accurate calculate the bulk properties that are consistent
-                with gb calculations.
+                Helps to accurately calculate the bulk properties that are consistent
+                with GB calculations.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
@@ -185,30 +184,30 @@ class GrainBoundary(Structure):
         )
 
     @property
-    def sigma(self):
+    def sigma(self) -> int:
         """
-        This method returns the sigma value of the gb.
+        This method returns the sigma value of the GB.
         If using 'quick_gen' to generate GB, this value is not valid.
         """
         return int(round(self.oriented_unit_cell.volume / self.init_cell.volume))
 
     @property
-    def sigma_from_site_prop(self):
+    def sigma_from_site_prop(self) -> int:
         """
-        This method returns the sigma value of the gb from site properties.
+        This method returns the sigma value of the GB from site properties.
         If the GB structure merge some atoms due to the atoms too closer with
         each other, this property will not work.
         """
-        num_coi = 0
+        n_coi = 0
         if None in self.site_properties["grain_label"]:
             raise RuntimeError("Site were merged, this property do not work")
         for tag in self.site_properties["grain_label"]:
             if "incident" in tag:
-                num_coi += 1
-        return int(round(self.num_sites / num_coi))
+                n_coi += 1
+        return int(round(self.num_sites / n_coi))
 
     @property
-    def top_grain(self):
+    def top_grain(self) -> Structure:
         """
         return the top grain (Structure) of the GB.
         """
@@ -219,7 +218,7 @@ class GrainBoundary(Structure):
         return Structure.from_sites(top_sites)
 
     @property
-    def bottom_grain(self):
+    def bottom_grain(self) -> Structure:
         """
         return the bottom grain (Structure) of the GB.
         """
@@ -230,14 +229,14 @@ class GrainBoundary(Structure):
         return Structure.from_sites(bottom_sites)
 
     @property
-    def coincidents(self):
+    def coincidents(self) -> list[Site]:
         """
         return the a list of coincident sites.
         """
         coincident_sites = []
-        for i, tag in enumerate(self.site_properties["grain_label"]):
+        for idx, tag in enumerate(self.site_properties["grain_label"]):
             if "incident" in tag:
-                coincident_sites.append(self.sites[i])
+                coincident_sites.append(self.sites[idx])
         return coincident_sites
 
     def __str__(self):
@@ -394,7 +393,7 @@ class GrainBoundaryGenerator:
         rotation_angle,
         expand_times=4,
         vacuum_thickness=0.0,
-        ab_shift: Sequence[float] = (0, 0),
+        ab_shift: tuple[float, float] = (0, 0),
         normal=False,
         ratio=None,
         plane=None,
@@ -460,7 +459,7 @@ class GrainBoundaryGenerator:
                 find the smallest cell.
 
         Returns:
-           Grain boundary structure (gb object).
+           Grain boundary structure (GB object).
         """
         lat_type = self.lat_type
         # if the initial structure is primitive cell in cubic system,
@@ -758,7 +757,7 @@ class GrainBoundaryGenerator:
             coords_are_cartesian=True,
             site_properties={"grain_label": grain_labels},
         )
-        # merge closer atoms. extract near gb atoms.
+        # merge closer atoms. extract near GB atoms.
         cos_c_norm_plane = np.dot(unit_normal_v, whole_matrix_with_vac[2]) / whole_lat.c
         range_c_len = abs(bond_length / cos_c_norm_plane / whole_lat.c)
         sites_near_gb = []
@@ -783,7 +782,7 @@ class GrainBoundaryGenerator:
         return GrainBoundary(
             whole_lat,
             gb_with_vac.species,
-            gb_with_vac.cart_coords,
+            gb_with_vac.cart_coords,  # type: ignore[arg-type]
             rotation_axis,
             rotation_angle,
             plane,
@@ -2243,7 +2242,7 @@ class GrainBoundaryGenerator:
                 break
 
         if not reduced:
-            warnings.warn("Matrix reduction not performed, may lead to non-primitive gb cell.")
+            warnings.warn("Matrix reduction not performed, may lead to non-primitive GB cell.")
         return mat
 
     @staticmethod
