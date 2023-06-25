@@ -1,6 +1,6 @@
 """
 Development script of the ChemEnv utility to get the explicit permutations for coordination environments identified
-with the separation plane algorithms (typically with coordination numbers >= 6)
+with the separation plane algorithms (typically with coordination numbers >= 6).
 """
 
 from __future__ import annotations
