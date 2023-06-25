@@ -146,7 +146,7 @@ class LatticeTestCase(PymatgenTest):
         assert lattice.angles == approx(expected_angles)
 
     def test_attributes(self):
-        """docstring for test_attributes"""
+        """Docstring for test_attributes."""
         lattice = Lattice.cubic(10.0)
         assert lattice.a == 10.0
         assert lattice.b == 10.0
@@ -158,9 +158,7 @@ class LatticeTestCase(PymatgenTest):
         assert xyz[2] == 4.5
 
     def test_lattice_matrices(self):
-        """
-        If alpha == 90 and beta == 90, two matrices are identical.
-        """
+        """If alpha == 90 and beta == 90, two matrices are identical."""
 
         def _identical(a, b, c, alpha, beta, gamma):
             mat1 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, False).matrix

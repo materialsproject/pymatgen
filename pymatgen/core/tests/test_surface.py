@@ -875,7 +875,7 @@ class MillerIndexFinderTests(PymatgenTest):
         assert len(miller_list) == len(all_miller_list)
 
     def test_miller_index_from_sites(self):
-        """Test surface miller index convenience function"""
+        """Test surface miller index convenience function."""
         # test on a cubic system
         m = Lattice.cubic(1)
         s1 = np.array([0.5, -1.5, 3])
