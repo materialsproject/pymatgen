@@ -571,8 +571,8 @@ class LammpsRunTest(unittest.TestCase):
     maxDiff = None
 
     def test_md(self):
-        s = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
-        ld = LammpsData.from_structure(s, atom_style="atomic")
+        struct = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
+        ld = LammpsData.from_structure(struct, atom_style="atomic")
         ff = "pair_style eam\npair_coeff * * Cu_u3.eam"
         md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0, nsteps=10000)
         md.write_inputs(output_dir="md")

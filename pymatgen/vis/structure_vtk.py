@@ -222,13 +222,13 @@ class StructureVis:
         has_lattice = hasattr(structure, "lattice")
 
         if has_lattice:
-            s = Structure.from_sites(structure, to_unit_cell=to_unit_cell)
-            s.make_supercell(self.supercell, to_unit_cell=to_unit_cell)
+            struct = Structure.from_sites(structure, to_unit_cell=to_unit_cell)
+            struct.make_supercell(self.supercell, to_unit_cell=to_unit_cell)
         else:
-            s = structure
+            struct = structure
 
         inc_coords = []
-        for site in s:
+        for site in struct:
             self.add_site(site)
             inc_coords.append(site.coords)
 
@@ -237,7 +237,7 @@ class StructureVis:
         colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
 
         if has_lattice:
-            matrix = s.lattice.matrix
+            matrix = struct.lattice.matrix
 
         if self.show_unit_cell and has_lattice:
             # matrix = s.lattice.matrix
@@ -252,14 +252,14 @@ class StructureVis:
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
 
         if self.show_bonds or self.show_polyhedron:
-            elements = sorted(s.composition.elements, key=lambda a: a.X)
+            elements = sorted(struct.composition.elements, key=lambda a: a.X)
             anion = elements[-1]
 
             def contains_anion(site):
                 return any(sp.symbol == anion.symbol for sp in site.species)
 
             anion_radius = anion.average_ionic_radius
-            for site in s:
+            for site in struct:
                 exclude = False
                 max_radius = 0
                 color = np.array([0, 0, 0])
@@ -296,19 +296,19 @@ class StructureVis:
         if reset_camera:
             if has_lattice:
                 # Adjust the camera for best viewing
-                lengths = s.lattice.abc
+                lengths = struct.lattice.abc
                 pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5
                 camera.SetPosition(pos)
                 camera.SetViewUp(matrix[2])
                 camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
             else:
-                origin = s.center_of_mass
-                max_site = max(s, key=lambda site: site.distance_from_point(origin))
+                origin = struct.center_of_mass
+                max_site = max(struct, key=lambda site: site.distance_from_point(origin))
                 camera.SetPosition(origin + 5 * (max_site.coords - origin))
-                camera.SetFocalPoint(s.center_of_mass)
+                camera.SetFocalPoint(struct.center_of_mass)
 
         self.structure = structure
-        self.title = s.composition.formula
+        self.title = struct.composition.formula
 
     def zoom(self, factor):
         """

@@ -1118,9 +1118,9 @@ class CifParser:
         structures = []
         for i, d in enumerate(self._cif.data.values()):
             try:
-                s = self._get_structure(d, primitive, symmetrized)
-                if s:
-                    structures.append(s)
+                struct = self._get_structure(d, primitive, symmetrized)
+                if struct:
+                    structures.append(struct)
             except (KeyError, ValueError) as exc:
                 # Warn the user (Errors should never pass silently)
                 # A user reported a problem with cif files produced by Avogadro

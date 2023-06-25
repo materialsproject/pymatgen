@@ -818,24 +818,24 @@ class LammpsData(MSONable):
                 "charge" (charged). Default to "charge".
             is_sort (bool): whether to sort sites
         """
-        s = structure.get_sorted_structure() if is_sort else structure.copy()
-        box, symm_op = lattice_2_lmpbox(s.lattice)
-        coords = symm_op.operate_multi(s.cart_coords)
-        site_properties = s.site_properties
+        struct = structure.get_sorted_structure() if is_sort else structure.copy()
+        box, symm_op = lattice_2_lmpbox(struct.lattice)
+        coords = symm_op.operate_multi(struct.cart_coords)
+        site_properties = struct.site_properties
         if "velocities" in site_properties:
-            velos = np.array(s.site_properties["velocities"])
+            velos = np.array(struct.site_properties["velocities"])
             rot = SymmOp.from_rotation_and_translation(symm_op.rotation_matrix)
             rot_velos = rot.operate_multi(velos)
             site_properties.update({"velocities": rot_velos})  # type: ignore
         boxed_s = Structure(
             box.to_lattice(),
-            s.species,
+            struct.species,
             coords,
             site_properties=site_properties,
             coords_are_cartesian=True,
         )
 
-        symbols = list(s.symbol_set)
+        symbols = list(struct.symbol_set)
         if ff_elements:
             symbols.extend(ff_elements)
         elements = sorted(Element(el) for el in set(symbols))

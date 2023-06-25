@@ -1154,12 +1154,12 @@ class HungarianOrderMatcher(KabschMatcher):
             return np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]])
 
         v = np.cross(v1, v2)
-        s = np.linalg.norm(v)
+        norm = np.linalg.norm(v)
         c = np.vdot(v1, v2)
 
         vx = np.array([[0.0, -v[2], v[1]], [v[2], 0.0, -v[0]], [-v[1], v[0], 0.0]])
 
-        return np.eye(3) + vx + np.dot(vx, vx) * ((1.0 - c) / (s * s))
+        return np.eye(3) + vx + np.dot(vx, vx) * ((1.0 - c) / (norm * norm))
 
 
 class GeneticOrderMatcher(KabschMatcher):

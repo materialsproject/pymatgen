@@ -127,9 +127,9 @@ class EnumlibAdaptorTest(PymatgenTest):
 
     @unittest.skip("Fails seemingly at random.")
     def test_timeout(self):
-        s = Structure.from_file(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "garnet.cif"))
-        SpacegroupAnalyzer(s, 0.1)
-        s["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
-        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001)
+        struct = Structure.from_file(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "garnet.cif"))
+        SpacegroupAnalyzer(struct, 0.1)
+        struct["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
+        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001)
         with pytest.raises(TimeoutError):
             adaptor._run_multienum()

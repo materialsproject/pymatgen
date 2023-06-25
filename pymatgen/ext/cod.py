@@ -120,8 +120,8 @@ class COD:
                 cod_id, sg = line.split("\t")
                 r = requests.get(f"http://www.crystallography.net/cod/{cod_id.strip()}.cif")
                 try:
-                    s = Structure.from_str(r.text, fmt="cif", **kwargs)
-                    structures.append({"structure": s, "cod_id": int(cod_id), "sg": sg})
+                    struct = Structure.from_str(r.text, fmt="cif", **kwargs)
+                    structures.append({"structure": struct, "cod_id": int(cod_id), "sg": sg})
                 except Exception:
                     warnings.warn(f"\nStructure.from_str failed while parsing CIF file:\n{r.text}")
                     raise

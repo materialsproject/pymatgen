@@ -29,9 +29,9 @@ def parse_view(args):
     from pymatgen.vis.structure_vtk import StructureVis
 
     excluded_bonding_elements = args.exclude_bonding[0].split(",") if args.exclude_bonding else []
-    s = Structure.from_file(args.filename[0])
+    struct = Structure.from_file(args.filename[0])
     vis = StructureVis(excluded_bonding_elements=excluded_bonding_elements)
-    vis.set_structure(s)
+    vis.set_structure(struct)
     vis.show()
     return 0
 

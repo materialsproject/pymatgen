@@ -340,8 +340,8 @@ class SpacegroupAnalyzer:
                 site_properties[k] = [v[i - 1] for i in numbers]
         else:
             site_properties = None
-        s = Structure(lattice, species, scaled_positions, site_properties=site_properties)
-        return s.get_sorted_structure()
+        struct = Structure(lattice, species, scaled_positions, site_properties=site_properties)
+        return struct.get_sorted_structure()
 
     def find_primitive(self, keep_site_properties=False):
         """Find a primitive version of the unit cell.

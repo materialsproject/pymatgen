@@ -12,9 +12,9 @@ from pymatgen.util.testing import PymatgenTest
 
 class BatteryAnalyzerTest(PymatgenTest):
     def load_from_cif(self, filename, oxidations, working_ion="Li"):
-        s = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, filename))
-        s.add_oxidation_state_by_element(oxidations)
-        return BatteryAnalyzer(s, working_ion)
+        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, filename))
+        struct.add_oxidation_state_by_element(oxidations)
+        return BatteryAnalyzer(struct, working_ion)
 
     def load_from_internal(self, name, oxidations, working_ion="Li"):
         struct = self.get_structure(name).copy()

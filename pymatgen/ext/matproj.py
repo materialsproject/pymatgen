@@ -472,12 +472,12 @@ class _MPResterLegacy:
             MPRestError
         """
         if isinstance(filename_or_structure, str):
-            s = Structure.from_file(filename_or_structure)
+            struct = Structure.from_file(filename_or_structure)
         elif isinstance(filename_or_structure, Structure):
-            s = filename_or_structure
+            struct = filename_or_structure
         else:
             raise MPRestError("Provide filename or Structure object.")
-        payload = {"structure": json.dumps(s.as_dict(), cls=MontyEncoder)}
+        payload = {"structure": json.dumps(struct.as_dict(), cls=MontyEncoder)}
         response = self.session.post(f"{self.preamble}/find_structure", data=payload)
         if response.status_code in [200, 400]:
             resp = json.loads(response.text, cls=MontyDecoder)
@@ -575,13 +575,13 @@ class _MPResterLegacy:
             else:
                 prim = d["initial_structure"] if inc_structure == "initial" else d["structure"]
                 if conventional_unit_cell:
-                    s = SpacegroupAnalyzer(prim).get_conventional_standard_structure()
-                    energy = d["energy"] * (len(s) / len(prim))
+                    struct = SpacegroupAnalyzer(prim).get_conventional_standard_structure()
+                    energy = d["energy"] * (len(struct) / len(prim))
                 else:
-                    s = prim.copy()
+                    struct = prim.copy()
                     energy = d["energy"]
                 e = ComputedStructureEntry(
-                    s,
+                    struct,
                     energy,
                     parameters={k: d[k] for k in params},
                     data=data,

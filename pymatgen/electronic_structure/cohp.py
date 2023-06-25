@@ -117,8 +117,7 @@ class Cohp(MSONable):
         if isinstance(spin, int):
             spin = Spin(spin)
         elif isinstance(spin, str):
-            s = {"up": 1, "down": -1}[spin.lower()]
-            spin = Spin(s)
+            spin = Spin({"up": 1, "down": -1}[spin.lower()])
         return {spin: populations[spin]}
 
     def get_icohp(self, spin=None):

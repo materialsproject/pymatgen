@@ -2373,7 +2373,7 @@ class IStructure(SiteCollection, MSONable):
                 if valid:
                     inv_m = np.linalg.inv(m)
                     new_latt = Lattice(np.dot(inv_m, self.lattice.matrix))
-                    s = Structure(
+                    struct = Structure(
                         new_latt,
                         new_sp,
                         new_coords,
@@ -2382,7 +2382,7 @@ class IStructure(SiteCollection, MSONable):
                     )
 
                     # Default behavior
-                    p = s.get_primitive_structure(
+                    p = struct.get_primitive_structure(
                         tolerance=tolerance,
                         use_site_props=use_site_props,
                         constrain_latt=constrain_latt,
@@ -2715,51 +2715,51 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.cif import CifParser
 
             parser = CifParser.from_string(input_string, **kwargs)
-            s = parser.get_structures(primitive=primitive)[0]
+            struct = parser.get_structures(primitive=primitive)[0]
         elif fmt_low == "poscar":
             from pymatgen.io.vasp import Poscar
 
-            s = Poscar.from_string(input_string, False, read_velocities=False, **kwargs).structure
+            struct = Poscar.from_string(input_string, False, read_velocities=False, **kwargs).structure
         elif fmt_low == "cssr":
             from pymatgen.io.cssr import Cssr
 
             cssr = Cssr.from_string(input_string, **kwargs)
-            s = cssr.structure
+            struct = cssr.structure
         elif fmt_low == "json":
             d = json.loads(input_string)
-            s = Structure.from_dict(d)
+            struct = Structure.from_dict(d)
         elif fmt_low == "yaml":
             yaml = YAML()
             d = yaml.load(input_string)
-            s = Structure.from_dict(d)
+            struct = Structure.from_dict(d)
         elif fmt_low == "xsf":
             from pymatgen.io.xcrysden import XSF
 
-            s = XSF.from_string(input_string, **kwargs).structure
+            struct = XSF.from_string(input_string, **kwargs).structure
         elif fmt_low == "mcsqs":
             from pymatgen.io.atat import Mcsqs
 
-            s = Mcsqs.structure_from_string(input_string, **kwargs)
+            struct = Mcsqs.structure_from_string(input_string, **kwargs)
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_string(input_string, inpgen_input=True, **kwargs).structure
+            struct = FleurInput.from_string(input_string, inpgen_input=True, **kwargs).structure
         elif fmt == "fleur":
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_string(input_string, inpgen_input=False).structure
+            struct = FleurInput.from_string(input_string, inpgen_input=False).structure
         elif fmt == "res":
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_from_str(input_string, **kwargs)
+            struct = ResIO.structure_from_str(input_string, **kwargs)
         else:
             raise ValueError(f"Unrecognized format `{fmt}`!")
 
         if sort:
-            s = s.get_sorted_structure()
+            struct = struct.get_sorted_structure()
         if merge_tol:
-            s.merge_sites(merge_tol)
-        return cls.from_sites(s)
+            struct.merge_sites(merge_tol)
+        return cls.from_sites(struct)
 
     @classmethod
     def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0, **kwargs) -> Structure | IStructure:
@@ -2786,10 +2786,10 @@ class IStructure(SiteCollection, MSONable):
             # Read Structure from a netcdf file.
             from pymatgen.io.abinit.netcdf import structure_from_ncdata
 
-            s = structure_from_ncdata(filename, cls=cls)
+            struct = structure_from_ncdata(filename, cls=cls)
             if sort:
-                s = s.get_sorted_structure()
-            return s
+                struct = struct.get_sorted_structure()
+            return struct
 
         from pymatgen.io.exciting import ExcitingInput
         from pymatgen.io.lmto import LMTOCtrl
@@ -2801,12 +2801,12 @@ class IStructure(SiteCollection, MSONable):
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         if fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
-            s = cls.from_str(contents, fmt="poscar", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            struct = cls.from_str(contents, fmt="poscar", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
 
         elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
-            s = Chgcar.from_file(filename, **kwargs).structure
+            struct = Chgcar.from_file(filename, **kwargs).structure
         elif fnmatch(fname, "vasprun*.xml*"):
-            s = Vasprun(filename, **kwargs).final_structure
+            struct = Vasprun(filename, **kwargs).final_structure
         elif fnmatch(fname.lower(), "*.cssr*"):
             return cls.from_str(contents, fmt="cssr", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
@@ -2824,20 +2824,20 @@ class IStructure(SiteCollection, MSONable):
         elif fnmatch(fname, "inp*.xml") or fnmatch(fname, "*.in*") or fnmatch(fname, "inp_*"):
             from pymatgen.io.fleur import FleurInput
 
-            s = FleurInput.from_file(filename, **kwargs).structure
+            struct = FleurInput.from_file(filename, **kwargs).structure
         elif fnmatch(fname, "*.res"):
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_from_file(filename, **kwargs)
+            struct = ResIO.structure_from_file(filename, **kwargs)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
-            s = s.get_sorted_structure()
+            struct = struct.get_sorted_structure()
         if merge_tol:
-            s.merge_sites(merge_tol)
+            struct.merge_sites(merge_tol)
 
-        s.__class__ = cls
-        return s
+        struct.__class__ = cls
+        return struct
 
 
 class IMolecule(SiteCollection, MSONable):

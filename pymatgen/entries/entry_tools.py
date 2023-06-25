@@ -31,9 +31,9 @@ logger = logging.getLogger(__name__)
 
 def _get_host(structure, species_to_remove):
     if species_to_remove:
-        s = structure.copy()
-        s.remove_species(species_to_remove)
-        return s
+        struct = structure.copy()
+        struct.remove_species(species_to_remove)
+        return struct
     return structure
 
 

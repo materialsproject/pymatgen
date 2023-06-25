@@ -449,10 +449,10 @@ class LobsterBandStructureSymmLineTest(PymatgenTest):
         assert bs.get_kpoint_degeneracy(vbm_k) == 3
 
     def test_as_dict(self):
-        s = json.dumps(self.bs_p.as_dict())
-        assert s is not None
-        s = json.dumps(self.bs_spin.as_dict())
-        assert s is not None
+        dict_str = json.dumps(self.bs_p.as_dict())
+        assert dict_str is not None
+        dict_str = json.dumps(self.bs_spin.as_dict())
+        assert dict_str is not None
 
     def test_old_format_load(self):
         # this method will use the loading from the old dict

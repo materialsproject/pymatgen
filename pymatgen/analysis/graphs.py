@@ -1148,7 +1148,7 @@ class StructureGraph(MSONable):
             mapping = {n: n + len(new_sites) for n in range(len(self.structure))}
 
             for site in self.structure:
-                s = PeriodicSite(
+                site = PeriodicSite(
                     site.species,
                     site.coords + v,
                     new_lattice,
@@ -1157,7 +1157,7 @@ class StructureGraph(MSONable):
                     to_unit_cell=False,
                 )
 
-                new_sites.append(s)
+                new_sites.append(site)
 
             new_graphs.append(nx.relabel_nodes(self.graph, mapping, copy=True))
 
@@ -1334,11 +1334,11 @@ class StructureGraph(MSONable):
         return s
 
     def __str__(self):
-        s = "Structure Graph"
-        s += f"\nStructure: \n{self.structure}"
-        s += f"\nGraph: {self.name}\n"
-        s += self._edges_to_string(self.graph)
-        return s
+        out = "Structure Graph"
+        out += f"\nStructure: \n{self.structure}"
+        out += f"\nGraph: {self.name}\n"
+        out += self._edges_to_string(self.graph)
+        return out
 
     def __repr__(self):
         s = "Structure Graph"
@@ -2712,7 +2712,7 @@ class MoleculeGraph(MSONable):
         else:
             print_weights = False
 
-        s = f"{header}\n{header_line}\n"
+        out = f"{header}\n{header_line}\n"
 
         edges = list(g.edges(data=True))
 
@@ -2721,26 +2721,26 @@ class MoleculeGraph(MSONable):
 
         if print_weights:
             for u, v, data in edges:
-                s += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}  {data.get('weight', 0):.3e}\n"
+                out += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}  {data.get('weight', 0):.3e}\n"
         else:
             for u, v, data in edges:
-                s += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}\n"
+                out += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}\n"
 
-        return s
+        return out
 
     def __str__(self) -> str:
-        s = "Molecule Graph"
-        s += f"\nMolecule: \n{self.molecule}"
-        s += f"\nGraph: {self.name}\n"
-        s += self._edges_to_string(self.graph)
-        return s
+        out = "Molecule Graph"
+        out += f"\nMolecule: \n{self.molecule}"
+        out += f"\nGraph: {self.name}\n"
+        out += self._edges_to_string(self.graph)
+        return out
 
     def __repr__(self) -> str:
-        s = "Molecule Graph"
-        s += f"\nMolecule: \n{self.molecule.__repr__()}"
-        s += f"\nGraph: {self.name}\n"
-        s += self._edges_to_string(self.graph)
-        return s
+        out = "Molecule Graph"
+        out += f"\nMolecule: \n{self.molecule.__repr__()}"
+        out += f"\nGraph: {self.name}\n"
+        out += self._edges_to_string(self.graph)
+        return out
 
     def __len__(self) -> int:
         """

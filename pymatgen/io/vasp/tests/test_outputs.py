@@ -1612,12 +1612,12 @@ class ProcarTest(PymatgenTest):
         assert p.nkpoints == 10
         assert p.nions == 3
         lat = Lattice.cubic(3.0)
-        s = Structure(
+        struct = Structure(
             lat,
             ["Li", "Na", "K"],
             [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25], [0.75, 0.75, 0.75]],
         )
-        d = p.get_projection_on_elements(s)
+        d = p.get_projection_on_elements(struct)
         assert d[Spin.up][2][2] == approx({"Na": 0.042, "K": 0.646, "Li": 0.042})
         filepath = self.TEST_FILES_DIR / "PROCAR"
         p = Procar(filepath)

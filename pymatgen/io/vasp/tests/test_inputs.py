@@ -805,9 +805,9 @@ Cartesian
         assert kpoints.kpts == [[5, 9, 1]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
-        s = poscar.structure
-        s.make_supercell(3)
-        kpoints = Kpoints.automatic_density(s, 500)
+        struct = poscar.structure
+        struct.make_supercell(3)
+        kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [[1, 1, 1]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.from_string(
@@ -847,7 +847,7 @@ G
         pickle.dumps(k)
 
     def test_automatic_kpoint(self):
-        # s = PymatgenTest.get_structure("Li2O")
+        # struct = PymatgenTest.get_structure("Li2O")
         p = Poscar.from_string(
             """Al1
 1.0
