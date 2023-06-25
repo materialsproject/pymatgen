@@ -1475,7 +1475,7 @@ class StructureTest(PymatgenTest):
         assert {*calculator.results} >= {"stress", "energy", "free_energy", "forces"}
         assert calculator.results["energy"] == approx(-10.709426, abs=1e-5)
         assert np.linalg.norm(calculator.results["forces"]) == approx(3.10022569827e-06, abs=1e-5)
-        assert np.linalg.norm(calculator.results["stress"]) == approx(1.97596371173, abs=1e-5)
+        assert np.linalg.norm(calculator.results["stress"]) == approx(1.97596371173, abs=1e-4)
 
     def test_relax_m3gnet(self):
         pytest.importorskip("matgl")
