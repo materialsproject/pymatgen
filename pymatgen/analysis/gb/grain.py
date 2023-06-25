@@ -1987,7 +1987,7 @@ class GrainBoundaryGenerator:
 
         sigmas = list(sigma_dict)
         if not sigmas:
-            raise RuntimeError("This is a wriong sigma value, and no sigma exists smaller than this value.")
+            raise RuntimeError("This is a wrong sigma value, and no sigma exists smaller than this value.")
         if sigma in sigmas:
             rotation_angles = sigma_dict[sigma]
         else:
