@@ -361,19 +361,19 @@ class MITMPRelaxSetTest(PymatgenTest):
         assert userset_ldauu_fallback.incar["LDAUU"] == [5.0, 0, 0]
 
         # Expected to be oxide (O is the most electronegative atom)
-        s = Structure(lattice, ["Fe", "O", "S"], coords)
-        incar = MITRelaxSet(s).incar
+        struct = Structure(lattice, ["Fe", "O", "S"], coords)
+        incar = MITRelaxSet(struct).incar
         assert incar["LDAUU"] == [4.0, 0, 0]
 
         # Expected to be chloride (Cl is the most electronegative atom)
-        s = Structure(lattice, ["Fe", "Cl", "S"], coords)
-        incar = MITRelaxSet(s, user_incar_settings={"LDAU": True}).incar
+        struct = Structure(lattice, ["Fe", "Cl", "S"], coords)
+        incar = MITRelaxSet(struct, user_incar_settings={"LDAU": True}).incar
         assert "LDAUU" not in incar  # LDAU = False
 
         # User set a compound to be sulfide by specifying values of "LDAUL" etc.
-        s = Structure(lattice, ["Fe", "Cl", "S"], coords)
+        struct = Structure(lattice, ["Fe", "Cl", "S"], coords)
         incar = MITRelaxSet(
-            s,
+            struct,
             user_incar_settings={"LDAU": True, "LDAUL": {"Fe": 3}, "LDAUU": {"Fe": 1.8}},
         ).incar
         assert incar["LDAUL"] == [3.0, 0, 0]
@@ -924,9 +924,9 @@ class MagmomLdauTest(PymatgenTest):
         structure = Structure.from_file(self.TEST_FILES_DIR / "La4Fe4O12.cif")
         structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
         for ion in MAGMOM_SETTING:
-            s = structure.copy()
-            s.replace_species({"La3+": ion})
-            vis = MPRelaxSet(s)
+            struct = structure.copy()
+            struct.replace_species({"La3+": ion})
+            vis = MPRelaxSet(struct)
             fe_pos = vis.poscar.comment.index("Fe")
             if fe_pos == 0:
                 magmom_ans = [5] * 4 + [MAGMOM_SETTING[ion]] * 4 + [0.6] * 12
@@ -1649,10 +1649,10 @@ class FuncTest(PymatgenTest):
 class MVLGBSetTest(PymatgenTest):
     def setUp(self):
         filepath = self.TEST_FILES_DIR / "Li.cif"
-        self.s = Structure.from_file(filepath)
+        self.struct = Structure.from_file(filepath)
 
-        self.bulk = MVLGBSet(self.s)
-        self.slab = MVLGBSet(self.s, slab_mode=True)
+        self.bulk = MVLGBSet(self.struct)
+        self.slab = MVLGBSet(self.struct, slab_mode=True)
 
         self.d_bulk = self.bulk.get_vasp_input()
         self.d_slab = self.slab.get_vasp_input()
@@ -1671,8 +1671,8 @@ class MVLGBSetTest(PymatgenTest):
 
     def test_kpoints(self):
         kpoints = self.d_slab["KPOINTS"]
-        k_a = int(40 / (self.s.lattice.abc[0]) + 0.5)
-        k_b = int(40 / (self.s.lattice.abc[1]) + 0.5)
+        k_a = int(40 / (self.struct.lattice.abc[0]) + 0.5)
+        k_b = int(40 / (self.struct.lattice.abc[1]) + 0.5)
         assert kpoints.kpts == [[k_a, k_b, 1]]
 
 

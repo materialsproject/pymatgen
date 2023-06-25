@@ -529,13 +529,13 @@ class StructureMatcher(MSONable):
         # vectors are from s2 to s1
         vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True, lll_frac_tol=lll_frac_tol)
         lin = LinearAssignment(d_2)
-        s = lin.solution  # pylint: disable=E1101
-        short_vecs = vecs[np.arange(len(s)), s]
+        sol = lin.solution  # pylint: disable=E1101
+        short_vecs = vecs[np.arange(len(sol)), sol]
         translation = np.average(short_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
         new_d2 = np.sum((short_vecs - translation) ** 2, axis=-1)
 
-        return new_d2**0.5 * normalization, f_translation, s
+        return new_d2**0.5 * normalization, f_translation, sol
 
     def _get_mask(self, struct1, struct2, fu, s1_supercell):
         """

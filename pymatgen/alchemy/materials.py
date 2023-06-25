@@ -93,8 +93,8 @@ class TransformedStructure(MSONable):
         self.final_structure = s
 
     def __getattr__(self, name) -> Any:
-        s = object.__getattribute__(self, "final_structure")
-        return getattr(s, name)
+        struct = object.__getattribute__(self, "final_structure")
+        return getattr(struct, name)
 
     def __len__(self) -> int:
         return len(self.history)
@@ -128,33 +128,33 @@ class TransformedStructure(MSONable):
             input_structure = self.final_structure.as_dict()
             alts = []
             for x in ranked_list[1:]:
-                s = x.pop("structure")
+                struct = x.pop("structure")
                 actual_transformation = x.pop("transformation", transformation)
                 h_dict = actual_transformation.as_dict()
                 h_dict["input_structure"] = input_structure
                 h_dict["output_parameters"] = x
-                self.final_structure = s
+                self.final_structure = struct
                 d = self.as_dict()
                 d["history"].append(h_dict)
-                d["final_structure"] = s.as_dict()
+                d["final_structure"] = struct.as_dict()
                 alts.append(TransformedStructure.from_dict(d))
 
             x = ranked_list[0]
-            s = x.pop("structure")
+            struct = x.pop("structure")
             actual_transformation = x.pop("transformation", transformation)
             h_dict = actual_transformation.as_dict()
             h_dict["input_structure"] = self.final_structure.as_dict()
             h_dict["output_parameters"] = x
             self.history.append(h_dict)
-            self.final_structure = s
+            self.final_structure = struct
             return alts
 
-        s = transformation.apply_transformation(self.final_structure)
+        struct = transformation.apply_transformation(self.final_structure)
         h_dict = transformation.as_dict()
         h_dict["input_structure"] = self.final_structure.as_dict()
         h_dict["output_parameters"] = {}
         self.history.append(h_dict)
-        self.final_structure = s
+        self.final_structure = struct
         return None
 
     def append_filter(self, structure_filter: AbstractStructureFilter) -> None:

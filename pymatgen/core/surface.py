@@ -334,16 +334,16 @@ class Slab(Structure):
                 as if each comparison were reversed.
         """
         sites = sorted(self, key=key, reverse=reverse)
-        s = Structure.from_sites(sites)
+        struct = Structure.from_sites(sites)
         return Slab(
-            s.lattice,
-            s.species_and_occu,
-            s.frac_coords,
+            struct.lattice,
+            struct.species_and_occu,
+            struct.frac_coords,
             self.miller_index,
             self.oriented_unit_cell,
             self.shift,
             self.scale_factor,
-            site_properties=s.site_properties,
+            site_properties=struct.site_properties,
             reorient_lattice=self.reorient_lattice,
         )
 
@@ -503,17 +503,17 @@ class Slab(Structure):
         """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        s = Structure.from_sites(sites)
+        struct = Structure.from_sites(sites)
 
         return Slab(
             lattice=lattice,
-            species=s.species_and_occu,
-            coords=s.frac_coords,
+            species=struct.species_and_occu,
+            coords=struct.frac_coords,
             miller_index=d["miller_index"],
             oriented_unit_cell=Structure.from_dict(d["oriented_unit_cell"]),
             shift=d["shift"],
             scale_factor=d["scale_factor"],
-            site_properties=s.site_properties,
+            site_properties=struct.site_properties,
             energy=d["energy"],
         )
 

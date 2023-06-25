@@ -295,7 +295,7 @@ class Interface(Structure):
         """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        s = Structure.from_sites(sites)
+        struct = Structure.from_sites(sites)
 
         optional = {
             "in_plane_offset": d.get("in_plane_offset"),
@@ -305,9 +305,9 @@ class Interface(Structure):
         }
         return Interface(
             lattice=lattice,
-            species=s.species_and_occu,
-            coords=s.frac_coords,
-            site_properties=s.site_properties,
+            species=struct.species_and_occu,
+            coords=struct.frac_coords,
+            site_properties=struct.site_properties,
             **{k: v for k, v in optional.items() if v is not None},
         )
 

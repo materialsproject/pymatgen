@@ -120,21 +120,21 @@ class VoronoiNNTest(PymatgenTest):
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier
-        s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
+        struct = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
 
         # Get the 1NN shell
         self.nn.targets = None
-        nns = self.nn.get_nn_shell_info(s, 0, 1)
+        nns = self.nn.get_nn_shell_info(struct, 0, 1)
         assert len(nns) == 6
 
         # Test the 2nd NN shell
-        nns = self.nn.get_nn_shell_info(s, 0, 2)
+        nns = self.nn.get_nn_shell_info(struct, 0, 2)
         assert len(nns) == 18
         self.assert_all_close([1] * 6, [x["weight"] for x in nns if max(np.abs(x["image"])) == 2])
         self.assert_all_close([2] * 12, [x["weight"] for x in nns if max(np.abs(x["image"])) == 1])
 
         # Test the 3rd NN shell
-        nns = self.nn.get_nn_shell_info(s, 0, 3)
+        nns = self.nn.get_nn_shell_info(struct, 0, 3)
         for nn in nns:
             #  Check that the coordinates were set correctly
             self.assert_all_close(nn["site"].frac_coords, nn["image"])

@@ -232,7 +232,7 @@ class RelaxationAnalyzer:
             Bond distance changes as a dict of dicts. E.g.,
             {index1: {index2: 0.011, ...}}. For economy of representation, the
             index1 is always less than index2, i.e., since bonding between
-            site1 and siten is the same as bonding between siten and site1,
+            site1 and site_n is the same as bonding between site_n and site1,
             there is no reason to duplicate the information or computation.
         """
         data = collections.defaultdict(dict)
@@ -531,19 +531,19 @@ def sulfide_type(structure):
     """
     structure = structure.copy()
     structure.remove_oxidation_states()
-    s = Element("S")
+    sulphur = Element("S")
     comp = structure.composition
-    if comp.is_element or s not in comp:
+    if comp.is_element or sulphur not in comp:
         return None
 
     try:
         finder = SpacegroupAnalyzer(structure, symprec=0.1)
         symm_structure = finder.get_symmetrized_structure()
-        s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
+        s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == sulphur]
     except Exception:
         # Sometimes the symmetry analyzer fails for some tolerance or other issues. This is a fall back that simply
         # analyzes all S sites.
-        s_sites = [site for site in structure if site.specie == s]
+        s_sites = [site for site in structure if site.specie == sulphur]
 
     def process_site(site):
         # in an exceptionally rare number of structures, the search
@@ -560,9 +560,9 @@ def sulfide_type(structure):
         dist = neighbors[0].nn_distance
         coord_elements = [nn.specie for nn in neighbors if nn.nn_distance < dist + 0.4][:4]
         avg_electroneg = np.mean([e.X for e in coord_elements])
-        if avg_electroneg > s.X:
+        if avg_electroneg > sulphur.X:
             return "sulfate"
-        if avg_electroneg == s.X and s in coord_elements:
+        if avg_electroneg == sulphur.X and sulphur in coord_elements:
             return "polysulfide"
         return "sulfide"
 

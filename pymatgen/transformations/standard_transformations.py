@@ -58,9 +58,9 @@ class RotationTransformation(AbstractTransformation):
         Returns:
             Rotated Structure.
         """
-        s = structure.copy()
-        s.apply_operation(self._symmop)
-        return s
+        struct = structure.copy()
+        struct.apply_operation(self._symmop)
+        return struct
 
     def __str__(self):
         return (
@@ -106,9 +106,9 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
         Returns:
             Oxidation state decorated Structure.
         """
-        s = structure.copy()
-        s.add_oxidation_state_by_element(self.oxidation_states)
-        return s
+        struct = structure.copy()
+        struct.add_oxidation_state_by_element(self.oxidation_states)
+        return struct
 
     @property
     def inverse(self):
@@ -193,9 +193,9 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         Returns:
             Non-oxidation state decorated Structure.
         """
-        s = structure.copy()
-        s.remove_oxidation_states()
-        return s
+        struct = structure.copy()
+        struct.remove_oxidation_states()
+        return struct
 
     @property
     def inverse(self):
@@ -305,9 +305,9 @@ class SubstitutionTransformation(AbstractTransformation):
         for k, v in self._species_map.items():
             value = {get_el_sp(x): y for x, y in v.items()} if isinstance(v, dict) else get_el_sp(v)
             species_map[get_el_sp(k)] = value
-        s = structure.copy()
-        s.replace_species(species_map)
-        return s
+        struct = structure.copy()
+        struct.replace_species(species_map)
+        return struct
 
     def __str__(self):
         return "Substitution Transformation :" + ", ".join(
@@ -352,10 +352,10 @@ class RemoveSpeciesTransformation(AbstractTransformation):
         Returns:
             Structure with species removed.
         """
-        s = structure.copy()
+        struct = structure.copy()
         for sp in self.species_to_remove:
-            s.remove_species([get_el_sp(sp)])
-        return s
+            struct.remove_species([get_el_sp(sp)])
+        return struct
 
     def __str__(self):
         return "Remove Species Transformation :" + ", ".join(self.species_to_remove)
@@ -564,7 +564,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 exemplars.append(site)
 
         # generate the list of manipulations and input structure
-        s = Structure.from_sites(structure)
+        struct = Structure.from_sites(structure)
 
         m_list = []
         for g in equivalent_sites:
@@ -578,7 +578,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             # start with an ordered structure
             initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))
             for i in g:
-                s[i] = initial_sp
+                struct[i] = initial_sp
             # determine the manipulations
             for k, v in total_occupancy.items():
                 if k == initial_sp:
@@ -595,7 +595,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             if empty > 0.5:
                 m_list.append([0, empty, list(g), None])
 
-        matrix = EwaldSummation(s).total_energy_matrix
+        matrix = EwaldSummation(struct).total_energy_matrix
         ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self.algo)
 
         self._all_structures = []
@@ -604,7 +604,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         num_atoms = sum(structure.composition.values())
 
         for output in ewald_m.output_lists:
-            s_copy = s.copy()
+            s_copy = struct.copy()
             # do deletions afterwards because they screw up the indices of the
             # structure
             del_indices = []
@@ -777,9 +777,9 @@ class PerturbStructureTransformation(AbstractTransformation):
         Returns:
             Structure with sites perturbed.
         """
-        s = structure.copy()
-        s.perturb(self.distance, min_distance=self.min_distance)
-        return s
+        struct = structure.copy()
+        struct.perturb(self.distance, min_distance=self.min_distance)
+        return struct
 
     def __str__(self):
         return f"PerturbStructureTransformation : Min_distance = {self.min_distance}"
@@ -936,9 +936,9 @@ class ChargedCellTransformation(AbstractTransformation):
         Returns:
             Charged Structure.
         """
-        s = structure.copy()
-        s.set_charge(self.charge)
-        return s
+        struct = structure.copy()
+        struct.set_charge(self.charge)
+        return struct
 
     def __str__(self):
         return f"Structure with charge {self.charge}"

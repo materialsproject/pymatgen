@@ -58,16 +58,16 @@ class InsertSitesTransformation(AbstractTransformation):
         Return:
             Returns a copy of structure with sites inserted.
         """
-        s = structure.copy()
+        struct = structure.copy()
         for i, sp in enumerate(self.species):
-            s.insert(
+            struct.insert(
                 i,
                 sp,
                 self.coords[i],
                 coords_are_cartesian=self.coords_are_cartesian,
                 validate_proximity=self.validate_proximity,
             )
-        return s.get_sorted_structure()
+        return struct.get_sorted_structure()
 
     def __str__(self):
         return f"InsertSiteTransformation : species {self.species}, coords {self.coords}"
@@ -112,10 +112,10 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         Return:
             Returns a copy of structure with sites replaced.
         """
-        s = structure.copy()
+        struct = structure.copy()
         for i, sp in self.indices_species_map.items():
-            s[int(i)] = sp
-        return s
+            struct[int(i)] = sp
+        return struct
 
     def __str__(self):
         return "ReplaceSiteSpeciesTransformation :" + ", ".join(
@@ -157,9 +157,9 @@ class RemoveSitesTransformation(AbstractTransformation):
         Return:
             Returns a copy of structure with sites removed.
         """
-        s = structure.copy()
-        s.remove_sites(self.indices_to_remove)
-        return s
+        struct = structure.copy()
+        struct.remove_sites(self.indices_to_remove)
+        return struct
 
     def __str__(self):
         return "RemoveSitesTransformation :" + ", ".join(map(str, self.indices_to_remove))
@@ -208,13 +208,13 @@ class TranslateSitesTransformation(AbstractTransformation):
         Return:
             Returns a copy of structure with sites translated.
         """
-        s = structure.copy()
+        struct = structure.copy()
         if self.translation_vector.shape == (len(self.indices_to_move), 3):
             for i, idx in enumerate(self.indices_to_move):
-                s.translate_sites(idx, self.translation_vector[i], self.vector_in_frac_coords)
+                struct.translate_sites(idx, self.translation_vector[i], self.vector_in_frac_coords)
         else:
-            s.translate_sites(self.indices_to_move, self.translation_vector, self.vector_in_frac_coords)
-        return s
+            struct.translate_sites(self.indices_to_move, self.translation_vector, self.vector_in_frac_coords)
+        return struct
 
     def __str__(self):
         return (
@@ -339,10 +339,10 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             to_delete.append(max_idx)
             ematrix[:, max_idx] = 0
             ematrix[max_idx, :] = 0
-        s = structure.copy()
-        s.remove_sites(to_delete)
+        struct = structure.copy()
+        struct.remove_sites(to_delete)
         self.logger.debug(f"Minimizing Ewald took {time.perf_counter() - start_time} seconds.")
-        return [{"energy": sum(ematrix), "structure": s.get_sorted_structure()}]
+        return [{"energy": sum(ematrix), "structure": struct.get_sorted_structure()}]
 
     def _complete_ordering(self, structure: Structure, num_remove_dict):
         self.logger.debug("Performing complete ordering...")
@@ -424,16 +424,16 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         num_atoms = sum(structure.composition.values())
 
         for output in minimizer.output_lists:
-            s = structure.copy()
+            struct = structure.copy()
             del_indices = []
 
             for manipulation in output[1]:
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    s.replace(manipulation[0], manipulation[1])
-            s.remove_sites(del_indices)
-            struct = s.get_sorted_structure()
+                    struct.replace(manipulation[0], manipulation[1])
+            struct.remove_sites(del_indices)
+            struct = struct.get_sorted_structure()
             all_structures.append(
                 {
                     "energy": output[0],
@@ -446,16 +446,16 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     def _enumerate_ordering(self, structure: Structure):
         # Generate the disordered structure first.
-        s = structure.copy()
+        struct = structure.copy()
         for indices, fraction in zip(self.indices, self.fractions):
             for ind in indices:
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
-                s[ind] = new_sp
+                struct[ind] = new_sp
         # Perform enumeration
         from pymatgen.transformations.advanced_transformations import EnumerateStructureTransformation
 
         trans = EnumerateStructureTransformation()
-        return trans.apply_transformation(s, 10000)
+        return trans.apply_transformation(struct, 10000)
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """

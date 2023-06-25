@@ -329,8 +329,8 @@ class SlabTest(PymatgenTest):
             primitive=True,
         )
         slab = slabs[0]
-        s = json.dumps(slab.as_dict())
-        d = json.loads(s)
+        dict_str = json.dumps(slab.as_dict())
+        d = json.loads(dict_str)
         assert slab == Slab.from_dict(d)
 
         # test initialising with a list scale_factor
@@ -343,8 +343,8 @@ class SlabTest(PymatgenTest):
             0,
             self.zno55.scale_factor.tolist(),
         )
-        s = json.dumps(slab.as_dict())
-        d = json.loads(s)
+        dict_str = json.dumps(slab.as_dict())
+        d = json.loads(dict_str)
         assert slab == Slab.from_dict(d)
 
 
@@ -730,8 +730,8 @@ class ReconstructionGeneratorTests(PymatgenTest):
                 el = self.Si[0].species_string
 
             slabs = rec.build_slabs()
-            s = Structure.from_file(get_path(os.path.join("reconstructions", el + "_" + n + ".cif")))
-            assert any(len(m.group_structures([s, slab])) == 1 for slab in slabs)
+            struct = Structure.from_file(get_path(os.path.join("reconstructions", el + "_" + n + ".cif")))
+            assert any(len(m.group_structures([struct, slab])) == 1 for slab in slabs)
 
 
 class MillerIndexFinderTests(PymatgenTest):
