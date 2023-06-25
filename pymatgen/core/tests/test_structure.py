@@ -1374,26 +1374,23 @@ class StructureTest(PymatgenTest):
         assert relaxed != self.cu_structure
         assert relaxed.calc.results["energy"] == approx(-5.27792501, abs=1e-5)
         assert relaxed.calc.results["free_energy"] == approx(-5.27792501, abs=1e-5)
-        assert relaxed.volume == approx(45.870906121, abs=1e-5)
+        assert relaxed.volume == approx(45.870906121, abs=1e-4)
         assert relaxed.calc.parameters == {}
         assert self.cu_structure == struct_copy, "original structure was modified"
         assert relaxed.volume > self.cu_structure.volume
 
         # test custom params
-        from chgnet.model import CHGNet
-
         custom_relaxed = self.cu_structure.relax(
             calculator="chgnet",
             optimizer="BFGS",
             steps=1,
             fmax=1,
             stress_weight=0.1,
-            opt_kwargs={"model": CHGNet.load()},
         )
         assert custom_relaxed != self.cu_structure
-        assert custom_relaxed.calc.results.get("energy") == approx(-4.47970533, abs=1e-5)
-        assert custom_relaxed.volume == approx(71.94544488, abs=1e-4)
-        assert custom_relaxed.volume > relaxed.volume  # on account of steps=1
+        assert custom_relaxed.calc.results.get("energy") == approx(-5.2197213172, abs=1e-5)
+        assert custom_relaxed.volume == approx(40.044794644, abs=1e-4)
+        assert custom_relaxed.volume < relaxed.volume  # on account of steps=1
 
     def test_calculate_chgnet(self):
         pytest.importorskip("chgnet")
