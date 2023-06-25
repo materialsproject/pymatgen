@@ -301,7 +301,7 @@ class ThermalDisplacementTest(PymatgenTest):
             self.thermal.thermal_displacement_matrix_cart, new_thermals.thermal_displacement_matrix_cart
         )
         self.assert_all_close(self.thermal.structure.frac_coords, new_thermals.structure.frac_coords)
-        self.assert_all_close(self.thermal.structure.lattice.volume, new_thermals.structure.lattice.volume)
+        self.assert_all_close(self.thermal.structure.volume, new_thermals.structure.volume)
 
     def test_visualization_directionality_criterion(self):
         # test file creation for VESTA
@@ -323,4 +323,4 @@ class ThermalDisplacementTest(PymatgenTest):
             new_thermals = ThermalDisplacementMatrices.from_cif_P1(os.path.join(tmp_dir, "U.cif"))
             self.assert_all_close(new_thermals[0].thermal_displacement_matrix_cif_matrixform, self.thermal.Ucif)
             self.assert_all_close(new_thermals[0].structure.frac_coords, self.thermal.structure.frac_coords)
-            self.assert_all_close(new_thermals[0].structure.lattice.volume, self.thermal.structure.lattice.volume)
+            self.assert_all_close(new_thermals[0].structure.volume, self.thermal.structure.volume)

@@ -8,6 +8,7 @@ from __future__ import annotations
 import collections
 import contextlib
 import functools
+import inspect
 import io
 import itertools
 import json
@@ -644,31 +645,29 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             others = new_others
         return cluster
 
-    def _calculate(
-        self, struct: Structure | Molecule, calculator: str | Calculator, verbose: bool = False
-    ) -> Structure | Molecule:
+    def _calculate(self, calculator: str | Calculator, verbose: bool = False) -> Calculator:
         """
         Performs an ASE calculation.
 
         Args:
-            struct: Structure or Molecule to run ASE calculation on.
-            calculator: An ASE Calculator or a string from the following options: "m3gnet",
-                "gfn2-xtb".
+            calculator (str | Calculator): An ASE Calculator or a string from the following case-insensitive
+                options: "m3gnet", "gfn2-xtb", "chgnet".
             verbose (bool): whether to print stdout. Defaults to False.
+                Has no effect when calculator=='chgnet'.
 
         Returns:
-            Structure: Structure or Molelcule following ASE calculation.
+            Structure | Molecule: Structure or Molecule with new calc attribute containing
+                result of ASE calculation.
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        is_molecule = isinstance(struct, Molecule)
-        if is_molecule and calculator == "m3gnet":
+        if isinstance(self, Molecule) and isinstance(calculator, str) and calculator.lower() in ("chgnet", "m3gnet"):
             raise ValueError(f"Can't use {calculator=} for a Molecule.")
         calculator = self._prep_calculator(calculator)
 
         # Get Atoms object
         adaptor = AseAtomsAdaptor()
-        atoms = adaptor.get_atoms(struct)
+        atoms = adaptor.get_atoms(self)
 
         # Set calculator
         atoms.calc = calculator
@@ -678,16 +677,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         with contextlib.redirect_stdout(stream):
             atoms.get_potential_energy()
 
-        # Ensure Calculator state is preserved because it contains parameters and results
-        calc = atoms.calc
-
-        # Get Molecule/Structure object
-        struct = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
-
-        # Attach important ASE results
-        struct.calc = calc
-
-        return struct
+        return calculator
 
     def _relax(
         self,
@@ -705,7 +695,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Performs a structure relaxation using an ASE calculator.
 
         Args:
-            calculator: An ASE Calculator or a string from the following options: "M3GNet",
+            calculator (str | ase.Calculator): An ASE Calculator or a string from the following options: "M3GNet",
                 "gfn2-xtb".
             relax_cell (bool): whether to relax the lattice cell. Defaults to True.
             optimizer (str): name of the ASE optimizer class to use
@@ -731,30 +721,29 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
         opt_kwargs = opt_kwargs or {}
         is_molecule = isinstance(self, Molecule)
-        run_m3gnet = isinstance(calculator, str) and calculator.lower() == "m3gnet"
+        # UIP=universal interatomic potential
+        run_uip = isinstance(calculator, str) and calculator.lower() in ("m3gnet", "chgnet")
 
-        if isinstance(calculator, str):
-            if run_m3gnet:
-                calculator = self._prep_calculator(calculator, stress_weight=stress_weight)
-            else:
-                calculator = self._prep_calculator(calculator)
+        calc_params = dict(stress_weight=stress_weight) if not is_molecule else {}
+        calculator = self._prep_calculator(calculator, **calc_params)
 
         # check str is valid optimizer key
         def is_ase_optimizer(key):
             return isclass(obj := getattr(optimize, key)) and issubclass(obj, Optimizer)
 
         valid_keys = [key for key in dir(optimize) if is_ase_optimizer(key)]
-        if optimizer not in valid_keys:
-            raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
-        opt_class = getattr(optimize, optimizer)
+        if isinstance(optimizer, str):
+            if optimizer not in valid_keys:
+                raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
+            opt_class = getattr(optimize, optimizer)
 
         # Get Atoms object
         adaptor = AseAtomsAdaptor()
         atoms = adaptor.get_atoms(self)
 
-        # Use a TrajectoryObserver if running m3gnet; otherwise, write a .traj file
+        # Use a TrajectoryObserver if running M3GNet or CHGNet; otherwise, write a .traj file
         if return_trajectory:
-            if run_m3gnet:
+            if run_uip:
                 from matgl.ext.ase import TrajectoryObserver
 
                 traj_observer = TrajectoryObserver(atoms)
@@ -784,7 +773,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         system.dynamics = dyn.todict()
 
         if return_trajectory:
-            if run_m3gnet:
+            if run_uip:
                 traj_observer()  # save properties of the Atoms during the relaxation
             else:
                 traj_file = opt_kwargs["trajectory"]
@@ -805,10 +794,17 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns:
             Calculator: ASE calculator object.
         """
-        from ase.calculators.calculator import Calculator
-
-        if isinstance(calculator, Calculator):
+        if inspect.isclass(calculator):
+            return calculator(**params)
+        if not isinstance(calculator, str):
             return calculator
+
+        if calculator.lower() == "chgnet":
+            try:
+                from chgnet.model import CHGNetCalculator
+            except ImportError:
+                raise ImportError("chgnet not installed. Try `pip install chgnet`.")
+            return CHGNetCalculator()
 
         if calculator.lower() == "m3gnet":
             try:
@@ -4166,8 +4162,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
         Returns:
-            Structure | tuple[Structure, Trajectory]: Relaxed structure or 2-tuple of Structure
-                and ASE/M3GNet TrajectoryObserver if return_trajectory=True.
+            Structure | tuple[Structure, Trajectory]: Relaxed structure or if return_trajectory=True,
+                2-tuple of Structure and matgl TrajectoryObserver.
         """
         return self._relax(
             calculator,
@@ -4181,11 +4177,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             verbose=verbose,
         )
 
-    def calculate(
-        self,
-        calculator: str | Calculator = "m3gnet",
-        verbose: bool = False,
-    ):
+    def calculate(self, calculator: str | Calculator = "m3gnet", verbose: bool = False) -> Calculator:
         """
         Performs an ASE calculation.
 
@@ -4195,9 +4187,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             verbose (bool): whether to print stdout. Defaults to False.
 
         Returns:
-            Structure: Structure following ASE calculation.
+            Calculator: ASE Calculator instance with a results attribute containing the output.
         """
-        return self._calculate(self, calculator, verbose=verbose)
+        return self._calculate(calculator, verbose=verbose)
 
     @classmethod
     def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Structure:
@@ -4663,7 +4655,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         opt_kwargs: dict | None = None,
         return_trajectory: bool = False,
         verbose: bool = False,
-    ) -> Molecule | tuple[Molecule, TrajectoryObserver | Trajectory]:
+    ) -> Molecule | tuple[Molecule, TrajectoryObserver]:
         """
         Performs a molecule relaxation using an ASE calculator.
 
@@ -4680,8 +4672,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
         Returns:
-            Molecule | tuple[Molecule, Trajectory]: Relaxed Molecule or 2-tuple of Molecule
-                and ASE/M3GNet TrajectoryObserver if return_trajectory=True.
+            Molecule | tuple[Molecule, Trajectory]: Relaxed Molecule or if return_trajectory=True,
+                2-tuple of Molecule and ASE TrajectoryObserver.
         """
         return self._relax(
             calculator,
@@ -4694,11 +4686,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             verbose=verbose,
         )
 
-    def calculate(
-        self,
-        calculator: str | Calculator = "gfn2-xtb",
-        verbose: bool = False,
-    ) -> Molecule:
+    def calculate(self, calculator: str | Calculator = "gfn2-xtb", verbose: bool = False) -> Calculator:
         """
         Performs an ASE calculation.
 
@@ -4708,9 +4696,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             verbose (bool): whether to print stdout. Defaults to False.
 
         Returns:
-            Molecule: Molecule following ASE calculation.
+            Calculator: ASE Calculator instance with a results attribute containing the output.
         """
-        return self._calculate(self, calculator, verbose=verbose)
+        return self._calculate(calculator, verbose=verbose)
 
 
 class StructureError(Exception):

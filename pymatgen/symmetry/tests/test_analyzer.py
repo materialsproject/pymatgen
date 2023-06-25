@@ -204,7 +204,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert primitive_structure.lattice.alpha == approx(60)
         assert primitive_structure.lattice.beta == approx(60)
         assert primitive_structure.lattice.gamma == approx(60)
-        assert primitive_structure.lattice.volume == approx(structure.lattice.volume / 4.0)
+        assert primitive_structure.volume == approx(structure.volume / 4.0)
 
         structure = parser.get_structures(False)[0]
         structure.add_site_property("magmom", [1.0] * len(structure))

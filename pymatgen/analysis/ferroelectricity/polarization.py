@@ -192,12 +192,12 @@ class Polarization:
         p_elecs = []
         p_ions = []
 
-        for i, o in enumerate(outcars):
-            p_elecs.append(o.p_elec)
+        for idx, outcar in enumerate(outcars):
+            p_elecs.append(outcar.p_elec)
             if calc_ionic_from_zval:
-                p_ions.append(get_total_ionic_dipole(structures[i], o.zval_dict))
+                p_ions.append(get_total_ionic_dipole(structures[idx], outcar.zval_dict))
             else:
-                p_ions.append(o.p_ion)
+                p_ions.append(outcar.p_ion)
         return cls(p_elecs, p_ions, structures)
 
     def get_pelecs_and_pions(self, convert_to_muC_per_cm2=False):
@@ -214,7 +214,7 @@ class Polarization:
             p_elecs = self.p_elecs.T
             p_ions = self.p_ions.T
 
-            volumes = [s.lattice.volume for s in self.structures]
+            volumes = [struct.volume for struct in self.structures]
             e_to_muC = -1.6021766e-13
             cm2_to_A2 = 1e16
             units = 1 / np.array(volumes)
@@ -326,7 +326,7 @@ class Polarization:
         all structures.
         """
         lattices = [s.lattice for s in self.structures]
-        volumes = np.array([s.lattice.volume for s in self.structures])
+        volumes = np.array([struct.volume for struct in self.structures])
 
         L = len(self.structures)
 
