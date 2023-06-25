@@ -1,6 +1,4 @@
-"""
-Module implementing an XYZ file object class.
-"""
+"""Module implementing an XYZ file object class."""
 
 from __future__ import annotations
 
@@ -47,16 +45,12 @@ class XYZ:
 
     @property
     def all_molecules(self):
-        """
-        Returns all the frames of molecule associated with this XYZ.
-        """
+        """Returns all the frames of molecule associated with this XYZ."""
         return self._mols
 
     @staticmethod
     def _from_frame_string(contents):
-        """
-        Convert a single frame XYZ string to a molecule
-        """
+        """Convert a single frame XYZ string to a molecule."""
         lines = contents.split("\n")
         num_sites = int(lines[0])
         coords = []

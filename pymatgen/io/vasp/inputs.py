@@ -160,32 +160,32 @@ class Poscar(MSONable):
 
     @property
     def velocities(self):
-        """Velocities in Poscar"""
+        """Velocities in Poscar."""
         return self.structure.site_properties.get("velocities")
 
     @property
     def selective_dynamics(self):
-        """Selective dynamics in Poscar"""
+        """Selective dynamics in Poscar."""
         return self.structure.site_properties.get("selective_dynamics")
 
     @property
     def predictor_corrector(self):
-        """Predictor corrector in Poscar"""
+        """Predictor corrector in Poscar."""
         return self.structure.site_properties.get("predictor_corrector")
 
     @velocities.setter  # type: ignore
     def velocities(self, velocities):
-        """Setter for Poscar.velocities"""
+        """Setter for Poscar.velocities."""
         self.structure.add_site_property("velocities", velocities)
 
     @selective_dynamics.setter  # type: ignore
     def selective_dynamics(self, selective_dynamics):
-        """Setter for Poscar.selective_dynamics"""
+        """Setter for Poscar.selective_dynamics."""
         self.structure.add_site_property("selective_dynamics", selective_dynamics)
 
     @predictor_corrector.setter  # type: ignore
     def predictor_corrector(self, predictor_corrector):
-        """Setter for Poscar.predictor_corrector"""
+        """Setter for Poscar.predictor_corrector."""
         self.structure.add_site_property("predictor_corrector", predictor_corrector)
 
     @property
@@ -535,9 +535,7 @@ class Poscar(MSONable):
         return self.get_string()
 
     def __str__(self):
-        """
-        String representation of Poscar file.
-        """
+        """String representation of Poscar file."""
         return self.get_string()
 
     def write_file(self, filename: PathLike, **kwargs):
@@ -549,9 +547,7 @@ class Poscar(MSONable):
             f.write(self.get_string(**kwargs))
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -581,7 +577,7 @@ class Poscar(MSONable):
     def set_temperature(self, temperature: float):
         """
         Initializes the velocities based on Maxwell-Boltzmann distribution.
-        Removes linear, but not angular drift (same as VASP)
+        Removes linear, but not angular drift (same as VASP).
 
         Scales the energies to the exact temperature (microcanonical ensemble)
         Velocities are given in A/fs. This is the vasp default when
@@ -635,15 +631,13 @@ with open(os.path.join(cwd, "incar_parameters.json")) as incar_params:
 
 
 class BadIncarWarning(UserWarning):
-    """
-    Warning class for bad Incar parameters.
-    """
+    """Warning class for bad Incar parameters."""
 
 
 class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
-    a dictionary with some helper functions
+    a dictionary with some helper functions.
     """
 
     def __init__(self, params: dict[str, Any] | None = None):
@@ -679,9 +673,7 @@ class Incar(dict, MSONable):
         )
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         d = dict(self)
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -992,9 +984,7 @@ class Incar(dict, MSONable):
 
 
 class Kpoints_supported_modes(Enum):
-    """
-    Enum type of all supported modes for Kpoint generation.
-    """
+    """Enum type of all supported modes for Kpoint generation."""
 
     Automatic = 0
     Gamma = 1
@@ -1020,9 +1010,7 @@ class Kpoints_supported_modes(Enum):
 
 
 class Kpoints(MSONable):
-    """
-    KPOINT reader/writer.
-    """
+    """KPOINT reader/writer."""
 
     supported_modes = Kpoints_supported_modes
 
@@ -1543,9 +1531,7 @@ class Kpoints(MSONable):
         return "\n".join(lines) + "\n"
 
     def as_dict(self):
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         d = {
             "comment": self.comment,
             "nkpoints": self.num_kpts,
@@ -1622,9 +1608,7 @@ OrbitalDescription = namedtuple("OrbitalDescription", ["l", "E", "Type", "Rcut",
 
 
 class UnknownPotcarWarning(UserWarning):
-    """
-    Warning raised when POTCAR hashes do not pass validation
-    """
+    """Warning raised when POTCAR hashes do not pass validation."""
 
 
 class PotcarSingle:
@@ -1851,9 +1835,7 @@ class PotcarSingle:
 
     @property
     def electron_configuration(self):
-        """
-        :return: Electronic configuration of the PotcarSingle.
-        """
+        """:return: Electronic configuration of the PotcarSingle."""
         if not self.nelectrons.is_integer():
             warnings.warn("POTCAR has non-integer charge, electron configuration not well-defined.")
             return None
@@ -1870,7 +1852,7 @@ class PotcarSingle:
     def write_file(self, filename: str) -> None:
         """
         Writes PotcarSingle to a file.
-        :param filename: Filename
+        :param filename: Filename.
         """
         with zopen(filename, "wt") as f:
             f.write(str(self))
@@ -1931,9 +1913,7 @@ class PotcarSingle:
 
     @property
     def element(self):
-        """
-        Attempt to return the atomic symbol based on the VRHFIN keyword.
-        """
+        """Attempt to return the atomic symbol based on the VRHFIN keyword."""
         element = self.keywords["VRHFIN"].split(":")[0].strip()
         try:
             return Element(element).symbol
@@ -1946,30 +1926,22 @@ class PotcarSingle:
 
     @property
     def atomic_no(self) -> int:
-        """
-        Attempt to return the atomic number based on the VRHFIN keyword.
-        """
+        """Attempt to return the atomic number based on the VRHFIN keyword."""
         return Element(self.element).Z
 
     @property
     def nelectrons(self):
-        """
-        :return: Number of electrons
-        """
+        """:return: Number of electrons"""
         return self.zval
 
     @property
     def symbol(self):
-        """
-        :return: The POTCAR symbol, e.g. W_pv
-        """
+        """:return: The POTCAR symbol, e.g. W_pv"""
         return self._symbol
 
     @property
     def potential_type(self) -> str:
-        """
-        :return: Type of PSP. E.g., US, PAW, etc.
-        """
+        """:return: Type of PSP. E.g., US, PAW, etc."""
         if self.lultra:
             return "US"
         if self.lpaw:
@@ -1978,16 +1950,12 @@ class PotcarSingle:
 
     @property
     def functional(self):
-        """
-        :return: Functional associated with PotcarSingle.
-        """
+        """:return: Functional associated with PotcarSingle."""
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("name")
 
     @property
     def functional_class(self):
-        """
-        :return: Functional class associated with PotcarSingle.
-        """
+        """:return: Functional class associated with PotcarSingle."""
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
 
     def verify_potcar(self) -> tuple[bool, bool]:
@@ -2152,7 +2120,7 @@ class PotcarSingle:
 
     def get_sha256_file_hash(self):
         """
-        Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'CPRY'
+        Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'CPRY'.
 
         This hash corresponds to the sha256 hash printed in the header of modern POTCAR files.
 
@@ -2266,9 +2234,7 @@ class Potcar(list, MSONable):
             self.set_symbols(symbols, functional, sym_potcar_map)
 
     def as_dict(self):
-        """
-        :return: MSONable dict representation
-        """
+        """:return: MSONable dict representation"""
         return {
             "functional": self.functional,
             "symbols": self.symbols,
@@ -2322,9 +2288,7 @@ class Potcar(list, MSONable):
 
     @property
     def symbols(self):
-        """
-        Get the atomic symbols of all the atoms in the POTCAR file.
-        """
+        """Get the atomic symbols of all the atoms in the POTCAR file."""
         return [p.symbol for p in self]
 
     @symbols.setter
@@ -2333,9 +2297,7 @@ class Potcar(list, MSONable):
 
     @property
     def spec(self):
-        """
-        Get the atomic symbols and hash of all the atoms in the POTCAR file.
-        """
+        """Get the atomic symbols and hash of all the atoms in the POTCAR file."""
         return [{"symbol": p.symbol, "hash": p.get_potcar_hash()} for p in self]
 
     def set_symbols(self, symbols, functional=None, sym_potcar_map=None):
@@ -2364,9 +2326,7 @@ class Potcar(list, MSONable):
 
 
 class VaspInput(dict, MSONable):
-    """
-    Class to contain a set of vasp input objects corresponding to a run.
-    """
+    """Class to contain a set of vasp input objects corresponding to a run."""
 
     def __init__(self, incar, kpoints, poscar, potcar, optional_files=None, **kwargs):
         """
@@ -2393,9 +2353,7 @@ class VaspInput(dict, MSONable):
         return "\n".join(output)
 
     def as_dict(self):
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         d = {k: v.as_dict() for k, v in self.items()}
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__

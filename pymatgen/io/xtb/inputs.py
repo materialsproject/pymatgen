@@ -1,6 +1,4 @@
-"""
-Classes for writing XTB input files
-"""
+"""Classes for writing XTB input files."""
 
 from __future__ import annotations
 
@@ -56,9 +54,7 @@ class CRESTInput(MSONable):
         self.working_dir = working_dir
 
     def write_input_files(self):
-        """
-        Write input files to working directory
-        """
+        """Write input files to working directory."""
         self.molecule.to(filename=os.path.join(self.working_dir, self.coords_filename))
         if self.constraints:
             constrains_string = self.constrains_template(

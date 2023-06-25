@@ -29,9 +29,7 @@ _UNITS = {
 
 
 class InputVariable:
-    """
-    An Abinit input variable.
-    """
+    """An Abinit input variable."""
 
     def __init__(self, name, value, units="", valperline=3):
         """

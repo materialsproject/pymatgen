@@ -25,9 +25,7 @@ __date__ = "Aug 1, 2018"
 
 
 class LammpsDump(MSONable):
-    """
-    Object for representing dump data for a single snapshot.
-    """
+    """Object for representing dump data for a single snapshot."""
 
     def __init__(self, timestep, natoms, box, data):
         """
@@ -72,7 +70,7 @@ class LammpsDump(MSONable):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             LammpsDump
@@ -83,9 +81,7 @@ class LammpsDump(MSONable):
         return cls(**items)
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         dct = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__

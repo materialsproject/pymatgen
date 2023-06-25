@@ -1,6 +1,4 @@
-"""
-Module for defining common data used and produced by atomistic simulation packages.
-"""
+"""Module for defining common data used and produced by atomistic simulation packages."""
 
 from __future__ import annotations
 
@@ -119,9 +117,7 @@ class VolumetricData(MSONable):
         return self.linear_add(other, -1.0)
 
     def copy(self):
-        """
-        :return: Copy of Volumetric object
-        """
+        """:return: Copy of Volumetric object"""
         return VolumetricData(
             self.structure,
             {k: v.copy() for k, v in self.data.items()},
@@ -158,9 +154,7 @@ class VolumetricData(MSONable):
         return new
 
     def scale(self, factor):
-        """
-        Scale the data in place by a factor.
-        """
+        """Scale the data in place by a factor."""
         for k in self.data:
             self.data[k] = np.multiply(self.data[k], factor)
 
@@ -370,7 +364,7 @@ class VolumetricData(MSONable):
     @classmethod
     def from_cube(cls, filename):
         """
-        Initialize the cube object and store the data as data
+        Initialize the cube object and store the data as data.
 
         Args:
             filename (str): of the cube to read

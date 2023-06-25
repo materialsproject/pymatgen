@@ -67,9 +67,7 @@ class BaseLammpsGenerator(InputGenerator):
     def get_input_set(  # type: ignore
         self, structure: Structure | LammpsData | CombinedData | None  # pylint: disable=E1131
     ) -> LammpsInputSet:
-        """
-        Generate a LammpsInputSet from the structure/data, tailored to the template file.
-        """
+        """Generate a LammpsInputSet from the structure/data, tailored to the template file."""
         data = LammpsData.from_structure(structure) if isinstance(structure, Structure) else structure
 
         # Load the template
@@ -93,7 +91,7 @@ class LammpsMinimization(BaseLammpsGenerator):
     ```
     structure = Structure.from_file("mp-149.cif")
     lmp_minimization = LammpsMinimization(units="atomic").get_input_set(structure)
-    ```
+    ```.
 
     Do not forget to specify the force field, otherwise LAMMPS will not be able to run!
 

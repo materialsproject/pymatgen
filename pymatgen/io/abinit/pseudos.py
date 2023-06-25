@@ -80,7 +80,7 @@ def l2str(l_ang_mom):
 
 
 def str2l(s):
-    """Convert a string to the angular momentum l (int)"""
+    """Convert a string to the angular momentum l (int)."""
     return _str2l[s]
 
 
@@ -337,9 +337,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     @property
     def has_hints(self):
-        """
-        True if self provides hints on the cutoff energy.
-        """
+        """True if self provides hints on the cutoff energy."""
         for acc in ["low", "normal", "high"]:
             try:
                 if self.hint_for_accuracy(acc) is None:
@@ -456,9 +454,7 @@ class PawPseudo(metaclass=abc.ABCMeta):
 
 
 class AbinitPseudo(Pseudo):
-    """
-    An AbinitPseudo is a pseudopotential whose file contains an abinit header.
-    """
+    """An AbinitPseudo is a pseudopotential whose file contains an abinit header."""
 
     def __init__(self, path, header):
         """
@@ -670,7 +666,7 @@ class AbinitHeader(dict):
 
 def _int_from_str(string):
     """
-    Convert string into integer
+    Convert string into integer.
 
     Raise:
         TypeError if string is not a valid integer
@@ -1016,7 +1012,7 @@ class PawAbinitHeader(AbinitHeader):
 
 
 class PseudoParserError(Exception):
-    """Base Error class for the exceptions raised by :class:`PseudoParser`"""
+    """Base Error class for the exceptions raised by :class:`PseudoParser`."""
 
 
 class PseudoParser:
@@ -1194,21 +1190,18 @@ class PseudoParser:
 
 # TODO use RadialFunction from pseudo_dojo.
 class RadialFunction(namedtuple("RadialFunction", "mesh values")):
-    """
-    Radial Function class.
-    """
+    """Radial Function class."""
 
     __slots__ = ()
 
 
 class PawXmlSetup(Pseudo, PawPseudo):
-    """
-    Setup class for PawXml.
-    """
+    """Setup class for PawXml."""
 
     def __init__(self, filepath):
         """
-        :param filepath:
+        Args:
+            filepath (str): Path to the XML file.
         """
         # pylint: disable=E1101
         self.path = os.path.abspath(filepath)
@@ -1281,9 +1274,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     @lazy_property
     def root(self):
-        """
-        Root tree of XML.
-        """
+        """Root tree of XML."""
         from xml.etree import ElementTree as Et
 
         tree = Et.parse(self.filepath)
@@ -1320,16 +1311,14 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     @property
     def supports_soc(self):
-        """
-        Here I assume that the ab-initio code can treat the SOC within the on-site approximation
-        """
+        """Here I assume that the ab-initio code can treat the SOC within the on-site approximation."""
         return True
 
     @staticmethod
     def _eval_grid(grid_params):
         """
         This function receives a dictionary with the parameters defining the
-        radial mesh and returns a `ndarray` with the mesh
+        radial mesh and returns a `ndarray` with the mesh.
         """
         eq = grid_params.get("eq").replace(" ", "")
         istart, iend = int(grid_params.get("istart")), int(grid_params.get("iend"))
@@ -1424,9 +1413,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return projector_functions
 
     def yield_figs(self, **kwargs):  # pragma: no cover
-        """
-        This function *generates* a predefined list of matplotlib figures with minimal input from the user.
-        """
+        """This function *generates* a predefined list of matplotlib figures with minimal input from the user."""
         yield self.plot_densities(title="PAW densities", show=False)
         yield self.plot_waves(title="PAW waves", show=False)
         yield self.plot_projectors(title="PAW projectors", show=False)
@@ -1576,9 +1563,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
     @classmethod
     def as_table(cls, items):
-        """
-        Return an instance of :class:`PseudoTable` from the iterable items.
-        """
+        """Return an instance of :class:`PseudoTable` from the iterable items."""
         if isinstance(items, cls):
             return items
         return cls(items)
@@ -1629,7 +1614,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
     def __init__(self, pseudos):
         """
         Args:
-            pseudos: List of pseudopotentials or filepaths
+            pseudos: List of pseudopotentials or filepaths.
         """
         # Store pseudos in a default dictionary with z as key.
         # Note that we can have more than one pseudo for given z.
@@ -1658,9 +1643,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             setattr(self, symbol, pseudo_list)
 
     def __getitem__(self, Z):
-        """
-        Retrieve pseudos for the atomic number z. Accepts both int and slice objects.
-        """
+        """Retrieve pseudos for the atomic number z. Accepts both int and slice objects."""
         if isinstance(Z, slice):
             assert Z.stop is not None
             pseudos = []
@@ -1730,9 +1713,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return cls(pseudos)
 
     def is_complete(self, zmax=118) -> bool:
-        """
-        True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential
-        """
+        """True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential."""
         return all(self[z] for z in range(1, zmax))
 
     def all_combinations_for_elements(self, element_symbols):
@@ -1883,7 +1864,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return self.__class__([self[a[0]] for a in sorted(attrs, key=lambda t: t[1], reverse=reverse)])
 
     def sort_by_z(self):
-        """Return a new :class:`PseudoTable` with pseudos sorted by Z"""
+        """Return a new :class:`PseudoTable` with pseudos sorted by Z."""
         return self.__class__(sorted(self, key=lambda p: p.Z))
 
     def select(self, condition) -> PseudoTable:
@@ -1912,8 +1893,6 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return self.__class__([p for p in self if p.element.row in rows])
 
     def select_family(self, family):
-        """
-        Return PseudoTable with element belonging to the specified family, e.g. family="alkaline"
-        """
+        """Return PseudoTable with element belonging to the specified family, e.g. family="alkaline"."""
         # e.g element.is_alkaline
         return self.__class__([p for p in self if getattr(p.element, "is_" + family)])

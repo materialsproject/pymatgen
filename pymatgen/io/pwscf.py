@@ -1,6 +1,4 @@
-"""
-This module implements input and output processing from PWSCF.
-"""
+"""This module implements input and output processing from PWSCF."""
 
 from __future__ import annotations
 
@@ -174,7 +172,7 @@ class PWInput:
 
     def as_dict(self):
         """
-        Create a dictionary representation of a PWInput object
+        Create a dictionary representation of a PWInput object.
 
         Returns:
             dict
@@ -497,15 +495,11 @@ class PWInput:
 
 
 class PWInputError(BaseException):
-    """
-    Error for PWInput
-    """
+    """Error for PWInput."""
 
 
 class PWOutput:
-    """
-    Parser for PWSCF output file.
-    """
+    """Parser for PWSCF output file."""
 
     patterns = frozendict(
         energies=r"total energy\s+=\s+([\d\.\-]+)\sRy",
@@ -523,7 +517,7 @@ class PWOutput:
     def __init__(self, filename):
         """
         Args:
-            filename (str): Filename
+            filename (str): Filename.
         """
         self.filename = filename
         self.data = defaultdict(list)
@@ -572,7 +566,7 @@ class PWOutput:
     def get_celldm(self, idx: int):
         """
         Args:
-            idx (int): index
+            idx (int): index.
 
         Returns:
             Cell dimension along index
@@ -581,14 +575,10 @@ class PWOutput:
 
     @property
     def final_energy(self):
-        """
-        Returns: Final energy
-        """
+        """Returns: Final energy."""
         return self.data["energies"][-1]
 
     @property
     def lattice_type(self):
-        """
-        Returns: Lattice type.
-        """
+        """Returns: Lattice type."""
         return self.data["lattice_type"]
