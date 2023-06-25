@@ -25,6 +25,7 @@ from pymatgen.util.testing import PymatgenTest
 
 try:
     import ase
+    from ase.calculators.calculator import Calculator
     from ase.calculators.emt import EMT
 except ImportError:
     ase = None
@@ -1358,16 +1359,12 @@ class StructureTest(PymatgenTest):
     def test_calculate_ase(self):
         pytest.importorskip("ase")
         struct_copy = self.cu_structure.copy()
-        out_struct = self.cu_structure.calculate(calculator=EMT(asap_cutoff=True))
-        assert out_struct.lattice == self.cu_structure.lattice
-        assert hasattr(out_struct, "calc")
-        assert out_struct.calc.results.get("energy")
-        assert out_struct.calc.results.get("energies") is not None
-        assert out_struct.calc.results.get("free_energy")
-        assert out_struct.calc.results["energy"] == approx(1.82609895)
-        assert out_struct.calc.parameters == {"asap_cutoff": True}
-        assert out_struct.volume == self.cu_structure.volume
-        assert not hasattr(out_struct, "dynamics")
+        calculator = self.cu_structure.calculate(calculator=EMT(asap_cutoff=True))
+        assert calculator.results["energies"] == approx([0.91304948, 0.91304948], abs=1e-5)
+        assert calculator.results["free_energy"] == approx(1.8260989595, abs=1e-5)
+        assert calculator.results["energy"] == approx(1.82609895)
+        assert calculator.parameters == {"asap_cutoff": True}
+        assert not hasattr(calculator, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
 
     def test_relax_chgnet(self):
@@ -1375,9 +1372,9 @@ class StructureTest(PymatgenTest):
         struct_copy = self.cu_structure.copy()
         relaxed = self.cu_structure.relax(calculator="chgnet")
         assert relaxed != self.cu_structure
-        assert relaxed.calc.results["energy"] == approx(-5.27813243, abs=1e-5)
-        assert relaxed.calc.results["free_energy"] == approx(-5.2781327, abs=1e-5)
-        assert relaxed.volume == approx(44.98351422, abs=1e-5)
+        assert relaxed.calc.results["energy"] == approx(-5.27792501, abs=1e-5)
+        assert relaxed.calc.results["free_energy"] == approx(-5.27792501, abs=1e-5)
+        assert relaxed.volume == approx(45.870906121, abs=1e-5)
         assert relaxed.calc.parameters == {}
         assert self.cu_structure == struct_copy, "original structure was modified"
         assert relaxed.volume > self.cu_structure.volume
@@ -1401,16 +1398,17 @@ class StructureTest(PymatgenTest):
     def test_calculate_chgnet(self):
         pytest.importorskip("chgnet")
         structure = self.get_structure("Si")
-        out_struct = structure.calculate(calculator="chgnet")
-        assert out_struct.lattice == structure.lattice
-        assert list(out_struct.calc) == ["m", "f", "s", "e"]
-        assert out_struct.calc["e"] == approx(-5.3700404167, abs=1e-5)
-        assert out_struct.calc["m"] == approx([0.00262399, 0.00262396], abs=1e-5)
+        calculator = structure.calculate(calculator="chgnet")
+        assert isinstance(calculator, Calculator)
+        preds = calculator.results
+        assert {*preds} == {"stress", "energy", "free_energy", "magmoms", "forces"}
+        assert preds["energy"] == approx(-10.7400808334, abs=1e-5)
+        assert preds["magmoms"] == approx([0.00262399, 0.00262396], abs=1e-5)
         assert np.allclose(
-            out_struct.calc["f"],
+            preds["forces"],
             [[1.1518598e-05, 6.8321824e-06, -4.5634806e-06], [-1.1488795e-05, -6.8247318e-06, 4.5634806e-06]],
         )
-        assert not hasattr(out_struct, "dynamics")
+        assert not hasattr(preds, "dynamics")
 
     def test_relax_ase(self):
         pytest.importorskip("ase")
@@ -1452,15 +1450,25 @@ class StructureTest(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile(traj_file)
 
-    def test_calculate_matgl(self):
+    def test_calculate_m3gnet(self):
         pytest.importorskip("matgl")
-        struct = self.get_structure("Si")
-        out_struct = struct.calculate()
-        assert out_struct.lattice == struct.lattice
-        assert hasattr(out_struct, "calc")
-        assert not hasattr(out_struct, "dynamics")
+        calculator = self.get_structure("Si").calculate()
+        assert {*calculator.results} >= {"stress", "energy", "free_energy", "forces"}
+        assert calculator.results["energy"] == approx(-10.709426, abs=1e-5)
+        assert np.allclose(
+            calculator.results["forces"],
+            [[9.44355556e-08, -1.52347477e-06, -1.57346949e-06], [-9.44355556e-08, 1.52347477e-06, 1.57346949e-06]],
+        )
+        assert np.allclose(
+            calculator.results["stress"],
+            [
+                [-1.1408222e00, -4.1733276e-07, 8.9428447e-08],
+                [-2.9809482e-07, -1.1408228e00, 5.3508020e-06],
+                [5.9618962e-08, 5.3806116e-06, -1.1408247e00],
+            ],
+        )
 
-    def test_relax_matgl(self):
+    def test_relax_m3gnet(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax()
@@ -1468,7 +1476,7 @@ class StructureTest(PymatgenTest):
         assert hasattr(relaxed, "calc")
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
 
-    def test_relax_matgl_fixed_lattice(self):
+    def test_relax_m3gnet_fixed_lattice(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed = struct.relax(relax_cell=False, optimizer="BFGS")
@@ -1476,7 +1484,7 @@ class StructureTest(PymatgenTest):
         assert hasattr(relaxed, "calc")
         assert relaxed.dynamics["optimizer"] == "BFGS"
 
-    def test_relax_matgl_with_traj(self):
+    def test_relax_m3gnet_with_traj(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
         relaxed, trajectory = struct.relax(return_trajectory=True)
@@ -1956,15 +1964,13 @@ class MoleculeTest(PymatgenTest):
 
     def test_calculate_ase_mol(self):
         pytest.importorskip("ase")
-        mol = self.mol
-        mol_copy = mol.copy()
-        new_mol = mol.calculate(calculator=EMT(asap_cutoff=True))
-        assert hasattr(new_mol, "calc")
-        assert {*new_mol.calc.results} >= {"energy", "energies", "free_energy"}
-        assert new_mol.calc.results["energy"] == approx(1.99570042)
-        assert new_mol.calc.parameters == {"asap_cutoff": True}
-        assert not hasattr(new_mol, "dynamics")
-        assert mol == mol_copy
+        mol_copy = self.mol.copy()
+        calculator = self.mol.calculate(calculator=EMT(asap_cutoff=True))
+        assert {*calculator.results} >= {"energy", "energies", "free_energy"}
+        assert calculator.results["energy"] == approx(1.99570042)
+        assert calculator.parameters == {"asap_cutoff": True}
+        assert not hasattr(calculator, "dynamics")
+        assert mol_copy == self.mol, "Molecule should not have been modified by calculation"
 
     def test_relax_ase_mol(self):
         pytest.importorskip("ase")
@@ -1995,12 +2001,12 @@ class MoleculeTest(PymatgenTest):
     @pytest.mark.skip("Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
     def test_calculate_gfnxtb(self):
         pytest.importorskip("tblite")
-        mol = self.mol
-        new_mol = mol.calculate()
-        assert hasattr(new_mol, "calc")
-        assert not hasattr(new_mol, "dynamics")
-        assert new_mol.calc.results["energy"] == approx(-113.61022434200855)
-        assert isinstance(new_mol, Molecule)
+        mol_copy = self.mol.copy()
+        calculator = self.mol.calculate()
+        assert isinstance(calculator, Calculator)
+        assert not hasattr(calculator, "dynamics")
+        assert calculator.results["energy"] == approx(-113.61022434200855)
+        assert mol_copy == self.mol, "Molecule should not have been modified by calculation"
 
     @pytest.mark.skip("Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
     def test_relax_gfnxtb(self):
