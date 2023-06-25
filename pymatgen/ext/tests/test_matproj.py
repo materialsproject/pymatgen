@@ -244,7 +244,7 @@ class MPResterOldTest(PymatgenTest):
 
         # all_entries = self.rester.get_entries("Fe", compatible_only=False)
         # entries = self.rester.get_entries("Fe", compatible_only=True)
-        # self.assertTrue(len(entries) < len(all_entries))
+        # assert len(entries) < len(all_entries)
         entries = self.rester.get_entries("Fe", compatible_only=True, property_data=["cif"])
         assert "cif" in entries[0].data
 

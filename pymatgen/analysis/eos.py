@@ -13,6 +13,7 @@ from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 
 import numpy as np
+from frozendict import frozendict
 from scipy.optimize import leastsq, minimize
 
 from pymatgen.core.units import FloatWithUnit
@@ -578,15 +579,15 @@ class EOS:
        eos_fit.plot()
     """
 
-    MODELS = {
-        "murnaghan": Murnaghan,
-        "birch": Birch,
-        "birch_murnaghan": BirchMurnaghan,
-        "pourier_tarantola": PourierTarantola,
-        "vinet": Vinet,
-        "deltafactor": DeltaFactor,
-        "numerical_eos": NumericalEOS,
-    }
+    MODELS = frozendict(
+        murnaghan=Murnaghan,
+        birch=Birch,
+        birch_murnaghan=BirchMurnaghan,
+        pourier_tarantola=PourierTarantola,
+        vinet=Vinet,
+        deltafactor=DeltaFactor,
+        numerical_eos=NumericalEOS,
+    )
 
     def __init__(self, eos_name="murnaghan"):
         """

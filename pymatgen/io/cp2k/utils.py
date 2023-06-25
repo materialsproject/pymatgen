@@ -108,8 +108,7 @@ def chunk(string: str):
         if line.split()[0].isalpha():
             chunks.append([])
         chunks[-1].append(line)
-    chunks = ["\n".join(c) for c in chunks]
-    return chunks
+    return ["\n".join(c) for c in chunks]
 
 
 def natural_keys(text: str):

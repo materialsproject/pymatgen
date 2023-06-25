@@ -873,11 +873,7 @@ class CompleteDos(Dos):
 
         # Only consider up to Fermi level in numerator
         energies = dos.energies - dos.efermi
-        band_filling = np.trapz(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapz(
-            dos_densities, x=energies
-        )
-
-        return band_filling
+        return np.trapz(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapz(dos_densities, x=energies)
 
     def get_band_center(
         self,
@@ -907,11 +903,7 @@ class CompleteDos(Dos):
         Returns:
             band center in eV, often denoted epsilon_d for the d-band center
         """
-        band_center = self.get_n_moment(
-            1, elements=elements, sites=sites, band=band, spin=spin, erange=erange, center=False
-        )
-
-        return band_center
+        return self.get_n_moment(1, elements=elements, sites=sites, band=band, spin=spin, erange=erange, center=False)
 
     def get_band_width(
         self,
@@ -939,9 +931,7 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected band width in eV
         """
-        band_width = np.sqrt(self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange))
-
-        return band_width
+        return np.sqrt(self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange))
 
     def get_band_skewness(
         self,
@@ -971,11 +961,9 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected skewness in eV
         """
-        skewness = self.get_n_moment(
+        return self.get_n_moment(
             3, elements=elements, sites=sites, band=band, spin=spin, erange=erange
         ) / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** (3 / 2)
-
-        return skewness
 
     def get_band_kurtosis(
         self,
@@ -1005,12 +993,10 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected kurtosis in eV
         """
-        kurtosis = (
+        return (
             self.get_n_moment(4, elements=elements, sites=sites, band=band, spin=spin, erange=erange)
             / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** 2
         )
-
-        return kurtosis
 
     def get_n_moment(
         self,
@@ -1076,9 +1062,7 @@ class CompleteDos(Dos):
             p = energies
 
         # Take the nth moment
-        nth_moment = np.trapz(p**n * dos_densities, x=energies) / np.trapz(dos_densities, x=energies)
-
-        return nth_moment
+        return np.trapz(p**n * dos_densities, x=energies) / np.trapz(dos_densities, x=energies)
 
     def get_hilbert_transform(
         self,
@@ -1158,8 +1142,7 @@ class CompleteDos(Dos):
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
 
         # Calculate the upper band edge
-        upper_band_edge = energies[np.argmax(densities)]
-        return upper_band_edge
+        return energies[np.argmax(densities)]
 
     def get_dos_fp(
         self,
@@ -1563,8 +1546,7 @@ def _get_orb_lobster(orb):
     ]
 
     try:
-        orbital = Orbital(orb_labs.index(orb[1:]))
-        return orbital
+        return Orbital(orb_labs.index(orb[1:]))
     except AttributeError:
         print("Orb not in list")
     return None

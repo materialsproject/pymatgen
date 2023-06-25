@@ -57,7 +57,7 @@ def write_libxc_docs_json(xcfuncs, jpath):
 
     # Build lightweight version with a subset of keys.
     for num, d in xcfuncs.items():
-        xcfuncs[num] = {k: d[k] for k in ("Family", "Kind", "References")}
+        xcfuncs[num] = {key: d[key] for key in ("Family", "Kind", "References")}
         # Descriptions are optional
         for opt in ("Description 1", "Description 2"):
             desc = d.get(opt)

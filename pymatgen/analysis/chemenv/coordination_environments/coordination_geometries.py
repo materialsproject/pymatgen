@@ -374,7 +374,7 @@ class CoordinationGeometry:
         This allows to possibly get a lower coordination from a capped-like model polyhedron.
         """
 
-        ALLOWED_HINTS_TYPES = ["single_cap", "double_cap", "triple_cap"]
+        ALLOWED_HINTS_TYPES = ("single_cap", "double_cap", "triple_cap")
 
         def __init__(self, hints_type, options):
             """

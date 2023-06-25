@@ -210,7 +210,7 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif issue := "".join(s).strip():
-                warnings.warn(f"Possible issue in cif file at line: {issue}")
+                warnings.warn(f"Possible issue in CIF file at line: {issue}")
         return cls(data, loops, header)
 
 
@@ -1439,8 +1439,8 @@ def str2float(text):
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
             return float(re.sub(r"\(.+\)*", "", text[0]))
-    except ValueError as ex:
+    except ValueError as exc:
         if text.strip() == ".":
             return 0
-        raise ex
+        raise exc
     raise ValueError(f"{text} cannot be converted to float")

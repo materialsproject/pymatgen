@@ -136,11 +136,10 @@ class MagneticSpaceGroup(SymmetryGroup):
                 (idx - 1, is_hex),
             )
             op = c.fetchone()
-            op = {
+            return {
                 "symbol": op[0],
                 "matrix": np.array(op[1].split(","), dtype="f").reshape(3, 3),
             }
-            return op
 
         def _parse_operators(b):
             """Parses compact binary representation into list of MagSymmOps."""
@@ -355,9 +354,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         ops = ops + centered_ops
 
         # apply jones faithful transformation
-        ops = [self.jf.transform_symmop(op) for op in ops]
-
-        return ops
+        return [self.jf.transform_symmop(op) for op in ops]
 
     def get_orbit(self, p, magmom, tol: float = 1e-5):
         """

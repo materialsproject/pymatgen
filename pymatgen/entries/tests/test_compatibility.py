@@ -1490,7 +1490,7 @@ class MITCompatibilityTest(unittest.TestCase):
 
         assert compat.process_entry(entry) is not None
         # raise if check_potcar_hash is set
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Cannot check hash without potcar_spec field"):
             self.compat.process_entry(entry)
 
     def test_potcar_doenst_match_structure(self):
@@ -2354,25 +2354,21 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-
+        potcar_spec = [
+            {
+                "titel": "PAW_PBE Li_sv 10Sep2004",
+                "hash": "8245d7383d7556214082aa40a887cd96",
+            },
+            {
+                "titel": "PAW_PBE H 15Jun2001",
+                "hash": "bb43c666e3d36577264afe07669e9582",
+            },
+        ]
         self.entry_hydride = ComputedEntry(
             "LiH",
             -2,
             correction=0.0,
-            parameters={
-                "is_hubbard": False,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li_sv 10Sep2004",
-                        "hash": "8245d7383d7556214082aa40a887cd96",
-                    },
-                    {
-                        "titel": "PAW_PBE H 15Jun2001",
-                        "hash": "bb43c666e3d36577264afe07669e9582",
-                    },
-                ],
-            },
+            parameters={"is_hubbard": False, "run_type": "GGA", "potcar_spec": potcar_spec},
         )
 
     def tearDown(self):

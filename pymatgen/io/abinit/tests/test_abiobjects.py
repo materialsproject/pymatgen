@@ -213,7 +213,8 @@ class RelaxationTest(PymatgenTest):
         atoms_and_cell = RelaxationMethod.atoms_and_cell()
         atoms_only = RelaxationMethod.atoms_only()
 
-        atoms_and_cell.to_abivars()
+        out_vars = atoms_and_cell.to_abivars()
+        assert {*out_vars} >= {"dilatmx", "ecutsm", "ionmov", "ntime", "optcell", "strfact"}
 
         # Test dict methods
         self.assert_msonable(atoms_and_cell)

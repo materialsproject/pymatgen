@@ -88,8 +88,8 @@ def run_mcsqs(
     os.chdir(directory)
 
     if isinstance(scaling, (int, float)):
-        if scaling % 1:
-            raise ValueError(f"Scaling should be an integer, not {scaling}")
+        if scaling % 1 != 0:
+            raise ValueError(f"{scaling=} should be an integer")
         mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * num_atoms}"]
 
     else:
@@ -163,8 +163,7 @@ def run_mcsqs(
             process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
-            sqs = _parse_sqs_path(".")
-            return sqs
+            return _parse_sqs_path(".")
 
         os.chdir(original_directory)
         raise TimeoutError("Cluster expansion took too long.")

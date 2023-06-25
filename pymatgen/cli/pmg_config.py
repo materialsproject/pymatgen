@@ -161,8 +161,8 @@ def setup_potcars(potcar_dirs: list[str]):
                     shutil.move(os.path.join(base_dir, "POTCAR"), dest)
                     with subprocess.Popen(["gzip", "-f", dest]) as p:
                         p.communicate()
-                except Exception as ex:
-                    print(f"An error has occurred. Message is {ex}. Trying to continue... ")
+                except Exception as exc:
+                    print(f"An error has occurred. Message is {exc}. Trying to continue... ")
 
     print(
         "\nPSP resources directory generated. It is recommended that you "
@@ -190,8 +190,8 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
         for f in ["enum.x", "makestr.x"]:
             subprocess.call(["make", f])
             shutil.copy(f, os.path.join("..", ".."))
-    except Exception as ex:
-        print(ex)
+    except Exception as exc:
+        print(exc)
         state = False
     finally:
         os.chdir(cwd)
@@ -238,8 +238,8 @@ def install_software(install: Literal["enumlib", "bader"]):
             subprocess.call(["gfortran", "--version"])
             print("Found gfortran")
             fortran_command = "gfortran"
-        except Exception as ex:
-            print(str(ex))
+        except Exception as exc:
+            print(str(exc))
             raise SystemExit("No fortran compiler found.")
 
     enum = bader = None

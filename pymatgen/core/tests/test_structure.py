@@ -128,8 +128,8 @@ class IStructureTest(PymatgenTest):
         IStructure(self.lattice, ["Si"], coords[:1], True)
 
     def test_volume_and_density(self):
-        assert round(abs(self.struct.volume - 40.04), 2) == 0, "Volume wrong!"
-        assert round(abs(self.struct.density - 2.33), 2) == 0, "Incorrect density"
+        assert self.struct.volume == approx(40.04, abs=1e-2), "Volume wrong!"
+        assert self.struct.density == approx(2.33, abs=1e-2), "Incorrect density"
 
     def test_specie_init(self):
         coords = []
@@ -167,11 +167,9 @@ class IStructureTest(PymatgenTest):
         assert not s.is_ordered
 
     def test_get_distance(self):
-        assert round(abs(self.struct.get_distance(0, 1) - 2.35), 2) == 0, "Distance calculated wrongly!"
+        assert self.struct.get_distance(0, 1) == approx(2.35, abs=1e-2), "Distance calculated wrongly!"
         pt = [0.9, 0.9, 0.8]
-        assert (
-            round(abs(self.struct[0].distance_from_point(pt) - 1.50332963784), 2) == 0
-        ), "Distance calculated wrongly!"
+        assert self.struct[0].distance_from_point(pt) == approx(1.50332963784, abs=1e-2), "Distance calculated wrongly!"
 
     def test_as_dict(self):
         si = Species("Si", 4)
@@ -289,7 +287,7 @@ class IStructureTest(PymatgenTest):
         assert new_struct[1].magmom == 5
         assert new_struct[0].charge == 3
         assert new_struct[1].charge == 2
-        assert round(abs(new_struct.volume - struct.volume), 7) == 0
+        assert new_struct.volume == approx(struct.volume)
 
     def test_interpolate(self):
         coords = []
@@ -405,14 +403,14 @@ class IStructureTest(PymatgenTest):
         bcc_li = IStructure(Lattice.cubic(4.09), ["Li"] * 2, coords)
         bcc_prim = bcc_li.get_primitive_structure()
         assert len(bcc_prim) == 1
-        assert round(abs(bcc_prim.lattice.alpha - 109.47122), 3) == 0
+        assert bcc_prim.lattice.alpha == approx(109.47122)
         bcc_li = IStructure(Lattice.cubic(4.09), ["Li"] * 2, coords, site_properties={"magmom": [1, -1]})
         bcc_prim = bcc_li.get_primitive_structure()
         assert len(bcc_prim) == 1
-        assert round(abs(bcc_prim.lattice.alpha - 109.47122), 3) == 0
+        assert bcc_prim.lattice.alpha == approx(109.47122)
         bcc_prim = bcc_li.get_primitive_structure(use_site_props=True)
         assert len(bcc_prim) == 2
-        assert round(abs(bcc_prim.lattice.alpha - 90), 3) == 0
+        assert bcc_prim.lattice.alpha == approx(90)
 
         coords = [[0] * 3, [0.5] * 3, [0.25] * 3, [0.26] * 3]
         s = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
@@ -432,7 +430,7 @@ class IStructureTest(PymatgenTest):
         fcc_ag.make_supercell([2, 2, 2])
         fcc_ag_prim = fcc_ag.get_primitive_structure()
         assert len(fcc_ag_prim) == 1
-        assert round(abs(fcc_ag_prim.volume - 17.10448225), 7) == 0
+        assert fcc_ag_prim.volume == approx(17.10448225)
 
     def test_primitive_positions(self):
         coords = [[0, 0, 0], [0.3, 0.35, 0.45]]
@@ -446,7 +444,7 @@ class IStructureTest(PymatgenTest):
             prim = sc.get_primitive_structure(0.01)
 
             assert len(prim) == 2
-            assert round(abs(prim.distance_matrix[0, 1] - 1.0203432356739286), 7) == 0
+            assert prim.distance_matrix[0, 1] == approx(1.0203432356739286)
 
     def test_primitive_structure_volume_check(self):
         latt = Lattice.tetragonal(10, 30)
@@ -478,27 +476,27 @@ class IStructureTest(PymatgenTest):
         assert hkl == (2, -1, 0)
 
     def test_get_all_neighbors_and_get_neighbors(self):
-        s = self.struct
-        nn = s.get_neighbors_in_shell(s[0].frac_coords, 2, 4, include_index=True, include_image=True)
+        struct = self.struct
+        nn = struct.get_neighbors_in_shell(struct[0].frac_coords, 2, 4, include_index=True, include_image=True)
         assert len(nn) == 47
         r = random.uniform(3, 6)
-        all_nn = s.get_all_neighbors(r, True, True)
-        for idx, site in enumerate(s):
+        all_nn = struct.get_all_neighbors(r, True, True)
+        for idx, site in enumerate(struct):
             assert len(all_nn[idx][0]) == 4
-            assert len(all_nn[idx]) == len(s.get_neighbors(site, r))
+            assert len(all_nn[idx]) == len(struct.get_neighbors(site, r))
 
-        for site, nns in zip(s, all_nn):
+        for site, nns in zip(struct, all_nn):
             for nn in nns:
-                assert nn[0].is_periodic_image(s[nn[2]])
-                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
-                assert round(abs(d - nn[1]), 7) == 0
+                assert nn[0].is_periodic_image(struct[nn[2]])
+                dist = sum((site.coords - nn[0].coords) ** 2) ** 0.5
+                assert dist == approx(nn[1])
 
-        s = Structure(Lattice.cubic(1), ["Li"], [[0, 0, 0]])
-        s.make_supercell([2, 2, 2])
-        assert sum(map(len, s.get_all_neighbors(3))) == 976
+        struct = Structure(Lattice.cubic(1), ["Li"], [[0, 0, 0]])
+        struct.make_supercell([2, 2, 2])
+        assert sum(map(len, struct.get_all_neighbors(3))) == 976
 
-        all_nn = s.get_all_neighbors(0.05)
-        assert [len(nn) for nn in all_nn] == [0] * len(s)
+        all_nn = struct.get_all_neighbors(0.05)
+        assert [len(nn) for nn in all_nn] == [0] * len(struct)
 
         # the following test is from issue #2226
         poscar = """POSCAR
@@ -524,12 +522,12 @@ Direct
  -0.2653510291469959  0.4724516171392097  0.6211255106369801
  -0.2705230397846415  1.4621722452479102  0.0625618775773844
 """
-        s = Structure.from_str(poscar, fmt="poscar")
-        site0 = s.sites[1]
-        site1 = s.sites[9]
-        neigh_sites = s.get_neighbors(site0, 2.0)
+        struct = Structure.from_str(poscar, fmt="poscar")
+        site0 = struct.sites[1]
+        site1 = struct.sites[9]
+        neigh_sites = struct.get_neighbors(site0, 2.0)
         assert len(neigh_sites) == 1
-        neigh_sites = s.get_neighbors(site1, 2.0)
+        neigh_sites = struct.get_neighbors(site1, 2.0)
         assert len(neigh_sites) == 1
 
     def test_get_neighbor_list(self):
@@ -647,7 +645,7 @@ Direct
             for nn in nns:
                 assert nn[0].is_periodic_image(s[nn[2]])
                 d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
-                assert round(abs(d - nn[1]), 7) == 0
+                assert d == approx(nn[1])
         assert list(map(len, all_nn)) == [2, 2, 2, 0]
 
     def test_get_all_neighbors_small_cutoff(self):
@@ -842,9 +840,9 @@ class StructureTest(PymatgenTest):
         assert s.formula == "Si1 H1 N1 O1"
         assert s.symbol_set == ("H", "N", "O", "Si")
         # Distance between O and H
-        assert round(abs(s.get_distance(2, 3) - 0.96), 7) == 0
+        assert s.get_distance(2, 3) == approx(0.96)
         # Distance between Si and H
-        assert round(abs(s.get_distance(0, 3) - 2.09840889), 7) == 0
+        assert s.get_distance(0, 3) == approx(2.09840889)
 
         s.remove_species(["H"])
         assert s.formula == "Si1 N1 O1"
@@ -871,20 +869,20 @@ class StructureTest(PymatgenTest):
         assert len(self.structure.site_properties["charge"]) == 3
 
     def test_perturb(self):
-        d = 0.1
+        dist = 0.1
         pre_perturbation_sites = self.structure.copy()
-        self.structure.perturb(distance=d)
+        self.structure.perturb(distance=dist)
         post_perturbation_sites = self.structure.sites
 
         for idx, site in enumerate(pre_perturbation_sites):
-            assert round(abs(site.distance(post_perturbation_sites[idx]) - d), 3) == 0, "Bad perturbation distance"
+            assert site.distance(post_perturbation_sites[idx]) == approx(dist), "Bad perturbation distance"
 
         structure2 = pre_perturbation_sites.copy()
-        structure2.perturb(distance=d, min_distance=0)
+        structure2.perturb(distance=dist, min_distance=0)
         post_perturbation_sites2 = structure2.sites
 
         for idx, site in enumerate(pre_perturbation_sites):
-            assert site.distance(post_perturbation_sites2[idx]) <= d
+            assert site.distance(post_perturbation_sites2[idx]) <= dist
             assert site.distance(post_perturbation_sites2[idx]) >= 0
 
     def test_add_oxidation_states_by_element(self):
@@ -977,17 +975,17 @@ class StructureTest(PymatgenTest):
         )
 
     def test_apply_strain(self):
-        s = self.structure
-        initial_coord = s[1].coords
-        s.apply_strain(0.01)
-        assert approx(s.lattice.abc) == (3.8785999130369997, 3.878600984287687, 3.8785999130549516)
-        self.assert_all_close(s[1].coords, initial_coord * 1.01)
-        a1, b1, c1 = s.lattice.abc
-        s.apply_strain([0.1, 0.2, 0.3])
-        a2, b2, c2 = s.lattice.abc
-        assert round(abs(a2 / a1 - 1.1), 7) == 0
-        assert round(abs(b2 / b1 - 1.2), 7) == 0
-        assert round(abs(c2 / c1 - 1.3), 7) == 0
+        struct = self.structure
+        initial_coord = struct[1].coords
+        struct.apply_strain(0.01)
+        assert approx(struct.lattice.abc) == (3.8785999130369997, 3.878600984287687, 3.8785999130549516)
+        self.assert_all_close(struct[1].coords, initial_coord * 1.01)
+        a1, b1, c1 = struct.lattice.abc
+        struct.apply_strain([0.1, 0.2, 0.3])
+        a2, b2, c2 = struct.lattice.abc
+        assert a2 / a1 == approx(1.1)
+        assert b2 / b1 == approx(1.2)
+        assert c2 / c1 == approx(1.3)
 
     def test_scale_lattice(self):
         initial_coord = self.structure[1].coords
@@ -1564,9 +1562,9 @@ class IMoleculeTest(PymatgenTest):
         assert "Molecule contains sites that are less than 0.01 Angstrom apart!" in str(exc.value)
 
     def test_get_angle_dihedral(self):
-        assert round(abs(self.mol.get_angle(1, 0, 2) - 109.47122144618737), 7) == 0
-        assert round(abs(self.mol.get_angle(3, 1, 2) - 60.00001388659683), 7) == 0
-        assert round(abs(self.mol.get_dihedral(0, 1, 2, 3) - -35.26438851071765), 7) == 0
+        assert self.mol.get_angle(1, 0, 2) == approx(109.47122144618737)
+        assert self.mol.get_angle(3, 1, 2) == approx(60.00001388659683)
+        assert self.mol.get_dihedral(0, 1, 2, 3) == approx(-35.26438851071765)
 
         coords = []
         coords.append([0, 0, 0])
@@ -1574,7 +1572,7 @@ class IMoleculeTest(PymatgenTest):
         coords.append([0, 1, 1])
         coords.append([1, 1, 1])
         self.mol2 = Molecule(["C", "O", "N", "S"], coords)
-        assert round(abs(self.mol2.get_dihedral(0, 1, 2, 3) - -90), 7) == 0
+        assert self.mol2.get_dihedral(0, 1, 2, 3) == approx(-90)
 
     def test_get_covalent_bonds(self):
         assert len(self.mol.get_covalent_bonds()) == 4
@@ -1845,7 +1843,7 @@ class MoleculeTest(PymatgenTest):
         post_perturbation_sites = self.mol.sites
 
         for i, x in enumerate(pre_perturbation_sites):
-            assert round(abs(x.distance(post_perturbation_sites[i]) - d), 3) == 0, "Bad perturbation distance"
+            assert x.distance(post_perturbation_sites[i]) == approx(d), "Bad perturbation distance"
 
     def test_add_site_property(self):
         self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])
@@ -1881,16 +1879,16 @@ class MoleculeTest(PymatgenTest):
         ]
         sub = Molecule(["X", "C", "H", "H", "H"], coords)
         self.mol.substitute(1, sub)
-        assert round(abs(self.mol.get_distance(0, 4) - 1.54), 7) == 0
+        assert self.mol.get_distance(0, 4) == approx(1.54)
         f = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
         self.mol.substitute(2, f)
-        assert round(abs(self.mol.get_distance(0, 7) - 1.35), 7) == 0
+        assert self.mol.get_distance(0, 7) == approx(1.35)
         oh = Molecule(
             ["X", "O", "H"],
             [[0, 0.780362, -0.456316], [0, 0, 0.114079], [0, -0.780362, -0.456316]],
         )
         self.mol.substitute(1, oh)
-        assert round(abs(self.mol.get_distance(0, 7) - 1.43), 7) == 0
+        assert self.mol.get_distance(0, 7) == approx(1.43)
         self.mol.substitute(3, "methyl")
         assert self.mol.formula == "H7 C3 O1 F1"
         coords = [
@@ -1911,7 +1909,7 @@ class MoleculeTest(PymatgenTest):
         benzene.substitute(1, sub)
         assert benzene.formula == "H8 C7"
         # Carbon attached should be in plane.
-        assert round(abs(benzene[11].coords[2] - 0), 7) == 0
+        assert benzene[11].coords[2] == approx(0)
         benzene[14] = "Br"
         benzene.substitute(13, sub)
         assert benzene.formula == "H9 C8 Br1"

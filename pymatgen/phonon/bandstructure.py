@@ -46,9 +46,7 @@ def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order):
                 max_idx = i
         connection_order.append(max_idx)
 
-    band_order = [connection_order[x] for x in prev_band_order]
-
-    return band_order
+    return [connection_order[x] for x in prev_band_order]
 
 
 class PhononBandStructure(MSONable):

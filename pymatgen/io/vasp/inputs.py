@@ -889,14 +889,12 @@ class Incar(dict, MSONable):
 
         # Not in standard keys. We will try a hierarchy of conversions.
         try:
-            val = int(val)
-            return val
+            return int(val)
         except ValueError:
             pass
 
         try:
-            val = float(val)
-            return val
+            return float(val)
         except ValueError:
             pass
 
@@ -1925,8 +1923,7 @@ class PotcarSingle:
             p = os.path.expanduser(p)
             p = zpath(p)
             if os.path.exists(p):
-                psingle = PotcarSingle.from_file(p)
-                return psingle
+                return PotcarSingle.from_file(p)
         raise OSError(
             f"You do not have the right POTCAR with {functional=} and label {symbol} "
             f"in your VASP_PSP_DIR. Paths tried: {paths_to_try}"

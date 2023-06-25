@@ -124,7 +124,7 @@ class XYZ:
         lines = str(self)
 
         sio = StringIO(lines)
-        df = pd.read_csv(
+        df_xyz = pd.read_csv(
             sio,
             header=None,
             skiprows=[0, 1],
@@ -132,8 +132,8 @@ class XYZ:
             delim_whitespace=True,
             names=["atom", "x", "y", "z"],
         )
-        df.index += 1
-        return df
+        df_xyz.index += 1
+        return df_xyz
 
     def _frame_str(self, frame_mol):
         output = [str(len(frame_mol)), frame_mol.composition.formula]

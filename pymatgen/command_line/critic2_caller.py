@@ -330,8 +330,7 @@ def get_filepath(filename, warning, path, suffix):
         # however, better to use 'suffix' kwarg to avoid this!
         paths.sort(reverse=True)
         warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
-    path = paths[0]
-    return path
+    return paths[0]
 
 
 class CriticalPoint(MSONable):

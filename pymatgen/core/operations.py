@@ -570,8 +570,7 @@ class MagSymmOp(SymmOp):
         Returns:
             MagSymmOp object
         """
-        mag_symmop = cls(symmop.affine_matrix, time_reversal, symmop.tol)
-        return mag_symmop
+        return cls(symmop.affine_matrix, time_reversal, symmop.tol)
 
     @staticmethod
     def from_rotation_and_translation_and_time_reversal(

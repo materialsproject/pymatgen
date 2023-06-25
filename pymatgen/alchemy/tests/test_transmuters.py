@@ -54,14 +54,14 @@ class PoscarTransmuterTest(PymatgenTest):
         tsc.append_transformation(OrderDisorderedStructureTransformation(), extend_collection=50)
         assert len(tsc) == 4
 
-        t = SuperTransformation(
+        trafo = SuperTransformation(
             [
                 SubstitutionTransformation({"Fe2+": "Mg2+"}),
                 SubstitutionTransformation({"Fe2+": "Zn2+"}),
                 SubstitutionTransformation({"Fe2+": "Be2+"}),
             ]
         )
-        tsc.append_transformation(t, extend_collection=True)
+        tsc.append_transformation(trafo, extend_collection=True)
         assert len(tsc) == 12
         for x in tsc:
             # should be 4 trans + starting structure

@@ -146,14 +146,12 @@ class Interface(Structure):
     @property
     def substrate_indices(self) -> list[int]:
         """Site indices for the substrate atoms."""
-        sub_indices = [i for i, tag in enumerate(self.site_properties["interface_label"]) if "substrate" in tag]
-        return sub_indices
+        return [i for i, tag in enumerate(self.site_properties["interface_label"]) if "substrate" in tag]
 
     @property
     def substrate_sites(self) -> list[Site]:
         """The site objects in the substrate."""
-        sub_sites = [site for site, tag in zip(self, self.site_properties["interface_label"]) if "substrate" in tag]
-        return sub_sites
+        return [site for site, tag in zip(self, self.site_properties["interface_label"]) if "substrate" in tag]
 
     @property
     def substrate(self) -> Structure:
@@ -163,14 +161,12 @@ class Interface(Structure):
     @property
     def film_indices(self) -> list[int]:
         """Site indices of the film sites."""
-        f_indices = [i for i, tag in enumerate(self.site_properties["interface_label"]) if "film" in tag]
-        return f_indices
+        return [i for i, tag in enumerate(self.site_properties["interface_label"]) if "film" in tag]
 
     @property
     def film_sites(self) -> list[Site]:
         """Return the film sites of the interface."""
-        film_sites = [site for site, tag in zip(self, self.site_properties["interface_label"]) if "film" in tag]
-        return film_sites
+        return [site for site, tag in zip(self, self.site_properties["interface_label"]) if "film" in tag]
 
     @property
     def film(self) -> Structure:

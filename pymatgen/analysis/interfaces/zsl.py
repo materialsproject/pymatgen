@@ -54,9 +54,7 @@ class ZSLMatch(MSONable):
         temp_sub = temp_sub * fast_norm(film_matrix[2]) / fast_norm(temp_sub)
         substrate_matrix.append(temp_sub)
 
-        transform_matrix = np.transpose(np.linalg.solve(film_matrix, substrate_matrix))
-
-        return transform_matrix
+        return np.transpose(np.linalg.solve(film_matrix, substrate_matrix))
 
 
 class ZSLGenerator(MSONable):

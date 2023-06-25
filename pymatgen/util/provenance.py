@@ -270,7 +270,7 @@ class StructureNL:
             if not key.startswith("_"):
                 raise ValueError(
                     "data must contain properly namespaced data with keys starting with an underscore. "
-                    f"The key {key} does not start with an underscore."
+                    f"{key=} does not start with an underscore."
                 )
 
         # check for valid history nodes
@@ -387,8 +387,8 @@ class StructureNL:
     def __str__(self):
         return "\n".join(
             [
-                f"{k}\n{getattr(self, k)}"
-                for k in (
+                f"{key}\n{getattr(self, key)}"
+                for key in (
                     "structure",
                     "authors",
                     "projects",

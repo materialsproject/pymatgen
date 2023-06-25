@@ -179,7 +179,7 @@ class PWInput:
         Returns:
             dict
         """
-        pwinput_dict = {
+        return {
             "structure": self.structure.as_dict(),
             "pseudo": self.pseudo,
             "sections": self.sections,
@@ -187,7 +187,6 @@ class PWInput:
             "kpoints_grid": self.kpoints_grid,
             "kpoints_shift": self.kpoints_shift,
         }
-        return pwinput_dict
 
     @classmethod
     def from_dict(cls, pwinput_dict):
@@ -200,7 +199,7 @@ class PWInput:
         Returns:
             PWInput object
         """
-        pwinput = cls(
+        return cls(
             structure=Structure.from_dict(pwinput_dict["structure"]),
             pseudo=pwinput_dict["pseudo"],
             control=pwinput_dict["sections"]["control"],
@@ -212,7 +211,6 @@ class PWInput:
             kpoints_grid=pwinput_dict["kpoints_grid"],
             kpoints_shift=pwinput_dict["kpoints_shift"],
         )
-        return pwinput
 
     def write_file(self, filename):
         """

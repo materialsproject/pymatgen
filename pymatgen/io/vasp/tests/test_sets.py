@@ -1377,7 +1377,9 @@ class MVLScanRelaxSetTest(PymatgenTest):
         test_potcar_set_1 = MVLScanRelaxSet(self.struct, user_potcar_functional="PBE_54")
         assert test_potcar_set_1.potcar.functional == "PBE_54"
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+        ):
             MVLScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
         # https://github.com/materialsproject/pymatgen/pull/3022
@@ -1500,7 +1502,9 @@ class MPScanRelaxSetTest(PymatgenTest):
         test_potcar_set_1 = MPScanRelaxSet(self.struct)
         assert test_potcar_set_1.potcar.functional == "PBE_54"
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+        ):
             MPScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
     def test_as_from_dict(self):
@@ -1697,7 +1701,9 @@ class MVLRelax52SetTest(PymatgenTest):
         test_potcar_set_1 = MVLRelax52Set(self.struct, user_potcar_functional="PBE_52")
         assert test_potcar_set_1.potcar.functional == "PBE_52"
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+        ):
             MVLRelax52Set(self.struct, user_potcar_functional="PBE")
 
     def test_as_from_dict(self):

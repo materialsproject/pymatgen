@@ -70,8 +70,7 @@ def get_tri_area(pts):
     a, b, c = pts[0], pts[1], pts[2]
     v1 = np.array(b) - np.array(a)
     v2 = np.array(c) - np.array(a)
-    area_tri = abs(np.linalg.norm(np.cross(v1, v2)) / 2)
-    return area_tri
+    return abs(np.linalg.norm(np.cross(v1, v2)) / 2)
 
 
 class WulffFacet:
@@ -269,8 +268,7 @@ class WulffShape:
         """
         matrix_surfs = [self.facets[dual_simp[i]].normal for i in range(3)]
         matrix_e = [self.facets[dual_simp[i]].e_surf for i in range(3)]
-        cross_pt = np.dot(np.linalg.inv(matrix_surfs), matrix_e)
-        return cross_pt
+        return np.dot(np.linalg.inv(matrix_surfs), matrix_e)
 
     def _get_simpx_plane(self):
         """

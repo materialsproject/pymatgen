@@ -149,8 +149,7 @@ class Lobsterin(dict, MSONable):
         if not found:
             new_key = item
 
-        val = dict.__getitem__(self, new_key)
-        return val
+        return dict.__getitem__(self, new_key)
 
     def diff(self, other):
         """
@@ -643,8 +642,7 @@ class Lobsterin(dict, MSONable):
         if potcar.functional != "PBE":
             raise OSError("We only have BASIS options for PBE so far")
 
-        Potcar_names = [name["symbol"] for name in potcar.spec]
-        return Potcar_names
+        return [name["symbol"] for name in potcar.spec]
 
     @classmethod
     def standard_calculations_from_vasp_files(

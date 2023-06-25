@@ -117,8 +117,7 @@ class DielectricFunctionCalculator(MSONable):
             """Return None if failed."""
             for dtype in dtypes:
                 try:
-                    waveder = Waveder.from_binary(d_ / "WAVEDER", data_type=dtype)
-                    return waveder
+                    return Waveder.from_binary(d_ / "WAVEDER", data_type=dtype)
                 except ValueError as e:
                     if "reshape" in str(e):
                         continue

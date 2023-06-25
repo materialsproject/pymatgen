@@ -1001,8 +1001,7 @@ class Lattice(MSONable):
             x = np.inner(v1, v2) / l1[:, None] / l2
             x[x > 1] = 1
             x[x < -1] = -1
-            angles = np.arccos(x) * 180.0 / pi
-            return angles
+            return np.arccos(x) * 180.0 / pi
 
         alpha_b = np.abs(get_angles(c_b, c_c, l_b, l_c) - alpha) < atol
         beta_b = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < atol
@@ -1784,9 +1783,7 @@ class Lattice(MSONable):
         # Creates a function that uses the symmetry operations in the
         # structure to find Miller indices that might give repetitive slabs
         analyzer = SpacegroupAnalyzer(recp, symprec=symprec)
-        recp_symmops = analyzer.get_symmetry_operations()
-
-        return recp_symmops
+        return analyzer.get_symmetry_operations()
 
 
 def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose: bool = True) -> tuple[int, int, int]:

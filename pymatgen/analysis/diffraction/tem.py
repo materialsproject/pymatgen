@@ -84,8 +84,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             float: Relativistic Wavelength (in angstroms)
         """
         sqr = 2 * sc.m_e * sc.e * 1000 * self.voltage * (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c**2))
-        wavelength_rel = sc.h / np.sqrt(sqr) * (10**10)
-        return wavelength_rel
+        return sc.h / np.sqrt(sqr) * (10**10)
 
     @staticmethod
     def generate_points(coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
@@ -103,8 +102,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         coord_values = np.arange(coord_left, coord_right + 1)
         points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)  # type: ignore
         points_matrix = (np.ravel(points[i]) for i in range(0, 3))
-        result = np.vstack(list(points_matrix)).transpose()
-        return result
+        return np.vstack(list(points_matrix)).transpose()
 
     def zone_axis_filter(
         self, points: list[tuple[int, int, int]] | np.ndarray, laue_zone: int = 0
@@ -125,8 +123,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]  # type: ignore
-        result_tuples = cast(List[Tuple[int, int, int]], [tuple(x) for x in result.tolist()])
-        return result_tuples
+        return cast(List[Tuple[int, int, int]], [tuple(x) for x in result.tolist()])
 
     def get_interplanar_spacings(
         self, structure: Structure, points: list[tuple[int, int, int]] | np.ndarray
@@ -143,8 +140,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         if (0, 0, 0) in points_filtered:
             points_filtered.remove((0, 0, 0))
         interplanar_spacings_val = np.array([structure.lattice.d_hkl(x) for x in points_filtered])
-        interplanar_spacings = dict(zip(points_filtered, interplanar_spacings_val))
-        return interplanar_spacings
+        return dict(zip(points_filtered, interplanar_spacings_val))
 
     def bragg_angles(
         self, interplanar_spacings: dict[tuple[int, int, int], float]
@@ -160,8 +156,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         plane = list(interplanar_spacings)
         interplanar_spacings_val = np.array(list(interplanar_spacings.values()))
         bragg_angles_val = np.arcsin(self.wavelength_rel() / (2 * interplanar_spacings_val))
-        bragg_angles = dict(zip(plane, bragg_angles_val))
-        return bragg_angles
+        return dict(zip(plane, bragg_angles_val))
 
     def get_s2(self, bragg_angles: dict[tuple[int, int, int], float]) -> dict[tuple[int, int, int], float]:
         """
@@ -177,8 +172,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         plane = list(bragg_angles)
         bragg_angles_val = np.array(list(bragg_angles.values()))
         s2_val = (np.sin(bragg_angles_val) / self.wavelength_rel()) ** 2
-        s2 = dict(zip(plane, s2_val))
-        return s2
+        return dict(zip(plane, s2_val))
 
     def x_ray_factors(
         self, structure: Structure, bragg_angles: dict[tuple[int, int, int], float]
@@ -279,8 +273,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         csf = self.cell_scattering_factors(structure, bragg_angles)
         csf_val = np.array(list(csf.values()))
         cell_intensity_val = (csf_val * csf_val.conjugate()).real
-        cell_intensity = dict(zip(bragg_angles, cell_intensity_val))
-        return cell_intensity
+        return dict(zip(bragg_angles, cell_intensity_val))
 
     def get_pattern(
         self,
@@ -320,8 +313,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 "Interplanar Spacing": dot.d_spacing,
             }
             rows_list.append(dict1)
-        df = pd.DataFrame(rows_list, columns=field_names)
-        return df
+        return pd.DataFrame(rows_list, columns=field_names)
 
     def normalized_cell_intensity(
         self, structure: Structure, bragg_angles: dict[tuple[int, int, int], float]
@@ -616,8 +608,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             paper_bgcolor="rgba(100,110,110,0.5)",
             plot_bgcolor="black",
         )
-        fig = go.Figure(data=data, layout=layout)
-        return fig
+        return go.Figure(data=data, layout=layout)
 
     def get_plot_2d_concise(self, structure: Structure) -> go.Figure:
         """

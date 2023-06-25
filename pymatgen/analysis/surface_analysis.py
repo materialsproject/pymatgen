@@ -248,8 +248,7 @@ class SlabEntry(ComputedStructureEntry):
         """
         A_ads = self.surface_area
         A_clean = self.clean_entry.surface_area
-        n = A_ads / A_clean
-        return n
+        return A_ads / A_clean
 
     @property
     def get_monolayer(self):
@@ -1049,9 +1048,7 @@ class SurfaceEnergyPlotter:
 
         # Make the figure look nice
         plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
-        plt = self.chempot_plot_addons(plt, chempot_range, str(ref_delu).split("_")[1], axes, ylim=ylim)
-
-        return plt
+        return self.chempot_plot_addons(plt, chempot_range, str(ref_delu).split("_")[1], axes, ylim=ylim)
 
     def monolayer_vs_BE(self, plot_eads=False):
         """

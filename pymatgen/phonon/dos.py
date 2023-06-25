@@ -58,8 +58,7 @@ class PhononDos(MSONable):
         diff = [self.frequencies[i + 1] - self.frequencies[i] for i in range(len(self.frequencies) - 1)]
         avgdiff = sum(diff) / len(diff)
 
-        smeared_dens = gaussian_filter1d(self.densities, sigma / avgdiff)
-        return smeared_dens
+        return gaussian_filter1d(self.densities, sigma / avgdiff)
 
     def __add__(self, other):
         """
