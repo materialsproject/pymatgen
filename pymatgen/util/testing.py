@@ -68,17 +68,13 @@ class PymatgenTest(unittest.TestCase):
 
     @staticmethod
     def assert_all_close(actual, desired, decimal=7, err_msg="", verbose=True):
-        """
-        Tests if two arrays are almost equal up to some relative or absolute tolerance.
-        """
+        """Tests if two arrays are almost equal up to some relative or absolute tolerance."""
         # TODO (janosh): replace the decimal kwarg with assert_allclose() atol and rtol kwargs
         return assert_allclose(actual, desired, atol=10**-decimal, err_msg=err_msg, verbose=verbose)
 
     @staticmethod
     def assert_str_content_equal(actual, expected):
-        """
-        Tests if two strings are equal, ignoring things like trailing spaces, etc.
-        """
+        """Tests if two strings are equal, ignoring things like trailing spaces, etc."""
         strip_whitespace = {ord(c): None for c in string.whitespace}
         return actual.translate(strip_whitespace) == expected.translate(strip_whitespace)
 
