@@ -348,9 +348,9 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger.debug("Performing complete ordering...")
         all_structures: list[dict[str, float | Structure]] = []
         symprec = 0.2
-        s = SpacegroupAnalyzer(structure, symprec=symprec)
-        self.logger.debug(f"Symmetry of structure is determined to be {s.get_space_group_symbol()}.")
-        sg = s.get_space_group_operations()
+        spga = SpacegroupAnalyzer(structure, symprec=symprec)
+        self.logger.debug(f"Symmetry of structure is determined to be {spga.get_space_group_symbol()}.")
+        sg = spga.get_space_group_operations()
         tested_sites: list[list[PeriodicSite]] = []
         start_time = time.perf_counter()
         self.logger.debug("Performing initial Ewald sum...")

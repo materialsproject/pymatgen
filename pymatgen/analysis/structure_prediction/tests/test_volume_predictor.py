@@ -21,14 +21,14 @@ class RLSVolumePredictorTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_predict(self):
-        s = PymatgenTest.get_structure("CsCl")
+        struct = PymatgenTest.get_structure("CsCl")
         nacl = PymatgenTest.get_structure("CsCl")
         nacl.replace_species({"Cs": "Na"})
         nacl.scale_lattice(184.384551033)
         p = RLSVolumePredictor(radii_type="ionic")
-        assert p.predict(s, nacl) == approx(342.84905395082535)
+        assert p.predict(struct, nacl) == approx(342.84905395082535)
         p = RLSVolumePredictor(radii_type="atomic")
-        assert p.predict(s, nacl) == approx(391.884366481)
+        assert p.predict(struct, nacl) == approx(391.884366481)
         lif = PymatgenTest.get_structure("CsCl")
         lif.replace_species({"Cs": "Li", "Cl": "F"})
         p = RLSVolumePredictor(radii_type="ionic")

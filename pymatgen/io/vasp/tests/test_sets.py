@@ -447,9 +447,9 @@ class MITMPRelaxSetTest(PymatgenTest):
     def test_get_vasp_input(self):
         d = self.mit_set.get_vasp_input()
         assert d["INCAR"]["ISMEAR"] == -5
-        s = self.structure.copy()
-        s.make_supercell(4)
-        paramset = MPRelaxSet(s)
+        struct = self.structure.copy()
+        struct.make_supercell(4)
+        paramset = MPRelaxSet(struct)
         d = paramset.get_vasp_input()
         assert d["INCAR"]["ISMEAR"] == 0
 
@@ -1223,7 +1223,7 @@ class MVLElasticSetTest(PymatgenTest):
 class MVLGWSetTest(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
-        self.s = PymatgenTest.get_structure("Li2O")
+        self.struct = PymatgenTest.get_structure("Li2O")
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -1231,7 +1231,7 @@ class MVLGWSetTest(PymatgenTest):
         shutil.rmtree(self.tmp)
 
     def test_static(self):
-        mvlgwsc = MVLGWSet(self.s)
+        mvlgwsc = MVLGWSet(self.struct)
         incar = mvlgwsc.incar
         assert incar["SIGMA"] == 0.01
         kpoints = mvlgwsc.kpoints

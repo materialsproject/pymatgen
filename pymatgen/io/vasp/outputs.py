@@ -1367,12 +1367,12 @@ class Vasprun(MSONable):
         calculation = []
         istep = {}
         try:
-            s = self._parse_structure(elem.find("structure"))
+            struct = self._parse_structure(elem.find("structure"))
         except AttributeError:  # not all calculations have a structure
-            s = None
+            struct = None
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_varray(va)
-        istep["structure"] = s
+        istep["structure"] = struct
         istep["electronic_steps"] = []
         calculation.append(istep)
         for scstep in elem.findall("scstep"):
@@ -1406,13 +1406,13 @@ class Vasprun(MSONable):
             except AttributeError:  # not all calculations have an energy
                 pass
         try:
-            s = self._parse_structure(elem.find("structure"))
+            struct = self._parse_structure(elem.find("structure"))
         except AttributeError:  # not all calculations have a structure
-            s = None
+            struct = None
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_varray(va)
         istep["electronic_steps"] = esteps
-        istep["structure"] = s
+        istep["structure"] = struct
         elem.clear()
         return istep
 

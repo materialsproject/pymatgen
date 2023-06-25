@@ -322,13 +322,13 @@ class TransformedStructure(MSONable):
                 "Transformation can be created only from POSCAR strings with proper VASP5 element symbols."
             )
         raw_string = re.sub(r"'", '"', poscar_string)
-        s = p.structure
+        struct = p.structure
         source_info = {
             "source": "POSCAR",
             "datetime": str(datetime.datetime.now()),
             "original_file": raw_string,
         }
-        return TransformedStructure(s, transformations, history=[source_info])
+        return TransformedStructure(struct, transformations, history=[source_info])
 
     def as_dict(self) -> dict[str, Any]:
         """Dict representation of the TransformedStructure."""

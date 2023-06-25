@@ -162,9 +162,9 @@ class IStructureTest(PymatgenTest):
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = IStructure(self.lattice, [{"O": 1.0}, {"Mg": 0.8}], coords)
-        assert s.composition.formula == "Mg0.8 O1"
-        assert not s.is_ordered
+        struct = IStructure(self.lattice, [{"O": 1.0}, {"Mg": 0.8}], coords)
+        assert struct.composition.formula == "Mg0.8 O1"
+        assert not struct.is_ordered
 
     def test_get_distance(self):
         assert self.struct.get_distance(0, 1) == approx(2.35, abs=1e-2), "Distance calculated wrongly!"
@@ -185,7 +185,7 @@ class IStructureTest(PymatgenTest):
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = IStructure(
+        struct = IStructure(
             self.lattice,
             [
                 {Species("O", -2, properties={"spin": 3}): 1.0},
@@ -194,11 +194,11 @@ class IStructureTest(PymatgenTest):
             coords,
             site_properties={"magmom": [5, -5]},
         )
-        d = s.as_dict()
+        d = struct.as_dict()
         assert d["sites"][0]["properties"]["magmom"] == 5
         assert d["sites"][0]["species"][0]["properties"]["spin"] == 3
 
-        d = s.as_dict(0)
+        d = struct.as_dict(0)
         assert "volume" not in d["lattice"]
         assert "xyz" not in d["sites"][0]
 
@@ -801,53 +801,53 @@ class StructureTest(PymatgenTest):
         assert struct[1].species_string == "F"
 
     def test_append_insert_remove_replace_substitute(self):
-        s = self.structure
-        s.insert(1, "O", [0.5, 0.5, 0.5])
-        assert s.formula == "Si2 O1"
-        assert s.ntypesp == 2
-        assert s.symbol_set == ("O", "Si")
-        assert s.indices_from_symbol("Si") == (0, 2)
-        assert s.indices_from_symbol("O") == (1,)
-        del s[2]
-        assert s.formula == "Si1 O1"
-        assert s.indices_from_symbol("Si") == (0,)
-        assert s.indices_from_symbol("O") == (1,)
-        s.append("N", [0.25, 0.25, 0.25])
-        assert s.formula == "Si1 N1 O1"
-        assert s.ntypesp == 3
-        assert s.symbol_set == ("N", "O", "Si")
-        assert s.indices_from_symbol("Si") == (0,)
-        assert s.indices_from_symbol("O") == (1,)
-        assert s.indices_from_symbol("N") == (2,)
-        s[0] = "Ge"
-        assert s.formula == "Ge1 N1 O1"
-        assert s.symbol_set == ("Ge", "N", "O")
-        s.replace_species({"Ge": "Si"})
-        assert s.formula == "Si1 N1 O1"
-        assert s.ntypesp == 3
+        struct = self.structure
+        struct.insert(1, "O", [0.5, 0.5, 0.5])
+        assert struct.formula == "Si2 O1"
+        assert struct.ntypesp == 2
+        assert struct.symbol_set == ("O", "Si")
+        assert struct.indices_from_symbol("Si") == (0, 2)
+        assert struct.indices_from_symbol("O") == (1,)
+        del struct[2]
+        assert struct.formula == "Si1 O1"
+        assert struct.indices_from_symbol("Si") == (0,)
+        assert struct.indices_from_symbol("O") == (1,)
+        struct.append("N", [0.25, 0.25, 0.25])
+        assert struct.formula == "Si1 N1 O1"
+        assert struct.ntypesp == 3
+        assert struct.symbol_set == ("N", "O", "Si")
+        assert struct.indices_from_symbol("Si") == (0,)
+        assert struct.indices_from_symbol("O") == (1,)
+        assert struct.indices_from_symbol("N") == (2,)
+        struct[0] = "Ge"
+        assert struct.formula == "Ge1 N1 O1"
+        assert struct.symbol_set == ("Ge", "N", "O")
+        struct.replace_species({"Ge": "Si"})
+        assert struct.formula == "Si1 N1 O1"
+        assert struct.ntypesp == 3
 
-        s.replace_species({"Si": {"Ge": 0.5, "Si": 0.5}})
-        assert s.formula == "Si0.5 Ge0.5 N1 O1"
+        struct.replace_species({"Si": {"Ge": 0.5, "Si": 0.5}})
+        assert struct.formula == "Si0.5 Ge0.5 N1 O1"
         # this should change the .5Si .5Ge sites to .75Si .25Ge
-        s.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
-        assert s.formula == "Si0.75 Ge0.25 N1 O1"
+        struct.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
+        assert struct.formula == "Si0.75 Ge0.25 N1 O1"
 
-        assert s.ntypesp == 4
+        assert struct.ntypesp == 4
 
-        s.replace_species({"Ge": "Si"})
-        s.substitute(1, "hydroxyl")
-        assert s.formula == "Si1 H1 N1 O1"
-        assert s.symbol_set == ("H", "N", "O", "Si")
+        struct.replace_species({"Ge": "Si"})
+        struct.substitute(1, "hydroxyl")
+        assert struct.formula == "Si1 H1 N1 O1"
+        assert struct.symbol_set == ("H", "N", "O", "Si")
         # Distance between O and H
-        assert s.get_distance(2, 3) == approx(0.96)
+        assert struct.get_distance(2, 3) == approx(0.96)
         # Distance between Si and H
-        assert s.get_distance(0, 3) == approx(2.09840889)
+        assert struct.get_distance(0, 3) == approx(2.09840889)
 
-        s.remove_species(["H"])
-        assert s.formula == "Si1 N1 O1"
+        struct.remove_species(["H"])
+        assert struct.formula == "Si1 N1 O1"
 
-        s.remove_sites([1, 2])
-        assert s.formula == "Si1"
+        struct.remove_sites([1, 2])
+        assert struct.formula == "Si1"
 
     def test_add_remove_site_property(self):
         struct = self.structure
@@ -1056,12 +1056,12 @@ class StructureTest(PymatgenTest):
 
     def test_another_supercell(self):
         # this is included b/c for some reason the old algo was failing on it
-        s = self.structure.copy()
-        s.make_supercell([[0, 2, 2], [2, 0, 2], [2, 2, 0]])
-        assert s.formula == "Si32"
-        s = self.structure.copy()
-        s.make_supercell([[0, 2, 0], [1, 0, 0], [0, 0, 1]])
-        assert s.formula == "Si4"
+        struct = self.structure.copy()
+        struct.make_supercell([[0, 2, 2], [2, 0, 2], [2, 2, 0]])
+        assert struct.formula == "Si32"
+        struct = self.structure.copy()
+        struct.make_supercell([[0, 2, 0], [1, 0, 0], [0, 0, 1]])
+        assert struct.formula == "Si4"
 
     def test_to_from_dict(self):
         d = self.structure.as_dict()

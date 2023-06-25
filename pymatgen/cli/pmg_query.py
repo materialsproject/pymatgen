@@ -29,13 +29,13 @@ def do_query(args):
     if args.structure:
         count = 0
         for d in m.query(criteria, properties=["structure", "task_id"]):
-            s = d["structure"]
-            formula = re.sub(r"\s+", "", s.formula)
+            struct = d["structure"]
+            formula = re.sub(r"\s+", "", struct.formula)
             if args.structure == "poscar":
                 fname = f"POSCAR.{d['task_id']}_{formula}"
             else:
                 fname = f"{d['task_id']}-{formula}.{args.structure}"
-            s.to(filename=fname)
+            struct.to(filename=fname)
             count += 1
         print(f"{count} structures written!")
     elif args.entries:

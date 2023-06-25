@@ -380,8 +380,8 @@ class EnumlibAdaptor:
                     transformation = np.dot(new_latt.matrix, inv_org_latt)
                     transformation = [[int(round(cell)) for cell in row] for row in transformation]
                     logger.debug(f"Supercell matrix: {transformation}")
-                    s = ordered_structure * transformation
-                    sites.extend([site.to_unit_cell() for site in s])
+                    struct = ordered_structure * transformation
+                    sites.extend([site.to_unit_cell() for site in struct])
                     super_latt = sites[-1].lattice
                 else:
                     super_latt = new_latt

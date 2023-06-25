@@ -429,17 +429,17 @@ class EnumerateStructureTransformation(AbstractTransformation):
         ewald_matrices = {}
         all_structures = []
         m3gnet_model = None
-        for s in tqdm.tqdm(structures):
-            new_latt = s.lattice
+        for struct in tqdm.tqdm(structures):
+            new_latt = struct.lattice
             transformation = np.dot(new_latt.matrix, inv_latt)
             transformation = tuple(tuple(int(round(cell)) for cell in row) for row in transformation)
             if callable(self.sort_criteria):
-                s, energy = self.sort_criteria(s)
+                struct, energy = self.sort_criteria(struct)
                 all_structures.append(
                     {
-                        "num_sites": len(s),
+                        "num_sites": len(struct),
                         "energy": energy,
-                        "structure": s,
+                        "structure": struct,
                     }
                 )
             elif contains_oxidation_state and self.sort_criteria == "ewald":
@@ -449,8 +449,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     ewald_matrices[transformation] = ewald
                 else:
                     ewald = ewald_matrices[transformation]
-                energy = ewald.compute_sub_structure(s)
-                all_structures.append({"num_sites": len(s), "energy": energy, "structure": s})
+                energy = ewald.compute_sub_structure(struct)
+                all_structures.append({"num_sites": len(struct), "energy": energy, "structure": struct})
             elif self.sort_criteria.startswith("m3gnet"):
                 if self.sort_criteria == "m3gnet_relax":
                     if m3gnet_model is None:
@@ -459,9 +459,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
                         potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
                         m3gnet_model = Relaxer(potential=potential)
-                    relax_results = m3gnet_model.relax(s)
+                    relax_results = m3gnet_model.relax(struct)
                     energy = float(relax_results["trajectory"].energies[-1])
-                    s = relax_results["final_structure"]
+                    struct = relax_results["final_structure"]
                 else:
                     if m3gnet_model is None:
                         import matgl
@@ -471,19 +471,19 @@ class EnumerateStructureTransformation(AbstractTransformation):
                         m3gnet_model = M3GNetCalculator(potential=potential, stress_weight=0.01)
                     from pymatgen.io.ase import AseAtomsAdaptor
 
-                    atoms = AseAtomsAdaptor().get_atoms(s)
+                    atoms = AseAtomsAdaptor().get_atoms(struct)
                     m3gnet_model.calculate(atoms)
                     energy = float(m3gnet_model.results["energy"])
 
                 all_structures.append(
                     {
-                        "num_sites": len(s),
+                        "num_sites": len(struct),
                         "energy": energy,
-                        "structure": s,
+                        "structure": struct,
                     }
                 )
             else:
-                all_structures.append({"num_sites": len(s), "structure": s})
+                all_structures.append({"num_sites": len(struct), "structure": struct})
 
         def sort_func(s):
             return (

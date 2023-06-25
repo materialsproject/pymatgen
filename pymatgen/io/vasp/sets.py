@@ -185,9 +185,9 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
         cif_name = ""
         if include_cif:
-            s = vasp_input["POSCAR"].structure
-            cif_name = f"{output_dir}/{s.formula.replace(' ', '')}.cif"
-            s.to(filename=cif_name)
+            struct = vasp_input["POSCAR"].structure
+            cif_name = f"{output_dir}/{struct.formula.replace(' ', '')}.cif"
+            struct.to(filename=cif_name)
 
         if zip_output:
             filename = type(self).__name__ + ".zip"

@@ -541,9 +541,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # this logic follows emmet.builders.vasp.materials.MaterialsBuilder.filter_and_group_tasks
         structures = []
         for entry in all_entries:
-            s = entry.structure
-            s.entry_id = entry.entry_id
-            structures.append(s)
+            struct = entry.structure
+            struct.entry_id = entry.entry_id
+            structures.append(struct)
 
         # First group by composition, then by spacegroup number, then by structure matching
         for comp, compgroup in groupby(sorted(structures, key=lambda s: s.composition), key=lambda s: s.composition):

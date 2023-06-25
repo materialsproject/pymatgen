@@ -187,9 +187,9 @@ class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         trafo = AutoOxiStateDecorationTransformation()
-        s = trafo.apply_transformation(p.structure)
+        struct = trafo.apply_transformation(p.structure)
         expected_oxi = {"Li": 1, "P": 5, "O": -2, "Fe": 2}
-        for site in s:
+        for site in struct:
             assert site.specie.oxi_state == expected_oxi[site.specie.symbol]
 
     def test_as_from_dict(self):
@@ -271,16 +271,16 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
     def test_apply_transformations_complete_ranking(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-        s = t1.apply_transformation(p.structure)
+        struct = t1.apply_transformation(p.structure)
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
-        assert len(trafo.apply_transformation(s, 10)) == 6
+        assert len(trafo.apply_transformation(struct, 10)) == 6
 
     def test_apply_transformations_best_first(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-        s = t1.apply_transformation(p.structure)
+        struct = t1.apply_transformation(p.structure)
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
-        assert len(trafo.apply_transformation(s)) == 26
+        assert len(trafo.apply_transformation(struct)) == 26
 
 
 class OrderDisorderedStructureTransformationTest(unittest.TestCase):
