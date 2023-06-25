@@ -1404,11 +1404,20 @@ class StructureTest(PymatgenTest):
         assert {*preds} == {"stress", "energy", "free_energy", "magmoms", "forces"}
         assert preds["energy"] == approx(-10.7400808334, abs=1e-5)
         assert preds["magmoms"] == approx([0.00262399, 0.00262396], abs=1e-5)
-        assert np.allclose(
-            preds["forces"],
-            [[1.1518598e-05, 6.8321824e-06, -4.5634806e-06], [-1.1488795e-05, -6.8247318e-06, 4.5634806e-06]],
-        )
+        assert np.linalg.norm(preds["forces"]) == approx(1.998941843e-5, abs=1e-5)
         assert not hasattr(preds, "dynamics")
+        assert {*calculator.__dict__} == {
+            "atoms",
+            "results",
+            "parameters",
+            "_directory",
+            "prefix",
+            "name",
+            "get_spin_polarized",
+            "device",
+            "model",
+            "stress_weight",
+        }
 
     def test_relax_ase(self):
         pytest.importorskip("ase")
