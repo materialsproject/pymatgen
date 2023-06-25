@@ -4162,8 +4162,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
         Returns:
-            Structure | tuple[Structure, Trajectory]: Relaxed structure or 2-tuple of Structure
-                and ASE/M3GNet TrajectoryObserver if return_trajectory=True.
+            Structure | tuple[Structure, Trajectory]: Relaxed structure or if return_trajectory=True,
+                2-tuple of Structure and matgl TrajectoryObserver.
         """
         return self._relax(
             calculator,
@@ -4655,7 +4655,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         opt_kwargs: dict | None = None,
         return_trajectory: bool = False,
         verbose: bool = False,
-    ) -> Molecule | tuple[Molecule, TrajectoryObserver | Trajectory]:
+    ) -> Molecule | tuple[Molecule, TrajectoryObserver]:
         """
         Performs a molecule relaxation using an ASE calculator.
 
@@ -4672,8 +4672,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             verbose (bool): whether to print out relaxation steps. Defaults to False.
 
         Returns:
-            Molecule | tuple[Molecule, Trajectory]: Relaxed Molecule or 2-tuple of Molecule
-                and ASE/M3GNet TrajectoryObserver if return_trajectory=True.
+            Molecule | tuple[Molecule, Trajectory]: Relaxed Molecule or if return_trajectory=True,
+                2-tuple of Molecule and ASE TrajectoryObserver.
         """
         return self._relax(
             calculator,
