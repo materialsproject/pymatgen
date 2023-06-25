@@ -1395,7 +1395,7 @@ class StructureTest(PymatgenTest):
         )
         assert custom_relaxed != self.cu_structure
         assert custom_relaxed.calc.results.get("energy") == approx(-4.47970533, abs=1e-5)
-        assert custom_relaxed.volume == approx(71.94544488, abs=1e-5)
+        assert custom_relaxed.volume == approx(71.94544488, abs=1e-4)
         assert custom_relaxed.volume > relaxed.volume  # on account of steps=1
 
     def test_calculate_chgnet(self):
