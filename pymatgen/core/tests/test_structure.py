@@ -533,15 +533,17 @@ Direct
         assert len(neigh_sites) == 1
 
     def test_get_neighbor_list(self):
-        s = self.struct
-        c_indices1, c_indices2, c_offsets, c_distances = s.get_neighbor_list(3)
-        p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
+        struct = self.struct
+        c_indices1, c_indices2, c_offsets, c_distances = struct.get_neighbor_list(3)
+        p_indices1, p_indices2, p_offsets, p_distances = struct._get_neighbor_list_py(3)
         self.assert_all_close(sorted(c_distances), sorted(p_distances))
 
-        s = Structure(s.lattice, s.species, s.frac_coords)
-        s.apply_strain(0.01)
-        c_indices1, c_indices2, c_offsets, c_distances = s.get_neighbor_list(3)
-        p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
+        # test mutable structure after applying strain (which makes lattice.matrix array no longer contiguous)
+        # https://github.com/materialsproject/pymatgen/pull/3108
+        mutable_struct = Structure.from_sites(struct)
+        mutable_struct.apply_strain(0.01)
+        c_indices1, c_indices2, c_offsets, c_distances = mutable_struct.get_neighbor_list(3)
+        p_indices1, p_indices2, p_offsets, p_distances = mutable_struct._get_neighbor_list_py(3)
         self.assert_all_close(sorted(c_distances), sorted(p_distances))
 
     # @skipIf(not os.getenv("CI"), "Only run this in CI tests")
