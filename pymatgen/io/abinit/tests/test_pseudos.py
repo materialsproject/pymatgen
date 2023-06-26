@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import collections
@@ -62,7 +58,7 @@ class PseudoTestCase(PymatgenTest):
                 self.serialize_with_pickle(pseudo, test_eq=False)
 
                 # Test MSONable
-                self.assertMSONable(pseudo)
+                self.assert_msonable(pseudo)
 
         # HGH pseudos
         pseudo = self.Si_hgh
@@ -111,9 +107,11 @@ class PseudoTestCase(PymatgenTest):
         assert isinstance(oxygen.as_dict(), dict)
 
         assert oxygen.ispaw
-        assert oxygen.symbol == "O" and (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6), oxygen.Z_val == 6
+        assert oxygen.symbol == "O"
+        assert (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6), oxygen.Z_val == 6
 
-        assert oxygen.xc.type == "GGA" and oxygen.xc.name == "PBE"
+        assert oxygen.xc.type == "GGA"
+        assert oxygen.xc.name == "PBE"
         assert oxygen.supports_soc
         assert oxygen.md5 is not None
         assert oxygen.paw_radius == approx(1.4146523028)
@@ -121,11 +119,12 @@ class PseudoTestCase(PymatgenTest):
         # Test pickle
         new_objs = self.serialize_with_pickle(oxygen, test_eq=False)
         # Test MSONable
-        self.assertMSONable(oxygen)
+        self.assert_msonable(oxygen)
 
         for o in new_objs:
             assert o.ispaw
-            assert o.symbol == "O" and (o.Z, o.core, o.valence) == (8, 2, 6), o.Z_val == 6
+            assert o.symbol == "O"
+            assert (o.Z, o.core, o.valence) == (8, 2, 6), o.Z_val == 6
 
             assert o.paw_radius == approx(1.4146523028)
 
@@ -151,7 +150,7 @@ class PseudoTestCase(PymatgenTest):
 
         # Data persistence
         self.serialize_with_pickle(ger, test_eq=False)
-        self.assertMSONable(ger)
+        self.assert_msonable(ger)
 
     def test_oncvpsp_pseudo_fr(self):
         """
@@ -163,7 +162,7 @@ class PseudoTestCase(PymatgenTest):
 
         # Data persistence
         self.serialize_with_pickle(pb, test_eq=False)
-        self.assertMSONable(pb)
+        self.assert_msonable(pb)
 
         assert pb.symbol == "Pb"
         assert pb.Z == 82.0
@@ -183,7 +182,8 @@ class PseudoTableTest(PymatgenTest):
         assert len(table) == 3
         for pseudo in table:
             assert pseudo.isnc
-        assert table.allnc and not table.allpaw
+        assert table.allnc
+        assert not table.allpaw
         assert table.zlist == [14]
 
         # Data persistence
@@ -191,10 +191,11 @@ class PseudoTableTest(PymatgenTest):
 
         d = table.as_dict()
         PseudoTable.from_dict(d)
-        self.assertMSONable(table)
+        self.assert_msonable(table)
 
         selected = table.select_symbols("Si")
-        assert len(selected) == len(table) and selected.__class__ is table.__class__
+        assert len(selected) == len(table)
+        assert selected.__class__ is table.__class__
 
         with pytest.raises(ValueError):
             table.pseudos_with_symbols("Si")

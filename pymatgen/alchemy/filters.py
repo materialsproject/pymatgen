@@ -1,21 +1,19 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-This module defines filters for Transmuter object.
-"""
+"""This module defines filters for Transmuter object."""
 
 from __future__ import annotations
 
 import abc
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):
@@ -26,7 +24,7 @@ class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -54,14 +52,14 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             strict_compare: if true, compares objects by specie or element
                 object if false, compares atomic number
             exclude: If true, returns false for any structures with the specie
-                (excludes them from the Transmuter)
+                (excludes them from the Transmuter).
         """
         self._species = list(map(get_el_sp, species))
         self._strict = strict_compare
         self._AND = AND
         self._exclude = exclude
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -98,9 +96,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         )
 
     def as_dict(self):
-        """
-        Returns: MSONAble dict
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -113,15 +109,15 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation
+            dct (dict): Dict representation.
 
         Returns:
             Filter
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class SpecieProximityFilter(AbstractStructureFilter):
@@ -142,7 +138,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         """
         self.specie_and_min_dist = {get_el_sp(k): v for k, v in specie_and_min_dist_dict.items()}
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -161,15 +157,12 @@ class SpecieProximityFilter(AbstractStructureFilter):
                 nn = structure.get_neighbors(site, max_r)
                 for sp in sp_to_test:
                     for nn_site, dist, *_ in nn:
-                        if sp in nn_site.species:
-                            if dist < self.specie_and_min_dist[sp]:
-                                return False
+                        if sp in nn_site.species and dist < self.specie_and_min_dist[sp]:
+                            return False
         return True
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -177,23 +170,21 @@ class SpecieProximityFilter(AbstractStructureFilter):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict representation
+            dct (dict): Dict representation.
 
         Returns:
             Filter
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class RemoveDuplicatesFilter(AbstractStructureFilter):
-    """
-    This filter removes exact duplicate structures from the transmuter.
-    """
+    """This filter removes exact duplicate structures from the transmuter."""
 
-    def __init__(self, structure_matcher: dict | StructureMatcher | None = None, symprec: float = None) -> None:
+    def __init__(self, structure_matcher: dict | StructureMatcher | None = None, symprec: float | None = None) -> None:
         """
         Remove duplicate structures based on the structure matcher
         and symmetry (if symprec is given).
@@ -208,16 +199,16 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         self.symprec = symprec
         self.structure_list: dict[str, list[Structure]] = defaultdict(list)
         if not isinstance(structure_matcher, (dict, StructureMatcher, type(None))):
-            raise ValueError(f"structure_matcher must be a dict, StructureMatcher or None, got {structure_matcher}")
+            raise ValueError(f"{structure_matcher=} must be a dict, StructureMatcher or None")
         if isinstance(structure_matcher, dict):
             self.structure_matcher = StructureMatcher.from_dict(structure_matcher)
         else:
             self.structure_matcher = structure_matcher or StructureMatcher(comparator=ElementComparator())
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Args:
-            structure (Structure): Input structure to test
+            structure (Structure): Input structure to test.
 
         Returns: True if structure is not in list.
         """
@@ -226,23 +217,22 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
             self.structure_list[hash].append(structure)
             return True
 
-        def get_spg_num(struct: structure) -> int:
+        def get_spg_num(struct: Structure) -> int:
             finder = SpacegroupAnalyzer(struct, symprec=self.symprec)
             return finder.get_space_group_number()
 
         for s in self.structure_list[hash]:
-            if self.symprec is None or get_spg_num(s) == get_spg_num(structure):
-                if self.structure_matcher.fit(s, structure):
-                    return False
+            if (self.symprec is None or get_spg_num(s) == get_spg_num(structure)) and self.structure_matcher.fit(
+                s, structure
+            ):
+                return False
 
         self.structure_list[hash].append(structure)
         return True
 
 
 class RemoveExistingFilter(AbstractStructureFilter):
-    """
-    This filter removes structures existing in a given list from the transmuter.
-    """
+    """This filter removes structures existing in a given list from the transmuter."""
 
     def __init__(self, existing_structures, structure_matcher=None, symprec=None):
         """
@@ -265,7 +255,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
         else:
             self.structure_matcher = structure_matcher or StructureMatcher(comparator=ElementComparator())
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -280,20 +270,19 @@ class RemoveExistingFilter(AbstractStructureFilter):
             return finder.get_space_group_number()
 
         for s in self.existing_structures:
-            if self.structure_matcher._comparator.get_hash(
-                structure.composition
-            ) == self.structure_matcher._comparator.get_hash(s.composition):
-                if self.symprec is None or get_sg(s) == get_sg(structure):
-                    if self.structure_matcher.fit(s, structure):
-                        return False
+            if (
+                self.structure_matcher._comparator.get_hash(structure.composition)
+                == self.structure_matcher._comparator.get_hash(s.composition)
+                and self.symprec is None
+                or get_sg(s) == get_sg(structure)
+            ) and self.structure_matcher.fit(s, structure):
+                return False
 
         self.structure_list.append(structure)
         return True
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -310,11 +299,9 @@ class ChargeBalanceFilter(AbstractStructureFilter):
     """
 
     def __init__(self):
-        """
-        No args required.
-        """
+        """No args required."""
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 
@@ -348,7 +335,7 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
         self.sp2 = get_el_sp(sp2)
         self.max_dist = max_dist
 
-    def test(self, structure):
+    def test(self, structure: Structure):
         """
         Method to execute the test.
 

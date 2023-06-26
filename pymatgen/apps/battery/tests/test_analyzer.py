@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import pytest
 from pytest import approx
@@ -13,14 +12,14 @@ from pymatgen.util.testing import PymatgenTest
 
 class BatteryAnalyzerTest(PymatgenTest):
     def load_from_cif(self, filename, oxidations, working_ion="Li"):
-        s = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, filename))
-        s.add_oxidation_state_by_element(oxidations)
-        return BatteryAnalyzer(s, working_ion)
+        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, filename))
+        struct.add_oxidation_state_by_element(oxidations)
+        return BatteryAnalyzer(struct, working_ion)
 
     def load_from_internal(self, name, oxidations, working_ion="Li"):
-        s = self.get_structure(name).copy()
-        s.add_oxidation_state_by_element(oxidations)
-        return BatteryAnalyzer(s, working_ion)
+        struct = self.get_structure(name).copy()
+        struct.add_oxidation_state_by_element(oxidations)
+        return BatteryAnalyzer(struct, working_ion)
 
     def setUp(self):
         self.lifepo4 = self.load_from_internal("LiFePO4", {"Li": 1, "Fe": 2, "P": 5, "O": -2})
@@ -36,9 +35,9 @@ class BatteryAnalyzerTest(PymatgenTest):
         self.mgnif6 = self.load_from_cif("MgNiF6.cif", {"Mg": 2, "Ni": 4, "F": -1}, working_ion="F")
 
     def test_oxid_check(self):
-        s = self.get_structure("LiFePO4")
+        struct = self.get_structure("LiFePO4")
         with pytest.raises(ValueError):
-            BatteryAnalyzer(s, "Li")
+            BatteryAnalyzer(struct, "Li")
 
     def test_capacitygrav_calculations(self):
         lifepo4_cap = 169.89053  # same as fepo4 cap
@@ -86,14 +85,10 @@ class BatteryAnalyzerTest(PymatgenTest):
         assert self.fepo4.get_max_capvol(volume=self.lifepo4.struc_oxid.volume) == approx(lifepo4_cap, abs=1e-3)
 
     def test_ion_removal(self):
-        assert self.lifemnpo4.get_removals_int_oxid() == {1.0, 2.0, 3.0, 4.0}
+        assert self.lifemnpo4.get_removals_int_oxid() == {1, 2, 3, 4}
 
-        assert self.li8nicofe208.get_removals_int_oxid() == {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0}
+        assert self.li8nicofe208.get_removals_int_oxid() == {1, 2, 3, 4, 5, 6, 7, 8}
 
-        assert self.li3v2p3o12.get_removals_int_oxid() == {4.0, 6.0}
+        assert self.li3v2p3o12.get_removals_int_oxid() == {4, 6}
 
-        assert self.mgnif6.get_removals_int_oxid() == {1.0, 2.0}
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert self.mgnif6.get_removals_int_oxid() == {1, 2}

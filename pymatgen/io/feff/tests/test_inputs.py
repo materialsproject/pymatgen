@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import os
@@ -394,7 +390,3 @@ class PathsTest(unittest.TestCase):
         ]
         answer = "\n".join(lines)
         assert answer == str(self.paths)
-
-
-if __name__ == "__main__":
-    unittest.main()

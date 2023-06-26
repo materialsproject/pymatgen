@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides input and output mechanisms
 for the xr file format, which is a modified CSSR
@@ -30,11 +27,9 @@ __date__ = "June 23, 2016"
 
 
 class Xr:
-    """
-    Basic object for working with xr files.
-    """
+    """Basic object for working with xr files."""
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
         Args:
             structure (Structure/IStructure): Structure object to create the
@@ -55,7 +50,7 @@ class Xr:
         ]
         # There are actually 10 more fields per site
         # in a typical xr file from GULP, for example.
-        for idx, site in enumerate(self.structure.sites):
+        for idx, site in enumerate(self.structure):
             output.append(f"{idx + 1} {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
         mat = self.structure.lattice.matrix
         for _ in range(2):
@@ -132,7 +127,7 @@ class Xr:
         coords = []
         for j in range(nsites):
             m = re.match(
-                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" + r"([0-9\-\.]+)",
+                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)",
                 lines[4 + j].strip(),
             )
             if m:

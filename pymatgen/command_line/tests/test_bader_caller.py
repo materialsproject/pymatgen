@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -10,11 +7,7 @@ import warnings
 import numpy as np
 from pytest import approx
 
-from pymatgen.command_line.bader_caller import (
-    BaderAnalysis,
-    bader_analysis_from_path,
-    which,
-)
+from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path, which
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -60,8 +53,8 @@ class BaderAnalysisTest(unittest.TestCase):
         for i in range(14):
             assert ans[i] == approx(analysis.get_charge_transfer(i), abs=1e-3)
         assert analysis.get_partial_charge(0) == -analysis.get_charge_transfer(0)
-        s = analysis.get_oxidation_state_decorated_structure()
-        assert s[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
+        struct = analysis.get_oxidation_state_decorated_structure()
+        assert struct[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
 
         # make sure bader still runs without reference file
         analysis = BaderAnalysis(chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"))
@@ -131,7 +124,3 @@ class BaderAnalysisTest(unittest.TestCase):
         assert np.sum(analysis.chgcar.data["total"]) == approx(
             np.sum([np.sum(d["data"]) for d in analysis.atomic_densities])
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

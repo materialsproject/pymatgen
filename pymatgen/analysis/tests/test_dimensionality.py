@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 import warnings
 
 import networkx as nx
@@ -50,7 +49,7 @@ class LarsenDimensionalityTest(PymatgenTest):
         mol_structure = Structure(
             [[-2.316, 2.316, 2.160], [2.316, -2.316, 2.160], [2.316, 2.316, -2.160]],
             ["H", "C", "N"],
-            [[0.752, 0.752, 0.000], [0.004, 0.004, 0.0], [0.272, 0.272, 0.0]],
+            [[0.752, 0.752, 0], [0.004, 0.004, 0.0], [0.272, 0.272, 0.0]],
         )
         self.mol_structure = cnn.get_bonded_structure(mol_structure)
         warnings.simplefilter("ignore")
@@ -111,7 +110,7 @@ class LarsenDimensionalityTest(PymatgenTest):
 
         # test catching non zero dimensionality graphs
         comp_graphs = [self.graphite.graph.subgraph(c) for c in nx.weakly_connected_components(self.graphite.graph)]
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Graph component is not zero-dimensional"):
             zero_d_graph_to_molecule_graph(self.graphite, comp_graphs[0])
 
         # test for a troublesome structure
@@ -124,16 +123,16 @@ class LarsenDimensionalityTest(PymatgenTest):
 
 class CheonDimensionalityTest(PymatgenTest):
     def test_get_dimensionality(self):
-        s = self.get_structure("LiFePO4")
-        assert get_dimensionality_cheon(s) == "intercalated ion"
+        struct = self.get_structure("LiFePO4")
+        assert get_dimensionality_cheon(struct) == "intercalated ion"
 
-        s = self.get_structure("Graphite")
-        assert get_dimensionality_cheon(s) == "2D"
+        struct = self.get_structure("Graphite")
+        assert get_dimensionality_cheon(struct) == "2D"
 
     def test_get_dimensionality_with_bonds(self):
-        s = self.get_structure("CsCl")
-        assert get_dimensionality_cheon(s) == "intercalated ion"
-        assert get_dimensionality_cheon(s, ldict={"Cs": 3.7, "Cl": 3}) == "3D"
+        struct = self.get_structure("CsCl")
+        assert get_dimensionality_cheon(struct) == "intercalated ion"
+        assert get_dimensionality_cheon(struct, ldict={"Cs": 3.7, "Cl": 3}) == "3D"
 
     def test_tricky_structure(self):
         tricky_structure = Structure(
@@ -162,17 +161,13 @@ class CheonDimensionalityTest(PymatgenTest):
 
 class GoraiDimensionalityTest(PymatgenTest):
     def test_get_dimensionality(self):
-        s = self.get_structure("LiFePO4")
-        assert get_dimensionality_gorai(s) == 3
+        struct = self.get_structure("LiFePO4")
+        assert get_dimensionality_gorai(struct) == 3
 
-        s = self.get_structure("Graphite")
-        assert get_dimensionality_gorai(s) == 2
+        struct = self.get_structure("Graphite")
+        assert get_dimensionality_gorai(struct) == 2
 
     def test_get_dimensionality_with_bonds(self):
-        s = self.get_structure("CsCl")
-        assert get_dimensionality_gorai(s) == 1
-        assert get_dimensionality_gorai(s, bonds={("Cs", "Cl"): 3.7}) == 3
-
-
-if __name__ == "__main__":
-    unittest.main()
+        struct = self.get_structure("CsCl")
+        assert get_dimensionality_gorai(struct) == 1
+        assert get_dimensionality_gorai(struct, bonds={("Cs", "Cl"): 3.7}) == 3

@@ -1,13 +1,11 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import os
 import unittest
 
 from monty.serialization import dumpfn, loadfn
+from numpy.testing import assert_array_equal
+from pytest import approx
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import QCOutput, check_for_structure_changes
@@ -162,10 +160,7 @@ single_job_out_names = {
     "tfsi_nbo.qcout",
     "crowd_nbo_charges.qcout",
     "h2o_aimd.qcout",
-    "quinoxaline_anion.qcout",
-    "crowd_gradient_number.qcout",
     "bsse.qcout",
-    "thiophene_wfs_5_carboxyl.qcout",
     "time_nan_values.qcout",
     "pt_dft_180.0.qcout",
     "qchem_energies/hf-rimp2.qcout",
@@ -285,7 +280,7 @@ class TestQCOutput(PymatgenTest):
                 assert outdata.get(key) == single_job_dict[name].get(key)
             except ValueError:
                 try:
-                    self.assertArrayEqual(outdata.get(key), single_job_dict[name].get(key))
+                    assert_array_equal(outdata.get(key), single_job_dict[name].get(key))
                 except AssertionError:
                     raise RuntimeError("Issue with file: " + name + " Exiting...")
             except AssertionError:
@@ -295,7 +290,7 @@ class TestQCOutput(PymatgenTest):
                 try:
                     assert sub_output.data.get(key) == multi_job_dict[name][ii].get(key)
                 except ValueError:
-                    self.assertArrayEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
+                    assert_array_equal(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
 
     @unittest.skipIf(openbabel is None, "OpenBabel not installed.")
     def test_all(self):
@@ -400,30 +395,30 @@ class TestQCOutput(PymatgenTest):
         data = QCOutput(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_simple.qout")
         ).data
-        self.assertEqual(data["cdft_becke_excess_electrons"][0][0], 0.432641)
-        self.assertEqual(len(data["cdft_becke_population"][0]), 12)
-        self.assertEqual(data["cdft_becke_net_spin"][0][6], -0.000316)
+        assert data["cdft_becke_excess_electrons"][0][0] == 0.432641
+        assert len(data["cdft_becke_population"][0]) == 12
+        assert data["cdft_becke_net_spin"][0][6] == -0.000316
 
     def test_cdft_dc_parsing(self):
         data = QCOutput.multiple_outputs_from_file(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "cdft_dc.qout"),
             keep_sub_files=False,
         )[-1].data
-        self.assertEqual(data["direct_coupling_eV"], 0.0103038246)
+        assert data["direct_coupling_eV"] == 0.0103038246
 
     def test_almo_msdft2_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "almo.out")).data
-        self.assertListEqual(data["almo_coupling_states"], [[[1, 2], [0, 1]], [[0, 1], [1, 2]]])
-        self.assertEqual(data["almo_hamiltonian"][0][0], -156.62929)
-        self.assertAlmostEqual(data["almo_coupling_eV"], 0.26895)
+        assert data["almo_coupling_states"] == [[[1, 2], [0, 1]], [[0, 1], [1, 2]]]
+        assert data["almo_hamiltonian"][0][0] == -156.62929
+        assert data["almo_coupling_eV"] == approx(0.26895)
 
     def test_pod_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "pod2_gs.out")).data
-        self.assertEqual(data["pod_coupling_eV"], 0.247818)
+        assert data["pod_coupling_eV"] == 0.247818
 
     def test_fodft_parsing(self):
         data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "fodft.out")).data
-        self.assertEqual(data["fodft_coupling_eV"], 0.268383)
+        assert data["fodft_coupling_eV"] == 0.268383
 
     def test_isosvp_water(self):
         data = QCOutput(

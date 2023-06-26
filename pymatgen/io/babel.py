@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 OpenBabel interface module, which opens up access to the hundreds of file
 formats supported by OpenBabel. Requires openbabel with python bindings to be
@@ -40,9 +37,8 @@ class BabelMolAdaptor:
 
     @requires(
         openbabel,
-        "BabelMolAdaptor requires openbabel to be installed with "
-        "Python bindings. Please get it at http://openbabel.org "
-        "(version >=3.0.0).",
+        "BabelMolAdaptor requires openbabel to be installed with Python bindings. "
+        "Please get it at http://openbabel.org (version >=3.0.0).",
     )
     def __init__(self, mol):
         """
@@ -59,24 +55,24 @@ class BabelMolAdaptor:
             # the correct OBMol representation to do things like force field
             # optimization. So we go through the indirect route of creating
             # an XYZ file and reading in that file.
-            obmol = openbabel.OBMol()
-            obmol.BeginModify()
+            ob_mol = openbabel.OBMol()
+            ob_mol.BeginModify()
             for site in mol:
                 coords = list(site.coords)
-                atomno = site.specie.Z
-                obatom = openbabel.OBAtom()
-                obatom.thisown = 0
-                obatom.SetAtomicNum(atomno)
-                obatom.SetVector(*coords)
-                obmol.AddAtom(obatom)
-                del obatom
-            obmol.ConnectTheDots()
-            obmol.PerceiveBondOrders()
-            obmol.SetTotalSpinMultiplicity(mol.spin_multiplicity)
-            obmol.SetTotalCharge(int(mol.charge))
-            obmol.Center()
-            obmol.EndModify()
-            self._obmol = obmol
+                atom_no = site.specie.Z
+                ob_atom = openbabel.OBAtom()
+                ob_atom.thisown = 0
+                ob_atom.SetAtomicNum(atom_no)
+                ob_atom.SetVector(*coords)
+                ob_mol.AddAtom(ob_atom)
+                del ob_atom
+            ob_mol.ConnectTheDots()
+            ob_mol.PerceiveBondOrders()
+            ob_mol.SetTotalSpinMultiplicity(mol.spin_multiplicity)
+            ob_mol.SetTotalCharge(int(mol.charge))
+            ob_mol.Center()
+            ob_mol.EndModify()
+            self._obmol = ob_mol
         elif isinstance(mol, openbabel.OBMol):
             self._obmol = mol
         elif isinstance(mol, pb.Molecule):
@@ -84,9 +80,7 @@ class BabelMolAdaptor:
 
     @property
     def pymatgen_mol(self):
-        """
-        Returns pymatgen Molecule object.
-        """
+        """Returns pymatgen Molecule object."""
         sp = []
         coords = []
         for atom in openbabel.OBMolAtomIter(self._obmol):
@@ -96,9 +90,7 @@ class BabelMolAdaptor:
 
     @property
     def openbabel_mol(self):
-        """
-        Returns OpenBabel's OBMol.
-        """
+        """Returns OpenBabel's OBMol."""
         return self._obmol
 
     def localopt(self, forcefield="mmff94", steps=500):
@@ -138,14 +130,12 @@ class BabelMolAdaptor:
         self._obmol = pbmol.OBMol
 
     def add_hydrogen(self):
-        """
-        Add hydrogens (make all hydrogen explicit).
-        """
+        """Add hydrogens (make all hydrogen explicit)."""
         self._obmol.AddHydrogens()
 
     def remove_bond(self, idx1, idx2):
         """
-        Remove a bond from an openbabel molecule
+        Remove a bond from an openbabel molecule.
 
         Args:
             idx1: The atom index of one of the atoms participating the in bond
@@ -186,7 +176,7 @@ class BabelMolAdaptor:
         ff = openbabel.OBForceField_FindType(forcefield)
         if ff == 0:
             warnings.warn(
-                f"This input forcefield {forcefield} is not supported "
+                f"This input {forcefield=} is not supported "
                 "in openbabel. The forcefield will be reset as "
                 "default 'mmff94' for now."
             )
@@ -267,10 +257,7 @@ class BabelMolAdaptor:
 
         ff = openbabel.OBForceField_FindType(forcefield)
         if ff == 0:
-            print(
-                f"Could not find forcefield {forcefield} in openbabel, the forcefield "
-                "will be reset as default 'mmff94'"
-            )
+            print(f"Could not find {forcefield=} in openbabel, the forcefield will be reset as default 'mmff94'")
             ff = openbabel.OBForceField_FindType("mmff94")
 
         if freeze_atoms:
@@ -300,9 +287,7 @@ class BabelMolAdaptor:
 
     @property
     def pybel_mol(self):
-        """
-        Returns Pybel's Molecule object.
-        """
+        """Returns Pybel's Molecule object."""
         return pb.Molecule(self._obmol)
 
     def write_file(self, filename, file_format="xyz"):

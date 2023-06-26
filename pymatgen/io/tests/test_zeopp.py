@@ -1,11 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import os
-import re
 import unittest
 
 from pytest import approx
@@ -13,14 +8,12 @@ from pytest import approx
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.zeopp import (
     ZeoCssr,
     ZeoVoronoiXYZ,
     get_free_sphere_params,
     get_high_accuracy_voronoi_nodes,
-    get_void_volume_surfarea,
     get_voronoi_nodes,
 )
 from pymatgen.util.testing import PymatgenTest
@@ -82,7 +75,7 @@ class ZeoCssrTest(unittest.TestCase):
         assert isinstance(zeocssr.structure, Structure)
 
 
-# @unittest.skipIf(not zeo, "zeo not present.")
+@unittest.skipIf(not zeo, "zeo not present.")
 class ZeoCssrOxiTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
@@ -142,15 +135,15 @@ class ZeoVoronoiXYZTest(unittest.TestCase):
         self.xyz = ZeoVoronoiXYZ(self.mol)
 
     def test_str(self):
-        ans = """5
+        expected = """5
 H4 C1
 C 0.000000 0.000000 0.000000 0.400000
 H 1.089000 0.000000 0.000000 0.200000
 H -0.363000 1.026719 0.000000 0.200000
 H -0.363000 -0.513360 -0.889165 0.200000
 H -0.363000 -0.513360 0.889165 0.200000"""
-        assert str(self.xyz) == ans
-        assert str(self.xyz) == ans
+        assert str(self.xyz) == expected
+        assert str(self.xyz) == expected
 
     def test_from_file(self):
         filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI_voro.xyz")
@@ -166,7 +159,7 @@ class GetVoronoiNodesTest(unittest.TestCase):
         self.structure = p.structure
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
-        el = [site.species_string for site in self.structure.sites]
+        el = [site.species_string for site in self.structure]
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
         for k, v in valence_dict.items():
@@ -175,16 +168,12 @@ class GetVoronoiNodesTest(unittest.TestCase):
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        (
-            vor_node_struct,
-            vor_edge_center_struct,
-            vor_face_center_struct,
-        ) = get_voronoi_nodes(self.structure, self.rad_dict)
+        vor_node_struct, vor_edge_center_struct, vor_face_center_struct = get_voronoi_nodes(
+            self.structure, self.rad_dict
+        )
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
         assert isinstance(vor_face_center_struct, Structure)
-        print(len(vor_node_struct.sites))
-        print(len(vor_face_center_struct.sites))
 
 
 @unittest.skip("file free_sph.cif not present")
@@ -213,27 +202,21 @@ class GetFreeSphereParamsTest(unittest.TestCase):
 class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
-        p = Poscar.from_file(filepath)
-        self.structure = p.structure
+        poscar = Poscar.from_file(filepath)
+        self.structure = poscar.structure
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
-        el = [site.species_string for site in self.structure.sites]
+        el = [site.species_string for site in self.structure]
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
-        for k, v in valence_dict.items():
-            self.rad_dict[k] = float(Species(k, v).ionic_radius)
+        for key, val in valence_dict.items():
+            self.rad_dict[key] = float(Species(key, val).ionic_radius)
 
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        # vor_node_struct, vor_ec_struct, vor_fc_struct = \
-        #    get_high_accuracy_voronoi_nodes(self.structure, self.rad_dict)
         vor_node_struct = get_high_accuracy_voronoi_nodes(self.structure, self.rad_dict)
         assert isinstance(vor_node_struct, Structure)
-        # self.assertIsInstance(vor_ec_struct, Structure)
-        # self.assertIsInstance(vor_fc_struct, Structure)
-        print(len(vor_node_struct.sites))
-        # print(len(vor_fc_struct.sites))
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -247,47 +230,16 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         valences = bv.get_valences(self.structure)
         radii = []
         for idx, valence in enumerate(valences):
-            el = self.structure.sites[idx].specie.symbol
+            el = self.structure[idx].specie.symbol
             radius = Species(el, valence).ionic_radius
             radii.append(radius)
-        el = [site.species_string for site in self.structure.sites]
+        el = [site.species_string for site in self.structure]
         self.rad_dict = dict(zip(el, radii))
-        for el in self.rad_dict:
-            print((el, self.rad_dict[el].real))
 
     def test_get_voronoi_nodes(self):
-        (
-            vor_node_struct,
-            vor_edge_center_struct,
-            vor_face_center_struct,
-        ) = get_voronoi_nodes(self.structure, self.rad_dict)
+        vor_node_struct, vor_edge_center_struct, vor_face_center_struct = get_voronoi_nodes(
+            self.structure, self.rad_dict
+        )
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
         assert isinstance(vor_face_center_struct, Structure)
-
-
-@unittest.skip("The function is deprecated")
-class GetVoidVolumeSurfaceTest(unittest.TestCase):
-    def setUp(self):
-        filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif")
-        p = CifParser(filepath1).get_structures(False)[0]
-        bv = BVAnalyzer()
-        valences = bv.get_valences(p)
-        el = [site.species_string for site in p.sites]
-        val_dict = dict(zip(el, valences))
-        self._radii = {}
-        for k, v in val_dict.items():
-            k1 = re.sub(r"[1-9,+,\-]", "", k)
-            self._radii[k1] = float(Species(k1, v).ionic_radius)
-        p.remove(0)
-        self._vac_struct = p
-
-    def test_void_volume_surface_area(self):
-        vol, sa = get_void_volume_surfarea(self._vac_struct, self._radii)
-        # print "vol:  ", vol, "sa:  ", sa
-        assert isinstance(vol, float)
-        assert isinstance(sa, float)
-
-
-if __name__ == "__main__":
-    unittest.main()

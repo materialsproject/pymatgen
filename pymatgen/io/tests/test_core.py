@@ -1,13 +1,10 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
+import copy
 import os
 
 import pytest
 from monty.serialization import MontyDecoder
-from monty.tempfile import ScratchDir
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser, CifWriter
@@ -20,7 +17,7 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR)
 class StructInputFile(InputFile):
     """Test implementation of an InputFile object for CIF."""
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         self.structure = structure
 
     def get_string(self) -> str:
@@ -46,7 +43,7 @@ class FakeClass:
         return f"{self.a}\n{self.b}"
 
 
-class TestInputFile:
+class TestInputFile(PymatgenTest):
     def test_file_io(self):
         with pytest.raises(FileNotFoundError):
             StructInputFile.from_file("fakepath.cif")
@@ -54,9 +51,8 @@ class TestInputFile:
         sif = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
         assert isinstance(sif.structure, Structure)
 
-        with ScratchDir("."):
-            sif.write_file("newLi.cif")
-            assert os.path.exists("newLi.cif")
+        sif.write_file("newLi.cif")
+        assert os.path.exists("newLi.cif")
 
     def test_msonable(self):
         sif = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
@@ -67,26 +63,22 @@ class TestInputFile:
         assert sif.structure == temp_sif.structure
 
 
-class TestInputSet:
+class TestInputSet(PymatgenTest):
+    @classmethod
+    def setUpClass(cls):
+        cls.sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
+        cls.sif2 = StructInputFile.from_file(os.path.join(test_dir, "LiFePO4.cif"))
+        cls.sif3 = StructInputFile.from_file(os.path.join(test_dir, "Li2O.cif"))
+
     def test_mapping(self):
-        sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
-        sif2 = StructInputFile.from_file(os.path.join(test_dir, "LiFePO4.cif"))
-        sif3 = StructInputFile.from_file(os.path.join(test_dir, "Li2O.cif"))
-        inp_set = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-                "cif3": sif3,
-            },
-            kwarg1=1,
-            kwarg2="hello",
-        )
+        sif1, sif2, sif3 = self.sif1, self.sif2, self.sif3
+        inp_set = InputSet({"cif1": sif1, "cif2": sif2, "cif3": sif3}, kwarg1=1, kwarg2="hello")
 
         assert len(inp_set) == 3
         assert inp_set.kwarg1 == 1
         assert inp_set.kwarg2 == "hello"
         with pytest.raises(AttributeError):
-            inp_set.kwarg3
+            _ = inp_set.kwarg3
         expected = [("cif1", sif1), ("cif2", sif2), ("cif3", sif3)]
 
         for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected):
@@ -112,52 +104,34 @@ class TestInputSet:
             assert contents is exp_contents
 
     def test_equality(self):
-        sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
-        sif2 = StructInputFile.from_file(os.path.join(test_dir, "LiFePO4.cif"))
-        sif3 = StructInputFile.from_file(os.path.join(test_dir, "Li2O.cif"))
+        sif1, sif2, sif3 = self.sif1, self.sif2, self.sif3
 
         inp_set = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="hello",
         )
 
         inp_set2 = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="hello",
         )
 
         inp_set3 = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-                "cif3": sif3,
-            },
+            {"cif1": sif1, "cif2": sif2, "cif3": sif3},
             kwarg1=1,
             kwarg2="hello",
         )
 
         inp_set4 = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="goodbye",
         )
 
         inp_set5 = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="hello",
             kwarg3="goodbye",
@@ -169,13 +143,9 @@ class TestInputSet:
         assert inp_set.as_dict() != inp_set5.as_dict()
 
     def test_msonable(self):
-        sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
-        sif2 = StructInputFile.from_file(os.path.join(test_dir, "Li2O.cif"))
+        sif1, sif2 = self.sif1, self.sif2
         inp_set = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="hello",
         )
@@ -192,43 +162,53 @@ class TestInputSet:
             assert contents.structure == contents2.structure
 
     def test_write(self):
-        sif1 = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
-        sif2 = StructInputFile.from_file(os.path.join(test_dir, "Li2O.cif"))
+        inp_set = InputSet({"cif1": self.sif1, "cif2": self.sif2}, kwarg1=1, kwarg2="hello")
+        inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
+        assert os.path.exists(os.path.join("input_dir", "cif1"))
+        assert os.path.exists(os.path.join("input_dir", "cif2"))
+        assert len(os.listdir("input_dir")) == 2
+        with pytest.raises(FileExistsError):
+            inp_set.write_input(directory="input_dir", make_dir=True, overwrite=False, zip_inputs=False)
+        inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=True)
+        assert len(os.listdir("input_dir")) == 1
+        assert os.path.exists(os.path.join("input_dir", f"{type(inp_set).__name__}.zip"))
+        with pytest.raises(FileNotFoundError):
+            inp_set.write_input(directory="input_dir2", make_dir=False, overwrite=True, zip_inputs=False)
+
+    def test_write_from_str(self):
         inp_set = InputSet(
-            {
-                "cif1": sif1,
-                "cif2": sif2,
-            },
+            {"cif1": self.sif1, "file_from_str": "hello you", "file_from_strcast": FakeClass(a="Aha", b="Beh")}
+        )
+        inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
+        assert os.path.exists(os.path.join("input_dir", "cif1"))
+        assert os.path.exists(os.path.join("input_dir", "file_from_str"))
+        assert os.path.exists(os.path.join("input_dir", "file_from_strcast"))
+        assert len(os.listdir("input_dir")) == 3
+        cp = CifParser(filename=os.path.join("input_dir", "cif1"))
+        assert cp.get_structures()[0] == self.sif1.structure
+        with open(os.path.join("input_dir", "file_from_str")) as file:
+            file_from_str = file.read()
+            assert file_from_str == "hello you"
+        with open(os.path.join("input_dir", "file_from_strcast")) as file:
+            file_from_strcast = file.read()
+            assert file_from_strcast == "Aha\nBeh"
+
+    def test_copy(self):
+        sif1, sif2 = self.sif1, self.sif2
+
+        inp_set = InputSet({"cif1": sif1, "cif2": sif2}, kwarg1=1, kwarg2="hello")
+        inp_set2 = copy.copy(inp_set)
+
+        assert inp_set.as_dict() == inp_set2.as_dict()
+
+    def test_deepcopy(self):
+        sif1, sif2 = self.sif1, self.sif2
+
+        inp_set = InputSet(
+            {"cif1": sif1, "cif2": sif2},
             kwarg1=1,
             kwarg2="hello",
         )
-        with ScratchDir("."):
-            inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
-            assert os.path.exists(os.path.join("input_dir", "cif1"))
-            assert os.path.exists(os.path.join("input_dir", "cif2"))
-            assert len(os.listdir("input_dir")) == 2
-            with pytest.raises(FileExistsError):
-                inp_set.write_input(directory="input_dir", make_dir=True, overwrite=False, zip_inputs=False)
-            inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=True)
-            assert len(os.listdir("input_dir")) == 1
-            assert os.path.exists(os.path.join("input_dir", f"{type(inp_set).__name__}.zip"))
-            with pytest.raises(FileNotFoundError):
-                inp_set.write_input(directory="input_dir2", make_dir=False, overwrite=True, zip_inputs=False)
+        inp_set2 = copy.deepcopy(inp_set)
 
-        inp_set = InputSet(
-            {"cif1": sif1, "file_from_str": "hello you", "file_from_strcast": FakeClass(a="Aha", b="Beh")}
-        )
-        with ScratchDir("."):
-            inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
-            assert os.path.exists(os.path.join("input_dir", "cif1"))
-            assert os.path.exists(os.path.join("input_dir", "file_from_str"))
-            assert os.path.exists(os.path.join("input_dir", "file_from_strcast"))
-            assert len(os.listdir("input_dir")) == 3
-            cp = CifParser(filename=os.path.join("input_dir", "cif1"))
-            assert cp.get_structures()[0] == sif1.structure
-            with open(os.path.join("input_dir", "file_from_str")) as f:
-                file_from_str = f.read()
-                assert file_from_str == "hello you"
-            with open(os.path.join("input_dir", "file_from_strcast")) as f:
-                file_from_strcast = f.read()
-                assert file_from_strcast == "Aha\nBeh"
+        assert inp_set.as_dict() == inp_set2.as_dict()

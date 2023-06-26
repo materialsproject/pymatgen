@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module is used for analysis of materials with potential application as
 intercalation batteries.
@@ -172,16 +169,12 @@ class InsertionElectrode(AbstractElectrode):
 
     @property
     def fully_charged_entry(self):
-        """
-        The most charged entry along the topotactic path.
-        """
+        """The most charged entry along the topotactic path."""
         return self.stable_entries[0]
 
     @property
     def fully_discharged_entry(self):
-        """
-        The most discharged entry along the topotactic path.
-        """
+        """The most discharged entry along the topotactic path."""
         return self.stable_entries[-1]
 
     def get_max_instability(self, min_voltage=None, max_voltage=None):
@@ -274,7 +267,7 @@ class InsertionElectrode(AbstractElectrode):
         For example, an LiTiO2 electrode might contain three subelectrodes:
         [LiTiO2 --> TiO2, LiTiO2 --> Li0.5TiO2, Li0.5TiO2 --> TiO2]
         This method can be used to return all the subelectrodes with some
-        options
+        options.
 
         Args:
             adjacent_only: Only return electrodes from compounds that are
@@ -298,8 +291,8 @@ class InsertionElectrode(AbstractElectrode):
             entry_discharge = pair.entry_discharge if adjacent_only else pair[1].entry_discharge
 
             def in_range(entry):
-                chg_frac = entry_charge.composition.get_atomic_fraction(ion)  # noqa: B023
-                dischg_frac = entry_discharge.composition.get_atomic_fraction(ion)  # noqa: B023
+                chg_frac = entry_charge.composition.get_atomic_fraction(ion)
+                dischg_frac = entry_discharge.composition.get_atomic_fraction(ion)
                 frac = entry.composition.get_atomic_fraction(ion)
                 return chg_frac <= frac <= dischg_frac
 
@@ -363,9 +356,6 @@ class InsertionElectrode(AbstractElectrode):
 
         return d
 
-    def __str__(self):
-        return self.__repr__()
-
     def __repr__(self):
         output = []
         chg_form = self.fully_charged_entry.composition.reduced_formula
@@ -380,7 +370,7 @@ class InsertionElectrode(AbstractElectrode):
     def from_dict_legacy(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             InsertionElectrode
@@ -394,9 +384,7 @@ class InsertionElectrode(AbstractElectrode):
         )
 
     def as_dict_legacy(self):
-        """
-        Returns: MSONAble dict
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -407,9 +395,7 @@ class InsertionElectrode(AbstractElectrode):
 
 @dataclass
 class InsertionVoltagePair(AbstractVoltagePair):
-    """
-    Defines an Insertion Voltage Pair.
-    """
+    """Defines an Insertion Voltage Pair."""
 
     entry_charge: ComputedEntry
     entry_discharge: ComputedEntry
@@ -519,11 +505,11 @@ class InsertionVoltagePair(AbstractVoltagePair):
         )
 
         # Step 4: add (optional) hull and muO2 data
-        vpair.decomp_e_charge = entry_charge.data.get("decomposition_energy", None)
-        vpair.decomp_e_discharge = entry_discharge.data.get("decomposition_energy", None)
+        vpair.decomp_e_charge = entry_charge.data.get("decomposition_energy")
+        vpair.decomp_e_discharge = entry_discharge.data.get("decomposition_energy")
 
-        vpair.muO2_charge = entry_charge.data.get("muO2", None)
-        vpair.muO2_discharge = entry_discharge.data.get("muO2", None)
+        vpair.muO2_charge = entry_charge.data.get("muO2")
+        vpair.muO2_discharge = entry_discharge.data.get("muO2")
 
         return vpair
 
@@ -536,6 +522,3 @@ class InsertionVoltagePair(AbstractVoltagePair):
             f"frac_charge = {self.frac_charge}, frac_discharge = {self.frac_discharge}",
         ]
         return "\n".join(output)
-
-    def __str__(self):
-        return self.__repr__()

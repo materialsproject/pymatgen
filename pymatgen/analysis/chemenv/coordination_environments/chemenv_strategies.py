@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides so-called "strategies" to determine the coordination environments of an atom in a structure.
 Some strategies can favour larger or smaller environments. Some strategies uniquely identifies the environments while
@@ -12,21 +9,17 @@ from __future__ import annotations
 
 import abc
 import os
+from typing import ClassVar
 
 import numpy as np
+from frozendict import frozendict
 from monty.json import MSONable
 from scipy.stats import gmean
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
-from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
-    DetailedVoronoiContainer,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.analysis.chemenv.utils.chemenv_errors import EquivalentSiteSearchError
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
-    get_lower_and_upper_f,
-)
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lower_and_upper_f
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.analysis.chemenv.utils.func_utils import (
     CSMFiniteRatioFunction,
@@ -59,9 +52,7 @@ class StrategyOption(MSONable, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def as_dict(self):
-        """
-        A JSON-serializable dict representation of this strategy option.
-        """
+        """A JSON-serializable dict representation of this strategy option."""
 
 
 class DistanceCutoffFloat(float, StrategyOption):
@@ -80,7 +71,7 @@ class DistanceCutoffFloat(float, StrategyOption):
         return flt
 
     def as_dict(self):
-        """MSONAble dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -91,26 +82,28 @@ class DistanceCutoffFloat(float, StrategyOption):
     def from_dict(cls, d):
         """Initialize distance cutoff from dict.
 
-        :param d: Dict representation of the distance cutoff."""
+        :param d: Dict representation of the distance cutoff.
+        """
         return cls(d["value"])
 
 
 class AngleCutoffFloat(float, StrategyOption):
-    """Angle cutoff in a strategy"""
+    """Angle cutoff in a strategy."""
 
     allowed_values = "Real number between 0.0 and 1.0"
 
     def __new__(cls, myfloat):
         """Special float that should be between 0.0 and 1.0.
 
-        :param myfloat: Angle cutoff."""
+        :param myfloat: Angle cutoff.
+        """
         flt = float.__new__(cls, myfloat)
         if flt < 0.0 or flt > 1.0:
             raise ValueError("Angle cutoff should be between 0.0 and 1.0")
         return flt
 
     def as_dict(self):
-        """MSONAble dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -127,21 +120,22 @@ class AngleCutoffFloat(float, StrategyOption):
 
 
 class CSMFloat(float, StrategyOption):
-    """Real number representing a Continuous Symmetry Measure"""
+    """Real number representing a Continuous Symmetry Measure."""
 
     allowed_values = "Real number between 0.0 and 100.0"
 
     def __new__(cls, myfloat):
         """Special float that should be between 0.0 and 100.0.
 
-        :param myfloat: CSM."""
+        :param myfloat: CSM.
+        """
         flt = float.__new__(cls, myfloat)
         if flt < 0.0 or flt > 100.0:
             raise ValueError("Continuous symmetry measure limits should be between 0.0 and 100.0")
         return flt
 
     def as_dict(self):
-        """MSONable dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -149,12 +143,12 @@ class CSMFloat(float, StrategyOption):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """Initialize CSM from dict.
 
         :param d: Dict representation of the CSM.
         """
-        return cls(d["value"])
+        return cls(dct["value"])
 
 
 class AdditionalConditionInt(int, StrategyOption):
@@ -174,7 +168,7 @@ class AdditionalConditionInt(int, StrategyOption):
         return integer
 
     def as_dict(self):
-        """MSONable dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -182,24 +176,24 @@ class AdditionalConditionInt(int, StrategyOption):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """Initialize additional condition from dict.
 
         :param d: Dict representation of the additional condition.
         """
-        return cls(d["value"])
+        return cls(dct["value"])
 
 
 class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
     Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
-    StructureEnvironments object
+    StructureEnvironments object.
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS: dict[str, dict] = {}
+    STRATEGY_OPTIONS: ClassVar[frozendict[str, dict]] = frozendict()
     STRATEGY_DESCRIPTION: str | None = None
-    STRATEGY_INFO_FIELDS: list = []
+    STRATEGY_INFO_FIELDS: ClassVar[list] = []
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
 
     def __init__(
@@ -210,7 +204,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         """
         Abstract constructor for the all chemenv strategies.
         :param structure_environments: StructureEnvironments object containing all the information on the
-            coordination of the sites in a structure
+            coordination of the sites in a structure.
         """
         self.structure_environments = None
         if structure_environments is not None:
@@ -260,15 +254,15 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
                         isite = isite2
                         break
         # Get the translation between psite and its corresponding site in the unit cell (Translation I)
-        thissite = self.structure_environments.structure[isite]
-        dthissite = psite.frac_coords - thissite.frac_coords
+        this_site = self.structure_environments.structure[isite]
+        dthis_site = psite.frac_coords - this_site.frac_coords
         # Get the translation between the equivalent site for which the neighbors have been computed and the site in
         # the unit cell that corresponds to psite (Translation II)
-        equivsite = self.structure_environments.structure[self.structure_environments.sites_map[isite]].to_unit_cell()
+        equiv_site = self.structure_environments.structure[self.structure_environments.sites_map[isite]].to_unit_cell()
         # equivsite = self.structure_environments.structure[self.structure_environments.sites_map[isite]]
         dequivsite = (
             self.structure_environments.structure[self.structure_environments.sites_map[isite]].frac_coords
-            - equivsite.frac_coords
+            - equiv_site.frac_coords
         )
         found = False
         # Find the symmetry that applies the site in the unit cell to the equivalent site, as well as the translation
@@ -276,41 +270,36 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         # TODO: check that these tolerances are needed, now that the structures are refined before analyzing envs
         tolerances = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4]
         for tolerance in tolerances:
-            for symop in self.symops:
-                newsite = PeriodicSite(
-                    equivsite._species,
-                    symop.operate(equivsite.frac_coords),
-                    equivsite._lattice,
+            for sym_op in self.symops:
+                new_site = PeriodicSite(
+                    equiv_site._species,
+                    sym_op.operate(equiv_site.frac_coords),
+                    equiv_site._lattice,
                 )
-                if newsite.is_periodic_image(thissite, tolerance=tolerance):
-                    mysym = symop
-                    dthissite2 = thissite.frac_coords - newsite.frac_coords
+                if new_site.is_periodic_image(this_site, tolerance=tolerance):
+                    my_sym = sym_op
+                    dthissite2 = this_site.frac_coords - new_site.frac_coords
                     found = True
                     break
             if not found:
-                symops = [SymmOp.from_rotation_and_translation()]
-                for symop in symops:
-                    newsite = PeriodicSite(
-                        equivsite._species,
-                        symop.operate(equivsite.frac_coords),
-                        equivsite._lattice,
+                sym_ops = [SymmOp.from_rotation_and_translation()]
+                for sym_op in sym_ops:
+                    new_site = PeriodicSite(
+                        equiv_site._species,
+                        sym_op.operate(equiv_site.frac_coords),
+                        equiv_site._lattice,
                     )
                     # if newsite.is_periodic_image(thissite):
-                    if newsite.is_periodic_image(thissite, tolerance=tolerance):
-                        mysym = symop
-                        dthissite2 = thissite.frac_coords - newsite.frac_coords
+                    if new_site.is_periodic_image(this_site, tolerance=tolerance):
+                        my_sym = sym_op
+                        dthissite2 = this_site.frac_coords - new_site.frac_coords
                         found = True
                         break
             if found:
                 break
         if not found:
             raise EquivalentSiteSearchError(psite)
-        return [
-            self.structure_environments.sites_map[isite],
-            dequivsite,
-            dthissite + dthissite2,
-            mysym,
-        ]
+        return [self.structure_environments.sites_map[isite], dequivsite, dthis_site + dthissite2, my_sym]
 
     @abc.abstractmethod
     def get_site_neighbors(self, site):
@@ -320,9 +309,9 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :param structure_environments: StructureEnvironments object containing all the information needed to get the
             neighbors of the site
         :return: The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
-            can return a list of list of neighbors
+            can return a list of list of neighbors.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def uniquely_determines_coordination_environments(self):
@@ -330,7 +319,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         Returns True if the strategy leads to a unique coordination environment, False otherwise.
         :return: True if the strategy leads to a unique coordination environment, False otherwise.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_site_coordination_environment(self, site):
@@ -339,9 +328,9 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         a given site.
         :param site: Site for which the coordination environment is looked for
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
-            solutions, this can return a list of coordination environments for the site
+            solutions, this can return a list of coordination environments for the site.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_site_coordination_environments(self, site):
@@ -350,9 +339,9 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         a given site.
         :param site: Site for which the coordination environment is looked for
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
-            solutions, this can return a list of coordination environments for the site
+            solutions, this can return a list of coordination environments for the site.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_site_coordination_environments_fractions(
@@ -372,9 +361,9 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         a given site.
         :param site: Site for which the coordination environment is looked for
         :return: The coordination environment of the site. For complex strategies, where one allows multiple
-            solutions, this can return a list of coordination environments for the site
+            solutions, this can return a list of coordination environments for the site.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_site_ce_fractions_and_neighbors(self, site, full_ce_info=False, strategy_info=False):
         """
@@ -382,7 +371,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         fraction, csm, geometry_info, and neighbors
         :param site: Site for which the above information is seeked
         :return: The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
-        can return a list of list of neighbors
+        can return a list of list of neighbors.
         """
         [
             isite,
@@ -439,7 +428,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         :param other: strategy to be compared with the current one
         :return:
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __str__(self):
         out = f"  Chemenv Strategy {type(self).__name__!r}\n"
@@ -458,7 +447,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         Bson-serializable dict representation of the SimplestChemenvStrategy object.
         :return: Bson-serializable dict representation of the SimplestChemenvStrategy object.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def from_dict(cls, d):
@@ -466,15 +455,15 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         Reconstructs the SimpleAbundanceChemenvStrategy object from a dict representation of the
         SimpleAbundanceChemenvStrategy object created using the as_dict method.
         :param d: dict representation of the SimpleAbundanceChemenvStrategy object
-        :return: StructureEnvironments object
+        :return: StructureEnvironments object.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class SimplestChemenvStrategy(AbstractChemenvStrategy):
     """
     Simplest ChemenvStrategy using fixed angle and distance parameters for the definition of neighbors in the
-    Voronoi approach. The coordination environment is then given as the one with the lowest continuous symmetry measure
+    Voronoi approach. The coordination environment is then given as the one with the lowest continuous symmetry measure.
     """
 
     # Default values for the distance and angle cutoffs
@@ -482,27 +471,28 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: dict[str, dict] = {}
-    STRATEGY_OPTIONS["distance_cutoff"] = {
-        "type": DistanceCutoffFloat,
-        "internal": "_distance_cutoff",
-        "default": DEFAULT_DISTANCE_CUTOFF,
-    }
-    STRATEGY_OPTIONS["angle_cutoff"] = {
-        "type": AngleCutoffFloat,
-        "internal": "_angle_cutoff",
-        "default": DEFAULT_ANGLE_CUTOFF,
-    }
-    STRATEGY_OPTIONS["additional_condition"] = {
-        "type": AdditionalConditionInt,
-        "internal": "_additional_condition",
-        "default": DEFAULT_ADDITIONAL_CONDITION,
-    }
-    STRATEGY_OPTIONS["continuous_symmetry_measure_cutoff"] = {
-        "type": CSMFloat,
-        "internal": "_continuous_symmetry_measure_cutoff",
-        "default": DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
-    }
+    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(  # type: ignore
+        distance_cutoff=frozendict(
+            type=DistanceCutoffFloat,
+            internal="_distance_cutoff",
+            default=DEFAULT_DISTANCE_CUTOFF,
+        ),
+        angle_cutoff=frozendict(
+            type=AngleCutoffFloat,
+            internal="_angle_cutoff",
+            default=DEFAULT_ANGLE_CUTOFF,
+        ),
+        additional_condition=frozendict(
+            type=AdditionalConditionInt,
+            internal="_additional_condition",
+            default=DEFAULT_ADDITIONAL_CONDITION,
+        ),
+        continuous_symmetry_measure_cutoff=frozendict(
+            type=CSMFloat,
+            internal="_continuous_symmetry_measure_cutoff",
+            default=DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
+        ),
+    )
 
     STRATEGY_DESCRIPTION = (
         "    Simplest ChemenvStrategy using fixed angle and distance parameters \n"
@@ -523,7 +513,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         """
         Constructor for this SimplestChemenvStrategy.
         :param distance_cutoff: Distance cutoff used
-        :param angle_cutoff: Angle cutoff used
+        :param angle_cutoff: Angle cutoff used.
         """
         AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
         self.distance_cutoff = distance_cutoff
@@ -580,7 +570,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
 
     @property
     def continuous_symmetry_measure_cutoff(self):
-        """CSM cutoff used"""
+        """CSM cutoff used."""
         return self._continuous_symmetry_measure_cutoff
 
     @continuous_symmetry_measure_cutoff.setter
@@ -657,23 +647,22 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             ] = self.equivalent_site_index_and_transform(site)
         neighbors_normalized_distances = self.structure_environments.voronoi.neighbors_normalized_distances[isite]
         neighbors_normalized_angles = self.structure_environments.voronoi.neighbors_normalized_angles[isite]
-        idist = None
+        i_dist = None
         for iwd, wd in enumerate(neighbors_normalized_distances):
             if self.distance_cutoff >= wd["min"]:
-                idist = iwd
+                i_dist = iwd
             else:
                 break
-        iang = None
+        i_ang = None
         for iwa, wa in enumerate(neighbors_normalized_angles):
             if self.angle_cutoff <= wa["max"]:
-                iang = iwa
+                i_ang = iwa
             else:
                 break
-        if idist is None or iang is None:
+        if i_dist is None or i_ang is None:
             raise ValueError("Distance or angle parameter not found ...")
 
-        my_cn = None
-        my_inb_set = None
+        my_cn = my_inb_set = None
         found = False
         for cn, nb_sets in self.structure_environments.neighbors_sets[isite].items():
             for inb_set, nb_set in enumerate(nb_sets):
@@ -683,7 +672,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
                     if src["origin"] == "dist_ang_ac_voronoi" and src["ac"] == self.additional_condition
                 ]
                 for src in sources:
-                    if src["idp"] == idist and src["iap"] == iang:
+                    if src["idp"] == i_dist and src["iap"] == i_ang:
                         my_cn = cn
                         my_inb_set = inb_set
                         found = True
@@ -770,8 +759,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             ce_dict["ce_map"] = ce_map
         if return_strategy_dict_info:
             ce_dict["strategy_info"] = {}
-        fractions_info_list = [ce_dict]
-        return fractions_info_list
+        return [ce_dict]
 
     def get_site_coordination_environments(
         self,
@@ -854,7 +842,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         Reconstructs the SimplestChemenvStrategy object from a dict representation of the SimplestChemenvStrategy object
         created using the as_dict method.
         :param d: dict representation of the SimplestChemenvStrategy object
-        :return: StructureEnvironments object
+        :return: StructureEnvironments object.
         """
         return cls(
             distance_cutoff=d["distance_cutoff"],
@@ -869,18 +857,19 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
     """
     Simple ChemenvStrategy using the neighbors that are the most "abundant" in the grid of angle and distance
     parameters for the definition of neighbors in the Voronoi approach.
-    The coordination environment is then given as the one with the lowest continuous symmetry measure
+    The coordination environment is then given as the one with the lowest continuous symmetry measure.
     """
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: dict[str, dict] = {}
-    STRATEGY_OPTIONS["additional_condition"] = {
-        "type": AdditionalConditionInt,
-        "internal": "_additional_condition",
-        "default": DEFAULT_ADDITIONAL_CONDITION,
-    }
-    STRATEGY_OPTIONS["surface_calculation_type"] = {}
+    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(  # type: ignore
+        surface_calculation_type={},
+        additional_condition=frozendict(
+            type=AdditionalConditionInt,
+            internal="_additional_condition",
+            default=DEFAULT_ADDITIONAL_CONDITION,
+        ),
+    )
     STRATEGY_DESCRIPTION = (
         '    Simple Abundance ChemenvStrategy using the most "abundant" neighbors map \n'
         "    for the definition of neighbors in the Voronoi approach. \n"
@@ -897,7 +886,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         """
         Constructor for the SimpleAbundanceChemenvStrategy.
         :param structure_environments: StructureEnvironments object containing all the information on the
-            coordination of the sites in a structure
+            coordination of the sites in a structure.
         """
         raise NotImplementedError("SimpleAbundanceChemenvStrategy not yet implemented")
         AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
@@ -1051,7 +1040,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         Reconstructs the SimpleAbundanceChemenvStrategy object from a dict representation of the
         SimpleAbundanceChemenvStrategy object created using the as_dict method.
         :param d: dict representation of the SimpleAbundanceChemenvStrategy object
-        :return: StructureEnvironments object
+        :return: StructureEnvironments object.
         """
         return cls(additional_condition=d["additional_condition"])
 
@@ -1061,10 +1050,10 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
     Simple ChemenvStrategy using the neighbors that are the most "abundant" in the grid of angle and distance
     parameters for the definition of neighbors in the Voronoi approach, with a bias for a given list of target
     environments. This can be useful in the case of, e.g. connectivity search of some given environment.
-    The coordination environment is then given as the one with the lowest continuous symmetry measure
+    The coordination environment is then given as the one with the lowest continuous symmetry measure.
     """
 
-    DEFAULT_TARGET_ENVIRONMENTS = ["O:6"]
+    DEFAULT_TARGET_ENVIRONMENTS = ("O:6",)
 
     def __init__(
         self,
@@ -1218,7 +1207,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
         Reconstructs the TargettedPenaltiedAbundanceChemenvStrategy object from a dict representation of the
         TargettedPenaltiedAbundanceChemenvStrategy object created using the as_dict method.
         :param d: dict representation of the TargettedPenaltiedAbundanceChemenvStrategy object
-        :return: TargettedPenaltiedAbundanceChemenvStrategy object
+        :return: TargettedPenaltiedAbundanceChemenvStrategy object.
         """
         return cls(
             additional_condition=d["additional_condition"],
@@ -1234,9 +1223,7 @@ class NbSetWeight(MSONable, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def as_dict(self):
-        """
-        A JSON-serializable dict representation of this neighbors set weight.
-        """
+        """A JSON-serializable dict representation of this neighbors set weight."""
 
     @abc.abstractmethod
     def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
@@ -1300,7 +1287,7 @@ class AngleNbSetWeight(NbSetWeight):
         return self.aa == other.aa  # type: ignore
 
     def as_dict(self):
-        """MSONAble dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1350,17 +1337,12 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
                 self.fda = self.ang
             else:
                 self.fda = self.angn
+        elif self.aa == 1:
+            self.fda = self.anginvdist if self.bb == 1 else self.anginvndist
+        elif self.bb == 1:
+            self.fda = self.angninvdist
         else:
-            if self.aa == 1:
-                if self.bb == 1:
-                    self.fda = self.anginvdist
-                else:
-                    self.fda = self.anginvndist
-            else:
-                if self.bb == 1:
-                    self.fda = self.angninvdist
-                else:
-                    self.fda = self.angninvndist
+            self.fda = self.angninvndist
 
     def __eq__(self, other: object) -> bool:
         needed_attrs = ("average_type", "aa", "bb")
@@ -1370,7 +1352,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
     def as_dict(self):
-        """MSONable dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1564,14 +1546,14 @@ class SelfCSMNbSetWeight(NbSetWeight):
 
     SHORT_NAME = "SelfCSMWeight"
 
-    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = {
-        "function": "power2_inverse_decreasing",
-        "options": {"max_csm": 8.0},
-    }
-    DEFAULT_WEIGHT_ESTIMATOR = {
-        "function": "power2_decreasing_exp",
-        "options": {"max_csm": 8.0, "alpha": 1.0},
-    }
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = frozendict(
+        function="power2_inverse_decreasing",
+        options={"max_csm": 8.0},
+    )
+    DEFAULT_WEIGHT_ESTIMATOR = frozendict(
+        function="power2_decreasing_exp",
+        options={"max_csm": 8.0, "alpha": 1.0},
+    )
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
 
     def __init__(
@@ -1632,7 +1614,7 @@ class SelfCSMNbSetWeight(NbSetWeight):
         )
 
     def as_dict(self):
-        """MSONable dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1660,15 +1642,15 @@ class DeltaCSMNbSetWeight(NbSetWeight):
 
     SHORT_NAME = "DeltaCSMWeight"
 
-    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = {
-        "function": "power2_inverse_decreasing",
-        "options": {"max_csm": 8.0},
-    }
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = frozendict(
+        function="power2_inverse_decreasing",
+        options={"max_csm": 8.0},
+    )
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
-    DEFAULT_WEIGHT_ESTIMATOR = {
-        "function": "smootherstep",
-        "options": {"delta_csm_min": 0.5, "delta_csm_max": 3.0},
-    }
+    DEFAULT_WEIGHT_ESTIMATOR = frozendict(
+        function="smootherstep",
+        options={"delta_csm_min": 0.5, "delta_csm_max": 3.0},
+    )
 
     def __init__(
         self,
@@ -1717,8 +1699,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         )
         cn = cn_map[0]
         isite = nb_set.isite
-        delta_csm = None
-        delta_csm_cn_map2 = None
+        delta_csm = delta_csm_cn_map2 = None
         nb_set_weight = 1.0
         for cn2, nb_sets in structure_environments.neighbors_sets[isite].items():
             if cn2 < cn:
@@ -1925,7 +1906,7 @@ class CNBiasNbSetWeight(NbSetWeight):
         return not self == other
 
     def as_dict(self):
-        """MSONable dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -2013,11 +1994,11 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
     SHORT_NAME = "DistAngleAreaWeight"
 
     AC = AdditionalConditions()
-    DEFAULT_SURFACE_DEFINITION = {
-        "type": "standard_elliptic",
-        "distance_bounds": {"lower": 1.2, "upper": 1.8},
-        "angle_bounds": {"lower": 0.1, "upper": 0.8},
-    }
+    DEFAULT_SURFACE_DEFINITION = frozendict(
+        type="standard_elliptic",
+        distance_bounds={"lower": 1.2, "upper": 1.8},
+        angle_bounds={"lower": 0.1, "upper": 0.8},
+    )
 
     def __init__(
         self,
@@ -2043,7 +2024,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         if weight_type == "has_intersection":
             self.area_weight = self.w_area_has_intersection
         elif weight_type == "has_intersection_smoothstep":
-            raise NotImplementedError()
+            raise NotImplementedError
             # self.area_weight = self.w_area_has_intersection_smoothstep
         else:
             raise ValueError(f'Weight type is {weight_type!r} while it should be "has_intersection"')
@@ -2230,7 +2211,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         return not self == other
 
     def as_dict(self):
-        """MSONable dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -2299,7 +2280,7 @@ class DistancePlateauNbSetWeight(NbSetWeight):
         return not self == other
 
     def as_dict(self):
-        """MSONable dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -2362,7 +2343,7 @@ class AnglePlateauNbSetWeight(NbSetWeight):
         return not self == other
 
     def as_dict(self):
-        """MSONable dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -2439,7 +2420,7 @@ class DistanceNbSetWeight(NbSetWeight):
         return not self == other
 
     def as_dict(self):
-        """MSOnable dict"""
+        """MSOnable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -2519,7 +2500,7 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
         return not self == other
 
     def as_dict(self):
-        """MSONable dict"""
+        """MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -2538,15 +2519,13 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
 
 
 class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
-    """
-    WeightedNbSetChemenvStrategy
-    """
+    """WeightedNbSetChemenvStrategy."""
 
     STRATEGY_DESCRIPTION = "    WeightedNbSetChemenvStrategy"
-    DEFAULT_CE_ESTIMATOR = {
-        "function": "power2_inverse_power2_decreasing",
-        "options": {"max_csm": 8.0},
-    }
+    DEFAULT_CE_ESTIMATOR = frozendict(
+        function="power2_inverse_power2_decreasing",
+        options={"max_csm": 8.0},
+    )
 
     def __init__(
         self,
@@ -2559,12 +2538,12 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         """
         Constructor for the WeightedNbSetChemenvStrategy.
         :param structure_environments: StructureEnvironments object containing all the information on the
-            coordination of the sites in a structure
+            coordination of the sites in a structure.
         """
+        if nb_set_weights is None:
+            raise ValueError(f"{nb_set_weights=} must be provided")
         AbstractChemenvStrategy.__init__(self, structure_environments, symmetry_measure_type=symmetry_measure_type)
         self._additional_condition = additional_condition
-        if nb_set_weights is None:
-            raise ValueError()
         self.nb_set_weights = nb_set_weights
         self.ordered_weights = []
         for nb_set_weight in self.nb_set_weights:
@@ -2639,7 +2618,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                     cn_maps_new.append(cn_map)
             cn_maps = cn_maps_new
         for cn_map, weights in weights_additional_info["weights"][isite].items():
-            weights_additional_info["weights"][isite][cn_map]["Product"] = np.product(list(weights.values()))
+            weights_additional_info["weights"][isite][cn_map]["Product"] = np.prod(list(weights.values()))
 
         w_nb_sets = {
             cn_map: weights["Product"] for cn_map, weights in weights_additional_info["weights"][isite].items()
@@ -2722,10 +2701,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                             dict_fractions["Fraction"] = nb_set_fraction * fraction
                             ce_dict_fractions.append(dict_fractions)
                             ce_maps.append(cn_map)
-        if ordered:
-            indices = np.argsort(ce_fractions)[::-1]
-        else:
-            indices = list(range(len(ce_fractions)))
+        indices = np.argsort(ce_fractions)[::-1] if ordered else list(range(len(ce_fractions)))
 
         fractions_info_list = [
             {
@@ -2830,7 +2806,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         Reconstructs the WeightedNbSetChemenvStrategy object from a dict representation of the
         WeightedNbSetChemenvStrategy object created using the as_dict method.
         :param d: dict representation of the WeightedNbSetChemenvStrategy object
-        :return: WeightedNbSetChemenvStrategy object
+        :return: WeightedNbSetChemenvStrategy object.
         """
         return cls(
             additional_condition=d["additional_condition"],
@@ -2841,9 +2817,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
 
 
 class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
-    """
-    MultiWeightsChemenvStrategy
-    """
+    """MultiWeightsChemenvStrategy."""
 
     STRATEGY_DESCRIPTION = "    Multi Weights ChemenvStrategy"
     # STRATEGY_INFO_FIELDS = ['cn_map_surface_fraction', 'cn_map_surface_weight',
@@ -2851,10 +2825,10 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
     #                         'cn_map_delta_csm', 'cn_map_delta_csms_cn_map2', 'cn_map_delta_csm_weight',
     #                         'cn_map_cn_weight',
     #                         'cn_map_fraction', 'cn_map_ce_fraction', 'ce_fraction']
-    DEFAULT_CE_ESTIMATOR = {
-        "function": "power2_inverse_power2_decreasing",
-        "options": {"max_csm": 8.0},
-    }
+    DEFAULT_CE_ESTIMATOR = frozendict(
+        function="power2_inverse_power2_decreasing",
+        options={"max_csm": 8.0},
+    )
 
     def __init__(
         self,
@@ -2872,7 +2846,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         """
         Constructor for the MultiWeightsChemenvStrategy.
         :param structure_environments: StructureEnvironments object containing all the information on the
-            coordination of the sites in a structure
+            coordination of the sites in a structure.
         """
         self._additional_condition = additional_condition
         self.dist_ang_area_weight = dist_ang_area_weight
@@ -2942,9 +2916,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         )
         symmetry_measure_type = "csm_wcs_ctwcc"
         delta_weight = DeltaCSMNbSetWeight.delta_cn_specifics()
-        bias_weight = None
-        angle_weight = None
-        nad_weight = None
+        bias_weight = angle_weight = nad_weight = None
         return cls(
             dist_ang_area_weight=da_area_weight,
             self_csm_weight=self_csm_weight,
@@ -3008,7 +2980,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         Reconstructs the MultiWeightsChemenvStrategy object from a dict representation of the
         MultipleAbundanceChemenvStrategy object created using the as_dict method.
         :param d: dict representation of the MultiWeightsChemenvStrategy object
-        :return: MultiWeightsChemenvStrategy object
+        :return: MultiWeightsChemenvStrategy object.
         """
         if d["normalized_angle_distance_weight"] is not None:
             nad_w = NormalizedAngleDistanceNbSetWeight.from_dict(d["normalized_angle_distance_weight"])

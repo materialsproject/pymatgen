@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 import warnings
 
 from pytest import approx
@@ -26,7 +25,3 @@ class SolarTest(PymatgenTest):
         gamma_max = SOCSpillage(wf_noso=wf_noso, wf_so=wf_so).overlap_so_spinpol()
 
         assert gamma_max == approx(1.3634111271008775, abs=1e-5)
-
-
-if __name__ == "__main__":
-    unittest.main()

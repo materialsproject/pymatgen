@@ -2,18 +2,12 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 import warnings
 
 from pytest import approx
 from sympy import Number, Symbol
 
-from pymatgen.analysis.surface_analysis import (
-    NanoscaleStability,
-    SlabEntry,
-    SurfaceEnergyPlotter,
-    WorkFunctionAnalyzer,
-)
+from pymatgen.analysis.surface_analysis import NanoscaleStability, SlabEntry, SurfaceEnergyPlotter, WorkFunctionAnalyzer
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import PymatgenTest
 
@@ -26,8 +20,7 @@ __date__ = "Aug 24, 2017"
 
 
 def get_path(path_str):
-    path = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
-    return path
+    return os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
 
 
 class SlabEntryTest(PymatgenTest):
@@ -54,7 +47,7 @@ class SlabEntryTest(PymatgenTest):
 
     def test_properties(self):
         # Test cases for getting adsorption related quantities for a 1/4
-        # monolalyer adsorption of O on the low MMI surfaces of Pt, Ni and Rh
+        # monolayer adsorption of O on the low MMI surfaces of Pt, Ni and Rh
 
         for el, val in self.metals_O_entry_dict.items():
             el_ucell = ComputedStructureEntry.from_dict(self.ucell_entries[el])
@@ -71,11 +64,11 @@ class SlabEntryTest(PymatgenTest):
                         # Determine the correct binding energy
                         with open(os.path.join(get_path(""), "isolated_O_entry.txt")) as isolated_O_entry:
                             isolated_O_entry = json.loads(isolated_O_entry.read())
-                        O = ComputedStructureEntry.from_dict(isolated_O_entry)
-                        gbind = (ads.energy - ml * clean.energy) / Nads - O.energy_per_atom
-                        assert gbind == ads.gibbs_binding_energy()
+                        O_cse = ComputedStructureEntry.from_dict(isolated_O_entry)
+                        g_bind = (ads.energy - ml * clean.energy) / Nads - O_cse.energy_per_atom
+                        assert g_bind == ads.gibbs_binding_energy()
                         # Determine the correction Gibbs adsorption energy
-                        eads = Nads * gbind
+                        eads = Nads * g_bind
                         assert eads == ads.gibbs_binding_energy(eads=True)
                         se = ads.surface_energy(el_ucell)
                         assert se.as_coefficients_dict()[Symbol("delu_O")] == approx(
@@ -112,7 +105,7 @@ class SlabEntryTest(PymatgenTest):
             all_se.append(se)
             # Manually calculate surface energy
             manual_se = (slab_entry.energy - ECu * len(slab_entry.structure)) / (2 * slab_entry.surface_area)
-            self.assertArrayAlmostEqual(float(se), manual_se, 10)
+            self.assert_all_close(float(se), manual_se, 10)
 
         # The (111) facet should be the most stable
         clean111_entry = list(self.Cu_entry_dict[(1, 1, 1)])[0]
@@ -197,7 +190,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             # Test WulffShape for adsorbed surfaces
             # chempot = analyzer.max_adsorption_chempot_range(0)
             wulff = analyzer.wulff_from_chempot(delu_default=-6)
-            wulff.weighted_surface_energy
+            _ = wulff.weighted_surface_energy
 
         # Test if a different Wulff shape is generated
         # for Ni when adsorption comes into play
@@ -367,7 +360,7 @@ class NanoscaleStabilityTest(PymatgenTest):
         w2 = self.nanoscale_stability.scaled_wulff(fcc_wulff, 10)
         assert w1.effective_radius == approx(w2.effective_radius)
         assert w1.effective_radius == approx(10)
-        assert 10 == approx(w2.effective_radius)
+        assert approx(w2.effective_radius) == 10
 
 
 def get_entry_dict(filename):
@@ -403,7 +396,7 @@ def load_O_adsorption():
     # Load the adsorbate as an entry
     with open(os.path.join(get_path(""), "isolated_O_entry.txt")) as isolated_O_entry:
         isolated_O_entry = json.loads(isolated_O_entry.read())
-    O = ComputedStructureEntry.from_dict(isolated_O_entry)
+    O_entry = ComputedStructureEntry.from_dict(isolated_O_entry)
 
     # entry_dict for the adsorption case, O adsorption on Ni, Rh and Pt
     metals_O_entry_dict = {
@@ -441,7 +434,7 @@ def load_O_adsorption():
                         entry.energy,
                         (1, 1, 1),
                         label=k + "_O",
-                        adsorbates=[O],
+                        adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = [ads]
@@ -452,7 +445,7 @@ def load_O_adsorption():
                         entry.energy,
                         (1, 1, 0),
                         label=k + "_O",
-                        adsorbates=[O],
+                        adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = [ads]
@@ -463,13 +456,9 @@ def load_O_adsorption():
                         entry.energy,
                         (1, 0, 0),
                         label=k + "_O",
-                        adsorbates=[O],
+                        adsorbates=[O_entry],
                         clean_entry=clean,
                     )
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = [ads]
 
     return metals_O_entry_dict
-
-
-if __name__ == "__main__":
-    unittest.main()

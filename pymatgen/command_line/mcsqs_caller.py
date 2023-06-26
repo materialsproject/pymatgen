@@ -1,6 +1,6 @@
 """
 Module to call mcsqs, distributed with AT-AT
-https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
+https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/.
 """
 
 from __future__ import annotations
@@ -67,13 +67,12 @@ def run_mcsqs(
             function (default = 1)
         wn (int or float): Multiplicative decrease in weight per additional point in cluster (default: 1)
         wd (int or float): Exponent of decay in weight as function of cluster diameter (default: 0.5)
-        tol (int or float): Tolerance for matching correlations (default: 1e-3)
+        tol (int or float): Tolerance for matching correlations (default: 1e-3).
 
     Returns:
         Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
             list of all SQS structures, and the directory where calculations are run
     """
-
     num_atoms = len(structure)
 
     if structure.is_ordered:
@@ -89,8 +88,8 @@ def run_mcsqs(
     os.chdir(directory)
 
     if isinstance(scaling, (int, float)):
-        if scaling % 1:
-            raise ValueError(f"Scaling should be an integer, not {scaling}")
+        if scaling % 1 != 0:
+            raise ValueError(f"{scaling=} should be an integer")
         mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * num_atoms}"]
 
     else:
@@ -164,8 +163,7 @@ def run_mcsqs(
             process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
-            sqs = _parse_sqs_path(".")
-            return sqs
+            return _parse_sqs_path(".")
 
         os.chdir(original_directory)
         raise TimeoutError("Cluster expansion took too long.")
@@ -175,13 +173,12 @@ def _parse_sqs_path(path) -> Sqs:
     """
     Private function to parse mcsqs output directory
     Args:
-        path: directory to perform parsing
+        path: directory to perform parsing.
 
     Returns:
         Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
             list of all SQS structures, and the directory where calculations are run
     """
-
     path = Path(path)
 
     # detected instances will be 0 if mcsqs was run in series, or number of instances
@@ -201,10 +198,7 @@ def _parse_sqs_path(path) -> Sqs:
 
     objective_function_str = lines[-1].split("=")[-1].strip()
     objective_function: float | str
-    if objective_function_str != "Perfect_match":
-        objective_function = float(objective_function_str)
-    else:
-        objective_function = "Perfect_match"
+    objective_function = float(objective_function_str) if objective_function_str != "Perfect_match" else "Perfect_match"
 
     # Get all SQS structures and objective functions
     allsqs = []
@@ -223,10 +217,7 @@ def _parse_sqs_path(path) -> Sqs:
 
         objective_function_str = lines[-1].split("=")[-1].strip()
         obj: float | str
-        if objective_function_str != "Perfect_match":
-            obj = float(objective_function_str)
-        else:
-            obj = "Perfect_match"
+        obj = float(objective_function_str) if objective_function_str != "Perfect_match" else "Perfect_match"
         allsqs.append({"structure": sqs, "objective_function": obj})
 
     clusters = _parse_clusters(path / "clusters.out")
@@ -244,12 +235,11 @@ def _parse_clusters(filename):
     """
     Private function to parse clusters.out file
     Args:
-        path: directory to perform parsing
+        path: directory to perform parsing.
 
     Returns:
         List of dicts
     """
-
     with open(filename) as f:
         lines = f.readlines()
 

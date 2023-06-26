@@ -1,20 +1,22 @@
-"""
-Provides analysis of site symmetries.
-"""
+"""Provides analysis of site symmetries."""
 
 from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[SymmOp]]:
     """
     Get all the point group operations centered on each atomic site
-    in the form [[point operations of site index 1]...[[point operations of site index N]]]
+    in the form [[point operations of site index 1]...[[point operations of site index N]]].
 
     Args:
         struct: Pymatgen structure
@@ -50,7 +52,7 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
 def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp]], tol: float = 0.1):
     """
     Get all the point group operations shared by a pair of atomic sites
-    in the form [[point operations of site index 1],[],...,[]]
+    in the form [[point operations of site index 1],[],...,[]].
 
     Args:
         struct: Pymatgen structure

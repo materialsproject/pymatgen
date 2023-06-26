@@ -1,5 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 Enumerator with the libxc identifiers.
 This is a low level object, client code should not interact with LibxcFunc directly
@@ -407,11 +405,10 @@ class LibxcFunc(Enum):
 
     # end_include_dont_touch
 
-    def __init__(self, num):
+    def __init__(self, _num):
         """
-        Init.
-
-        :param num: Number for the xc.
+        Args:
+            num: Number for the xc.
         """
         info = _all_xcfuncs[self.value]
         self.kind = info["Kind"]
@@ -424,7 +421,7 @@ class LibxcFunc(Enum):
     def all_families():
         """
         List of strings with the libxc families.
-        Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA
+        Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA.
         """
         return sorted({d["Family"] for d in _all_xcfuncs.values()})
 
@@ -433,33 +430,33 @@ class LibxcFunc(Enum):
         """
         List of strings with the libxc kinds.
         Also in this case, the string is obtained by remove the XC_ prefix.
-        XC_CORRELATION --> CORRELATION
+        XC_CORRELATION --> CORRELATION.
         """
         return sorted({d["Kind"] for d in _all_xcfuncs.values()})
 
     @property
     def info_dict(self):
-        """Dictionary with metadata. see libxc_docs.json"""
+        """Dictionary with metadata. see libxc_docs.json."""
         return _all_xcfuncs[self.value]
 
     @property
     def is_x_kind(self) -> bool:
-        """True if this is an exchange-only functional"""
+        """True if this is an exchange-only functional."""
         return self.kind == "EXCHANGE"
 
     @property
     def is_c_kind(self) -> bool:
-        """True if this is a correlation-only functional"""
+        """True if this is a correlation-only functional."""
         return self.kind == "CORRELATION"
 
     @property
     def is_k_kind(self) -> bool:
-        """True if this is a kinetic functional"""
+        """True if this is a kinetic functional."""
         return self.kind == "KINETIC"
 
     @property
     def is_xc_kind(self) -> bool:
-        """True if this is a exchange+correlation functional"""
+        """True if this is a exchange+correlation functional."""
         return self.kind == "EXCHANGE_CORRELATION"
 
     @property
@@ -507,9 +504,7 @@ class LibxcFunc(Enum):
         return LibxcFunc[d["name"]]
 
     def to_json(self):
-        """
-        Returns a json string representation of the MSONable object.
-        """
+        """Returns a json string representation of the MSONable object."""
         return json.dumps(self.as_dict(), cls=MontyEncoder)
 
 

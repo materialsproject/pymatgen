@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -9,11 +6,7 @@ import warnings
 
 from pytest import approx
 
-from pymatgen.analysis.energy_models import (
-    EwaldElectrostaticModel,
-    IsingModel,
-    SymmetryModel,
-)
+from pymatgen.analysis.energy_models import EwaldElectrostaticModel, IsingModel, SymmetryModel
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
@@ -28,8 +21,8 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
 
     def test_get_energy(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0.00], [0.00, -2.0, 3.0]])
-        s = Structure(
+        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
+        struct = Structure(
             lattice,
             [
                 {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
@@ -42,7 +35,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
 
         m = EwaldElectrostaticModel()
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
-        assert m.get_energy(s) == approx(-264.66364858, abs=1e-2)  # Result from GULP
+        assert m.get_energy(struct) == approx(-264.66364858, abs=1e-2)  # Result from GULP
         s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
         assert m.get_energy(s2) == approx(-145.39050015844839, abs=1e-4)
 
@@ -71,12 +64,12 @@ class IsingModelTest(unittest.TestCase):
         m = IsingModel(5, 6)
         from pymatgen.core.periodic_table import Species
 
-        s = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
-        s.replace_species({"Fe": Species("Fe", 2, {"spin": 4})})
-        assert m.get_energy(s) == approx(172.81260515787977)
-        s[4] = Species("Fe", 2, {"spin": -4})
-        s[5] = Species("Fe", 2, {"spin": -4})
-        assert m.get_energy(s) == approx(51.97424405382921)
+        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
+        struct.replace_species({"Fe": Species("Fe", 2, {"spin": 4})})
+        assert m.get_energy(struct) == approx(172.81260515787977)
+        struct[4] = Species("Fe", 2, {"spin": -4})
+        struct[5] = Species("Fe", 2, {"spin": -4})
+        assert m.get_energy(struct) == approx(51.97424405382921)
 
     def test_to_from_dict(self):
         m = IsingModel(5, 4)

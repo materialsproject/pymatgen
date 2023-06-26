@@ -50,6 +50,12 @@ The version at the [Python Package Index (PyPI)](https://pypi.org/project/pymatg
 pip install pymatgen
 ```
 
+If you'd like to use the latest unreleased changes on the main branch, you can install directly from GitHub:
+
+```sh
+pip install -U git+https://github.com/materialsproject/pymatgen
+```
+
 The minimum Python version is 3.8. Some extra functionality (e.g., generation of POTCARs) does require additional setup (see the [`pymatgen` page]).
 
 ## Change Log

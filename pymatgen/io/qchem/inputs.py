@@ -1,16 +1,10 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Classes for reading/manipulating/writing QChem input files.
-"""
+"""Classes for reading/manipulating/writing QChem input files."""
 
 from __future__ import annotations
 
 import logging
 import re
-from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from monty.io import zopen
 
@@ -18,6 +12,9 @@ from pymatgen.core import Molecule
 from pymatgen.io.core import InputFile
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -32,7 +29,7 @@ logger = logging.getLogger(__name__)
 class QCInput(InputFile):
     """
     An object representing a QChem input file. QCInput attributes represent different sections of a QChem input file.
-    To add a new section one needs to modify __init__, __str__, from_sting and add staticmethods
+    To add a new section one needs to modify __init__, __str__, from_sting and add static methods
     to read and write the new section i.e. section_template and read_section. By design, there is very little (or no)
     checking that input parameters conform to the appropriate QChem format, this responsible lands on the user or a
     separate error handling software.
@@ -107,9 +104,9 @@ class QCInput(InputFile):
                     A list of lists of dictionaries, where each dictionary represents a charge constraint in the
                     cdft section of the QChem input file.
 
-                    Each entry in the main list represents one state (allowing for multiconfiguration calculations
-                    using constrainted density functional theory - configuration interaction (CDFT-CI).
-                    Each state is relresented by a list, which itself contains some number of constraints
+                    Each entry in the main list represents one state (allowing for multi-configuration calculations
+                    using constrained density functional theory - configuration interaction (CDFT-CI).
+                    Each state is represented by a list, which itself contains some number of constraints
                     (dictionaries).
 
                     Ex:
@@ -124,7 +121,7 @@ class QCInput(InputFile):
                     Note that a type of None will default to a charge constraint (which can also be accessed by
                     requesting a type of "c" or "charge".
 
-                    2. For a multireference calculation:
+                    2. For a multi-reference calculation:
                     cdft=[
                         [
                             {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27],
@@ -191,9 +188,8 @@ class QCInput(InputFile):
 
         if "basis" not in self.rem:
             raise ValueError("The rem dictionary must contain a 'basis' entry")
-        if "method" not in self.rem:
-            if "exchange" not in self.rem:
-                raise ValueError("The rem dictionary must contain either a 'method' entry or an 'exchange' entry")
+        if "method" not in self.rem and "exchange" not in self.rem:
+            raise ValueError("The rem dictionary must contain either a 'method' entry or an 'exchange' entry")
         if "job_type" not in self.rem:
             raise ValueError("The rem dictionary must contain a 'job_type' entry")
         if self.rem.get("job_type").lower() not in valid_job_types:
@@ -207,9 +203,7 @@ class QCInput(InputFile):
         #   - Check OPT and PCM sections?
 
     def get_string(self):
-        """
-        Return a string representation of an entire input file.
-        """
+        """Return a string representation of an entire input file."""
         return str(self)
 
     def __str__(self):
@@ -276,7 +270,7 @@ class QCInput(InputFile):
     def multi_job_string(job_list: list[QCInput]) -> str:
         """
         Args:
-            job_list (): List of jobs
+            job_list (): List of jobs.
 
         Returns:
             (str) String representation of multi job input file.
@@ -304,20 +298,9 @@ class QCInput(InputFile):
         molecule = cls.read_molecule(string)
         rem = cls.read_rem(string)
         # only molecule and rem are necessary everything else is checked
-        opt = None
-        pcm = None
-        solvent = None
-        smx = None
-        scan = None
-        vdw = None
+        opt = pcm = solvent = smx = scan = vdw = None
         vdw_mode = "atomic"
-        plots = None
-        nbo = None
-        geom_opt = None
-        cdft = None
-        almo_coupling = None
-        svp = None
-        pcm_nonels = None
+        plots = nbo = geom_opt = cdft = almo_coupling = svp = pcm_nonels = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -379,6 +362,7 @@ class QCInput(InputFile):
     def from_file(filename: str | Path) -> QCInput:
         """
         Create QcInput from file.
+
         Args:
             filename (str): Filename
 
@@ -392,6 +376,7 @@ class QCInput(InputFile):
     def from_multi_jobs_file(cls, filename: str) -> list[QCInput]:
         """
         Create list of QcInput from a file.
+
         Args:
             filename (str): Filename
 
@@ -402,14 +387,13 @@ class QCInput(InputFile):
             # the delimiter between QChem jobs is @@@
             multi_job_strings = f.read().split("@@@")
             # list of individual QChem jobs
-            input_list = [cls.from_string(i) for i in multi_job_strings]
-            return input_list
+            return [cls.from_string(i) for i in multi_job_strings]
 
     @staticmethod
     def molecule_template(molecule: Molecule | list[Molecule] | Literal["read"]) -> str:
         """
         Args:
-            molecule (Molecule, list of Molecules, or "read")
+            molecule (Molecule, list of Molecules, or "read").
 
         Returns:
             (str) Molecule template.
@@ -420,9 +404,8 @@ class QCInput(InputFile):
         mol_list.append("$molecule")
 
         # Edge case; can't express molecule as fragments with only one fragment
-        if isinstance(molecule, list):
-            if len(molecule) == 1:
-                molecule = molecule[0]
+        if isinstance(molecule, list) and len(molecule) == 1:
+            molecule = molecule[0]
 
         if isinstance(molecule, str):
             if molecule == "read":
@@ -554,7 +537,7 @@ class QCInput(InputFile):
         """
         Args:
             scan (dict): Dictionary with scan section information.
-                Ex: {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
+                Ex: {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}.
 
         Returns:
             String representing Q-Chem input format for scan section
@@ -583,7 +566,7 @@ class QCInput(InputFile):
                 represent the atomic number associated with each radius (e.g., '12' = carbon).
                 In 'sequential' mode, dict keys represent the sequential position of
                 a single specific atom in the input structure.
-                **NOTE: keys must be given as strings even though they are numbers!**
+                **NOTE: keys must be given as strings even though they are numbers!**.
 
         Returns:
             String representing Q-Chem input format for van_der_waals section
@@ -675,26 +658,23 @@ class QCInput(InputFile):
     def cdft_template(cdft: list[list[dict]]) -> str:
         """
         Args:
-            cdft: list of lists of dicts
+            cdft: list of lists of dicts.
 
         Returns:
             (str)
         """
-
-        cdft_list = list()
+        cdft_list = []
         cdft_list.append("$cdft")
         for ii, state in enumerate(cdft):
             for constraint in state:
                 types = constraint["types"]
                 cdft_list.append(f"   {constraint['value']}")
 
-                type_strings = list()
-                for t in types:
-                    if t is None:
+                type_strings = []
+                for typ in types:
+                    if typ is None or typ.lower() in ["c", "charge"]:
                         type_strings.append("")
-                    elif t.lower() in ["c", "charge"]:
-                        type_strings.append("")
-                    elif t.lower() in ["s", "spin"]:
+                    elif typ.lower() in ["s", "spin"]:
                         type_strings.append("s")
                     else:
                         raise ValueError("Invalid CDFT constraint type!")
@@ -720,13 +700,12 @@ class QCInput(InputFile):
     def almo_template(almo_coupling: list[list[tuple[int, int]]]) -> str:
         """
         Args:
-            almo: list of lists of int 2-tuples
+            almo: list of lists of int 2-tuples.
 
         Returns:
             (str)
         """
-
-        almo_list = list()
+        almo_list = []
         almo_list.append("$almo_coupling")
 
         # ALMO coupling calculations always involve 2 states
@@ -814,8 +793,7 @@ class QCInput(InputFile):
         Returns:
             Molecule
         """
-        charge = None
-        spin_mult = None
+        charge = spin_mult = None
         patterns = {
             "read": r"^\s*\$molecule\n\s*(read)",
             "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d+",
@@ -829,10 +807,7 @@ class QCInput(InputFile):
             charge = float(matches["charge"][0][0])
         if "spin_mult" in matches:
             spin_mult = int(matches["spin_mult"][0][0])
-        if "fragment" in matches:
-            multi_mol = True
-        else:
-            multi_mol = False
+        multi_mol = "fragment" in matches
 
         if not multi_mol:
             header = r"^\s*\$molecule\n\s*(?:\-)*\d+\s+(?:\-)*\d+"
@@ -846,26 +821,26 @@ class QCInput(InputFile):
             else:
                 mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
             return mol
-        else:
-            header = r"\s*(?:\-)*\d+\s+(?:\-)*\d+"
-            row = r"\s*([A-Za-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-            footer = r"(:?(:?\-\-)|(:?\$end))"
 
-            molecules = list()
+        header = r"\s*(?:\-)*\d+\s+(?:\-)*\d+"
+        row = r"\s*([A-Za-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+        footer = r"(:?(:?\-\-)|(:?\$end))"
 
-            patterns = {"charge_spin": r"\s*\-\-\s*([\-0-9]+)\s+([\-0-9]+)"}
-            matches = read_pattern(string, patterns)
+        molecules = []
 
-            mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-            for match, table in zip(matches.get("charge_spin"), mol_table):
-                charge = int(match[0])
-                spin = int(match[1])
-                species = [val[0] for val in table]
-                coords = [[float(val[1]), float(val[2]), float(val[3])] for val in table]
-                mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin)
-                molecules.append(mol)
+        patterns = {"charge_spin": r"\s*\-\-\s*([\-0-9]+)\s+([\-0-9]+)"}
+        matches = read_pattern(string, patterns)
 
-            return molecules
+        mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        for match, table in zip(matches.get("charge_spin"), mol_table):
+            charge = int(match[0])
+            spin = int(match[1])
+            species = [val[0] for val in table]
+            coords = [[float(val[1]), float(val[2]), float(val[3])] for val in table]
+            mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin)
+            molecules.append(mol)
+
+        return molecules
 
     @staticmethod
     def read_rem(string: str) -> dict:
@@ -985,10 +960,7 @@ class QCInput(InputFile):
             print("No valid vdW inputs found. Note that there should be no '=' characters in vdW input lines.")
             return "", {}
 
-        if vdw_table[0][0][0] == 2:
-            mode = "sequential"
-        else:
-            mode = "atomic"
+        mode = "sequential" if vdw_table[0][0][0] == 2 else "atomic"
 
         return mode, dict(vdw_table[0][1:])
 
@@ -1156,7 +1128,6 @@ class QCInput(InputFile):
         Returns:
              (list of lists of dicts) cdft parameters
         """
-
         pattern_sec = {
             "full_section": r"\$cdft((:?(:?\s*[0-9\.\-]+\s+[0-9]+\s+[0-9]+(:?\s+[A-Za-z]+)?\s*\n)+|"
             r"(:?\s*[0-9\.\-]+\s*\n)|(:?\s*\-+\s*\n))+)\$end"
@@ -1169,23 +1140,23 @@ class QCInput(InputFile):
         section = read_pattern(string, pattern_sec)["full_section"]
         if len(section) == 0:
             print("No valid cdft inputs found.")
-            return list()
+            return []
 
-        cdft = list()
+        cdft = []
         section = section[0][0]
         states = re.split(r"\-{2,25}", section)
         for state in states:
-            state_list = list()
+            state_list = []
             const_out = list(read_pattern(state, pattern_const).get("constraint"))
             if len(const_out) == 0:
                 continue
             for const in const_out:
                 const_dict = {
                     "value": float(const[0]),
-                    "coefficients": list(),
-                    "first_atoms": list(),
-                    "last_atoms": list(),
-                    "types": list(),
+                    "coefficients": [],
+                    "first_atoms": [],
+                    "last_atoms": [],
+                    "types": [],
                 }  # type: ignore
                 subconsts = const[1].strip().split("\n")
                 for subconst in subconsts:
@@ -1215,7 +1186,6 @@ class QCInput(InputFile):
         Returns:
             (list of lists of int 2-tuples) almo_coupling parameters
         """
-
         pattern = {
             "key": r"\$almo_coupling\s*\n((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\-\-"
             r"((?:\s*[\-0-9]+\s+[\-0-9]+\s*\n)+)\s*\$end"
@@ -1225,7 +1195,7 @@ class QCInput(InputFile):
 
         if len(section) == 0:
             print("No valid almo inputs found.")
-            return list()
+            return []
 
         section = section[0]
 
@@ -1245,9 +1215,7 @@ class QCInput(InputFile):
 
     @staticmethod
     def read_svp(string: str) -> dict:
-        """
-        Read svp parameters from string.
-        """
+        """Read svp parameters from string."""
         header = r"^\s*\$svp"
         row = r"(\w.*)\n"
         footer = r"^\s*\$end"

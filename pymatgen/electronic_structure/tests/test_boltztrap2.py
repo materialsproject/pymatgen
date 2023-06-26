@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -28,8 +25,6 @@ try:
     BOLTZTRAP2_PRESENT = True
 except Exception:
     BOLTZTRAP2_PRESENT = False
-
-# BOLTZTRAP2_PRESENT = False
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap2")
 
@@ -360,7 +355,3 @@ class BztPlotterTest(unittest.TestCase):
         assert fig is not None
         fig = self.bztPlotter.plot_dos()
         assert fig is not None
-
-
-if __name__ == "__main__":
-    unittest.main()

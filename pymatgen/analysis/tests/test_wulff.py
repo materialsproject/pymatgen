@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
+from mpl_toolkits.mplot3d import Axes3D
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.wulff import WulffShape
@@ -70,14 +71,13 @@ class WulffShapeTest(PymatgenTest):
 
         self.surface_properties = surface_properties
 
-    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plot(self):
-        # Basic test, not really a unittest.
-        self.wulff_Ti.get_plot()
-        self.wulff_Nb.get_plot()
-        self.wulff_Ir.get_plot()
+        # Basic test to check figure contains a single Axes3D object
+        for wulff in (self.wulff_Nb, self.wulff_Ir, self.wulff_Ti):
+            plt = wulff.get_plot()
+            assert len(plt.gcf().get_axes()) == 1
+            assert isinstance(plt.gcf().get_axes()[0], Axes3D)
 
-    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plotly(self):
         # Basic test, not really a unittest.
         self.wulff_Ti.get_plotly()
@@ -104,8 +104,7 @@ class WulffShapeTest(PymatgenTest):
                 symm_point = op.operate(point)
                 if in_coord_list(wulff_vertices, symm_point):
                     continue
-                else:
-                    return False
+                return False
         return True
 
     def consistency_tests(self):
@@ -117,7 +116,7 @@ class WulffShapeTest(PymatgenTest):
         # is the most dominant facet on the Wulff shape
 
         fractional_areas = self.wulff_Ir.area_fraction_dict
-        miller_list = [hkl for hkl in fractional_areas]
+        miller_list = list(fractional_areas)
         area_list = [fractional_areas[hkl] for hkl in fractional_areas]
         assert miller_list[area_list.index(max(area_list))] == (1, 1, 1)
 
@@ -160,11 +159,7 @@ class WulffShapeTest(PymatgenTest):
         # Simple test to check if the values of some
         # properties are consistent with what we already have
 
-        wulff_shapes = {
-            "mp-8636": self.wulff_Nb,
-            "mp-72": self.wulff_Ti,
-            "mp-101": self.wulff_Ir,
-        }
+        wulff_shapes = {"mp-8636": self.wulff_Nb, "mp-72": self.wulff_Ti, "mp-101": self.wulff_Ir}
         for mp_id, wulff in wulff_shapes.items():
             properties = self.surface_properties[mp_id]
             assert round(wulff.weighted_surface_energy, 3) == round(properties["weighted_surface_energy"], 3)
@@ -173,11 +168,7 @@ class WulffShapeTest(PymatgenTest):
 
     def test_corner_and_edges(self):
         # Test if it is returning the correct number of corner and edges
-        self.assertArrayEqual(self.cube.tot_corner_sites, 8)
-        self.assertArrayEqual(self.cube.tot_edges, 12)
-        self.assertArrayEqual(self.hex_prism.tot_corner_sites, 12)
-        self.assertArrayEqual(self.hex_prism.tot_edges, 18)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert_array_equal(self.cube.tot_corner_sites, 8)
+        assert_array_equal(self.cube.tot_edges, 12)
+        assert_array_equal(self.hex_prism.tot_corner_sites, 12)
+        assert_array_equal(self.hex_prism.tot_edges, 18)

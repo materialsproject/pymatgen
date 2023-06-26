@@ -1,9 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Wrapper classes for Cif input and output from Structures.
-"""
+"""Wrapper classes for Cif input and output from Structures."""
 
 from __future__ import annotations
 
@@ -45,17 +40,6 @@ space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # t
 
 space_groups.update({sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]})  # type: ignore
 
-_COD_DATA = None
-
-
-def _get_cod_data():
-    global _COD_DATA
-
-    if _COD_DATA is None:
-        _COD_DATA = loadfn(os.path.join(os.path.dirname(os.path.dirname(__file__)), "symmetry", "symm_ops.json"))
-
-    return _COD_DATA
-
 
 class CifBlock:
     """
@@ -73,7 +57,7 @@ class CifBlock:
             data: dict of data to go into the cif. Values should be convertible to string,
                 or lists of these if the key is in a loop
             loops: list of lists of keys, grouped by which loop they should appear in
-            header: name of the block (appears after the data_ on the first line)
+            header: name of the block (appears after the data_ on the first line).
         """
         self.loops = loops
         self.data = data
@@ -90,47 +74,45 @@ class CifBlock:
         return self.data[key]
 
     def __str__(self):
-        """
-        Returns the cif string for the data block
-        """
-        s = [f"data_{self.header}"]
+        """Returns the cif string for the data block."""
+        out = [f"data_{self.header}"]
         keys = list(self.data)
         written = []
-        for k in keys:
-            if k in written:
+        for key in keys:
+            if key in written:
                 continue
-            for l in self.loops:
+            for loop in self.loops:
                 # search for a corresponding loop
-                if k in l:
-                    s.append(self._loop_to_string(l))
-                    written.extend(l)
+                if key in loop:
+                    out.append(self._loop_to_string(loop))
+                    written.extend(loop)
                     break
-            if k not in written:
+            if key not in written:
                 # k didn't belong to a loop
-                v = self._format_field(self.data[k])
-                if len(k) + len(v) + 3 < self.maxlen:
-                    s.append(f"{k}   {v}")
+                v = self._format_field(self.data[key])
+                if len(key) + len(v) + 3 < self.maxlen:
+                    out.append(f"{key}   {v}")
                 else:
-                    s.extend([k, v])
-        return "\n".join(s)
+                    out.extend([key, v])
+        return "\n".join(out)
 
     def _loop_to_string(self, loop):
-        s = "loop_"
-        for l in loop:
-            s += "\n " + l
+        out = "loop_"
+        for line in loop:
+            out += "\n " + line
         for fields in zip(*(self.data[k] for k in loop)):
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":
-                    s += line + "\n" + val
+                    out += line + "\n" + val
                     line = "\n"
                 elif len(line) + len(val) + 2 < self.maxlen:
                     line += "  " + val
                 else:
-                    s += line
+                    out += line
                     line = "\n  " + val
-            s += line
-        return s
+            out += line
+        return out
 
     def _format_field(self, v):
         v = str(v).strip()
@@ -140,10 +122,7 @@ class CifBlock:
         if v == "":
             return '""'
         if (" " in v or v[0] == "_") and not (v[0] == "'" and v[-1] == "'") and not (v[0] == '"' and v[-1] == '"'):
-            if "'" in v:
-                q = '"'
-            else:
-                q = "'"
+            q = '"' if "'" in v else "'"
             v = q + v + q
         return v
 
@@ -166,21 +145,21 @@ class CifBlock:
         # (these get eaten by the first expression)
         # ending quotes must not be followed by non-whitespace
         p = re.compile(r"""([^'"\s][\S]*)|'(.*?)'(?!\S)|"(.*?)"(?!\S)""")
-        for l in string.splitlines():
+        for line in string.splitlines():
             if multiline:
-                if l.startswith(";"):
+                if line.startswith(";"):
                     multiline = False
                     q.append(("", "", "", " ".join(ml)))
                     ml = []
-                    l = l[1:].strip()
+                    line = line[1:].strip()
                 else:
-                    ml.append(l)
+                    ml.append(line)
                     continue
-            if l.startswith(";"):
+            if line.startswith(";"):
                 multiline = True
-                ml.append(l[1:].strip())
+                ml.append(line[1:].strip())
             else:
-                for s in p.findall(l):
+                for s in p.findall(line):
                     # s is tuple. location of the data in the tuple
                     # depends on whether it was quoted in the input
                     q.append(s)
@@ -228,14 +207,12 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif issue := "".join(s).strip():
-                warnings.warn(f"Possible issue in cif file at line: {issue}")
+                warnings.warn(f"Possible issue in CIF file at line: {issue}")
         return cls(data, loops, header)
 
 
 class CifFile:
-    """
-    Reads and parses CifBlocks from a .cif file or string
-    """
+    """Reads and parses CifBlocks from a .cif file or string."""
 
     def __init__(self, data, orig_string=None, comment=None):
         """
@@ -260,7 +237,7 @@ class CifFile:
         :param string: String representation.
         :return: CifFile
         """
-        d = {}
+        dct = {}
         for x in re.split(r"^\s*data_", "x\n" + string, flags=re.MULTILINE | re.DOTALL)[1:]:
             # Skip over Cif block that contains powder diffraction data.
             # Some elements in this block were missing from CIF files in
@@ -270,8 +247,8 @@ class CifFile:
             if "powder_pattern" in re.split(r"\n", x, 1)[0]:
                 continue
             c = CifBlock.from_string("data_" + x)
-            d[c.header] = c
-        return cls(d, string)
+            dct[c.header] = c
+        return cls(dct, string)
 
     @classmethod
     def from_file(cls, filename):
@@ -318,9 +295,7 @@ class CifParser:
         self.warnings = []
 
         def is_magcif() -> bool:
-            """
-            Checks to see if file appears to be a magCIF file (heuristic).
-            """
+            """Checks to see if file appears to be a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
             prefixes = [
@@ -607,7 +582,7 @@ class CifParser:
         """
         Generate the lattice from the provided lattice parameters. In
         the absence of all six lattice parameters, the crystal system
-        and necessary parameters are parsed
+        and necessary parameters are parsed.
         """
         try:
             return self.get_lattice_no_exception(
@@ -616,16 +591,13 @@ class CifParser:
 
         except KeyError:
             # Missing Key search for cell setting
-            for lattice_lable in [
-                "_symmetry_cell_setting",
-                "_space_group_crystal_system",
-            ]:
+            for lattice_lable in ["_symmetry_cell_setting", "_space_group_crystal_system"]:
                 if data.data.get(lattice_lable):
                     lattice_type = data.data.get(lattice_lable).lower()
                     try:
                         required_args = getargspec(getattr(Lattice, lattice_type)).args
 
-                        lengths = (l for l in length_strings if l in required_args)
+                        lengths = (len for len in length_strings if len in required_args)
                         angles = (a for a in angle_strings if a in required_args)
                         return self.get_lattice(data, lengths, angles, lattice_type=lattice_type)
                     except AttributeError as exc:
@@ -641,7 +613,7 @@ class CifParser:
         data, length_strings=("a", "b", "c"), angle_strings=("alpha", "beta", "gamma"), lattice_type=None
     ):
         """
-        Take a dictionary of CIF data and returns a pymatgen Lattice object
+        Take a dictionary of CIF data and returns a pymatgen Lattice object.
 
         Args:
             data: a dictionary of the CIF file
@@ -717,7 +689,10 @@ class CifParser:
                         pass
 
                     try:
-                        for d in _get_cod_data():
+                        cod_data = loadfn(
+                            os.path.join(os.path.dirname(os.path.dirname(__file__)), "symmetry", "symm_ops.json")
+                        )
+                        for d in cod_data:
                             if sg == re.sub(r"\s+", "", d["hermann_mauguin"]):
                                 xyz = d["symops"]
                                 symops = [SymmOp.from_xyz_string(s) for s in xyz]
@@ -760,14 +735,15 @@ class CifParser:
         Separate function since additional operation for time reversal symmetry
         (which changes magnetic moments on sites) needs to be returned.
         """
-        magsymmops = []
+        mag_symm_ops = []
+        bns_name = data.data.get("_space_group_magn.name_BNS")  # get BNS label for MagneticSpaceGroup()
+        bns_num = data.data.get("_space_group_magn.number_BNS")  # get BNS number for MagneticSpaceGroup()
 
         # check to see if magCIF file explicitly contains magnetic symmetry operations
-        if data.data.get("_space_group_symop_magn_operation.xyz"):
-            xyzt = data.data.get("_space_group_symop_magn_operation.xyz")
+        if xyzt := data.data.get("_space_group_symop_magn_operation.xyz"):
             if isinstance(xyzt, str):
                 xyzt = [xyzt]
-            magsymmops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
+            mag_symm_ops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
             if data.data.get("_space_group_symop_magn_centering.xyz"):
                 xyzt = data.data.get("_space_group_symop_magn_centering.xyz")
@@ -776,7 +752,7 @@ class CifParser:
                 centering_symops = [MagSymmOp.from_xyzt_string(s) for s in xyzt]
 
                 all_ops = []
-                for op in magsymmops:
+                for op in mag_symm_ops:
                     for centering_op in centering_symops:
                         new_translation = [
                             i - np.floor(i) for i in op.translation_vector + centering_op.translation_vector
@@ -789,43 +765,34 @@ class CifParser:
                                 time_reversal=new_time_reversal,
                             )
                         )
-                magsymmops = all_ops
+                mag_symm_ops = all_ops
 
         # else check to see if it specifies a magnetic space group
-        elif data.data.get("_space_group_magn.name_BNS") or data.data.get("_space_group_magn.number_BNS"):
-            if data.data.get("_space_group_magn.name_BNS"):
-                # get BNS label for MagneticSpaceGroup()
-                id = data.data.get("_space_group_magn.name_BNS")
-            else:
-                # get BNS number for MagneticSpaceGroup()
-                # by converting string to list of ints
-                id = list(map(int, (data.data.get("_space_group_magn.number_BNS").split("."))))
+        elif bns_name or bns_num:
+            label = bns_name if bns_name else list(map(int, (bns_num.split("."))))
 
-            if data.data.get("_space_group_magn.transform_BNS_Pp_abc"):
-                if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
-                    jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
-                    msg = MagneticSpaceGroup(id, jf)
+            if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
+                jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
+                msg = MagneticSpaceGroup(label, jf)
 
             elif data.data.get("_space_group_magn.transform_BNS_Pp"):
                 return NotImplementedError("Incomplete specification to implement.")
             else:
-                msg = MagneticSpaceGroup(id)
+                msg = MagneticSpaceGroup(label)
 
-            magsymmops = msg.symmetry_ops
+            mag_symm_ops = msg.symmetry_ops
 
-        if not magsymmops:
+        if not mag_symm_ops:
             msg = "No magnetic symmetry detected, using primitive symmetry."
             warnings.warn(msg)
             self.warnings.append(msg)
-            magsymmops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
+            mag_symm_ops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
 
-        return magsymmops
+        return mag_symm_ops
 
     @staticmethod
     def parse_oxi_states(data):
-        """
-        Parse oxidation states from data dictionary
-        """
+        """Parse oxidation states from data dictionary."""
         try:
             oxi_states = {
                 data["_atom_type_symbol"][i]: str2float(data["_atom_type_oxidation_number"][i])
@@ -842,9 +809,7 @@ class CifParser:
 
     @staticmethod
     def parse_magmoms(data, lattice=None):
-        """
-        Parse atomic magnetic moments from data dictionary
-        """
+        """Parse atomic magnetic moments from data dictionary."""
         if lattice is None:
             raise Exception("Magmoms given in terms of crystal axes in magCIF spec.")
         try:
@@ -908,9 +873,7 @@ class CifParser:
         return parsed_sym
 
     def _get_structure(self, data, primitive, symmetrized, skip_checks):
-        """
-        Generate structure from part of the cif.
-        """
+        """Generate structure from part of the cif."""
 
         def get_num_implicit_hydrogens(sym):
             num_h = {"Wat": 2, "wat": 2, "O-H": 1}
@@ -1042,7 +1005,7 @@ class CifParser:
                         coord_to_magmoms[match] = None
 
         sum_occu = [
-            sum(c.values()) for c in coord_to_species.values() if not set(c.elements) == {Element("O"), Element("H")}
+            sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
         ]
         if any(o > 1 for o in sum_occu):
             msg = (
@@ -1073,7 +1036,7 @@ class CifParser:
         if coord_to_species.items():
             for idx, (comp, group) in enumerate(
                 groupby(
-                    sorted(list(coord_to_species.items()), key=lambda x: x[1]),
+                    sorted(coord_to_species.items(), key=lambda x: x[1]),
                     key=lambda x: x[1],
                 )
             ):
@@ -1169,6 +1132,7 @@ class CifParser:
                 struct = struct.get_reduced_structure()
 
             return struct
+        return None
 
     def get_structures(self, primitive=True, symmetrized=False, skip_checks=False):
         """
@@ -1207,9 +1171,9 @@ class CifParser:
         structures = []
         for i, d in enumerate(self._cif.data.values()):
             try:
-                s = self._get_structure(d, primitive, symmetrized, skip_checks)
-                if s:
-                    structures.append(s)
+                struct = self._get_structure(d, primitive, symmetrized, skip_checks)
+                if struct:
+                    structures.append(struct)
             except (KeyError, ValueError) as exc:
                 # Warn the user (Errors should never pass silently)
                 # A user reported a problem with cif files produced by Avogadro
@@ -1217,7 +1181,7 @@ class CifParser:
                 self.warnings.append(str(exc))
                 warnings.warn(f"No structure parsed for {i + 1} structure in CIF. Section of CIF file below.")
                 warnings.warn(str(d))
-                warnings.warn(f"Error is {str(exc)}.")
+                warnings.warn(f"Error is {exc}.")
 
         if self.warnings:
             warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
@@ -1229,7 +1193,7 @@ class CifParser:
         """
         Get BibTeX reference from CIF file.
         :param data:
-        :return: BibTeX string
+        :return: BibTeX string.
         """
         try:
             from pybtex.database import BibliographyData, Entry
@@ -1275,9 +1239,8 @@ class CifParser:
             # convert to bibtex author format ('and' delimited)
             if "author" in bibtex_entry:
                 # separate out semicolon authors
-                if isinstance(bibtex_entry["author"], str):
-                    if ";" in bibtex_entry["author"]:
-                        bibtex_entry["author"] = bibtex_entry["author"].split(";")
+                if isinstance(bibtex_entry["author"], str) and ";" in bibtex_entry["author"]:
+                    bibtex_entry["author"] = bibtex_entry["author"].split(";")
 
                 if isinstance(bibtex_entry["author"], list):
                     bibtex_entry["author"] = " and ".join(bibtex_entry["author"])
@@ -1294,28 +1257,22 @@ class CifParser:
         return BibliographyData(entries).to_string(bib_format="bibtex")
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
-        d = {}
+        """:return: MSONable dict"""
+        dct = {}
         for k, v in self._cif.data.items():
-            d[k] = {}
+            dct[k] = {}
             for k2, v2 in v.data.items():
-                d[k][k2] = v2
-        return d
+                dct[k][k2] = v2
+        return dct
 
     @property
     def has_errors(self):
-        """
-        :return: Whether there are errors/warnings detected in CIF parsing.
-        """
+        """:return: Whether there are errors/warnings detected in CIF parsing."""
         return len(self.warnings) > 0
 
 
 class CifWriter:
-    """
-    A wrapper around CifFile to write CIF files from pymatgen structures.
-    """
+    """A wrapper around CifFile to write CIF files from pymatgen structures."""
 
     def __init__(
         self,
@@ -1493,35 +1450,27 @@ class CifWriter:
                     "_atom_site_moment_crystalaxis_z",
                 ]
             )
-        d = {}
-        d[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
-        self._cf = CifFile(d)
+        dct = {}
+        dct[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
+        self._cf = CifFile(dct)
 
     @property
     def ciffile(self):
-        """
-        Returns: CifFile associated with the CifWriter.
-        """
+        """Returns: CifFile associated with the CifWriter."""
         return self._cf
 
     def __str__(self):
-        """
-        Returns the cif as a string.
-        """
+        """Returns the cif as a string."""
         return str(self._cf)
 
     def write_file(self, filename):
-        """
-        Write the cif file.
-        """
+        """Write the cif file."""
         with zopen(filename, "wt") as f:
             f.write(str(self))
 
 
 def str2float(text):
-    """
-    Remove uncertainty brackets from strings and return the float.
-    """
+    """Remove uncertainty brackets from strings and return the float."""
     try:
         # Note that the ending ) is sometimes missing. That is why the code has
         # been modified to treat it as optional. Same logic applies to lists.
@@ -1529,8 +1478,8 @@ def str2float(text):
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
             return float(re.sub(r"\(.+\)*", "", text[0]))
-    except ValueError as ex:
+    except ValueError as exc:
         if text.strip() == ".":
             return 0
-        raise ex
+        raise exc
     raise ValueError(f"{text} cannot be converted to float")

@@ -1,9 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Created on Mar 18, 2012
-"""
+"""Created on Mar 18, 2012."""
 
 
 from __future__ import annotations
@@ -42,7 +37,3 @@ class BorgQueenTest(unittest.TestCase):
         queen = BorgQueen(drone)
         queen.load_data(os.path.join(PymatgenTest.TEST_FILES_DIR, "assimilated.json"))
         assert len(queen.get_data()) == 1
-
-
-if __name__ == "__main__":
-    unittest.main()

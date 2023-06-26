@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Created on Jan 24, 2012
 """
@@ -65,7 +62,3 @@ class CssrTest(unittest.TestCase):
         filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.cssr")
         cssr = Cssr.from_file(filename)
         assert isinstance(cssr.structure, Structure)
-
-
-if __name__ == "__main__":
-    unittest.main()

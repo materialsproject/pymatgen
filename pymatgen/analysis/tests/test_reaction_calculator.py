@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import unittest
@@ -13,12 +9,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
-from pymatgen.analysis.reaction_calculator import (
-    BalancedReaction,
-    ComputedReaction,
-    Reaction,
-    ReactionError,
-)
+from pymatgen.analysis.reaction_calculator import BalancedReaction, ComputedReaction, Reaction, ReactionError
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 
@@ -225,7 +216,7 @@ class ReactionTest(unittest.TestCase):
             Composition("Fe2O3"): 0.5,
         }
         entry = rxn.as_entry(energies)
-        assert entry.composition == Composition("Fe1.0 O1.5")
+        assert entry.composition == Composition("Fe1 O1.5")
         assert entry.energy == approx(-0.25, abs=1e-5)
 
     def test_products_reactants(self):
@@ -359,28 +350,28 @@ class ComputedReactionTest(unittest.TestCase):
     def setUp(self):
         d = [
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -108.56492362,
                 "parameters": {},
                 "composition": {"Li": 54},
             },
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -577.94689128,
                 "parameters": {},
                 "composition": {"O": 32, "Li": 64},
             },
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -17.02844794,
                 "parameters": {},
                 "composition": {"O": 2},
             },
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -959.64693323,
                 "parameters": {},
@@ -401,14 +392,14 @@ class ComputedReactionTest(unittest.TestCase):
     def test_calculated_reaction_energy_uncertainty(self):
         d = [
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -108.56492362,
                 "parameters": {},
                 "composition": {"Li": 54},
             },
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -17.02844794,
                 "parameters": {},
@@ -418,7 +409,7 @@ class ComputedReactionTest(unittest.TestCase):
                 "@module": "pymatgen.entries.computed_entries",
                 "@class": "ComputedEntry",
                 "energy": -38.76889738,
-                "composition": defaultdict(float, {"Li": 4.0, "O": 4.0}),
+                "composition": defaultdict(float, {"Li": 4, "O": 4}),
                 "energy_adjustments": [
                     {
                         "@module": "pymatgen.entries.computed_entries",
@@ -474,14 +465,14 @@ class ComputedReactionTest(unittest.TestCase):
         # for any product/reactant is nan
         d = [
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -108.56492362,
                 "parameters": {},
                 "composition": {"Li": 54},
             },
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -17.02844794,
                 "parameters": {},
@@ -491,7 +482,7 @@ class ComputedReactionTest(unittest.TestCase):
                 "@module": "pymatgen.entries.computed_entries",
                 "@class": "ComputedEntry",
                 "energy": -38.76889738,
-                "composition": defaultdict(float, {"Li": 4.0, "O": 4.0}),
+                "composition": defaultdict(float, {"Li": 4, "O": 4}),
                 "energy_adjustments": [
                     {
                         "@module": "pymatgen.entries.computed_entries",
@@ -550,7 +541,3 @@ class ComputedReactionTest(unittest.TestCase):
             if c > 0:
                 assert e.composition.reduced_formula == "Li2O2"
                 assert e.energy == approx(-959.64693323)
-
-
-if __name__ == "__main__":
-    unittest.main()

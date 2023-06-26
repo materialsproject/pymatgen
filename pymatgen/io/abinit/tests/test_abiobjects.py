@@ -1,12 +1,10 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.structure import Structure
@@ -52,7 +50,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
             )
             * bohr_to_ang
         )
-        self.assertArrayAlmostEqual(l2.matrix, abi_rprimd)
+        self.assert_all_close(l2.matrix, abi_rprimd)
 
         l3 = lattice_from_abivars(acell=[3, 6, 9], angdeg=(30, 40, 50))
         abi_rprimd = (
@@ -72,7 +70,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
             )
             * bohr_to_ang
         )
-        self.assertArrayAlmostEqual(l3.matrix, abi_rprimd)
+        self.assert_all_close(l3.matrix, abi_rprimd)
 
         with pytest.raises(ValueError):
             lattice_from_abivars(acell=[1, 1, 1], angdeg=(90, 90, 90), rprim=np.eye(3))
@@ -81,7 +79,6 @@ class LatticeFromAbivarsTest(PymatgenTest):
 
     def test_znucl_typat(self):
         """Test the order of typat and znucl in the Abinit input and enforce_typat, enforce_znucl."""
-
         # Ga  Ga1  1  0.33333333333333  0.666666666666667  0.500880  1.0
         # Ga  Ga2  1  0.66666666666667  0.333333333333333  0.000880  1.0
         # N  N3  1  0.333333333333333  0.666666666666667  0.124120  1.0
@@ -91,17 +88,17 @@ class LatticeFromAbivarsTest(PymatgenTest):
         # By default, znucl is filled using the first new type found in sites.
         def_vars = structure_to_abivars(gan)
         def_znucl = def_vars["znucl"]
-        self.assertArrayEqual(def_znucl, [31, 7])
+        assert_array_equal(def_znucl, [31, 7])
         def_typat = def_vars["typat"]
-        self.assertArrayEqual(def_typat, [1, 1, 2, 2])
+        assert_array_equal(def_typat, [1, 1, 2, 2])
 
         # But it's possible to enforce a particular value of typat and znucl.
         enforce_znucl = [7, 31]
         enforce_typat = [2, 2, 1, 1]
         enf_vars = structure_to_abivars(gan, enforce_znucl=enforce_znucl, enforce_typat=enforce_typat)
-        self.assertArrayEqual(enf_vars["znucl"], enforce_znucl)
-        self.assertArrayEqual(enf_vars["typat"], enforce_typat)
-        self.assertArrayEqual(def_vars["xred"], enf_vars["xred"])
+        assert_array_equal(enf_vars["znucl"], enforce_znucl)
+        assert_array_equal(enf_vars["typat"], enforce_typat)
+        assert_array_equal(def_vars["xred"], enf_vars["xred"])
 
         assert [s.symbol for s in species_by_znucl(gan)] == ["Ga", "N"]
 
@@ -128,8 +125,8 @@ class SpinModeTest(PymatgenTest):
         self.serialize_with_pickle(polarized)
 
         # Test dict methods
-        self.assertMSONable(polarized)
-        self.assertMSONable(unpolarized)
+        self.assert_msonable(polarized)
+        self.assert_msonable(unpolarized)
 
 
 class SmearingTest(PymatgenTest):
@@ -148,7 +145,7 @@ class SmearingTest(PymatgenTest):
 
         assert not nosmear
         assert nosmear != fd1ev
-        self.assertMSONable(nosmear)
+        self.assert_msonable(nosmear)
 
         new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
         assert new_fd1ev == fd1ev
@@ -157,7 +154,7 @@ class SmearingTest(PymatgenTest):
         self.serialize_with_pickle(fd1ev)
 
         # Test dict methods
-        self.assertMSONable(fd1ev)
+        self.assert_msonable(fd1ev)
 
 
 class ElectronsAlgorithmTest(PymatgenTest):
@@ -169,7 +166,7 @@ class ElectronsAlgorithmTest(PymatgenTest):
         self.serialize_with_pickle(algo)
 
         # Test dict methods
-        self.assertMSONable(algo)
+        self.assert_msonable(algo)
 
 
 class ElectronsTest(PymatgenTest):
@@ -196,7 +193,7 @@ class ElectronsTest(PymatgenTest):
         )
 
         # Test dict methods
-        self.assertMSONable(custom_electrons)
+        self.assert_msonable(custom_electrons)
 
 
 class KSamplingTest(PymatgenTest):
@@ -207,8 +204,8 @@ class KSamplingTest(PymatgenTest):
         monkhorst.to_abivars()
 
         # Test dict methods
-        self.assertMSONable(monkhorst)
-        self.assertMSONable(gamma_centered)
+        self.assert_msonable(monkhorst)
+        self.assert_msonable(gamma_centered)
 
 
 class RelaxationTest(PymatgenTest):
@@ -216,11 +213,12 @@ class RelaxationTest(PymatgenTest):
         atoms_and_cell = RelaxationMethod.atoms_and_cell()
         atoms_only = RelaxationMethod.atoms_only()
 
-        atoms_and_cell.to_abivars()
+        out_vars = atoms_and_cell.to_abivars()
+        assert {*out_vars} >= {"dilatmx", "ecutsm", "ionmov", "ntime", "optcell", "strfact"}
 
         # Test dict methods
-        self.assertMSONable(atoms_and_cell)
-        self.assertMSONable(atoms_only)
+        self.assert_msonable(atoms_and_cell)
+        self.assert_msonable(atoms_only)
 
 
 class PPModelTest(PymatgenTest):
@@ -245,4 +243,4 @@ class PPModelTest(PymatgenTest):
         self.serialize_with_pickle(godby)
 
         # Test dict methods
-        self.assertMSONable(godby)
+        self.assert_msonable(godby)

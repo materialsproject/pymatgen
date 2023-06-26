@@ -1,13 +1,11 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Write Prismatic (http://prism-em.com) input files.
-"""
+"""Write Prismatic (http://prism-em.com) input files."""
 
 from __future__ import annotations
 
-from pymatgen.core.structure import Structure
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 class Prismatic:
@@ -20,7 +18,7 @@ class Prismatic:
         """
         Args:
             structure: pymatgen Structure
-            comment (str): comment
+            comment (str): comment.
         """
         self.structure = structure
         self.comment = comment

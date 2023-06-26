@@ -93,7 +93,7 @@ class CorrectionCalculator:
                     {"formula": chemical formula, "exp energy": formation energy in eV/formula unit,
                     "uncertainty": uncertainty in formation energy}
             comp_gz: name of .json.gz file that contains computed entries
-                    data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry}
+                    data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry}.
         """
         exp_entries = loadfn(exp_gz)
         calc_entries = loadfn(comp_gz)
@@ -131,7 +131,7 @@ class CorrectionCalculator:
 
             allow = True
 
-            compound = self.calc_compounds.get(name, None)
+            compound = self.calc_compounds.get(name)
             if not compound:
                 warnings.warn(f"Compound {name} is not found in provided computed entries and is excluded from the fit")
                 continue
@@ -149,7 +149,7 @@ class CorrectionCalculator:
             for anion in self.exclude_polyanions:
                 if anion in name or anion in cmpd_info["formula"]:
                     allow = False
-                    warnings.warn(f"Compound {name} contains the polyanion {anion} and is excluded from the fit")
+                    warnings.warn(f"Compound {name} contains the poly{anion=} and is excluded from the fit")
                     break
 
             # filter out compounds that are unstable
@@ -216,7 +216,7 @@ class CorrectionCalculator:
                         try:
                             coeff.append(comp[specie])
                         except ValueError:
-                            raise ValueError(f"We can't detect this specie: {specie}")
+                            raise ValueError(f"We can't detect this {specie=} in {name=}")
 
                 self.names.append(name)
                 self.diffs.append((cmpd_info["exp energy"] - energy) / comp.num_atoms)
@@ -264,9 +264,7 @@ class CorrectionCalculator:
         return self.corrections_dict
 
     def graph_residual_error(self) -> go.Figure:
-        """
-        Graphs the residual errors for all compounds after applying computed corrections.
-        """
+        """Graphs the residual errors for all compounds after applying computed corrections."""
         if len(self.corrections) == 0:
             raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 
@@ -392,7 +390,7 @@ class CorrectionCalculator:
         o_error: dict[str, float] = {}
         f_error: dict[str, float] = {}
 
-        for specie in list(self.species) + ["ozonide"]:
+        for specie in [*self.species, "ozonide"]:
             if specie in ggau_correction_species:
                 o[specie] = self.corrections_dict[specie][0]
                 f[specie] = self.corrections_dict[specie][0]
@@ -418,10 +416,7 @@ class CorrectionCalculator:
             CompositionCorrections:
         """
         fn = name + "Compatibility.yaml"
-        if dir:
-            path = os.path.join(dir, fn)
-        else:
-            path = fn
+        path = os.path.join(dir, fn) if dir else fn
 
         yml = yaml.YAML()
         yml.default_flow_style = False
@@ -440,7 +435,7 @@ class CorrectionCalculator:
         contents["Corrections"].yaml_set_start_comment("Energy corrections in eV/atom", indent=2)
         contents["Corrections"]["GGAUMixingCorrections"].yaml_set_start_comment(
             "Composition-based corrections applied to transition metal oxides\nand fluorides to "
-            + 'make GGA and GGA+U energies compatible\nwhen compat_type = "Advanced" (default)',
+            'make GGA and GGA+U energies compatible\nwhen compat_type = "Advanced" (default)',
             indent=4,
         )
         contents["Corrections"]["CompositionCorrections"].yaml_set_start_comment(

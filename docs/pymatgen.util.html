@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.util package &mdash; pymatgen 2023.1.30 documentation</title>
+  <title>pymatgen.util package &mdash; pymatgen 2023.5.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -36,14 +38,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
-                2023.1.30
+                2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -99,7 +105,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
       <li class="breadcrumb-item active">pymatgen.util package</li>
@@ -185,13 +191,12 @@
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.coord_cython.html#pymatgen.util.coord_cython.pbc_shortest_vectors"><code class="docutils literal notranslate"><span class="pre">pbc_shortest_vectors()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.util.io_utils.html">pymatgen.util.io_utils module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.util.io_utils.html#pymatgen.util.io_utils.AtomicFile"><code class="docutils literal notranslate"><span class="pre">AtomicFile</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.io_utils.html#pymatgen.util.io_utils.AtomicFile.close"><code class="docutils literal notranslate"><span class="pre">AtomicFile.close()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.io_utils.html#pymatgen.util.io_utils.AtomicFile.discard"><code class="docutils literal notranslate"><span class="pre">AtomicFile.discard()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.util.graph_hashing.html">pymatgen.util.graph_hashing module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.util.graph_hashing.html#pymatgen.util.graph_hashing.weisfeiler_lehman_graph_hash"><code class="docutils literal notranslate"><span class="pre">weisfeiler_lehman_graph_hash()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.util.graph_hashing.html#pymatgen.util.graph_hashing.weisfeiler_lehman_subgraph_hashes"><code class="docutils literal notranslate"><span class="pre">weisfeiler_lehman_subgraph_hashes()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.util.io_utils.html#pymatgen.util.io_utils.ask_yesno"><code class="docutils literal notranslate"><span class="pre">ask_yesno()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.util.io_utils.html">pymatgen.util.io_utils module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.io_utils.html#pymatgen.util.io_utils.clean_lines"><code class="docutils literal notranslate"><span class="pre">clean_lines()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.io_utils.html#pymatgen.util.io_utils.micro_pyawk"><code class="docutils literal notranslate"><span class="pre">micro_pyawk()</span></code></a></li>
 </ul>
@@ -208,6 +213,11 @@
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.num.html#pymatgen.util.num.round_to_sigfigs"><code class="docutils literal notranslate"><span class="pre">round_to_sigfigs()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.num.html#pymatgen.util.num.strictly_decreasing"><code class="docutils literal notranslate"><span class="pre">strictly_decreasing()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.util.num.html#pymatgen.util.num.strictly_increasing"><code class="docutils literal notranslate"><span class="pre">strictly_increasing()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.util.numba.html">pymatgen.util.numba module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.util.numba.html#pymatgen.util.numba.jit"><code class="docutils literal notranslate"><span class="pre">jit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.util.numba.html#pymatgen.util.numba.njit"><code class="docutils literal notranslate"><span class="pre">njit()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.util.plotting.html">pymatgen.util.plotting module</a><ul>
@@ -279,13 +289,10 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.STRUCTURES_DIR"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.STRUCTURES_DIR</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.TEST_FILES_DIR"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.TEST_FILES_DIR</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.TEST_STRUCTURES"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.TEST_STRUCTURES</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assertArrayAlmostEqual"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assertArrayAlmostEqual()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assertArrayEqual"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assertArrayEqual()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assertDictsAlmostEqual"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assertDictsAlmostEqual()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assertMSONable"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assertMSONable()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assertStrContentEqual"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assertStrContentEqual()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assert_all_close"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assert_all_close()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assert_msonable"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assert_msonable()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.assert_str_content_equal"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assert_str_content_equal()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.fn"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.fn</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.get_mp_structure"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.get_mp_structure()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.get_structure"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.get_structure()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.serialize_with_pickle"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.serialize_with_pickle()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.testing.html#pymatgen.util.testing.PymatgenTest.warnings"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.warnings</span></code></a></li>

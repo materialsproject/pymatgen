@@ -1,17 +1,11 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Provides classes for generating high-symmetry k-paths using different conventions.
-"""
+"""Provides classes for generating high-symmetry k-paths using different conventions."""
 
 from __future__ import annotations
 
 import abc
 import itertools
-import operator
 from math import ceil, cos, e, pi, sin, tan
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from warnings import warn
 
 import networkx as nx
@@ -22,14 +16,16 @@ from scipy.linalg import sqrtm
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.typing import SpeciesLike
 
 try:
     from seekpath import get_path
 except ImportError:
     get_path = None
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
+    from pymatgen.util.typing import SpeciesLike
 
 __author__ = "Geoffroy Hautier, Katherine Latimer, Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -54,8 +50,9 @@ class KPathBase(metaclass=abc.ABCMeta):
         symprec (float): Tolerance for symmetry finding.
         angle_tolerance (float): Angle tolerance for symmetry finding.
         atol (float): Absolute tolerance used to compare structures
-            and determine symmetric equivalence of points and lines
-            in the BZ.
+            and determine symmetric equivalence of points and lines in the BZ.
+        *args: Other arguments supported by subclasses.
+        **kwargs: Other keyword arguments supported by subclasses.
         """
         self._structure = structure
         self._latt = self._structure.lattice
@@ -70,7 +67,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def structure(self):
         """
         Returns:
-        The input structure
+        The input structure.
         """
         return self._structure
 
@@ -78,7 +75,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def lattice(self):
         """
         Returns:
-        The real space lattice
+        The real space lattice.
         """
         return self._latt
 
@@ -86,7 +83,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def rec_lattice(self):
         """
         Returns:
-        The reciprocal space lattice
+        The reciprocal space lattice.
         """
         return self._rec_lattice
 
@@ -94,7 +91,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def kpath(self):
         """
         Returns:
-        The symmetry line path in reciprocal space
+        The symmetry line path in reciprocal space.
         """
         return self._kpath
 
@@ -195,7 +192,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "I" in spg_symbol:
                 self._kpath = self.bcc()
             else:
-                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
+                warn(f"Unexpected value for {spg_symbol=}")
 
         elif lattice_type == "tetragonal":
             if "P" in spg_symbol:
@@ -208,7 +205,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 else:
                     self._kpath = self.bctet2(c, a)
             else:
-                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
+                warn(f"Unexpected value for {spg_symbol=}")
 
         elif lattice_type == "orthorhombic":
             a = self._conv.lattice.abc[0]
@@ -232,7 +229,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "C" in spg_symbol or "A" in spg_symbol:
                 self._kpath = self.orcc(a, b, c)
             else:
-                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
+                warn(f"Unexpected value for {spg_symbol=}")
 
         elif lattice_type == "hexagonal":
             self._kpath = self.hex()
@@ -266,7 +263,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                     if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
             else:
-                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
+                warn(f"Unexpected value for {spg_symbol=}")
 
         elif lattice_type == "triclinic":
             kalpha = self._rec_lattice.parameters[3]
@@ -288,7 +285,7 @@ class KPathSetyawanCurtarolo(KPathBase):
     def conventional(self):
         """
         Returns:
-            The conventional cell structure
+            The conventional cell structure.
         """
         return self._conv
 
@@ -296,7 +293,7 @@ class KPathSetyawanCurtarolo(KPathBase):
     def prim(self):
         """
         Returns:
-            The primitive cell structure
+            The primitive cell structure.
         """
         return self._prim
 
@@ -304,14 +301,12 @@ class KPathSetyawanCurtarolo(KPathBase):
     def prim_rec(self):
         """
         Returns:
-            The primitive reciprocal cell structure
+            The primitive reciprocal cell structure.
         """
         return self._rec_lattice
 
     def cubic(self):
-        """
-        CUB Path
-        """
+        """CUB Path."""
         self.name = "CUB"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -323,9 +318,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def fcc(self):
-        """
-        FCC Path
-        """
+        """FCC Path."""
         self.name = "FCC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -342,9 +335,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bcc(self):
-        """
-        BCC Path
-        """
+        """BCC Path."""
         self.name = "BCC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -356,9 +347,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def tet(self):
-        """
-        TET Path
-        """
+        """TET Path."""
         self.name = "TET"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -376,9 +365,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bctet1(self, c, a):
-        """
-        BCT1 Path
-        """
+        """BCT1 Path."""
         self.name = "BCT1"
         eta = (1 + c**2 / a**2) / 4.0
         kpoints = {
@@ -394,9 +381,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bctet2(self, c, a):
-        """
-        BCT2 Path
-        """
+        """BCT2 Path."""
         self.name = "BCT2"
         eta = (1 + a**2 / c**2) / 4.0
         zeta = a**2 / (2 * c**2)
@@ -430,9 +415,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orc(self):
-        """
-        ORC Path
-        """
+        """ORC Path."""
         self.name = "ORC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -453,9 +436,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf1(self, a, b, c):
-        """
-        ORFC1 Path
-        """
+        """ORFC1 Path."""
         self.name = "ORCF1"
         zeta = (1 + a**2 / b**2 - a**2 / c**2) / 4
         eta = (1 + a**2 / b**2 + a**2 / c**2) / 4
@@ -480,9 +461,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf2(self, a, b, c):
-        """
-        ORFC2 Path
-        """
+        """ORFC2 Path."""
         self.name = "ORCF2"
         phi = (1 + c**2 / b**2 - c**2 / a**2) / 4
         eta = (1 + a**2 / b**2 - a**2 / c**2) / 4
@@ -510,9 +489,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf3(self, a, b, c):
-        """
-        ORFC3 Path
-        """
+        """ORFC3 Path."""
         self.name = "ORCF3"
         zeta = (1 + a**2 / b**2 - a**2 / c**2) / 4
         eta = (1 + a**2 / b**2 + a**2 / c**2) / 4
@@ -535,9 +512,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orci(self, a, b, c):
-        """
-        ORCI Path
-        """
+        """ORCI Path."""
         self.name = "ORCI"
         zeta = (1 + a**2 / c**2) / 4
         eta = (1 + b**2 / c**2) / 4
@@ -566,9 +541,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcc(self, a, b, c):
-        """
-        ORCC Path
-        """
+        """ORCC Path."""
         self.name = "ORCC"
         zeta = (1 + a**2 / b**2) / 4
         kpoints = {
@@ -603,15 +576,13 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def hex(self):
-        """
-        HEX Path
-        """
+        """HEX Path."""
         self.name = "HEX"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "A": np.array([0.0, 0.0, 0.5]),
-            "H": np.array([1.0 / 3.0, 1.0 / 3.0, 0.5]),
-            "K": np.array([1.0 / 3.0, 1.0 / 3.0, 0.0]),
+            "H": np.array([1 / 3, 1 / 3, 0.5]),
+            "K": np.array([1 / 3, 1 / 3, 0.0]),
             "L": np.array([0.5, 0.0, 0.5]),
             "M": np.array([0.5, 0.0, 0.0]),
         }
@@ -623,23 +594,21 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def rhl1(self, alpha):
-        """
-        RHL1 Path
-        """
+        """RHL1 Path."""
         self.name = "RHL1"
         eta = (1 + 4 * cos(alpha)) / (2 + 4 * cos(alpha))
-        nu = 3.0 / 4.0 - eta / 2.0
+        nu = 3 / 4 - eta / 2.0
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
-            "B": np.array([eta, 0.5, 1.0 - eta]),
-            "B_1": np.array([1.0 / 2.0, 1.0 - eta, eta - 1.0]),
+            "B": np.array([eta, 0.5, 1 - eta]),
+            "B_1": np.array([1 / 2.0, 1 - eta, eta - 1.0]),
             "F": np.array([0.5, 0.5, 0.0]),
             "L": np.array([0.5, 0.0, 0.0]),
             "L_1": np.array([0.0, 0.0, -0.5]),
             "P": np.array([eta, nu, nu]),
-            "P_1": np.array([1.0 - nu, 1.0 - nu, 1.0 - eta]),
+            "P_1": np.array([1 - nu, 1 - nu, 1 - eta]),
             "P_2": np.array([nu, nu, eta - 1.0]),
-            "Q": np.array([1.0 - nu, nu, 0.0]),
+            "Q": np.array([1 - nu, nu, 0.0]),
             "X": np.array([nu, 0.0, -nu]),
             "Z": np.array([0.5, 0.5, 0.5]),
         }
@@ -652,12 +621,10 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def rhl2(self, alpha):
-        """
-        RHL2 Path
-        """
+        """RHL2 Path."""
         self.name = "RHL2"
         eta = 1 / (2 * tan(alpha / 2.0) ** 2)
-        nu = 3.0 / 4.0 - eta / 2.0
+        nu = 3 / 4 - eta / 2.0
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "F": np.array([0.5, -0.5, 0.0]),
@@ -665,16 +632,14 @@ class KPathSetyawanCurtarolo(KPathBase):
             "P": np.array([1 - nu, -nu, 1 - nu]),
             "P_1": np.array([nu, nu - 1.0, nu - 1.0]),
             "Q": np.array([eta, eta, eta]),
-            "Q_1": np.array([1.0 - eta, -eta, -eta]),
+            "Q_1": np.array([1 - eta, -eta, -eta]),
             "Z": np.array([0.5, -0.5, 0.5]),
         }
         path = [["\\Gamma", "P", "Z", "Q", "\\Gamma", "F", "P_1", "Q_1", "L", "Z"]]
         return {"kpoints": kpoints, "path": path}
 
     def mcl(self, b, c, beta):
-        """
-        MCL Path
-        """
+        """MCL Path."""
         self.name = "MCL"
         eta = (1 - b * cos(beta) / c) / (2 * sin(beta) ** 2)
         nu = 0.5 - eta * c * cos(beta) / b
@@ -685,10 +650,10 @@ class KPathSetyawanCurtarolo(KPathBase):
             "D": np.array([0.5, 0.0, 0.5]),
             "D_1": np.array([0.5, 0.5, -0.5]),
             "E": np.array([0.5, 0.5, 0.5]),
-            "H": np.array([0.0, eta, 1.0 - nu]),
-            "H_1": np.array([0.0, 1.0 - eta, nu]),
+            "H": np.array([0.0, eta, 1 - nu]),
+            "H_1": np.array([0.0, 1 - eta, nu]),
             "H_2": np.array([0.0, eta, -nu]),
-            "M": np.array([0.5, eta, 1.0 - nu]),
+            "M": np.array([0.5, eta, 1 - nu]),
             "M_1": np.array([0.5, 1 - eta, nu]),
             "M_2": np.array([0.5, 1 - eta, nu]),
             "X": np.array([0.0, 0.5, 0.0]),
@@ -704,9 +669,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc1(self, a, b, c, alpha):
-        """
-        MCLC1 Path
-        """
+        """MCLC1 Path."""
         self.name = "MCLC1"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -740,9 +703,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc2(self, a, b, c, alpha):
-        """
-        MCLC2 Path
-        """
+        """MCLC2 Path."""
         self.name = "MCLC2"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -775,9 +736,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc3(self, a, b, c, alpha):
-        """
-        MCLC3 Path
-        """
+        """MCLC3 Path."""
         self.name = "MCLC3"
         mu = (1 + b**2 / a**2) / 4.0
         delta = b * c * cos(alpha) / (2 * a**2)
@@ -812,9 +771,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc4(self, a, b, c, alpha):
-        """
-        MCLC4 Path
-        """
+        """MCLC4 Path."""
         self.name = "MCLC4"
         mu = (1 + b**2 / a**2) / 4.0
         delta = b * c * cos(alpha) / (2 * a**2)
@@ -849,9 +806,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc5(self, a, b, c, alpha):
-        """
-        MCLC5 Path
-        """
+        """MCLC5 Path."""
         self.name = "MCLC5"
         zeta = (b**2 / a**2 + (1 - b * cos(alpha) / c) / sin(alpha) ** 2) / 4
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -890,9 +845,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def tria(self):
-        """
-        TRI1a Path
-        """
+        """TRI1a Path."""
         self.name = "TRI1a"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -913,9 +866,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def trib(self):
-        """
-        TRI1b Path
-        """
+        """TRI1b Path."""
         self.name = "TRI1b"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -977,13 +928,13 @@ class KPathSeek(KPathBase):
         unique_species: list[SpeciesLike] = []
         numbers = []
 
-        for species, g in itertools.groupby(site_data):
+        for species, group in itertools.groupby(site_data):
             if species in unique_species:
                 ind = unique_species.index(species)
-                numbers.extend([ind + 1] * len(tuple(g)))
+                numbers.extend([ind + 1] * len(tuple(group)))
             else:
                 unique_species.append(species)
-                numbers.extend([len(unique_species)] * len(tuple(g)))
+                numbers.extend([len(unique_species)] * len(tuple(group)))
 
         cell = (self._latt.matrix, positions, numbers)
 
@@ -1299,23 +1250,19 @@ class KPathLatimerMunro(KPathBase):
         for orbit in key_points_inds_orbits[:-1]:
             orbit_cosines.append(
                 sorted(
-                    sorted(
+                    (
                         (
-                            (
-                                j,
-                                np.round(
-                                    np.dot(key_points[k], self.LabelPoints(j))
-                                    / (np.linalg.norm(key_points[k]) * np.linalg.norm(self.LabelPoints(j))),
-                                    decimals=3,
-                                ),
-                            )
-                            for k in orbit
-                            for j in range(26)
-                        ),
-                        key=operator.itemgetter(0),
+                            j,
+                            np.round(
+                                np.dot(key_points[k], self.LabelPoints(j))
+                                / (np.linalg.norm(key_points[k]) * np.linalg.norm(self.LabelPoints(j))),
+                                decimals=3,
+                            ),
+                        )
+                        for k in orbit
+                        for j in range(26)
                     ),
-                    key=operator.itemgetter(1),
-                    reverse=True,
+                    key=lambda x: (-x[1], x[0]),
                 )
             )
 
@@ -1338,11 +1285,10 @@ class KPathLatimerMunro(KPathBase):
                     existing_labels[:] = [label for label in existing_labels if "'" not in label]
                 if len(existing_labels) == 1:
                     max_occurence = 0
+                elif "'" not in point_label:
+                    max_occurence = max(int(label[3:-1]) for label in existing_labels[1:])
                 else:
-                    if "'" not in point_label:
-                        max_occurence = max(int(label[3:-1]) for label in existing_labels[1:])
-                    else:
-                        max_occurence = max(int(label[4:-1]) for label in existing_labels[1:])
+                    max_occurence = max(int(label[4:-1]) for label in existing_labels[1:])
                 kpoints[point_label + "_{" + str(max_occurence + 1) + "}"] = key_points[point_ind]
                 reverse_kpoints[point_ind] = point_label + "_{" + str(max_occurence + 1) + "}"
 
@@ -1409,9 +1355,9 @@ class KPathLatimerMunro(KPathBase):
 
             if add_rep:
                 line_orbits_in_path.append(i)
-                l = key_lines_inds_orbits[i][0]
-                ind0 = l[0]
-                ind1 = l[1]
+                line = key_lines_inds_orbits[i][0]
+                ind0 = line[0]
+                ind1 = line[1]
                 found0 = False
                 found1 = False
                 for j, orbit in enumerate(key_points_inds_orbits):
@@ -1452,9 +1398,9 @@ class KPathLatimerMunro(KPathBase):
                 else:
                     pass
             if connect:
-                l = (key_points_inds_orbits[ind][0], gamma_ind)
+                line = (key_points_inds_orbits[ind][0], gamma_ind)
                 for j, orbit in enumerate(key_lines_inds_orbits):
-                    if l in orbit:
+                    if line in orbit:
                         line_orbits_in_path.append(j)
                         break
                 if gamma_ind not in point_orbits_in_path:
@@ -1491,7 +1437,7 @@ class KPathLatimerMunro(KPathBase):
         for i, facet in enumerate(bz):
             bz_as_key_point_inds.append([])
             for j, vert in enumerate(facet):
-                edge_center = (vert + facet[j + 1]) / 2.0 if j != len(facet) - 1 else (vert + facet[0]) / 2.0
+                edge_center = (vert + facet[j + 1]) / 2 if j != len(facet) - 1 else (vert + facet[0]) / 2.0
                 duplicatevert = False
                 duplicateedge = False
                 for k, point in enumerate(key_points):
@@ -1710,7 +1656,7 @@ class KPathLatimerMunro(KPathBase):
                 "The 'magmom' property is not set in the structure's site properties."
                 "All magnetic moments are being set to zero."
             )
-            struct.add_site_property("magmom", [np.array([0, 0, 0]) for i in range(len(struct.sites))])
+            struct.add_site_property("magmom", [np.array([0, 0, 0]) for _ in range(len(struct))])
 
             return struct
 
@@ -1737,9 +1683,9 @@ class KPathLatimerMunro(KPathBase):
     def _get_magnetic_symmetry_operations(self, struct, grey_ops, atol):
         mag_ops = []
         magmoms = struct.site_properties["magmom"]
-        nonzero_magmom_inds = [i for i in range(len(struct.sites)) if not (magmoms[i] == np.array([0, 0, 0])).all()]
-        init_magmoms = [site.properties["magmom"] for (i, site) in enumerate(struct.sites) if i in nonzero_magmom_inds]
-        sites = [site for (i, site) in enumerate(struct.sites) if i in nonzero_magmom_inds]
+        nonzero_magmom_inds = [idx for idx in range(len(struct)) if not (magmoms[idx] == np.array([0, 0, 0])).all()]
+        init_magmoms = [site.properties["magmom"] for idx, site in enumerate(struct) if idx in nonzero_magmom_inds]
+        sites = [site for idx, site in enumerate(struct) if idx in nonzero_magmom_inds]
         init_site_coords = [site.frac_coords for site in sites]
         for op in grey_ops:
             r = op.rotation_matrix
@@ -1815,7 +1761,7 @@ class KPathLatimerMunro(KPathBase):
         if len(pos1) != len(pos2):
             return False
         for idx, p1 in enumerate(pos1):
-            if abs(p1 - pos2[idx]) > tolerance[idx] and abs(p1 - pos2[idx]) < 1.0 - tolerance[idx]:
+            if abs(p1 - pos2[idx]) > tolerance[idx] and abs(p1 - pos2[idx]) < 1 - tolerance[idx]:
                 return False
         return True
 
@@ -1875,9 +1821,7 @@ class KPathLatimerMunro(KPathBase):
         ginv = np.linalg.inv(g)
         D = np.linalg.det(W)
 
-        primary_orientation = None
-        secondary_orientation = None
-        tertiary_orientation = None
+        primary_orientation = secondary_orientation = tertiary_orientation = None
 
         planar_boundaries = []
         IRBZ_points = list(enumerate(key_points))
@@ -1915,149 +1859,155 @@ class KPathLatimerMunro(KPathBase):
         for rotn in rpgdict["rotations"]["six-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["rotoinv-four-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, np.dot(op, cross)]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, np.dot(op, cross)]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["four-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["rotoinv-three-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [
+                                cross,
+                                -1 * np.dot(sqrtm(-1 * op), cross),
+                            ]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [
-                                    cross,
-                                    -1 * np.dot(sqrtm(-1 * op), cross),
-                                ]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["three-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["two-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         return [point[0] for point in IRBZ_points]
 
@@ -2277,9 +2227,7 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def LabelPoints(index):
-        """
-        Axes used in generating labels for Latimer-Munro convention
-        """
+        """Axes used in generating labels for Latimer-Munro convention."""
         points = [
             [1, 0, 0],
             [0, 1, 0],
@@ -2313,9 +2261,7 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def LabelSymbol(index):
-        """
-        Letters used in generating labels for the Latimer-Munro convention
-        """
+        """Letters used in generating labels for the Latimer-Munro convention."""
         symbols = [
             "a",
             "b",

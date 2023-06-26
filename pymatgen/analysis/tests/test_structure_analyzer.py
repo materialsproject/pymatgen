@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import os
@@ -34,7 +30,7 @@ class VoronoiAnalyzerTest(PymatgenTest):
     def setUp(self):
         self.ss = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD")).structures
         self.s = self.ss[1]
-        self.va = VoronoiAnalyzer(cutoff=4.0)
+        self.va = VoronoiAnalyzer(cutoff=4)
 
     def test_analyze(self):
         # Check for the Voronoi index of site i in Structure
@@ -56,10 +52,10 @@ class RelaxationAnalyzerTest(unittest.TestCase):
 
     def test_vol_and_para_changes(self):
         for v in self.analyzer.get_percentage_lattice_parameter_changes().values():
-            assert -0.0092040921155279731 == approx(v)
+            assert approx(v) == -0.0092040921155279731
             latt_change = v
         vol_change = self.analyzer.get_percentage_volume_change()
-        assert -0.0273589101391 == approx(vol_change)
+        assert approx(vol_change) == -0.0273589101391
         # This is a simple cubic cell, so the latt and vol change are simply
         # Related. So let's test that.
         assert (1 + latt_change) ** 3 - 1 == approx(vol_change)
@@ -67,7 +63,7 @@ class RelaxationAnalyzerTest(unittest.TestCase):
     def test_get_percentage_bond_dist_changes(self):
         for v in self.analyzer.get_percentage_bond_dist_changes().values():
             for v2 in v.values():
-                assert -0.009204092115527862 == approx(v2)
+                assert approx(v2) == -0.009204092115527862
 
 
 class VoronoiConnectivityTest(PymatgenTest):
@@ -115,11 +111,11 @@ class MiscFunctionTest(PymatgenTest):
     def test_oxide_type(self):
         el_li = Element("Li")
         el_o = Element("O")
-        latt = Lattice([[3.985034, 0.0, 0.0], [0.0, 4.881506, 0.0], [0.0, 0.0, 2.959824]])
+        latt = Lattice([[3.985034, 0, 0], [0, 4.881506, 0], [0, 0, 2.959824]])
         elts = [el_li, el_li, el_o, el_o, el_o, el_o]
         coords = []
         coords.append([0.500000, 0.500000, 0.500000])
-        coords.append([0.0, 0.0, 0.0])
+        coords.append([0, 0, 0])
         coords.append([0.632568, 0.085090, 0.500000])
         coords.append([0.367432, 0.914910, 0.500000])
         coords.append([0.132568, 0.414910, 0.000000])
@@ -257,7 +253,3 @@ class MiscFunctionTest(PymatgenTest):
         # test for unphysical cells
         struct.scale_lattice(struct.volume * 10)
         assert sulfide_type(struct) == "sulfide"
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -273,7 +273,7 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
         comp_i, image_i, site_i = queue.pop(0)
 
         if comp_i in [x[0] for x in seen_indices]:
-            raise ValueError("Graph component is not 0D")
+            raise ValueError("Graph component is not zero-dimensional")
 
         seen_indices.append((comp_i, image_i))
         sites.append(site_i)
@@ -291,9 +291,7 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
     sorted_sites = np.array(sites, dtype=object)[indices_ordering]
     sorted_graph = nx.convert_node_labels_to_integers(graph, ordering="sorted")
     mol = Molecule([s.specie for s in sorted_sites], [s.coords for s in sorted_sites])
-    mol_graph = MoleculeGraph.with_edges(mol, nx.Graph(sorted_graph).edges())
-
-    return mol_graph
+    return MoleculeGraph.with_edges(mol, nx.Graph(sorted_graph).edges())
 
 
 def get_dimensionality_cheon(
@@ -350,10 +348,7 @@ def get_dimensionality_cheon(
         connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
         max3, min3, clusters3 = find_clusters(structure, connected_list3)
         if min3 == min1:
-            if max3 == max1:
-                dim = "0D"
-            else:
-                dim = "intercalated molecule"
+            dim = "0D" if max3 == max1 else "intercalated molecule"
         else:
             dim = np.log2(float(max3) / max1) / np.log2(3)
             if dim == int(dim):
@@ -367,10 +362,7 @@ def get_dimensionality_cheon(
         if min2 == 1:
             dim = "intercalated ion"
         elif min2 == min1:
-            if max2 == max1:
-                dim = "0D"
-            else:
-                dim = "intercalated molecule"
+            dim = "0D" if max2 == max1 else "intercalated molecule"
         else:
             dim = np.log2(float(max2) / max1)
             if dim == int(dim):
@@ -381,10 +373,7 @@ def get_dimensionality_cheon(
                 connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
                 max3, min3, clusters3 = find_clusters(structure, connected_list3)
                 if min3 == min2:
-                    if max3 == max2:
-                        dim = "0D"
-                    else:
-                        dim = "intercalated molecule"
+                    dim = "0D" if max3 == max2 else "intercalated molecule"
                 else:
                     dim = np.log2(float(max3) / max1) / np.log2(3)
                     if dim == int(dim):
@@ -427,21 +416,20 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
     fc_diff = fc_copy - neighbors
     species = list(map(str, struct.species))
     # in case of charged species
-    for i, item in enumerate(species):
+    for ii, item in enumerate(species):
         if item not in ldict:
-            species[i] = str(Species.from_string(item).element)
-    latmat = struct.lattice.matrix
+            species[ii] = str(Species.from_string(item).element)
     connected_matrix = np.zeros((n_atoms, n_atoms))
 
-    for i in range(n_atoms):
-        for j in range(i + 1, n_atoms):
-            max_bond_length = ldict[species[i]] + ldict[species[j]] + tolerance
-            frac_diff = fc_diff[j] - fc_copy[i]
-            distance_ij = np.dot(latmat.T, frac_diff)
+    for ii in range(n_atoms):
+        for jj in range(ii + 1, n_atoms):
+            max_bond_length = ldict[species[ii]] + ldict[species[jj]] + tolerance
+            frac_diff = fc_diff[jj] - fc_copy[ii]
+            distance_ij = np.dot(struct.lattice.matrix.T, frac_diff)
             # print(np.linalg.norm(distance_ij,axis=0))
             if sum(np.linalg.norm(distance_ij, axis=0) < max_bond_length) > 0:
-                connected_matrix[i, j] = 1
-                connected_matrix[j, i] = 1
+                connected_matrix[ii, jj] = 1
+                connected_matrix[jj, ii] = 1
     return connected_matrix
 
 
@@ -453,8 +441,8 @@ def find_clusters(struct, connected_matrix):
     If there are atoms that are not bonded to anything, returns [0,1,0]. (For
     faster computation time)
 
-    Author: "Gowoon Cheon"
-    Email: "gcheon@stanford.edu"
+    Author: Gowoon Cheon
+    Email: gcheon@stanford.edu
 
     Args:
         struct (Structure): Input structure
@@ -549,13 +537,13 @@ def get_dimensionality_gorai(
         bonds = get_max_bond_lengths(structure, el_radius_updates)
 
     num_surfaces = 0
-    for h in range(max_hkl):
-        for k in range(max_hkl):
-            for l in range(max_hkl):
-                if max([h, k, l]) > 0 and num_surfaces < 2:
+    for hh in range(max_hkl):
+        for kk in range(max_hkl):
+            for ll in range(max_hkl):
+                if max([hh, kk, ll]) > 0 and num_surfaces < 2:
                     sg = SlabGenerator(
                         structure,
-                        (h, k, l),
+                        (hh, kk, ll),
                         min_slab_size=min_slab_size,
                         min_vacuum_size=min_vacuum_size,
                     )

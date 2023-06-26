@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import copy
@@ -18,7 +15,7 @@ from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import PymatgenTest
 
-pytest.importorskip("openbabel", reason="OpenBabel not installed")
+pytest.importorskip("openbabel")
 
 
 class BabelMolAdaptorTest(unittest.TestCase):
@@ -98,7 +95,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         assert len(pb.Molecule(mol_0d).atoms) == 2
         adaptor = BabelMolAdaptor(mol_0d)
         adaptor.add_hydrogen()
-        assert len(adaptor.pymatgen_mol.sites) == 14
+        assert len(adaptor.pymatgen_mol) == 14
 
     def test_rotor_search_wrs(self):
         mol = copy.deepcopy(self.mol)
@@ -139,7 +136,3 @@ class BabelMolAdaptorTest(unittest.TestCase):
         assert len(conformers) >= 1
         if len(conformers) > 1:
             assert MoleculeMatcher().get_rmsd(conformers[0], conformers[1]) != approx(0)
-
-
-if __name__ == "__main__":
-    unittest.main()
