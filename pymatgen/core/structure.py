@@ -1522,10 +1522,10 @@ class IStructure(SiteCollection, MSONable):
         else:
             if sites is None:
                 sites = self.sites
-            site_coords = np.array([site.coords for site in sites], dtype=float)
-            cart_coords = np.array(self.cart_coords, dtype=float)
-            lattice_matrix = np.array(self.lattice.matrix, dtype=float)
-            pbc = np.array(self.pbc, dtype=int)
+            site_coords = np.ascontiguousarray([site.coords for site in sites], dtype=float)
+            cart_coords = np.ascontiguousarray(self.cart_coords, dtype=float)
+            lattice_matrix = np.ascontiguousarray(self.lattice.matrix, dtype=float)
+            pbc = np.ascontiguousarray(self.pbc, dtype=int)
             center_indices, points_indices, images, distances = find_points_in_spheres(
                 cart_coords,
                 site_coords,
