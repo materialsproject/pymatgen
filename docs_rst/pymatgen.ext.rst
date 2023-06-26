@@ -1,6 +1,8 @@
 pymatgen.ext namespace
 ======================
 
+.. py:module:: pymatgen.ext
+
 Subpackages
 -----------
 
@@ -15,7 +17,5 @@ Submodules
    :maxdepth: 7
 
    pymatgen.ext.cod
-   pymatgen.ext.crystalsai
-   pymatgen.ext.jhu
    pymatgen.ext.matproj
    pymatgen.ext.optimade

@@ -1,3 +1,1 @@
-"""
-Package for analyzing chemical environments.
-"""
+"""Package for analyzing chemical environments."""

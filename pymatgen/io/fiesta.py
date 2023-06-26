@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
 This module implements input and output for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).
 
@@ -9,6 +7,8 @@ and
 -Fiesta_run: run gw_fiesta and bse_fiesta
 -Localised Basis set reader
 """
+
+from __future__ import annotations
 
 import os
 import re
@@ -41,12 +41,10 @@ class Nwchem2Fiesta(MSONable):
         """
         folder: where are stored the nwchem
         filename: name of nwchem files read by NWCHEM2FIESTA (filename.nw, filename.nwout and filename.movecs)
-        logfile: logfile of NWCHEM2FIESTA
+        logfile: logfile of NWCHEM2FIESTA.
 
-        the run method launchs NWCHEM2FIESTA
-
+        the run method launches NWCHEM2FIESTA
         """
-
         self.folder = folder
         self.filename = filename
         self.log_file = log_file
@@ -57,10 +55,7 @@ class Nwchem2Fiesta(MSONable):
         self._nwchemmovecs_fn = filename + ".movecs"
 
     def run(self):
-        """
-        Performs actual NWCHEM2FIESTA run
-        """
-
+        """Performs actual NWCHEM2FIESTA run."""
         init_folder = os.getcwd()
         os.chdir(self.folder)
 
@@ -78,12 +73,10 @@ class Nwchem2Fiesta(MSONable):
         os.chdir(init_folder)
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "filename": self.filename,
             "folder": self.folder,
         }
@@ -94,7 +87,7 @@ class Nwchem2Fiesta(MSONable):
         :param d: Dict representation.
         :return: Nwchem2Fiesta
         """
-        return Nwchem2Fiesta(folder=d["folder"], filename=d["filename"])
+        return cls(folder=d["folder"], filename=d["filename"])
 
 
 class FiestaRun(MSONable):
@@ -102,24 +95,24 @@ class FiestaRun(MSONable):
     To run FIESTA inside python:
         if grid is [x,x] then bse runs
         if grid is [x,x,y] the fiesta(gw) runs
-        otherwise it breaks
+        otherwise it breaks.
     """
 
-    def __init__(self, folder=os.getcwd(), grid=[2, 2, 2], log_file="log"):
+    def __init__(
+        self, folder: str | None = None, grid: tuple[int, int, int] = (2, 2, 2), log_file: str = "log"
+    ) -> None:
         """
         Args:
             folder: Folder to look for runs.
             grid:
-            log_file: logfile of Fiesta
+            log_file: logfile of Fiesta.
         """
-        self.folder = folder
+        self.folder = folder or os.getcwd()
         self.log_file = log_file
         self.grid = grid
 
     def run(self):
-        """
-        Performs FIESTA (gw) run.
-        """
+        """Performs FIESTA (gw) run."""
         if len(self.grid) == 3:
             self.mpi_procs = self.grid[0] * self.grid[1] * self.grid[2]
             self._gw_run()
@@ -130,10 +123,7 @@ class FiestaRun(MSONable):
             raise ValueError("Wrong grid size: must be [nrow, ncolumn, nslice] for gw of [nrow, nslice] for bse")
 
     def _gw_run(self):
-        """
-        Performs FIESTA (gw) run
-        """
-
+        """Performs FIESTA (gw) run."""
         if self.folder != os.getcwd():
             init_folder = os.getcwd()
             os.chdir(self.folder)
@@ -156,10 +146,7 @@ class FiestaRun(MSONable):
             os.chdir(init_folder)
 
     def bse_run(self):
-        """
-        Performs BSE run
-        """
-
+        """Performs BSE run."""
         if self.folder != os.getcwd():
             init_folder = os.getcwd()
             os.chdir(self.folder)
@@ -181,12 +168,10 @@ class FiestaRun(MSONable):
             os.chdir(init_folder)
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "log_file": self.log_file,
             "grid": self.grid,
             "folder": self.folder,
@@ -198,7 +183,7 @@ class FiestaRun(MSONable):
         :param d: Dict representation
         :return: FiestaRun
         """
-        return FiestaRun(folder=d["folder"], grid=d["grid"], log_file=d["log_file"])
+        return cls(folder=d["folder"], grid=d["grid"], log_file=d["log_file"])
 
 
 class BasisSetReader:
@@ -206,7 +191,7 @@ class BasisSetReader:
     A basis set reader.
     Basis set are stored in data as a dict:
     :key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians
-    in l_zeta orbital
+    in l_zeta orbital.
     """
 
     def __init__(self, filename):
@@ -225,7 +210,6 @@ class BasisSetReader:
 
     @staticmethod
     def _parse_file(input):
-
         lmax_nnlo_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ \# .* ", re.VERBOSE)
 
         nl_orbital_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ (\d+) \s+ \# .* ", re.VERBOSE)
@@ -237,26 +221,27 @@ class BasisSetReader:
         parse_preamble = False
         parse_lmax_nnlo = False
         parse_nl_orbital = False
+        nnlo = None  # fix pylint E0601: Using variable 'nnlo' before assignment
+        lmax = None
 
         for line in input.split("\n"):
-
             if parse_nl_orbital:
-                m = nl_orbital_patt.search(line)
-                n = coef_alpha_patt.search(line)
-                if m:
-                    l = m.group(1)
-                    zeta = m.group(2)
-                    ng = m.group(3)
-                    basis_set[l + "_" + zeta + "_" + ng] = []
-                elif n:
-                    alpha = n.group(1)
-                    coef = n.group(2)
-                    basis_set[l + "_" + zeta + "_" + ng].append((alpha, coef))
+                match_orb = nl_orbital_patt.search(line)
+                match_alpha = coef_alpha_patt.search(line)
+                if match_orb:
+                    l_angular = match_orb.group(1)
+                    zeta = match_orb.group(2)
+                    ng = match_orb.group(3)
+                    basis_set[l_angular + "_" + zeta + "_" + ng] = []
+                elif match_alpha:
+                    alpha = match_alpha.group(1)
+                    coef = match_alpha.group(2)
+                    basis_set[l_angular + "_" + zeta + "_" + ng].append((alpha, coef))
             elif parse_lmax_nnlo:
-                m = lmax_nnlo_patt.search(line)
-                if m:
-                    lmax = m.group(1)
-                    nnlo = m.group(2)
+                match_orb = lmax_nnlo_patt.search(line)
+                if match_orb:
+                    lmax = match_orb.group(1)
+                    nnlo = match_orb.group(2)
                     parse_lmax_nnlo = False
                     parse_nl_orbital = True
             elif parse_preamble:
@@ -272,10 +257,7 @@ class BasisSetReader:
         return basis_set
 
     def set_n_nlmo(self):
-        """
-        :return: the number of nlm orbitals for the basis set
-        """
-
+        """:return: the number of nlm orbitals for the basis set"""
         nnlmo = 0
 
         data_tmp = self.data
@@ -284,56 +266,37 @@ class BasisSetReader:
         data_tmp.pop("preamble")
 
         for l_zeta_ng in data_tmp:
-            l = l_zeta_ng.split("_")[0]
-            nnlmo = nnlmo + (2 * int(l) + 1)
+            n_l = l_zeta_ng.split("_")[0]
+            nnlmo = nnlmo + (2 * int(n_l) + 1)
 
         return str(nnlmo)
 
     def infos_on_basis_set(self):
-        """
-        infos on the basis set as in Fiesta log
-        """
+        """Infos on the basis set as in Fiesta log."""
         o = []
         o.append("=========================================")
         o.append("Reading basis set:")
         o.append("")
-        o.append(" Basis set for {} atom ".format(str(self.filename)))
-        o.append(" Maximum angular momentum = {}".format(self.data["lmax"]))
-        o.append(" Number of atomics orbitals = {}".format(self.data["n_nlo"]))
-        o.append(" Number of nlm orbitals = {}".format(self.data["n_nlmo"]))
+        o.append(f" Basis set for {self.filename} atom ")
+        o.append(f" Maximum angular momentum = {self.data['lmax']}")
+        o.append(f" Number of atomics orbitals = {self.data['n_nlo']}")
+        o.append(f" Number of nlm orbitals = {self.data['n_nlmo']}")
         o.append("=========================================")
 
         return str(0)
 
 
 class FiestaInput(MSONable):
-    """
-    Input File for Fiesta called "cell.in" by default (mandatory in Fiesta for now)
-    """
+    """Input File for Fiesta called "cell.in" by default (mandatory in Fiesta for now)."""
 
     def __init__(
         self,
         mol,
-        correlation_grid={"dE_grid": "0.500", "n_grid": "14"},
-        Exc_DFT_option={"rdVxcpsi": "1"},
-        COHSEX_options={
-            "eigMethod": "C",
-            "mix_cohsex": "0.500",
-            "nc_cohsex": "0",
-            "nit_cohsex": "0",
-            "nv_cohsex": "0",
-            "resMethod": "V",
-            "scf_cohsex_wf": "0",
-        },
-        GW_options={"nc_corr": "10", "nit_gw": "3", "nv_corr": "10"},
-        BSE_TDDFT_options={
-            "do_bse": "1",
-            "do_tddft": "0",
-            "nc_bse": "382",
-            "nit_bse": "50",
-            "npsi_bse": "1",
-            "nv_bse": "21",
-        },
+        correlation_grid: dict[str, str] | None = None,
+        Exc_DFT_option: dict[str, str] | None = None,
+        COHSEX_options: dict[str, str] | None = None,
+        GW_options: dict[str, str] | None = None,
+        BSE_TDDFT_options: dict[str, str] | None = None,
     ):
         """
         :param mol: pymatgen mol
@@ -343,22 +306,35 @@ class FiestaInput(MSONable):
         :param GW_options: dict
         :param BSE_TDDFT_options: dict
         """
-
         self._mol = mol
-        self.correlation_grid = correlation_grid
-        self.Exc_DFT_option = Exc_DFT_option
-        self.COHSEX_options = COHSEX_options
-        self.GW_options = GW_options
-        self.BSE_TDDFT_options = BSE_TDDFT_options
+        self.correlation_grid = correlation_grid or {"dE_grid": "0.500", "n_grid": "14"}
+        self.Exc_DFT_option = Exc_DFT_option or {"rdVxcpsi": "1"}
+        self.COHSEX_options = COHSEX_options or {
+            "eigMethod": "C",
+            "mix_cohsex": "0.500",
+            "nc_cohsex": "0",
+            "nit_cohsex": "0",
+            "nv_cohsex": "0",
+            "resMethod": "V",
+            "scf_cohsex_wf": "0",
+        }
+        self.GW_options = GW_options or {"nc_corr": "10", "nit_gw": "3", "nv_corr": "10"}
+        self.BSE_TDDFT_options = BSE_TDDFT_options or {
+            "do_bse": "1",
+            "do_tddft": "0",
+            "nc_bse": "382",
+            "nit_bse": "50",
+            "npsi_bse": "1",
+            "nv_bse": "21",
+        }
 
     def set_auxiliary_basis_set(self, folder, auxiliary_folder, auxiliary_basis_set_type="aug_cc_pvtz"):
         """
         copy in the desired folder the needed auxiliary basis set "X2.ion" where X is a specie.
         :param auxiliary_folder: folder where the auxiliary basis sets are stored
         :param auxiliary_basis_set_type: type of basis set (string to be found in the extension of the file name; must
-            be in lower case). ex: C2.ion_aug_cc_pvtz_RI_Weigend find "aug_cc_pvtz"
+            be in lower case). ex: C2.ion_aug_cc_pvtz_RI_Weigend find "aug_cc_pvtz".
         """
-
         list_files = os.listdir(auxiliary_folder)
 
         for specie in self._mol.symbol_set:
@@ -372,18 +348,14 @@ class FiestaInput(MSONable):
         :param nv__band: number of valence bands to correct with GW
         :param nc_band: number of conduction bands to correct with GW
         :param n_iteration: number of iteration
-        :param n_grid and dE_grid:: number of points and spacing in eV for correlation grid
+        :param n_grid and dE_grid:: number of points and spacing in eV for correlation grid.
         """
-
         self.GW_options.update(nv_corr=nv_band, nc_corr=nc_band, nit_gw=n_iteration)
         self.correlation_grid.update(dE_grid=dE_grid, n_grid=n_grid)
 
     @staticmethod
     def make_FULL_BSE_Densities_folder(folder):
-        """
-        mkdir "FULL_BSE_Densities" folder (needed for bse run) in the desired folder
-        """
-
+        """Mkdir "FULL_BSE_Densities" folder (needed for bse run) in the desired folder."""
         if os.path.exists(folder + "/FULL_BSE_Densities"):
             return "FULL_BSE_Densities folder already exists"
 
@@ -396,7 +368,7 @@ class FiestaInput(MSONable):
         :param nv_bse: number of valence bands
         :param nc_bse: number of conduction bands
         :param n_excitations: number of excitations
-        :param nit_bse: number of iterations
+        :param nit_bse: number of iterations.
         """
         self.BSE_TDDFT_options.update(npsi_bse=n_excitations, nit_bse=nit_bse)
 
@@ -405,7 +377,6 @@ class FiestaInput(MSONable):
         :param BSE_dump: boolean
         :return: set the "do_bse" variable to one in cell.in
         """
-
         if BSE_dump:
             self.BSE_TDDFT_options.update(do_bse=1, do_tddft=0)
         else:
@@ -413,7 +384,7 @@ class FiestaInput(MSONable):
 
     def dump_TDDFT_data_in_GW_run(self, TDDFT_dump=True):
         """
-        :param TDDFT_dump: boolen
+        :param TDDFT_dump: boolean
         :return: set the do_tddft variable to one in cell.in
         """
         if TDDFT_dump:
@@ -423,24 +394,18 @@ class FiestaInput(MSONable):
 
     @property
     def infos_on_system(self):
-        """
-        Returns infos on initial parameters as in the log file of Fiesta
-        """
-
+        """Returns infos on initial parameters as in the log file of Fiesta."""
         o = []
         o.append("=========================================")
         o.append("Reading infos on system:")
         o.append("")
         o.append(
-            " Number of atoms = {} ; number of species = {}".format(
-                int(self._mol.composition.num_atoms), len(self._mol.symbol_set)
-            )
+            f" Number of atoms = {self._mol.composition.num_atoms} ; number of species = {len(self._mol.symbol_set)}"
         )
-        o.append(" Number of valence bands = {}".format(int(self._mol.nelectrons / 2)))
+        o.append(f" Number of valence bands = {int(self._mol.nelectrons / 2)}")
         o.append(
-            " Sigma grid specs: n_grid = {} ;  dE_grid = {} (eV)".format(
-                self.correlation_grid["n_grid"], self.correlation_grid["dE_grid"]
-            )
+            f" Sigma grid specs: n_grid = {self.correlation_grid['n_grid']} ;  "
+            f"dE_grid = {self.correlation_grid['dE_grid']} (eV)"
         )
         if int(self.Exc_DFT_option["rdVxcpsi"]) == 1:
             o.append(" Exchange and correlation energy read from Vxcpsi.mat")
@@ -449,26 +414,23 @@ class FiestaInput(MSONable):
 
         if self.COHSEX_options["eigMethod"] == "C":
             o.append(
-                " Correcting  {} valence bands and   {} conduction bands at COHSEX level".format(
-                    self.COHSEX_options["nv_cohsex"], self.COHSEX_options["nc_cohsex"]
-                )
+                f" Correcting  {self.COHSEX_options['nv_cohsex']} valence bands and  "
+                f"{self.COHSEX_options['nc_cohsex']} conduction bands at COHSEX level"
             )
-            o.append(" Performing   {} diagonal COHSEX iterations".format(self.COHSEX_options["nit_cohsex"]))
+            o.append(f" Performing   {self.COHSEX_options['nit_cohsex']} diagonal COHSEX iterations")
         elif self.COHSEX_options["eigMethod"] == "HF":
             o.append(
-                " Correcting  {} valence bands and   {} conduction bands at HF level".format(
-                    self.COHSEX_options["nv_cohsex"], self.COHSEX_options["nc_cohsex"]
-                )
+                f" Correcting  {self.COHSEX_options['nv_cohsex']} valence bands and  "
+                f"{self.COHSEX_options['nc_cohsex']} conduction bands at HF level"
             )
-            o.append(" Performing   {} diagonal HF iterations".format(self.COHSEX_options["nit_cohsex"]))
+            o.append(f" Performing   {self.COHSEX_options['nit_cohsex']} diagonal HF iterations")
 
-        o.append(" Using resolution of identity : {}".format(self.COHSEX_options["resMethod"]))
+        o.append(f" Using resolution of identity : {self.COHSEX_options['resMethod']}")
         o.append(
-            " Correcting  {} valence bands and  {} conduction bands at GW level".format(
-                self.GW_options["nv_corr"], self.GW_options["nc_corr"]
-            )
+            f" Correcting  {self.GW_options['nv_corr']} valence bands and "
+            f"{self.GW_options['nc_corr']} conduction bands at GW level"
         )
-        o.append(" Performing   {} GW iterations".format(self.GW_options["nit_gw"]))
+        o.append(f" Performing   {self.GW_options['nit_gw']} GW iterations")
 
         if int(self.BSE_TDDFT_options["do_bse"]) == 1:
             o.append(" Dumping data for BSE treatment")
@@ -482,7 +444,7 @@ class FiestaInput(MSONable):
             symbols.append(syb)
 
         for site in self._mol:
-            o.append(" {} {} {} {}".format(site.x, site.y, site.z, int(symbols.index(site.specie.symbol)) + 1))
+            o.append(f" {site.x} {site.y} {site.z} {int(symbols.index(site.specie.symbol)) + 1}")
 
         o.append("=========================================")
 
@@ -490,20 +452,17 @@ class FiestaInput(MSONable):
 
     @property
     def molecule(self):
-        """
-        Returns molecule associated with this FiestaInput.
-        """
+        """Returns molecule associated with this FiestaInput."""
         return self._mol
 
     def __str__(self):
-
         symbols = []
         for syb in self._mol.symbol_set:
             symbols.append(syb)
 
         geometry = []
         for site in self._mol:
-            geometry.append(" {} {} {} {}".format(site.x, site.y, site.z, int(symbols.index(site.specie.symbol)) + 1))
+            geometry.append(f" {site.x} {site.y} {site.z} {int(symbols.index(site.specie.symbol)) + 1}")
 
         t = Template(
             """# number of atoms and species
@@ -524,7 +483,7 @@ class FiestaInput(MSONable):
     $nit_gw
 # dumping for BSE and TDDFT
     $do_bse    $do_tddft
-# number of occp. and virtual bands fo BSE: nocore and up to 40 eVs
+# number of occp. and virtual bands of BSE: nocore and up to 40 eVs
     $nv_bse   $nc_bse
 # number of excitations needed and number of iterations
     $npsi_bse   $nit_bse
@@ -567,15 +526,13 @@ $geometry
     def write_file(self, filename):
         """
         Write FiestaInput to a file
-        :param filename: Filename
+        :param filename: Filename.
         """
         with zopen(filename, "w") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         return {
             "mol": self._mol.as_dict(),
             "correlation_grid": self.correlation_grid,
@@ -591,7 +548,7 @@ $geometry
         :param d: Dict representation
         :return: FiestaInput
         """
-        return FiestaInput(
+        return cls(
             Molecule.from_dict(d["mol"]),
             correlation_grid=d["correlation_grid"],
             Exc_DFT_option=d["Exc_DFT_option"],
@@ -608,10 +565,10 @@ $geometry
 
         Args:
             string_input: string_input to parse.
+
         Returns:
             FiestaInput object
         """
-
         correlation_grid = {}
         Exc_DFT_option = {}
         COHSEX_options = {}
@@ -622,42 +579,42 @@ $geometry
 
         # number of atoms and species
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         nat = toks[0]
         nsp = toks[1]
         # number of valence bands
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
 
         # correlation_grid
         # number of points and spacing in eV for correlation grid
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         correlation_grid["n_grid"] = toks[0]
         correlation_grid["dE_grid"] = toks[1]
 
         # Exc DFT
         # relire=1 ou recalculer=0 Exc DFT
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         Exc_DFT_option["rdVxcpsi"] = toks[0]
 
         # COHSEX
         # number of COHSEX corrected occp and unoccp bands: C=COHSEX  H=HF
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         COHSEX_options["nv_cohsex"] = toks[0]
         COHSEX_options["nc_cohsex"] = toks[1]
         COHSEX_options["eigMethod"] = toks[2]
         # number of COHSEX iter, scf on wfns, mixing coeff; V=RI-V  I=RI-D
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         COHSEX_options["nit_cohsex"] = toks[0]
         COHSEX_options["resMethod"] = toks[1]
         COHSEX_options["scf_cohsex_wf"] = toks[2]
@@ -666,33 +623,33 @@ $geometry
         # GW
         # number of GW corrected occp and unoccp bands
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         GW_options["nv_corr"] = toks[0]
         GW_options["nc_corr"] = toks[1]
         # number of GW iterations
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         GW_options["nit_gw"] = toks[0]
 
         # BSE
         # dumping for BSE and TDDFT
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         BSE_TDDFT_options["do_bse"] = toks[0]
         BSE_TDDFT_options["do_tddft"] = toks[1]
-        # number of occp. and virtual bands fo BSE: nocore and up to 40 eVs
+        # number of occp. and virtual bands of BSE: nocore and up to 40 eVs
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         BSE_TDDFT_options["nv_bse"] = toks[0]
         BSE_TDDFT_options["nc_bse"] = toks[1]
         # number of excitations needed and number of iterations
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         BSE_TDDFT_options["npsi_bse"] = toks[0]
         BSE_TDDFT_options["nit_bse"] = toks[1]
 
@@ -702,15 +659,15 @@ $geometry
         atname = []
         i = int(nsp)
         while i != 0:
-            l = lines.pop(0).strip()
-            toks = l.split()
+            line = lines.pop(0).strip()
+            toks = line.split()
             atname.append(toks[0])
             i -= 1
 
         # scaling factor
         lines.pop(0)
-        l = lines.pop(0).strip()
-        toks = l.split()
+        line = lines.pop(0).strip()
+        toks = line.split()
         # atoms x,y,z cartesian .. will be multiplied by scale
         lines.pop(0)
         # Parse geometry
@@ -718,8 +675,8 @@ $geometry
         coords = []
         i = int(nat)
         while i != 0:
-            l = lines.pop(0).strip()
-            toks = l.split()
+            line = lines.pop(0).strip()
+            toks = line.split()
             coords.append([float(j) for j in toks[0:3]])
             species.append(atname[int(toks[3]) - 1])
             i -= 1
@@ -778,7 +735,6 @@ class FiestaOutput:
 
     @staticmethod
     def _parse_job(output):
-
         GW_BANDS_results_patt = re.compile(
             r"^<it.*  \| \s+ (\D+\d*) \s+ \| \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \| "
             r" \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \|"
@@ -800,27 +756,26 @@ class FiestaOutput:
         parse_gw_results = False
         parse_total_time = False
 
-        for l in output.split("\n"):
-
+        for line in output.split("\n"):
             if parse_total_time:
-                m = end_patt.search(l)
+                m = end_patt.search(line)
                 if m:
                     GW_results.update(end_normally=True)
 
-                m = total_time_patt.search(l)
+                m = total_time_patt.search(line)
                 if m:
                     GW_results.update(total_time=m.group(1))
 
             if parse_gw_results:
-                if l.find("Dumping eigen energies") != -1:
+                if line.find("Dumping eigen energies") != -1:
                     parse_total_time = True
                     parse_gw_results = False
                     continue
 
-                m = GW_BANDS_results_patt.search(l)
+                m = GW_BANDS_results_patt.search(line)
                 if m:
-                    d = {}
-                    d.update(
+                    dct = {}
+                    dct.update(
                         band=m.group(1).strip(),
                         eKS=m.group(2),
                         eXX=m.group(3),
@@ -831,19 +786,19 @@ class FiestaOutput:
                         sigma_c_SCF=m.group(8),
                         eQP_SCF=m.group(9),
                     )
-                    GW_results[m.group(1).strip()] = d
+                    GW_results[m.group(1).strip()] = dct
 
-                n = GW_GAPS_results_patt.search(l)
+                n = GW_GAPS_results_patt.search(line)
                 if n:
-                    d = {}
-                    d.update(
+                    dct = {}
+                    dct.update(
                         Egap_KS=n.group(1),
                         Egap_QP_Linear=n.group(2),
                         Egap_QP_SCF=n.group(3),
                     )
-                    GW_results["Gaps"] = d
+                    GW_results["Gaps"] = dct
 
-            if l.find("GW Results") != -1:
+            if line.find("GW Results") != -1:
                 parse_gw_results = True
 
         return GW_results
@@ -871,7 +826,6 @@ class BSEOutput:
 
     @staticmethod
     def _parse_job(output):
-
         BSE_exitons_patt = re.compile(
             r"^exiton \s+ (\d+)  : \s+  ([\d.]+) \( \s+ ([-\d.]+) \) \s+ \| .*  ",
             re.VERBOSE,
@@ -885,30 +839,29 @@ class BSEOutput:
         parse_BSE_results = False
         parse_total_time = False
 
-        for l in output.split("\n"):
-
+        for line in output.split("\n"):
             if parse_total_time:
-                m = end_patt.search(l)
+                m = end_patt.search(line)
                 if m:
                     BSE_results.update(end_normally=True)
 
-                m = total_time_patt.search(l)
+                m = total_time_patt.search(line)
                 if m:
                     BSE_results.update(total_time=m.group(1))
 
             if parse_BSE_results:
-                if l.find("FULL BSE main valence -> conduction transitions weight:") != -1:
+                if line.find("FULL BSE main valence -> conduction transitions weight:") != -1:
                     parse_total_time = True
                     parse_BSE_results = False
                     continue
 
-                m = BSE_exitons_patt.search(l)
+                m = BSE_exitons_patt.search(line)
                 if m:
-                    d = {}
-                    d.update(bse_eig=m.group(2), osc_strength=m.group(3))
-                    BSE_results[str(m.group(1).strip())] = d
+                    dct = {}
+                    dct.update(bse_eig=m.group(2), osc_strength=m.group(3))
+                    BSE_results[str(m.group(1).strip())] = dct
 
-            if l.find("FULL BSE eig.(eV), osc. strength and dipoles:") != -1:
+            if line.find("FULL BSE eig.(eV), osc. strength and dipoles:") != -1:
                 parse_BSE_results = True
 
         return BSE_results

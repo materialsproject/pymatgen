@@ -1,12 +1,14 @@
 """
-Calculate spectroscopy limited maximum efficiency (SLME) given dielectric function data
+Calculate spectroscopy limited maximum efficiency (SLME) given dielectric function data.
 
 Forked and adjusted from :
 https://github.com/usnistgov/jarvis
 
 References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  &
-            2) http://dx.doi.org/10.1103/PhysRevLett.108.068701
+            2) https://doi.org/10.1103/PhysRevLett.108.068701
 """
+
+from __future__ import annotations
 
 import os
 from math import pi
@@ -24,10 +26,7 @@ eV_to_recip_cm = 1.0 / (physical_constants["Planck constant in eV s"][0] * speed
 
 
 def get_dir_indir_gap(run=""):
-    """
-    Get direct and indirect bandgaps for a vasprun.xml
-    """
-
+    """Get direct and indirect bandgaps for a vasprun.xml."""
     v = Vasprun(run)
     bandstructure = v.get_band_structure()
     dir_gap = bandstructure.get_direct_band_gap()
@@ -38,8 +37,10 @@ def get_dir_indir_gap(run=""):
 def matrix_eigvals(matrix):
     """
     Calculate the eigenvalues of a matrix.
+
     Args:
         matrix (np.array): The matrix to diagonalise.
+
     Returns:
         (np.array): Array of the matrix eigenvalues.
     """
@@ -51,6 +52,7 @@ def to_matrix(xx, yy, zz, xy, yz, xz):
     """
     Convert a list of matrix components to a symmetric 3x3 matrix.
     Inputs should be in the order xx, yy, zz, xy, yz, xz.
+
     Args:
         xx (float): xx component of the matrix.
         yy (float): yy component of the matrix.
@@ -58,21 +60,23 @@ def to_matrix(xx, yy, zz, xy, yz, xz):
         xy (float): xy component of the matrix.
         yz (float): yz component of the matrix.
         xz (float): xz component of the matrix.
+
     Returns:
         (np.array): The matrix, as a 3x3 numpy array.
     """
-    matrix = np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
-    return matrix
+    return np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
 
 
 def parse_dielectric_data(data):
     """
     Convert a set of 2D vasprun formatted dielectric data to
     the eigenvalues of each corresponding 3x3 symmetric numpy matrices.
+
     Args:
         data (list): length N list of dielectric data. Each entry should be
                      a list of ``[xx, yy, zz, xy, xz, yz ]`` dielectric
                      tensor elements.
+
     Returns:
         (np.array):  a Nx3 numpy array. Each row contains the eigenvalues
                      for the corresponding row in `data`.
@@ -84,6 +88,7 @@ def absorption_coefficient(dielectric):
     """
     Calculate the optical absorption coefficient from an input set of
     pymatgen vasprun dielectric constant data.
+
     Args:
         dielectric (list): A list containing the dielectric response function
                            in the pymatgen vasprun format.
@@ -107,15 +112,13 @@ def absorption_coefficient(dielectric):
             * pi
             * eV_to_recip_cm
             * energies_in_eV
-            * np.sqrt(-epsilon_1 + np.sqrt(epsilon_1 ** 2 + epsilon_2 ** 2))
+            * np.sqrt(-epsilon_1 + np.sqrt(epsilon_1**2 + epsilon_2**2))
         ),
     )
 
 
 def optics(path=""):
-    """
-    Helper function to calculate optical absorption coefficient
-    """
+    """Helper function to calculate optical absorption coefficient."""
     dirgap, indirgap = get_dir_indir_gap(path)
 
     run = Vasprun(path, occu_tol=1e-2)
@@ -140,7 +143,7 @@ def slme(
     plot_current_voltage=False,
 ):
     """
-    Calculate the SLME
+    Calculate the SLME.
 
     Args:
         material_energy_for_absorbance_data: energy grid for absorbance data
@@ -157,7 +160,6 @@ def slme(
         The calculated maximum efficiency.
 
     """
-
     # Defining constants for tidy equations
     c = constants.c  # speed of light, m/s
     h = constants.h  # Planck's constant J*s (W)
@@ -194,7 +196,7 @@ def slme(
     # calculation of blackbody irradiance spectra
     # units of W/(m**3), different than solar_spectra_irradiance!!! (This
     # is intentional, it is for convenience)
-    blackbody_irradiance = (2.0 * h * c ** 2 / (solar_spectra_wavelength_meters ** 5)) * (
+    blackbody_irradiance = (2.0 * h * c**2 / (solar_spectra_wavelength_meters**5)) * (
         1.0 / ((np.exp(h * c / (solar_spectra_wavelength_meters * k * temperature))) - 1.0)
     )
 
@@ -202,7 +204,7 @@ def slme(
     blackbody_photon_flux = blackbody_irradiance * (solar_spectra_wavelength_meters / (h * c))
 
     # units of nm
-    material_wavelength_for_absorbance_data = ((c * h_e) / (material_energy_for_absorbance_data + 0.00000001)) * 10 ** 9
+    material_wavelength_for_absorbance_data = ((c * h_e) / (material_energy_for_absorbance_data + 0.00000001)) * 10**9
 
     # absorbance interpolation onto each solar spectrum wavelength
 
@@ -245,12 +247,10 @@ def slme(
     J_sc = e * simps(solar_spectra_photon_flux * absorbed_by_wavelength, solar_spectra_wavelength)
 
     def J(V):
-        J = J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)
-        return J
+        return J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)
 
     def power(V):
-        p = J(V) * V
-        return p
+        return J(V) * V
 
     test_voltage = 0
     voltage_step = 0.001

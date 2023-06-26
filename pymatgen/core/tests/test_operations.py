@@ -1,7 +1,4 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
+from __future__ import annotations
 
 import numpy as np
 
@@ -17,46 +14,46 @@ class SymmOpTestCase(PymatgenTest):
     def test_properties(self):
         rot = self.op.rotation_matrix
         vec = self.op.translation_vector
-        self.assertArrayAlmostEqual(rot, [[0.8660254, -0.5, 0.0], [0.5, 0.8660254, 0.0], [0.0, 0.0, 1.0]], 2)
-        self.assertArrayAlmostEqual(vec, [0, 0, 1], 2)
+        self.assert_all_close(rot, [[0.8660254, -0.5, 0.0], [0.5, 0.8660254, 0.0], [0.0, 0.0, 1.0]], 2)
+        self.assert_all_close(vec, [0, 0, 1], 2)
 
     def test_operate(self):
         point = np.array([1, 2, 3])
-        newcoord = self.op.operate(point)
-        self.assertArrayAlmostEqual(newcoord, [-0.1339746, 2.23205081, 4.0], 2)
+        new_coord = self.op.operate(point)
+        self.assert_all_close(new_coord, [-0.1339746, 2.23205081, 4.0], 2)
 
     def test_operate_multi(self):
         point = np.array([1, 2, 3])
-        newcoords = self.op.operate_multi([point, point])
-        self.assertArrayAlmostEqual(newcoords, [[-0.1339746, 2.23205081, 4.0]] * 2, 2)
-        newcoords = self.op.operate_multi([[point, point]] * 2)
-        self.assertArrayAlmostEqual(newcoords, [[[-0.1339746, 2.23205081, 4.0]] * 2] * 2, 2)
+        new_coords = self.op.operate_multi([point, point])
+        self.assert_all_close(new_coords, [[-0.1339746, 2.23205081, 4.0]] * 2, 2)
+        new_coords = self.op.operate_multi([[point, point]] * 2)
+        self.assert_all_close(new_coords, [[[-0.1339746, 2.23205081, 4.0]] * 2] * 2, 2)
 
     def test_inverse(self):
         point = np.random.rand(3)
-        newcoord = self.op.operate(point)
-        self.assertArrayAlmostEqual(self.op.inverse.operate(newcoord), point, 2)
+        new_coord = self.op.operate(point)
+        self.assert_all_close(self.op.inverse.operate(new_coord), point, 2)
 
     def test_reflection(self):
         normal = np.random.rand(3)
         origin = np.random.rand(3)
         refl = SymmOp.reflection(normal, origin)
         point = np.random.rand(3)
-        newcoord = refl.operate(point)
+        new_coord = refl.operate(point)
         # Distance to the plane should be negatives of each other.
-        self.assertAlmostEqual(np.dot(newcoord - origin, normal), -np.dot(point - origin, normal))
+        assert np.allclose(np.dot(new_coord - origin, normal), -np.dot(point - origin, normal))
 
     def test_apply_rotation_only(self):
         point = np.random.rand(3)
-        newcoord = self.op.operate(point)
+        new_coord = self.op.operate(point)
         rotate_only = self.op.apply_rotation_only(point)
-        self.assertArrayAlmostEqual(rotate_only + self.op.translation_vector, newcoord, 2)
+        self.assert_all_close(rotate_only + self.op.translation_vector, new_coord, 2)
 
     def test_transform_tensor(self):
         # Rank 2
         tensor = np.arange(0, 9).reshape(3, 3)
         new_tensor = self.op.transform_tensor(tensor)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             new_tensor,
             [
                 [-0.73205, -1.73205, -0.76794],
@@ -69,7 +66,7 @@ class SymmOpTestCase(PymatgenTest):
         # Rank 3
         tensor = np.arange(0, 27).reshape(3, 3, 3)
         new_tensor = self.op.transform_tensor(tensor)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             new_tensor,
             [
                 [
@@ -93,7 +90,7 @@ class SymmOpTestCase(PymatgenTest):
         # Rank 4
         tensor = np.arange(0, 81).reshape(3, 3, 3, 3)
         new_tensor = self.op.transform_tensor(tensor)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             new_tensor,
             [
                 [
@@ -153,34 +150,52 @@ class SymmOpTestCase(PymatgenTest):
 
     def test_are_symmetrically_related(self):
         point = np.random.rand(3)
-        newcoord = self.op.operate(point)
-        self.assertTrue(self.op.are_symmetrically_related(point, newcoord))
-        self.assertTrue(self.op.are_symmetrically_related(newcoord, point))
+        new_coord = self.op.operate(point)
+        assert self.op.are_symmetrically_related(point, new_coord)
+        assert self.op.are_symmetrically_related(new_coord, point)
+
+    def test_are_symmetrically_related_vectors(self):
+        tol = 0.001
+        from_a = np.random.rand(3)
+        to_a = np.random.rand(3)
+        r_a = np.random.randint(0, 10, 3)
+        from_b = self.op.operate(from_a)
+        to_b = self.op.operate(to_a)
+        floored = np.floor([from_b, to_b])
+        is_too_close = np.abs([from_b, to_b] - floored) > 1 - tol
+        floored[is_too_close] += 1
+        r_b = self.op.apply_rotation_only(r_a) - floored[0] + floored[1]
+        from_b = from_b % 1
+        to_b = to_b % 1
+        assert self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[0]
+        assert not self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[1]
+        assert self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[0]
+        assert self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[1]
 
     def test_to_from_dict(self):
         d = self.op.as_dict()
         op = SymmOp.from_dict(d)
         point = np.random.rand(3)
-        newcoord = self.op.operate(point)
-        self.assertTrue(op.are_symmetrically_related(point, newcoord))
+        new_coord = self.op.operate(point)
+        assert op.are_symmetrically_related(point, new_coord)
 
     def test_inversion(self):
         origin = np.random.rand(3)
         op = SymmOp.inversion(origin)
         pt = np.random.rand(3)
         inv_pt = op.operate(pt)
-        self.assertArrayAlmostEqual(pt - origin, origin - inv_pt)
+        self.assert_all_close(pt - origin, origin - inv_pt)
 
     def test_xyz(self):
         op = SymmOp([[1, -1, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
         s = op.as_xyz_string()
-        self.assertEqual(s, "x-y, -y, -z")
-        self.assertEqual(op, SymmOp.from_xyz_string(s))
+        assert s == "x-y, -y, -z"
+        assert op == SymmOp.from_xyz_string(s)
 
         op2 = SymmOp([[0, -1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
         s2 = op2.as_xyz_string()
-        self.assertEqual(s2, "-y+1/2, x+1/2, z+1/2")
-        self.assertEqual(op2, SymmOp.from_xyz_string(s2))
+        assert s2 == "-y+1/2, x+1/2, z+1/2"
+        assert op2 == SymmOp.from_xyz_string(s2)
 
         op2 = SymmOp(
             [
@@ -191,38 +206,37 @@ class SymmOpTestCase(PymatgenTest):
             ]
         )
         s2 = op2.as_xyz_string()
-        self.assertEqual(s2, "3x-2y-z+1/2, -x+12/13, z+1/2")
-        self.assertEqual(op2, SymmOp.from_xyz_string(s2))
+        assert s2 == "3x-2y-z+1/2, -x+12/13, z+1/2"
+        assert op2 == SymmOp.from_xyz_string(s2)
 
         op3 = SymmOp.from_xyz_string("3x - 2y - z+1 /2 , -x+12/ 13, z+1/2")
-        self.assertEqual(op2, op3)
+        assert op2 == op3
 
         # Ensure strings can be read in any order
         op4 = SymmOp.from_xyz_string("1 /2 + 3X - 2y - z , 12/ 13-x, z+1/2")
         op5 = SymmOp.from_xyz_string("+1 /2 + 3x - 2y - z , 12/ 13-x, +1/2+z")
-        self.assertEqual(op4, op3)
-        self.assertEqual(op4, op5)
-        self.assertEqual(op3, op5)
+        assert op4 == op3
+        assert op4 == op5
+        assert op3 == op5
 
         # TODO: assertWarns not in Python 2.x unittest
         # update PymatgenTest for unittest2?
         # self.assertWarns(UserWarning, self.op.as_xyz_string)
 
         o = SymmOp.from_xyz_string("0.5+x, 0.25+y, 0.75+z")
-        self.assertArrayAlmostEqual(o.translation_vector, [0.5, 0.25, 0.75])
+        self.assert_all_close(o.translation_vector, [0.5, 0.25, 0.75])
         o = SymmOp.from_xyz_string("x + 0.5, y + 0.25, z + 0.75")
-        self.assertArrayAlmostEqual(o.translation_vector, [0.5, 0.25, 0.75])
+        self.assert_all_close(o.translation_vector, [0.5, 0.25, 0.75])
 
 
 class MagSymmOpTestCase(PymatgenTest):
     def test_xyzt_string(self):
-
         xyzt_strings = ["x, y, z, +1", "x, y, z, -1", "-y+1/2, x+1/2, x+1/2, +1"]
 
         for xyzt_string in xyzt_strings:
             op = MagSymmOp.from_xyzt_string(xyzt_string)
             xyzt_string_out = op.as_xyzt_string()
-            self.assertEqual(xyzt_string, xyzt_string_out)
+            assert xyzt_string == xyzt_string_out
 
         op = SymmOp(
             [
@@ -235,8 +249,8 @@ class MagSymmOpTestCase(PymatgenTest):
 
         magop = MagSymmOp.from_symmop(op, -1)
         magop_str = magop.as_xyzt_string()
-        self.assertEqual(magop.time_reversal, -1)
-        self.assertEqual(magop_str, "3x-2y-z+1/2, -x+12/13, z+1/2, -1")
+        assert magop.time_reversal == -1
+        assert magop_str == "3x-2y-z+1/2, -x+12/13, z+1/2, -1"
 
     def test_to_from_dict(self):
         op = SymmOp(
@@ -249,11 +263,10 @@ class MagSymmOpTestCase(PymatgenTest):
         )
         magop = MagSymmOp.from_symmop(op, -1)
         magop2 = MagSymmOp.from_dict(magop.as_dict())
-        self.assertEqual(magop2.time_reversal, -1)
-        self.assertEqual(magop2.as_xyzt_string(), "3x-2y-z+1/2, -x+12/13, z+1/2, -1")
+        assert magop2.time_reversal == -1
+        assert magop2.as_xyzt_string() == "3x-2y-z+1/2, -x+12/13, z+1/2, -1"
 
     def test_operate_magmom(self):
-
         # all test magmoms are the same
         magmoms = [
             Magmom([1, 2, 3]),  # as Magmom
@@ -268,7 +281,7 @@ class MagSymmOpTestCase(PymatgenTest):
         for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms):
             for magmom in magmoms:
                 op = MagSymmOp.from_xyzt_string(xyzt_string)
-                self.assertTrue(np.allclose(transformed_magmom, op.operate_magmom(magmom).global_moment))
+                assert np.allclose(transformed_magmom, op.operate_magmom(magmom).global_moment)
 
 
 if __name__ == "__main__":

@@ -1,12 +1,11 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-"""
-Utilities for generating nicer plots.
-"""
+"""Utilities for generating nicer plots."""
+from __future__ import annotations
+
 import math
+from typing import Literal
 
 import numpy as np
+from matplotlib import cm, colors
 
 from pymatgen.core.periodic_table import Element
 
@@ -28,7 +27,7 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitat
     Returns:
         Matplotlib plot object with properly sized fonts.
     """
-    ticksize = int(width * 2.5)
+    tick_size = int(width * 2.5)
 
     golden_ratio = (math.sqrt(5) - 1) / 2
 
@@ -40,7 +39,7 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitat
 
         import matplotlib.pyplot as plt
 
-        mod = importlib.import_module("palettable.colorbrewer.%s" % color_cycle[0])
+        mod = importlib.import_module(f"palettable.colorbrewer.{color_cycle[0]}")
         colors = getattr(mod, color_cycle[1]).mpl_colors
         from cycler import cycler
 
@@ -50,16 +49,16 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitat
     else:
         fig = plt.gcf()
         fig.set_size_inches(width, height)
-    plt.xticks(fontsize=ticksize)
-    plt.yticks(fontsize=ticksize)
+    plt.xticks(fontsize=tick_size)
+    plt.yticks(fontsize=tick_size)
 
     ax = plt.gca()
     ax.set_title(ax.get_title(), size=width * 4)
 
-    labelsize = int(width * 3)
+    label_size = int(width * 3)
 
-    ax.set_xlabel(ax.get_xlabel(), size=labelsize)
-    ax.set_ylabel(ax.get_ylabel(), size=labelsize)
+    ax.set_xlabel(ax.get_xlabel(), size=label_size)
+    ax.set_ylabel(ax.get_ylabel(), size=label_size)
 
     return plt
 
@@ -147,7 +146,7 @@ def pretty_plot_two_axis(
 
 
 def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
-    r"""
+    """
     Convenience method to plot data with trend lines based on polynomial fit.
 
     Args:
@@ -156,7 +155,7 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
         deg (int): Degree of polynomial. Defaults to 1.
         xlabel (str): Label for x-axis.
         ylabel (str): Label for y-axis.
-        \\*\\*kwargs: Keyword args passed to pretty_plot.
+        kwargs: Keyword args passed to pretty_plot.
 
     Returns:
         matplotlib.pyplot object.
@@ -172,6 +171,14 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
     return plt
 
 
+def _decide_fontcolor(rgba: tuple) -> Literal["black", "white"]:
+    red, green, blue, _ = rgba
+    if red * 0.299 + green * 0.587 + blue * 0.114 > (186 / 255):
+        return "black"
+
+    return "white"
+
+
 def periodic_table_heatmap(
     elemental_data,
     cbar_label="",
@@ -180,34 +187,45 @@ def periodic_table_heatmap(
     cmap="YlOrRd",
     cmap_range=None,
     blank_color="grey",
+    edge_color="white",
     value_format=None,
+    value_fontsize=10,
+    symbol_fontsize=14,
     max_row=9,
+    readable_fontcolor=False,
 ):
     """
-    A static method that generates a heat map overlayed on a periodic table.
+    A static method that generates a heat map overlaid on a periodic table.
 
     Args:
          elemental_data (dict): A dictionary with the element as a key and a
             value assigned to it, e.g. surface energy and frequency, etc.
             Elements missing in the elemental_data will be grey by default
             in the final table elemental_data={"Fe": 4.2, "O": 5.0}.
-         cbar_label (string): Label of the colorbar. Default is "".
-         cbar_label_size (float): Font size for the colorbar label. Default is 14.
-         cmap_range (tuple): Minimum and maximum value of the colormap scale.
-            If None, the colormap will autotmatically scale to the range of the
+         cbar_label (str): Label of the color bar. Default is "".
+         cbar_label_size (float): Font size for the color bar label. Default is 14.
+         cmap_range (tuple): Minimum and maximum value of the color map scale.
+            If None, the color map will automatically scale to the range of the
             data.
          show_plot (bool): Whether to show the heatmap. Default is False.
          value_format (str): Formatting string to show values. If None, no value
             is shown. Example: "%.4f" shows float to four decimals.
-         cmap (string): Color scheme of the heatmap. Default is 'YlOrRd'.
+         value_fontsize (float): Font size for values. Default is 10.
+         symbol_fontsize (float): Font size for element symbols. Default is 14.
+         cmap (str): Color scheme of the heatmap. Default is 'YlOrRd'.
             Refer to the matplotlib documentation for other options.
-         blank_color (string): Color assigned for the missing elements in
+         blank_color (str): Color assigned for the missing elements in
             elemental_data. Default is "grey".
-         max_row (integer): Maximum number of rows of the periodic table to be
+         edge_color (str): Color assigned for the edge of elements in the
+            periodic table. Default is "white".
+         max_row (int): Maximum number of rows of the periodic table to be
             shown. Default is 9, which means the periodic table heat map covers
-            the first 9 rows of elements.
+            the standard 7 rows of the periodic table + 2 rows for the lanthanides
+            and actinides. Use a value of max_row = 7 to exclude the lanthanides and
+            actinides.
+         readable_fontcolor (bool): Whether to use readable font color depending
+            on background color. Default is False.
     """
-
     # Convert primitive_elemental data in the form of numpy array for plotting.
     if cmap_range is not None:
         max_val = cmap_range[1]
@@ -225,10 +243,19 @@ def periodic_table_heatmap(
     blank_value = min_val - 0.01
 
     for el in Element:
-        if el.row > max_row:
-            continue
         value = elemental_data.get(el.symbol, blank_value)
-        value_table[el.row - 1, el.group - 1] = value
+        if 57 <= el.Z <= 71:
+            plot_row = 8
+            plot_group = (el.Z - 54) % 32
+        elif 89 <= el.Z <= 103:
+            plot_row = 9
+            plot_group = (el.Z - 54) % 32
+        else:
+            plot_row = el.row
+            plot_group = el.group
+        if plot_row > max_row:
+            continue
+        value_table[plot_row - 1, plot_group - 1] = value
 
     # Initialize the plt object
     import matplotlib.pyplot as plt
@@ -241,7 +268,7 @@ def periodic_table_heatmap(
     heatmap = ax.pcolor(
         data_mask,
         cmap=cmap,
-        edgecolors="w",
+        edgecolors=edge_color,
         linewidths=1,
         vmin=min_val - 0.001,
         vmax=max_val + 0.001,
@@ -259,18 +286,25 @@ def periodic_table_heatmap(
     ax.axis("off")
     ax.invert_yaxis()
 
+    # Set the scalermap for fontcolor
+    norm = colors.Normalize(vmin=min_val, vmax=max_val)
+    scalar_cmap = cm.ScalarMappable(norm=norm, cmap=cmap)
+
     # Label each block with corresponding element and value
     for i, row in enumerate(value_table):
         for j, el in enumerate(row):
             if not np.isnan(el):
                 symbol = Element.from_row_and_group(i + 1, j + 1).symbol
+                rgba = scalar_cmap.to_rgba(el)
+                fontcolor = _decide_fontcolor(rgba) if readable_fontcolor else "black"
                 plt.text(
                     j + 0.5,
                     i + 0.25,
                     symbol,
                     horizontalalignment="center",
                     verticalalignment="center",
-                    fontsize=14,
+                    fontsize=symbol_fontsize,
+                    color=fontcolor,
                 )
                 if el != blank_value and value_format is not None:
                     plt.text(
@@ -279,7 +313,8 @@ def periodic_table_heatmap(
                         value_format % el,
                         horizontalalignment="center",
                         verticalalignment="center",
-                        fontsize=10,
+                        fontsize=value_fontsize,
+                        color=fontcolor,
                     )
 
     plt.tight_layout()
@@ -293,12 +328,11 @@ def periodic_table_heatmap(
 def format_formula(formula):
     """
     Converts str of chemical formula into
-    latex format for labelling purposes
+    latex format for labelling purposes.
 
     Args:
         formula (str): Chemical formula
     """
-
     formatted_formula = ""
     number_format = ""
     for i, s in enumerate(formula):
@@ -316,7 +350,7 @@ def format_formula(formula):
                 number_format = ""
             formatted_formula += s
 
-    return r"$%s$" % (formatted_formula)
+    return f"${formatted_formula}$"
 
 
 def van_arkel_triangle(list_of_materials, annotate=True):
@@ -328,28 +362,22 @@ def van_arkel_triangle(list_of_materials, annotate=True):
             A.E. van Arkel, Molecules and Crystals in Inorganic Chemistry,
                 Interscience, New York (1956)
         and
-            J.A.A Ketelaar, Chemical Constitution (2nd edn.), An Introduction
-                to the Theory of the Chemical Bond, Elsevier, New York (1958)
+            J.A.A Ketelaar, Chemical Constitution (2nd edition), An Introduction
+                to the Theory of the Chemical Bond, Elsevier, New York (1958).
 
     Args:
          list_of_materials (list): A list of computed entries of binary
             materials or a list of lists containing two elements (str).
-         annotate (bool): Whether or not to lable the points on the
+         annotate (bool): Whether or not to label the points on the
             triangle with reduced formula (if list of entries) or pair
             of elements (if list of list of str).
     """
-
     # F-Fr has the largest X difference. We set this
     # as our top corner of the triangle (most ionic)
     pt1 = np.array([(Element("F").X + Element("Fr").X) / 2, abs(Element("F").X - Element("Fr").X)])
     # Cs-Fr has the lowest average X. We set this as our
     # bottom left corner of the triangle (most metallic)
-    pt2 = np.array(
-        [
-            (Element("Cs").X + Element("Fr").X) / 2,
-            abs(Element("Cs").X - Element("Fr").X),
-        ]
-    )
+    pt2 = np.array([(Element("Cs").X + Element("Fr").X) / 2, abs(Element("Cs").X - Element("Fr").X)])
     # O-F has the highest average X. We set this as our
     # bottom right corner of the triangle (most covalent)
     pt3 = np.array([(Element("O").X + Element("F").X) / 2, abs(Element("O").X - Element("F").X)])
@@ -387,7 +415,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     plt.xticks(fontsize=15)
     plt.yticks(fontsize=15)
 
-    # Shade with appropriate colors corresponding to ionic, metallci and covalent
+    # Shade with appropriate colors corresponding to ionic, metallic and covalent
     ax = plt.gca()
     # ionic filling
     ax.fill_between(
@@ -405,32 +433,32 @@ def van_arkel_triangle(list_of_materials, annotate=True):
         edgecolor=[1, 1, 0],
     )
     # metal filling
-    XPt = Element("Pt").X
+    x_pt = Element("Pt").X
     ax.fill_between(
-        [min(chi_list), (XPt + min(chi_list)) / 2],
-        [0, slope1 * (XPt + min(chi_list)) / 2 + b1],
+        [min(chi_list), (x_pt + min(chi_list)) / 2],
+        [0, slope1 * (x_pt + min(chi_list)) / 2 + b1],
         facecolor=[1, 0, 0],
         zorder=-3,
         alpha=0.8,
     )
     ax.fill_between(
-        [(XPt + min(chi_list)) / 2, XPt],
-        [slope1 * ((XPt + min(chi_list)) / 2) + b1, 0],
+        [(x_pt + min(chi_list)) / 2, x_pt],
+        [slope1 * ((x_pt + min(chi_list)) / 2) + b1, 0],
         facecolor=[1, 0, 0],
         zorder=-3,
         alpha=0.8,
     )
     # covalent filling
     ax.fill_between(
-        [(XPt + min(chi_list)) / 2, ((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2],
-        [0, slope2 * (((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2],
+        [(x_pt + min(chi_list)) / 2, ((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2],
+        [0, slope2 * (((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2],
         facecolor=[0, 1, 0],
         zorder=-4,
         alpha=0.8,
     )
     ax.fill_between(
-        [((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2, -b2 / slope2],
-        [slope2 * (((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2, 0],
+        [((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2, -b2 / slope2],
+        [slope2 * (((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2, 0],
         facecolor=[0, 1, 0],
         zorder=-4,
         alpha=0.8,
@@ -440,9 +468,10 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     for entry in list_of_materials:
         if type(entry).__name__ not in ["ComputedEntry", "ComputedStructureEntry"]:
             X_pair = [Element(el).X for el in entry]
-            formatted_formula = "%s-%s" % tuple(entry)
+            el_1, el_2 = entry
+            formatted_formula = f"{el_1}-{el_2}"
         else:
-            X_pair = [Element(el).X for el in entry.composition.as_dict().keys()]
+            X_pair = [Element(el).X for el in entry.composition.as_dict()]
             formatted_formula = format_formula(entry.composition.reduced_formula)
         plt.scatter(np.mean(X_pair), abs(X_pair[0] - X_pair[1]), c="b", s=100)
         if annotate:
@@ -474,7 +503,7 @@ def get_ax_fig_plt(ax=None, **kwargs):
 
     if ax is None:
         fig = plt.figure(**kwargs)
-        ax = fig.add_subplot(1, 1, 1)
+        ax = fig.gca()
     else:
         fig = plt.gcf()
 
@@ -592,7 +621,7 @@ def add_fig_kwargs(func):
             if len(fig.axes) > len(tags):
                 tags = (1 + len(ascii_letters) // len(fig.axes)) * ascii_letters
             for ax, tag in zip(fig.axes, tags):
-                ax.annotate("(%s)" % tag, xy=(0.05, 0.95), xycoords="axes fraction")
+                ax.annotate(f"({tag})", xy=(0.05, 0.95), xycoords="axes fraction")
 
         if tight_layout:
             try:
@@ -615,9 +644,7 @@ def add_fig_kwargs(func):
         return fig
 
     # Add docstring to the decorated method.
-    s = (
-        "\n\n"
-        + """\
+    s = """\n\n
         Keyword arguments controlling the display of the figure:
 
         ================  ====================================================
@@ -637,7 +664,6 @@ def add_fig_kwargs(func):
         ================  ====================================================
 
 """
-    )
 
     if wrapper.__doc__ is not None:
         # Add s at the end of the docstring.

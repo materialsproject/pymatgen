@@ -1,10 +1,6 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module provides classes that define a chemical reaction."""
 
-"""
-This module provides classes that define a chemical reaction.
-"""
+from __future__ import annotations
 
 import logging
 import re
@@ -31,9 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class BalancedReaction(MSONable):
-    """
-    An object representing a complete chemical reaction.
-    """
+    """An object representing a complete chemical reaction."""
 
     # Tolerance for determining if a particular component fraction is > 0.
     TOLERANCE = 1e-6
@@ -49,8 +43,8 @@ class BalancedReaction(MSONable):
                 {Composition: amt}.
         """
         # sum reactants and products
-        all_reactants = sum([k * v for k, v in reactants_coeffs.items()], Composition({}))
-        all_products = sum([k * v for k, v in products_coeffs.items()], Composition({}))
+        all_reactants = sum((k * v for k, v in reactants_coeffs.items()), Composition({}))
+        all_products = sum((k * v for k, v in products_coeffs.items()), Composition({}))
 
         if not all_reactants.almost_equals(all_products, rtol=0, atol=self.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
@@ -64,7 +58,7 @@ class BalancedReaction(MSONable):
         self._coeffs = []
         self._els = []
         self._all_comp = []
-        for c in set(list(reactants_coeffs.keys()) + list(products_coeffs.keys())):
+        for c in set(list(reactants_coeffs) + list(products_coeffs)):
             coeff = products_coeffs.get(c, 0) - reactants_coeffs.get(c, 0)
 
             if abs(coeff) > self.TOLERANCE:
@@ -82,7 +76,7 @@ class BalancedReaction(MSONable):
         Returns:
             reaction energy as a float.
         """
-        return sum([amt * energies[c] for amt, c in zip(self._coeffs, self._all_comp)])
+        return sum(amt * energies[c] for amt, c in zip(self._coeffs, self._all_comp))
 
     def normalize_to(self, comp, factor=1):
         """
@@ -109,7 +103,7 @@ class BalancedReaction(MSONable):
         """
         all_comp = self._all_comp
         coeffs = self._coeffs
-        current_el_amount = sum([all_comp[i][element] * abs(coeffs[i]) for i in range(len(all_comp))]) / 2
+        current_el_amount = sum(all_comp[i][element] * abs(coeffs[i]) for i in range(len(all_comp))) / 2
         scale_factor = factor / current_el_amount
         self._coeffs = [c * scale_factor for c in coeffs]
 
@@ -123,53 +117,41 @@ class BalancedReaction(MSONable):
         Returns:
             Amount of that element in the reaction.
         """
-        return sum([self._all_comp[i][element] * abs(self._coeffs[i]) for i in range(len(self._all_comp))]) / 2
+        return sum(self._all_comp[i][element] * abs(self._coeffs[i]) for i in range(len(self._all_comp))) / 2
 
     @property
     def elements(self):
-        """
-        List of elements in the reaction
-        """
+        """List of elements in the reaction."""
         return self._els[:]
 
     @property
     def coeffs(self):
-        """
-        Final coefficients of the calculated reaction
-        """
+        """Final coefficients of the calculated reaction."""
         return self._coeffs[:]
 
     @property
     def all_comp(self):
-        """
-        List of all compositions in the reaction.
-        """
+        """List of all compositions in the reaction."""
         return self._all_comp
 
     @property
     def reactants(self):
-        """
-        List of reactants
-        """
+        """List of reactants."""
         return [self._all_comp[i] for i in range(len(self._all_comp)) if self._coeffs[i] < 0]
 
     @property
     def products(self):
-        """
-        List of products
-        """
+        """List of products."""
         return [self._all_comp[i] for i in range(len(self._all_comp)) if self._coeffs[i] > 0]
 
     def get_coeff(self, comp):
-        """
-        Returns coefficient for a particular composition
-        """
+        """Returns coefficient for a particular composition."""
         return self._coeffs[self._all_comp.index(comp)]
 
     def normalized_repr_and_factor(self):
         """
         Normalized representation for a reaction
-        For example, ``4 Li + 2 O -> 2Li2O`` becomes ``2 Li + O -> Li2O``
+        For example, ``4 Li + 2 O -> 2Li2O`` becomes ``2 Li + O -> Li2O``.
         """
         return self._str_from_comp(self._coeffs, self._all_comp, True)
 
@@ -181,9 +163,9 @@ class BalancedReaction(MSONable):
         """
         return self.normalized_repr_and_factor()[0]
 
-    def __eq__(self, other):
-        if other is None:
-            return False
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         for comp in self._all_comp:
             coeff2 = other.get_coeff(comp) if comp in other._all_comp else 0
             if abs(self.get_coeff(comp) - coeff2) > self.TOLERANCE:
@@ -203,11 +185,11 @@ class BalancedReaction(MSONable):
             elif abs(amt - 1) < cls.TOLERANCE:
                 product_str.append(formula)
             elif amt < -cls.TOLERANCE:
-                reactant_str.append("{:.4g} {}".format(-amt, formula))
+                reactant_str.append(f"{-amt:.4g} {formula}")
             elif amt > cls.TOLERANCE:
-                product_str.append("{:.4g} {}".format(amt, formula))
+                product_str.append(f"{amt:.4g} {formula}")
 
-        return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
+        return f"{' + '.join(reactant_str)} -> {' + '.join(product_str)}"
 
     @classmethod
     def _str_from_comp(cls, coeffs, compositions, reduce=False):
@@ -237,7 +219,7 @@ class BalancedReaction(MSONable):
         relevant_comp = [comp * abs(coeff) for coeff, comp in zip(self._coeffs, self._all_comp)]
         comp = sum(relevant_comp, Composition())
         entry = ComputedEntry(0.5 * comp, self.calculate_energy(energies))
-        entry.name = self.__str__()
+        entry.name = str(self)
         return entry
 
     def as_dict(self):
@@ -246,8 +228,8 @@ class BalancedReaction(MSONable):
             A dictionary representation of BalancedReaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": {str(comp): coeff for comp, coeff in self.reactants_coeffs.items()},
             "products": {str(comp): coeff for comp, coeff in self.products_coeffs.items()},
         }
@@ -256,7 +238,7 @@ class BalancedReaction(MSONable):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): from as_dict()
+            d (dict): from as_dict().
 
         Returns:
             A BalancedReaction object.
@@ -301,7 +283,7 @@ class Reaction(BalancedReaction):
     def __init__(self, reactants, products):
         """
         Reactants and products to be specified as list of
-        pymatgen.core.structure.Composition.  e.g., [comp1, comp2]
+        pymatgen.core.structure.Composition. e.g., [comp1, comp2].
 
         Args:
             reactants ([Composition]): List of reactants.
@@ -373,9 +355,7 @@ class Reaction(BalancedReaction):
         return np.squeeze(best_soln)
 
     def copy(self):
-        """
-        Returns a copy of the Reaction object.
-        """
+        """Returns a copy of the Reaction object."""
         return Reaction(self.reactants, self.products)
 
     def as_dict(self):
@@ -384,8 +364,8 @@ class Reaction(BalancedReaction):
             A dictionary representation of Reaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": [comp.as_dict() for comp in self._input_reactants],
             "products": [comp.as_dict() for comp in self._input_products],
         }
@@ -394,7 +374,7 @@ class Reaction(BalancedReaction):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): from as_dict()
+            d (dict): from as_dict().
 
         Returns:
             A Reaction object.
@@ -439,9 +419,9 @@ class ComputedReaction(Reaction):
         self._reactant_entries = reactant_entries
         self._product_entries = product_entries
         self._all_entries = reactant_entries + product_entries
-        reactant_comp = [e.composition.get_reduced_composition_and_factor()[0] for e in reactant_entries]
+        reactant_comp = [e.composition.reduced_composition for e in reactant_entries]
 
-        product_comp = [e.composition.get_reduced_composition_and_factor()[0] for e in product_entries]
+        product_comp = [e.composition.reduced_composition for e in product_entries]
 
         super().__init__(list(reactant_comp), list(product_comp))
 
@@ -468,7 +448,7 @@ class ComputedReaction(Reaction):
         calc_energies = {}
 
         for entry in self._reactant_entries + self._product_entries:
-            (comp, factor) = entry.composition.get_reduced_composition_and_factor()
+            comp, factor = entry.composition.get_reduced_composition_and_factor()
             calc_energies[comp] = min(calc_energies.get(comp, float("inf")), entry.energy / factor)
 
         return self.calculate_energy(calc_energies)
@@ -477,13 +457,12 @@ class ComputedReaction(Reaction):
     def calculated_reaction_energy_uncertainty(self):
         """
         Calculates the uncertainty in the reaction energy based on the uncertainty in the
-        energies of the products and reactants
+        energies of the products and reactants.
         """
-
         calc_energies = {}
 
         for entry in self._reactant_entries + self._product_entries:
-            (comp, factor) = entry.composition.get_reduced_composition_and_factor()
+            comp, factor = entry.composition.get_reduced_composition_and_factor()
             energy_ufloat = ufloat(entry.energy, entry.correction_uncertainty)
             calc_energies[comp] = min(calc_energies.get(comp, float("inf")), energy_ufloat / factor)
 
@@ -495,8 +474,8 @@ class ComputedReaction(Reaction):
             A dictionary representation of ComputedReaction.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "reactants": [e.as_dict() for e in self._reactant_entries],
             "products": [e.as_dict() for e in self._product_entries],
         }
@@ -505,7 +484,7 @@ class ComputedReaction(Reaction):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): from as_dict()
+            d (dict): from as_dict().
 
         Returns:
             A ComputedReaction object.

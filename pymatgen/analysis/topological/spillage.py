@@ -2,46 +2,42 @@
 Code to calculate spin-orbit spillage.
 Modified from JARVIS-Tools
 https://www.nature.com/articles/s41598-019-45028-y
-https://www.nature.com/articles/s41524-020-0319-4
+https://www.nature.com/articles/s41524-020-0319-4.
 """
+
+from __future__ import annotations
 
 import numpy as np
 
 from pymatgen.io.vasp.outputs import Wavecar
-
-# from jarvis.io.vasp.outputs import Wavecar
 
 
 class SOCSpillage:
     """
     Spin-orbit spillage criteria to predict whether a material is topologically non-trival.
     The spillage criteria physically signifies number of band-inverted electrons.
-    A non-zero, high value (generally >0.5) suggests non-trivial behavior
+    A non-zero, high value (generally >0.5) suggests non-trivial behavior.
     """
 
     def __init__(self, wf_noso="", wf_so=""):
         """
         Requires path to WAVECAR files with and without LSORBIT = .TRUE.
+
         Args:
             wf_noso : WAVECAR without spin-orbit coupling
             wf_so : WAVECAR with spin-orbit coupling
         """
-
         self.wf_noso = wf_noso
         self.wf_so = wf_so
 
     @staticmethod
     def isclose(n1, n2, rel_tol=1e-7):
-        """
-        Checking if the numbers are close enoung
-        """
+        """Checking if the numbers are close enough."""
         return abs(n1 - n2) < rel_tol
 
     @staticmethod
     def orth(A):
-        """
-        Helper function to create orthonormal basis
-        """
+        """Helper function to create orthonormal basis."""
         u, s, vh = np.linalg.svd(A, full_matrices=False)
         M, N = A.shape
         eps = np.finfo(float).eps
@@ -51,9 +47,7 @@ class SOCSpillage:
         return Q, num
 
     def overlap_so_spinpol(self):
-        """
-        Main function to calculate SOC spillage
-        """
+        """Main function to calculate SOC spillage."""
         noso = Wavecar(self.wf_noso)
         so = Wavecar(self.wf_so)
 
@@ -139,7 +133,6 @@ class SOCSpillage:
                 if (
                     self.isclose(kso[0], knoso[0]) and self.isclose(kso[1], knoso[1]) and self.isclose(kso[2], knoso[2])
                 ):  # do kpoints match?
-
                     # changes section 2
                     nelec_up = n_arr[nk1 - 1, 0]
                     nelec_dn = n_arr[nk1 - 1, 1]
@@ -165,7 +158,7 @@ class SOCSpillage:
                     if np.array(noso.coeffs[1][nk1 - 1]).shape[1] == vs // 2:
                         # if nk1==10 and nk2==10:
                         # print (np.array(noso.coeffs[1][nk1-1]).shape[1], )
-                        # prepare matricies
+                        # prepare matrices
                         for n1 in range(1, nelec_up + 1):
                             Vnoso[0 : vs // 2, n1 - 1] = np.array(noso.coeffs[0][nk1 - 1][n1 - 1])[0 : vs // 2]
                         for n1 in range(1, nelec_dn + 1):
@@ -211,19 +204,18 @@ class SOCSpillage:
         kmax = kpoints[nkmax]
 
         print("------------------------------------")
-        print()
-        print("                   INDIRECT DIRECT      HOMO/LUMO (eV)")
+        print("\n                   INDIRECT DIRECT      HOMO/LUMO (eV)")
         print(
             "no spin-orbit gaps",
-            "{:+.3f}".format(float(noso_lumo - noso_homo)),
-            "{:+.3f}".format(noso_direct),
+            f"{float(noso_lumo - noso_homo):+.3f}",
+            f"{noso_direct:+.3f}",
             "   ",
             [noso_homo, noso_lumo],
         )
         print(
             "spin-orbit gaps   ",
-            "{:+.3f}".format(float(so_lumo - so_homo)),
-            "{:+.3f}".format(so_direct),
+            f"{float(so_lumo - so_homo):+.3f}",
+            f"{so_direct:+.3f}",
             "   ",
             [so_homo, so_lumo],
         )

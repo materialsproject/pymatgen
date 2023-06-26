@@ -1,47 +1,30 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>pymatgen.core.trajectory module &mdash; pymatgen 2022.0.14 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.core.trajectory module &mdash; pymatgen 2023.5.10 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.core.trajectory.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.core.units module" href="pymatgen.core.units.html" />
     <link rel="prev" title="pymatgen.core.tensors module" href="pymatgen.core.tensors.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -50,51 +33,28 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
           
-
-          
+          <a href="index.html">
+            
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.14
+                2023.5.10
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -132,96 +92,51 @@
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-        
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-        
-          <li><a href="pymatgen.core.html">pymatgen.core package</a> &raquo;</li>
-        
-      <li>pymatgen.core.trajectory module</li>
-    
-    
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.core.html">pymatgen.core package</a></li>
+      <li class="breadcrumb-item active">pymatgen.core.trajectory module</li>
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.core.trajectory.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="module-pymatgen.core.trajectory">
-<span id="pymatgen-core-trajectory-module"></span><h1>pymatgen.core.trajectory module<a class="headerlink" href="#module-pymatgen.core.trajectory" title="Permalink to this headline">¶</a></h1>
-<p>This module provides classes used to define a MD trajectory.</p>
+             
+  <section id="module-pymatgen.core.trajectory">
+<span id="pymatgen-core-trajectory-module"></span><h1>pymatgen.core.trajectory module<a class="headerlink" href="#module-pymatgen.core.trajectory" title="Permalink to this heading"></a></h1>
+<p>This module provides classes to define a simulation trajectory, which could come from
+either relaxation or molecular dynamics.</p>
 <dl class="py class">
-<dt id="pymatgen.core.trajectory.Trajectory">
-<em class="property">class </em><code class="sig-name descname">Trajectory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lattice</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Sequence<span class="p">[</span>float<span class="p">]</span><span class="p">, </span>Sequence<span class="p">[</span>Sequence<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">, </span>numpy.ndarray<span class="p">, </span><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice">pymatgen.core.lattice.Lattice</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">species</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Union<span class="p">[</span>str<span class="p">, </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element">pymatgen.core.periodic_table.Element</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species">pymatgen.core.periodic_table.Species</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.DummySpecies" title="pymatgen.core.periodic_table.DummySpecies">pymatgen.core.periodic_table.DummySpecies</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition">pymatgen.core.composition.Composition</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">frac_coords</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">[</span>Sequence<span class="p">[</span>Sequence<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">, </span>numpy.ndarray<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">time_step</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">2</span></em>, <em class="sig-param"><span class="n">site_properties</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">frame_properties</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">constant_lattice</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">coords_are_displacement</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">base_positions</span><span class="p">:</span> <span class="n">Sequence<span class="p">[</span>Sequence<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/trajectory.py#L34-L529"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
-<p>Trajectory object that stores structural information related to a MD simulation.
-Provides basic functions such as slicing trajectory or obtaining displacements.</p>
-<p>Create a trajectory object
-:param lattice: The lattice as any 2D array. Each row should correspond to a lattice</p>
-<blockquote>
-<div><p>vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</p>
-</div></blockquote>
+<dt class="sig sig-object py" id="pymatgen.core.trajectory.Trajectory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><span class="pre">pymatgen.core.periodic_table.Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><span class="pre">pymatgen.core.periodic_table.Species</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.DummySpecies" title="pymatgen.core.periodic_table.DummySpecies"><span class="pre">pymatgen.core.periodic_table.DummySpecies</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><span class="pre">pymatgen.core.composition.Composition</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><span class="pre">Lattice</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><span class="pre">pymatgen.core.lattice.Lattice</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant_lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_displacement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_positions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/trajectory.py#L30-L683"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<p>Trajectory of a geometry optimization or molecular dynamics simulation.</p>
+<p>Provides basic functions such as slicing trajectory, combining trajectories, and
+obtaining displacements.</p>
+<p>In below, <cite>N</cite> denotes the number of sites in the structure, and <cite>M</cite> denotes the
+number of frames in the trajectory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>species</strong> – <p>List of species on each site. Can take in flexible input,
-including:
+<li><p><strong>species</strong> – <p>shape (N,). List of species on each site. Can take in flexible
+input, including:
 i.  A sequence of element / species specified either as string</p>
 <blockquote>
 <div><p>symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
@@ -233,126 +148,186 @@ e.g., (3, 56, …) or actual Element or Species objects.</p>
 disordered structures.</p></li>
 </ol>
 </p></li>
-<li><p><strong>frac_coords</strong> (<em>MxNx3 array</em>) – list of fractional coordinates of
-each species</p></li>
-<li><p><strong>time_step</strong> (<em>int</em><em>, </em><em>float</em>) – Timestep of simulation in femtoseconds. Defaults to 2fs.</p></li>
-<li><p><strong>site_properties</strong> (<em>list</em>) – Properties associated with the sites as a list of
-dicts of sequences, e.g., [{“magmom”:[5,5,5,5]}, {“magmom”:[5,5,5,5]}]. The sequences
-have to be the same length as the atomic species and fractional_coords. Number of supplied
-dicts should match number of frames in trajectory
-Defaults to None for no properties.</p></li>
-<li><p><strong>frame_properties</strong> (<em>dict</em>) – Properties of the trajectory such as energy, pressure, etc. each property should
-have a length equal to the trajectory length. eg: {‘energy’: [#, #, #, #], ‘pressure’: [0, 0.1, 0 0.02]}</p></li>
-<li><p><strong>constant_lattice</strong> (<em>bool</em>) – Whether the lattice changes during the simulation, such as in an NPT MD simulation.</p></li>
-<li><p><strong>coords_are_displacement</strong> (<em>bool</em>) – Whether supplied coordinates are given in displacements (True) or
-positions (False)</p></li>
-<li><p><strong>base_positions</strong> (<em>Nx3 array</em>) – The starting positions of all atoms in trajectory. Used to reconstruct positions
-when converting from displacements to positions. Only needs to be specified if
-coords_are_displacement=True. Defaults to first index of frac_coords if coords_are_displacement=False.</p></li>
+<li><p><strong>coords</strong> – shape (M, N, 3). fractional coordinates of the sites.</p></li>
+<li><p><strong>charge</strong> – int or float. Charge of the system. This is only used for Molecule-based
+trajectories.</p></li>
+<li><p><strong>spin_multiplicity</strong> – int or float. Spin multiplicity of the system. This is only
+used for Molecule-based trajectories.</p></li>
+<li><p><strong>lattice</strong> – shape (3, 3) or (M, 3, 3). Lattice of the structures in the
+trajectory; should be used together with <cite>constant_lattice</cite>.
+If <cite>constant_lattice=True</cite>, this should be a single lattice that is
+common for all structures in the trajectory (e.g. in an NVT run).
+If <cite>constant_lattice=False</cite>, this should be a list of lattices,
+each for one structure in the trajectory (e.g. in an NPT run or a
+relaxation that allows changing the cell size). This is only used for
+Structure-based trajectories.</p></li>
+<li><p><strong>site_properties</strong> – Properties associated with the sites. This should be a
+list of <cite>M</cite> dicts for a single dict. If a list of dicts, each provides
+the site properties for a frame. Each value in a dict should be a
+sequence of length <cite>N</cite>, giving the properties of the <cite>N</cite> sites.
+For example, for a trajectory with <cite>M=2</cite> and <cite>N=4</cite>, the
+<cite>site_properties</cite> can be: [{“magmom”:[5,5,5,5]}, {“magmom”:[5,5,5,5]}].
+If a single dict, the site properties in the dict apply to all frames
+in the trajectory. For example, for a trajectory with <cite>M=2</cite> and <cite>N=4</cite>,
+{“magmom”:[2,2,2,2]} means that, through the entire trajectory,
+the magmom are kept constant at 2 for all four atoms.</p></li>
+<li><p><strong>frame_properties</strong> – Properties associated with the structure (e.g. total
+energy). This should be a sequence of <cite>M</cite> dicts, with each dict
+providing the properties for a frame. For example, for a trajectory with
+<cite>M=2</cite>, the <cite>frame_properties</cite> can be [{‘energy’:1.0}, {‘energy’:2.0}].</p></li>
+<li><p><strong>constant_lattice</strong> – Whether the lattice changes during the simulation.
+Should be used together with <cite>lattice</cite>. See usage there. This is only
+used for Structure-based trajectories.</p></li>
+<li><p><strong>time_step</strong> – Time step of MD simulation in femto-seconds. Should be <cite>None</cite>
+for a trajectory representing a geometry optimization.</p></li>
+<li><p><strong>coords_are_displacement</strong> – Whether <cite>coords</cite> are given in displacements
+(True) or positions (False). Note, if this is <cite>True</cite>, <cite>coords</cite>
+of a frame (say i) should be relative to the previous frame (i.e.
+i-1), but not relative to the <cite>base_position</cite>.</p></li>
+<li><p><strong>base_positions</strong> – shape (N, 3). The starting positions of all atoms in the
+trajectory. Used to reconstruct positions when converting from
+displacements to positions. Only needs to be specified if
+<cite>coords_are_displacement=True</cite>. Defaults to the first index of
+<cite>coords</cite> when <cite>coords_are_displacement=False</cite>.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.core.trajectory.Trajectory.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/trajectory.py#L360-L378"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>MSONAble dict.</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="pymatgen.core.trajectory.Trajectory.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/trajectory.py#L457-L475"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.as_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Return the trajectory as a MSONable dict.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.core.trajectory.Trajectory.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/trajectory.py#L291-L305"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.copy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Copy of Trajectory.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pymatgen.core.trajectory.Trajectory.extend">
-<code class="sig-name descname">extend</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trajectory</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/trajectory.py#L148-L183"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.extend" title="Permalink to this definition">¶</a></dt>
-<dd><p>Concatenate another trajectory
-:param trajectory: Trajectory to add
-:type trajectory: Trajectory</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pymatgen.core.trajectory.Trajectory.from_file">
-<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">constant_lattice</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/trajectory.py#L337-L358"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience constructor to obtain trajectory from XDATCAR or vasprun.xml file
-:param filename: The filename to read from.
-:type filename: str
-:param constant_lattice: Whether the lattice changes during the simulation, such as in an NPT MD</p>
-<blockquote>
-<div><p>simulation. True results in</p>
-</div></blockquote>
+<dt class="sig sig-object py" id="pymatgen.core.trajectory.Trajectory.extend">
+<span class="sig-name descname"><span class="pre">extend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.core.trajectory.Trajectory" title="pymatgen.core.trajectory.Trajectory"><span class="pre">Trajectory</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/trajectory.py#L235-L293"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.extend" title="Permalink to this definition"></a></dt>
+<dd><p>Append a trajectory to the current one.</p>
+<p>The lattice, coords, and all other properties are combined.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>(Trajectory)</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>trajectory</strong> – Trajectory to append.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.core.trajectory.Trajectory.from_structures">
-<em class="property">classmethod </em><code class="sig-name descname">from_structures</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structures</span></em>, <em class="sig-param"><span class="n">constant_lattice</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/trajectory.py#L307-L335"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_structures" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience constructor to obtain trajectory from a list of structures.
-Note: Assumes no atoms removed during simulation</p>
+<dt class="sig sig-object py" id="pymatgen.core.trajectory.Trajectory.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant_lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.core.trajectory.Trajectory" title="pymatgen.core.trajectory.Trajectory"><span class="pre">Trajectory</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/trajectory.py#L538-L566"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_file" title="Permalink to this definition"></a></dt>
+<dd><p>Create trajectory from XDATCAR or vasprun.xml file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>structures</strong> (<em>list</em>) – list of pymatgen Structure objects.</p></li>
-<li><p><strong>constant_lattice</strong> (<em>bool</em>) – Whether the lattice changes during the simulation, such as in an NPT MD
-simulation. True results in</p></li>
+<li><p><strong>filename</strong> – Path to the file to read from.</p></li>
+<li><p><strong>constant_lattice</strong> – Whether the lattice changes during the simulation,
+such as in an NPT MD simulation.</p></li>
+<li><p><strong>**kwargs</strong> – Additional kwargs passed to Trajectory constructor.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(Trajectory)</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A trajectory from the file.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.core.trajectory.Trajectory.get_structure">
-<code class="sig-name descname">get_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/trajectory.py#L115-L123"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.get_structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns structure at specified index
-:param i: Index of structure
-:type i: int</p>
+<dt class="sig sig-object py" id="pymatgen.core.trajectory.Trajectory.from_molecules">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_molecules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">pymatgen.core.structure.Molecule</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.core.trajectory.Trajectory" title="pymatgen.core.trajectory.Trajectory"><span class="pre">Trajectory</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/trajectory.py#L511-L536"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_molecules" title="Permalink to this definition"></a></dt>
+<dd><p>Create trajectory from a list of molecules.</p>
+<p>Note: Assumes no atoms removed during simulation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>(Structure) pymatgen structure object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pymatgen.core.trajectory.Trajectory.to_displacements">
-<code class="sig-name descname">to_displacements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/trajectory.py#L135-L146"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_displacements" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts position coordinates of trajectory into displacements between consecutive frames</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pymatgen.core.trajectory.Trajectory.to_positions">
-<code class="sig-name descname">to_positions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/trajectory.py#L125-L133"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_positions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts fractional coordinates of trajectory into positions</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pymatgen.core.trajectory.Trajectory.write_Xdatcar">
-<code class="sig-name descname">write_Xdatcar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'XDATCAR'</span></em>, <em class="sig-param"><span class="n">system</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">significant_figures</span><span class="o">=</span><span class="default_value">6</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.14/pymatgen/core/trajectory.py#L478-L529"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.write_Xdatcar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes Xdatcar to a file. The supported kwargs are the same as those for
-the Xdatcar_from_structs.get_string method and are passed through directly.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – name of file (It’s prudent to end the filename with ‘XDATCAR’,
-as most visualization and analysis software require this for autodetection)</p></li>
-<li><p><strong>system</strong> (<em>str</em>) – Description of system</p></li>
-<li><p><strong>significant_figures</strong> (<em>int</em>) – Significant figures in the output file</p></li>
+<li><p><strong>molecules</strong> – pymatgen Molecule objects.</p></li>
+<li><p><strong>**kwargs</strong> – Additional kwargs passed to Trajectory constructor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A trajectory from the structures.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.core.trajectory.Trajectory.from_structures">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">pymatgen.core.structure.Structure</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant_lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.core.trajectory.Trajectory" title="pymatgen.core.trajectory.Trajectory"><span class="pre">Trajectory</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/trajectory.py#L477-L509"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_structures" title="Permalink to this definition"></a></dt>
+<dd><p>Create trajectory from a list of structures.</p>
+<p>Note: Assumes no atoms removed during simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> – pymatgen Structure objects.</p></li>
+<li><p><strong>constant_lattice</strong> – Whether the lattice changes during the simulation,
+such as in an NPT MD simulation.</p></li>
+<li><p><strong>**kwargs</strong> – Additional kwargs passed to Trajectory constructor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A trajectory from the structures.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.core.trajectory.Trajectory.get_molecule">
+<span class="sig-name descname"><span class="pre">get_molecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/trajectory.py#L175-L189"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.get_molecule" title="Permalink to this definition"></a></dt>
+<dd><p>Get molecule at specified index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>idx</strong> – Index of molecule.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A pymatgen Molecule object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.core.trajectory.Trajectory.get_structure">
+<span class="sig-name descname"><span class="pre">get_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/trajectory.py#L159-L173"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.get_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Get structure at specified index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>idx</strong> – Index of structure.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A pymatgen Structure object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.core.trajectory.Trajectory.to_displacements">
+<span class="sig-name descname"><span class="pre">to_displacements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/trajectory.py#L207-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_displacements" title="Permalink to this definition"></a></dt>
+<dd><p>Converts positions of trajectory into displacements between consecutive frames.</p>
+<p><cite>base_positions</cite> and <cite>coords</cite> should both be in fractional coords. Does
+not work for absolute coords because the atoms are to be wrapped into the
+simulation box.</p>
+<p>This is the opposite operation of <cite>to_positions()</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.core.trajectory.Trajectory.to_positions">
+<span class="sig-name descname"><span class="pre">to_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/trajectory.py#L191-L205"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_positions" title="Permalink to this definition"></a></dt>
+<dd><p>Convert displacements between consecutive frames into positions.</p>
+<p><cite>base_positions</cite> and <cite>coords</cite> should both be in fractional coords or
+absolute coords.</p>
+<p>This is the opposite operation of <cite>to_displacements()</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.core.trajectory.Trajectory.write_Xdatcar">
+<span class="sig-name descname"><span class="pre">write_Xdatcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'XDATCAR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">significant_figures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/trajectory.py#L398-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.write_Xdatcar" title="Permalink to this definition"></a></dt>
+<dd><p>Writes to Xdatcar file.</p>
+<p>The supported kwargs are the same as those for the
+Xdatcar_from_structs.get_string method and are passed through directly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – Name of file to write.  It’s prudent to end the filename with
+‘XDATCAR’, as most visualization and analysis software require this
+for autodetection.</p></li>
+<li><p><strong>system</strong> – Description of system (e.g. 2D MoS2).</p></li>
+<li><p><strong>significant_figures</strong> – Significant figures in the output file.</p></li>
 </ul>
 </dd>
 </dl>
@@ -360,46 +335,34 @@ as most visualization and analysis software require this for autodetection)</p><
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

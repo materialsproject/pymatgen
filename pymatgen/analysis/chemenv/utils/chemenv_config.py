@@ -1,18 +1,15 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module contains the classes for configuration of the chemenv package."""
 
-"""
-This module contains the classes for configuration of the chemenv package.
-"""
+from __future__ import annotations
 
 import json
 from os import makedirs
 from os.path import exists, expanduser
 
-from pymatgen.core import SETTINGS
-from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
+from frozendict import frozendict
 
+from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
+from pymatgen.core import SETTINGS
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -28,11 +25,11 @@ class ChemEnvConfig:
     Class used to store the configuration of the chemenv package :
      - Materials project access
      - ICSD database access
-     - Default options (strategies, ...)
+     - Default options (strategies, ...).
     """
 
-    DEFAULT_PACKAGE_OPTIONS = {
-        "default_strategy": {
+    DEFAULT_PACKAGE_OPTIONS = frozendict(
+        default_strategy={
             "strategy": "SimplestChemenvStrategy",
             "strategy_options": {
                 "distance_cutoff": strategies_class_lookup["SimplestChemenvStrategy"].DEFAULT_DISTANCE_CUTOFF,
@@ -43,15 +40,13 @@ class ChemEnvConfig:
                 ].DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
             },
         },
-        "default_max_distance_factor": 1.5,
-    }
+        default_max_distance_factor=1.5,
+    )
 
     def __init__(self, package_options=None):
-        """
-        :param package_options:
-        """
-        if SETTINGS.get("PMG_MAPI_KEY", "") != "":
-            self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY", "")
+        """:param package_options:"""
+        if SETTINGS.get("PMG_MAPI_KEY"):
+            self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY")
         else:
             self.materials_project_configuration = None
 
@@ -61,9 +56,7 @@ class ChemEnvConfig:
             self.package_options = package_options
 
     def setup(self):
-        """
-        Setup the class.
-        """
+        """Setup the class."""
         while True:
             print("\n=> Configuration of the ChemEnv package <=")
             print("Current configuration :")
@@ -73,7 +66,7 @@ class ChemEnvConfig:
                 print(" - No access to materials project")
             print(" - Package options :")
             for key, val in self.package_options.items():
-                print("     {}   :   {}".format(str(key), str(val)))
+                print(f"     {key}   :   {val}")
             print("\nChoose in the following :")
             print(" <1> + <ENTER> : configuration of the package options (strategy, ...)")
             print(" <q> + <ENTER> : quit without saving configuration")
@@ -87,9 +80,9 @@ class ChemEnvConfig:
                 break
             else:
                 print(" ... wrong key, try again ...")
-            print("")
+            print()
         if test == "S":
-            print('Configuration has been saved to file "{}"'.format(config_file))
+            print(f"Configuration has been saved to file {config_file!r}")
 
     @property
     def has_materials_project_access(self):
@@ -100,14 +93,12 @@ class ChemEnvConfig:
         return self.materials_project_configuration is not None
 
     def setup_package_options(self):
-        """
-        Setup the package options.
-        """
+        """Setup the package options."""
         self.package_options = self.DEFAULT_PACKAGE_OPTIONS
         print("Choose between the following strategies : ")
-        strategies = list(strategies_class_lookup.keys())
-        for istrategy, strategy in enumerate(strategies):
-            print(" <{}> : {}".format(str(istrategy + 1), strategy))
+        strategies = list(strategies_class_lookup)
+        for idx, strategy in enumerate(strategies, 1):
+            print(f" <{idx}> : {strategy}")
         test = input(" ... ")
         self.package_options["default_strategy"] = {
             "strategy": strategies[int(test) - 1],
@@ -117,12 +108,9 @@ class ChemEnvConfig:
         if len(strategy_class.STRATEGY_OPTIONS) > 0:
             for option, option_dict in strategy_class.STRATEGY_OPTIONS.items():
                 while True:
-                    print(
-                        '  => Enter value for option "{}" '
-                        "(<ENTER> for default = {})\n".format(option, str(option_dict["default"]))
-                    )
+                    print(f"  => Enter value for option {option!r} (<ENTER> for default = {option_dict['default']})\n")
                     print("     Valid options are :\n")
-                    print("       {}".format(option_dict["type"].allowed_values))
+                    print(f"       {option_dict['type'].allowed_values}")
                     test = input("     Your choice : ")
                     if test == "":
                         self.package_options["default_strategy"]["strategy_options"][option] = option_dict["type"](
@@ -133,23 +121,18 @@ class ChemEnvConfig:
                         self.package_options["default_strategy"]["strategy_options"][option] = option_dict["type"](test)
                         break
                     except ValueError:
-                        print("Wrong input for option {}".format(option))
+                        print(f"Wrong input for {option=}")
 
     def package_options_description(self):
-        """
-        Describe package options.
-        """
+        """Describe package options."""
         out = "Package options :\n"
-        out += " - Maximum distance factor : {:.4f}\n".format(self.package_options["default_max_distance_factor"])
-        out += ' - Default strategy is "{}" :\n'.format(self.package_options["default_strategy"]["strategy"])
+        out += f" - Maximum distance factor : {self.package_options['default_max_distance_factor']:.4f}\n"
+        out += f" - Default strategy is \"{self.package_options['default_strategy']['strategy']}\" :\n"
         strategy_class = strategies_class_lookup[self.package_options["default_strategy"]["strategy"]]
-        out += "{}\n".format(strategy_class.STRATEGY_DESCRIPTION)
+        out += f"{strategy_class.STRATEGY_DESCRIPTION}\n"
         out += "   with options :\n"
-        for option, option_dict in strategy_class.STRATEGY_OPTIONS.items():
-            out += "     - {} : {}\n".format(
-                option,
-                self.package_options["default_strategy"]["strategy_options"][option],
-            )
+        for option in strategy_class.STRATEGY_OPTIONS:
+            out += f"     - {option} : {self.package_options['default_strategy']['strategy_options'][option]}\n"
         return out
 
     def save(self, root_dir=None):
@@ -159,11 +142,11 @@ class ChemEnvConfig:
         """
         if root_dir is None:
             home = expanduser("~")
-            root_dir = "{}/.chemenv".format(home)
+            root_dir = f"{home}/.chemenv"
         if not exists(root_dir):
             makedirs(root_dir)
         config_dict = {"package_options": self.package_options}
-        config_file = "{}/config.json".format(root_dir)
+        config_file = f"{root_dir}/config.json"
         if exists(config_file):
             test = input("Overwrite existing configuration ? (<Y> + <ENTER> to confirm)")
             if test != "Y":
@@ -182,14 +165,14 @@ class ChemEnvConfig:
         """
         if root_dir is None:
             home = expanduser("~")
-            root_dir = "{}/.chemenv".format(home)
-        config_file = "{}/config.json".format(root_dir)
+            root_dir = f"{home}/.chemenv"
+        config_file = f"{root_dir}/config.json"
         try:
-            with open(config_file, "r") as f:
+            with open(config_file) as f:
                 config_dict = json.load(f)
             return ChemEnvConfig(package_options=config_dict["package_options"])
 
-        except IOError:
-            print('Unable to load configuration from file "{}" ...'.format(config_file))
+        except OSError:
+            print(f"Unable to load configuration from file {config_file!r} ...")
             print(" ... loading default configuration")
             return ChemEnvConfig()

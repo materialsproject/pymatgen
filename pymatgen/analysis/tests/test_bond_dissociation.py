@@ -1,22 +1,19 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
+from __future__ import annotations
 
 import os
 import unittest
+
 import pytest
-
 from monty.serialization import loadfn
-from pymatgen.analysis.bond_dissociation import BondDissociationEnergies
 
+from pymatgen.analysis.bond_dissociation import BondDissociationEnergies
 
 module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 
 class BondDissociationTest(unittest.TestCase):
     def setUp(self):
-        pytest.importorskip("openbabel", reason="OpenBabel not installed")
+        pytest.importorskip("openbabel")
         self.PC_65_principle = loadfn(os.path.join(module_dir, "PC_65_principle.json"))
         self.PC_65_principle["initial_molecule"] = self.PC_65_principle["initial_molecule"].as_dict()
         self.PC_65_principle["final_molecule"] = self.PC_65_principle["final_molecule"].as_dict()
@@ -535,19 +532,15 @@ class BondDissociationTest(unittest.TestCase):
 
     def test_tfsi_neg_no_pcm(self):
         BDE = BondDissociationEnergies(self.neg_TFSI_principle, self.neg_TFSI_fragments)
-        self.assertEqual(len(BDE.filtered_entries), 16)
-        self.assertEqual(BDE.bond_dissociation_energies, self.TFSI_correct)
+        assert len(BDE.filtered_entries) == 16
+        assert BDE.bond_dissociation_energies == self.TFSI_correct
 
     def test_pc_neutral_pcm_65(self):
         BDE = BondDissociationEnergies(self.PC_65_principle, self.PC_65_fragments)
-        self.assertEqual(len(BDE.filtered_entries), 36)
-        self.assertEqual(BDE.bond_dissociation_energies, self.PC_correct)
+        assert len(BDE.filtered_entries) == 36
+        assert BDE.bond_dissociation_energies == self.PC_correct
 
     def test_ec_neg_pcm_40(self):
         BDE = BondDissociationEnergies(self.neg_EC_40_principle, self.neg_EC_40_fragments)
-        self.assertEqual(len(BDE.filtered_entries), 18)
-        self.assertEqual(BDE.bond_dissociation_energies, self.EC_correct)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert len(BDE.filtered_entries) == 18
+        assert BDE.bond_dissociation_energies == self.EC_correct

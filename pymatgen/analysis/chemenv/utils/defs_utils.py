@@ -1,11 +1,16 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module contains the definition of some objects used in the chemenv package."""
 
+from __future__ import annotations
 
-"""
-This module contains the definition of some objects used in the chemenv package.
-"""
+from typing import TYPE_CHECKING
+
+from frozendict import frozendict
+
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import is_anion_cation_bond
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
+
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -15,23 +20,22 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
-    is_anion_cation_bond,
-)
-
 STATS_ENV_PAPER = (
-    "David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,\n"
-    "Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,\n"
+    "D. Waroquiers, X. Gonze, G.-M. Rignanese, C. Welker-Nieuwoudt, F. Rosowski,\n"
+    "M. Goebel, S. Schenk, P. Degelmann, R. Andre, R. Glaum, and G. Hautier,\n"
     '"Statistical analysis of coordination environments in oxides",\n'
     "Chem. Mater., 2017, 29 (19), pp 8346-8360,\n"
     "DOI: 10.1021/acs.chemmater.7b02766\n"
+    "\n"
+    "D. Waroquiers, J. George, M. Horton, S. Schenk, K. A. Persson, G.-M. Rignanese, X. Gonze, G. Hautier,\n"
+    '"ChemEnv: a fast and robust coordination environment identification tool",\n'
+    "Acta Cryst. B 2020, 76, pp 683-695\n."
+    "DOI: 10.1107/S2052520620007994\n"
 )
 
 
 def chemenv_citations():
-    """
-    :return:
-    """
+    """:return:"""
     out = ""
     out += "\nIf you use the ChemEnv tool for your research, please consider citing the following reference(s) :\n"
     out += "==================================================================================================\n"
@@ -40,9 +44,7 @@ def chemenv_citations():
 
 
 class AdditionalConditions:
-    """
-    Class for additional conditions.
-    """
+    """Class for additional conditions."""
 
     NO_ADDITIONAL_CONDITION = 0
     ONLY_ANION_CATION_BONDS = 1
@@ -57,19 +59,20 @@ class AdditionalConditions:
     ONLY_ACB_AND_NO_E2SEB = ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
     ONLY_E2OB = ONLY_ELEMENT_TO_OXYGEN_BONDS
     # Dictionary mapping of integer for the condition and its "description"
-    CONDITION_DESCRIPTION = {
-        NO_ADDITIONAL_CONDITION: "No additional condition",
-        ONLY_ANION_CATION_BONDS: "Only anion-cation bonds",
-        NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "No element-element bonds (same elements)",
-        ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "Only anion-cation bonds and"
-        " no element-element bonds"
-        " (same elements)",
-        ONLY_ELEMENT_TO_OXYGEN_BONDS: "Only element-oxygen bonds",
-    }
+    CONDITION_DESCRIPTION = frozendict(
+        {
+            NO_ADDITIONAL_CONDITION: "No additional condition",
+            ONLY_ANION_CATION_BONDS: "Only anion-cation bonds",
+            NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "No element-element bonds (same elements)",
+            ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "Only anion-cation bonds and"
+            " no element-element bonds (same elements)",
+            ONLY_ELEMENT_TO_OXYGEN_BONDS: "Only element-oxygen bonds",
+        }
+    )
 
-    ALL = [NONE, ONLY_ACB, NO_E2SEB, ONLY_ACB_AND_NO_E2SEB, ONLY_E2OB]
+    ALL = (NONE, ONLY_ACB, NO_E2SEB, ONLY_ACB_AND_NO_E2SEB, ONLY_E2OB)
 
-    def check_condition(self, condition, structure, parameters):
+    def check_condition(self, condition, structure: Structure, parameters):
         """
         :param condition:
         :param structure:

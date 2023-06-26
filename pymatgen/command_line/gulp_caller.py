@@ -1,21 +1,10 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 """
 Interface with command line GULP.
 http://projects.ivec.org
 WARNING: you need to have GULP installed on your system.
 """
 
-__author__ = "Bharat Medasani, Wenhao Sun"
-__copyright__ = "Copyright 2013, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Bharat Medasani"
-__email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
-__status__ = "Production"
-__date__ = "$Jun 22, 2013M$"
+from __future__ import annotations
 
 import os
 import re
@@ -28,6 +17,14 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+__author__ = "Bharat Medasani, Wenhao Sun"
+__copyright__ = "Copyright 2013, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Bharat Medasani"
+__email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
+__status__ = "Production"
+__date__ = "Jun 22, 2013M"
 
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
 _cations = set(
@@ -182,7 +179,7 @@ _gulp_kw = {
     "nomolecularinternalke",
     "voight",
     "zsisa",
-    # Optimisation method
+    # Optimization method
     "conjugate",
     "dfp",
     "lbfgs",
@@ -207,7 +204,6 @@ _gulp_kw = {
     "meanke",
     "nodensity_out",
     "nodpsym",
-    "nofirst_point",
     "nofrequency",
     "nokpoints",
     "operators",
@@ -220,8 +216,6 @@ _gulp_kw = {
     "save",
     "terse",
     # Structure control
-    "full",
-    "hexagonal",
     "lower_symmetry",
     "nosymmetry",
     # PDF control
@@ -240,18 +234,16 @@ _gulp_kw = {
 
 
 class GulpIO:
-    """
-    To generate GULP input and process output
-    """
+    """To generate GULP input and process output."""
 
     @staticmethod
     def keyword_line(*args):
-        r"""
+        """
         Checks if the input args are proper gulp keywords and
         generates the 1st line of gulp input. Full keywords are expected.
 
         Args:
-            \\*args: 1st line keywords
+            args: 1st line keywords
         """
         # if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
         #    raise GulpError("Wrong keywords given")
@@ -261,12 +253,12 @@ class GulpIO:
 
     @staticmethod
     def structure_lines(
-        structure,
-        cell_flg=True,
-        frac_flg=True,
-        anion_shell_flg=True,
-        cation_shell_flg=False,
-        symm_flg=True,
+        structure: Structure,
+        cell_flg: bool = True,
+        frac_flg: bool = True,
+        anion_shell_flg: bool = True,
+        cation_shell_flg: bool = False,
+        symm_flg: bool = True,
     ):
         """
         Generates GULP input string corresponding to pymatgen structure.
@@ -274,11 +266,11 @@ class GulpIO:
         Args:
             structure: pymatgen Structure object
             cell_flg (default = True): Option to use lattice parameters.
-            fractional_flg (default = True): If True, fractional coordinates
-                are used. Else, cartesian coodinates in Angstroms are used.
+            frac_flg (default = True): If True, fractional coordinates
+                are used. Else, Cartesian coordinates in Angstroms are used.
                 ******
                 GULP convention is to use fractional coordinates for periodic
-                structures and cartesian coordinates for non-periodic
+                structures and Cartesian coordinates for non-periodic
                 structures.
                 ******
             anion_shell_flg (default = True): If True, anions are considered
@@ -294,18 +286,20 @@ class GulpIO:
         gin = ""
         if cell_flg:
             gin += "cell\n"
-            l = structure.lattice
-            lat_str = "{0:6f} {1:6f} {2:6f} {3:6f} {4:6f} {5:6f}".format(l.a, l.b, l.c, l.alpha, l.beta, l.gamma)
+            lattice = structure.lattice
+            alpha, beta, gamma = lattice.angles
+            a, b, c = lattice.lengths
+            lat_str = f"{a:6f} {b:6f} {c:6f} {alpha:6f} {beta:6f} {gamma:6f}"
             gin += lat_str + "\n"
 
         if frac_flg:
             gin += "frac\n"
-            coord_attr = "frac_coords"
+            coords_key = "frac_coords"
         else:
             gin += "cart\n"
-            coord_attr = "coords"
-        for site in structure.sites:
-            coord = [str(i) for i in getattr(site, coord_attr)]
+            coords_key = "coords"
+        for site in structure:
+            coord = [str(i) for i in getattr(site, coords_key)]
             specie = site.specie
             core_site_desc = specie.symbol + " core " + " ".join(coord) + "\n"
             gin += core_site_desc
@@ -322,14 +316,14 @@ class GulpIO:
 
     @staticmethod
     def specie_potential_lines(structure, potential, **kwargs):
-        r"""
+        """
         Generates GULP input specie and potential string for pymatgen
         structure.
 
         Args:
             structure: pymatgen.core.structure.Structure object
             potential: String specifying the type of potential used
-            \\*\\*kwargs: Additional parameters related to potential. For
+            kwargs: Additional parameters related to potential. For
                 potential == "buckingham",
                 anion_shell_flg (default = False):
                 If True, anions are considered polarizable.
@@ -344,7 +338,7 @@ class GulpIO:
             string containing specie and potential specification for gulp
             input.
         """
-        raise NotImplementedError("gulp_specie_potential not yet implemented." "\nUse library_line instead")
+        raise NotImplementedError("gulp_specie_potential not yet implemented.\nUse library_line instead")
 
     @staticmethod
     def library_line(file_name):
@@ -360,7 +354,7 @@ class GulpIO:
         Returns:
             GULP input string specifying library option
         """
-        gulplib_set = "GULP_LIB" in os.environ.keys()
+        gulplib_set = "GULP_LIB" in os.environ
 
         def readable(f):
             return os.path.isfile(f) and os.access(f, os.R_OK)
@@ -381,7 +375,7 @@ class GulpIO:
             return gin + "\n"
         raise GulpError("GULP Library not found")
 
-    def buckingham_input(self, structure, keywords, library=None, uc=True, valence_dict=None):
+    def buckingham_input(self, structure: Structure, keywords, library=None, uc=True, valence_dict=None):
         """
         Gets a GULP input for an oxide structure and buckingham potential
         from library.
@@ -434,12 +428,10 @@ class GulpIO:
         bpb = BuckinghamPotential("bush")
         bpl = BuckinghamPotential("lewis")
         gin = ""
-        for key in val_dict.keys():
+        for key in val_dict:
             use_bush = True
             el = re.sub(r"[1-9,+,\-]", "", key)
-            if el not in bpb.species_dict.keys():
-                use_bush = False
-            elif val_dict[key] != bpb.species_dict[el]["oxi"]:
+            if el not in bpb.species_dict or val_dict[key] != bpb.species_dict[el]["oxi"]:
                 use_bush = False
             if use_bush:
                 gin += "species \n"
@@ -454,9 +446,9 @@ class GulpIO:
             # use_lewis = True
             if el != "O":  # For metals the key is "Metal_OxiState+"
                 k = el + "_" + str(int(val_dict[key])) + "+"
-                if k not in bpl.species_dict.keys():
+                if k not in bpl.species_dict:
                     # use_lewis = False
-                    raise GulpError("Element {} not in library".format(k))
+                    raise GulpError(f"Element {k} not in library")
                 gin += "species\n"
                 gin += bpl.species_dict[k]
                 gin += "buckingham\n"
@@ -473,9 +465,9 @@ class GulpIO:
                 gin += bpl.spring_dict[key]
         return gin
 
-    def tersoff_input(self, structure, periodic=False, uc=True, *keywords):
+    def tersoff_input(self, structure: Structure, periodic=False, uc=True, *keywords):
         """
-        Gets a GULP input with Tersoff potential for an oxide structure
+        Gets a GULP input with Tersoff potential for an oxide structure.
 
         Args:
             structure: pymatgen.core.structure.Structure
@@ -501,7 +493,7 @@ class GulpIO:
     @staticmethod
     def tersoff_potential(structure):
         """
-        Generate the species, tersoff potential lines for an oxide structure
+        Generate the species, tersoff potential lines for an oxide structure.
 
         Args:
             structure: pymatgen.core.structure.Structure
@@ -533,29 +525,27 @@ class GulpIO:
         return gin
 
     @staticmethod
-    def get_energy(gout):
+    def get_energy(gout: str):
         """
         Args:
-            gout ():
+            gout (str): GULP output string.
 
         Returns:
             Energy
         """
         energy = None
         for line in gout.split("\n"):
-            if "Total lattice energy" in line and "eV" in line:
-                energy = line.split()
-            elif "Non-primitive unit cell" in line and "eV" in line:
+            if "Total lattice energy" in line and "eV" in line or "Non-primitive unit cell" in line and "eV" in line:
                 energy = line.split()
         if energy:
             return float(energy[4])
         raise GulpError("Energy not found in Gulp output")
 
     @staticmethod
-    def get_relaxed_structure(gout):
+    def get_relaxed_structure(gout: str):
         """
         Args:
-            gout ():
+            gout (str): GULP output string.
 
         Returns:
             (Structure) relaxed structure.
@@ -627,9 +617,9 @@ class GulpIO:
                 fields = line.split()
                 if fields[2] == "c":
                     sp.append(fields[1])
-                    coords.append(list(float(x) for x in fields[3:6]))
+                    coords.append([float(x) for x in fields[3:6]])
         else:
-            raise IOError("No structure found")
+            raise OSError("No structure found")
 
         if cell_param_lines:
             a = float(cell_param_lines[0].split()[1])
@@ -644,19 +634,17 @@ class GulpIO:
 
 
 class GulpCaller:
-    """
-    Class to run gulp from commandline
-    """
+    """Class to run gulp from commandline."""
 
     def __init__(self, cmd="gulp"):
         """
-        Initialize with the executable if not in the standard path
+        Initialize with the executable if not in the standard path.
 
         Args:
             cmd: Command. Defaults to gulp.
         """
 
-        def is_exe(f):
+        def is_exe(f) -> bool:
             return os.path.isfile(f) and os.access(f, os.X_OK)
 
         fpath, fname = os.path.split(cmd)
@@ -675,7 +663,7 @@ class GulpCaller:
 
     def run(self, gin):
         """
-        Run GULP using the gin as input
+        Run GULP using the gin as input.
 
         Args:
             gin: GULP input string
@@ -690,7 +678,6 @@ class GulpCaller:
                 stdin=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             ) as p:
-
                 out, err = p.communicate(bytearray(gin, "utf-8"))
             out = out.decode("utf-8")
             err = err.decode("utf-8")
@@ -709,10 +696,10 @@ class GulpCaller:
             if "ERROR" in out:
                 raise GulpError(out)
 
-            # Sometimes optimisation may fail to reach convergence
+            # Sometimes optimization may fail to reach convergence
             conv_err_string = "Conditions for a minimum have not been satisfied"
             if conv_err_string in out:
-                raise GulpConvergenceError()
+                raise GulpConvergenceError(out)
 
             gout = ""
             for line in out.split("\n"):
@@ -776,13 +763,13 @@ def get_energy_relax_structure_buckingham(structure, gulp_cmd="gulp", keywords=(
 class GulpError(Exception):
     """
     Exception class for GULP.
-    Raised when the GULP gives an error
+    Raised when the GULP gives an error.
     """
 
     def __init__(self, msg):
         """
         Args:
-            msg (str): Message
+            msg (str): Message.
         """
         self.msg = msg
 
@@ -794,13 +781,13 @@ class GulpConvergenceError(Exception):
     """
     Exception class for GULP.
     Raised when proper convergence is not reached in Mott-Littleton
-    defect energy optimisation procedure in GULP
+    defect energy optimization procedure in GULP.
     """
 
     def __init__(self, msg=""):
         """
         Args:
-            msg (str): Message
+            msg (str): Message.
         """
         self.msg = msg
 
@@ -826,7 +813,7 @@ class BuckinghamPotential:
         """
         assert bush_lewis_flag in {"bush", "lewis"}
         pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
-        with open(os.path.join(os.environ["GULP_LIB"], pot_file), "rt") as f:
+        with open(os.path.join(os.environ["GULP_LIB"], pot_file)) as f:
             # In lewis.lib there is no shell for cation
             species_dict, pot_dict, spring_dict = {}, {}, {}
             sp_flg, pot_flg, spring_flg = False, False, False
@@ -846,7 +833,7 @@ class BuckinghamPotential:
                 elmnt = row.split()[0]
                 if sp_flg:
                     if bush_lewis_flag == "bush":
-                        if elmnt not in species_dict.keys():
+                        if elmnt not in species_dict:
                             species_dict[elmnt] = {"inp_str": "", "oxi": 0}
                         species_dict[elmnt]["inp_str"] += row
                         species_dict[elmnt]["oxi"] += float(row.split()[2])
@@ -879,8 +866,8 @@ class BuckinghamPotential:
 
             if bush_lewis_flag == "bush":
                 # Fill the null keys in spring dict with empty strings
-                for key in pot_dict.keys():
-                    if key not in spring_dict.keys():
+                for key in pot_dict:
+                    if key not in spring_dict:
                         spring_dict[key] = ""
 
             self.species_dict = species_dict
@@ -889,16 +876,12 @@ class BuckinghamPotential:
 
 
 class TersoffPotential:
-    """
-    Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file
-    """
+    """Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file."""
 
     def __init__(self):
-        """
-        Init TersoffPotential
-        """
+        """Init TersoffPotential."""
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "OxideTersoffPotentials"), "r") as f:
+        with open(os.path.join(module_dir, "OxideTersoffPotentials")) as f:
             data = {}
             for row in f:
                 metaloxi = row.split()[0]

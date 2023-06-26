@@ -1,7 +1,3 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Some reimplementation of Henkelman's Transition State Analysis utilities,
 which are originally in Perl. Additional features beyond those offered by
@@ -10,8 +6,10 @@ Henkelman's utilities will be added.
 This allows the usage and customization in Python.
 """
 
-import glob
+from __future__ import annotations
+
 import os
+from glob import glob
 
 import numpy as np
 from monty.json import MSONable, jsanitize
@@ -23,9 +21,7 @@ from pymatgen.util.plotting import pretty_plot
 
 
 class NEBAnalysis(MSONable):
-    """
-    An NEBAnalysis class.
-    """
+    """An NEBAnalysis class."""
 
     def __init__(self, r, energies, forces, structures, spline_options=None):
         """
@@ -58,7 +54,7 @@ class NEBAnalysis(MSONable):
 
     def setup_spline(self, spline_options=None):
         """
-        Setup of the options for the spline interpolation
+        Setup of the options for the spline interpolation.
 
         Args:
             spline_options (dict): Options for cubic spline. For example,
@@ -111,7 +107,7 @@ class NEBAnalysis(MSONable):
         prev = structures[0]
         for st in structures[1:]:
             dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st)])
-            r.append(np.sqrt(np.sum(dists ** 2)))
+            r.append(np.sqrt(np.sum(dists**2)))
             prev = st
         r = np.cumsum(r)
 
@@ -190,7 +186,7 @@ class NEBAnalysis(MSONable):
             barrier = max(data, key=lambda d: d[1])
             plt.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--")
             plt.annotate(
-                "%.0f meV" % (np.max(y) - np.min(y)),
+                f"{np.max(y) - np.min(y):.0f} meV",
                 xy=(barrier[0] / 2, barrier[1] * 1.02),
                 xytext=(barrier[0] / 2, barrier[1] * 1.02),
                 horizontalalignment="center",
@@ -256,20 +252,20 @@ class NEBAnalysis(MSONable):
         terminal_dirs.append([os.path.join(root_dir, d) for d in ["initial", "final"]])
 
         for i, d in neb_dirs:
-            outcar = glob.glob(os.path.join(d, "OUTCAR*"))
-            contcar = glob.glob(os.path.join(d, "CONTCAR*"))
-            poscar = glob.glob(os.path.join(d, "POSCAR*"))
+            outcar = glob(os.path.join(d, "OUTCAR*"))
+            contcar = glob(os.path.join(d, "CONTCAR*"))
+            poscar = glob(os.path.join(d, "POSCAR*"))
             terminal = i in [0, neb_dirs[-1][0]]
             if terminal:
                 for ds in terminal_dirs:
                     od = ds[0] if i == 0 else ds[1]
-                    outcar = glob.glob(os.path.join(od, "OUTCAR*"))
+                    outcar = glob(os.path.join(od, "OUTCAR*"))
                     if outcar:
                         outcar = sorted(outcar)
                         outcars.append(Outcar(outcar[-1]))
                         break
                 else:
-                    raise ValueError("OUTCAR cannot be found for terminal " "point %s" % d)
+                    raise ValueError(f"OUTCAR cannot be found for terminal point {d}")
                 structures.append(Poscar.from_file(poscar[0]).structure)
             else:
                 outcars.append(Outcar(outcar[0]))
@@ -281,11 +277,11 @@ class NEBAnalysis(MSONable):
         Dict representation of NEBAnalysis.
 
         Returns:
-            JSON serializable dict representation.
+            JSON-serializable dict representation.
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "r": jsanitize(self.r),
             "energies": jsanitize(self.energies),
             "forces": jsanitize(self.forces),
@@ -295,7 +291,7 @@ class NEBAnalysis(MSONable):
 
 def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=False):
     """
-    neb_analyses: a list of NEBAnalysis objects
+    neb_analyses: a list of NEBAnalysis objects.
 
     arranged_neb_analyses: The code connects two end points with the
     smallest-energy difference. If all end points have very close energies, it's
@@ -333,14 +329,12 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
         neb1_start_e, neb1_end_e = neb1_energies[0], neb1_energies[-1]
         neb2_start_e, neb2_end_e = neb2_energies[0], neb2_energies[-1]
         min_e_diff = min(
-            (
-                [
-                    abs(neb1_start_e - neb2_start_e),
-                    abs(neb1_start_e - neb2_end_e),
-                    abs(neb1_end_e - neb2_start_e),
-                    abs(neb1_end_e - neb2_end_e),
-                ]
-            )
+            [
+                abs(neb1_start_e - neb2_start_e),
+                abs(neb1_start_e - neb2_end_e),
+                abs(neb1_end_e - neb2_start_e),
+                abs(neb1_end_e - neb2_end_e),
+            ]
         )
 
         if arranged_neb_analyses:
@@ -355,7 +349,7 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
 
         elif abs(neb1_start_e - neb2_start_e) == min_e_diff:
             neb1_energies = list(reversed(neb1_energies[1:])) + neb2_energies
-            neb1_structures = list(reversed((neb1_structures[1:]))) + neb2.structures
+            neb1_structures = list(reversed(neb1_structures[1:])) + neb2.structures
             neb1_forces = list(reversed(list(neb1_forces)[1:])) + list(neb2.forces)
             neb1_r = list(reversed([i * -1 - neb1_r[-1] * -1 for i in list(neb1_r)[1:]])) + [
                 i + neb1_r[-1] for i in list(neb2.r)
@@ -375,7 +369,7 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
 
         else:
             neb1_energies = neb1_energies + list(reversed(neb2_energies))[1:]
-            neb1_structures = neb1_structures + list(reversed((neb2.structures)))[1:]
+            neb1_structures = neb1_structures + list(reversed(neb2.structures))[1:]
             neb1_forces = list(neb1_forces) + list(reversed(list(neb2.forces)))[1:]
             neb1_r = list(neb1_r) + list(
                 reversed([i * -1 - list(neb2.r)[-1] * -1 + list(neb1_r)[-1] for i in list(neb2.r)[:-1]])

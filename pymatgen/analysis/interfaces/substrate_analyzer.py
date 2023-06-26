@@ -1,37 +1,28 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module provides classes to identify optimal substrates for film growth."""
 
-"""
-This module provides classes to identify optimal substrates for film growth
-"""
+from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Tuple
+from typing import TYPE_CHECKING
 
 from pymatgen.analysis.elasticity.strain import Deformation, Strain
 from pymatgen.analysis.interfaces.zsl import ZSLGenerator, ZSLMatch, reduce_vectors
-from pymatgen.core import Structure
-from pymatgen.core.surface import (
-    SlabGenerator,
-    get_symmetrically_distinct_miller_indices,
-)
+from pymatgen.core.surface import SlabGenerator, get_symmetrically_distinct_miller_indices
 
-Miller3D = Tuple[int, int, int]
-Vector3D = Tuple[float, float, float]
-Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 @dataclass
 class SubstrateMatch(ZSLMatch):
     """
-    A substrate match building on the Zur and McGill algorithm. This match class inlcudes the miller
+    A substrate match building on the Zur and McGill algorithm. This match class includes the miller
     planes of the film and substrate the full strain tensor, the Von Mises strain, the ground state
-    energy if provided, and the elastic energy
+    energy if provided, and the elastic energy.
     """
 
-    film_miller: Miller3D
-    substrate_miller: Miller3D
+    film_miller: tuple[int, int, int]
+    substrate_miller: tuple[int, int, int]
     strain: Strain
     von_mises_strain: float
     ground_state_energy: float
@@ -47,20 +38,19 @@ class SubstrateMatch(ZSLMatch):
         elasticity_tensor=None,
         ground_state_energy=0,
     ):
-        """Generate a substrate match from a ZSL match plus metadata"""
-
+        """Generate a substrate match from a ZSL match plus metadata."""
         # Get the appropriate surface structure
-        struc = SlabGenerator(film, film_miller, 20, 15, primitive=False).get_slab().oriented_unit_cell
+        struct = SlabGenerator(film, film_miller, 20, 15, primitive=False).get_slab().oriented_unit_cell
 
         dfm = Deformation(match.match_transformation)
 
-        strain = dfm.green_lagrange_strain.convert_to_ieee(struc, initial_fit=False)
+        strain = dfm.green_lagrange_strain.convert_to_ieee(struct, initial_fit=False)
         von_mises_strain = strain.von_mises_strain
 
         if elasticity_tensor is not None:
             energy_density = elasticity_tensor.energy_density(strain)
 
-            elastic_energy = film.volume * energy_density / len(film.sites)
+            elastic_energy = film.volume * energy_density / len(film)
         else:
             elastic_energy = 0
 
@@ -86,18 +76,18 @@ class SubstrateMatch(ZSLMatch):
 
     @property
     def total_energy(self):
-        """Total energy of this match"""
+        """Total energy of this match."""
         return self.ground_state_energy + self.elastic_energy
 
 
 class SubstrateAnalyzer(ZSLGenerator):
     """
     This class applies a set of search criteria to identify suitable
-    substrates for film growth. It first uses a topoplogical search by Zur
+    substrates for film growth. It first uses a topological search by Zur
     and McGill to identify matching super-lattices on various faces of the
     two materials. Additional criteria can then be used to identify the most
     suitable substrate. Currently, the only additional criteria is the
-    elastic strain energy of the super-lattices
+    elastic strain energy of the super-lattices.
     """
 
     def __init__(self, film_max_miller=1, substrate_max_miller=1, **kwargs):
@@ -109,7 +99,7 @@ class SubstrateAnalyzer(ZSLGenerator):
             film_max_miller(int): maximum miller index to generate for film
                 surfaces
             substrate_max_miller(int): maximum miller index to generate for
-                substrate surfaces
+                substrate surfaces.
         """
         self.film_max_miller = film_max_miller
         self.substrate_max_miller = substrate_max_miller
@@ -119,12 +109,12 @@ class SubstrateAnalyzer(ZSLGenerator):
     def generate_surface_vectors(self, film_millers, substrate_millers):
         """
         Generates the film/substrate slab combinations for a set of given
-        miller indicies
+        miller indices.
 
         Args:
             film_millers(array): all miller indices to generate slabs for
                 film
-            substrate_millers(array): all miller indicies to generate slabs
+            substrate_millers(array): all miller indices to generate slabs
                 for substrate
         """
         vector_sets = []
@@ -163,20 +153,20 @@ class SubstrateAnalyzer(ZSLGenerator):
             elasticity_tensor(ElasticTensor): elasticity tensor for the film
                 in the IEEE orientation
             film_millers(array): film facets to consider in search as defined by
-                miller indicies
+                miller indices
             substrate_millers(array): substrate facets to consider in search as
-                defined by miller indicies
+                defined by miller indices
             ground_state_energy(float): ground state energy for the film
             lowest(bool): only consider lowest matching area for each surface
         """
         self.film = film
         self.substrate = substrate
 
-        # Generate miller indicies if none specified for film
+        # Generate miller indices if none specified for film
         if film_millers is None:
             film_millers = sorted(get_symmetrically_distinct_miller_indices(self.film, self.film_max_miller))
 
-        # Generate miller indicies if none specified for substrate
+        # Generate miller indices if none specified for substrate
         if substrate_millers is None:
             substrate_millers = sorted(
                 get_symmetrically_distinct_miller_indices(self.substrate, self.substrate_max_miller)
@@ -191,7 +181,6 @@ class SubstrateAnalyzer(ZSLGenerator):
             substrate_miller,
         ] in surface_vector_sets:
             for match in self(film_vectors, substrate_vectors, lowest):
-
                 sub_match = SubstrateMatch.from_zsl(
                     match=match,
                     film=film,

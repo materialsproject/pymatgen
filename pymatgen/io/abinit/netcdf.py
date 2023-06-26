@@ -1,14 +1,12 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 #
 # pylint: disable=no-member
 """Wrapper for netCDF readers."""
 
+from __future__ import annotations
+
 import logging
 import os.path
 import warnings
-from collections import OrderedDict
 
 import numpy as np
 from monty.collections import AttrDict
@@ -28,7 +26,7 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 __status__ = "Development"
-__date__ = "$Feb 21, 2013M$"
+__date__ = "Feb 21, 2013M"
 
 __all__ = [
     "as_ncreader",
@@ -44,15 +42,14 @@ try:
 except ImportError as exc:
     netCDF4 = None
     warnings.warn(
-        """\
+        f"""\
 `import netCDF4` failed with the following error:
 
-%s
+{exc}
 
 Please install netcdf4 with `conda install netcdf4`
 If the conda version does not work, uninstall it with `conda uninstall hdf4 hdf5 netcdf4`
 and use `pip install netcdf4`"""
-        % str(exc)
     )
 
 
@@ -78,11 +75,11 @@ def as_etsfreader(file):
 
 
 class NetcdfReaderError(Exception):
-    """Base error class for NetcdfReader"""
+    """Base error class for NetcdfReader."""
 
 
 class NO_DEFAULT:
-    """Signal that read_value should raise an Error"""
+    """Signal that read_value should raise an Error."""
 
 
 class NetcdfReader:
@@ -103,13 +100,13 @@ class NetcdfReader:
         try:
             self.rootgrp = netCDF4.Dataset(self.path, mode="r")
         except Exception as exc:
-            raise self.Error("In file %s: %s" % (self.path, str(exc)))
+            raise self.Error(f"In file {self.path}: {exc}")
 
         self.ngroups = len(list(self.walk_tree()))
 
         # Always return non-masked numpy arrays.
         # Slicing a ncvar returns a MaskedArrray and this is really annoying
-        # because it can lead to unexpected behaviour in e.g. calls to np.matmul!
+        # because it can lead to unexpected behavior in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
         self.rootgrp.set_auto_mask(False)
 
@@ -126,7 +123,7 @@ class NetcdfReader:
         try:
             self.rootgrp.close()
         except Exception as exc:
-            logger.warning("Exception %s while trying to close %s" % (exc, self.path))
+            logger.warning(f"Exception {exc} while trying to close {self.path}")
 
     def walk_tree(self, top=None):
         """
@@ -139,8 +136,7 @@ class NetcdfReader:
         values = top.groups.values()
         yield values
         for value in top.groups.values():
-            for children in self.walk_tree(value):
-                yield children
+            yield from self.walk_tree(value)
 
     def print_tree(self):
         """Print all the groups in the file."""
@@ -169,9 +165,9 @@ class NetcdfReader:
     def read_varnames(self, path="/"):
         """List of variable names stored in the group specified by path."""
         if path == "/":
-            return self.rootgrp.variables.keys()
+            return list(self.rootgrp.variables)
         group = self.path2group[path]
-        return group.variables.keys()
+        return list(group.variables)
 
     def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
         """
@@ -206,37 +202,33 @@ class NetcdfReader:
         assert var.shape[-1] == 2
         if cmode == "c":
             return var[..., 0] + 1j * var[..., 1]
-        raise ValueError("Wrong value for cmode %s" % cmode)
+        raise ValueError(f"Wrong value for {cmode=}")
 
     def read_variable(self, varname, path="/"):
         """Returns the variable with name varname in the group specified by path."""
         return self._read_variables(varname, path=path)[0]
 
-    def _read_dimensions(self, *dimnames, **kwargs):
+    def _read_dimensions(self, *dim_names, **kwargs):
         path = kwargs.get("path", "/")
         try:
             if path == "/":
-                return [self.rootgrp.dimensions[dname] for dname in dimnames]
+                return [self.rootgrp.dimensions[dname] for dname in dim_names]
             group = self.path2group[path]
-            return [group.dimensions[dname] for dname in dimnames]
+            return [group.dimensions[dname] for dname in dim_names]
 
         except KeyError:
-            raise self.Error(
-                "In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`" % (self.path, dimnames, kwargs)
-            )
+            raise self.Error(f"In file {self.path}:\nError while reading dimensions: {dim_names} with {kwargs=}")
 
-    def _read_variables(self, *varnames, **kwargs):
+    def _read_variables(self, *var_names, **kwargs):
         path = kwargs.get("path", "/")
         try:
             if path == "/":
-                return [self.rootgrp.variables[vname] for vname in varnames]
+                return [self.rootgrp.variables[vname] for vname in var_names]
             group = self.path2group[path]
-            return [group.variables[vname] for vname in varnames]
+            return [group.variables[vname] for vname in var_names]
 
         except KeyError:
-            raise self.Error(
-                "In file %s:\nError while reading variables: `%s` with kwargs `%s`." % (self.path, varnames, kwargs)
-            )
+            raise self.Error(f"In file {self.path}:\nError while reading variables: {var_names} with {kwargs=}.")
 
     def read_keys(self, keys, dict_cls=AttrDict, path="/"):
         """
@@ -285,9 +277,7 @@ class ETSF_Reader(NetcdfReader):
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
-        """
-        Read ixc from an Abinit file. Return :class:`XcFunc` object.
-        """
+        """Read ixc from an Abinit file. Return :class:`XcFunc` object."""
         ixc = int(self.read_value("ixc"))
         return XcFunc.from_abinit_ixc(ixc)
 
@@ -297,26 +287,26 @@ class ETSF_Reader(NetcdfReader):
 
         Return :class:`AbinitHeader`
         """
-        d = {}
+        dct = {}
         for hvar in _HDR_VARIABLES.values():
             ncname = hvar.etsf_name if hvar.etsf_name is not None else hvar.name
             if ncname in self.rootgrp.variables:
-                d[hvar.name] = self.read_value(ncname)
+                dct[hvar.name] = self.read_value(ncname)
             elif ncname in self.rootgrp.dimensions:
-                d[hvar.name] = self.read_dimvalue(ncname)
+                dct[hvar.name] = self.read_dimvalue(ncname)
             else:
-                raise ValueError("Cannot find `%s` in `%s`" % (ncname, self.path))
+                raise ValueError(f"Cannot find `{ncname}` in `{self.path}`")
             # Convert scalars to (well) scalars.
-            if hasattr(d[hvar.name], "shape") and not d[hvar.name].shape:
-                d[hvar.name] = np.asarray(d[hvar.name]).item()
+            if hasattr(dct[hvar.name], "shape") and not dct[hvar.name].shape:
+                dct[hvar.name] = np.asarray(dct[hvar.name]).item()
             if hvar.name in ("title", "md5_pseudos", "codvsn"):
                 # Convert array of numpy bytes to list of strings
                 if hvar.name == "codvsn":
-                    d[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in d[hvar.name])
+                    dct[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in dct[hvar.name])
                 else:
-                    d[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip() for astr in d[hvar.name]]
+                    dct[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip() for astr in dct[hvar.name]]
 
-        return AbinitHeader(d)
+        return AbinitHeader(dct)
 
 
 def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
@@ -327,7 +317,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     Args:
         ncdata: filename or NetcdfReader instance.
         site_properties: Dictionary with site properties.
-        cls: The Structure class to instanciate.
+        cls: The Structure class to instantiate.
     """
     ncdata, closeit = as_ncreader(ncdata)
 
@@ -348,12 +338,12 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
         type_idx = type_atom[atom] - 1
         species[atom] = int(znucl_type[type_idx])
 
-    d = {}
+    dct = {}
     if site_properties is not None:
         for prop in site_properties:
-            d[prop] = ncdata.read_value(prop)
+            dct[prop] = ncdata.read_value(prop)
 
-    structure = cls(lattice, species, red_coords, site_properties=d)
+    structure = cls(lattice, species, red_coords, site_properties=dct)
 
     # Quick and dirty hack.
     # I need an abipy structure since I need to_abivars and other methods.
@@ -371,7 +361,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
 
 
 class _H:
-    __slots__ = ["name", "doc", "etsf_name"]
+    __slots__ = ("name", "doc", "etsf_name")
 
     def __init__(self, name, doc, etsf_name=None):
         self.name, self.doc, self.etsf_name = name, doc, etsf_name
@@ -470,7 +460,7 @@ _HDR_VARIABLES = (
     ),
     # _H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw
 )
-_HDR_VARIABLES = OrderedDict([(h.name, h) for h in _HDR_VARIABLES])  # type: ignore
+_HDR_VARIABLES = {h.name: h for h in _HDR_VARIABLES}  # type: ignore
 
 
 class AbinitHeader(AttrDict):

@@ -35,12 +35,34 @@ Direct contributions to pymatgen main distribution
        git clone git@github.com:YOURNAME/pymatgen.git
 
    Note that the entire Github repo is fairly large because of the presence of test files, but these are absolutely
-   necessary for rigorous testing of the code.
-5. It is highly recommended you install all the optional dependencies as well.
-6. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your code up to date. You need to add the main
-   repository to the list of your remotes. Let's name the upstream repo as mpmaster (materialsproject master)::
+   necessary for rigorous testing of the code. If you are not planning to do major development on pymatgen and would
+   like a minimal clone (e.g., installing dev version of pymatgen on HPC resources), you can use the following series of
+   commands (size would be a fraction of the full repo)::
 
-       git remote add mpmaster git://github.com/materialsproject/pymatgen.git
+      git clone -n --depth=1 --filter=tree:0 git@github.com:materialsproject/pymatgen.git
+      cd pymatgen
+
+      # If you have Git 2.25+ (released 2023-01-01), you can use the sparse-checkout command (uncomment the next line).
+      # git sparse-checkout set --no-cone pymatgen setup.py pyproject.toml requirements.txt requirements-optional.txt
+
+      # If you are on a system with an older version of git, run the commands below.
+      git config core.sparseCheckout true
+      echo pymatgen >> .git/info/sparse-checkout
+      echo setup.py >> .git/info/sparse-checkout
+      echo pyproject.toml >> .git/info/sparse-checkout
+      echo "requirements.txt" >> .git/info/sparse-checkout
+      echo "requirements-optional.txt" >> .git/info/sparse-checkout
+
+      git checkout
+
+5. It is highly recommended you install all the optional dependencies as well::
+
+      pip install -e '.[dev,optional]'
+
+6. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your code up to date. You need to add the main
+   repository to the list of your remotes. Let's name the upstream repo as upstream (materialsproject master)::
+
+       git remote add upstream git://github.com/materialsproject/pymatgen.git
 
    Make sure your repository is clean (no uncommitted changes) and is currently on the master branch. If not, commit or
    stash any changes and switch to the master::
@@ -49,7 +71,7 @@ Direct contributions to pymatgen main distribution
 
    Then you can pull all the new commits from the main line::
 
-      git pull mpmaster master
+      git pull upstream master
 
    Remember, pull is a combination of the commands fetch and merge, so there may be merge conflicts that may need to be
    manually resolved.
@@ -65,7 +87,7 @@ Direct contributions to pymatgen main distribution
       local repo directory and fix all errors before continuing further.
    c. If you have `pre-commit <https://pre-commit.com/>`_ installed you can use
       the provided :code:`.pre-commit-config.yaml` file to perform automatic style checks
-      before publishing your code.  The pre-commit hooks can be installed using::
+      before publishing your code. The pre-commit hooks can be installed using::
 
             pre-commit install
 
@@ -91,13 +113,11 @@ under the pymatgen.analysis, pymatgen.ext and and pymatgen.io namespaces and not
 pymatgen root namespace is meant for development of broad classes of functionality. If in doubt, please consult with
 the pymatgen maintainers. The benefits of writing an add-on for pymatgen are:
 
-* You control the development and distribution of the add-on. You also get full recognition of your work.
+* You control the development and distribution of the add-on. You also get full recognition for your work.
 * The add-on does not affect the main pymatgen distribution and end users have a choice of whether to install the
   add-on or not via `pip install pymatgen-analysis-addon`.
 * Once installed, the add-on functions exactly like a part of pymatgen in that the imports are still via
   `from pymatgen.analysis.addon import *`.
-* We will help your add-on gain recognition via our `listing of pymatgen add-ons </addons>`_. We have plans to develop
-  this into a full-fledged searchable database of add-ons.
 
 The namespaces provide an important clue what kind of contributions are suitable for add-ons.
 
@@ -109,14 +129,19 @@ The namespaces provide an important clue what kind of contributions are suitable
 
 To help developers write add-ons, we have written a `pymatgen add-on template
 <http://github.com/materialsproject/pymatgen-addon-template>`_ with detailed instructions. For a real-world
-example using this template, check out Materials Virtual Lab's `pymatgen-diffusion
-<http://github.com/materialsvirtuallab/pymatgen-diffusion`_.
+example using this template, check out Materials Virtual Lab's `pymatgen-analysis-diffusion
+<http://pypi.org/project/pymatgen-analysis-diffusion/>`_.
 
 It should be noted that while the pymatgen maintainers will attempt to help developers as far as possible, **we provide
 no guarantees whatsoever on the quality or reliability of any code that is not part of the main pymatgen distribution**.
 The add-on architecture therefore provides flexibility for broad expansion of scope in pymatgen functionality by the
 community by loosening up the tight control in the main repository, which is bottlenecked by the small team maintaining
 it.
+
+Existing add-ons and ecosystem tools
+------------------------------------
+
+We help add-ons gain visibility and recognition on our `add-ons page </addons>`_. Feel free to suggest additions to this list via `GitHub PR <https://github.com/materialsproject/pymatgen/edit/master/docs_rst/addons.rst>`_.
 
 Coding Guidelines
 -----------------
@@ -136,11 +161,11 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    To aid you, you can copy the example pre-commit hook into your .git/hooks
    directly. This will automatically run pycodestyle and other linting services
    prior to any commits. At the very least, copy pre-commit to .git/hooks/pre-push.
-3. **Python 3**. We only support Python 3.7+.
+3. **Python 3**. We only support Python 3.8+.
 4. **Documentation** required for all modules, classes and methods. In
    particular, the method docstrings should make clear the arguments expected
    and the return values. For complex algorithms (e.g., an Ewald summation), a
-   summary of the alogirthm should be provided, and preferably with a link to a
+   summary of the algorithm should be provided, and preferably with a link to a
    publication outlining the method in detail.
 5. **IDE**. We highly recommend the use of Pycharm. You should also set up
    pycodestyle and turn those on within the IDE setup. This will warn of any

@@ -1,6 +1,3 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 Enumerator with the libxc identifiers.
 This is a low level object, client code should not interact with LibxcFunc directly
@@ -9,10 +6,11 @@ Part of this module is automatically generated so be careful when refactoring st
 Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum values.
 """
 
+from __future__ import annotations
+
 import json
 import os
 from enum import Enum
-from io import open
 
 from monty.json import MontyEncoder
 
@@ -28,7 +26,7 @@ __status__ = "Production"
 __date__ = "May 16, 2016"
 
 # Loads libxc info from json file
-with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rt") as fh:
+with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json")) as fh:
     _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
 
 
@@ -407,83 +405,82 @@ class LibxcFunc(Enum):
 
     # end_include_dont_touch
 
-    def __init__(self, num):
+    def __init__(self, _num):
         """
-        Init.
-
-        :param num: Number for the xc.
+        Args:
+            num: Number for the xc.
         """
         info = _all_xcfuncs[self.value]
         self.kind = info["Kind"]
         self.family = info["Family"]
 
     def __str__(self):
-        return "name=%s, kind=%s, family=%s" % (self.name, self.kind, self.family)
+        return f"name={self.name}, kind={self.kind}, family={self.family}"
 
     @staticmethod
     def all_families():
         """
         List of strings with the libxc families.
-        Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA
+        Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA.
         """
-        return sorted(set(d["Family"] for d in _all_xcfuncs.values()))
+        return sorted({d["Family"] for d in _all_xcfuncs.values()})
 
     @staticmethod
     def all_kinds():
         """
         List of strings with the libxc kinds.
         Also in this case, the string is obtained by remove the XC_ prefix.
-        XC_CORRELATION --> CORRELATION
+        XC_CORRELATION --> CORRELATION.
         """
-        return sorted(set(d["Kind"] for d in _all_xcfuncs.values()))
+        return sorted({d["Kind"] for d in _all_xcfuncs.values()})
 
     @property
     def info_dict(self):
-        """Dictionary with metadata. see libxc_docs.json"""
+        """Dictionary with metadata. see libxc_docs.json."""
         return _all_xcfuncs[self.value]
 
     @property
-    def is_x_kind(self):
-        """True if this is an exchange-only functional"""
+    def is_x_kind(self) -> bool:
+        """True if this is an exchange-only functional."""
         return self.kind == "EXCHANGE"
 
     @property
-    def is_c_kind(self):
-        """True if this is a correlation-only functional"""
+    def is_c_kind(self) -> bool:
+        """True if this is a correlation-only functional."""
         return self.kind == "CORRELATION"
 
     @property
-    def is_k_kind(self):
-        """True if this is a kinetic functional"""
+    def is_k_kind(self) -> bool:
+        """True if this is a kinetic functional."""
         return self.kind == "KINETIC"
 
     @property
-    def is_xc_kind(self):
-        """True if this is a exchange+correlation functional"""
+    def is_xc_kind(self) -> bool:
+        """True if this is a exchange+correlation functional."""
         return self.kind == "EXCHANGE_CORRELATION"
 
     @property
-    def is_lda_family(self):
+    def is_lda_family(self) -> bool:
         """True if this functional belongs to the LDA family."""
         return self.family == "LDA"
 
     @property
-    def is_gga_family(self):
+    def is_gga_family(self) -> bool:
         """True if this functional belongs to the GGA family."""
         return self.family == "GGA"
 
     @property
-    def is_mgga_family(self):
+    def is_mgga_family(self) -> bool:
         """True if this functional belongs to the meta-GGA family."""
         return self.family == "MGGA"
 
     @property
-    def is_hyb_gga_family(self):
+    def is_hyb_gga_family(self) -> bool:
         """True if this functional belongs to the hybrid + GGA family."""
         return self.family == "HYB_GGA"
 
     @property
-    def is_hyb_mgga_family(self):
+    def is_hyb_mgga_family(self) -> bool:
         """True if this functional belongs to the hybrid + meta-GGA family."""
         return self.family == "HYB_MGGA"
 
@@ -494,8 +491,8 @@ class LibxcFunc(Enum):
         """
         return {
             "name": self.name,
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @staticmethod
@@ -507,9 +504,7 @@ class LibxcFunc(Enum):
         return LibxcFunc[d["name"]]
 
     def to_json(self):
-        """
-        Returns a json string representation of the MSONable object.
-        """
+        """Returns a json string representation of the MSONable object."""
         return json.dumps(self.as_dict(), cls=MontyEncoder)
 
 

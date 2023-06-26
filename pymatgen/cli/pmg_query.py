@@ -1,11 +1,9 @@
-# coding: utf-8
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
+"""Implementation for `pmg query` CLI."""
 
-"""
-Implementation for `pmg query` CLI.
-"""
+from __future__ import annotations
 
 import json
 import re
@@ -18,7 +16,7 @@ from pymatgen.ext.matproj import MPRester
 
 def do_query(args):
     """
-    Perform query to the Materials Project
+    Perform query to the Materials Project.
 
     Args:
         args (dict): Args from argparse.
@@ -31,31 +29,25 @@ def do_query(args):
     if args.structure:
         count = 0
         for d in m.query(criteria, properties=["structure", "task_id"]):
-            s = d["structure"]
-            formula = re.sub(r"\s+", "", s.formula)
+            struct = d["structure"]
+            formula = re.sub(r"\s+", "", struct.formula)
             if args.structure == "poscar":
-                fname = "POSCAR.%s_%s" % (d["task_id"], formula)
+                fname = f"POSCAR.{d['task_id']}_{formula}"
             else:
-                fname = "%s-%s.%s" % (d["task_id"], formula, args.structure)
-            s.to(filename=fname)
+                fname = f"{d['task_id']}-{formula}.{args.structure}"
+            struct.to(filename=fname)
             count += 1
-        print("%d structures written!" % count)
+        print(f"{count} structures written!")
     elif args.entries:
         entries = m.get_entries(criteria)
         dumpfn(entries, args.entries)
-        print("%d entries written to %s!" % (len(entries), args.entries))
+        print(f"{len(entries)} entries written to {args.entries}!")
     else:
         props = ["e_above_hull", "spacegroup"]
         props += args.data
         entries = m.get_entries(criteria, property_data=props)
         t = []
-        headers = [
-            "mp-id",
-            "Formula",
-            "Spacegroup",
-            "E/atom (eV)",
-            "E above hull (eV)",
-        ] + args.data
+        headers = ["mp-id", "Formula", "Spacegroup", "E/atom (eV)", "E above hull (eV)", *args.data]
         for e in entries:
             row = [
                 e.entry_id,

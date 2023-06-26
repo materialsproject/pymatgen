@@ -1,13 +1,6 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module provides utilities for basic math operations."""
 
-
-"""
-This module provides utilities for basic math operations.
-"""
-
-import collections
+from __future__ import annotations
 
 import numpy as np
 
@@ -15,7 +8,7 @@ import numpy as np
 def abs_cap(val, max_abs_val=1):
     """
     Returns the value with its absolute value capped at max_abs_val.
-    Particularly useful in passing values to trignometric functions where
+    Particularly useful in passing values to trigonometric functions where
     numerical errors may result in an argument > 1 being passed in.
 
     Args:
@@ -28,35 +21,9 @@ def abs_cap(val, max_abs_val=1):
     return max(min(val, max_abs_val), -max_abs_val)
 
 
-def sort_dict(d, key=None, reverse=False):
-    """
-    Sorts a dict by value.
-
-    Args:
-        d: Input dictionary
-        key: Function which takes an tuple (key, object) and returns a value to
-            compare and sort by. By default, the function compares the values
-            of the dict i.e. key = lambda t : t[1]
-        reverse: Allows to reverse sort order.
-
-    Returns:
-        OrderedDict object whose keys are ordered according to their value.
-    """
-    kv_items = list(d.items())
-
-    # Sort kv_items according to key.
-    if key is None:
-        kv_items.sort(key=lambda t: t[1], reverse=reverse)
-    else:
-        kv_items.sort(key=key, reverse=reverse)
-
-    # Build ordered dict.
-    return collections.OrderedDict(kv_items)
-
-
 def minloc(seq):
     """
-    Return the index of the (first) minimum in seq
+    Return the index of the (first) minimum in seq.
 
     >>> assert minloc(range(3)) == 0
     """
@@ -65,7 +32,7 @@ def minloc(seq):
 
 def maxloc(seq):
     """
-    Return the index of the (first) maximum in seq
+    Return the index of the (first) maximum in seq.
 
     >>> assert maxloc([1,3,2,3]) == 1
     """
@@ -77,17 +44,17 @@ def min_max_indexes(seq):
     Uses enumerate, max, and min to return the indices of the values
     in a list with the maximum and minimum value:
     """
-    l = sorted(enumerate(seq), key=lambda s: s[1])
-    return l[0][0], l[-1][0]
+    lst = sorted(enumerate(seq), key=lambda s: s[1])
+    return lst[0][0], lst[-1][0]
 
 
 def strictly_increasing(values):
-    """True if values are stricly increasing."""
+    """True if values are strictly increasing."""
     return all(x < y for x, y in zip(values, values[1:]))
 
 
 def strictly_decreasing(values):
-    """True if values are stricly decreasing."""
+    """True if values are strictly decreasing."""
     return all(x > y for x, y in zip(values, values[1:]))
 
 
@@ -102,10 +69,9 @@ def non_decreasing(values):
 
 
 def monotonic(values, mode="<", atol=1.0e-8):
-    """
-    Returns False if values are not monotonic (decreasing|increasing).
+    """True if values are monotonically (decreasing|increasing).
     mode is "<" for a decreasing sequence, ">" for an increasing sequence.
-    Two numbers are considered equal if they differ less that atol.
+    Two numbers are considered equal if they differ less than atol.
 
     .. warning:
         Not very efficient for large data sets.
@@ -131,24 +97,24 @@ def monotonic(values, mode="<", atol=1.0e-8):
             if abs(vp - v) > atol and vp >= v:
                 return False
 
-    raise ValueError("Wrong mode %s" % str(mode))
+    raise ValueError(f"Wrong {mode=}")
 
 
-def round_to_sigfigs(num, sigfigs):
+def round_to_sigfigs(num, sig_figs):
     """
     Rounds a number rounded to a specific number of significant
     figures instead of to a specific precision.
     """
-    if not isinstance(sigfigs, int):
-        raise TypeError("Number of significant figures must be integer.")
+    if not isinstance(sig_figs, int):
+        raise TypeError("Number of significant figures must be integer")
 
-    if sigfigs < 1:
-        raise ValueError("Number of significant figures " "must be larger than zero.")
+    if sig_figs < 1:
+        raise ValueError("Number of significant figures must be positive")
 
     if num == 0:
         return num
 
-    prec = int(sigfigs - np.ceil(np.log10(np.absolute(num))))
+    prec = int(sig_figs - np.ceil(np.log10(np.absolute(num))))
     return round(num, prec)
 
 
@@ -157,7 +123,7 @@ def make_symmetric_matrix_from_upper_tri(val):
     Given a symmetric matrix in upper triangular matrix form as flat array indexes as:
     [A_xx,A_yy,A_zz,A_xy,A_xz,A_yz]
     This will generate the full matrix:
-    [[A_xx,A_xy,A_xz],[A_xy,A_yy,A_yz],[A_xz,A_yz,A_zz]
+    [[A_xx,A_xy,A_xz],[A_xy,A_yy,A_yz],[A_xz,A_yz,A_zz].
     """
     idx = [0, 3, 4, 1, 5, 2]
     val = np.array(val)[idx]

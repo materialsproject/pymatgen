@@ -1,25 +1,19 @@
-"""
-Get help with VASP parameters from VASP wiki.
-"""
+"""Get help with VASP parameters from VASP wiki."""
+
+from __future__ import annotations
 
 import re
 
 import requests
-import urllib3
 from bs4 import BeautifulSoup
 
 
 class VaspDoc:
-    """
-    A VASP documentation helper.
-    """
+    """A VASP documentation helper."""
 
     def __init__(self):
-        """
-        Init for VaspDoc.
-        """
+        """Init for VaspDoc."""
         self.url_template = "http://www.vasp.at/wiki/index.php/%s"
-        urllib3.disable_warnings()
 
     def print_help(self, tag):
         """
@@ -54,7 +48,7 @@ class VaspDoc:
             Help text.
         """
         tag = tag.upper()
-        r = requests.get("http://www.vasp.at/wiki/index.php/%s" % tag, verify=False)
+        r = requests.get(f"https://www.vasp.at/wiki/index.php/{tag}", verify=False)
         soup = BeautifulSoup(r.text)
         main_doc = soup.find(id="mw-content-text")
         if fmt == "text":
@@ -67,13 +61,11 @@ class VaspDoc:
 
     @classmethod
     def get_incar_tags(cls):
-        """
-        Returns: All incar tags
-        """
+        """Returns: All incar tags."""
         tags = []
         for page in [
-            "http://www.vasp.at/wiki/index.php/Category:INCAR",
-            "http://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
+            "https://www.vasp.at/wiki/index.php/Category:INCAR",
+            "https://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
         ]:
             r = requests.get(page, verify=False)
             soup = BeautifulSoup(r.text)

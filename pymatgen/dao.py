@@ -1,8 +1,6 @@
-# coding: utf-8
+"""The dao for pymatgen."""
 
-"""
-The dao for pymatgen.
-"""
+from __future__ import annotations
 
 print(
     """

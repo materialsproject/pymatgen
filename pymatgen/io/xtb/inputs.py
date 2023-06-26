@@ -1,15 +1,15 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-"""
-Classes for writing XTB input files
-"""
+"""Classes for writing XTB input files."""
+
+from __future__ import annotations
+
 import logging
 import os
-from typing import Dict, Optional, Union, List
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
-from pymatgen.core import Molecule
+
+if TYPE_CHECKING:
+    from pymatgen.core import Molecule
 
 __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -33,18 +33,17 @@ class CRESTInput(MSONable):
         self,
         molecule: Molecule,
         working_dir: str = ".",
-        coords_filename: Optional[str] = "crest_in.xyz",
-        constraints: Optional[Dict[str, Union[List[int], float]]] = None,
+        coords_filename: str | None = "crest_in.xyz",
+        constraints: dict[str, list[int] | float] | None = None,
     ):
         """
-
         :param molecule (pymatgen Molecule object):
             Input molecule, the only required CREST input.
         :param working_dir (str):
             Location to write input files, defaults to current directory
         :param coords_filename (str):
             Name of input coordinates file
-        :param constraints (Dict):
+        :param constraints (dict):
             Dictionary of common editable parameters for .constrains file.
             {"atoms": [List of 1-indexed atoms to fix], "force_constant":
             float]
@@ -55,10 +54,7 @@ class CRESTInput(MSONable):
         self.working_dir = working_dir
 
     def write_input_files(self):
-        """
-        Write input files to working directory
-        """
-
+        """Write input files to working directory."""
         self.molecule.to(filename=os.path.join(self.working_dir, self.coords_filename))
         if self.constraints:
             constrains_string = self.constrains_template(
@@ -72,7 +68,6 @@ class CRESTInput(MSONable):
     @staticmethod
     def constrains_template(molecule, reference_fnm, constraints) -> str:
         """
-
         :param molecule (pymatgen Molecule):
             Molecule the constraints will be performed on
         :param reference_fnm:
@@ -88,7 +83,7 @@ class CRESTInput(MSONable):
         force_constant = constraints["force_constant"]
         reference_fnm = reference_fnm
         mol = molecule
-        atoms_for_mtd = [i for i in range(1, len(mol.sites) + 1) if i not in atoms_to_constrain]
+        atoms_for_mtd = [idx for idx in range(1, len(mol) + 1) if idx not in atoms_to_constrain]
         # Write as 1-3,5 instead of 1,2,3,5
         interval_list = [atoms_for_mtd[0]]
         for i, v in enumerate(atoms_for_mtd):
@@ -98,16 +93,12 @@ class CRESTInput(MSONable):
                     interval_list.append(atoms_for_mtd[i + 1])
         force_constant = force_constant
         allowed_mtd_string = ",".join(
-            ["{}-{}".format(interval_list[i], interval_list[i + 1]) for i in range(len(interval_list)) if i % 2 == 0]
+            [f"{interval_list[i]}-{interval_list[i + 1]}" for i in range(len(interval_list)) if i % 2 == 0]
         )
-        constrains_file_string = (
+        return (
             "$constrain\n"
-            + "  atoms: {}\n".format(",".join([str(i) for i in atoms_to_constrain]))
-            + "  force constant={}\n".format(force_constant)
-            + "  reference={}\n".format(reference_fnm)
-            + "$metadyn\n"
-            + "  atoms: {}\n".format(allowed_mtd_string)
-            + "$end"
+            f"  atoms: {','.join(map(str, atoms_to_constrain))}\n"
+            f"  force constant={force_constant}\n"
+            f"  reference={reference_fnm}\n$metadyn\n"
+            f"  atoms: {allowed_mtd_string}\n$end"
         )
-
-        return constrains_file_string

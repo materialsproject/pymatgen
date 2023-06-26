@@ -1,6 +1,6 @@
-"""
-Environment nodes module.
-"""
+"""Environment nodes module."""
+
+from __future__ import annotations
 
 import abc
 
@@ -8,9 +8,7 @@ from monty.json import MSONable
 
 
 class AbstractEnvironmentNode(MSONable):
-    """
-    Abstract class used to define an environment as a node in a graph.
-    """
+    """Abstract class used to define an environment as a node in a graph."""
 
     COORDINATION_ENVIRONMENT = 0
     NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS = 1
@@ -25,13 +23,13 @@ class AbstractEnvironmentNode(MSONable):
     CE_NNBCES_NBCES_LIGANDS = -1
     DEFAULT_EXTENSIONS = (ATOM, COORDINATION_ENVIRONMENT)
 
-    def __init__(self, central_site, i_central_site):
+    def __init__(self, central_site, i_central_site) -> None:
         """
         Constructor for the AbstractEnvironmentNode object.
 
         Args:
             central_site (Site or subclass of Site): central site as a pymatgen Site or
-                                                     subclass of Site (e.g. PeriodicSite, ...).
+                subclass of Site (e.g. PeriodicSite, ...).
             i_central_site (int): Index of the central site in the structure.
         """
         self.central_site = central_site
@@ -46,7 +44,9 @@ class AbstractEnvironmentNode(MSONable):
         """Simple hash function based on the hash function of the central site."""
         return self.central_site.__hash__()
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, AbstractEnvironmentNode):
+            return NotImplemented
         # When relabelling nodes from a str or int to an EnvironmentNode in-place in a graph (e.g. in a
         # ConnectedComponent), the comparison should return False when comparing the already relabelled nodes (e.g. as
         # an EnvironmentNode) with those not yet relabelled (e.g. a str representing the isite). This is useful for
@@ -55,14 +55,15 @@ class AbstractEnvironmentNode(MSONable):
 
     def __lt__(self, other):
         # This simple "Less Than" operator allows to strictly sort environment nodes in a graph.
-        # This is useful (and actually neeeded) in the definition of the cycles but does not have
+        # This is useful (and actually needed) in the definition of the cycles but does not have
         # any real meaning of a "lower value" environment node.
         return self.isite < other.isite
 
     def everything_equal(self, other):
         """Checks equality with respect to another AbstractEnvironmentNode using the index of the central site
-        as well as the central site itself."""
-        return self.__eq__(other) and self.central_site == other.central_site
+        as well as the central site itself.
+        """
+        return self == other and self.central_site == other.central_site
 
     @property
     @abc.abstractmethod
@@ -92,21 +93,19 @@ class AbstractEnvironmentNode(MSONable):
 
     def __str__(self):
         """String representation of the AbstractEnvironmentNode."""
-        return "Node #{:d} {} ({})".format(self.isite, self.atom_symbol, self.coordination_environment)
+        return f"Node #{self.isite:d} {self.atom_symbol} ({self.coordination_environment})"
 
 
 class EnvironmentNode(AbstractEnvironmentNode):
-    """
-    Class used to define an environment as a node in a graph.
-    """
+    """Class used to define an environment as a node in a graph."""
 
-    def __init__(self, central_site, i_central_site, ce_symbol):
+    def __init__(self, central_site, i_central_site, ce_symbol) -> None:
         """
         Constructor for the EnvironmentNode object.
 
         Args:
             central_site (Site or subclass of Site): central site as a pymatgen Site or
-                                                     subclass of Site (e.g. PeriodicSite, ...).
+                subclass of Site (e.g. PeriodicSite, ...).
             i_central_site (int): Index of the central site in the structure.
             ce_symbol (str): Symbol of the identified environment.
         """
@@ -165,6 +164,7 @@ def get_environment_node(central_site, i_central_site, ce_symbol):
         central_site (Site or subclass of Site): Central site of the environment.
         i_central_site (int): Index of the central site in the structure.
         ce_symbol: Symbol of the environment.
+
     Returns:
         An EnvironmentNode object.
     """

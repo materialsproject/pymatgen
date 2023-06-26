@@ -4,12 +4,14 @@ Note that not all the features of Abinit are supported by BasicAbinitInput.
 For a more comprehensive implementation, use the AbinitInput object provided by AbiPy.
 """
 
+from __future__ import annotations
+
 import abc
 import copy
 import json
 import logging
 import os
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 from collections.abc import Mapping, MutableMapping
 from enum import Enum
 
@@ -22,7 +24,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import abiobjects as aobj
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.io.abinit.variable import InputVariable
-from pymatgen.util.serialization import pmg_serialize
 
 logger = logging.getLogger(__file__)
 
@@ -30,66 +31,59 @@ logger = logging.getLogger(__file__)
 # List of Abinit variables used to specify the structure.
 # This variables should not be passed to set_vars since
 # they will be generated with structure.to_abivars()
-GEOVARS = set(
-    [
-        "acell",
-        "rprim",
-        "rprimd" "angdeg",
-        "xred",
-        "xcart",
-        "xangst",
-        "znucl",
-        "typat",
-        "ntypat",
-        "natom",
-    ]
-)
+GEOVARS = {
+    "acell",
+    "rprim",
+    "rprimd",
+    "angdeg",
+    "xred",
+    "xcart",
+    "xangst",
+    "znucl",
+    "typat",
+    "ntypat",
+    "natom",
+}
 
 # Variables defining tolerances (used in pop_tolerances)
-_TOLVARS = set(
-    [
-        "toldfe",
-        "tolvrs",
-        "tolwfr",
-        "tolrff",
-        "toldff",
-        "tolimg",
-        "tolmxf",
-        "tolrde",
-    ]
-)
+_TOLVARS = {
+    "toldfe",
+    "tolvrs",
+    "tolwfr",
+    "tolrff",
+    "toldff",
+    "tolimg",
+    "tolmxf",
+    "tolrde",
+}
 
 # Variables defining tolerances for the SCF cycle that are mutally exclusive
-_TOLVARS_SCF = set(
-    [
-        "toldfe",
-        "tolvrs",
-        "tolwfr",
-        "tolrff",
-        "toldff",
-    ]
-)
+_TOLVARS_SCF = {
+    "toldfe",
+    "tolvrs",
+    "tolwfr",
+    "tolrff",
+    "toldff",
+}
 
 # Variables determining if data files should be read in input
-_IRDVARS = set(
-    [
-        "irdbseig",
-        "irdbsreso",
-        "irdhaydock",
-        "irdddk",
-        "irdden",
-        "ird1den",
-        "irdqps",
-        "irdkss",
-        "irdscr",
-        "irdsuscep",
-        "irdvdw",
-        "irdwfk",
-        "irdwfkfine",
-        "irdwfq",
-        "ird1wf",
-    ]
-)
+_IRDVARS = {
+    "irdbseig",
+    "irdbsreso",
+    "irdhaydock",
+    "irdddk",
+    "irdden",
+    "ird1den",
+    "irdqps",
+    "irdkss",
+    "irdscr",
+    "irdsuscep",
+    "irdvdw",
+    "irdwfk",
+    "irdwfkfine",
+    "irdwfq",
+    "ird1wf",
+}
 
 # Name of the (default) tolerance used by the runlevels.
 _runl2tolname = {
@@ -115,9 +109,9 @@ del T
 
 
 # Default values used if user does not specify them
-_DEFAULTS = dict(
-    kppa=1000,
-)
+_DEFAULTS = {
+    "kppa": 1000,
+}
 
 
 def as_structure(obj):
@@ -139,7 +133,7 @@ def as_structure(obj):
             return Structure.from_dict(obj)
         return aobj.structure_from_abivars(cls=None, **obj)
 
-    raise TypeError("Don't know how to convert %s into a structure" % type(obj))
+    raise TypeError(f"Don't know how to convert {type(obj)} into a structure")
 
 
 class ShiftMode(Enum):
@@ -169,7 +163,7 @@ class ShiftMode(Enum):
             return obj
         if is_string(obj):
             return cls(obj[0].upper())
-        raise TypeError("The object provided is not handled: type %s" % type(obj))
+        raise TypeError(f"The object provided is not handled: type {type(obj)}")
 
 
 def _stopping_criterion(runlevel, accuracy):
@@ -217,11 +211,9 @@ def _find_scf_nband(structure, pseudos, electrons, spinat=None):
     # If nband is too small we may kill the job, increase nband and restart
     # but this change could cause problems in the other steps of the calculation
     # if the change is not propagated e.g. phonons in metals.
-    if smearing:
-        # metallic occupation
-        nband = max(np.ceil(nband * 1.2), nband + 10)
-    else:
-        nband = max(np.ceil(nband * 1.1), nband + 4)
+
+    # metallic occupation
+    nband = max(np.ceil(nband * 1.2), nband + 10) if smearing else max(np.ceil(nband * 1.1), nband + 4)
 
     # Increase number of bands based on the starting magnetization
     if nsppol == 2 and spinat is not None:
@@ -256,7 +248,7 @@ def _get_shifts(shift_mode, structure):
             return shifts
         return ((0, 0, 0),)
 
-    raise ValueError("invalid shift_mode: `%s`" % str(shift_mode))
+    raise ValueError(f"invalid {shift_mode=}")
 
 
 def gs_input(
@@ -370,7 +362,7 @@ def ebands_input(
     )
 
     if scf_electrons.nband is None:
-        scf_electrons.nband = _find_scf_nband(structure, multi.pseudos, scf_electrons, multi[0].get("spinat", None))
+        scf_electrons.nband = _find_scf_nband(structure, multi.pseudos, scf_electrons, multi[0].get("spinat"))
 
     multi[0].set_vars(scf_ksampling.to_abivars())
     multi[0].set_vars(scf_electrons.to_abivars())
@@ -464,7 +456,7 @@ def ion_ioncell_relax_input(
     )
 
     if electrons.nband is None:
-        electrons.nband = _find_scf_nband(structure, multi.pseudos, electrons, multi[0].get("spinat", None))
+        electrons.nband = _find_scf_nband(structure, multi.pseudos, electrons, multi[0].get("spinat"))
 
     ion_relax = aobj.RelaxationMethod.atoms_only(atoms_constraints=None)
     ioncell_relax = aobj.RelaxationMethod.atoms_and_cell(atoms_constraints=None)
@@ -481,7 +473,7 @@ def ion_ioncell_relax_input(
     return multi
 
 
-def calc_shiftk(structure, symprec=0.01, angle_tolerance=5):
+def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
     """
     Find the values of ``shiftk`` and ``nshiftk`` appropriated for the sampling of the Brillouin zone.
 
@@ -566,10 +558,9 @@ def calc_shiftk(structure, symprec=0.01, angle_tolerance=5):
             shiftk = [0.0, 0.0, 0.0]
             shiftk[hex_ax] = 0.5
 
-        elif lattice_type == "tetragonal":
-            if "I" in spg_symbol:
-                # BCT
-                shiftk = [0.25, 0.25, 0.25, -0.25, -0.25, -0.25]
+        elif lattice_type == "tetragonal" and "I" in spg_symbol:
+            # BCT
+            shiftk = [0.25, 0.25, 0.25, -0.25, -0.25, -0.25]
 
     if shiftk is None:
         # Use default value.
@@ -594,9 +585,7 @@ def num_valence_electrons(structure, pseudos):
 
 
 class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
-    """
-    Abstract class defining the methods that must be implemented by Input objects.
-    """
+    """Abstract class defining the methods that must be implemented by Input objects."""
 
     # ABC protocol: __delitem__, __getitem__, __iter__, __len__, __setitem__
     def __delitem__(self, key):
@@ -616,21 +605,19 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return self.vars.__setitem__(key, value)
 
     def __repr__(self):
-        return "<%s at %s>" % (self.__class__.__name__, id(self))
+        return f"<{type(self).__name__} at {id(self)}>"
 
     def __str__(self):
         return self.to_string()
 
     def write(self, filepath="run.abi"):
-        """
-        Write the input file to file to ``filepath``.
-        """
+        """Write the input file to file to ``filepath``."""
         dirname = os.path.dirname(os.path.abspath(filepath))
         if not os.path.exists(dirname):
             os.makedirs(dirname)
 
         # Write the input file.
-        with open(filepath, "wt") as fh:
+        with open(filepath, "w") as fh:
             fh.write(str(self))
 
     def deepcopy(self):
@@ -643,7 +630,6 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         Return dict with the variables added to the input.
 
         Example:
-
             input.set_vars(ecut=10, ionmov=3)
         """
         kwargs.update(dict(*args))
@@ -657,7 +643,6 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         Return dict with the variables added to the input.
 
         Example:
-
             input.set_vars(ecut=10, ionmov=3)
         """
         kwargs.update(dict(*args))
@@ -694,7 +679,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         removed = {}
         for key in list_strings(keys):
             if strict and key not in self:
-                raise KeyError("key: %s not in self:\n %s" % (key, list(self.keys())))
+                raise KeyError(f"{key=} not in self:\n {list(self)}")
             if key in self:
                 removed[key] = self.pop(key)
 
@@ -718,9 +703,7 @@ class BasicAbinitInputError(Exception):
 
 
 class BasicAbinitInput(AbstractInput, MSONable):
-    """
-    This object stores the ABINIT variables for a single dataset.
-    """
+    """This object stores the ABINIT variables for a single dataset."""
 
     Error = BasicAbinitInputError
 
@@ -744,12 +727,12 @@ class BasicAbinitInput(AbstractInput, MSONable):
             ndtset: Number of datasets.
             comment: Optional string with a comment that will be placed at the beginning of the file.
             abi_args: list of tuples (key, value) with the initial set of variables. Default: Empty
-            abi_kwargs: Dictionary with the initial set of variables. Default: Empty
+            abi_kwargs: Dictionary with the initial set of variables. Default: Empty.
         """
         # Internal dict with variables. we use an ordered dict so that
         # variables will be likely grouped by `topics` when we fill the input.
-        abi_args = [] if abi_args is None else abi_args
-        for key, value in abi_args:
+        abi_args = abi_args or []
+        for key, _value in abi_args:
             self._check_varname(key)
 
         abi_kwargs = {} if abi_kwargs is None else abi_kwargs
@@ -759,13 +742,13 @@ class BasicAbinitInput(AbstractInput, MSONable):
         args = list(abi_args)[:]
         args.extend(list(abi_kwargs.items()))
 
-        self._vars = OrderedDict(args)
+        self._vars = dict(args)
         self.set_structure(structure)
 
         if pseudo_dir is not None:
             pseudo_dir = os.path.abspath(pseudo_dir)
             if not os.path.exists(pseudo_dir):
-                raise self.Error("Directory %s does not exist" % pseudo_dir)
+                raise self.Error(f"Directory {pseudo_dir} does not exist")
             pseudos = [os.path.join(pseudo_dir, p) for p in list_strings(pseudos)]
 
         try:
@@ -776,24 +759,23 @@ class BasicAbinitInput(AbstractInput, MSONable):
         if comment is not None:
             self.set_comment(comment)
 
-    @pmg_serialize
     def as_dict(self):
-        """
-        JSON interface used in pymatgen for easier serialization.
-        """
-        # Use a list of (key, value) to serialize the OrderedDict
+        """JSON interface used in pymatgen for easier serialization."""
+        # Use a list of (key, value) to serialize the dict
         abi_args = []
         for key, value in self.items():
             if isinstance(value, np.ndarray):
                 value = value.tolist()
             abi_args.append((key, value))
 
-        return dict(
-            structure=self.structure.as_dict(),
-            pseudos=[p.as_dict() for p in self.pseudos],
-            comment=self.comment,
-            abi_args=abi_args,
-        )
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "structure": self.structure.as_dict(),
+            "pseudos": [p.as_dict() for p in self.pseudos],
+            "comment": self.comment,
+            "abi_args": abi_args,
+        }
 
     @property
     def vars(self):
@@ -802,9 +784,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        JSON interface used in pymatgen for easier serialization.
-        """
+        """JSON interface used in pymatgen for easier serialization."""
         pseudos = [Pseudo.from_file(p["filepath"]) for p in d["pseudos"]]
         return cls(d["structure"], pseudos, comment=d["comment"], abi_args=d["abi_args"])
 
@@ -813,18 +793,16 @@ class BasicAbinitInput(AbstractInput, MSONable):
         This function receive a list of ``AbiVarable`` objects and add
         the corresponding variables to the input.
         """
-        d = {}
+        dct = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
-                raise TypeError("type %s: %s does not have `to_abivars` method" % (type(obj), repr(obj)))
-            d.update(self.set_vars(obj.to_abivars()))
-        return d
+                raise TypeError(f"type {type(obj)}: {obj!r} does not have `to_abivars` method")
+            dct.update(self.set_vars(obj.to_abivars()))
+        return dct
 
     def __setitem__(self, key, value):
         if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
-            logger.info(
-                "Replacing previously set tolerance variable: {0}.".format(self.remove_vars(_TOLVARS_SCF, strict=False))
-            )
+            logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
 
         return super().__setitem__(key, value)
 
@@ -836,7 +814,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             )
 
     def to_string(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
-        r"""
+        """
         String representation.
 
         Args:
@@ -861,7 +839,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         exclude = set(exclude) if exclude is not None else set()
 
         # Default is no sorting else alphabetical order.
-        keys = sorted([k for k, v in self.items() if k not in exclude and v is not None])
+        keys = sorted(k for k, v in self.items() if k not in exclude and v is not None)
 
         # Extract the items from the dict and add the geo variables at the end
         items = [(k, self[k]) for k in keys]
@@ -903,7 +881,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """The |Structure| object associated to this input."""
         return self._structure
 
-    def set_structure(self, structure):
+    def set_structure(self, structure: Structure):
         """Set structure."""
         self._structure = as_structure(structure)
 
@@ -940,7 +918,6 @@ class BasicAbinitInput(AbstractInput, MSONable):
             kptbounds: k-points defining the path in k-space.
                 If None, we use the default high-symmetry k-path defined in the pymatgen database.
         """
-
         if kptbounds is None:
             from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -1040,7 +1017,7 @@ class BasicMultiDataset:
         for i in range(multi.ndtset):
             multi[i].set_vars(ecut=1)
 
-    BasicMultiDataset provides its own implementaion of __getattr__ so that one can simply use:
+    BasicMultiDataset provides its own implementation of __getattr__ so that one can simply use:
 
         multi.set_vars(ecut=1)
 
@@ -1092,7 +1069,7 @@ class BasicMultiDataset:
 
         return multi
 
-    def __init__(self, structure, pseudos, pseudo_dir="", ndtset=1):
+    def __init__(self, structure: Structure, pseudos, pseudo_dir="", ndtset=1):
         """
         Args:
             structure: file with the structure, |Structure| object or dictionary with ABINIT geo variable
@@ -1119,13 +1096,13 @@ class BasicMultiDataset:
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:
-                raise self.Error("Cannot find the following pseudopotential files:\n%s" % str(missing))
+                raise self.Error(f"Cannot find the following pseudopotential files:\n{missing}")
 
             pseudos = PseudoTable(pseudo_paths)
 
         # Build the list of BasicAbinitInput objects.
         if ndtset <= 0:
-            raise ValueError("ndtset %d cannot be <=0" % ndtset)
+            raise ValueError(f"{ndtset=} cannot be <=0")
 
         if not isinstance(structure, (list, tuple)):
             self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]
@@ -1167,8 +1144,7 @@ class BasicMultiDataset:
         m = getattr(_inputs[0], name)
         if m is None:
             raise AttributeError(
-                "Cannot find attribute %s. Tried in %s and then in BasicAbinitInput object"
-                % (self.__class__.__name__, name)
+                f"Cannot find attribute {type(self).__name__}. Tried in {name} and then in BasicAbinitInput object"
             )
         isattr = not callable(m)
 
@@ -1190,7 +1166,7 @@ class BasicMultiDataset:
         return on_all
 
     def __add__(self, other):
-        """self + other"""
+        """Self + other."""
         if isinstance(other, BasicAbinitInput):
             new_mds = BasicMultiDataset.from_inputs(self)
             new_mds.append(other)
@@ -1256,7 +1232,7 @@ class BasicMultiDataset:
         """
         if self.ndtset > 1:
             # Multi dataset mode.
-            lines = ["ndtset %d" % self.ndtset]
+            lines = [f"ndtset {int(self.ndtset)}"]
 
             def has_same_variable(kref, vref, other_inp):
                 """True if variable kref is present in other_inp with the same value."""
@@ -1298,7 +1274,7 @@ class BasicMultiDataset:
                     lines.append(str(InputVariable(vname, value)))
 
             for i, inp in enumerate(self):
-                header = "### DATASET %d ###" % (i + 1)
+                header = f"### DATASET {i + 1} ###"
                 is_last = i == self.ndtset - 1
                 s = inp.to_string(
                     post=str(i + 1),
@@ -1307,8 +1283,7 @@ class BasicMultiDataset:
                     exclude=global_vars,
                 )
                 if s:
-                    header = len(header) * "#" + "\n" + header + "\n" + len(header) * "#" + "\n"
-                    s = "\n" + header + s + "\n"
+                    s = f"\n{len(header) * '#'}\n{header}\n{len(header) * '#'}\n{s}\n"
 
                 lines.append(s)
 
@@ -1324,9 +1299,9 @@ class BasicMultiDataset:
     def write(self, filepath="run.abi"):
         """
         Write ``ndset`` input files to disk. The name of the file
-        is constructed from the dataset index e.g. run0.abi
+        is constructed from the dataset index e.g. run0.abi.
         """
         root, ext = os.path.splitext(filepath)
         for i, inp in enumerate(self):
-            p = root + "DS%d" % i + ext
+            p = f"{root}DS{i}" + ext
             inp.write(filepath=p)

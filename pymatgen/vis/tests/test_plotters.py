@@ -1,10 +1,7 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+from __future__ import annotations
 
 import json
 import os
-import unittest
 
 import numpy as np
 from monty.json import MontyDecoder
@@ -12,7 +9,6 @@ from monty.json import MontyDecoder
 from pymatgen.analysis.xas.spectrum import XAS
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.vis.plotters import SpectrumPlotter
-
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "spectrum_test")
 
@@ -44,7 +40,3 @@ class SpectrumPlotterTest(PymatgenTest):
         self.plotter.add_spectrum("LiCoO2 + noise", xanes, "r")
         plt = self.plotter.get_plot()
         plt.close("all")
-
-
-if __name__ == "__main__":
-    unittest.main()

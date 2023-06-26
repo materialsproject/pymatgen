@@ -1,9 +1,6 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+from __future__ import annotations
 
-
-import unittest
+import pytest
 
 from pymatgen.core.molecular_orbitals import MolecularOrbitals
 from pymatgen.util.testing import PymatgenTest
@@ -14,7 +11,7 @@ test_case = MolecularOrbitals("NaCl")
 class MolecularOrbitalTestCase(PymatgenTest):
     def test_max_electronegativity(self):
         test_elec_neg = 2.23
-        self.assertEqual(test_elec_neg, test_case.max_electronegativity())
+        assert test_elec_neg == test_case.max_electronegativity()
 
     def test_aos_as_list(self):
         test_list = [
@@ -28,7 +25,7 @@ class MolecularOrbitalTestCase(PymatgenTest):
             ["Cl", "3p", -0.32038],
             ["Na", "3s", -0.103415],
         ]
-        self.assertEqual(test_list, test_case.aos_as_list())
+        assert test_list == test_case.aos_as_list()
 
     def test_obtain_band_edges(self):
         test_edges = {
@@ -36,13 +33,10 @@ class MolecularOrbitalTestCase(PymatgenTest):
             "LUMO": ["Na", "3s", -0.103415],
             "metal": False,
         }
-        for k in test_edges.keys():
-            self.assertEqual(test_edges[k], test_case.obtain_band_edges()[k])
+        for key, val in test_edges.items():
+            assert val == test_case.obtain_band_edges()[key]
 
     # test for raising ValueError for fractional composition
     def test_fractional_compositions(self):
-        self.assertRaises(ValueError, lambda: MolecularOrbitals("Na0.5Cl0.5"))
-
-
-if __name__ == "__main__":
-    unittest.main()
+        with pytest.raises(ValueError, match="composition subscripts must be integers"):
+            MolecularOrbitals("Na0.5Cl0.5")

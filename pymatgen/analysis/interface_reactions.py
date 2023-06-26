@@ -1,7 +1,3 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides a class to predict and analyze interfacial reactions between two
 solids, with or without an open element (e.g., flowing O2).
@@ -10,34 +6,34 @@ Please consider citing one or both of the following papers if you use this
 code in your own work.
 
 References:
-
     (1) Richards, W. D., Miara, L. J., Wang, Y., Kim, J. C., &amp; Ceder, G. (2015).
     Interface stability in solid-state batteries. Chemistry of Materials, 28(1),
-    266–273. https://doi.org/10.1021/acs.chemmater.5b04082
+    266-273. https://doi.org/10.1021/acs.chemmater.5b04082
 
     (2) Xiao, Y., Wang, Y., Bo, S.-H., Kim, J. C., Miara, L. J., &amp; Ceder, G. (2019).
     Understanding interface stability in solid-state batteries.
-    Nature Reviews Materials, 5(2), 105–126. https://doi.org/10.1038/s41578-019-0157-5
+    Nature Reviews Materials, 5(2), 105-126. https://doi.org/10.1038/s41578-019-0157-5
 
 """
+
+from __future__ import annotations
 
 import json
 import os
 import warnings
-from typing import List, Tuple, Union
+from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
-from monty.dev import deprecated
 from monty.json import MSONable
 from pandas import DataFrame
-from plotly.graph_objects import Scatter, Figure
+from plotly.graph_objects import Figure, Scatter
 
-from pymatgen.analysis.phase_diagram import PhaseDiagram, GrandPotentialPhaseDiagram
+from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.string import latexify, htmlify
+from pymatgen.util.string import htmlify, latexify
 
 __author__ = "Yihan Xiao, Matthew McDermott"
 __maintainer__ = "Matthew McDermott"
@@ -62,11 +58,11 @@ class InterfacialReactivity(MSONable):
     References:
         Richards, W. D., Miara, L. J., Wang, Y., Kim, J. C., &amp; Ceder, G. (2015).
         Interface stability in solid-state batteries. Chemistry of Materials, 28(1),
-        266–273. https://doi.org/10.1021/acs.chemmater.5b04082
+        266-273. https://doi.org/10.1021/acs.chemmater.5b04082
 
         Xiao, Y., Wang, Y., Bo, S.-H., Kim, J. C., Miara, L. J., &amp; Ceder, G. (2019).
         Understanding interface stability in solid-state batteries.
-        Nature Reviews Materials, 5(2), 105–126.
+        Nature Reviews Materials, 5(2), 105-126.
         https://doi.org/10.1038/s41578-019-0157-5
     """
 
@@ -138,7 +134,7 @@ class InterfacialReactivity(MSONable):
                 self.e1 = self._get_entry_energy(self.pd, self.comp1)
                 self.e2 = self._get_entry_energy(self.pd, self.comp2)
 
-    def get_kinks(self) -> List[Tuple[int, float, float, Reaction, float]]:
+    def get_kinks(self) -> list[tuple[int, float, float, Reaction, float]]:
         """
         Finds all the kinks in mixing ratio where reaction products changes
         along the tie-line of composition self.c1 and composition self.c2.
@@ -173,7 +169,7 @@ class InterfacialReactivity(MSONable):
             for i in reversed(critical_comp):
                 # Gets mixing ratio x at kinks.
                 c = self.pd.pd_coords(i)
-                x = np.linalg.norm(c - c2_coord) / np.linalg.norm(c1_coord - c2_coord)
+                x = float(np.linalg.norm(c - c2_coord) / np.linalg.norm(c1_coord - c2_coord))
                 # Modifies mixing ratio in case compositions self.comp1 and
                 # self.comp2 are not normalized.
                 x = x * n2 / (n1 + x * (n2 - n1))
@@ -195,19 +191,18 @@ class InterfacialReactivity(MSONable):
 
         return list(zip(index_kink, x_kink, energy_kink, react_kink, energy_per_rxt_formula))
 
-    def plot(self, backend: str = "plotly") -> Union[Figure, plt.Figure]:
+    def plot(self, backend: Literal["plotly", "matplotlib"] = "plotly") -> Figure | plt.Figure:
         """
         Plots reaction energy as a function of mixing ratio x in self.c1 - self.c2
         tie line.
 
         Args:
-            backend: Plotting library used to create plot. Defaults to "plotly".
-            Can alternatively be set to "matplotlib"
+            backend ("plotly" | "matplotlib"): Plotting library used to create the plot. Defaults to
+                "plotly" but can also be "matplotlib".
 
         Returns:
             Plot of reaction energies as a function of mixing ratio
         """
-
         if backend.lower() == "plotly":
             fig = self._get_plotly_figure()
         elif backend.lower() in ["matplotlib", "mpl", "plt"]:
@@ -232,8 +227,7 @@ class InterfacialReactivity(MSONable):
             for _, ratio, reactivity, rxn, rxn_energy in self.get_kinks()
         ]
 
-        df = DataFrame(rxns)
-        return df
+        return DataFrame(rxns)
 
     def get_critical_original_kink_ratio(self):
         """
@@ -271,7 +265,7 @@ class InterfacialReactivity(MSONable):
             return 1
         c1_coeff = reaction.get_coeff(self.c1_original) if self.c1_original in reaction.reactants else 0
         c2_coeff = reaction.get_coeff(self.c2_original) if self.c2_original in reaction.reactants else 0
-        return c1_coeff * 1.0 / (c1_coeff + c2_coeff)
+        return c1_coeff * 1 / (c1_coeff + c2_coeff)
 
     def _get_energy(self, x):
         """
@@ -286,8 +280,8 @@ class InterfacialReactivity(MSONable):
         """
         return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1 - x)) - self.e1 * x - self.e2 * (1 - x)
 
-    def _get_reactants(self, x: float) -> List[Composition]:
-        """Returns a list of relevant reactant compositions given an x coordinate"""
+    def _get_reactants(self, x: float) -> list[Composition]:
+        """Returns a list of relevant reactant compositions given an x coordinate."""
         # Uses original composition for reactants.
         if np.isclose(x, 0):
             reactants = [self.c2_original]
@@ -338,11 +332,11 @@ class InterfacialReactivity(MSONable):
         Returns:
             Total number of atoms for non_reservoir elements.
         """
-        return sum([rxn.get_el_amount(e) for e in self.pd.elements])
+        return sum(rxn.get_el_amount(e) for e in self.pd.elements)
 
     def _get_plotly_figure(self) -> Figure:
-        """Returns a Plotly figure of reaction kinks diagram"""
-        kinks = map(list, zip(*self.get_kinks()))  # type: ignore
+        """Returns a Plotly figure of reaction kinks diagram."""
+        kinks = map(list, zip(*self.get_kinks()))
         _, x, energy, reactions, _ = kinks
 
         lines = Scatter(
@@ -350,7 +344,7 @@ class InterfacialReactivity(MSONable):
             y=energy,
             mode="lines",
             name="Lines",
-            line=dict(color="navy", dash="solid", width=5.0),
+            line={"color": "navy", "dash": "solid", "width": 5.0},
             hoverinfo="none",
         )
 
@@ -363,7 +357,7 @@ class InterfacialReactivity(MSONable):
         rxn_min = reactions.pop(min_idx)
 
         labels = [
-            rf"{htmlify(str(r))} <br>" + "\u0394" + f"E<sub>rxn</sub> = {round(e, 3)} eV/atom"  # type: ignore
+            f"{htmlify(str(r))} <br>\u0394E<sub>rxn</sub> = {round(e, 3)} eV/atom"  # type: ignore
             for r, e in zip(reactions, energy)
         ]
 
@@ -374,18 +368,16 @@ class InterfacialReactivity(MSONable):
             name="Reactions",
             hoverinfo="text",
             hovertext=labels,
-            marker=dict(
-                color="black",
-                size=12,
-                opacity=0.8,
-                line=dict(color="black", width=3),
-            ),
-            hoverlabel=dict(bgcolor="navy"),
+            marker={
+                "color": "black",
+                "size": 12,
+                "opacity": 0.8,
+                "line": {"color": "black", "width": 3},
+            },
+            hoverlabel={"bgcolor": "navy"},
         )
 
-        min_label = (
-            rf"{htmlify(str(rxn_min))} <br>" + "\u0394" + f"E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"  # type: ignore
-        )
+        min_label = f"{htmlify(str(rxn_min))} <br>\u0394E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"  # type: ignore
 
         minimum = Scatter(
             x=[x_min],
@@ -393,7 +385,7 @@ class InterfacialReactivity(MSONable):
             mode="markers",
             hoverinfo="text",
             hovertext=[min_label],
-            marker=dict(color="darkred", size=24, symbol="star"),
+            marker={"color": "darkred", "size": 24, "symbol": "star"},
             name="Suggested reaction",
         )
 
@@ -403,15 +395,14 @@ class InterfacialReactivity(MSONable):
         layout["xaxis"]["title"] = self._get_xaxis_title(latex=False)
         layout["annotations"] = annotations
 
-        fig = Figure(data=data, layout=layout)
-        return fig
+        return Figure(data=data, layout=layout)
 
     def _get_matplotlib_figure(self) -> plt.Figure:
-        """Returns a matplotlib figure of reaction kinks diagram"""
+        """Returns a matplotlib figure of reaction kinks diagram."""
         pretty_plot(8, 5)
         plt.xlim([-0.05, 1.05])  # plot boundary is 5% wider on each side
 
-        kinks = list(zip(*self.get_kinks()))  # type: ignore
+        kinks = list(zip(*self.get_kinks()))
         _, x, energy, reactions, _ = kinks
 
         plt.plot(x, energy, "o-", markersize=8, c="navy", zorder=1)
@@ -419,11 +410,7 @@ class InterfacialReactivity(MSONable):
 
         for x_coord, y_coord, rxn in zip(x, energy, reactions):
             products = ", ".join(
-                [
-                    latexify(p.reduced_formula)
-                    for p in rxn.products  # type: ignore
-                    if not np.isclose(rxn.get_coeff(p), 0)  # type: ignore
-                ]
+                [latexify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )
             plt.annotate(
                 products,
@@ -432,7 +419,7 @@ class InterfacialReactivity(MSONable):
                 textcoords="offset points",
                 ha="right",
                 va="bottom",
-                arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0"),
+                arrowprops={"arrowstyle": "->", "connectionstyle": "arc3,rad=0"},
             )
 
         if self.norm:
@@ -449,7 +436,7 @@ class InterfacialReactivity(MSONable):
         return fig
 
     def _get_xaxis_title(self, latex: bool = True) -> str:
-        """Returns the formatted title of the x axis (using either html/latex)"""
+        """Returns the formatted title of the x axis (using either html/latex)."""
         if latex:
             f1 = latexify(self.c1.reduced_formula)
             f2 = latexify(self.c2.reduced_formula)
@@ -462,14 +449,14 @@ class InterfacialReactivity(MSONable):
         return title
 
     @staticmethod
-    def _get_plotly_annotations(x: List[float], y: List[float], reactions: List[Reaction]):
-        """Returns dictionary of annotations for the Plotly figure layout"""
+    def _get_plotly_annotations(x: list[float], y: list[float], reactions: list[Reaction]):
+        """Returns dictionary of annotations for the Plotly figure layout."""
         annotations = []
         for x_coord, y_coord, rxn in zip(x, y, reactions):
             products = ", ".join(
                 [htmlify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )
-            annotation = dict(x=x_coord, y=y_coord, text=products, font=dict(size=18), ax=-25, ay=55)
+            annotation = {"x": x_coord, "y": y_coord, "text": products, "font": {"size": 18}, "ax": -25, "ay": 55}
             annotations.append(annotation)
         return annotations
 
@@ -564,7 +551,7 @@ class InterfacialReactivity(MSONable):
             phase at given temperature and pressure.
         """
         if element not in ["O", "N", "Cl", "F", "H"]:
-            warnings.warn(f"Element {element} not one of valid options: " "['O', 'N', " "'Cl', 'F', 'H']")
+            warnings.warn(f"{element=} not one of valid options: ['O', 'N', 'Cl', 'F', 'H']")
             return 0
 
         std_temp = 298.15
@@ -597,9 +584,9 @@ class InterfacialReactivity(MSONable):
         """
         Returns a dictionary containing kink information:
         {index: 'x= mixing_ratio energy= reaction_energy reaction_equation'}.
-        E.g., {1: 'x= 0.0 energy = 0.0 Mn -> Mn',
-               2: 'x= 0.5 energy = -15.0 O2 + Mn -> MnO2',
-               3: 'x= 1.0 energy = 0.0 O2 -> O2'}.
+        E.g., {1: 'x= 0 energy = 0 Mn -> Mn',
+               2: 'x= 0.5 energy = -15 O2 + Mn -> MnO2',
+               3: 'x= 1 energy = 0 O2 -> O2'}.
         """
         return {
             j: "x= " + str(round(x, 4)) + " energy in eV/atom = " + str(round(energy, 4)) + " " + str(reaction)
@@ -615,24 +602,15 @@ class InterfacialReactivity(MSONable):
         Returns:
             Tuple (x_min, E_min).
         """
-        return min([(x, energy) for _, x, energy, _, _ in self.get_kinks()], key=lambda i: i[1])
+        return min(((x, energy) for _, x, energy, _, _ in self.get_kinks()), key=lambda i: i[1])
 
     @property
     def products(self):
-        """
-        List of formulas of potential products. E.g., ['Li','O2','Mn'].
-        """
+        """List of formulas of potential products. E.g., ['Li','O2','Mn']."""
         products = set()
         for _, _, _, react, _ in self.get_kinks():
-            products = products.union({k.reduced_formula for k in react.products})
+            products = products | {key.reduced_formula for key in react.products}
         return list(products)
-
-    @deprecated(products)
-    def get_products(self):
-        """
-        Deprecated method. Use the "products" property.
-        """
-        return self.products
 
 
 class GrandPotentialInterfacialReactivity(InterfacialReactivity):
@@ -676,9 +654,10 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
                 composition, convex hull energy will be used associated with a
                 warning message.
         """
-
         if not isinstance(grand_pd, GrandPotentialPhaseDiagram):
-            raise ValueError("Please use the InterfacialReactivity class if using a " "regular phase diagram!")
+            raise ValueError("Please use the InterfacialReactivity class if using a regular phase diagram!")
+        if not isinstance(pd_non_grand, PhaseDiagram):
+            raise ValueError("Please provide non-grand phase diagram to compute no_mixing_energy!")
 
         super().__init__(
             c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy, bypass_grand_warning=True
@@ -723,8 +702,8 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
             (f"{self.c2_original.reduced_formula} ({unit})", energy2),
         ]
 
-    def _get_reactants(self, x: float) -> List[Composition]:
-        """Returns a list of relevant reactant compositions given an x coordinate"""
+    def _get_reactants(self, x: float) -> list[Composition]:
+        """Returns a list of relevant reactant compositions given an x coordinate."""
         reactants = super()._get_reactants(x)
         reactants += [Composition(e.symbol) for e, v in self.pd.chempots.items()]
 
@@ -746,11 +725,11 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         else:
             grand_potential = self._get_entry_energy(self.pd_non_grand, composition)
 
-        grand_potential -= sum([composition[e] * mu for e, mu in self.pd.chempots.items()])
+        grand_potential -= sum(composition[e] * mu for e, mu in self.pd.chempots.items())
 
         if self.norm:
             # Normalizes energy to the composition excluding element(s)
             # from reservoir.
-            grand_potential /= sum([composition[el] for el in composition if el not in self.pd.chempots])
+            grand_potential /= sum(composition[el] for el in composition if el not in self.pd.chempots)
 
         return grand_potential

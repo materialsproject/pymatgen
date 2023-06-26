@@ -1,10 +1,6 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""A module for NMR analysis."""
 
-"""
-A module for NMR analysis
-"""
+from __future__ import annotations
 
 from collections import namedtuple
 
@@ -27,10 +23,10 @@ __date__ = "Mar 1, 2018"
 class ChemicalShielding(SquareTensor):
     """
     This class extends the SquareTensor to perform extra analysis unique to
-    NMR Chemical shielding tensors
+    NMR Chemical shielding tensors.
 
-    Three notations to describe chemical shielding tensor (RK Harris; Magn. Reson.
-    Chem. 2008, 46, 582–598; DOI: 10.1002/mrc.2225) are supported.
+    Three notations to describe chemical shielding tensor (RK Harris; Magn. Resonance
+    Chem. 2008, 46, 582-598; DOI: 10.1002/mrc.2225) are supported.
 
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
@@ -52,7 +48,7 @@ class ChemicalShielding(SquareTensor):
                 or a 1x3 array of the primary sigma values corresponding
                 to the principal axis system
             vscale (6x1 array-like): 6x1 array-like scaling the
-                voigt-notation vector with the tensor entries
+                Voigt-notation vector with the tensor entries
         """
         t_array = np.array(cs_matrix)
 
@@ -66,15 +62,13 @@ class ChemicalShielding(SquareTensor):
     def principal_axis_system(self):
         """
         Returns a chemical shielding tensor aligned to the principle axis system
-        so that only the 3 diagnol components are non-zero
+        so that only the 3 diagonal components are non-zero.
         """
         return ChemicalShielding(np.diag(np.sort(np.linalg.eigvals(self.symmetrized))))
 
     @property
     def haeberlen_values(self):
-        """
-        Returns: the Chemical shielding tensor in Haeberlen Notation
-        """
+        """Returns: the Chemical shielding tensor in Haeberlen Notation."""
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         sigmas = np.diag(pas)
@@ -87,9 +81,7 @@ class ChemicalShielding(SquareTensor):
 
     @property
     def mehring_values(self):
-        """
-        Returns: the Chemical shielding tensor in Mehring Notation
-        """
+        """Returns: the Chemical shielding tensor in Mehring Notation."""
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         sigma_11, sigma_22, sigma_33 = np.diag(pas)
@@ -97,15 +89,13 @@ class ChemicalShielding(SquareTensor):
 
     @property
     def maryland_values(self):
-        """
-        Returns: the Chemical shielding tensor in Maryland Notation
-        """
+        """Returns: the Chemical shielding tensor in Maryland Notation."""
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         omega = np.diag(pas)[2] - np.diag(pas)[0]
-        # There is a typo in equation 20 from Magn. Reson. Chem. 2008, 46, 582–598, the sign is wrong.
-        # There correct order is presented in Solid State Nucl. Magn. Reson. 1993, 2, 285-288.
-        kappa = 3.0 * (np.diag(pas)[1] - sigma_iso) / omega
+        # There is a typo in equation 20 from Magn. Resonance Chem. 2008, 46, 582-598, the sign is wrong.
+        # There correct order is presented in Solid State Nucl. Magn. Resonance 1993, 2, 285-288.
+        kappa = 3 * (np.diag(pas)[1] - sigma_iso) / omega
         return self.MarylandNotation(sigma_iso, omega, kappa)
 
     @classmethod
@@ -121,16 +111,16 @@ class ChemicalShielding(SquareTensor):
         Returns:
             ChemicalShielding
         """
-        sigma_22 = sigma_iso + kappa * omega / 3.0
-        sigma_11 = (3.0 * sigma_iso - omega - sigma_22) / 2.0
-        sigma_33 = 3.0 * sigma_iso - sigma_22 - sigma_11
+        sigma_22 = sigma_iso + kappa * omega / 3
+        sigma_11 = (3 * sigma_iso - omega - sigma_22) / 2
+        sigma_33 = 3 * sigma_iso - sigma_22 - sigma_11
         return cls(np.diag([sigma_11, sigma_22, sigma_33]))
 
 
 class ElectricFieldGradient(SquareTensor):
     """
     This class extends the SquareTensor to perform extra analysis unique to
-    NMR Electric Field Gradient tensors in units of V/Angstrom^2
+    NMR Electric Field Gradient tensors in units of V/Angstrom^2.
 
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
@@ -161,32 +151,26 @@ class ElectricFieldGradient(SquareTensor):
     @property
     def principal_axis_system(self):
         """
-        Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagnol
-        components are non-zero
+        Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagonal
+        components are non-zero.
         """
         return ElectricFieldGradient(np.diag(np.sort(np.linalg.eigvals(self))))
 
     @property
     def V_xx(self):
-        """
-        Returns: First diagonal element
-        """
+        """Returns: First diagonal element."""
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[0]
 
     @property
     def V_yy(self):
-        """
-        Returns: Second diagonal element
-        """
+        """Returns: Second diagonal element."""
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[1]
 
     @property
     def V_zz(self):
-        """
-        Returns: Third diagonal element
-        """
+        """Returns: Third diagonal element."""
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[2]
 
@@ -194,7 +178,7 @@ class ElectricFieldGradient(SquareTensor):
     def asymmetry(self):
         """
         Asymmetry of the electric field tensor defined as:
-            (V_yy - V_xx)/V_zz
+            (V_yy - V_xx)/V_zz.
         """
         diags = np.diag(self.principal_axis_system)
         V = sorted(diags, key=np.abs)
@@ -202,13 +186,13 @@ class ElectricFieldGradient(SquareTensor):
 
     def coupling_constant(self, specie):
         """
-        Computes the couplling constant C_q as defined in:
+        Computes the coupling constant C_q as defined in:
             Wasylishen R E, Ashbrook S E, Wimperis S. NMR of quadrupolar nuclei
-            in solid materials[M]. John Wiley & Sons, 2012. (Chapter 3.2)
+            in solid materials[M]. John Wiley & Sons, 2012. (Chapter 3.2).
 
         C_q for a specific atom type for this electric field tensor:
                 C_q=e*Q*V_zz/h
-            h: planck's constant
+            h: Planck's constant
             Q: nuclear electric quadrupole moment in mb (millibarn
             e: elementary proton charge
 
@@ -218,7 +202,6 @@ class ElectricFieldGradient(SquareTensor):
                     or Site object
 
         Return:
-
             the coupling constant as a FloatWithUnit in MHz
         """
         planks_constant = FloatWithUnit(6.62607004e-34, "m^2 kg s^-1")
@@ -241,6 +224,6 @@ class ElectricFieldGradient(SquareTensor):
         elif isinstance(specie, Species):
             Q = specie.get_nmr_quadrupole_moment()
         else:
-            raise ValueError("Invalid speciie provided for quadrupolar coupling constant calcuations")
+            raise ValueError("Invalid species provided for quadrupolar coupling constant calculations")
 
         return (e * Q * Vzz / planks_constant).to("MHz")

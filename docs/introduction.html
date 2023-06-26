@@ -1,47 +1,30 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Introduction &mdash; pymatgen 2022.0.14 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-  
-  
-  
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction &mdash; pymatgen 2023.5.10 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgintroduction.html"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" />
     <link rel="prev" title="Introduction" href="index.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -50,58 +33,35 @@
 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
           
-
-          
+          <a href="index.html">
+            
           </a>
-
-          
-            
-            
               <div class="version">
-                2022.0.14
+                2023.5.10
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#major-announcement-v2022-0">Major Announcement (v2022.0.*)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2022-0-14">v2022.0.14</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2023-5-31">v2023.5.31</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -128,73 +88,33 @@
 <li class="toctree-l1"><a class="reference internal" href="modules.html">API Docs</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pymatgen</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
-      <li>Introduction</li>
-    
-    
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Introduction</li>
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/introduction.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <a class="reference internal image-reference" href="_images/pymatgen.png"><img alt="pymatgen" class="align-center" src="_images/pymatgen.png" style="width: 300px;" /></a>
-<div class="section" id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+             
+  <a class="reference internal image-reference" href="_images/pymatgen.svg"><img alt="pymatgen" class="align-center" src="_images/pymatgen.svg" width="300px" /></a>
+<section id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h1>
 <a class="reference external image-reference" href="https://github.com/materialsproject/pymatgen/actions/workflows/test.yml"><img alt="CI Status" src="https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg" /></a>
 <img alt="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" src="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" /><a class="reference external image-reference" href="https://coveralls.io/github/materialsproject/pymatgen?branch=master"><img alt="Coveralls Coverage Report" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" /></a>
 <p>Pymatgen (Python Materials Genomics) is a robust, open-source Python library
@@ -211,7 +131,7 @@ diagrams, diffusion analyses, reactions, etc.</p></li>
 <li><p>Integration with the Materials Project REST API, Crystallography Open
 Database and other external data sources.</p></li>
 </ol>
-<p>As of 2021, pymatgen only supports Python 3.7 and above. Our support schedule follows closely that of the Scientific
+<p>As of 2022, pymatgen only supports Python 3.8 and above. Our support schedule follows closely that of the Scientific
 Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
 newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
 support the new Python versions.</p>
@@ -225,15 +145,15 @@ reports. The following are resources for pymatgen:</p>
 <li><p>Bug reports or feature requests: Please submit a <a class="reference external" href="http://github.com/materialsproject/pymatgen/issues">GitHub Issue</a>.</p></li>
 <li><p>Code contributions via <a class="reference external" href="https://github.com/materialsproject/pymatgen/pulls">pull requests</a> welcome.</p></li>
 <li><p>For help with usage that are unrelated to bugs or feature requests, please use the pymatgen <a class="reference external" href="https://discuss.matsci.org/c/pymatgen">Discourse page</a>.</p></li>
-<li><p><a class="reference external" href="http://matgenb.materialsvirtuallab.org">matgenb</a> provides some Jupyter notebooks demonstrating functionality.</p></li>
+<li><p><a class="reference external" href="https://github.com/materialsvirtuallab/matgenb#introduction">matgenb</a> provides some Jupyter notebooks demonstrating functionality.</p></li>
 <li><p>Follow us on <a class="reference external" href="http://twitter.com/pymatgen">Twitter</a> to get news and tips.</p>
 <blockquote>
 <div><p><em>The code is mightier than the pen.</em></p>
 </div></blockquote>
 </li>
 </ul>
-<div class="section" id="major-announcement-v2022-0">
-<h2>Major Announcement (v2022.0.*)<a class="headerlink" href="#major-announcement-v2022-0" title="Permalink to this headline">¶</a></h2>
+<section id="major-announcement-v2022-0">
+<h2>Major Announcement (v2022.0.*)<a class="headerlink" href="#major-announcement-v2022-0" title="Permalink to this heading"></a></h2>
 <p>A <strong>backwards incompatible</strong> change has been introduced in v2022.0.*. Pymatgen root-level convenience imports have been
 removed from in preparation for a change to a more modular, extensible namespace package architecture that will allow
 more developers to contribute. If your existing code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make
@@ -241,7 +161,7 @@ modifications. MPRester should now be imported from <cite>pymatgen.ext.matproj</
 <cite>Element</cite>, <cite>Species</cite>, <cite>Lattice</cite>, <cite>Structure</cite>, etc. should be imported from <cite>pymatgen.core</cite>. There are a few simple ways
 you can respond to this change:</p>
 <ul>
-<li><p>To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen&lt;=2022.0.0 since all
+<li><p>To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen&lt;2022.0.0 since all
 the imports were already available in previous versions), you need to replace all instances of
 <cite>from pymatgen import MPRester</cite> with <cite>from pymatgen.ext.matproj import MPRester</cite>, followed by replacing all instances
 of <cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>. These two steps have to be done in that sequence, since
@@ -265,24 +185,26 @@ something like <cite>from pymatgen import Element, MPRester</cite>, which will n
 <p>Last but not least, one option is to pin to pymatgen==2021.*.*, which is the last version to contain the root-level
 convenience imports, if you are not planning to use future new pymatgen functionality. The new breaking change will
 become default from year 2022. Backports to 2021.*.* will still occur for critical bug fixes.</p>
-</div>
-<div class="section" id="matgenie-examples">
-<h2>Matgenie &amp; Examples<a class="headerlink" href="#matgenie-examples" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="matgenie-examples">
+<h2>Matgenie &amp; Examples<a class="headerlink" href="#matgenie-examples" title="Permalink to this heading"></a></h2>
 <p>The <a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a> has developed a <a class="reference external" href="http://matgenie.materialsvirtuallab.org">matgenie web app</a> which
 demonstrates some of the basic functionality of pymatgen, as well as a
 <a class="reference external" href="http://matgenb.materialsvirtuallab.org">matgenb repository</a> of Jupyter notebooks for common and advanced use cases.
 One of the ways you can contribute is to fork the matgenb repo and add your own examples.</p>
 <p>Below are a quick look at some of the graphical output possible.</p>
-<div class="figure align-center" id="id1">
-<a class="reference internal image-reference" href="_images/examples.png"><img alt="Examples" src="_images/examples.png" style="width: 100%;" /></a>
-<p class="caption"><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
+<figure class="align-center" id="id30">
+<a class="reference internal image-reference" href="_images/phase_diagram.png"><img alt="Examples" src="_images/phase_diagram.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
 Bottom left: Calculated bandstructure plot using pymatgen’s parsing and
 plotting utilities. Bottom right: Arrhenius plot using pymatgen’s
-DiffusionAnalyzer.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</div>
-</div>
-<div class="section" id="why-use-pymatgen">
-<h2>Why use pymatgen?<a class="headerlink" href="#why-use-pymatgen" title="Permalink to this headline">¶</a></h2>
+DiffusionAnalyzer.</span><a class="headerlink" href="#id30" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="why-use-pymatgen">
+<h2>Why use pymatgen?<a class="headerlink" href="#why-use-pymatgen" title="Permalink to this heading"></a></h2>
 <p>There are many materials analysis codes out there, both commercial and free.
 So you might ask - why should I use pymatgen over others? Pymatgen offer
 several advantages over other codes out there:</p>
@@ -302,22 +224,54 @@ languages. Pymatgen also comes with a complete system for handling periodic boun
 <li><p><strong>It will be around.</strong> Pymatgen is not a pet research project. It is used in the well-established Materials Project.
 It is also actively being developed and maintained by the <a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a>, the ABINIT group and many
 other research groups.</p></li>
+<li><p><strong>A growing ecosystem of developers and add-ons</strong>. Pymatgen has contributions from materials scientists all over the
+world. We also now have an architecture to support add-ons that expand pymatgen’s functionality even further. Check
+out the <a class="reference external" href="http://pymatgen.org/contributing">contributing page</a> and <a class="reference external" href="http://pymatgen.org/addons">add-ons page</a> for
+details and examples.</p></li>
 </ol>
 <p>Please review the <a class="reference external" href="/contributing">coding guidelines</a>.</p>
-</div>
-<div class="section" id="change-log">
-<h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="v2022-0-14">
-<h3>v2022.0.14<a class="headerlink" href="#v2022-0-14" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="change-log">
+<h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h2>
+<section id="v2023-5-31">
+<h3>v2023.5.31<a class="headerlink" href="#v2023-5-31" title="Permalink to this heading"></a></h3>
 <ul class="simple">
-<li><p>Update OPTIMADE interface to allow querying multiple providers, this changes the
-method signature of OptimadeRester and so is considered a backwards incompatible change (&#64;mkhorton, #2238)</p></li>
+<li><p>Breaking: Default <code class="docutils literal notranslate"><span class="pre">user_potcar_settings</span></code> to <code class="docutils literal notranslate"><span class="pre">{&quot;W&quot;:</span> <span class="pre">&quot;W_sv&quot;}</span></code> in all input sets if <code class="docutils literal notranslate"><span class="pre">user_potcar_functional</span> <span class="pre">==</span> <span class="pre">&quot;PBE_54&quot;</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3022">#3022</a></p></li>
+<li><p>Unignore <code class="docutils literal notranslate"><span class="pre">ruff</span></code> <code class="docutils literal notranslate"><span class="pre">PD011</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3020">#3020</a></p></li>
+<li><p>Tweak variable names <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3019">#3019</a></p></li>
+<li><p>MaterialsProjectCompatibility issue silencable deprecation warning <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3017">#3017</a></p></li>
+<li><p>Optimize cython find_points_in _spheres <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3015">#3015</a></p></li>
+<li><p>Cp2k 2.0 <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2672">#2672</a></p></li>
+<li><p>Added methods to compute and compare DOS fingerprints <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2772">#2772</a></p></li>
+<li><p>Breaking: Overhaul <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">PymatgenTest</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3014">#3014</a></p></li>
+<li><p>Fix <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when <code class="docutils literal notranslate"><span class="pre">structure.selective_dynamics</span></code> has type <code class="docutils literal notranslate"><span class="pre">np.array</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3012">#3012</a></p></li>
+<li><p>Clean up <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3010">#3010</a></p></li>
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">.pytest-split-durations</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3005">#3005</a></p></li>
+<li><p>Lookup <code class="docutils literal notranslate"><span class="pre">MPRester</span></code> API key in settings if <code class="docutils literal notranslate"><span class="pre">None</span></code> provided as arg <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3004">#3004</a></p></li>
+<li><p>Support writing structures to compressed JSON (.json.gz .json.bz2 .json.xz .json.lzma) <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3003">#3003</a></p></li>
+<li><p>Add LightStructureEnvironments.from_structure_environments() fallback value if <code class="docutils literal notranslate"><span class="pre">ce_and_neighbors</span></code> is None <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3002">#3002</a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Species</span></code> parse oxi state from symbol str <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2998">#2998</a></p></li>
+<li><p>Re-export <code class="docutils literal notranslate"><span class="pre">SiteCollection</span></code> + <code class="docutils literal notranslate"><span class="pre">DummySpecies</span></code> from <code class="docutils literal notranslate"><span class="pre">pymatgen.core</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2995">#2995</a></p></li>
+<li><p>Orbital-resolved icohplist <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2993">#2993</a></p></li>
+<li><p>Hide all type-hint-only imports behind <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">TYPE_CHECKING</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2992">#2992</a></p></li>
+<li><p>Add type hints for <code class="docutils literal notranslate"><span class="pre">pymatgen.io.ase</span></code> module <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2991">#2991</a></p></li>
+<li><p>Enable ruff doc rules in CI <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2990">#2990</a></p></li>
+<li><p>Suspected Typo Fix in <code class="docutils literal notranslate"><span class="pre">pymatgen.io.vasp.optics</span></code> <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2989">#2989</a></p></li>
+<li><p>Doc strings <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2987">#2987</a></p></li>
+<li><p>Fix average error <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2986">#2986</a></p></li>
+<li><p>Drop deprecated SubstrateAnalyzer + ZSLGenerator reexports <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2981">#2981</a></p></li>
+<li><p>Breaking: Default <code class="docutils literal notranslate"><span class="pre">user_potcar_settings</span></code> to <code class="docutils literal notranslate"><span class="pre">{&quot;W&quot;:</span> <span class="pre">&quot;W_sv&quot;}</span></code> in all input sets if <code class="docutils literal notranslate"><span class="pre">user_potcar_functional</span> <span class="pre">==</span> <span class="pre">&quot;PBE_54&quot;</span></code> (#3022) <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/3022">#3022</a></p></li>
+<li><p>fix unwanted x margins in get_elt_projected_plots_color (closes #562) <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues/562">#562</a></p></li>
+<li><p>Add LightStructureEnvironments.from_structure_environments() fallback value if <code class="docutils literal notranslate"><span class="pre">ce_and_neighbors</span></code> is None (#3002) <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues/2756">#2756</a></p></li>
+<li><p>add doc str explaining need for class ElementBase (closes #2999) <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues/2999">#2999</a></p></li>
+<li><p>Update docs. <a class="reference external" href="https://github.com/materialsproject/pymatgen/commit/3e3c31c8d342c84f2c6bbb961c321e458b9accb9">3e3c31c</a></p></li>
+<li><p>ruff set isort.split-on-trailing-comma = false <a class="reference external" href="https://github.com/materialsproject/pymatgen/commit/c0ec53452c3dc87c6cca5edc1c6b2b6218f15569">c0ec534</a></p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
-</div>
-</div>
-<div class="section" id="getting-pymatgen">
-<h2>Getting pymatgen<a class="headerlink" href="#getting-pymatgen" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="getting-pymatgen">
+<h2>Getting pymatgen<a class="headerlink" href="#getting-pymatgen" title="Permalink to this heading"></a></h2>
 <p>If you are absolutely new to Python and/or are using Windows, the easiest
 installation process is using <a class="reference external" href="http://conda.pydata.org">conda</a>. If you
 already have conda installed, pymatgen can be installed from the <a class="reference external" href="https://anaconda.org/conda-forge">conda-forge
@@ -384,26 +338,28 @@ conda install --yes numpy scipy pandas
 conda install --yes --channel conda-forge pymatgen
 </pre></div>
 </div>
-</div>
-<div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<div class="figure align-center" id="id2">
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
+<figure class="align-center" id="id31">
 <a class="reference internal image-reference" href="_images/overview.jpg"><img alt="pymatgen overview" src="_images/overview.jpg" style="width: 100%;" /></a>
-<p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id31" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
 <p>The figure above provides an overview of the functionality in pymatgen. A typical workflow would involve a user
 converting data (structure, calculations, etc.) from various sources (first principles calculations, crystal and
 molecule input files, Materials Project, etc.) into Python objects using pymatgen’s io packages, which are then used to
 perform further structure manipulation or analyses.</p>
-<p>Here are some quick examples of the core capabilities and objects:</p>
+<p id="quick-start">Here are some quick examples of the core capabilities and objects:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pymatgen.core</span> <span class="k">as</span> <span class="nn">mg</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span><span class="o">.</span><span class="n">atomic_mass</span>
 <span class="go">28.0855</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">melting_point</span><span class="p">)</span>
 <span class="go">1687.0 K</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">weight</span>
 <span class="go">159.6882</span>
@@ -420,18 +376,18 @@ perform further structure manipulation or analyses.</p>
 <span class="go">74.088000000000008</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># You can create a Structure using spacegroup symmetry as well.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">li2o</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_spacegroup</span><span class="p">(</span><span class="s2">&quot;Fm-3m&quot;</span><span class="p">,</span> <span class="n">mg</span><span class="o">.</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
 <span class="go">                                        [&quot;Li&quot;, &quot;O&quot;],</span>
 <span class="go">                                        [[0.25, 0.25, 0.25], [0, 0, 0]])</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Integrated symmetry analysis tools from spglib.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">finder</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">()</span>
 <span class="go">&#39;Pm-3m&#39;</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Convenient IO to various formats. You can specify various formats.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Without a filename, a string is returned. Otherwise,</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># the output is written to the file. If only the filenmae is provided,</span>
@@ -439,17 +395,17 @@ perform further structure manipulation or analyses.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;poscar&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Reading a structure is similarly easy.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;cif&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Reading and writing a molecule from a file. Supports XYZ and</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Gaussian input and output by default. Support for many other</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># formats via the optional openbabel dependency (if installed).</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">methane</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;methane.xyz&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;methane.gjf&quot;</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Pythonic API for editing Structures and Molecules (v2.9.1 onwards)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Changing the specie of a site.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span>
@@ -461,7 +417,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 Cs     0.000000     0.000000     0.000000</span>
 <span class="go">2 F     0.500000     0.500000     0.500000</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Changes species and coordinates (fractional assumed for structures)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
@@ -472,7 +428,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 Cs     0.000000     0.000000     0.000000</span>
 <span class="go">2 Cl     0.510000     0.510000     0.510000</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Replaces all Cs in the structure with K</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="s2">&quot;Cs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;K&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
@@ -483,7 +439,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 K     0.000000     0.000000     0.000000</span>
 <span class="go">2 Cl     0.510000     0.510000     0.510000</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Replaces all K in the structure with K: 0.5, Na: 0.5, i.e.,</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># a disordered structure is created.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="s2">&quot;K&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;K0.5Na0.5&quot;</span>
@@ -497,7 +453,7 @@ perform further structure manipulation or analyses.</p>
 <span class="go">---  -----------------  ---  ---  ---</span>
 <span class="go">  0  K:0.500, Na:0.500  0    0    0</span>
 <span class="go">  1  Cl                 0.5  0.5  0.5</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Because structure is like a list, it supports most list-like methods</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># such as sort, reverse, etc.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
@@ -509,12 +465,12 @@ perform further structure manipulation or analyses.</p>
 <span class="go">Sites (2)</span>
 <span class="go">1 Cl     0.510000     0.510000     0.510000</span>
 <span class="go">2 Cs     0.000000     0.000000     0.000000</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Molecules function similarly, but with Site and cartesian coords.</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Molecules function similarly, but with Site and Cartesian coords.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># The following changes the C in CH4 to an N and displaces it by 0.01A</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># in the x-direction.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">methane</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 </pre></div>
 </div>
 <p>The above illustrates only the most basic capabilities of pymatgen. Users are
@@ -592,9 +548,9 @@ provides modules for diffusion analysis, including path determination for NEB ca
 trajectories (RDF, van Hove, Arrhenius plots, etc.)</p></li>
 </ol>
 <p>A comprehensive listing is provided at the <a class="reference internal" href="addons.html"><span class="doc">addons page</span></a>.</p>
-</div>
-<div class="section" id="contributing">
-<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading"></a></h2>
 <p>Pymatgen is developed by a team of volunteers. It is started by a team comprising of MIT and Lawrence Berkeley National
 Laboratory staff to be a robust toolkit for materials researchers to perform advanced manipulations of structures and
 analyses.</p>
@@ -603,68 +559,46 @@ and report and fix bugs. We welcome anyone to use our code as-is, but if you cou
 to pymatgen in some small way, it would be greatly appreciated. A benefit of contributing is that your code will now be
 used by other researchers who use pymatgen, and we will include an acknowledgement to you (and any related
 publications) in pymatgen.</p>
-<div class="section" id="reporting-bugs">
-<h3>Reporting bugs<a class="headerlink" href="#reporting-bugs" title="Permalink to this headline">¶</a></h3>
+<section id="reporting-bugs">
+<h3>Reporting bugs<a class="headerlink" href="#reporting-bugs" title="Permalink to this heading"></a></h3>
 <p>A simple way that anyone can contribute is simply to report bugs and issues
 to the developing team. Please report any bugs and issues at pymatgen’s
 <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues">Github Issues page</a>.
 For help with any pymatgen issue, consult <a class="reference external" href="https://stackoverflow.com/questions/tagged/pymatgen">Stack Overflow</a> and if
 you cannot find an answer, please post a question with the tag <cite>pymatgen</cite>.</p>
-</div>
-<div class="section" id="developing-new-functionality">
-<h3>Developing new functionality<a class="headerlink" href="#developing-new-functionality" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="developing-new-functionality">
+<h3>Developing new functionality<a class="headerlink" href="#developing-new-functionality" title="Permalink to this heading"></a></h3>
 <p>Another way to contribute is to submit new code/bugfixes to pymatgen. The
 best way for anyone to develop pymatgen is by adopting the collaborative
 Github workflow (see <a class="reference external" href="/contributing">contributing page</a>).</p>
-</div>
-</div>
-<div class="section" id="how-to-cite-pymatgen">
-<h2>How to cite pymatgen<a class="headerlink" href="#how-to-cite-pymatgen" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="how-to-cite-pymatgen">
+<h2>How to cite pymatgen<a class="headerlink" href="#how-to-cite-pymatgen" title="Permalink to this heading"></a></h2>
 <p>If you use pymatgen in your research, please consider citing the following work:</p>
 <blockquote>
 <div><p>Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier,
 Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
 Persson, Gerbrand Ceder. <em>Python Materials Genomics (pymatgen) : A Robust,
 Open-Source Python Library for Materials Analysis.</em> Computational
-Materials Science, 2013, 68, 314–319. <a class="reference external" href="http://dx.doi.org/10.1016/j.commatsci.2012.10.028">doi:10.1016/j.commatsci.2012.10.028</a></p>
+Materials Science, 2013, 68, 314–319. <a class="reference external" href="https://doi.org/10.1016/j.commatsci.2012.10.028">doi:10.1016/j.commatsci.2012.10.028</a></p>
 </div></blockquote>
 <p>In addition, some of pymatgen’s functionality is based on scientific advances / principles developed by various
 scientists. Please refer to the <a class="reference internal" href="references.html"><span class="doc">references page</span></a> for citation info.</p>
-</div>
-<div class="section" id="license">
-<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this heading"></a></h2>
 <p>Pymatgen is released under the MIT License.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">The</span> <span class="n">MIT</span> <span class="n">License</span> <span class="p">(</span><span class="n">MIT</span><span class="p">)</span>
-<span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2011</span><span class="o">-</span><span class="mi">2012</span> <span class="n">MIT</span> <span class="o">&amp;</span> <span class="n">The</span> <span class="n">Regents</span> <span class="n">of</span> <span class="n">the</span> <span class="n">University</span> <span class="n">of</span> <span class="n">California</span><span class="p">,</span> <span class="n">through</span> <span class="n">Lawrence</span> <span class="n">Berkeley</span> <span class="n">National</span> <span class="n">Laboratory</span>
-
-<span class="n">Permission</span> <span class="ow">is</span> <span class="n">hereby</span> <span class="n">granted</span><span class="p">,</span> <span class="n">free</span> <span class="n">of</span> <span class="n">charge</span><span class="p">,</span> <span class="n">to</span> <span class="nb">any</span> <span class="n">person</span> <span class="n">obtaining</span> <span class="n">a</span> <span class="n">copy</span> <span class="n">of</span>
-<span class="n">this</span> <span class="n">software</span> <span class="ow">and</span> <span class="n">associated</span> <span class="n">documentation</span> <span class="n">files</span> <span class="p">(</span><span class="n">the</span> <span class="s2">&quot;Software&quot;</span><span class="p">),</span> <span class="n">to</span> <span class="n">deal</span> <span class="ow">in</span>
-<span class="n">the</span> <span class="n">Software</span> <span class="n">without</span> <span class="n">restriction</span><span class="p">,</span> <span class="n">including</span> <span class="n">without</span> <span class="n">limitation</span> <span class="n">the</span> <span class="n">rights</span> <span class="n">to</span>
-<span class="n">use</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">modify</span><span class="p">,</span> <span class="n">merge</span><span class="p">,</span> <span class="n">publish</span><span class="p">,</span> <span class="n">distribute</span><span class="p">,</span> <span class="n">sublicense</span><span class="p">,</span> <span class="ow">and</span><span class="o">/</span><span class="ow">or</span> <span class="n">sell</span> <span class="n">copies</span> <span class="n">of</span>
-<span class="n">the</span> <span class="n">Software</span><span class="p">,</span> <span class="ow">and</span> <span class="n">to</span> <span class="n">permit</span> <span class="n">persons</span> <span class="n">to</span> <span class="n">whom</span> <span class="n">the</span> <span class="n">Software</span> <span class="ow">is</span> <span class="n">furnished</span> <span class="n">to</span> <span class="n">do</span> <span class="n">so</span><span class="p">,</span>
-<span class="n">subject</span> <span class="n">to</span> <span class="n">the</span> <span class="n">following</span> <span class="n">conditions</span><span class="p">:</span>
-
-<span class="n">The</span> <span class="n">above</span> <span class="n">copyright</span> <span class="n">notice</span> <span class="ow">and</span> <span class="n">this</span> <span class="n">permission</span> <span class="n">notice</span> <span class="n">shall</span> <span class="n">be</span> <span class="n">included</span> <span class="ow">in</span> <span class="nb">all</span>
-<span class="n">copies</span> <span class="ow">or</span> <span class="n">substantial</span> <span class="n">portions</span> <span class="n">of</span> <span class="n">the</span> <span class="n">Software</span><span class="o">.</span>
-
-<span class="n">THE</span> <span class="n">SOFTWARE</span> <span class="n">IS</span> <span class="n">PROVIDED</span> <span class="s2">&quot;AS IS&quot;</span><span class="p">,</span> <span class="n">WITHOUT</span> <span class="n">WARRANTY</span> <span class="n">OF</span> <span class="n">ANY</span> <span class="n">KIND</span><span class="p">,</span> <span class="n">EXPRESS</span> <span class="n">OR</span>
-<span class="n">IMPLIED</span><span class="p">,</span> <span class="n">INCLUDING</span> <span class="n">BUT</span> <span class="n">NOT</span> <span class="n">LIMITED</span> <span class="n">TO</span> <span class="n">THE</span> <span class="n">WARRANTIES</span> <span class="n">OF</span> <span class="n">MERCHANTABILITY</span><span class="p">,</span> <span class="n">FITNESS</span>
-<span class="n">FOR</span> <span class="n">A</span> <span class="n">PARTICULAR</span> <span class="n">PURPOSE</span> <span class="n">AND</span> <span class="n">NONINFRINGEMENT</span><span class="o">.</span> <span class="n">IN</span> <span class="n">NO</span> <span class="n">EVENT</span> <span class="n">SHALL</span> <span class="n">THE</span> <span class="n">AUTHORS</span> <span class="n">OR</span>
-<span class="n">COPYRIGHT</span> <span class="n">HOLDERS</span> <span class="n">BE</span> <span class="n">LIABLE</span> <span class="n">FOR</span> <span class="n">ANY</span> <span class="n">CLAIM</span><span class="p">,</span> <span class="n">DAMAGES</span> <span class="n">OR</span> <span class="n">OTHER</span> <span class="n">LIABILITY</span><span class="p">,</span> <span class="n">WHETHER</span>
-<span class="n">IN</span> <span class="n">AN</span> <span class="n">ACTION</span> <span class="n">OF</span> <span class="n">CONTRACT</span><span class="p">,</span> <span class="n">TORT</span> <span class="n">OR</span> <span class="n">OTHERWISE</span><span class="p">,</span> <span class="n">ARISING</span> <span class="n">FROM</span><span class="p">,</span> <span class="n">OUT</span> <span class="n">OF</span> <span class="n">OR</span> <span class="n">IN</span>
-<span class="n">CONNECTION</span> <span class="n">WITH</span> <span class="n">THE</span> <span class="n">SOFTWARE</span> <span class="n">OR</span> <span class="n">THE</span> <span class="n">USE</span> <span class="n">OR</span> <span class="n">OTHER</span> <span class="n">DEALINGS</span> <span class="n">IN</span> <span class="n">THE</span> <span class="n">SOFTWARE</span><span class="o">.</span>
-
-</pre></div>
-</div>
-</div>
-<div class="section" id="about-the-team">
-<h2>About the Team<a class="headerlink" href="#about-the-team" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="about-the-team">
+<h2>About the Team<a class="headerlink" href="#about-the-team" title="Permalink to this heading"></a></h2>
 <p>Shyue Ping Ong of the <a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a> started Pymatgen in 2011, and is still the project lead.</p>
 <p>The Pymatgen Development Team is the set of all contributors to the pymatgen project, including all subprojects.</p>
 <p>The full list of contributors are listed in the <a class="reference internal" href="team.html"><span class="doc">team page</span></a>.</p>
-</div>
-<div class="section" id="copyright-policy">
-<h2>Copyright Policy<a class="headerlink" href="#copyright-policy" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="copyright-policy">
+<h2>Copyright Policy<a class="headerlink" href="#copyright-policy" title="Permalink to this heading"></a></h2>
 <p>Pymatgen uses a shared copyright model. Each contributor maintains copyright
 over their contributions to pymatgen. But, it is important to note that these
 contributions are typically only changes to the repositories. Thus, the
@@ -674,61 +608,43 @@ entire pymatgen Development Team. If individual contributors want to maintain a
 record of what changes/contributions they have specific copyright on, they
 should indicate their copyright in the commit message of the change, when
 they commit the change to one of the pymatgen repositories.</p>
-<p>With this in mind, the following banner should be used in any source code file
-to indicate the copyright and license terms:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copyright (c) Pymatgen Development Team.</span>
-<span class="c1"># Distributed under the terms of the MIT License.</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-
-  
-  
-    
-  
  
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

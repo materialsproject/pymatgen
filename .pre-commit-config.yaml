@@ -1,18 +1,47 @@
+exclude: ^(docs|.*test_files|cmd_line|tasks.py)
+
+ci:
+  autoupdate_schedule: monthly
+  skip: [mypy]
+  autofix_commit_msg: pre-commit auto-fixes
+  autoupdate_commit_msg: pre-commit autoupdate
+
 repos:
-  - repo: https://github.com/psf/black
-    rev: 20.8b1 # Replace by any tag/version: https://github.com/psf/black/tags
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.275
     hooks:
-    - id: black
-      language_version: python3 # Should be a command that runs python3.6+
-  - repo: https://github.com/pre-commit/mirrors-pylint
-    rev: '36ae6523465f8ba6936f6b63c3df94ab237eda00'  # Use the sha / tag you want to point at
-    hooks:
-    - id: pylint
+      - id: ruff
+        args: [--fix]
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v4.4.0
     hooks:
       - id: check-yaml
+        exclude: pymatgen/analysis/vesta_cutoffs.yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
-      - id: flake8
-        args: ["--max-line-length=120"]
+
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.3.0
+    hooks:
+      - id: mypy
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
+    hooks:
+      - id: codespell
+        stages: [commit, commit-msg]
+        exclude_types: [html]
+        additional_dependencies: [tomli] # needed to read pyproject.toml below py3.11
+
+  - repo: https://github.com/MarcoGorelli/cython-lint
+    rev: v0.15.0
+    hooks:
+      - id: cython-lint
+        args: [--no-pycodestyle]
+      - id: double-quote-cython-strings

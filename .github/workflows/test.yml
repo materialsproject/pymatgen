@@ -1,102 +1,114 @@
-# This workflow runs only on Ubuntu and aims to be more complete than the Mac and Windows workflows.
-# In particular, Openbabel and many of the external command line dependencies are included for testing.defaults:
-# The ext package is also only tested in this workflow. Coverage is also computed based on this platform.
-name: Testing
+# Runs the complete test suite incl. many external command line dependencies (like Openbabel)
+# as well as the pymatgen.ext package. Coverage is computed based on this workflow.
+name: Tests
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      task:
+        type: choice
+        options: [tests, release]
+        default: tests
+        description: Only run tests or release a new version of pymatgen to PyPI after tests pass.
+
+permissions:
+  contents: read
 
 jobs:
-
-  test:
+  pytest:
+    # prevent this action from running on forks
+    if: github.repository == 'materialsproject/pymatgen'
     strategy:
-      max-parallel: 20
+      fail-fast: false
       matrix:
-        # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
+        # pytest-split automatically distributes work load so parallel jobs finish in similar time
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.8", "3.11"]
+        split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        # include/exclude is meant to maximize CI coverage of different platforms and python
+        # versions while minimizing the total number of jobs. We run all pytest splits with the
+        # oldest supported python version (currently 3.8) on windows (seems most likely to surface
+        # errors) and with newest version (currently 3.11) on ubuntu (to get complete and speedy
+        # coverage on unix). Also sample some splits on macos for all python versions
+        exclude:
+          - os: windows-latest
+            python-version: "3.11"
+          - os: ubuntu-latest
+            python-version: "3.8"
         include:
-          - pkg: pymatgen/analysis/defects pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
-            pkg_id: 1
-          - pkg: pymatgen/analysis --ignore=pymatgen/analysis/defects --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
-            pkg_id: 2
-          - pkg: pymatgen/electronic_structure pymatgen/symmetry pymatgen/ext pymatgen/command_line
-            pkg_id: 3
-          - pkg: pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry --ignore=pymatgen/ext --ignore=pymatgen/command_line
-            pkg_id: 4
+          - os: macos-latest
+            python-version: "3.8"
+            split: 1
+          - os: macos-latest
+            python-version: "3.9"
+            split: 2
+          - os: macos-latest
+            python-version: "3.10"
+            split: 3
+          - os: macos-latest
+            python-version: "3.11"
+            split: 4
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-      MPLBACKEND: "Agg"
+      MPLBACKEND: Agg # https://github.com/orgs/community/discussions/26434
       PMG_TEST_FILES_DIR: ${{ github.workspace }}/test_files
       GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.8
-      - name: Cache pip
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Install OpenBabel and Libs
-        shell: bash -l {0}
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: setup.py
+      - name: Add CLIs to GITHUB_PATH
+        if: runner.os != 'Windows'
+        # This is the way to update env variables in a way that persist for the entire job.
         run: |
-          # Required for gulp.
-          sudo apt-get install csh gfortran
-          conda install -c conda-forge openbabel
+          for pkg in cmd_line/*;
+            do echo "$(pwd)/cmd_line/$pkg/Linux_64bit" >> "$GITHUB_PATH";
+          done
       - name: Install dependencies
-        shell: bash -l {0}
         run: |
-          # Note that this is the way to update env variables in a way that persist for the entire job.
-          for pkg in `ls cmd_line`; do echo "`pwd`/cmd_line/$pkg/Linux_64bit" >> $GITHUB_PATH; done
-          pip install --upgrade pip wheel
-          pip install -r requirements.txt
-          pip install -r requirements-optional.txt -r requirements-dev.txt
-          pip install scikit-image==0.18.1
-          pip install -e .
-      - name: pytest ${{ matrix.pkg }}
-        shell: bash -l {0}
+          python -m pip install --upgrade pip wheel
+          python -m pip install numpy cython packaging
+          python -m pip install -e '.[dev,optional]'
+      - name: pytest split ${{ matrix.split }}
+        # to update the test durations, run
+        # pytest --store-durations --durations-path test_files/.pytest-split-durations
+        # and commit the results (requires pip install pytest-split)
         run: |
-          pytest ${{ matrix.pkg }} --cov=pymatgen
+          pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} --durations-path test_files/.pytest-split-durations
       - name: Upload coverage
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
-          name: coverage-${{ matrix.pkg_id }}
+          name: coverage-${{ matrix.split }}
           path: .coverage
 
   coverage:
-    needs: test
+    needs: pytest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.8
-      - name: Install deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
-      - name: Download coverage-1
-        uses: actions/download-artifact@v1
-        with:
-          name: coverage-1
-      - name: Download coverage-2
-        uses: actions/download-artifact@v1
-        with:
-          name: coverage-2
-      - name: Download coverage-3
-        uses: actions/download-artifact@v1
-        with:
-          name: coverage-3
-      - name: Download coverage-4
-        uses: actions/download-artifact@v1
-        with:
-          name: coverage-4
+          python-version: "3.10"
+      - name: Install Coverage
+        run: python -m pip install coverage
+      - name: Download coverage artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v3
       - name: Run coverage
         continue-on-error: true
         run: |
@@ -106,3 +118,61 @@ jobs:
       - name: Coveralls Python
         continue-on-error: true
         uses: AndreMiras/coveralls-python-action@v20201129
+
+  build_sdist:
+    needs: pytest
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        name: Install Python
+        with:
+          python-version: "3.10"
+      - run: python -m pip install build
+      - name: Build sdist
+        run: python -m build --sdist
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
+
+  build_wheels:
+    needs: pytest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["38", "39", "310", "311"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.12.3
+        env:
+          CIBW_BUILD: cp${{ matrix.python-version }}-*
+      - name: Save artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+  release:
+    needs: [build_wheels, build_sdist]
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
+    runs-on: ubuntu-latest
+    permissions:
+      # For pypi trusted publishing
+      id-token: write
+    steps:
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+      - name: Publish to PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+          verbose: true

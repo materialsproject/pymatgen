@@ -1,19 +1,6 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis."""
 
-
-"""
-This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.
-"""
-
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
+from __future__ import annotations
 
 import logging
 import time
@@ -31,6 +18,14 @@ from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.analysis.chemenv.utils.math_utils import normal_cdf_step
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
 
 
 def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
@@ -50,23 +45,21 @@ def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
         if voro is None or voro == "None":
             continue
         voronoi_list[isite] = []
-        for psd, dd in voro:
-            struct_site = structure[dd["index"]]
+        for psd, dct in voro:
+            struct_site = structure[dct["index"]]
             periodic_site = PeriodicSite(
                 struct_site._species,
                 struct_site.frac_coords + psd[1],
                 struct_site._lattice,
                 properties=struct_site.properties,
             )
-            dd["site"] = periodic_site
-            voronoi_list[isite].append(dd)
+            dct["site"] = periodic_site
+            voronoi_list[isite].append(dct)
     return voronoi_list
 
 
 class DetailedVoronoiContainer(MSONable):
-    """
-    Class used to store the full Voronoi of a given structure.
-    """
+    """Class used to store the full Voronoi of a given structure."""
 
     AC = AdditionalConditions()
     default_voronoi_cutoff = 10.0
@@ -114,10 +107,7 @@ class DetailedVoronoiContainer(MSONable):
         self.valences = valences
         self.maximum_distance_factor = maximum_distance_factor
         self.minimum_angle_factor = minimum_angle_factor
-        if isites is None:
-            indices = list(range(len(structure)))
-        else:
-            indices = isites
+        indices = list(range(len(structure))) if isites is None else isites
         self.structure = structure
         logging.debug("Setting Voronoi list")
         if voronoi_list2 is not None:
@@ -128,15 +118,15 @@ class DetailedVoronoiContainer(MSONable):
         t1 = time.process_time()
         self.setup_neighbors_distances_and_angles(indices=indices)
         t2 = time.process_time()
-        logging.debug("Neighbors distances and angles set up in {:.2f} seconds".format(t2 - t1))
+        logging.debug(f"Neighbors distances and angles set up in {t2 - t1:.2f} seconds")
 
     def setup_voronoi_list(self, indices, voronoi_cutoff):
         """
-        Set up of the voronoi list of neighbours by calling qhull.
+        Set up of the voronoi list of neighbors by calling qhull.
 
         Args:
             indices: indices of the sites for which the Voronoi is needed.
-            voronoi_cutoff: Voronoi cutoff for the search of neighbours.
+            voronoi_cutoff: Voronoi cutoff for the search of neighbors.
 
         Raises:
             RuntimeError: If an infinite vertex is found in the voronoi construction.
@@ -145,11 +135,13 @@ class DetailedVoronoiContainer(MSONable):
         self.voronoi_list_coords = [None] * len(self.structure)
         logging.debug("Getting all neighbors in structure")
         struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
+        size_neighbors = [(not len(neigh) > 3) for neigh in struct_neighbors]
+        if np.any(size_neighbors):
+            logging.debug("Please consider increasing voronoi_distance_cutoff")
         t1 = time.process_time()
         logging.debug("Setting up Voronoi list :")
-
         for jj, isite in enumerate(indices):
-            logging.debug("  - Voronoi analysis for site #{:d} ({:d}/{:d})".format(isite, jj + 1, len(indices)))
+            logging.debug(f"  - Voronoi analysis for site #{isite:d} ({jj + 1:d}/{len(indices):d})")
             site = self.structure[isite]
             neighbors1 = [(site, 0.0, isite)]
             neighbors1.extend(struct_neighbors[isite])
@@ -167,7 +159,7 @@ class DetailedVoronoiContainer(MSONable):
                     ridge_vertices_indices = voro.ridge_vertices[iridge]
                     if -1 in ridge_vertices_indices:
                         raise RuntimeError(
-                            "This structure is pathological," " infinite vertex in the voronoi " "construction"
+                            "This structure is pathological, infinite vertex in the voronoi construction"
                         )
 
                     ridge_point2 = max(ridge_points)
@@ -194,7 +186,7 @@ class DetailedVoronoiContainer(MSONable):
             self.voronoi_list2[isite] = results2
             self.voronoi_list_coords[isite] = np.array([dd["site"].coords for dd in results2])
         t2 = time.process_time()
-        logging.debug("Voronoi list set up in {:.2f} seconds".format(t2 - t1))
+        logging.debug(f"Voronoi list set up in {t2 - t1:.2f} seconds")
 
     def setup_neighbors_distances_and_angles(self, indices):
         """
@@ -233,13 +225,12 @@ class DetailedVoronoiContainer(MSONable):
             dnb_indices = {int(isorted_distances[0])}
             for idist in iter(isorted_distances):
                 wd = normalized_distances[idist]
-                if self.maximum_distance_factor is not None:
-                    if wd > self.maximum_distance_factor:
-                        self.neighbors_normalized_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
-                        self.neighbors_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
-                        self.neighbors_normalized_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
-                        self.neighbors_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
-                        break
+                if self.maximum_distance_factor is not None and wd > self.maximum_distance_factor:
+                    self.neighbors_normalized_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_normalized_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                    self.neighbors_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                    break
                 if np.isclose(
                     wd,
                     self.neighbors_normalized_distances[isite][icurrent]["max"],
@@ -304,13 +295,12 @@ class DetailedVoronoiContainer(MSONable):
             dnb_indices = {int(isorted_angles[0])}
             for iang in iter(isorted_angles):
                 wa = normalized_angles[iang]
-                if self.minimum_angle_factor is not None:
-                    if wa < self.minimum_angle_factor:
-                        self.neighbors_normalized_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
-                        self.neighbors_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
-                        self.neighbors_normalized_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
-                        self.neighbors_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
-                        break
+                if self.minimum_angle_factor is not None and wa < self.minimum_angle_factor:
+                    self.neighbors_normalized_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_normalized_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                    self.neighbors_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                    break
                 if np.isclose(
                     wa,
                     self.neighbors_normalized_angles[isite][icurrent]["min"],
@@ -342,16 +332,13 @@ class DetailedVoronoiContainer(MSONable):
                 nang_dict = self.neighbors_normalized_angles[isite][iang]
                 nang_dict_next = self.neighbors_normalized_angles[isite][iang + 1]
                 nang_dict["next"] = nang_dict_next["max"]
-            if self.minimum_angle_factor is not None:
-                afact = self.minimum_angle_factor
-            else:
-                afact = 0.0
+            afact = self.minimum_angle_factor if self.minimum_angle_factor is not None else 0.0
             self.neighbors_normalized_angles[isite][-1]["next"] = afact
             self.neighbors_angles[isite][-1]["next"] = afact * self.neighbors_angles[isite][0]["max"]
 
     def _precompute_additional_conditions(self, ivoronoi, voronoi, valences):
         additional_conditions = {ac: [] for ac in self.additional_conditions}
-        for ips, (ps, vals) in enumerate(voronoi):
+        for _, vals in voronoi:
             for ac in self.additional_conditions:
                 additional_conditions[ac].append(
                     self.AC.check_condition(
@@ -371,7 +358,7 @@ class DetailedVoronoiContainer(MSONable):
         for idp, dp_dict in enumerate(self.neighbors_normalized_distances[ivoronoi]):
             distance_conditions.append([])
             dp = dp_dict["max"]
-            for ips, (ps, vals) in enumerate(voronoi):
+            for _, vals in voronoi:
                 distance_conditions[idp].append(
                     vals["normalized_distance"] <= dp
                     or np.isclose(
@@ -388,7 +375,7 @@ class DetailedVoronoiContainer(MSONable):
         for iap, ap_dict in enumerate(self.neighbors_normalized_angles[ivoronoi]):
             angle_conditions.append([])
             ap = ap_dict["max"]
-            for ips, (ps, vals) in enumerate(voronoi):
+            for _, vals in voronoi:
                 angle_conditions[iap].append(
                     vals["normalized_angle"] >= ap
                     or np.isclose(
@@ -473,8 +460,8 @@ class DetailedVoronoiContainer(MSONable):
             }
         else:
             raise ValueError(
-                'Type "{}" for the surface calculation in DetailedVoronoiContainer '
-                "is invalid".format(surface_calculation_options["type"])
+                f'Type {surface_calculation_options["type"]!r} for the surface calculation in DetailedVoronoiContainer '
+                "is invalid"
             )
         max_dist = surface_calculation_options["distance_bounds"]["upper"] + 0.1
         bounds_and_limits = self.voronoi_parameters_bounds_and_limits(
@@ -497,14 +484,8 @@ class DetailedVoronoiContainer(MSONable):
             dp2 = distance_bounds[idp + 1]
             if dp2 < mindist or dp1 > maxdist:
                 continue
-            if dp1 < mindist:
-                d1 = mindist
-            else:
-                d1 = dp1
-            if dp2 > maxdist:
-                d2 = maxdist
-            else:
-                d2 = dp2
+            d1 = mindist if dp1 < mindist else dp1
+            d2 = maxdist if dp2 > maxdist else dp2
             for iap in range(len(angle_bounds) - 1):
                 ap1 = angle_bounds[iap]
                 ap2 = angle_bounds[iap + 1]
@@ -581,7 +562,7 @@ class DetailedVoronoiContainer(MSONable):
         for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():  # pylint: disable=E1101
             for imap, list_parameters_indices in enumerate(value):
                 thissurf = 0.0
-                for (idp, iap, iacb) in list_parameters_indices:
+                for idp, iap, iacb in list_parameters_indices:
                     if iacb in additional_conditions:
                         thissurf += surfaces[idp, iap]
                 maps_and_surfaces.append(
@@ -615,7 +596,7 @@ class DetailedVoronoiContainer(MSONable):
         for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():  # pylint: disable=E1101
             for imap, list_parameters_indices in enumerate(value):
                 thissurf = 0.0
-                for (idp, iap, iacb) in list_parameters_indices:
+                for idp, iap, iacb in list_parameters_indices:
                     if iacb in additional_conditions:
                         thissurf += surfaces[idp, iap]
                 maps_and_surfaces.append(
@@ -640,16 +621,14 @@ class DetailedVoronoiContainer(MSONable):
         Returns:
             List of neighbors of the given site for the given distance and angle factors.
         """
-        idist = None
-        dfact = None
+        idist = dfact = None
         for iwd, wd in enumerate(self.neighbors_normalized_distances[isite]):
             if distfactor >= wd["min"]:
                 idist = iwd
                 dfact = wd["max"]
             else:
                 break
-        iang = None
-        afact = None
+        iang = afact = None
         for iwa, wa in enumerate(self.neighbors_normalized_angles[isite]):
             if angfactor <= wa["max"]:
                 iang = iwa
@@ -697,13 +676,13 @@ class DetailedVoronoiContainer(MSONable):
             distance_bounds = np.array([1.0 - invdist for invdist in ddinv])
             dist_limits = [0.0, 1.0]
         elif plot_type["distance_parameter"][0] == "initial_inverse3_opposite":
-            ddinv = [1.0 / dist ** 3.0 for dist in dd]
+            ddinv = [1.0 / dist**3.0 for dist in dd]
             ddinv.append(0.0)
             distance_bounds = np.array([1.0 - invdist for invdist in ddinv])
             dist_limits = [0.0, 1.0]
         else:
             raise NotImplementedError(
-                'Plotting type "{}" ' "for the distance is not implemented".format(plot_type["distance_parameter"])
+                f"Plotting type {plot_type['distance_parameter']!r} for the distance is not implemented"
             )
         if plot_type["angle_parameter"][0] == "initial_normalized":
             aa = [0.0]
@@ -716,7 +695,7 @@ class DetailedVoronoiContainer(MSONable):
             angle_bounds = np.array(aa)
         else:
             raise NotImplementedError(
-                'Plotting type "{}" ' "for the angle is not implemented".format(plot_type["angle_parameter"])
+                f"Plotting type {plot_type['angle_parameter']!r} for the angle is not implemented"
             )
         ang_limits = [0.0, 1.0]
         return {
@@ -726,7 +705,7 @@ class DetailedVoronoiContainer(MSONable):
             "angle_limits": ang_limits,
         }
 
-    def is_close_to(self, other, rtol=0.0, atol=1e-8):
+    def is_close_to(self, other, rtol=0.0, atol=1e-8) -> bool:
         """
         Whether two DetailedVoronoiContainer objects are close to each other.
 
@@ -820,15 +799,9 @@ class DetailedVoronoiContainer(MSONable):
             step_function = {"type": "normal_cdf", "scale": 0.0001}
 
         # Initializes the figure
-        if figsize is None:
-            fig = plt.figure()
-        else:
-            fig = plt.figure(figsize=figsize)
+        fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
         subplot = fig.add_subplot(111)
-        if normalized:
-            dists = self.neighbors_normalized_distances[isite]
-        else:
-            dists = self.neighbors_distances[isite]
+        dists = self.neighbors_normalized_distances[isite] if normalized else self.neighbors_distances[isite]
 
         if step_function["type"] == "step_function":
             isorted = np.argsort([dd["min"] for dd in dists])
@@ -852,7 +825,7 @@ class DetailedVoronoiContainer(MSONable):
             for idist, dist in enumerate(mydists):
                 yy += mydcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
         else:
-            raise ValueError('Step function of type "{}" is not allowed'.format(step_function["type"]))
+            raise ValueError(f"Step function of type {step_function['type']!r} is not allowed")
         subplot.plot(xx, yy)
 
         return fig
@@ -860,6 +833,7 @@ class DetailedVoronoiContainer(MSONable):
     def get_sadf_figure(self, isite, normalized=True, figsize=None, step_function=None):
         """
         Get the Solid Angle Distribution Figure for a given site.
+
         Args:
             isite: Index of the site.
             normalized: Whether to normalize angles.
@@ -879,15 +853,9 @@ class DetailedVoronoiContainer(MSONable):
             step_function = {"type": "step_function", "scale": 0.0001}
 
         # Initializes the figure
-        if figsize is None:
-            fig = plt.figure()
-        else:
-            fig = plt.figure(figsize=figsize)
+        fig = plt.figure() if figsize is None else plt.figure(figsize=figsize)
         subplot = fig.add_subplot(111)
-        if normalized:
-            angs = self.neighbors_normalized_angles[isite]
-        else:
-            angs = self.neighbors_angles[isite]
+        angs = self.neighbors_normalized_angles[isite] if normalized else self.neighbors_angles[isite]
 
         if step_function["type"] == "step_function":
             isorted = np.argsort([ap_func(aa["min"]) for aa in angs])
@@ -911,23 +879,23 @@ class DetailedVoronoiContainer(MSONable):
             for iang, ang in enumerate(myangs):
                 yy += mydcns[iang] * normal_cdf_step(xx, mean=ang, scale=scale)
         else:
-            raise ValueError('Step function of type "{}" is not allowed'.format(step_function["type"]))
+            raise ValueError(f"Step function of type {step_function['type']!r} is not allowed")
         subplot.plot(xx, yy)
 
         return fig
 
-    def __eq__(self, other):
-        return (
-            self.normalized_angle_tolerance == other.normalized_angle_tolerance
-            and self.normalized_distance_tolerance == other.normalized_distance_tolerance
-            and self.additional_conditions == other.additional_conditions
-            and self.valences == other.valences
-            and self.voronoi_list2 == other.voronoi_list2
-            and self.structure == other.structure
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = (
+            "normalized_angle_tolerance",
+            "normalized_distance_tolerance",
+            "additional_conditions",
+            "valences",
+            "voronoi_list2",
+            "structure",
         )
-
-    def __ne__(self, other):
-        return not self == other
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+        return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
     def to_bson_voronoi_list2(self):
         """
@@ -963,8 +931,8 @@ class DetailedVoronoiContainer(MSONable):
         """
         bson_nb_voro_list2 = self.to_bson_voronoi_list2()
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "bson_nb_voro_list2": bson_nb_voro_list2,
             # "neighbors_lists": self.neighbors_lists,
             "structure": self.structure.as_dict(),
@@ -977,29 +945,29 @@ class DetailedVoronoiContainer(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Reconstructs the VoronoiContainer object from a dict representation of the VoronoiContainer created using
         the as_dict method.
 
         Args:
-            d: dict representation of the VoronoiContainer object.
+            dct: dict representation of the VoronoiContainer object.
 
         Returns:
             VoronoiContainer object.
         """
-        structure = Structure.from_dict(d["structure"])
-        voronoi_list2 = from_bson_voronoi_list2(d["bson_nb_voro_list2"], structure)
-        maximum_distance_factor = d["maximum_distance_factor"] if "maximum_distance_factor" in d else None
-        minimum_angle_factor = d["minimum_angle_factor"] if "minimum_angle_factor" in d else None
+        structure = Structure.from_dict(dct["structure"])
+        voronoi_list2 = from_bson_voronoi_list2(dct["bson_nb_voro_list2"], structure)
+        maximum_distance_factor = dct.get("maximum_distance_factor")
+        minimum_angle_factor = dct.get("minimum_angle_factor")
         return cls(
             structure=structure,
             voronoi_list2=voronoi_list2,
             # neighbors_lists=neighbors_lists,
-            normalized_angle_tolerance=d["normalized_angle_tolerance"],
-            normalized_distance_tolerance=d["normalized_distance_tolerance"],
-            additional_conditions=d["additional_conditions"],
-            valences=d["valences"],
+            normalized_angle_tolerance=dct["normalized_angle_tolerance"],
+            normalized_distance_tolerance=dct["normalized_distance_tolerance"],
+            additional_conditions=dct["additional_conditions"],
+            valences=dct["valences"],
             maximum_distance_factor=maximum_distance_factor,
             minimum_angle_factor=minimum_angle_factor,
         )

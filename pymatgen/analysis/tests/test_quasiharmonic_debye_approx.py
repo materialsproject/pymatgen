@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import unittest
 
 import numpy as np
 
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.eos import EOS
 from pymatgen.analysis.quasiharmonic import QuasiharmonicDebyeApprox
+from pymatgen.core.structure import Structure
 
 __author__ = "Kiran Mathew"
 
@@ -21,18 +23,18 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
                     "c": 2.56301993,
                     "gamma": 60.00000504373715,
                     "matrix": [
-                        [2.21964022, 0.0, 1.28151046],
+                        [2.21964022, 0, 1.28151046],
                         [0.73987974, 2.09269747, 1.28151046],
-                        [-0.0, -0.0, 2.56301993],
+                        [-0, -0, 2.56301993],
                     ],
                     "volume": 11.905318492097948,
                 },
                 "sites": [
                     {
-                        "abc": [-0.0, -0.0, -0.0],
+                        "abc": [-0, -0, -0],
                         "label": "B",
                         "species": [{"element": "B", "occu": 1}],
-                        "xyz": [0.0, 0.0, 0.0],
+                        "xyz": [0, 0, 0],
                     },
                     {
                         "abc": [0.25, 0.25, 0.25],
@@ -105,6 +107,7 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
     def test_bulk_modulus(self):
         eos = EOS(self.eos)
         eos_fit = eos.fit(self.volumes, self.energies)
+        print(f"{str(eos_fit.b0_GPa)=}")
         bulk_modulus = float(str(eos_fit.b0_GPa).split()[0])
         bulk_modulus_ans = float(str(self.qhda.bulk_modulus).split()[0])
         np.testing.assert_almost_equal(bulk_modulus, bulk_modulus_ans, 3)
@@ -117,7 +120,7 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
         theta = self.qhda.debye_temperature(self.opt_vol)
         np.testing.assert_almost_equal(theta, 2559.675227, 3)
 
-    def test_gruneisen_paramter(self):
+    def test_gruneisen_parameter(self):
         gamma = self.qhda.gruneisen_parameter(self.T, self.opt_vol)
         np.testing.assert_almost_equal(gamma, 1.670486, 3)
 
@@ -188,7 +191,7 @@ direct
         theta = self.qhda.debye_temperature(self.opt_vol)
         np.testing.assert_approx_equal(theta, 601.239096, 4)
 
-    def test_gruneisen_paramter(self):
+    def test_gruneisen_parameter(self):
         gamma = self.qhda.gruneisen_parameter(0, self.qhda.ev_eos_fit.v0)
         np.testing.assert_almost_equal(gamma, 2.188302, 3)
 

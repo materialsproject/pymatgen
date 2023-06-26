@@ -1,7 +1,3 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module is intended to match crystal structures against known crystallographic "prototype"
 structures.
@@ -12,14 +8,20 @@ If using this particular class, please cite their publication appropriately:
 Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., & Curtarolo, S. (2017).
 The AFLOW library of crystallographic prototypes: part 1.
 Computational Materials Science, 136, S1-S828.
-http://doi.org/10.1016/j.commatsci.2017.01.017
+https://doi.org/10.1016/j.commatsci.2017.01.017
 """
 
+from __future__ import annotations
+
 import os
+from typing import TYPE_CHECKING
 
 from monty.serialization import loadfn
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 AFLOW_PROTOTYPE_LIBRARY = loadfn(os.path.join(os.path.dirname(os.path.abspath(__file__)), "aflow_prototypes.json"))
@@ -38,7 +40,7 @@ class AflowPrototypeMatcher:
     Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., & Curtarolo, S. (2017).
     The AFLOW library of crystallographic prototypes: part 1.
     Computational Materials Science, 136, S1-S828.
-    http://doi.org/10.1016/j.commatsci.2017.01.017
+    https://doi.org/10.1016/j.commatsci.2017.01.017
     """
 
     def __init__(self, initial_ltol=0.2, initial_stol=0.3, initial_angle_tol=5):
@@ -65,7 +67,7 @@ class AflowPrototypeMatcher:
                 tags.append(d)
         return tags
 
-    def _match_single_prototype(self, structure):
+    def _match_single_prototype(self, structure: Structure):
         sm = StructureMatcher(
             ltol=self.initial_ltol,
             stol=self.initial_stol,
@@ -81,7 +83,7 @@ class AflowPrototypeMatcher:
                 break
         return tags
 
-    def get_prototypes(self, structure):
+    def get_prototypes(self, structure: Structure):
         """
         Get prototype(s) structures for a given
         input structure. If you use this method in
@@ -92,7 +94,7 @@ class AflowPrototypeMatcher:
         Hanson, R. M., Hart, G., & Curtarolo, S. (2017).
         The AFLOW library of crystallographic prototypes: part 1.
         Computational Materials Science, 136, S1-S828.
-        http://doi.org/10.1016/j.commatsci.2017.01.017
+        https://doi.org/10.1016/j.commatsci.2017.01.017
 
         Args:
             structure: structure to match
@@ -105,7 +107,6 @@ class AflowPrototypeMatcher:
         but it is possible a material can match
         multiple prototypes.
         """
-
         tags = self._match_single_prototype(structure)
 
         if len(tags) == 0:

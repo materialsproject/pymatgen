@@ -1,15 +1,12 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
+"""This module provides classes used to enumerate surface sites and to find
+adsorption sites on slabs.
 """
-This module provides classes used to enumerate surface sites
-and to find adsorption sites on slabs
-"""
+
+from __future__ import annotations
 
 import itertools
 import os
+from typing import TYPE_CHECKING
 
 import numpy as np
 from matplotlib import patches
@@ -18,13 +15,16 @@ from monty.serialization import loadfn
 from scipy.spatial import Delaunay
 
 from pymatgen import vis
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.structure import Structure
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -37,9 +37,9 @@ __date__ = "December 2, 2015"
 
 
 class AdsorbateSiteFinder:
-    """
-    This class finds adsorbate sites on slabs and generates
-    adsorbate structures according to user-defined criteria.
+    """This class finds adsorbate sites on slabs and generates adsorbate
+    structures according to user-defined criteria.
+
     The algorithm for finding sites is essentially as follows:
         1. Determine "surface sites" by finding those within
             a height threshold along the miller index of the
@@ -53,9 +53,10 @@ class AdsorbateSiteFinder:
             these sites
     """
 
-    def __init__(self, slab, selective_dynamics=False, height=0.9, mi_vec=None):
-        """
-        Create an AdsorbateSiteFinder object.
+    def __init__(
+        self, slab, selective_dynamics: bool = False, height: float = 0.9, mi_vec: ArrayLike | None = None
+    ) -> None:
+        """Create an AdsorbateSiteFinder object.
 
         Args:
             slab (Slab): slab object for which to find adsorbate sites
@@ -66,10 +67,8 @@ class AdsorbateSiteFinder:
                 concurrent with the miller index, this enables use with
                 slabs that have been reoriented, but the miller vector
                 must be supplied manually
-
         """
-        # get surface normal from miller index
-        if mi_vec:
+        if mi_vec:  # get surface normal from miller index
             self.mvec = mi_vec
         else:
             self.mvec = get_mi_vec(slab)
@@ -90,11 +89,10 @@ class AdsorbateSiteFinder:
         selective_dynamics=False,
         undercoord_threshold=0.09,
     ):
-        """
-        This method constructs the adsorbate site finder from a bulk
-        structure and a miller index, which allows the surface sites
-        to be determined from the difference in bulk and slab coordination,
-        as opposed to the height threshold.
+        """This method constructs the adsorbate site finder from a bulk
+        structure and a miller index, which allows the surface sites to be
+        determined from the difference in bulk and slab coordination, as
+        opposed to the height threshold.
 
         Args:
             structure (Structure): structure from which slab
@@ -107,7 +105,7 @@ class AdsorbateSiteFinder:
             selective dynamics (bool): whether to assign surface sites
                 to selective dynamics
             undercoord_threshold (float): threshold of "undercoordation"
-                to use for the assignment of surface sites.  Default is
+                to use for the assignment of surface sites. Default is
                 0.1, for which surface sites will be designated if they
                 are 10% less coordinated than their bulk counterpart
         """
@@ -156,9 +154,9 @@ class AdsorbateSiteFinder:
         return cls(new_slab, selective_dynamics)
 
     def find_surface_sites_by_height(self, slab, height=0.9, xy_tol=0.05):
-        """
-        This method finds surface sites by determining which sites are within
-        a threshold value in height from the topmost site in a list of sites
+        """This method finds surface sites by determining which sites are
+        within a threshold value in height from the topmost site in a list of
+        sites.
 
         Args:
             site_list (list): list of sites from which to select surface sites
@@ -171,7 +169,6 @@ class AdsorbateSiteFinder:
         Returns:
             list of sites selected to be within a threshold of the highest
         """
-
         # Get projection of coordinates along the miller index
         m_projs = np.array([np.dot(site.coords, self.mvec) for site in slab.sites])
 
@@ -194,10 +191,8 @@ class AdsorbateSiteFinder:
         return surf_sites
 
     def assign_site_properties(self, slab, height=0.9):
-        """
-        Assigns site properties.
-        """
-        if "surface_properties" in slab.site_properties.keys():
+        """Assigns site properties."""
+        if "surface_properties" in slab.site_properties:
             return slab
 
         surf_sites = self.find_surface_sites_by_height(slab, height)
@@ -205,9 +200,8 @@ class AdsorbateSiteFinder:
         return slab.copy(site_properties={"surface_properties": surf_props})
 
     def get_extended_surface_mesh(self, repeat=(5, 5, 1)):
-        """
-        Gets an extended surface mesh for to use for adsorption
-        site finding by constructing supercell of surface sites
+        """Gets an extended surface mesh for to use for adsorption site finding
+        by constructing supercell of surface sites.
 
         Args:
             repeat (3-tuple): repeat for getting extended surface mesh
@@ -218,15 +212,11 @@ class AdsorbateSiteFinder:
 
     @property
     def surface_sites(self):
-        """
-        convenience method to return a list of surface sites
-        """
+        """Convenience method to return a list of surface sites."""
         return [site for site in self.slab.sites if site.properties["surface_properties"] == "surface"]
 
     def subsurface_sites(self):
-        """
-        convenience method to return list of subsurface sites
-        """
+        """Convenience method to return list of subsurface sites."""
         return [site for site in self.slab.sites if site.properties["surface_properties"] == "subsurface"]
 
     def find_adsorption_sites(
@@ -235,12 +225,11 @@ class AdsorbateSiteFinder:
         put_inside=True,
         symm_reduce=1e-2,
         near_reduce=1e-2,
-        positions=["ontop", "bridge", "hollow"],
+        positions=("ontop", "bridge", "hollow"),
         no_obtuse_hollow=True,
     ):
-        """
-        Finds surface sites according to the above algorithm.  Returns
-        a list of corresponding cartesian coordinates.
+        """Finds surface sites according to the above algorithm. Returns a list
+        of corresponding Cartesian coordinates.
 
         Args:
             distance (float): distance from the coordinating ensemble
@@ -306,19 +295,18 @@ class AdsorbateSiteFinder:
                 sites = [put_coord_inside(self.slab.lattice, coord) for coord in sites]
             if symm_reduce:
                 sites = self.symm_reduce(sites, threshold=symm_reduce)
-            sites = [site + distance * self.mvec for site in sites]
+            sites = [site + distance * np.asarray(self.mvec) for site in sites]
 
             ads_sites[key] = sites
         ads_sites["all"] = sum(ads_sites.values(), [])
         return ads_sites
 
     def symm_reduce(self, coords_set, threshold=1e-6):
-        """
-        Reduces the set of adsorbate sites by finding removing
-        symmetrically equivalent duplicates
+        """Reduces the set of adsorbate sites by finding removing symmetrically
+        equivalent duplicates.
 
         Args:
-            coords_set: coordinate set in cartesian coordinates
+            coords_set: coordinate set in Cartesian coordinates
             threshold: tolerance for distance equivalence, used
                 as input to in_coord_list_pbc for dupl. checking
         """
@@ -328,20 +316,18 @@ class AdsorbateSiteFinder:
         # Convert to fractional
         coords_set = [self.slab.lattice.get_fractional_coords(coords) for coords in coords_set]
         for coords in coords_set:
-            incoord = False
+            in_coord = False
             for op in symm_ops:
                 if in_coord_list_pbc(unique_coords, op.operate(coords), atol=threshold):
-                    incoord = True
+                    in_coord = True
                     break
-            if not incoord:
+            if not in_coord:
                 unique_coords += [coords]
         # convert back to cartesian
         return [self.slab.lattice.get_cartesian_coords(coords) for coords in unique_coords]
 
     def near_reduce(self, coords_set, threshold=1e-4):
-        """
-        Prunes coordinate set for coordinates that are within
-        threshold
+        """Prunes coordinate set for coordinates that are within threshold.
 
         Args:
             coords_set (Nx3 array-like): list or array of coordinates
@@ -356,29 +342,26 @@ class AdsorbateSiteFinder:
 
     @classmethod
     def ensemble_center(cls, site_list, indices, cartesian=True):
-        """
-        Finds the center of an ensemble of sites selected from
-        a list of sites.  Helper method for the find_adsorption_sites
-        algorithm.
+        """Finds the center of an ensemble of sites selected from a list of
+        sites. Helper method for the find_adsorption_sites algorithm.
 
         Args:
             site_list (list of sites): list of sites
             indices (list of ints): list of ints from which to select
                 sites from site list
             cartesian (bool): whether to get average fractional or
-                cartesian coordinate
+                Cartesian coordinate
         """
         if cartesian:
-            return np.average([site_list[i].coords for i in indices], axis=0)
+            return np.average([site_list[idx].coords for idx in indices], axis=0)
 
-        return np.average([site_list[i].frac_coords for i in indices], axis=0)
+        return np.average([site_list[idx].frac_coords for idx in indices], axis=0)
 
     def add_adsorbate(self, molecule, ads_coord, repeat=None, translate=True, reorient=True):
-        """
-        Adds an adsorbate at a particular coordinate.  Adsorbate
-        represented by a Molecule object and is translated to (0, 0, 0) if
-        translate is True, or positioned relative to the input adsorbate
-        coordinate if translate is False.
+        """Adds an adsorbate at a particular coordinate. Adsorbate represented
+        by a Molecule object and is translated to (0, 0, 0) if translate is
+        True, or positioned relative to the input adsorbate coordinate if
+        translate is False.
 
         Args:
             molecule (Molecule): molecule object representing the adsorbate
@@ -395,9 +378,7 @@ class AdsorbateSiteFinder:
             # Translate the molecule so that the center of mass of the atoms
             # that have the most negative z coordinate is at (0, 0, 0)
             front_atoms = molecule.copy()
-            front_atoms._sites = [
-                s for s in molecule.sites if s.coords[2] == min([s.coords[2] for s in molecule.sites])
-            ]
+            front_atoms._sites = [s for s in molecule.sites if s.coords[2] == min(s.coords[2] for s in molecule.sites)]
             x, y, z = front_atoms.center_of_mass
             molecule.translate_sites(vector=[-x, -y, -z])
         if reorient:
@@ -407,9 +388,9 @@ class AdsorbateSiteFinder:
         struct = self.slab.copy()
         if repeat:
             struct.make_supercell(repeat)
-        if "surface_properties" in struct.site_properties.keys():
+        if "surface_properties" in struct.site_properties:
             molecule.add_site_property("surface_properties", ["adsorbate"] * molecule.num_sites)
-        if "selective_dynamics" in struct.site_properties.keys():
+        if "selective_dynamics" in struct.site_properties:
             molecule.add_site_property("selective_dynamics", [[True, True, True]] * molecule.num_sites)
         for site in molecule:
             struct.append(
@@ -422,9 +403,8 @@ class AdsorbateSiteFinder:
 
     @classmethod
     def assign_selective_dynamics(cls, slab):
-        """
-        Helper function to assign selective dynamics site_properties
-        based on surface, subsurface site properties
+        """Helper function to assign selective dynamics site_properties based
+        on surface, subsurface site properties.
 
         Args:
             slab (Slab): slab for which to assign selective dynamics
@@ -447,10 +427,9 @@ class AdsorbateSiteFinder:
         reorient=True,
         find_args=None,
     ):
-        """
-        Function that generates all adsorption structures for a given
-        molecular adsorbate.  Can take repeat argument or minimum
-        length/width of precursor slab as an input
+        """Function that generates all adsorption structures for a given
+        molecular adsorbate. Can take repeat argument or minimum length/width
+        of precursor slab as an input.
 
         Args:
             molecule (Molecule): molecule corresponding to adsorbate
@@ -492,11 +471,10 @@ class AdsorbateSiteFinder:
         reorient=True,
         find_args=None,
     ):
-        """
-        Function that generates all adsorption structures for a given
-        molecular adsorbate on both surfaces of a slab. This is useful
-        for calculating surface energy where both surfaces need to be
-        equivalent or if we want to calculate nonpolar systems.
+        """Function that generates all adsorption structures for a given
+        molecular adsorbate on both surfaces of a slab. This is useful for
+        calculating surface energy where both surfaces need to be equivalent or
+        if we want to calculate nonpolar systems.
 
         Args:
             molecule (Molecule): molecule corresponding to adsorbate
@@ -508,10 +486,9 @@ class AdsorbateSiteFinder:
             find_args (dict): dictionary of arguments to be passed to the
                 call to self.find_adsorption_sites, e.g. {"distance":2.0}
         """
-
         # Get the adsorbed surfaces first
         find_args = find_args or {}
-        adslabs = self.generate_adsorption_structures(
+        ad_slabs = self.generate_adsorption_structures(
             molecule,
             repeat=repeat,
             min_lw=min_lw,
@@ -520,34 +497,33 @@ class AdsorbateSiteFinder:
             find_args=find_args,
         )
 
-        new_adslabs = []
-        for adslab in adslabs:
-
+        new_ad_slabs = []
+        for ad_slab in ad_slabs:
             # Find the adsorbate sites and indices in each slab
             _, adsorbates, indices = False, [], []
-            for i, site in enumerate(adslab.sites):
+            for idx, site in enumerate(ad_slab.sites):
                 if site.surface_properties == "adsorbate":
                     adsorbates.append(site)
-                    indices.append(i)
+                    indices.append(idx)
 
             # Start with the clean slab
-            adslab.remove_sites(indices)
-            slab = adslab.copy()
+            ad_slab.remove_sites(indices)
+            slab = ad_slab.copy()
 
             # For each site, we add it back to the slab along with a
             # symmetrically equivalent position on the other side of
             # the slab using symmetry operations
             for adsorbate in adsorbates:
-                p2 = adslab.get_symmetric_site(adsorbate.frac_coords)
+                p2 = ad_slab.get_symmetric_site(adsorbate.frac_coords)
                 slab.append(adsorbate.specie, p2, properties={"surface_properties": "adsorbate"})
                 slab.append(
                     adsorbate.specie,
                     adsorbate.frac_coords,
                     properties={"surface_properties": "adsorbate"},
                 )
-            new_adslabs.append(slab)
+            new_ad_slabs.append(slab)
 
-        return new_adslabs
+        return new_ad_slabs
 
     def generate_substitution_structures(
         self,
@@ -557,10 +533,9 @@ class AdsorbateSiteFinder:
         range_tol=1e-2,
         dist_from_surf=0,
     ):
-        """
-        Function that performs substitution-type doping on the surface and
-            returns all possible configurations where one dopant is substituted
-            per surface. Can substitute one surface or both.
+        """Function that performs substitution-type doping on the surface and
+        returns all possible configurations where one dopant is substituted per
+        surface. Can substitute one surface or both.
 
         Args:
             atom (str): atom corresponding to substitutional dopant
@@ -572,10 +547,9 @@ class AdsorbateSiteFinder:
             dist_from_surf (float): Distance from the surface to find viable
                 substitution sites, defaults to 0 to substitute at the surface
         """
-
         target_species = target_species or []
 
-        # Get symmetrized structure in case we want to substitue both sides
+        # Get symmetrized structure in case we want to substitute both sides
         sym_slab = SpacegroupAnalyzer(self.slab).get_symmetrized_structure()
 
         # Define a function for substituting a site
@@ -586,7 +560,7 @@ class AdsorbateSiteFinder:
                 # Find an equivalent site on the other surface
                 eq_indices = [indices for indices in sym_slab.equivalent_indices if i in indices][0]
                 for ii in eq_indices:
-                    if "%.6f" % (sym_slab[ii].frac_coords[2]) != "%.6f" % (site.frac_coords[2]):
+                    if f"{sym_slab[ii].frac_coords[2]:.6f}" != f"{site.frac_coords[2]:.6f}":
                         props["surface_properties"][ii] = "substitute"
                         slab.replace(ii, atom)
                         break
@@ -607,29 +581,25 @@ class AdsorbateSiteFinder:
             d = sorted_sites[-1].frac_coords[2] - dist_from_surf
 
         for i, site in enumerate(sym_slab):
-            if d - range_tol < site.frac_coords[2] < d + range_tol:
-                if target_species and site.species_string in target_species:
-                    substituted_slabs.append(substitute(site, i))
-                elif not target_species:
-                    substituted_slabs.append(substitute(site, i))
+            if d - range_tol < site.frac_coords[2] < d + range_tol and (
+                target_species and site.species_string in target_species or not target_species
+            ):
+                substituted_slabs.append(substitute(site, i))
 
         matcher = StructureMatcher()
         return [s[0] for s in matcher.group_structures(substituted_slabs)]
 
 
 def get_mi_vec(slab):
-    """
-    Convenience function which returns the unit vector aligned
-    with the miller index.
+    """Convenience function which returns the unit vector aligned with the
+    miller index.
     """
     mvec = np.cross(slab.lattice.matrix[0], slab.lattice.matrix[1])
     return mvec / np.linalg.norm(mvec)
 
 
 def get_rot(slab):
-    """
-    Gets the transformation to rotate the z axis into the miller index
-    """
+    """Gets the transformation to rotate the z axis into the miller index."""
     new_z = get_mi_vec(slab)
     a, b, c = slab.lattice.matrix
     new_x = a / np.linalg.norm(a)
@@ -637,22 +607,18 @@ def get_rot(slab):
     x, y, z = np.eye(3)
     rot_matrix = np.array([np.dot(*el) for el in itertools.product([x, y, z], [new_x, new_y, new_z])]).reshape(3, 3)
     rot_matrix = np.transpose(rot_matrix)
-    sop = SymmOp.from_rotation_and_translation(rot_matrix)
-    return sop
+    return SymmOp.from_rotation_and_translation(rot_matrix)
 
 
 def put_coord_inside(lattice, cart_coordinate):
-    """
-    converts a cartesian coordinate such that it is inside the unit cell.
-    """
+    """Converts a Cartesian coordinate such that it is inside the unit cell."""
     fc = lattice.get_fractional_coords(cart_coordinate)
     return lattice.get_cartesian_coords([c - np.floor(c) for c in fc])
 
 
 def reorient_z(structure):
-    """
-    reorients a structure such that the z axis is concurrent with the
-    normal to the A-B plane
+    """Reorients a structure such that the z axis is concurrent with the normal
+    to the A-B plane.
     """
     struct = structure.copy()
     sop = get_rot(struct)
@@ -662,7 +628,7 @@ def reorient_z(structure):
 
 # Get color dictionary
 colors = loadfn(os.path.join(os.path.dirname(vis.__file__), "ElementColorSchemes.yaml"))
-color_dict = {el: [j / 256.001 for j in colors["Jmol"][el]] for el in colors["Jmol"].keys()}
+color_dict = {el: [j / 256.001 for j in colors["Jmol"][el]] for el in colors["Jmol"]}
 
 
 def plot_slab(
@@ -676,9 +642,8 @@ def plot_slab(
     adsorption_sites=True,
     inverse=False,
 ):
-    """
-    Function that helps visualize the slab in a 2-D plot, for
-    convenient viewing of output of AdsorbateSiteFinder.
+    """Function that helps visualize the slab in a 2-D plot, for convenient
+    viewing of output of AdsorbateSiteFinder.
 
     Args:
         slab (slab): Slab object to be visualized
@@ -711,9 +676,9 @@ def plot_slab(
         coords = np.array(reversed(coords))
     # Draw circles at sites and stack them accordingly
     for n, coord in enumerate(coords):
-        r = sites[n].specie.atomic_radius * scale
+        r = sites[n].species.elements[0].atomic_radius * scale
         ax.add_patch(patches.Circle(coord[:2] - lattsum * (repeat // 2), r, color="w", zorder=2 * n))
-        color = color_dict[sites[n].species_string]
+        color = color_dict[sites[n].species.elements[0].symbol]
         ax.add_patch(
             patches.Circle(
                 coord[:2] - lattsum * (repeat // 2),
@@ -740,7 +705,7 @@ def plot_slab(
     if draw_unit_cell:
         verts = np.insert(verts, 1, lattsum, axis=0).tolist()
         verts += [[0.0, 0.0]]
-        verts = [[0.0, 0.0]] + verts
+        verts = [[0.0, 0.0], *verts]
         codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
         verts = [(np.array(vert) + corner).tolist() for vert in verts]
         path = Path(verts, codes)

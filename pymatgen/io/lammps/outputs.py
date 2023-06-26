@@ -1,15 +1,12 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements classes and methods for processing LAMMPS output
 files (log and dump).
 """
 
+from __future__ import annotations
 
-import glob
 import re
+from glob import glob
 from io import StringIO
 
 import numpy as np
@@ -28,20 +25,17 @@ __date__ = "Aug 1, 2018"
 
 
 class LammpsDump(MSONable):
-    """
-    Object for representing dump data for a single snapshot.
-    """
+    """Object for representing dump data for a single snapshot."""
 
     def __init__(self, timestep, natoms, box, data):
         """
         Base constructor.
 
         Args:
-            timestep (int): Current timestep.
+            timestep (int): Current time step.
             natoms (int): Total number of atoms in the box.
             box (LammpsBox): Simulation box.
             data (pd.DataFrame): Dumped atomic data.
-
         """
         self.timestep = timestep
         self.natoms = natoms
@@ -55,11 +49,10 @@ class LammpsDump(MSONable):
 
         Args:
             string (str): Input string.
-
         """
         lines = string.split("\n")
         timestep = int(lines[1])
-        natoms = int(lines[3])
+        n_atoms = int(lines[3])
         box_arr = np.loadtxt(StringIO("\n".join(lines[5:8])))
         bounds = box_arr[:, :2]
         tilt = None
@@ -71,13 +64,13 @@ class LammpsDump(MSONable):
         box = LammpsBox(bounds, tilt)
         data_head = lines[8].replace("ITEM: ATOMS", "").split()
         data = pd.read_csv(StringIO("\n".join(lines[9:])), names=data_head, delim_whitespace=True)
-        return cls(timestep, natoms, box, data)
+        return cls(timestep, n_atoms, box, data)
 
     @classmethod
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             LammpsDump
@@ -88,17 +81,15 @@ class LammpsDump(MSONable):
         return cls(**items)
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["timestep"] = self.timestep
-        d["natoms"] = self.natoms
-        d["box"] = self.box.as_dict()
-        d["data"] = self.data.to_json(orient="split")
-        return d
+        """Returns: MSONable dict."""
+        dct = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["timestep"] = self.timestep
+        dct["natoms"] = self.natoms
+        dct["box"] = self.box.as_dict()
+        dct["data"] = self.data.to_json(orient="split")
+        return dct
 
 
 def parse_lammps_dumps(file_pattern):
@@ -114,10 +105,9 @@ def parse_lammps_dumps(file_pattern):
         LammpsDump for each available snapshot.
 
     """
-    files = glob.glob(file_pattern)
+    files = glob(file_pattern)
     if len(files) > 1:
-        pattern = r"%s" % file_pattern.replace("*", "([0-9]+)")
-        pattern = pattern.replace("\\", "\\\\")
+        pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
         files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))
 
     for fname in files:
@@ -159,17 +149,17 @@ def parse_lammps_log(filename="log.lammps"):
     )
     end_flag = "Loop time of"
     begins, ends = [], []
-    for i, l in enumerate(lines):
-        if l.startswith(begin_flag):
-            begins.append(i)
-        elif l.startswith(end_flag):
-            ends.append(i)
+    for idx, line in enumerate(lines):
+        if line.startswith(begin_flag):
+            begins.append(idx)
+        elif line.startswith(end_flag):
+            ends.append(idx)
 
     def _parse_thermo(lines):
         multi_pattern = r"-+\s+Step\s+([0-9]+)\s+-+"
         # multi line thermo data
         if re.match(multi_pattern, lines[0]):
-            timestep_marks = [i for i, l in enumerate(lines) if re.match(multi_pattern, l)]
+            timestep_marks = [idx for idx, line in enumerate(lines) if re.match(multi_pattern, line)]
             timesteps = np.split(lines, timestep_marks)[1:]
             dicts = []
             kv_pattern = r"([0-9A-Za-z_\[\]]+)\s+=\s+([0-9eE\.+-]+)"

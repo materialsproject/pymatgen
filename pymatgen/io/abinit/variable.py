@@ -1,5 +1,8 @@
 """Support for Abinit input variables."""
+from __future__ import annotations
+
 import collections
+import collections.abc
 import string
 
 import numpy as np
@@ -26,9 +29,7 @@ _UNITS = {
 
 
 class InputVariable:
-    """
-    An Abinit input variable.
-    """
+    """An Abinit input variable."""
 
     def __init__(self, name, value, units="", valperline=3):
         """
@@ -54,7 +55,7 @@ class InputVariable:
     def get_value(self):
         """Return the value."""
         if self.units:
-            return list(self.value) + [self.units]
+            return [*self.value, self.units]
         return self.value
 
     @property
@@ -107,7 +108,6 @@ class InputVariable:
 
         # values in lists
         if isinstance(value, (list, tuple)):
-
             # Reshape a list of lists into a single list
             if all(isinstance(v, (list, tuple)) for v in value):
                 line += self.format_list2d(value, floatdecimal)
@@ -140,7 +140,7 @@ class InputVariable:
         except Exception:
             return sval
 
-        if fval == 0 or (abs(fval) > 1e-3 and abs(fval) < 1e4):
+        if fval == 0 or (1e-3 < abs(fval) < 1e4):
             form = "f"
             addlen = 5
         else:
@@ -150,11 +150,9 @@ class InputVariable:
         ndec = max(len(str(fval - int(fval))) - 2, floatdecimal)
         ndec = min(ndec, 10)
 
-        sval = "{v:>{l}.{p}{f}}".format(v=fval, l=ndec + addlen, p=ndec, f=form)
+        sval = f"{fval:>{ndec + addlen}.{ndec}{form}}"
 
-        sval = sval.replace("e", "d")
-
-        return sval
+        return sval.replace("e", "d")
 
     @staticmethod
     def format_list2d(values, floatdecimal=0):
@@ -175,24 +173,23 @@ class InputVariable:
         # Determine the format
         width = max(len(str(s)) for s in lvals)
         if type_all == int:
-            formatspec = ">{0}d".format(width)
+            fmt_spec = f">{width}d"
         elif type_all == str:
-            formatspec = ">{0}".format(width)
+            fmt_spec = f">{width}"
         else:
-
             # Number of decimal
-            maxdec = max(len(str(f - int(f))) - 2 for f in lvals)
-            ndec = min(max(maxdec, floatdecimal), 10)
+            max_dec = max(len(str(f - int(f))) - 2 for f in lvals)
+            ndec = min(max(max_dec, floatdecimal), 10)
 
             if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in lvals):
-                formatspec = ">{w}.{p}f".format(w=ndec + 5, p=ndec)
+                fmt_spec = f">{ndec + 5}.{ndec}f"
             else:
-                formatspec = ">{w}.{p}e".format(w=ndec + 8, p=ndec)
+                fmt_spec = f">{ndec + 8}.{ndec}e"
 
         line = "\n"
         for L in values:
             for val in L:
-                line += " {v:{f}}".format(v=val, f=formatspec)
+                line += f" {val:{{fmt_spec}}}"
             line += "\n"
 
         return line.rstrip("\n")
@@ -217,7 +214,7 @@ class InputVariable:
         return line.rstrip("\n")
 
 
-def is_iter(obj):
+def is_iter(obj) -> bool:
     """Return True if the argument is list-like."""
     return hasattr(obj, "__iter__")
 
@@ -234,7 +231,7 @@ def flatten(iterable):
                 return tuple(array)
             iterator = stack.pop()
         else:
-            if not isinstance(value, str) and isinstance(value, collections.Iterable):
+            if not isinstance(value, str) and isinstance(value, collections.abc.Iterable):
                 stack.append(iterator)
                 iterator = iter(value)
             else:

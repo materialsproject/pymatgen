@@ -1,7 +1,3 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements a core class LammpsData for generating/parsing
 LAMMPS data file, and other bridging classes to build LammpsData from
@@ -12,29 +8,30 @@ Only point particle styles are supported for now (atom_style in angle,
 atomic, bond, charge, full and molecular only). See the pages below for
 more info.
 
-    http://lammps.sandia.gov/doc/atom_style.html
-    http://lammps.sandia.gov/doc/read_data.html
+    https://docs.lammps.org/atom_style.html
+    https://docs.lammps.org/read_data.html
 
 """
+
+from __future__ import annotations
 
 import itertools
 import re
 import warnings
-from collections import OrderedDict
 from io import StringIO
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from monty.dev import deprecated
+from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
+from ruamel.yaml import YAML
 
-from pymatgen.core import yaml
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.io_utils import clean_lines
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
@@ -109,33 +106,29 @@ ATOMS_HEADERS = {
 
 
 class LammpsBox(MSONable):
-    """
-    Object for representing a simulation box in LAMMPS settings.
-    """
+    """Object for representing a simulation box in LAMMPS settings."""
 
     def __init__(self, bounds, tilt=None):
         """
-
         Args:
             bounds: A (3, 2) array/list of floats setting the
                 boundaries of simulation box.
             tilt: A (3,) array/list of floats setting the tilt of
                 simulation box. Default to None, i.e., use an
                 orthogonal box.
-
         """
         bounds_arr = np.array(bounds)
         assert bounds_arr.shape == (
             3,
             2,
-        ), "Expecting a (3, 2) array for bounds, got {}".format(bounds_arr.shape)
+        ), f"Expecting a (3, 2) array for bounds, got {bounds_arr.shape}"
         self.bounds = bounds_arr.tolist()
         matrix = np.diag(bounds_arr[:, 1] - bounds_arr[:, 0])
 
         self.tilt = None
         if tilt is not None:
             tilt_arr = np.array(tilt)
-            assert tilt_arr.shape == (3,), "Expecting a (3,) array for box_tilt, got {}".format(tilt_arr.shape)
+            assert tilt_arr.shape == (3,), f"Expecting a (3,) array for box_tilt, got {tilt_arr.shape}"
             self.tilt = tilt_arr.tolist()
             matrix[1, 0] = tilt_arr[0]
             matrix[2, 0] = tilt_arr[1]
@@ -150,10 +143,7 @@ class LammpsBox(MSONable):
 
     @property
     def volume(self):
-        """
-        Volume of simulation box.
-
-        """
+        """Volume of simulation box."""
         m = self._matrix
         return np.dot(np.cross(m[0], m[1]), m[2])
 
@@ -168,9 +158,8 @@ class LammpsBox(MSONable):
 
         Returns:
             String representation
-
         """
-        ph = "{:.%df}" % significant_figures
+        ph = f"{{:.{significant_figures}f}}"
         lines = []
         for bound, d in zip(self.bounds, "xyz"):
             fillers = bound + [d] * 2
@@ -191,7 +180,6 @@ class LammpsBox(MSONable):
 
         Returns:
             Coorindate shift array with the same shape of i
-
         """
         return np.inner(i, self._matrix.T)
 
@@ -203,7 +191,6 @@ class LammpsBox(MSONable):
 
         Returns:
             Lattice
-
         """
         return Lattice(self._matrix)
 
@@ -220,29 +207,25 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
 
     Returns:
         LammpsBox, SymmOp
-
     """
     a, b, c = lattice.abc
     xlo, ylo, zlo = origin
     xhi = a + xlo
     m = lattice.matrix
     xy = np.dot(m[1], m[0] / a)
-    yhi = np.sqrt(b ** 2 - xy ** 2) + ylo
+    yhi = np.sqrt(b**2 - xy**2) + ylo
     xz = np.dot(m[2], m[0] / a)
     yz = (np.dot(m[1], m[2]) - xy * xz) / (yhi - ylo)
-    zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2) + zlo
+    zhi = np.sqrt(c**2 - xz**2 - yz**2) + zlo
     tilt = None if lattice.is_orthogonal else [xy, xz, yz]
     rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0], [xy, yhi - ylo, 0], [xz, yz, zhi - zlo]], m)
     bounds = [[xlo, xhi], [ylo, yhi], [zlo, zhi]]
-    symmop = SymmOp.from_rotation_and_translation(rot_matrix, origin)
-    return LammpsBox(bounds, tilt), symmop
+    symm_op = SymmOp.from_rotation_and_translation(rot_matrix, origin)
+    return LammpsBox(bounds, tilt), symm_op
 
 
 class LammpsData(MSONable):
-    """
-    Object for representing the data in a LAMMPS data file.
-
-    """
+    """Object for representing the data in a LAMMPS data file."""
 
     def __init__(
         self,
@@ -277,9 +260,7 @@ class LammpsData(MSONable):
                 default to None. Only keywords in topology are valid
                 keys, and each value is a DataFrame.
             atom_style (str): Output atom_style. Default to "full".
-
         """
-
         if velocities is not None:
             assert len(velocities) == len(atoms), "Inconsistency found between atoms and velocities"
 
@@ -312,12 +293,11 @@ class LammpsData(MSONable):
 
         Return:
             Structure
-
         """
         masses = self.masses
         atoms = self.atoms.copy()
         if "nx" in atoms.columns:
-            atoms.drop(["nx", "ny", "nz"], axis=1, inplace=True)
+            atoms = atoms.drop(["nx", "ny", "nz"], axis=1)
         atoms["molecule-ID"] = 1
         ld_copy = self.__class__(self.box, masses, atoms)
         topologies = ld_copy.disassemble()[-1]
@@ -327,9 +307,9 @@ class LammpsData(MSONable):
         latt = self.box.to_lattice()
         site_properties = {}
         if "q" in atoms:
-            site_properties["charge"] = atoms["q"].values
+            site_properties["charge"] = atoms["q"].to_numpy()
         if self.velocities is not None:
-            site_properties["velocities"] = self.velocities.values
+            site_properties["velocities"] = self.velocities.to_numpy()
         return Structure(
             latt,
             species,
@@ -355,12 +335,11 @@ class LammpsData(MSONable):
             hybrid (bool): Whether to write hybrid coeffs types.
                 Default to True. If the data object has no hybrid
                 coeffs types and has large coeffs section, one may
-                use False to speedup the process. Otherwise the
+                use False to speed up the process. Otherwise, the
                 default is recommended.
 
         Returns:
             String representation
-
         """
         file_template = """Generated by pymatgen.io.lammps.data.LammpsData
 
@@ -372,9 +351,9 @@ class LammpsData(MSONable):
 """
         box = self.box.get_string(distance)
 
-        body_dict = OrderedDict()
+        body_dict = {}
         body_dict["Masses"] = self.masses
-        types = OrderedDict()
+        types = {}
         types["atom"] = len(self.masses)
         if self.force_field:
             all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
@@ -385,7 +364,7 @@ class LammpsData(MSONable):
                     types[kw.lower()[:-7]] = len(self.force_field[kw])
 
         body_dict["Atoms"] = self.atoms
-        counts = OrderedDict()
+        counts = {}
         counts["atoms"] = len(self.atoms)
         if self.velocities is not None:
             body_dict["Velocities"] = self.velocities
@@ -396,19 +375,19 @@ class LammpsData(MSONable):
                     counts[kw.lower()] = len(self.topology[kw])
 
         all_stats = list(counts.values()) + list(types.values())
-        stats_template = "{:>%d}  {}" % len(str(max(all_stats)))
-        count_lines = [stats_template.format(v, k) for k, v in counts.items()]
-        type_lines = [stats_template.format(v, k + " types") for k, v in types.items()]
-        stats = "\n".join(count_lines + [""] + type_lines)
+        right_indent = len(str(max(all_stats)))
+        count_lines = [f"{v:>{right_indent}}  {k}" for k, v in counts.items()]
+        type_lines = [f"{v:>{right_indent}}  {k+ ' types'}" for k, v in types.items()]
+        stats = "\n".join([*count_lines, "", *type_lines])
 
         def map_coords(q):
-            return ("{:.%df}" % distance).format(q)
+            return f"{q:.{distance}f}"
 
         def map_velos(q):
-            return ("{:.%df}" % velocity).format(q)
+            return f"{q:.{velocity}f}"
 
         def map_charges(q):
-            return ("{:.%df}" % charge).format(q)
+            return f"{q:.{charge}f}"
 
         float_format = "{:.9f}".format
         float_format_2 = "{:.1f}".format
@@ -438,26 +417,17 @@ class LammpsData(MSONable):
 
         section_template = "{kw}\n\n{df}\n"
         parts = []
-        for k, v in body_dict.items():
-            index = k != "PairIJ Coeffs"
-            if (
-                k
-                in [
-                    "Bond Coeffs",
-                    "Angle Coeffs",
-                    "Dihedral Coeffs",
-                    "Improper Coeffs",
-                ]
-                and hybrid
-            ):
-                listofdf = np.array_split(v, len(v.index))
+        for key, val in body_dict.items():
+            index = key != "PairIJ Coeffs"
+            if hybrid and key in ["Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs", "Improper Coeffs"]:
+                dfs = np.array_split(val, len(val.index))
                 df_string = ""
-                for i, df in enumerate(listofdf):
+                for idx, df in enumerate(dfs):
                     if isinstance(df.iloc[0]["coeff1"], str):
                         try:
                             formatters = {
                                 **default_formatters,
-                                **coeffs[k][df.iloc[0]["coeff1"]],
+                                **coeffs[key][df.iloc[0]["coeff1"]],
                             }
                         except KeyError:
                             formatters = default_formatters
@@ -469,23 +439,19 @@ class LammpsData(MSONable):
                             na_rep="",
                         )
                     else:
-                        line_string = v.to_string(
+                        line_string = val.to_string(
                             header=False,
                             formatters=default_formatters,
                             index_names=False,
                             index=index,
                             na_rep="",
-                        ).splitlines()[i]
+                        ).splitlines()[idx]
                     df_string += line_string.replace("nan", "").rstrip() + "\n"
             else:
-                df_string = v.to_string(
-                    header=False,
-                    formatters=default_formatters,
-                    index_names=False,
-                    index=index,
-                    na_rep="",
+                df_string = val.to_string(
+                    header=False, formatters=default_formatters, index_names=False, index=index, na_rep=""
                 )
-            parts.append(section_template.format(kw=k, df=df_string))
+            parts.append(section_template.format(kw=key, df=df_string))
         body = "\n".join(parts)
 
         return file_template.format(stats=stats, box=box, body=body)
@@ -503,7 +469,6 @@ class LammpsData(MSONable):
                 velocities. Default to 8.
             charge (int): No. of significant figures to output for
                 charges. Default to 4.
-
         """
         with open(filename, "w") as f:
             f.write(self.get_string(distance=distance, velocity=velocity, charge=charge))
@@ -525,7 +490,7 @@ class LammpsData(MSONable):
             atom_labels ([str]): List of strings (must be different
                 from one another) for labelling each atom type found in
                 Masses section. Default to None, where the labels are
-                automaticaly added based on either element guess or
+                automatically added based on either element guess or
                 dummy specie assignment.
             guess_element (bool): Whether to guess the element based on
                 its atomic mass. Default to True, otherwise dummy
@@ -538,7 +503,6 @@ class LammpsData(MSONable):
 
         Returns:
             LammpsBox, ForceField, [Topology]
-
         """
         atoms_df = self.atoms.copy()
         if "nx" in atoms_df.columns:
@@ -565,14 +529,14 @@ class LammpsData(MSONable):
             atomic_numbers = np.argmin(diff, axis=1) + 1
             symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
         else:
-            symbols = ["Q%s" % a for a in map(chr, range(97, 97 + len(unique_masses)))]
+            symbols = [f"Q{a}" for a in map(chr, range(97, 97 + len(unique_masses)))]
         for um, s in zip(unique_masses, symbols):
             masses.loc[masses["mass"] == um, "element"] = s
         if atom_labels is None:  # add unique labels based on elements
-            for el, vc in masses["element"].value_counts().iteritems():
-                masses.loc[masses["element"] == el, "label"] = ["%s%d" % (el, c) for c in range(1, vc + 1)]
+            for el, vc in masses["element"].value_counts().items():
+                masses.loc[masses["element"] == el, "label"] = [f"{el}{c}" for c in range(1, vc + 1)]
         assert masses["label"].nunique(dropna=False) == len(masses), "Expecting unique atom label for each type"
-        mass_info = [tuple([r["label"], r["mass"]]) for _, r in masses.iterrows()]
+        mass_info = [(row.label, row.mass) for row in masses.itertuples()]
 
         nonbond_coeffs, topo_coeffs = None, None
         if self.force_field:
@@ -585,7 +549,7 @@ class LammpsData(MSONable):
                 nonbond_coeffs = [list(t) for t in nbc.itertuples(False, None)]
 
             topo_coeffs = {k: [] for k in SECTION_KEYWORDS["ff"][2:] if k in self.force_field}
-            for kw in topo_coeffs.keys():
+            for kw in topo_coeffs:
                 class2_coeffs = {
                     k: list(v.itertuples(False, None))
                     for k, v in self.force_field.items()
@@ -635,14 +599,14 @@ class LammpsData(MSONable):
             species = masses.loc[type_ids, "element"]
             labels = masses.loc[type_ids, "label"]
             coords = atoms[["x", "y", "z"]]
-            m = Molecule(species.values, coords.values, site_properties={ff_label: labels.values})
+            m = Molecule(species.values, coords.values, site_properties={ff_label: labels.to_numpy()})
             charges = atoms.get("q")
             velocities = atoms[["vx", "vy", "vz"]] if "vx" in atoms.columns else None
             topologies = {}
             for kw in SECTION_KEYWORDS["topology"]:
                 if data.get(kw):
                     topologies[kw] = (np.array(data[kw]) - shift).tolist()
-            topologies = None if not topologies else topologies
+            topologies = topologies if topologies else None
             topo_list.append(
                 Topology(
                     sites=m,
@@ -665,12 +629,11 @@ class LammpsData(MSONable):
             atom_style (str): Associated atom_style. Default to "full".
             sort_id (bool): Whether sort each section by id. Default to
                 True.
-
         """
-        with open(filename) as f:
+        with zopen(filename, "rt") as f:
             lines = f.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
-        section_marks = [i for i, l in enumerate(lines) if re.search(kw_pattern, l)]
+        section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
         parts = np.split(lines, section_marks)
 
         float_group = r"([0-9eE.+-]+)"
@@ -682,10 +645,10 @@ class LammpsData(MSONable):
 
         header = {"counts": {}, "types": {}}
         bounds = {}
-        for l in clean_lines(parts[0][1:]):  # skip the 1st line
+        for line in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
-            for k, v in header_pattern.items():
-                match = re.match(v, l)
+            for k, v in header_pattern.items():  # noqa: B007
+                match = re.match(v, line)
                 if match:
                     break
             if match and k in ["counts", "types"]:
@@ -709,11 +672,11 @@ class LammpsData(MSONable):
                     if line.strip()
                 ]
                 df = pd.concat(df_list, ignore_index=True)
-                names = ["id"] + ["coeff%d" % i for i in range(1, df.shape[1])]
+                names = ["id"] + [f"coeff{i}" for i in range(1, df.shape[1])]
             else:
                 df = pd.read_csv(sio, header=None, comment="#", delim_whitespace=True)
                 if kw == "PairIJ Coeffs":
-                    names = ["id1", "id2"] + ["coeff%d" % i for i in range(1, df.shape[1] - 1)]
+                    names = ["id1", "id2"] + [f"coeff{i}" for i in range(1, df.shape[1] - 1)]
                     df.index.name = None  # pylint: disable=E1101
                 elif kw in SECTION_HEADERS:
                     names = ["id"] + SECTION_HEADERS[kw]
@@ -724,15 +687,15 @@ class LammpsData(MSONable):
                     elif df.shape[1] == len(names) + 3:  # pylint: disable=E1101
                         names += ["nx", "ny", "nz"]
                     else:
-                        raise ValueError("Format in Atoms section inconsistent with atom_style %s" % atom_style)
+                        raise ValueError(f"Format in Atoms section inconsistent with {atom_style=}")
                 else:
-                    raise NotImplementedError("Parser for %s section not implemented" % kw)
+                    raise NotImplementedError(f"Parser for {kw} section not implemented")
             df.columns = names
             if sort_id:
                 sort_by = "id" if kw != "PairIJ Coeffs" else ["id1", "id2"]
-                df.sort_values(sort_by, inplace=True)
+                df = df.sort_values(sort_by)
             if "id" in df.columns:
-                df.set_index("id", drop=True, inplace=True)
+                df = df.set_index("id", drop=True)
                 df.index.name = None
             return kw, df
 
@@ -746,7 +709,7 @@ class LammpsData(MSONable):
             if (
                 name in ["Velocities"] + SECTION_KEYWORDS["topology"] and not seen_atoms
             ):  # Atoms must appear earlier than these
-                raise RuntimeError(err_msg + "%s section appears before Atoms section" % name)
+                raise RuntimeError(f"{err_msg}{name} section appears before Atoms section")
             body.update({name: section})
 
         err_msg += "Nos. of {} do not match between header and {} section"
@@ -783,12 +746,11 @@ class LammpsData(MSONable):
             topologies ([Topology]): List of Topology objects with data
                 for Atoms, Velocities and topology sections.
             atom_style (str): Output atom_style. Default to "full".
-
         """
-        atom_types = set.union(*[t.species for t in topologies])
-        assert atom_types.issubset(ff.maps["Atoms"].keys()), "Unknown atom type found in topologies"
+        atom_types = set.union(*(t.species for t in topologies))
+        assert atom_types.issubset(ff.maps["Atoms"]), "Unknown atom type found in topologies"
 
-        items = dict(box=box, atom_style=atom_style, masses=ff.masses, force_field=ff.force_field)
+        items = {"box": box, "atom_style": atom_style, "masses": ff.masses, "force_field": ff.force_field}
 
         mol_ids, charges, coords, labels = [], [], [], []
         v_collector = [] if topologies[0].velocities else None
@@ -824,10 +786,10 @@ class LammpsData(MSONable):
         for k in topology:
             df = pd.DataFrame(np.concatenate(topo_collector[k]), columns=SECTION_HEADERS[k][1:])
             df["type"] = list(map(ff.maps[k].get, topo_labels[k]))
-            if any(pd.isnull(df["type"])):  # Throw away undefined topologies
-                warnings.warn("Undefined %s detected and removed" % k.lower())
-                df.dropna(subset=["type"], inplace=True)
-                df.reset_index(drop=True, inplace=True)
+            if any(pd.isna(df["type"])):  # Throw away undefined topologies
+                warnings.warn(f"Undefined {k.lower()} detected and removed")
+                df = df.dropna(subset=["type"])
+                df = df.reset_index(drop=True)
             df.index += 1
             topology[k] = df[SECTION_HEADERS[k]]
         topology = {k: v for k, v in topology.items() if not v.empty}
@@ -836,7 +798,7 @@ class LammpsData(MSONable):
         return cls(**items)
 
     @classmethod
-    def from_structure(cls, structure, ff_elements=None, atom_style="charge", is_sort=False):
+    def from_structure(cls, structure: Structure, ff_elements=None, atom_style="charge", is_sort=False):
         """
         Simple constructor building LammpsData from a structure without
         force field parameters and topologies.
@@ -849,29 +811,25 @@ class LammpsData(MSONable):
             atom_style (str): Choose between "atomic" (neutral) and
                 "charge" (charged). Default to "charge".
             is_sort (bool): whether to sort sites
-
         """
-        if is_sort:
-            s = structure.get_sorted_structure()
-        else:
-            s = structure.copy()
-        box, symmop = lattice_2_lmpbox(s.lattice)
-        coords = symmop.operate_multi(s.cart_coords)
-        site_properties = s.site_properties
+        struct = structure.get_sorted_structure() if is_sort else structure.copy()
+        box, symm_op = lattice_2_lmpbox(struct.lattice)
+        coords = symm_op.operate_multi(struct.cart_coords)
+        site_properties = struct.site_properties
         if "velocities" in site_properties:
-            velos = np.array(s.site_properties["velocities"])
-            rot = SymmOp.from_rotation_and_translation(symmop.rotation_matrix)
+            velos = np.array(struct.site_properties["velocities"])
+            rot = SymmOp.from_rotation_and_translation(symm_op.rotation_matrix)
             rot_velos = rot.operate_multi(velos)
-            site_properties.update({"velocities": rot_velos})
+            site_properties.update({"velocities": rot_velos})  # type: ignore
         boxed_s = Structure(
             box.to_lattice(),
-            s.species,
+            struct.species,
             coords,
             site_properties=site_properties,
             coords_are_cartesian=True,
         )
 
-        symbols = list(s.symbol_set)
+        symbols = list(struct.symbol_set)
         if ff_elements:
             symbols.extend(ff_elements)
         elements = sorted(Element(el) for el in set(symbols))
@@ -879,6 +837,35 @@ class LammpsData(MSONable):
         ff = ForceField(mass_info)
         topo = Topology(boxed_s)
         return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)
+
+    def set_charge_atom(self, charges: dict[int, float]):
+        """
+        Set the charges of specific atoms of the data.
+
+        Args:
+            charges: A dictionary with atom indexes as keys and
+                     charges as values, e.g., to set the charge
+                     of the atom with index 3 to -2, use `{3: -2}`.
+        """
+        for iat, q in charges.items():
+            self.atoms.loc[iat, "q"] = q
+
+    def set_charge_atom_type(self, charges: dict[str | int, float]):
+        """
+        Add or modify charges of all atoms of a given type in the data.
+
+        Args:
+            charges: Dict containing the charges for the atom types to set.
+                     The dict should contain atom types as integers or labels and charges.
+                     Example: change the charge of Li atoms to +3:
+                         charges={"Li": 3}
+                         charges={1: 3} if Li atoms are of type 1
+        """
+        for iat, q in charges.items():
+            if isinstance(iat, str):
+                mass_iat = Element(iat).atomic_mass
+                iat = self.masses.loc[self.masses["mass"] == mass_iat].index[0]
+            self.atoms.loc[self.atoms["type"] == iat, "q"] = q
 
 
 class Topology(MSONable):
@@ -891,7 +878,6 @@ class Topology(MSONable):
 
     def __init__(self, sites, ff_label=None, charges=None, velocities=None, topologies=None):
         """
-
         Args:
             sites ([Site] or SiteCollection): A group of sites in a
                 list or as a Molecule/Structure.
@@ -914,16 +900,12 @@ class Topology(MSONable):
                     "Angles": [[i, j, k], ...],
                     "Dihedrals": [[i, j, k, l], ...],
                     "Impropers": [[i, j, k, l], ...]
-                }
-
+                }.
         """
         if not isinstance(sites, (Molecule, Structure)):
             sites = Molecule.from_sites(sites)
 
-        if ff_label:
-            type_by_sites = sites.site_properties.get(ff_label)
-        else:
-            type_by_sites = [site.specie.symbol for site in sites]
+        type_by_sites = sites.site_properties.get(ff_label) if ff_label else [site.specie.symbol for site in sites]
         # search for site property if not override
         if charges is None:
             charges = sites.site_properties.get("charge")
@@ -954,7 +936,7 @@ class Topology(MSONable):
         self.species = set(type_by_sites)
 
     @classmethod
-    def from_bonding(cls, molecule, bond=True, angle=True, dihedral=True, tol=0.1, **kwargs):
+    def from_bonding(cls, molecule, bond=True, angle=True, dihedral=True, tol: float = 0.1, **kwargs):
         """
         Another constructor that creates an instance from a molecule.
         Covalent bonds and other bond-based topologies (angles and
@@ -970,7 +952,6 @@ class Topology(MSONable):
             tol (float): Bond distance tolerance. Default to 0.1.
                 Not recommended to alter.
             **kwargs: Other kwargs supported by Topology.
-
         """
         real_bonds = molecule.get_covalent_bonds(tol=tol)
         bond_list = [list(map(molecule.index, [b.site1, b.site2])) for b in real_bonds]
@@ -998,15 +979,14 @@ class Topology(MSONable):
                 angle_list.extend([[i, k, j] for i, j in itertools.combinations(v, 2)])
         if dihedral:
             hub_cons = bond_arr[np.all(np.isin(bond_arr, hubs), axis=1)]
-            for i, j in hub_cons.tolist():
-                ks = [k for k in hub_spokes[i] if k != j]
-                ls = [l for l in hub_spokes[j] if l != i]
-                dihedral_list.extend([[k, i, j, l] for k, l in itertools.product(ks, ls) if k != l])
+            for ii, jj in hub_cons.tolist():
+                ks = [ki for ki in hub_spokes[ii] if ki != jj]
+                ls = [li for li in hub_spokes[jj] if li != ii]
+                dihedral_list.extend([[ki, ii, jj, li] for ki, li in itertools.product(ks, ls) if ki != li])
 
         topologies = {
             k: v for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list]) if len(v) > 0
-        }
-        topologies = None if len(topologies) == 0 else topologies
+        } or None
         return cls(sites=molecule, topologies=topologies, **kwargs)
 
 
@@ -1019,24 +999,22 @@ class ForceField(MSONable):
         force_field (dict): Force field section keywords (keys) and
             data (values) as DataFrames.
         maps (dict): Dict for labeling atoms and topologies.
-
     """
 
     @staticmethod
     def _is_valid(df):
-        return not pd.isnull(df).values.any()
+        return not pd.isna(df).to_numpy().any()
 
     def __init__(self, mass_info, nonbond_coeffs=None, topo_coeffs=None):
         """
-
         Args:
             mass_info (list): List of atomic mass info. Elements,
                 strings (symbols) and floats are all acceptable for the
                 values, with the first two converted to the atomic mass
                 of an element. It is recommended to use
-                OrderedDict.items() to prevent key duplications.
+                dict.items() to prevent key duplications.
                 [("C", 12.01), ("H", Element("H")), ("O", "O"), ...]
-            nonbond_coeffs [coeffs]: List of pair or pairij
+            nonbond_coeffs (list): List of Pair or PairIJ
                 coefficients, of which the sequence must be sorted
                 according to the species in mass_dict. Pair or PairIJ
                 determined by the length of list. Optional with default
@@ -1044,7 +1022,7 @@ class ForceField(MSONable):
             topo_coeffs (dict): Dict with force field coefficients for
                 molecular topologies. Optional with default
                 to None. All four valid keys listed below are optional.
-                Each value is a list of dicts with non optional keys
+                Each value is a list of dicts with non-optional keys
                 "coeffs" and "types", and related class2 force field
                 keywords as optional keys.
                 {
@@ -1067,7 +1045,6 @@ class ForceField(MSONable):
                 Topology of same type or equivalent types (e.g.,
                 ("C", "H") and ("H", "C") bonds) are NOT ALLOWED to
                 be defined MORE THAN ONCE with DIFFERENT coefficients.
-
         """
 
         def map_mass(v):
@@ -1097,8 +1074,8 @@ class ForceField(MSONable):
 
         self.topo_coeffs = topo_coeffs
         if self.topo_coeffs:
-            self.topo_coeffs = {k: v for k, v in self.topo_coeffs.items() if k in SECTION_KEYWORDS["ff"][2:]}
-            for k in self.topo_coeffs.keys():
+            self.topo_coeffs = {key: v for key, v in self.topo_coeffs.items() if key in SECTION_KEYWORDS["ff"][2:]}
+            for k in self.topo_coeffs:
                 coeffs, mapper = self._process_topo(k)
                 ff_dfs.update(coeffs)
                 self.maps.update(mapper)
@@ -1108,24 +1085,20 @@ class ForceField(MSONable):
     def _process_nonbond(self):
         pair_df = pd.DataFrame(self.nonbond_coeffs)
         assert self._is_valid(pair_df), "Invalid nonbond coefficients with rows varying in length"
-        npair, ncoeff = pair_df.shape
-        pair_df.columns = ["coeff%d" % i for i in range(1, ncoeff + 1)]
+        n_pair, n_coeff = pair_df.shape
+        pair_df.columns = [f"coeff{i}" for i in range(1, n_coeff + 1)]
         nm = len(self.mass_info)
-        ncomb = int(nm * (nm + 1) / 2)
-        if npair == nm:
+        n_comb = int(nm * (nm + 1) / 2)
+        if n_pair == nm:
             kw = "Pair Coeffs"
             pair_df.index = range(1, nm + 1)
-        elif npair == ncomb:
+        elif n_pair == n_comb:
             kw = "PairIJ Coeffs"
             ids = list(itertools.combinations_with_replacement(range(1, nm + 1), 2))
             id_df = pd.DataFrame(ids, columns=["id1", "id2"])
             pair_df = pd.concat([id_df, pair_df], axis=1)
         else:
-            raise ValueError(
-                "Expecting {} Pair Coeffs or "
-                "{} PairIJ Coeffs for {} atom types,"
-                " got {}".format(nm, ncomb, nm, npair)
-            )
+            raise ValueError(f"Expecting {nm} Pair Coeffs or {n_comb} PairIJ Coeffs for {nm} atom types, got {n_pair}")
         return {kw: pair_df}
 
     def _process_topo(self, kw):
@@ -1134,21 +1107,21 @@ class ForceField(MSONable):
                 label_arr = np.array(label)
                 seqs = [[0, 1, 2, 3], [0, 2, 1, 3], [3, 1, 2, 0], [3, 2, 1, 0]]
                 return [tuple(label_arr[s]) for s in seqs]
-            return [label] + [label[::-1]]
+            return [label, label[::-1]]
 
         main_data, distinct_types = [], []
-        class2_data = {k: [] for k in self.topo_coeffs[kw][0].keys() if k in CLASS2_KEYWORDS.get(kw, [])}
-        for i, d in enumerate(self.topo_coeffs[kw]):
+        class2_data = {k: [] for k in self.topo_coeffs[kw][0] if k in CLASS2_KEYWORDS.get(kw, [])}
+        for d in self.topo_coeffs[kw]:
             main_data.append(d["coeffs"])
             distinct_types.append(d["types"])
-            for k in class2_data.keys():
+            for k in class2_data:
                 class2_data[k].append(d[k])
-        distinct_types = [set(itertools.chain(*[find_eq_types(t, kw) for t in dt])) for dt in distinct_types]
-        type_counts = sum([len(dt) for dt in distinct_types])
+        distinct_types = [set(itertools.chain(*(find_eq_types(t, kw) for t in dt))) for dt in distinct_types]
+        type_counts = sum(len(dt) for dt in distinct_types)
         type_union = set.union(*distinct_types)
-        assert len(type_union) == type_counts, "Duplicated items found under different coefficients in %s" % kw
+        assert len(type_union) == type_counts, f"Duplicated items found under different coefficients in {kw}"
         atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
-        assert atoms.issubset(self.maps["Atoms"].keys()), "Undefined atom type found in %s" % kw
+        assert atoms.issubset(self.maps["Atoms"]), f"Undefined atom type found in {kw}"
         mapper = {}
         for i, dt in enumerate(distinct_types):
             for t in dt:
@@ -1158,7 +1131,7 @@ class ForceField(MSONable):
             df = pd.DataFrame(data)
             assert self._is_valid(df), "Invalid coefficients with rows varying in length"
             n, c = df.shape
-            df.columns = ["coeff%d" % i for i in range(1, c + 1)]
+            df.columns = [f"coeff{i}" for i in range(1, c + 1)]
             df.index = range(1, n + 1)
             return df
 
@@ -1173,7 +1146,6 @@ class ForceField(MSONable):
 
         Args:
             filename (str): Filename.
-
         """
         d = {
             "mass_info": self.mass_info,
@@ -1181,6 +1153,7 @@ class ForceField(MSONable):
             "topo_coeffs": self.topo_coeffs,
         }
         with open(filename, "w") as f:
+            yaml = YAML()
             yaml.dump(d, f)
 
     @classmethod
@@ -1190,9 +1163,9 @@ class ForceField(MSONable):
 
         Args:
             filename (str): Filename.
-
         """
-        with open(filename, "r") as f:
+        with open(filename) as f:
+            yaml = YAML()
             d = yaml.load(f)
         return cls.from_dict(d)
 
@@ -1215,7 +1188,7 @@ class ForceField(MSONable):
 class CombinedData(LammpsData):
     """
     Object for a collective set of data for a series of LAMMPS data file.
-    velocities not yet implementd.
+    velocities not yet implemented.
     """
 
     def __init__(
@@ -1237,9 +1210,7 @@ class CombinedData(LammpsData):
             coordinates (pandas.DataFrame): DataFrame at least containing
                 columns of ["x", "y", "z"] for coordinates of atoms.
             atom_style (str): Output atom_style. Default to "full".
-
         """
-
         self._list_of_molecules = list_of_molecules
         self._list_of_names = list_of_names
         self._list_of_numbers = list_of_numbers
@@ -1280,8 +1251,8 @@ class CombinedData(LammpsData):
             atoms_df["type"] += type_count
             mols_in_data = len(atoms_df["molecule-ID"].unique())
             self.mols_per_data.append(mols_in_data)
-            for j in range(self.nums[i]):
-                self.atoms = self.atoms.append(atoms_df, ignore_index=True)
+            for _ in range(self.nums[i]):
+                self.atoms = pd.concat([self.atoms, atoms_df], ignore_index=True)
                 atoms_df["molecule-ID"] += mols_in_data
             type_count += len(mol.masses)
             mol_count += self.nums[i] * mols_in_data
@@ -1304,8 +1275,8 @@ class CombinedData(LammpsData):
                     topo_df["type"] += count[kw]
                     for col in topo_df.columns[1:]:
                         topo_df[col] += atom_count
-                    for j in range(self.nums[i]):
-                        self.topology[kw] = self.topology[kw].append(topo_df, ignore_index=True)
+                    for _ in range(self.nums[i]):
+                        self.topology[kw] = pd.concat([self.topology[kw], topo_df], ignore_index=True)
                         for col in topo_df.columns[1:]:
                             topo_df[col] += len(mol.atoms)
                     count[kw] += len(mol.force_field[kw[:-1] + " Coeffs"])
@@ -1321,6 +1292,7 @@ class CombinedData(LammpsData):
         """
         Exports a periodic structure object representing the simulation
         box.
+
         Return:
             Structure
         """
@@ -1338,11 +1310,12 @@ class CombinedData(LammpsData):
         2. No intermolecular topologies (with atoms from different
             molecule-ID) since a Topology object includes data for ONE
             molecule or structure only.
+
         Args:
             atom_labels ([str]): List of strings (must be different
                 from one another) for labelling each atom type found in
                 Masses section. Default to None, where the labels are
-                automaticaly added based on either element guess or
+                automatically added based on either element guess or
                 dummy specie assignment.
             guess_element (bool): Whether to guess the element based on
                 its atomic mass. Default to True, otherwise dummy
@@ -1352,6 +1325,7 @@ class CombinedData(LammpsData):
                 well as on the species of molecule in each Topology.
             ff_label (str): Site property key for labeling atoms of
                 different types. Default to "ff_map".
+
         Returns:
             [(LammpsBox, ForceField, [Topology]), ...]
         """
@@ -1364,28 +1338,23 @@ class CombinedData(LammpsData):
 
     @classmethod
     def from_ff_and_topologies(cls):
-        """
-        Unsupported constructor for CombinedData objects.
-        """
+        """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects.")
 
     @classmethod
     def from_structure(cls):
-        """
-        Unsupported constructor for CombinedData objects.
-        """
+        """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects.")
 
     @classmethod
     def parse_xyz(cls, filename):
         """
-        load xyz file generated from packmol (for those who find it hard to install openbabel)
+        Load xyz file generated from packmol (for those who find it hard to install openbabel).
 
         Returns:
             pandas.DataFrame
-
         """
-        with open(filename) as f:
+        with zopen(filename, "rt") as f:
             lines = f.readlines()
 
         sio = StringIO("".join(lines[2:]))  # skip the 2nd line
@@ -1415,10 +1384,10 @@ class CombinedData(LammpsData):
         styles = []
         coordinates = cls.parse_xyz(filename=coordinate_file)
         for i in range(0, len(filenames)):
-            exec("cluster%d = LammpsData.from_file(filenames[i])" % (i + 1))
-            names.append("cluster%d" % (i + 1))
-            mols.append(eval("cluster%d" % (i + 1)))
-            styles.append(eval("cluster%d" % (i + 1)).atom_style)
+            exec(f"cluster{i + 1} = LammpsData.from_file(filenames[i])")
+            names.append(f"cluster{i + 1}")
+            mols.append(eval(f"cluster{i + 1}"))
+            styles.append(eval(f"cluster{i + 1}").atom_style)
         style = set(styles)
         assert len(style) == 1, "Files have different atom styles."
         return cls.from_lammpsdata(mols, names, list_of_numbers, coordinates, style.pop())
@@ -1455,7 +1424,7 @@ class CombinedData(LammpsData):
         as a comment. For single molecule ID data, the info format is:
             num name
         For data with multiple molecule ID, the format is:
-            num(mols_per_data) name
+            num(mols_per_data) name.
 
         Args:
             distance (int): No. of significant figures to output for
@@ -1468,7 +1437,7 @@ class CombinedData(LammpsData):
             hybrid (bool): Whether to write hybrid coeffs types.
                 Default to True. If the data object has no hybrid
                 coeffs types and has large coeffs section, one may
-                use False to speedup the process. Otherwise the
+                use False to speed up the process. Otherwise, the
                 default is recommended.
 
         Returns:
@@ -1494,7 +1463,6 @@ class CombinedData(LammpsData):
         topology (dict): Data for topology sections. Optional with
             default to None. Only keywords in topology are valid
             keys, and each value is a DataFrame.
-
         """
         items = {}
         items["box"] = LammpsBox(self.box.bounds, self.box.tilt)
@@ -1509,54 +1477,3 @@ class CombinedData(LammpsData):
         if self.topology:
             items["topology"] = {k: v.copy() for k, v in self.topology.items() if k in SECTION_KEYWORDS["topology"]}
         return LammpsData(**items)
-
-
-@deprecated(
-    LammpsData.from_structure,
-    "structure_2_lmpdata has been deprecated in favor of LammpsData.from_structure",
-)
-def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge", is_sort=False):
-    """
-    Converts a structure to a LammpsData object with no force field
-    parameters and topologies.
-
-    Args:
-        structure (Structure): Input structure.
-        ff_elements ([str]): List of strings of elements that must be
-            present due to force field settings but not necessarily in
-            the structure. Default to None.
-        atom_style (str): Choose between "atomic" (neutral) and
-            "charge" (charged). Default to "charge".
-        is_sort (bool): whether to sort the structure sites
-    Returns:
-        LammpsData
-
-    """
-    if is_sort:
-        s = structure.get_sorted_structure()
-    else:
-        s = structure.copy()
-
-    a, b, c = s.lattice.abc
-    m = s.lattice.matrix
-    xhi = a
-    xy = np.dot(m[1], m[0] / xhi)
-    yhi = np.sqrt(b ** 2 - xy ** 2)
-    xz = np.dot(m[2], m[0] / xhi)
-    yz = (np.dot(m[1], m[2]) - xy * xz) / yhi
-    zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2)
-    box_bounds = [[0.0, xhi], [0.0, yhi], [0.0, zhi]]
-    box_tilt = [xy, xz, yz]
-    box_tilt = None if not any(box_tilt) else box_tilt
-    box = LammpsBox(box_bounds, box_tilt)
-    new_latt = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
-    s.lattice = new_latt
-
-    symbols = list(s.symbol_set)
-    if ff_elements:
-        symbols.extend(ff_elements)
-    elements = sorted(Element(el) for el in set(symbols))
-    mass_info = [tuple([i.symbol] * 2) for i in elements]
-    ff = ForceField(mass_info)
-    topo = Topology(s)
-    return LammpsData.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)

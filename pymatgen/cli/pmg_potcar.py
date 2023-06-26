@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-# coding: utf-8
 
-"""
-Implementation for `pmg potcar` CLI.
-"""
+"""Implementation for `pmg potcar` CLI."""
 
+
+from __future__ import annotations
 
 import os
 
@@ -36,7 +35,7 @@ def gen_potcar(dirname, filename):
     """
     if filename == "POTCAR.spec":
         fullpath = os.path.join(dirname, filename)
-        with open(fullpath, "r") as f:
+        with open(fullpath) as f:
             elements = f.readlines()
         symbols = [el.strip() for el in elements if el.strip() != ""]
         potcar = Potcar(symbols)
@@ -56,8 +55,8 @@ def generate_potcar(args):
         try:
             p = Potcar(args.symbols, functional=args.functional)
             p.write_file("POTCAR")
-        except Exception as ex:
-            print("An error has occurred: {}".format(str(ex)))
+        except Exception as exc:
+            print(f"An error has occurred: {exc}")
 
     else:
         print("No valid options selected.")

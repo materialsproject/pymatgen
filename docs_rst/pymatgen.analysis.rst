@@ -1,6 +1,8 @@
 pymatgen.analysis namespace
 ===========================
 
+.. py:module:: pymatgen.analysis
+
 Subpackages
 -----------
 
@@ -8,7 +10,6 @@ Subpackages
    :maxdepth: 7
 
    pymatgen.analysis.chemenv
-   pymatgen.analysis.defects
    pymatgen.analysis.diffraction
    pymatgen.analysis.elasticity
    pymatgen.analysis.ferroelectricity
@@ -31,13 +32,12 @@ Submodules
    pymatgen.analysis.bond_valence
    pymatgen.analysis.chempot_diagram
    pymatgen.analysis.cost
-   pymatgen.analysis.diffusion_analyzer
    pymatgen.analysis.dimensionality
+   pymatgen.analysis.disorder
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
    pymatgen.analysis.ewald
    pymatgen.analysis.excitation
-   pymatgen.analysis.find_dimension
    pymatgen.analysis.fragmenter
    pymatgen.analysis.functional_groups
    pymatgen.analysis.graphs
@@ -58,7 +58,6 @@ Submodules
    pymatgen.analysis.reaction_calculator
    pymatgen.analysis.structure_analyzer
    pymatgen.analysis.structure_matcher
-   pymatgen.analysis.substrate_analyzer
    pymatgen.analysis.surface_analysis
    pymatgen.analysis.thermochemistry
    pymatgen.analysis.transition_state

@@ -1,10 +1,6 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module provides classes to define a Grueneisen band structure."""
 
-"""
-This module provides classes to define a Grueneisen band structure.
-"""
+from __future__ import annotations
 
 import numpy as np
 import scipy.constants as const
@@ -20,8 +16,8 @@ from pymatgen.phonon.dos import PhononDos
 try:
     import phonopy
     from phonopy.phonon.dos import TotalDos
-except ImportError as ex:
-    print(ex)
+except ImportError as exc:
+    print(exc)
     phonopy = None
 
 __author__ = "A. Bonkowski, J. George, G. Petretto"
@@ -34,9 +30,7 @@ __date__ = "Apr 11, 2021"
 
 
 class GruneisenParameter(MSONable):
-    """
-    Class for Grueneisen parameters on a regular grid.
-    """
+    """Class for Grueneisen parameters on a regular grid."""
 
     def __init__(
         self,
@@ -48,7 +42,6 @@ class GruneisenParameter(MSONable):
         lattice=None,
     ):
         """
-
         Args:
             qpoints: list of qpoints as numpy arrays, in frac_coords of the given lattice by default
             gruneisen: list of gruneisen parameters as numpy arrays, shape: (3*len(structure), len(qpoints))
@@ -56,10 +49,8 @@ class GruneisenParameter(MSONable):
             multiplicities: list of multiplicities
             structure: The crystal structure (as a pymatgen Structure object) associated with the gruneisen parameters.
             lattice: The reciprocal lattice as a pymatgen Lattice object. Pymatgen uses the physics convention of
-                     reciprocal lattice vectors WITH a 2*pi coefficient
-
+                     reciprocal lattice vectors WITH a 2*pi coefficient.
         """
-
         self.qpoints = qpoints
         self.gruneisen = gruneisen
         self.frequencies = frequencies
@@ -86,33 +77,32 @@ class GruneisenParameter(MSONable):
 
         Returns:
             The average Gruneisen parameter
-
         """
         if t is None:
             t = self.acoustic_debye_temp
 
-        w = self.frequencies
+        w = self.frequencies  # in THz
         wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
         exp_wdkt = np.exp(wdkt)
         cv = np.choose(
-            w > 0, (0, const.value("Boltzmann constant in eV/K") * wdkt ** 2 * exp_wdkt / (exp_wdkt - 1) ** 2)
+            w > 0, (0, const.value("Boltzmann constant in eV/K") * wdkt**2 * exp_wdkt / (exp_wdkt - 1) ** 2)
         )  # in eV
 
         gamma = self.gruneisen
 
         if squared:
-            gamma = gamma ** 2
+            gamma = gamma**2
 
         if limit_frequencies == "debye":
-            adt = self.acoustic_debye_temp
-            ind = np.where((w >= 0) & (w <= adt * const.value("Boltzmann constant in Hz/K")))
+            acoustic_debye_freq = self.acoustic_debye_temp * const.value("Boltzmann constant in Hz/K") / const.tera
+            ind = np.where((w >= 0) & (w <= acoustic_debye_freq))
         elif limit_frequencies == "acoustic":
             w_acoustic = w[:, :3]
             ind = np.where(w_acoustic >= 0)
         elif limit_frequencies is None:
             ind = np.where(w >= 0)
         else:
-            raise ValueError("{} is not an accepted value for limit_frequencies".format(limit_frequencies))
+            raise ValueError(f"{limit_frequencies} is not an accepted value for limit_frequencies.")
 
         weights = self.multiplicities
         g = np.dot(weights[ind[0]], np.multiply(cv, gamma)[ind]).sum() / np.dot(weights[ind[0]], cv[ind]).sum()
@@ -143,16 +133,15 @@ class GruneisenParameter(MSONable):
 
         Returns:
             The value of the thermal conductivity in W/(m*K)
-
         """
         average_mass = np.mean([s.specie.atomic_mass for s in self.structure]) * amu_to_kg
         if theta_d is None:
             theta_d = self.acoustic_debye_temp
         mean_g = self.average_gruneisen(t=theta_d, squared=squared, limit_frequencies=limit_frequencies)
 
-        f1 = 0.849 * 3 * (4 ** (1.0 / 3.0)) / (20 * np.pi ** 3 * (1 - 0.514 * mean_g ** -1 + 0.228 * mean_g ** -2))
+        f1 = 0.849 * 3 * (4 ** (1 / 3)) / (20 * np.pi**3 * (1 - 0.514 * mean_g**-1 + 0.228 * mean_g**-2))
         f2 = (const.k * theta_d / const.hbar) ** 2
-        f3 = const.k * average_mass * self.structure.volume ** (1.0 / 3.0) * 1e-10 / (const.hbar * mean_g ** 2)
+        f3 = const.k * average_mass * self.structure.volume ** (1 / 3) * 1e-10 / (const.hbar * mean_g**2)
         k = f1 * f2 * f3
 
         if t is not None:
@@ -163,15 +152,11 @@ class GruneisenParameter(MSONable):
     @property  # type: ignore
     @requires(phonopy, "This method requires phonopy to be installed")
     def tdos(self):
-        """
-        The total DOS (re)constructed from the gruneisen.yaml file
-        """
+        """The total DOS (re)constructed from the gruneisen.yaml file."""
 
         # Here, we will reuse phonopy classes
         class TempMesh:
-            """
-            Temporary Class
-            """
+            """Temporary Class."""
 
         a = TempMesh()
         a.frequencies = np.transpose(self.frequencies)
@@ -184,50 +169,40 @@ class GruneisenParameter(MSONable):
 
     @property
     def phdos(self):
-        """
-
-        Returns: PhononDos object
-
-        """
+        """Returns: PhononDos object."""
         return PhononDos(self.tdos.frequency_points, self.tdos.dos)
 
     @property
     def debye_temp_limit(self):
-        """
-        Debye temperature in K. Adapted from apipy.
-        """
+        """Debye temperature in K. Adapted from apipy."""
         from scipy.interpolate import UnivariateSpline
 
         f_mesh = self.tdos.frequency_points * const.tera
         dos = self.tdos.dos
 
-        i_a = UnivariateSpline(f_mesh, dos * f_mesh ** 2, s=0).integral(f_mesh[0], f_mesh[-1])
+        i_a = UnivariateSpline(f_mesh, dos * f_mesh**2, s=0).integral(f_mesh[0], f_mesh[-1])
         i_b = UnivariateSpline(f_mesh, dos, s=0).integral(f_mesh[0], f_mesh[-1])
 
         integrals = i_a / i_b
-        t_d = np.sqrt(5 / 3 * integrals) / const.value("Boltzmann constant in Hz/K")
-
-        return t_d
+        return np.sqrt(5 / 3 * integrals) / const.value("Boltzmann constant in Hz/K")
 
     def debye_temp_phonopy(self, freq_max_fit=None):
         """
         Get Debye temperature in K as implemented in phonopy.
+
         Args:
             freq_max_fit: Maximum frequency to include for fitting.
                           Defaults to include first quartile of frequencies.
 
         Returns:
             Debye temperature in K.
-
         """
         # Use of phonopy classes to compute Debye frequency
         t = self.tdos
         t.set_Debye_frequency(num_atoms=self.structure.num_sites, freq_max_fit=freq_max_fit)
         f_d = t.get_Debye_frequency()  # in THz
         # f_d in THz is converted in a temperature (K)
-        t_d = const.value("Planck constant") * f_d * const.tera / const.value("Boltzmann constant")
-
-        return t_d
+        return const.value("Planck constant") * f_d * const.tera / const.value("Boltzmann constant")
 
     @property
     def acoustic_debye_temp(self):
@@ -270,19 +245,18 @@ class GruneisenPhononBandStructure(PhononBandStructure):
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient.
             eigendisplacements: the phonon eigendisplacements associated to the
-                frequencies in cartesian coordinates. A numpy array of complex
+                frequencies in Cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
-                he First index of the array refers to the band, the second to the index
+                The first index of the array refers to the band, the second to the index
                 of the qpoint, the third to the atom in the structure and the fourth
-                to the cartesian coordinates.
+                to the Cartesian coordinates.
             labels_dict: (dict) of {} this links a qpoint (in frac coords or
-                cartesian coordinates depending on the coords) to a label.
-            coords_are_cartesian: Whether the qpoint coordinates are cartesian.
+                Cartesian coordinates depending on the coords) to a label.
+            coords_are_cartesian: Whether the qpoint coordinates are Cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
-                provide projections to the band structure
+                provide projections to the band structure.
         """
-
         PhononBandStructure.__init__(
             self,
             qpoints,
@@ -299,14 +273,12 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
     def as_dict(self):
         """
-
         Returns:
-            MSONable (dict)
-
+            MSONable (dict).
         """
         d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
             "qpoints": [],
         }
@@ -319,9 +291,10 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         for kpoint_letter, kpoint_object in self.labels_dict.items():
             d["labels_dict"][kpoint_letter] = kpoint_object.as_dict()["fcoords"]
         # split the eigendisplacements to real and imaginary part for serialization
-        d["eigendisplacements"] = dict(
-            real=np.real(self.eigendisplacements).tolist(), imag=np.imag(self.eigendisplacements).tolist()
-        )
+        d["eigendisplacements"] = {
+            "real": np.real(self.eigendisplacements).tolist(),
+            "imag": np.imag(self.eigendisplacements).tolist(),
+        }
         d["gruneisen"] = self.gruneisen.tolist()
         if self.structure:
             d["structure"] = self.structure.as_dict()
@@ -329,27 +302,26 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
-
         Args:
-            d (dict): Dict representation
+            dct (dict): Dict representation.
 
         Returns:
             GruneisenPhononBandStructure: Phonon band structure with Grueneisen parameters.
-
         """
-
-        lattice_rec = Lattice(d["lattice_rec"]["matrix"])
-        eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
-        structure = Structure.from_dict(d["structure"]) if "structure" in d else None
+        lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
+        eigendisplacements = (
+            np.array(dct["eigendisplacements"]["real"]) + np.array(dct["eigendisplacements"]["imag"]) * 1j
+        )
+        structure = Structure.from_dict(dct["structure"]) if "structure" in dct else None
         return cls(
-            qpoints=d["qpoints"],
-            frequencies=np.array(d["bands"]),
-            gruneisenparameters=np.array(d["gruneisen"]),
+            qpoints=dct["qpoints"],
+            frequencies=np.array(dct["bands"]),
+            gruneisenparameters=np.array(dct["gruneisen"]),
             lattice=lattice_rec,
             eigendisplacements=eigendisplacements,
-            labels_dict=d["labels_dict"],
+            labels_dict=dct["labels_dict"],
             structure=structure,
         )
 
@@ -372,7 +344,6 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         structure=None,
     ):
         """
-
         Args:
             qpoints: list of qpoints as numpy arrays, in frac_coords of the
                 given lattice by default
@@ -384,17 +355,17 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient
             eigendisplacements: the phonon eigendisplacements associated to the
-                frequencies in cartesian coordinates. A numpy array of complex
+                frequencies in Cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
-                he First index of the array refers to the band, the second to the index
+                The first index of the array refers to the band, the second to the index
                 of the qpoint, the third to the atom in the structure and the fourth
-                to the cartesian coordinates.
+                to the Cartesian coordinates.
             labels_dict: (dict) of {} this links a qpoint (in frac coords or
-                cartesian coordinates depending on the coords) to a label.
+                Cartesian coordinates depending on the coords) to a label.
             coords_are_cartesian: Whether the qpoint coordinates are cartesian.
             structure: The crystal structure (as a pymatgen Structure object)
                 associated with the band structure. This is needed if we
-                provide projections to the band structure
+                provide projections to the band structure.
         """
         GruneisenPhononBandStructure.__init__(
             self,
@@ -413,24 +384,24 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         )
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
-
         Args:
-            d: Dict representation
+            dct: Dict representation.
 
-        Returns: GruneisenPhononBandStructureSummLine
-
+        Returns: GruneisenPhononBandStructureSymmLine
         """
-        lattice_rec = Lattice(d["lattice_rec"]["matrix"])
-        eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
-        structure = Structure.from_dict(d["structure"]) if "structure" in d else None
+        lattice_rec = Lattice(dct["lattice_rec"]["matrix"])
+        eigendisplacements = (
+            np.array(dct["eigendisplacements"]["real"]) + np.array(dct["eigendisplacements"]["imag"]) * 1j
+        )
+        structure = Structure.from_dict(dct["structure"]) if "structure" in dct else None
         return cls(
-            qpoints=d["qpoints"],
-            frequencies=np.array(d["bands"]),
-            gruneisenparameters=np.array(d["gruneisen"]),
+            qpoints=dct["qpoints"],
+            frequencies=np.array(dct["bands"]),
+            gruneisenparameters=np.array(dct["gruneisen"]),
             lattice=lattice_rec,
             eigendisplacements=eigendisplacements,
-            labels_dict=d["labels_dict"],
+            labels_dict=dct["labels_dict"],
             structure=structure,
         )

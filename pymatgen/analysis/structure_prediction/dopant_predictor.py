@@ -1,14 +1,12 @@
-"""
-Predicting potential dopants
-"""
+"""Predicting potential dopants."""
+
+from __future__ import annotations
 
 import warnings
 
 import numpy as np
 
-from pymatgen.analysis.structure_prediction.substitution_probability import (
-    SubstitutionPredictor,
-)
+from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
 from pymatgen.core.periodic_table import Element, Species
 
 
@@ -39,7 +37,7 @@ def get_dopants_from_substitution_probabilities(structure, num_dopants=5, thresh
     els_have_oxi_states = [hasattr(s, "oxi_state") for s in structure.species]
 
     if not all(els_have_oxi_states):
-        raise ValueError("All sites in structure must have oxidation states to " "predict dopants.")
+        raise ValueError("All sites in structure must have oxidation states to predict dopants.")
 
     sp = SubstitutionPredictor(threshold=threshold)
 
@@ -47,7 +45,7 @@ def get_dopants_from_substitution_probabilities(structure, num_dopants=5, thresh
     subs = [
         {
             "probability": pred["probability"],
-            "dopant_species": list(pred["substitutions"].keys())[0],
+            "dopant_species": list(pred["substitutions"])[0],
             "original_species": list(pred["substitutions"].values())[0],
         }
         for species_preds in subs
@@ -66,7 +64,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
         bonded_structure (StructureGraph): A pymatgen structure graph
             decorated with oxidation states. For example, generated using the
             CrystalNN.get_bonded_structure() method.
-        num_dopants (int): The nummber of suggestions to return for
+        num_dopants (int): The number of suggestions to return for
             n- and p-type dopants.
         match_oxi_sign (bool): Whether to force the dopant and original species
             to have the same sign of oxidation state. E.g. If the original site
@@ -86,13 +84,13 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
     all_species = [Species(el, oxi) for el in Element for oxi in el.common_oxidation_states]
 
     # get a series of tuples with (coordination number, specie)
-    cn_and_species = set(
+    cn_and_species = {
         (
             bonded_structure.get_coordination_of_site(i),
             bonded_structure.structure[i].specie,
         )
         for i in range(bonded_structure.structure.num_sites)
-    )
+    }
 
     cn_to_radii_map = {}
     possible_dopants = []
@@ -103,9 +101,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
         try:
             species_radius = species.get_shannon_radius(cn_roman)
         except KeyError:
-            warnings.warn(
-                "Shannon radius not found for {} with coordination " "number {}.\nSkipping...".format(species, cn)
-            )
+            warnings.warn(f"Shannon radius not found for {species} with coordination number {cn}.\nSkipping...")
             continue
 
         if cn not in cn_to_radii_map:
@@ -128,9 +124,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
 
 
 def _get_dopants(substitutions, num_dopants, match_oxi_sign):
-    """
-    Utility method to get n- and p-type dopants from a list of substitutions.
-    """
+    """Utility method to get n- and p-type dopants from a list of substitutions."""
     n_type = [
         pred
         for pred in substitutions
@@ -201,8 +195,8 @@ def _int_to_roman(number):
     roman_conv = [(10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
 
     result = []
-    for (arabic, roman) in roman_conv:
-        (factor, number) = divmod(number, arabic)
+    for arabic, roman in roman_conv:
+        factor, number = divmod(number, arabic)
         result.append(roman * factor)
         if number == 0:
             break
