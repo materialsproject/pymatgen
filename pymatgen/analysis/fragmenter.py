@@ -1,9 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Perform fragmentation of molecules.
-"""
+"""Perform fragmentation of molecules."""
 
 from __future__ import annotations
 
@@ -28,9 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class Fragmenter(MSONable):
-    """
-    Molecule fragmenter class.
-    """
+    """Molecule fragmenter class."""
 
     def __init__(
         self,
@@ -44,7 +37,7 @@ class Fragmenter(MSONable):
         assume_previous_thoroughness=True,
     ):
         """
-        Standard constructor for molecule fragmentation
+        Standard constructor for molecule fragmentation.
 
         Args:
             molecule (Molecule): The molecule to fragment.
@@ -197,12 +190,15 @@ class Fragmenter(MSONable):
                             + str(len(fragment.graph.edges()))
                         )
                         proceed = True
-                        if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
-                            if new_frag_key in self.prev_unique_frag_dict:
-                                for unique_fragment in self.prev_unique_frag_dict[new_frag_key]:
-                                    if unique_fragment.isomorphic_to(fragment):
-                                        proceed = False
-                                        break
+                        if (
+                            self.assume_previous_thoroughness
+                            and self.prev_unique_frag_dict != {}
+                            and new_frag_key in self.prev_unique_frag_dict
+                        ):
+                            for unique_fragment in self.prev_unique_frag_dict[new_frag_key]:
+                                if unique_fragment.isomorphic_to(fragment):
+                                    proceed = False
+                                    break
                         if proceed:
                             if new_frag_key not in self.all_unique_frag_dict:
                                 self.all_unique_frag_dict[new_frag_key] = [fragment]

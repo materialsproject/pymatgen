@@ -1,3 +1,1 @@
-"""
-Tests for pymatgen.electronic_structure
-"""
+"""Tests for pymatgen.electronic_structure."""

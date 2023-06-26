@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import copy
@@ -16,12 +12,7 @@ import pytest
 from monty.serialization import loadfn
 from pytest import approx
 
-from pymatgen.analysis.graphs import (
-    MoleculeGraph,
-    MolGraphSplitError,
-    PeriodicSite,
-    StructureGraph,
-)
+from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError, PeriodicSite, StructureGraph
 from pymatgen.analysis.local_env import (
     CovalentBondNN,
     CutOffDictNN,
@@ -103,10 +94,10 @@ class StructureGraphTest(PymatgenTest):
         c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(include_critical_points=False)
 
-        latt = Lattice.cubic(4.17)
+        lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        self.NiO = Structure.from_spacegroup(225, latt, species, coords).get_primitive_structure()
+        self.NiO = Structure.from_spacegroup(225, lattice, species, coords).get_primitive_structure()
 
         # BCC example.
         self.bcc = Structure(Lattice.cubic(5.0), ["He", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
@@ -118,7 +109,7 @@ class StructureGraphTest(PymatgenTest):
 
     def test_inappropriate_construction(self):
         # Check inappropriate strategy
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Chosen strategy is not designed for use with structures"):
             StructureGraph.with_local_env_strategy(self.NiO, CovalentBondNN())
 
     def test_properties(self):
@@ -294,11 +285,10 @@ from    to  to_image      bond_length (A)
    0     2  (0, 0, 0)     2.417e+00
 """
 
-        # don't care about testing Py 2.7 unicode support,
         # change Å to A
         self.mos2_sg.graph.graph["edge_weight_units"] = "A"
-        self.assertStrContentEqual(str(self.square_sg), square_sg_str_ref)
-        self.assertStrContentEqual(str(self.mos2_sg), mos2_sg_str_ref)
+        self.assert_str_content_equal(str(self.square_sg), square_sg_str_ref)
+        self.assert_str_content_equal(str(self.mos2_sg), mos2_sg_str_ref)
 
     def test_mul(self):
         square_sg_mul = self.square_sg * (2, 1, 1)
@@ -332,7 +322,7 @@ from    to  to_image
         square_sg_mul_ref_str = "\n".join(square_sg_mul_ref_str.splitlines()[11:])
         square_sg_mul_actual_str = "\n".join(square_sg_mul_actual_str.splitlines()[11:])
 
-        self.assertStrContentEqual(square_sg_mul_actual_str, square_sg_mul_ref_str)
+        self.assert_str_content_equal(square_sg_mul_actual_str, square_sg_mul_ref_str)
 
         # test sequential multiplication
         sq_sg_1 = self.square_sg * (2, 2, 1)
@@ -340,7 +330,7 @@ from    to  to_image
         sq_sg_2 = self.square_sg * (4, 4, 1)
         assert sq_sg_1.graph.number_of_edges() == sq_sg_2.graph.number_of_edges()
         # TODO: the below test still gives 8 != 4
-        # self.assertEqual(self.square_sg.get_coordination_of_site(0), 4)
+        # assert self.square_sg.get_coordination_of_site(0) == 4
 
         mos2_sg_mul = self.mos2_sg * (3, 3, 1)
         for idx in mos2_sg_mul.structure.indices_from_symbol("Mo"):
@@ -448,10 +438,10 @@ from    to  to_image
             "H6PbCI3N_mp-977013_symmetrized.cif",
         )
 
-        s = Structure.from_file(structure_file)
+        struct = Structure.from_file(structure_file)
 
         nn = MinimumDistanceNN()
-        sg = StructureGraph.with_local_env_strategy(s, nn)
+        sg = StructureGraph.with_local_env_strategy(struct, nn)
 
         molecules = sg.get_subgraphs_as_molecules()
         assert molecules[0].composition.formula == "H3 C1"
@@ -506,12 +496,8 @@ from    to  to_image
 
 class MoleculeGraphTest(unittest.TestCase):
     def setUp(self):
-        cyclohexene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/cyclohexene.xyz",
-            )
-        )
+        cyclohexene_xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/cyclohexene.xyz")
+        cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.with_empty_graph(
             cyclohexene, edge_weight_name="strength", edge_weight_units=""
         )
@@ -532,12 +518,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.cyclohexene.add_edge(5, 14, weight=1.0)
         self.cyclohexene.add_edge(5, 15, weight=1.0)
 
-        butadiene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/butadiene.xyz",
-            )
-        )
+        butadiene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/butadiene.xyz"))
         self.butadiene = MoleculeGraph.with_empty_graph(butadiene, edge_weight_name="strength", edge_weight_units="")
         self.butadiene.add_edge(0, 1, weight=2.0)
         self.butadiene.add_edge(1, 2, weight=1.0)
@@ -549,12 +530,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.butadiene.add_edge(3, 8, weight=1.0)
         self.butadiene.add_edge(3, 9, weight=1.0)
 
-        ethylene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/ethylene.xyz",
-            )
-        )
+        ethylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/ethylene.xyz"))
         self.ethylene = MoleculeGraph.with_empty_graph(ethylene, edge_weight_name="strength", edge_weight_units="")
         self.ethylene.add_edge(0, 1, weight=2.0)
         self.ethylene.add_edge(0, 2, weight=1.0)
@@ -606,8 +582,8 @@ class MoleculeGraphTest(unittest.TestCase):
         del self.butadiene
         del self.cyclohexene
 
-    @unittest.skipIf(not openbabel, "OpenBabel not present. Skipping...")
     def test_construction(self):
+        pytest.importorskip("openbabel")
         edges_frag = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_frag1_edges}
         mol_graph = MoleculeGraph.with_edges(self.pc_frag1, edges_frag)
         # dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_frag1_mg.json"))
@@ -636,7 +612,7 @@ class MoleculeGraphTest(unittest.TestCase):
         assert mol_graph_edges.isomorphic_to(mol_graph_strat)
 
         # Check inappropriate strategy
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Strategy must be a LocalEnvStrategy"):
             MoleculeGraph.with_local_env_strategy(self.pc, VoronoiNN())
 
     def test_properties(self):
@@ -673,16 +649,17 @@ class MoleculeGraphTest(unittest.TestCase):
         assert self.cyclohexene.get_coordination_of_site(0) == 4
 
     def test_edge_editing(self):
-        self.cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo": "bar"})
-        new_edge = self.cyclohexene.graph.get_edge_data(0, 1)[0]
+        cyclohexene = copy.deepcopy(self.cyclohexene)
+        cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo": "bar"})
+        new_edge = cyclohexene.graph.get_edge_data(0, 1)[0]
         assert new_edge["weight"] == 0.0
         assert new_edge["foo"] == "bar"
 
-        self.cyclohexene.break_edge(0, 1)
-        assert self.cyclohexene.graph.get_edge_data(0, 1) is None
+        cyclohexene.break_edge(0, 1)
+        assert cyclohexene.graph.get_edge_data(0, 1) is None
 
         # Replace the now-broken edge
-        self.cyclohexene.add_edge(0, 1, weight=1.0)
+        cyclohexene.add_edge(0, 1, weight=1.0)
 
     def test_insert_remove(self):
         mol_copy = copy.deepcopy(self.ethylene.molecule)
@@ -715,27 +692,21 @@ class MoleculeGraphTest(unittest.TestCase):
         disconnected = Molecule(
             ["C", "H", "H", "H", "H", "He"],
             [
-                [0.0000, 0.0000, 0.0000],
+                [0, 0, 0],
                 [-0.3633, -0.5138, -0.8900],
-                [1.0900, 0.0000, 0.0000],
-                [-0.3633, 1.0277, 0.0000],
+                [1.0900, 0, 0],
+                [-0.3633, 1.0277, 0],
                 [-0.3633, -0.5138, -0.8900],
-                [5.0000, 5.0000, 5.0000],
+                [5, 5, 5],
             ],
         )
 
         no_he = Molecule(
             ["C", "H", "H", "H", "H"],
-            [
-                [0.0000, 0.0000, 0.0000],
-                [-0.3633, -0.5138, -0.8900],
-                [1.0900, 0.0000, 0.0000],
-                [-0.3633, 1.0277, 0.0000],
-                [-0.3633, -0.5138, -0.8900],
-            ],
+            [[0, 0, 0], [-0.3633, -0.5138, -0.8900], [1.0900, 0, 0], [-0.3633, 1.0277, 0], [-0.3633, -0.5138, -0.8900]],
         )
 
-        just_he = Molecule(["He"], [[5.0000, 5.0000, 5.0000]])
+        just_he = Molecule(["He"], [[5, 5, 5]])
 
         dis_mg = MoleculeGraph.with_empty_graph(disconnected)
         dis_mg.add_edge(0, 1)
@@ -744,16 +715,21 @@ class MoleculeGraphTest(unittest.TestCase):
         dis_mg.add_edge(0, 4)
 
         fragments = dis_mg.get_disconnected_fragments()
+        fragments_2, index_map = dis_mg.get_disconnected_fragments(return_index_map=True)
+        assert list(map(str, fragments)) == list(map(str, fragments_2))
         assert len(fragments) == 2
         assert fragments[0].molecule == no_he
         assert fragments[1].molecule == just_he
+        assert index_map == {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5}
 
         con_mg = MoleculeGraph.with_empty_graph(no_he)
         con_mg.add_edge(0, 1)
         con_mg.add_edge(0, 2)
         con_mg.add_edge(0, 3)
         con_mg.add_edge(0, 4)
-        fragments = con_mg.get_disconnected_fragments()
+        # make sure get_disconnected_fragments() only returns fragments even if return_index_map=True
+        # when the graph is weakly connected
+        fragments = con_mg.get_disconnected_fragments(return_index_map=True)
         assert len(fragments) == 1
 
     def test_split(self):
@@ -773,7 +749,7 @@ class MoleculeGraphTest(unittest.TestCase):
         assert reactants[0] == self.ethylene
         assert reactants[1] == self.butadiene
 
-        with pytest.raises(MolGraphSplitError):
+        with pytest.raises(MolGraphSplitError, match="Cannot split molecule; MoleculeGraph is still connected."):
             self.cyclohexene.split_molecule_subgraphs([(0, 1)])
 
         # Test naive charge redistribution
@@ -854,17 +830,13 @@ class MoleculeGraphTest(unittest.TestCase):
 
     def test_find_rings(self):
         rings = self.cyclohexene.find_rings(including=[0])
-        assert sorted(rings[0]) == [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)]
+        assert sorted(rings[0]) == [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 0)]
         no_rings = self.butadiene.find_rings()
         assert no_rings == []
 
     def test_isomorphic(self):
-        ethylene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/ethylene.xyz",
-            )
-        )
+        ethyl_xyz_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/ethylene.xyz")
+        ethylene = Molecule.from_file(ethyl_xyz_path)
         # switch carbons
         ethylene[0], ethylene[1] = ethylene[1], ethylene[0]
 
@@ -943,7 +915,3 @@ class MoleculeGraphTest(unittest.TestCase):
         assert list(sg.graph.edges) == [(0, 1, 0), (0, 2, 0), (0, 3, 0), (1, 4, 0), (1, 5, 0)]
         sg.sort()
         assert list(sg.graph.edges) == [(4, 5, 0), (0, 4, 0), (1, 4, 0), (2, 5, 0), (3, 5, 0)]
-
-
-if __name__ == "__main__":
-    unittest.main()

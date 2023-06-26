@@ -8,19 +8,11 @@ import networkx as nx
 import numpy as np
 import pytest
 
-from pymatgen.analysis.chemenv.connectivity.connected_components import (
-    ConnectedComponent,
-)
-from pymatgen.analysis.chemenv.connectivity.connectivity_finder import (
-    ConnectivityFinder,
-)
+from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
+from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    SimplestChemenvStrategy,
-)
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
-    LocalGeometryFinder,
-)
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
     StructureEnvironments,
@@ -86,8 +78,8 @@ class ConnectedComponentTest(PymatgenTest):
         assert isinstance(mygraph, nx.MultiGraph)  # Check that it is indeed the same type of graph
 
         cc2 = ConnectedComponent(graph=mygraph)
-        assert set(list(mygraph.nodes())) == set(list(cc2.graph.nodes()))
-        assert set(list(mygraph.edges())) == set(list(cc2.graph.edges()))
+        assert set(mygraph.nodes()) == set(cc2.graph.nodes())
+        assert set(mygraph.edges()) == set(cc2.graph.edges())
         assert len(cc2.graph) == 6
 
     def test_serialization(self):
@@ -143,7 +135,7 @@ class ConnectedComponentTest(PymatgenTest):
         for loaded_cc in loaded_cc_list:
             assert loaded_cc.graph.number_of_nodes() == 3
             assert loaded_cc.graph.number_of_edges() == 2
-            assert set(list(cc.graph.nodes())) == set(list(loaded_cc.graph.nodes()))
+            assert set(cc.graph.nodes()) == set(loaded_cc.graph.nodes())
             assert sorted_edges == sorted(sorted(e) for e in loaded_cc.graph.edges())
 
             for e in sorted_edges:
@@ -158,7 +150,7 @@ class ConnectedComponentTest(PymatgenTest):
         assert key == "3"
         with pytest.raises(
             RuntimeError,
-            match=r"Cannot pass an edge key which is a str " r"representation of an int\x2E",
+            match=r"Cannot pass an edge key which is a str representation of an int\x2E",
         ):
             key = ConnectedComponent._edgekey_to_edgedictkey("5")
         key = ConnectedComponent._edgekey_to_edgedictkey("mykey")
@@ -283,7 +275,7 @@ class ConnectedComponentTest(PymatgenTest):
         cc = ConnectedComponent(graph=graph)
         with pytest.raises(
             ValueError,
-            match=r"There should not be self loops with the same " r"\x28or opposite\x29 delta image\x2E",
+            match=r"There should not be self loops with the same \x28or opposite\x29 delta image\x2E",
         ):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
@@ -308,7 +300,7 @@ class ConnectedComponentTest(PymatgenTest):
         cc = ConnectedComponent(graph=graph)
         with pytest.raises(
             ValueError,
-            match=r"There should not be self loops with the same " r"\x28or opposite\x29 delta image\x2E",
+            match=r"There should not be self loops with the same \x28or opposite\x29 delta image\x2E",
         ):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
@@ -325,7 +317,7 @@ class ConnectedComponentTest(PymatgenTest):
         cc = ConnectedComponent(graph=graph)
         with pytest.raises(
             ValueError,
-            match=r"There should not be self loops with delta image = " r"\x280, 0, 0\x29\x2E",
+            match=r"There should not be self loops with delta image = \x280, 0, 0\x29\x2E",
         ):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
@@ -866,11 +858,11 @@ Node #3 Li (O:6), connected to :
             "structure_environments_files",
             "se_mp-5020.json",
         )
-        with open(BaTiO3_se_fpath) as f:
-            dd = json.load(f)
-        se = StructureEnvironments.from_dict(dd)
+        with open(BaTiO3_se_fpath) as file:
+            dct = json.load(file)
+        struct_envs = StructureEnvironments.from_dict(dct)
         lse = LightStructureEnvironments.from_structure_environments(
-            strategy=SimplestChemenvStrategy(), structure_environments=se
+            strategy=SimplestChemenvStrategy(), structure_environments=struct_envs
         )
         cf = ConnectivityFinder()
         sc = cf.get_structure_connectivity(light_structure_environments=lse)

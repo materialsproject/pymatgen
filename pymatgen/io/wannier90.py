@@ -1,9 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Modules for working with wannier90 input and output.
-"""
+"""Modules for working with wannier90 input and output."""
 
 from __future__ import annotations
 
@@ -188,7 +183,6 @@ class Unk:
                     and np.allclose(self.data[ib, 1], other.data[ib, 1], atol=1e-4)
                 ):
                     return False
-            else:
-                if not np.allclose(self.data[ib], other.data[ib], atol=1e-4):
-                    return False
+            elif not np.allclose(self.data[ib], other.data[ib], atol=1e-4):
+                return False
         return True

@@ -1,10 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
-import unittest
 
 import numpy as np
 import pytest
@@ -16,20 +12,20 @@ from pymatgen.util.testing import PymatgenTest
 
 class PWInputTest(PymatgenTest):
     def test_init(self):
-        s = self.get_structure("Li2O")
+        struct = self.get_structure("Li2O")
         with pytest.raises(PWInputError):
             PWInput(
-                s,
+                struct,
                 control={"calculation": "scf", "pseudo_dir": "./"},
                 pseudo={"Li": "Li.pbe-n-kjpaw_psl.0.1.UPF"},
             )
 
     def test_str_mixed_oxidation(self):
-        s = self.get_structure("Li2O")
-        s.remove_oxidation_states()
-        s[1] = "Li1"
+        struct = self.get_structure("Li2O")
+        struct.remove_oxidation_states()
+        struct[1] = "Li1"
         pw = PWInput(
-            s,
+            struct,
             control={"calculation": "scf", "pseudo_dir": "./"},
             pseudo={
                 "Li": "Li.pbe-n-kjpaw_psl.0.1.UPF",
@@ -38,7 +34,7 @@ class PWInputTest(PymatgenTest):
             },
             system={"ecutwfc": 50},
         )
-        ans = """&CONTROL
+        expected = """&CONTROL
   calculation = 'scf',
   pseudo_dir = './',
 /
@@ -69,13 +65,13 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        assert str(pw).strip() == ans.strip()
+        assert str(pw).strip() == expected.strip()
 
     def test_str_without_oxidation(self):
-        s = self.get_structure("Li2O")
-        s.remove_oxidation_states()
+        struct = self.get_structure("Li2O")
+        struct.remove_oxidation_states()
         pw = PWInput(
-            s,
+            struct,
             control={"calculation": "scf", "pseudo_dir": "./"},
             pseudo={
                 "Li": "Li.pbe-n-kjpaw_psl.0.1.UPF",
@@ -83,7 +79,7 @@ CELL_PARAMETERS angstrom
             },
             system={"ecutwfc": 50},
         )
-        ans = """&CONTROL
+        expected = """&CONTROL
   calculation = 'scf',
   pseudo_dir = './',
 /
@@ -113,13 +109,13 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        assert str(pw).strip() == ans.strip()
+        assert str(pw).strip() == expected.strip()
 
     def test_str_with_oxidation(self):
-        s = self.get_structure("Li2O")
+        struct = self.get_structure("Li2O")
 
         pw = PWInput(
-            s,
+            struct,
             control={"calculation": "scf", "pseudo_dir": "./"},
             pseudo={
                 "Li+": "Li.pbe-n-kjpaw_psl.0.1.UPF",
@@ -127,7 +123,7 @@ CELL_PARAMETERS angstrom
             },
             system={"ecutwfc": 50},
         )
-        ans = """&CONTROL
+        expected = """&CONTROL
   calculation = 'scf',
   pseudo_dir = './',
 /
@@ -157,14 +153,14 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        assert str(pw).strip() == ans.strip()
+        assert str(pw).strip() == expected.strip()
 
     def test_write_str_with_kpoints(self):
-        s = self.get_structure("Li2O")
-        s.remove_oxidation_states()
+        struct = self.get_structure("Li2O")
+        struct.remove_oxidation_states()
         kpoints = [[0.0, 0.0, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.0, 0.5], [0.5, 0.5, 0.5]]
         pw = PWInput(
-            s,
+            struct,
             control={"calculation": "scf", "pseudo_dir": "./"},
             pseudo={
                 "Li": "Li.pbe-n-kjpaw_psl.0.1.UPF",
@@ -174,7 +170,7 @@ CELL_PARAMETERS angstrom
             kpoints_mode="crystal_b",
             kpoints_grid=kpoints,
         )
-        ans = """
+        expected = """
 &CONTROL
   calculation = 'scf',
   pseudo_dir = './',
@@ -210,7 +206,7 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        assert str(pw).strip() == ans.strip()
+        assert str(pw).strip() == expected.strip()
 
     def test_read_str(self):
         string = """
@@ -361,7 +357,7 @@ CELL_PARAMETERS angstrom
 
         # generate list of coords
         pw_sites = []
-        for site in pwin.structure.sites:
+        for site in pwin.structure:
             pw_sites.append(list(site.coords))
         pw_sites = np.array(pw_sites)
 
@@ -381,7 +377,3 @@ class PWOuputTest(PymatgenTest):
         assert self.pwout.get_celldm(1) == approx(10.323)
         for i in range(2, 7):
             assert self.pwout.get_celldm(i) == approx(0)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,9 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-This module provides classes for predicting new structures from existing ones.
-"""
+"""This module provides classes for predicting new structures from existing ones."""
 
 from __future__ import annotations
 
@@ -17,9 +12,7 @@ from monty.json import MSONable
 from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.alchemy.transmuters import StandardTransmuter
-from pymatgen.analysis.structure_prediction.substitution_probability import (
-    SubstitutionProbability,
-)
+from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionProbability
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 
@@ -37,7 +30,7 @@ class Substitutor(MSONable):
     compounds likely to be stable. It relies on an algorithm presented in
     Hautier, G., Fischer, C., Ehrlacher, V., Jain, A., and Ceder, G. (2011).
     Data Mined Ionic Substitutions for the Discovery of New Compounds.
-    Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h
+    Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h.
     """
 
     def __init__(self, threshold=1e-3, symprec: float = 0.1, **kwargs):
@@ -63,7 +56,7 @@ class Substitutor(MSONable):
     def get_allowed_species(self):
         """
         Returns the species in the domain of the probability function
-        any other specie will not work
+        any other specie will not work.
         """
         return self._sp.species
 
@@ -79,7 +72,7 @@ class Substitutor(MSONable):
         the target_species, based on a list of structure (those structures
         can for instance come from a database like the ICSD). It will return
         all the structures formed by ionic substitutions with a probability
-        higher than the threshold
+        higher than the threshold.
 
         Notes:
         If the default probability model is used, input structures must
@@ -162,16 +155,12 @@ class Substitutor(MSONable):
 
     @staticmethod
     def _is_charge_balanced(struct):
-        """
-        Checks if the structure object is charge balanced
-        """
-        return sum(s.specie.oxi_state for s in struct.sites) == 0.0
+        """Checks if the structure object is charge balanced."""
+        return sum(site.specie.oxi_state for site in struct) == 0.0
 
     @staticmethod
     def _is_from_chemical_system(chemical_system, struct):
-        """
-        Checks if the structure object is from the given chemical system
-        """
+        """Checks if the structure object is from the given chemical system."""
         return {sp.symbol for sp in struct.composition} == set(chemical_system)
 
     def pred_from_list(self, species_list):
@@ -223,7 +212,7 @@ class Substitutor(MSONable):
                 for sp in self._sp.species:
                     i = len(output_prob)
                     prob = self._sp.cond_prob(sp, species_list[i])
-                    _recurse(output_prob + [prob], output_species + [sp])
+                    _recurse([*output_prob, prob], [*output_species, sp])
 
         _recurse([], [])
         logging.info(f"{len(output)} substitutions found")
@@ -248,9 +237,7 @@ class Substitutor(MSONable):
         return output
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "name": type(self).__name__,
             "version": __version__,
@@ -264,7 +251,7 @@ class Substitutor(MSONable):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             Class

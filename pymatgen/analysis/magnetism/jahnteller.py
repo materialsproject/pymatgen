@@ -1,26 +1,20 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-JahnTeller distortion analysis.
-"""
+"""JahnTeller distortion analysis."""
 
 from __future__ import annotations
 
 import os
 import warnings
-from typing import Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import numpy as np
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.local_env import (
-    LocalStructOrderParams,
-    get_neighbors_of_site_with_index,
-)
+from pymatgen.analysis.local_env import LocalStructOrderParams, get_neighbors_of_site_with_index
 from pymatgen.core.periodic_table import Species, get_el_sp
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -36,9 +30,7 @@ class JahnTellerAnalyzer:
     """
 
     def __init__(self):
-        """
-        Init for JahnTellerAnalyzer.
-        """
+        """Init for JahnTellerAnalyzer."""
         self.spin_configs = {
             "oct": {  # key is number of d electrons
                 0: {"high": {"e_g": 0, "t_2g": 0}, "default": "high"},
@@ -166,9 +158,7 @@ class JahnTellerAnalyzer:
                         ligand_bond_length_spread = max(ligand_bond_lengths) - min(ligand_bond_lengths)
 
                         def trim(f):
-                            """
-                            Avoid storing to unreasonable precision, hurts readability.
-                            """
+                            """Avoid storing to unreasonable precision, hurts readability."""
                             return float(f"{f:.4f}")
 
                         # to be Jahn-Teller active, all ligands have to be the same
@@ -201,7 +191,7 @@ class JahnTellerAnalyzer:
                         {
                             "site_indices": indices,
                             "strength": "none",
-                            "reason": f"motif is {motif}",
+                            "reason": f"{motif=}",
                         }
                     )
 
@@ -398,7 +388,7 @@ class JahnTellerAnalyzer:
         * in octahedral environments, strong if e_g orbitals
         unevenly occupied but weak if t_2g orbitals unevenly
         occupied
-        * in tetrahedral environments always weaker
+        * in tetrahedral environments always weaker.
 
         Args:
           motif: "oct" or "tet"

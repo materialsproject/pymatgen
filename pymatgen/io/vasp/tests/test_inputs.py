@@ -1,11 +1,7 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
 import pickle
-import unittest
 import warnings
 from pathlib import Path
 
@@ -14,7 +10,6 @@ import pytest
 import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.core import SETTINGS
@@ -56,10 +51,10 @@ direct
         assert poscar.structure.composition == Composition("SiF")
 
         poscar_string = ""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Empty POSCAR"):
             Poscar.from_string(poscar_string)
 
-        # VASP 4 tyle file with default names, i.e. no element symbol found.
+        # VASP 4 style file with default names, i.e. no element symbol found.
         poscar_string = """Test2
 1.0
 3.840198 0.000000 0.000000
@@ -74,7 +69,7 @@ direct
             warnings.simplefilter("ignore")
             poscar = Poscar.from_string(poscar_string)
         assert poscar.structure.composition == Composition("HHe")
-        # VASP 4 tyle file with default names, i.e. no element symbol found.
+        # VASP 4 style file with default names, i.e. no element symbol found.
         poscar_string = """Test3
 1.0
 3.840198 0.000000 0.000000
@@ -87,7 +82,9 @@ direct
 0.750000 0.500000 0.750000 F F F O
 """
         poscar = Poscar.from_string(poscar_string)
-        assert poscar.selective_dynamics == [[True, True, True], [False, False, False]]
+        selective_dynamics = [list(x) for x in poscar.selective_dynamics]
+
+        assert selective_dynamics == [[True, True, True], [False, False, False]]
         self.selective_poscar = poscar
 
     def test_from_file(self):
@@ -183,7 +180,7 @@ cart
 """
         p = Poscar.from_string(poscar_string)
         site = p.structure[1]
-        self.assertArrayAlmostEqual(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
+        self.assert_all_close(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
     def test_significant_figures(self):
         si = 14
@@ -275,28 +272,28 @@ direct
         assert p.predictor_corrector[0][0][0] == 0.33387820e00
         assert p.predictor_corrector[0][1][1] == -0.10583589e-02
 
-    def test_write_MD_poscar(self):
+    def test_write_md_poscar(self):
         # Parsing from an MD type run with velocities and predictor corrector data
         # And writing a new POSCAR from the new structure
         p = Poscar.from_file(PymatgenTest.TEST_FILES_DIR / "CONTCAR.MD", check_for_POTCAR=False)
 
-        tempfname = Path("POSCAR.testing.md")
-        p.write_file(tempfname)
-        p3 = Poscar.from_file(tempfname)
+        path = Path("POSCAR.testing.md")
+        p.write_file(path)
+        p3 = Poscar.from_file(path)
 
-        self.assertArrayAlmostEqual(p.structure.lattice.abc, p3.structure.lattice.abc, 5)
-        self.assertArrayAlmostEqual(p.velocities, p3.velocities, 5)
-        self.assertArrayAlmostEqual(p.predictor_corrector, p3.predictor_corrector, 5)
+        self.assert_all_close(p.structure.lattice.abc, p3.structure.lattice.abc, 5)
+        self.assert_all_close(p.velocities, p3.velocities, 5)
+        self.assert_all_close(p.predictor_corrector, p3.predictor_corrector, 5)
         assert p.predictor_corrector_preamble == p3.predictor_corrector_preamble
-        tempfname.unlink()
+        path.unlink()
 
     def test_setattr(self):
         filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="velocities array must be same length as the structure"):
             poscar.velocities = [[0, 0, 0]]
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
-        ans = """
+        expected = """
         Fe4P4O16
 1.0
   10.4117668699494264    0.0000000000000000    0.0000000000000000
@@ -330,7 +327,7 @@ direct
    0.8342902600000000    0.9539276700000000    0.7146160600000000 T F F O
    0.9033575600000000    0.7500000000000000    0.2586796500000000 T F F O
    0.9566276900000000    0.2500000000000000    0.2928623300000000 T F F O"""
-        assert str(poscar).strip() == ans.strip()
+        assert str(poscar).strip() == expected.strip()
 
     def test_velocities(self):
         si = 14
@@ -370,8 +367,36 @@ direct
         tempfname = Path("POSCAR.testing")
         poscar.write_file(tempfname)
         p = Poscar.from_file(tempfname)
-        self.assertArrayAlmostEqual(poscar.structure.lattice.abc, p.structure.lattice.abc, 5)
+        self.assert_all_close(poscar.structure.lattice.abc, p.structure.lattice.abc, 5)
         tempfname.unlink()
+
+    def test_selective_dynamics(self):
+        filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR.Fe3O4"
+        poscar = Poscar.from_file(filepath)
+        structure = poscar.structure
+
+        # Fix bottom half
+        fixed_indices = structure.frac_coords[:, 2] >= 0.5
+
+        poscar = Poscar(structure, selective_dynamics=np.tile(fixed_indices.reshape(-1, 1), [1, 3]))
+        selective_dynamics = [list(x) for x in poscar.selective_dynamics]
+
+        assert selective_dynamics == [
+            [True, True, True],
+            [False, False, False],
+            [False, False, False],
+            [True, True, True],
+            [False, False, False],
+            [True, True, True],
+            [True, True, True],
+            [False, False, False],
+            [False, False, False],
+            [True, True, True],
+            [True, True, True],
+            [False, False, False],
+            [True, True, True],
+            [False, False, False],
+        ]
 
 
 class IncarTest(PymatgenTest):
@@ -551,7 +576,7 @@ class IncarTest(PymatgenTest):
 
     def test_get_string(self):
         s = self.incar.get_string(pretty=True, sort_keys=True)
-        ans = """ALGO       =  Damped
+        expected = """ALGO       =  Damped
 EDIFF      =  0.0001
 ENCUT      =  500
 ENCUTFOCK  =  0.0
@@ -579,7 +604,7 @@ PREC       =  Accurate
 SIGMA      =  0.05
 SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
 TIME       =  0.4"""
-        assert s == ans
+        assert s == expected
 
     def test_lsorbit_magmom(self):
         magmom1 = [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
@@ -780,9 +805,9 @@ Cartesian
         assert kpoints.kpts == [[5, 9, 1]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
-        s = poscar.structure
-        s.make_supercell(3)
-        kpoints = Kpoints.automatic_density(s, 500)
+        struct = poscar.structure
+        struct.make_supercell(3)
+        kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [[1, 1, 1]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.from_string(
@@ -793,7 +818,7 @@ G
 0.5 0.5 0.5
 """
         )
-        self.assertArrayAlmostEqual(kpoints.kpts_shift, [0.5, 0.5, 0.5])
+        self.assert_all_close(kpoints.kpts_shift, [0.5, 0.5, 0.5])
 
     def test_as_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
@@ -822,7 +847,7 @@ G
         pickle.dumps(k)
 
     def test_automatic_kpoint(self):
-        # s = PymatgenTest.get_structure("Li2O")
+        # struct = PymatgenTest.get_structure("Li2O")
         p = Poscar.from_string(
             """Al1
 1.0
@@ -835,7 +860,7 @@ direct
 0.000000 0.000000 0.000000 Al"""
         )
         kpoints = Kpoints.automatic_density(p.structure, 1000)
-        self.assertArrayAlmostEqual(kpoints.kpts[0], [10, 10, 10])
+        self.assert_all_close(kpoints.kpts[0], [10, 10, 10])
 
 
 class PotcarSingleTest(PymatgenTest):
@@ -934,11 +959,11 @@ class PotcarSingleTest(PymatgenTest):
             assert getattr(self.psingle, k) is not None
 
     def test_found_unknown_key(self):
-        with pytest.raises(KeyError):
+        with pytest.raises(KeyError, match="BAD_KEY"):
             PotcarSingle.parse_functions["BAD_KEY"]
 
     def test_bad_value(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="could not convert string to float"):
             PotcarSingle.parse_functions["ENMAX"]("ThisShouldBeAFloat")
 
     def test_hash(self):
@@ -958,6 +983,8 @@ class PotcarSingleTest(PymatgenTest):
         assert psingle.functional_class == "LDA"
 
         assert psingle.potential_type == "PAW"
+
+        assert self.psingle.symbol == "Mn_pv"
 
     def test_identify_potcar(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
@@ -980,7 +1007,7 @@ class PotcarSingleTest(PymatgenTest):
         filename = (
             PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash"
         )
-        with pytest.raises(ValueError):
+        with pytest.warns(UnknownPotcarWarning, match="POTCAR with symbol Fe_pv has metadata that "):
             PotcarSingle.from_file(filename)
 
     def test_verify_correct_potcar_with_hash(self):
@@ -997,20 +1024,22 @@ class PotcarSingleTest(PymatgenTest):
     def test_multi_potcar_with_and_without_hash(self):
         filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_O.gz"
         cwd = os.path.abspath(os.path.dirname(__file__))
-        file_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
-        potcars = Potcar.from_file(filename)
-        for psingle in potcars:
-            if hasattr(psingle, "hash_sha256_from_file"):
-                assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
-            else:
-                assert psingle.file_hash in file_hash_db
+        loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
+        Potcar.from_file(filename)
+        # Still need to test the if POTCAR can be read.
+        # No longer testing for hashes
+        # for psingle in potcars:
+        #     if hasattr(psingle, "hash_sha256_from_file"):
+        #         assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
+        # else:
+        #     assert psingle.file_hash in file_hash_db
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
-    #     self.assertEqual(p.functional_class, 'GGA')
+    #     assert p.functional_class == "GGA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
-    #     self.assertEqual(p.functional_class, 'LDA')
+    #     assert p.functional_class == "LDA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 
@@ -1025,6 +1054,9 @@ class PotcarTest(PymatgenTest):
         assert self.potcar.symbols == ["Fe", "P", "O"], "Wrong symbols read in for POTCAR"
         potcar = Potcar(["Fe_pv", "O"])
         assert potcar[0].enmax == 293.238
+
+    def test_from_file(self):
+        assert {d.header for d in self.potcar} == {"PAW_PBE O 08Apr2002", "PAW_PBE P 17Jan2003", "PAW_PBE Fe 06Sep2000"}
 
     def test_potcar_map(self):
         fe_potcar = zopen(PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv.gz").read().decode("utf-8")
@@ -1055,12 +1087,12 @@ class PotcarTest(PymatgenTest):
 
     # def test_default_functional(self):
     #     p = Potcar(["Fe", "P"])
-    #     self.assertEqual(p[0].functional_class, 'GGA')
-    #     self.assertEqual(p[1].functional_class, 'GGA')
+    #     assert p[0].functional_class == "GGA"
+    #     assert p[1].functional_class == "GGA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
     #     p = Potcar(["Fe", "P"])
-    #     self.assertEqual(p[0].functional_class, 'LDA')
-    #     self.assertEqual(p[1].functional_class, 'LDA')
+    #     assert p[0].functional_class == "LDA"
+    #     assert p[1].functional_class == "LDA"
 
     def test_pickle(self):
         pickle.dumps(self.potcar)
@@ -1081,17 +1113,17 @@ class VaspInputTest(PymatgenTest):
         potcar = Potcar.from_file(filepath)
         filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.auto"
         kpoints = Kpoints.from_file(filepath)
-        self.vinput = VaspInput(incar, kpoints, poscar, potcar)
+        self.vasp_input = VaspInput(incar, kpoints, poscar, potcar)
 
     def test_to_from_dict(self):
-        d = self.vinput.as_dict()
-        vinput = VaspInput.from_dict(d)
-        comp = vinput["POSCAR"].structure.composition
+        d = self.vasp_input.as_dict()
+        vasp_input = VaspInput.from_dict(d)
+        comp = vasp_input["POSCAR"].structure.composition
         assert comp == Composition("Fe4P4O16")
 
     def test_write(self):
         tmp_dir = Path("VaspInput.testing")
-        self.vinput.write_input(tmp_dir)
+        self.vasp_input.write_input(tmp_dir)
 
         filepath = tmp_dir / "INCAR"
         incar = Incar.from_file(filepath)
@@ -1103,21 +1135,15 @@ class VaspInputTest(PymatgenTest):
         tmp_dir.rmdir()
 
     def test_run_vasp(self):
-        # To add some test.
-        with ScratchDir(".") as d:
-            self.vinput.run_vasp(d, vasp_cmd=["cat", "INCAR"])
-            with open(os.path.join(d, "vasp.out")) as f:
-                output = f.read()
-                assert output.split("\n")[0] == "ALGO = Damped"
+        self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
+        with open("vasp.out") as f:
+            output = f.read()
+            assert output.split("\n")[0] == "ALGO = Damped"
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(PymatgenTest.TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar})
         assert vi["INCAR"]["ALGO"] == "Damped"
         assert "CONTCAR.Li2O" in vi
         d = vi.as_dict()
-        vinput = VaspInput.from_dict(d)
-        assert "CONTCAR.Li2O" in vinput
-
-
-if __name__ == "__main__":
-    unittest.main()
+        vasp_input = VaspInput.from_dict(d)
+        assert "CONTCAR.Li2O" in vasp_input

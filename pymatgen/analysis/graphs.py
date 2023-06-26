@@ -1,9 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Module for graph representations of crystals and molecules.
-"""
+"""Module for graph representations of crystals and molecules."""
 from __future__ import annotations
 
 import copy
@@ -15,7 +10,7 @@ from collections import defaultdict, namedtuple
 from itertools import combinations
 from operator import itemgetter
 from shutil import which
-from typing import Callable
+from typing import Any, Callable
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -51,16 +46,12 @@ ConnectedSite = namedtuple("ConnectedSite", "site, jimage, index, weight, dist")
 
 
 def _compare(g1, g2, i1, i2):
-    """
-    Helper function called by isomorphic to ensure comparison of node identities.
-    """
+    """Helper function called by isomorphic to ensure comparison of node identities."""
     return g1.vs[i1]["species"] == g2.vs[i2]["species"]
 
 
 def _igraph_from_nxgraph(graph):
-    """
-    Helper function that converts a networkx graph object into an igraph graph object.
-    """
+    """Helper function that converts a networkx graph object into an igraph graph object."""
     nodes = graph.nodes(data=True)
     new_igraph = igraph.Graph()
     for node in nodes:
@@ -308,23 +299,17 @@ class StructureGraph(MSONable):
 
     @property
     def name(self):
-        """
-        :return: Name of graph
-        """
+        """:return: Name of graph"""
         return self.graph.graph["name"]
 
     @property
     def edge_weight_name(self):
-        """
-        :return: Name of the edge weight property of graph
-        """
+        """:return: Name of the edge weight property of graph"""
         return self.graph.graph["edge_weight_name"]
 
     @property
     def edge_weight_unit(self):
-        """
-        :return: Units of the edge weight property of graph
-        """
+        """:return: Units of the edge weight property of graph"""
         return self.graph.graph["edge_weight_units"]
 
     def add_edge(
@@ -518,8 +503,8 @@ class StructureGraph(MSONable):
                         edge["to_index"],
                         from_jimage=(0, 0, 0),
                         to_jimage=edge["to_jimage"],
-                        weight=edge.get("weight", None),
-                        edge_properties=edge.get("properties", None),
+                        weight=edge.get("weight"),
+                        edge_properties=edge.get("properties"),
                     )
                 except KeyError:
                     raise RuntimeError("Some edges are invalid.")
@@ -579,9 +564,9 @@ class StructureGraph(MSONable):
         if to_jimage is None:
             edge_index = 0
         else:
-            for i, properties in existing_edges.items():
+            for idx, properties in existing_edges.items():
                 if properties["to_jimage"] == to_jimage:
-                    edge_index = i
+                    edge_index = idx
 
         if new_weight is not None:
             self.graph[from_index][to_index][edge_index]["weight"] = new_weight
@@ -773,7 +758,7 @@ class StructureGraph(MSONable):
         :param n: index of Site in Structure
         :param jimage: lattice vector of site
         :return: list of ConnectedSite tuples,
-            sorted by closest first
+            sorted by closest first.
         """
         connected_sites = set()
         connected_site_images = set()
@@ -797,7 +782,7 @@ class StructureGraph(MSONable):
             relative_jimage = np.subtract(to_jimage, jimage)
             dist = self.structure[u].distance(self.structure[v], jimage=relative_jimage)
 
-            weight = d.get("weight", None)
+            weight = d.get("weight")
 
             if (v, to_jimage) not in connected_site_images:
                 connected_site = ConnectedSite(site=site, jimage=to_jimage, index=v, weight=weight, dist=dist)
@@ -889,12 +874,12 @@ class StructureGraph(MSONable):
         g.graph = {"nodesep": 10.0, "dpi": 300, "overlap": "false"}
 
         # add display options for nodes
-        for n in g.nodes():
+        for node in g.nodes():
             # get label by species name
-            label = f"{self.structure[n].specie}({n})" if node_labels else ""
+            label = f"{self.structure[node].specie}({node})" if node_labels else ""
 
             # use standard color scheme for nodes
-            c = EL_COLORS[color_scheme].get(str(self.structure[n].specie.symbol), [0, 0, 0])
+            c = EL_COLORS[color_scheme].get(str(self.structure[node].specie.symbol), [0, 0, 0])
 
             # get contrasting font color
             # magic numbers account for perceived luminescence
@@ -905,7 +890,7 @@ class StructureGraph(MSONable):
             color = f"#{c[0]:02x}{c[1]:02x}{c[2]:02x}"
 
             g.add_node(
-                n,
+                node,
                 fillcolor=color,
                 fontcolor=fontcolor,
                 label=label,
@@ -1026,7 +1011,7 @@ class StructureGraph(MSONable):
         :return: A dict with an 'all_weights' list, 'minimum',
             'maximum', 'median', 'mean', 'std_dev'
         """
-        all_weights = [d.get("weight", None) for u, v, d in self.graph.edges(data=True)]
+        all_weights = [d.get("weight") for u, v, d in self.graph.edges(data=True)]
         stats = describe(all_weights, nan_policy="omit")
 
         return {
@@ -1075,7 +1060,7 @@ class StructureGraph(MSONable):
             motif = f"{centre_sp}-{','.join(labels)}"
             motifs.add(motif)
 
-        return sorted(list(motifs))
+        return sorted(motifs)
 
     def as_dict(self):
         """
@@ -1083,14 +1068,12 @@ class StructureGraph(MSONable):
         with using `to_dict_of_dicts` from NetworkX
         to store graph information.
         """
-        d = {
+        return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "graphs": json_graph.adjacency_data(self.graph),
         }
-
-        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -1099,8 +1082,8 @@ class StructureGraph(MSONable):
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """
-        s = Structure.from_dict(d["structure"])
-        return cls(s, d["graphs"])
+        struct = Structure.from_dict(d["structure"])
+        return cls(struct, d["graphs"])
 
     def __mul__(self, scaling_matrix):
         """
@@ -1153,7 +1136,7 @@ class StructureGraph(MSONable):
             mapping = {n: n + len(new_sites) for n in range(len(self.structure))}
 
             for site in self.structure:
-                s = PeriodicSite(
+                site = PeriodicSite(
                     site.species,
                     site.coords + v,
                     new_lattice,
@@ -1162,7 +1145,7 @@ class StructureGraph(MSONable):
                     to_unit_cell=False,
                 )
 
-                new_sites.append(s)
+                new_sites.append(site)
 
             new_graphs.append(nx.relabel_nodes(self.graph, mapping, copy=True))
 
@@ -1301,9 +1284,7 @@ class StructureGraph(MSONable):
             "graphs": json_graph.adjacency_data(new_g),
         }
 
-        sg = StructureGraph.from_dict(d)
-
-        return sg
+        return StructureGraph.from_dict(d)
 
     def __rmul__(self, other):
         return self.__mul__(other)
@@ -1333,19 +1314,19 @@ class StructureGraph(MSONable):
 
         if print_weights:
             for u, v, data in edges:
-                s += f"{u:4}  {v:4}  {str(data.get('to_jimage', (0, 0, 0))):12}  {data.get('weight', 0):.3e}\n"
+                s += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}  {data.get('weight', 0):.3e}\n"
         else:
             for u, v, data in edges:
-                s += f"{u:4}  {v:4}  {str(data.get('to_jimage', (0, 0, 0))):12}\n"
+                s += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}\n"
 
         return s
 
     def __str__(self):
-        s = "Structure Graph"
-        s += f"\nStructure: \n{self.structure}"
-        s += f"\nGraph: {self.name}\n"
-        s += self._edges_to_string(self.graph)
-        return s
+        out = "Structure Graph"
+        out += f"\nStructure: \n{self.structure}"
+        out += f"\nGraph: {self.name}\n"
+        out += self._edges_to_string(self.graph)
+        return out
 
     def __repr__(self):
         s = "Structure Graph"
@@ -1355,9 +1336,7 @@ class StructureGraph(MSONable):
         return s
 
     def __len__(self):
-        """
-        :return: length of Structure / number of nodes in graph
-        """
+        """:return: length of Structure / number of nodes in graph"""
         return len(self.structure)
 
     def sort(self, key=None, reverse=False):
@@ -1565,7 +1544,7 @@ class StructureGraph(MSONable):
 class MolGraphSplitError(Exception):
     """
     Raised when a molecule graph is failed to split into two disconnected
-    subgraphs
+    subgraphs.
     """
 
 
@@ -1737,10 +1716,7 @@ class MoleculeGraph(MSONable):
             structure = None
 
         for n in range(len(molecule)):
-            if structure is None:
-                neighbors = strategy.get_nn_info(molecule, n)
-            else:
-                neighbors = strategy.get_nn_info(structure, n)
+            neighbors = strategy.get_nn_info(molecule, n) if structure is None else strategy.get_nn_info(structure, n)
             for neighbor in neighbors:
                 # all bonds in molecules should not cross
                 # (artificial) periodic boundaries
@@ -1774,23 +1750,17 @@ class MoleculeGraph(MSONable):
 
     @property
     def name(self):
-        """
-        :return: Name of graph
-        """
+        """:return: Name of graph"""
         return self.graph.graph["name"]
 
     @property
     def edge_weight_name(self):
-        """
-        :return: Name of the edge weight property of graph
-        """
+        """:return: Name of the edge weight property of graph"""
         return self.graph.graph["edge_weight_name"]
 
     @property
     def edge_weight_unit(self):
-        """
-        :return: Units of the edge weight property of graph
-        """
+        """:return: Units of the edge weight property of graph"""
         return self.graph.graph["edge_weight_units"]
 
     def add_edge(
@@ -1899,8 +1869,8 @@ class MoleculeGraph(MSONable):
                     self.add_edge(
                         edge["from_index"],
                         edge["to_index"],
-                        weight=edge.get("weight", None),
-                        edge_properties=edge.get("properties", None),
+                        weight=edge.get("weight"),
+                        edge_properties=edge.get("properties"),
                     )
                 except KeyError:
                     raise RuntimeError("Some edges are invalid.")
@@ -1946,7 +1916,7 @@ class MoleculeGraph(MSONable):
         # ensure that edge exists before attempting to change it
         if not existing_edge:
             raise ValueError(
-                f"Edge between {from_index} and {to_index} cannot be altered; " f"no edge exists between those sites."
+                f"Edge between {from_index} and {to_index} cannot be altered; no edge exists between those sites."
             )
 
         # Third index should always be 0 because there should only be one edge between any two nodes
@@ -1959,7 +1929,7 @@ class MoleculeGraph(MSONable):
 
     def break_edge(self, from_index, to_index, allow_reverse=False):
         """
-        Remove an edge from the MoleculeGraph
+        Remove an edge from the MoleculeGraph.
 
         :param from_index: int
         :param to_index: int
@@ -2005,19 +1975,22 @@ class MoleculeGraph(MSONable):
         nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
 
-    def get_disconnected_fragments(self):
-        """
-        Determine if the MoleculeGraph is connected. If it is not, separate the
-        MoleculeGraph into different MoleculeGraphs, where each resulting
-        MoleculeGraph is a disconnected subgraph of the original.
-        Currently, this function naively assigns the charge
-        of the total molecule to a single submolecule. A
-        later effort will be to actually accurately assign
-        charge.
-        NOTE: This function does not modify the original
-        MoleculeGraph. It creates a copy, modifies that, and
-        returns two or more new MoleculeGraph objects.
-        :return: list of MoleculeGraphs
+    def get_disconnected_fragments(self, return_index_map: bool = False):
+        """Determine if the MoleculeGraph is connected. If it is not, separate the
+        MoleculeGraph into different MoleculeGraphs, where each resulting MoleculeGraph is
+        a disconnected subgraph of the original. Currently, this function naively assigns
+        the charge of the total molecule to a single submolecule. A later effort will be
+        to actually accurately assign charge.
+
+        Args:
+            return_index_map (bool): If True, return a dictionary that maps the
+                new indices to the original indices. Defaults to False.
+
+        NOTE: This function does not modify the original MoleculeGraph. It creates a copy,
+        modifies that, and returns two or more new MoleculeGraph objects.
+
+        Returns:
+            list[MoleculeGraph]: Each MoleculeGraph is a disconnected subgraph of the original MoleculeGraph.
         """
         if nx.is_weakly_connected(self.graph):
             return [copy.deepcopy(self)]
@@ -2027,11 +2000,11 @@ class MoleculeGraph(MSONable):
 
         # Had to use nx.weakly_connected_components because of deprecation
         # of nx.weakly_connected_component_subgraphs
-        subgraphs = [original.graph.subgraph(c) for c in nx.weakly_connected_components(original.graph)]
-
-        for subg in subgraphs:
-            nodes = sorted(list(subg.nodes))
-
+        new_to_old_index = []
+        for c in nx.weakly_connected_components(original.graph):
+            subgraph = original.graph.subgraph(c)
+            nodes = sorted(subgraph.nodes)
+            new_to_old_index += list(nodes)
             # Molecule indices are essentially list-based, so node indices
             # must be remapped, incrementing from 0
             mapping = {}
@@ -2040,19 +2013,16 @@ class MoleculeGraph(MSONable):
 
             # just give charge to whatever subgraph has node with index 0
             # TODO: actually figure out how to distribute charge
-            if 0 in nodes:
-                charge = self.molecule.charge
-            else:
-                charge = 0
+            charge = self.molecule.charge if 0 in nodes else 0
 
             # relabel nodes in graph to match mapping
-            new_graph = nx.relabel_nodes(subg, mapping)
+            new_graph = nx.relabel_nodes(subgraph, mapping)
 
             species = nx.get_node_attributes(new_graph, "specie")
             coords = nx.get_node_attributes(new_graph, "coords")
             raw_props = nx.get_node_attributes(new_graph, "properties")
 
-            properties = {}
+            properties: dict[str, Any] = {}
             for prop_set in raw_props.values():
                 for prop in prop_set:
                     if prop in properties:
@@ -2072,6 +2042,8 @@ class MoleculeGraph(MSONable):
             # create new MoleculeGraph
             sub_mols.append(MoleculeGraph(new_mol, graph_data=graph_data))
 
+        if return_index_map:
+            return sub_mols, dict(enumerate(new_to_old_index))
         return sub_mols
 
     def split_molecule_subgraphs(self, bonds, allow_reverse=False, alterations=None):
@@ -2101,7 +2073,7 @@ class MoleculeGraph(MSONable):
         :param allow_reverse: If allow_reverse is True, then break_edge will
             attempt to break both (from_index, to_index) and, failing that,
             will attempt to break (to_index, from_index).
-        :return: list of MoleculeGraphs
+        :return: list of MoleculeGraphs.
         """
         self.set_node_attributes()
         original = copy.deepcopy(self)
@@ -2110,10 +2082,7 @@ class MoleculeGraph(MSONable):
             original.break_edge(bond[0], bond[1], allow_reverse=allow_reverse)
 
         if nx.is_weakly_connected(original.graph):
-            raise MolGraphSplitError(
-                "Cannot split molecule; \
-                                MoleculeGraph is still connected."
-            )
+            raise MolGraphSplitError("Cannot split molecule; MoleculeGraph is still connected.")
 
         # alter any bonds before partition, to avoid remapping
         if alterations is not None:
@@ -2131,7 +2100,7 @@ class MoleculeGraph(MSONable):
     def build_unique_fragments(self):
         """
         Find all possible fragment combinations of the MoleculeGraphs (in other
-        words, all connected induced subgraphs)
+        words, all connected induced subgraphs).
 
         :return:
         """
@@ -2416,19 +2385,19 @@ class MoleculeGraph(MSONable):
                 strategy_params=strategy_params,
             )
 
-    def find_rings(self, including=None):
+    def find_rings(self, including=None) -> list[list[tuple[int, int]]]:
         """
         Find ring structures in the MoleculeGraph.
 
-        :param including: list of site indices. If
-            including is not None, then find_rings will
-            only return those rings including the specified
-            sites. By default, this parameter is None, and
-            all rings will be returned.
-        :return: dict {index:cycle}. Each
-            entry will be a ring (cycle, in graph theory terms) including the index
-            found in the Molecule. If there is no cycle including an index, the
-            value will be an empty list.
+        Args:
+            including (list[int]): list of site indices. If including is not None, then find_rings
+            will only return those rings including the specified sites. By default, this parameter
+            is None, and all rings will be returned.
+
+        Returns:
+            list[list[tuple[int, int]]]: Each entry will be a ring (cycle, in graph theory terms)
+                including the index found in the Molecule. If there is no cycle including an index, the
+                value will be an empty list.
         """
         # Copies self.graph such that all edges (u, v) matched by edges (v, u)
         undirected = self.graph.to_undirected()
@@ -2438,29 +2407,29 @@ class MoleculeGraph(MSONable):
         cycles_edges = []
 
         # Remove all two-edge cycles
-        all_cycles = [c for c in nx.simple_cycles(directed) if len(c) > 2]
+        all_cycles = [sorted(cycle) for cycle in nx.simple_cycles(directed) if len(cycle) > 2]
 
         # Using to_directed() will mean that each cycle always appears twice
         # So, we must also remove duplicates
         unique_sorted = []
         unique_cycles = []
         for cycle in all_cycles:
-            if sorted(cycle) not in unique_sorted:
-                unique_sorted.append(sorted(cycle))
+            if cycle not in unique_sorted:
+                unique_sorted.append(cycle)
                 unique_cycles.append(cycle)
 
         if including is None:
             cycles_nodes = unique_cycles
         else:
-            for i in including:
+            for incl in including:
                 for cycle in unique_cycles:
-                    if i in cycle and cycle not in cycles_nodes:
+                    if incl in cycle and cycle not in cycles_nodes:
                         cycles_nodes.append(cycle)
 
         for cycle in cycles_nodes:
             edges = []
-            for i, e in enumerate(cycle):
-                edges.append((cycle[i - 1], e))
+            for idx, itm in enumerate(cycle):
+                edges.append((cycle[idx - 1], itm))
             cycles_edges.append(edges)
 
         return cycles_edges
@@ -2475,7 +2444,7 @@ class MoleculeGraph(MSONable):
         :param n: index of Site in Molecule
         :param jimage: lattice vector of site
         :return: list of ConnectedSite tuples,
-            sorted by closest first
+            sorted by closest first.
         """
         connected_sites = set()
 
@@ -2483,7 +2452,7 @@ class MoleculeGraph(MSONable):
         in_edges = list(self.graph.in_edges(n, data=True))
 
         for u, v, d in out_edges + in_edges:
-            weight = d.get("weight", None)
+            weight = d.get("weight")
 
             if v == n:
                 site = self.molecule[u]
@@ -2582,12 +2551,12 @@ class MoleculeGraph(MSONable):
         g.graph = {"nodesep": 10.0, "dpi": 300, "overlap": "false"}
 
         # add display options for nodes
-        for n in g.nodes():
+        for node in g.nodes():
             # get label by species name
-            label = f"{self.molecule[n].specie}({n})" if node_labels else ""
+            label = f"{self.molecule[node].specie}({node})" if node_labels else ""
 
             # use standard color scheme for nodes
-            c = EL_COLORS[color_scheme].get(str(self.molecule[n].specie.symbol), [0, 0, 0])
+            c = EL_COLORS[color_scheme].get(str(self.molecule[node].specie.symbol), [0, 0, 0])
 
             # get contrasting font color
             # magic numbers account for perceived luminescence
@@ -2598,7 +2567,7 @@ class MoleculeGraph(MSONable):
             color = f"#{c[0]:02x}{c[1]:02x}{c[2]:02x}"
 
             g.add_node(
-                n,
+                node,
                 fillcolor=color,
                 fontcolor=fontcolor,
                 label=label,
@@ -2612,10 +2581,7 @@ class MoleculeGraph(MSONable):
         # add display options for edges
         for u, v, k, d in g.edges(keys=True, data=True):
             # retrieve from/to images, set as origin if not defined
-            if "to_image" in d:
-                to_image = d["to_jimage"]
-            else:
-                to_image = (0, 0, 0)
+            to_image = d["to_jimage"] if "to_image" in d else (0, 0, 0)
 
             # set edge style
             d["style"] = "solid"
@@ -2695,24 +2661,20 @@ class MoleculeGraph(MSONable):
         with using `to_dict_of_dicts` from NetworkX
         to store graph information.
         """
-        d = {
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-            "molecule": self.molecule.as_dict(),
-            "graphs": json_graph.adjacency_data(self.graph),
-        }
-
-        return d
+        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct["molecule"] = self.molecule.as_dict()
+        dct["graphs"] = json_graph.adjacency_data(self.graph)
+        return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         As in :class:`pymatgen.core.Molecule` except
         restoring graphs using `from_dict_of_dicts`
         from NetworkX to restore graph information.
         """
-        m = Molecule.from_dict(d["molecule"])
-        return cls(m, d["graphs"])
+        m = Molecule.from_dict(dct["molecule"])
+        return cls(m, dct["graphs"])
 
     @classmethod
     def _edges_to_string(cls, g):
@@ -2730,7 +2692,7 @@ class MoleculeGraph(MSONable):
         else:
             print_weights = False
 
-        s = f"{header}\n{header_line}\n"
+        out = f"{header}\n{header_line}\n"
 
         edges = list(g.edges(data=True))
 
@@ -2739,31 +2701,29 @@ class MoleculeGraph(MSONable):
 
         if print_weights:
             for u, v, data in edges:
-                s += f"{u:4}  {v:4}  {str(data.get('to_jimage', (0, 0, 0))):12}  {data.get('weight', 0):.3e}\n"
+                out += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}  {data.get('weight', 0):.3e}\n"
         else:
             for u, v, data in edges:
-                s += f"{u:4}  {v:4}  {str(data.get('to_jimage', (0, 0, 0))):12}\n"
+                out += f"{u:4}  {v:4}  {data.get('to_jimage', (0, 0, 0))!s:12}\n"
 
-        return s
+        return out
 
     def __str__(self) -> str:
-        s = "Molecule Graph"
-        s += f"\nMolecule: \n{self.molecule}"
-        s += f"\nGraph: {self.name}\n"
-        s += self._edges_to_string(self.graph)
-        return s
+        out = "Molecule Graph"
+        out += f"\nMolecule: \n{self.molecule}"
+        out += f"\nGraph: {self.name}\n"
+        out += self._edges_to_string(self.graph)
+        return out
 
     def __repr__(self) -> str:
-        s = "Molecule Graph"
-        s += f"\nMolecule: \n{self.molecule.__repr__()}"
-        s += f"\nGraph: {self.name}\n"
-        s += self._edges_to_string(self.graph)
-        return s
+        out = "Molecule Graph"
+        out += f"\nMolecule: \n{self.molecule.__repr__()}"
+        out += f"\nGraph: {self.name}\n"
+        out += self._edges_to_string(self.graph)
+        return out
 
     def __len__(self) -> int:
-        """
-        :return: length of Molecule / number of nodes in graph
-        """
+        """:return: length of Molecule / number of nodes in graph"""
         return len(self.molecule)
 
     def sort(self, key: Callable[[Molecule], float] | None = None, reverse: bool = False) -> None:

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import json
@@ -34,7 +31,7 @@ from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import PymatgenTest
 
 
-class DosPlotterTest(unittest.TestCase):
+class DosPlotterTest(PymatgenTest):
     def setUp(self):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
@@ -45,17 +42,16 @@ class DosPlotterTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_add_dos_dict(self):
-        d = self.plotter.get_dos_dict()
-        assert len(d) == 0
+        dct = self.plotter.get_dos_dict()
+        assert len(dct) == 0
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
-        d = self.plotter.get_dos_dict()
-        assert len(d) == 4
+        dct = self.plotter.get_dos_dict()
+        assert len(dct) == 4
 
     def test_get_dos_dict(self):
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
-        d = self.plotter.get_dos_dict()
-        for el in ["Li", "Fe", "P", "O"]:
-            assert el in d
+        dct = self.plotter.get_dos_dict()
+        assert list(dct) == ["Li", "Fe", "P", "O"]
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
@@ -66,10 +62,38 @@ class DosPlotterTest(unittest.TestCase):
         rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         plt = self.plotter.get_plot()
-        self.plotter.save_plot("dosplot.png")
-        assert os.path.isfile("dosplot.png")
-        os.remove("dosplot.png")
+        out_path = f"{self.tmp_path}/dosplot.png"
+        self.plotter.save_plot(out_path)
+        assert os.path.isfile(out_path)
         plt.close("all")
+
+    def test_get_plot_limits(self):
+        # Tests limit determination and if inverted_axes case
+        # reproduces the same energy and DOS axis limits
+        from matplotlib import rc
+
+        rc("text", usetex=False)
+        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
+        # Contains energy and DOS limits and expected results
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos_limits.json")) as f:
+            limits_results = json.load(f)
+
+        for item in limits_results:
+            plt = self.plotter.get_plot(xlim=item["energy_limit"], ylim=item["DOS_limit"])
+            param_dict = self.get_plot_attributes(plt)
+            plt_invert = self.plotter.get_plot(invert_axes=True, xlim=item["DOS_limit"], ylim=item["energy_limit"])
+            param_dict_invert = self.get_plot_attributes(plt_invert)
+            assert item["energy_result"] == approx(param_dict["xaxis_limits"])
+            assert item["energy_result"] == approx(param_dict_invert["yaxis_limits"])
+            assert item["DOS_result"] == approx(param_dict["yaxis_limits"])
+            assert item["DOS_result"] == approx(param_dict_invert["xaxis_limits"])
+
+    @staticmethod
+    def get_plot_attributes(plt):
+        if plt.axes:
+            ax = plt.gca()
+            return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
+        return None
 
 
 class BSPlotterTest(unittest.TestCase):
@@ -442,10 +466,10 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
 class CohpPlotterTest(PymatgenTest):
     def setUp(self):
-        path = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "complete_cohp_lobster.json")
+        path = f"{PymatgenTest.TEST_FILES_DIR}/cohp/complete_cohp_lobster.json"
         with open(os.path.join(path)) as f:
             self.cohp = CompleteCohp.from_dict(json.load(f))
-        path = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "complete_coop_lobster.json")
+        path = f"{PymatgenTest.TEST_FILES_DIR}/cohp/complete_coop_lobster.json"
         with open(os.path.join(path)) as f:
             self.coop = CompleteCohp.from_dict(json.load(f))
         self.cohp_plot = CohpPlotter(zero_at_efermi=False)
@@ -509,8 +533,8 @@ class CohpPlotterTest(PymatgenTest):
         cohp_fe_fe = self.cohp.all_cohps["1"]
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            self.assertArrayAlmostEqual(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
-            self.assertArrayAlmostEqual(lines.get_ydata(), self.cohp.energies)
+            self.assert_all_close(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
+            self.assert_all_close(lines.get_ydata(), self.cohp.energies)
             assert lines.get_linestyle() == linestyles[spin]
         plt_cohp.close()
 
@@ -520,8 +544,8 @@ class CohpPlotterTest(PymatgenTest):
         assert ax_cohp.get_ylabel() == "COHP"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            self.assertArrayAlmostEqual(lines.get_xdata(), self.cohp.energies)
-            self.assertArrayAlmostEqual(lines.get_ydata(), cohp_fe_fe.cohp[spin])
+            self.assert_all_close(lines.get_xdata(), self.cohp.energies)
+            self.assert_all_close(lines.get_ydata(), cohp_fe_fe.cohp[spin])
         plt_cohp.close()
 
         plt_cohp = self.cohp_plot.get_plot(integrated=True)
@@ -529,7 +553,7 @@ class CohpPlotterTest(PymatgenTest):
         assert ax_cohp.get_xlabel() == "-ICOHP (eV)"
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            self.assertArrayAlmostEqual(lines.get_xdata(), -cohp_fe_fe.icohp[spin])
+            self.assert_all_close(lines.get_xdata(), -cohp_fe_fe.icohp[spin])
 
         coop_dict = {"Bi5-Bi6": self.coop.all_cohps["10"]}
         self.coop_plot.add_cohp_dict(coop_dict)
@@ -538,9 +562,9 @@ class CohpPlotterTest(PymatgenTest):
         assert ax_coop.get_xlabel() == "COOP"
         assert ax_coop.get_ylabel() == "$E - E_f$ (eV)"
         lines_coop = ax_coop.get_lines()[0]
-        self.assertArrayAlmostEqual(lines_coop.get_ydata(), self.coop.energies - self.coop.efermi)
+        self.assert_all_close(lines_coop.get_ydata(), self.coop.energies - self.coop.efermi)
         coop_bi_bi = self.coop.all_cohps["10"].cohp[Spin.up]
-        self.assertArrayAlmostEqual(lines_coop.get_xdata(), coop_bi_bi)
+        self.assert_all_close(lines_coop.get_xdata(), coop_bi_bi)
 
         # Cleanup.
         plt_cohp.close()
@@ -553,7 +577,3 @@ class CohpPlotterTest(PymatgenTest):
         assert os.path.isfile("cohpplot.png")
         os.remove("cohpplot.png")
         plt_cohp.close("all")
-
-
-if __name__ == "__main__":
-    unittest.main()

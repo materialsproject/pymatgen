@@ -1,10 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
-
-import unittest
 
 import pytest
 
@@ -44,9 +38,5 @@ class MolecularOrbitalTestCase(PymatgenTest):
 
     # test for raising ValueError for fractional composition
     def test_fractional_compositions(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="composition subscripts must be integers"):
             MolecularOrbitals("Na0.5Cl0.5")
-
-
-if __name__ == "__main__":
-    unittest.main()

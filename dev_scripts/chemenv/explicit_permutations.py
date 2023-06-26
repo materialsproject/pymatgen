@@ -1,9 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Development script of the ChemEnv utility to get the explicit permutations for coordination environments identified
-with the explicit permutations algorithms (typically with coordination numbers <= 6)
+with the explicit permutations algorithms (typically with coordination numbers <= 6).
 """
 
 from __future__ import annotations
@@ -64,12 +61,11 @@ if __name__ == "__main__":
     lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
 
     points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
-    res = lgf.coordination_geometry_symmetry_measures_standard(
+    csms, perms, algos, local2perfect_maps, perfect2local_maps = lgf.coordination_geometry_symmetry_measures_standard(
         coordination_geometry=cg, algo=algo, points_perfect=points_perfect
     )
-    (csms, perms, algos, local2perfect_maps, perfect2local_maps) = res
 
-    csms_with_recorded_permutation = []
+    csms_with_recorded_permutation: list[float] = []
     explicit_permutations = []
     for icsm, csm in enumerate(csms):
         found = False

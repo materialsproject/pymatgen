@@ -1,29 +1,26 @@
 #!/usr/bin/env python
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 
-"""
-Implementation for `pmg config` CLI.
-"""
+"""Implementation for `pmg config` CLI."""
 
 from __future__ import annotations
 
-import glob
 import os
 import shutil
 import subprocess
-import sys
-from argparse import Namespace
-from typing import Literal
+from glob import glob
+from typing import TYPE_CHECKING, Literal
 from urllib.request import urlretrieve
 
 from monty.serialization import dumpfn, loadfn
 
 from pymatgen.core import OLD_SETTINGS_FILE, SETTINGS_FILE
 
+if TYPE_CHECKING:
+    from argparse import Namespace
+
 
 def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
-    """Setup CP2K basis and potential data directory"""
+    """Setup CP2K basis and potential data directory."""
     data_dir, target_dir = (os.path.abspath(dir) for dir in cp2k_data_dirs)
     try:
         os.mkdir(target_dir)
@@ -34,8 +31,6 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
             raise SystemExit(0)
     print("Generating pymatgen resource directory for CP2K...")
 
-    import glob
-
     from monty.json import jsanitize
     from ruamel import yaml
 
@@ -43,8 +38,8 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
     from pymatgen.io.cp2k.utils import chunk
 
-    basis_files = glob.glob(os.path.join(data_dir, "*BASIS*"))
-    potential_files = glob.glob(os.path.join(data_dir, "*POTENTIAL*"))
+    basis_files = glob(os.path.join(data_dir, "*BASIS*"))
+    potential_files = glob(os.path.join(data_dir, "*POTENTIAL*"))
 
     settings: dict[str, dict] = {str(el): {"potentials": {}, "basis_sets": {}} for el in Element}
 
@@ -144,7 +139,7 @@ def setup_potcars(potcar_dirs: list[str]):
         basename = os.path.basename(parent)
         basename = name_mappings.get(basename, basename)
         for subdir in subdirs:
-            filenames = glob.glob(os.path.join(parent, subdir, "POTCAR*"))
+            filenames = glob(os.path.join(parent, subdir, "POTCAR*"))
             if len(filenames) > 0:
                 try:
                     base_dir = os.path.join(target_dir, basename)
@@ -166,8 +161,8 @@ def setup_potcars(potcar_dirs: list[str]):
                     shutil.move(os.path.join(base_dir, "POTCAR"), dest)
                     with subprocess.Popen(["gzip", "-f", dest]) as p:
                         p.communicate()
-                except Exception as ex:
-                    print(f"An error has occurred. Message is {str(ex)}. Trying to continue... ")
+                except Exception as exc:
+                    print(f"An error has occurred. Message is {exc}. Trying to continue... ")
 
     print(
         "\nPSP resources directory generated. It is recommended that you "
@@ -195,8 +190,8 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
         for f in ["enum.x", "makestr.x"]:
             subprocess.call(["make", f])
             shutil.copy(f, os.path.join("..", ".."))
-    except Exception as ex:
-        print(ex)
+    except Exception as exc:
+        print(exc)
         state = False
     finally:
         os.chdir(cwd)
@@ -243,13 +238,11 @@ def install_software(install: Literal["enumlib", "bader"]):
             subprocess.call(["gfortran", "--version"])
             print("Found gfortran")
             fortran_command = "gfortran"
-        except Exception as ex:
-            print(str(ex))
-            print("No fortran compiler found.")
-            sys.exit(-1)
+        except Exception as exc:
+            print(str(exc))
+            raise SystemExit("No fortran compiler found.")
 
-    enum = None
-    bader = None
+    enum = bader = None
     if install == "enumlib":
         print("Building enumlib")
         enum = build_enum(fortran_command)
@@ -276,17 +269,17 @@ def add_config_var(tokens: list[str], backup_suffix: str) -> None:
     else:
         # if neither exists, create new config file
         fpath = SETTINGS_FILE
-    d = {}
+    dct = {}
     if os.path.exists(fpath):
         if backup_suffix:
             shutil.copy(fpath, fpath + backup_suffix)
             print(f"Existing {fpath} backed up to {fpath}{backup_suffix}")
-        d = loadfn(fpath)
+        dct = loadfn(fpath)
     if len(tokens) % 2 != 0:
         raise ValueError(f"Uneven number {len(tokens)} of tokens passed to pmg config. Needs a value for every key.")
     for key, val in zip(tokens[0::2], tokens[1::2]):
-        d[key] = val
-    dumpfn(d, fpath)
+        dct[key] = val
+    dumpfn(dct, fpath)
     print(f"New {fpath} written!")
 
 

@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-import os
-
 import pytest
+from pytest import approx
 
 from pymatgen.core import Structure
 from pymatgen.io.res import AirssProvider, ParseError, ResWriter
 from pymatgen.util.testing import PymatgenTest
 
-res_coc = os.path.join(PymatgenTest.TEST_FILES_DIR, "res", "coc-115925-9326-14.res")
+res_coc = f"{PymatgenTest.TEST_FILES_DIR}/res/coc-115925-9326-14.res"
 
 
 @pytest.mark.parametrize("provider", [AirssProvider.from_file(res_coc, "strict")])
@@ -17,9 +16,9 @@ class TestAirssProvider:
         entry = provider.get_cut_grid_gmax_fsbc()
         assert entry is not None
         cut, gs, gm, fsbc = entry
-        assert cut == pytest.approx(326.5366)
-        assert gs == pytest.approx(1.75)
-        assert gm == pytest.approx(16.201)
+        assert cut == approx(326.5366)
+        assert gs == approx(1.75)
+        assert gm == approx(16.201)
         assert fsbc == "automatic"
 
     def test_moks(self, provider: AirssProvider):
@@ -32,41 +31,41 @@ class TestAirssProvider:
         assert spacing == 0.05
 
     def test_pspots(self, provider: AirssProvider):
-        pspots = provider.get_pspots()
-        assert pspots["Co"] == "3|2.2|2.0|1.0|8|9|10|40:41:32(qc=5)"
-        assert pspots["C"] == "2|1.4|8|9|10|20:21(qc=5)"
+        ps_pots = provider.get_pspots()
+        assert ps_pots["Co"] == "3|2.2|2.0|1.0|8|9|10|40:41:32(qc=5)"
+        assert ps_pots["C"] == "2|1.4|8|9|10|20:21(qc=5)"
 
     def test_titl(self, provider: AirssProvider):
         assert provider.seed == "coc-115925-9326-14"
-        assert provider.energy == pytest.approx(-3.90427411e003)
+        assert provider.energy == approx(-3.90427411e003)
         assert provider.spacegroup_label == "R3"
-        assert provider.pressure == pytest.approx(15.0252)
-        assert provider.volume == pytest.approx(57.051984)
+        assert provider.pressure == approx(15.0252)
+        assert provider.volume == approx(57.051984)
 
     def test_lattice(self, provider: AirssProvider):
-        assert provider.lattice.lengths == pytest.approx((5.07144, 5.07144, 3.89024))
-        assert provider.lattice.angles == pytest.approx((49.32125, 49.32125, 60))
+        assert provider.lattice.lengths == approx((5.07144, 5.07144, 3.89024))
+        assert provider.lattice.angles == approx((49.32125, 49.32125, 60))
 
     def test_misc(self, provider: AirssProvider):
-        rsinfo = provider.get_run_start_info()
-        assert rsinfo is not None
-        date, path = rsinfo
+        rs_info = provider.get_run_start_info()
+        assert rs_info is not None
+        date, path = rs_info
         assert path == "/path/to/airss/run"
         assert date.day == 16
 
-        castepv = provider.get_castep_version()
-        assert castepv is not None
-        assert castepv == "19.11"
+        castep_v = provider.get_castep_version()
+        assert castep_v is not None
+        assert castep_v == "19.11"
 
         frd = provider.get_func_rel_disp()
         assert frd is not None
         f, r, d = frd
         assert f == "Perdew Burke Ernzerhof"
 
-        airssv = provider.get_airss_version()
-        assert airssv is not None
-        assert airssv[0] == "0.9.1"
-        assert airssv[1].year == 2018
+        airss_v = provider.get_airss_version()
+        assert airss_v is not None
+        assert airss_v[0] == "0.9.1"
+        assert airss_v[1].year == 2018
 
     def test_entry(self, provider: AirssProvider):
         entry1 = provider.entry
@@ -110,14 +109,41 @@ class TestAirssProvider:
             "volume",
         ]
         assert dct["seed"] == "coc-115925-9326-14"
-        assert dct["energy"] == pytest.approx(-3904.2741)
+        assert dct["energy"] == approx(-3904.2741)
         assert dct["spacegroup_label"] == "R3"
-        assert dct["pressure"] == pytest.approx(15.0252)
-        assert dct["volume"] == pytest.approx(57.051984)
+        assert dct["pressure"] == approx(15.0252)
+        assert dct["volume"] == approx(57.051984)
+
+
+class TestSpin:
+    def test_read_spin(self):
+        with open(res_coc) as f:
+            lines = f.readlines()
+        # add spin to a line
+        lines[25] = lines[25][:-1] + " -1.4\n"
+        contents = "".join(lines)
+        provider = AirssProvider.from_str(contents)
+
+        for site in provider.structure:
+            if site.properties["magmom"] is not None:
+                assert site.properties.get("magmom") == approx(-1.4)
+                return
+        pytest.fail("valid 'magmom' not found in any site properties")
+
+    def test_gh_2938_example(self):
+        res_spin_file = f"{PymatgenTest.TEST_FILES_DIR}/res/spins-in-last-col.res"
+        with open(res_spin_file) as res_file:
+            contents = res_file.read()
+
+        provider = AirssProvider.from_str(contents)
+
+        for site in provider.structure:
+            if site.properties["magmom"] is not None:
+                assert site.properties.get("magmom") in (3.31, 4.12, -0.01, -0.04, -0.17)
 
 
 class TestStructureModule:
     def test_structure_from_file(self):
         structure: Structure = Structure.from_file(res_coc)
         # just check that we read it
-        assert structure.lattice.angles == pytest.approx((49.32125, 49.32125, 60))
+        assert structure.lattice.angles == approx((49.32125, 49.32125, 60))

@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import os
@@ -69,7 +65,3 @@ class HighSymmKpathTest(PymatgenTest):
 
         assert cont_bs.as_dict() == alt_bs.as_dict()
         assert alt_bs.kpoints[0].label == alt_bs.kpoints[-1].label
-
-
-if __name__ == "__main__":
-    unittest.main()

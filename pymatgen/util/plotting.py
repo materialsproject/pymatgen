@@ -1,8 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-"""
-Utilities for generating nicer plots.
-"""
+"""Utilities for generating nicer plots."""
 from __future__ import annotations
 
 import math
@@ -177,7 +173,7 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
 
 def _decide_fontcolor(rgba: tuple) -> Literal["black", "white"]:
     red, green, blue, _ = rgba
-    if (red * 0.299 + green * 0.587 + blue * 0.114) * 255 > 186:
+    if red * 0.299 + green * 0.587 + blue * 0.114 > (186 / 255):
         return "black"
 
     return "white"
@@ -230,7 +226,6 @@ def periodic_table_heatmap(
          readable_fontcolor (bool): Whether to use readable font color depending
             on background color. Default is False.
     """
-
     # Convert primitive_elemental data in the form of numpy array for plotting.
     if cmap_range is not None:
         max_val = cmap_range[1]
@@ -333,12 +328,11 @@ def periodic_table_heatmap(
 def format_formula(formula):
     """
     Converts str of chemical formula into
-    latex format for labelling purposes
+    latex format for labelling purposes.
 
     Args:
         formula (str): Chemical formula
     """
-
     formatted_formula = ""
     number_format = ""
     for i, s in enumerate(formula):
@@ -369,7 +363,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
                 Interscience, New York (1956)
         and
             J.A.A Ketelaar, Chemical Constitution (2nd edition), An Introduction
-                to the Theory of the Chemical Bond, Elsevier, New York (1958)
+                to the Theory of the Chemical Bond, Elsevier, New York (1958).
 
     Args:
          list_of_materials (list): A list of computed entries of binary
@@ -378,18 +372,12 @@ def van_arkel_triangle(list_of_materials, annotate=True):
             triangle with reduced formula (if list of entries) or pair
             of elements (if list of list of str).
     """
-
     # F-Fr has the largest X difference. We set this
     # as our top corner of the triangle (most ionic)
     pt1 = np.array([(Element("F").X + Element("Fr").X) / 2, abs(Element("F").X - Element("Fr").X)])
     # Cs-Fr has the lowest average X. We set this as our
     # bottom left corner of the triangle (most metallic)
-    pt2 = np.array(
-        [
-            (Element("Cs").X + Element("Fr").X) / 2,
-            abs(Element("Cs").X - Element("Fr").X),
-        ]
-    )
+    pt2 = np.array([(Element("Cs").X + Element("Fr").X) / 2, abs(Element("Cs").X - Element("Fr").X)])
     # O-F has the highest average X. We set this as our
     # bottom right corner of the triangle (most covalent)
     pt3 = np.array([(Element("O").X + Element("F").X) / 2, abs(Element("O").X - Element("F").X)])
@@ -427,7 +415,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     plt.xticks(fontsize=15)
     plt.yticks(fontsize=15)
 
-    # Shade with appropriate colors corresponding to ionic, metallci and covalent
+    # Shade with appropriate colors corresponding to ionic, metallic and covalent
     ax = plt.gca()
     # ionic filling
     ax.fill_between(
@@ -445,32 +433,32 @@ def van_arkel_triangle(list_of_materials, annotate=True):
         edgecolor=[1, 1, 0],
     )
     # metal filling
-    XPt = Element("Pt").X
+    x_pt = Element("Pt").X
     ax.fill_between(
-        [min(chi_list), (XPt + min(chi_list)) / 2],
-        [0, slope1 * (XPt + min(chi_list)) / 2 + b1],
+        [min(chi_list), (x_pt + min(chi_list)) / 2],
+        [0, slope1 * (x_pt + min(chi_list)) / 2 + b1],
         facecolor=[1, 0, 0],
         zorder=-3,
         alpha=0.8,
     )
     ax.fill_between(
-        [(XPt + min(chi_list)) / 2, XPt],
-        [slope1 * ((XPt + min(chi_list)) / 2) + b1, 0],
+        [(x_pt + min(chi_list)) / 2, x_pt],
+        [slope1 * ((x_pt + min(chi_list)) / 2) + b1, 0],
         facecolor=[1, 0, 0],
         zorder=-3,
         alpha=0.8,
     )
     # covalent filling
     ax.fill_between(
-        [(XPt + min(chi_list)) / 2, ((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2],
-        [0, slope2 * (((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2],
+        [(x_pt + min(chi_list)) / 2, ((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2],
+        [0, slope2 * (((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2],
         facecolor=[0, 1, 0],
         zorder=-4,
         alpha=0.8,
     )
     ax.fill_between(
-        [((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2, -b2 / slope2],
-        [slope2 * (((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2, 0],
+        [((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2, -b2 / slope2],
+        [slope2 * (((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2, 0],
         facecolor=[0, 1, 0],
         zorder=-4,
         alpha=0.8,
@@ -656,9 +644,7 @@ def add_fig_kwargs(func):
         return fig
 
     # Add docstring to the decorated method.
-    s = (
-        "\n\n"
-        + """\
+    s = """\n\n
         Keyword arguments controlling the display of the figure:
 
         ================  ====================================================
@@ -678,7 +664,6 @@ def add_fig_kwargs(func):
         ================  ====================================================
 
 """
-    )
 
     if wrapper.__doc__ is not None:
         # Add s at the end of the docstring.

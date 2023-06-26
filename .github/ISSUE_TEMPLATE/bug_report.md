@@ -3,10 +3,12 @@ name: Bug report
 about: Create a report to help us improve
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+#### Description
 
-**To Reproduce**
+A clear and concise bug description.
+
+#### Repro
+
 Steps to reproduce the behavior:
 
 1. Go to '...'
@@ -14,19 +16,19 @@ Steps to reproduce the behavior:
 1. Scroll down to '....'
 1. See error
 
-Provide any example files that are needed to reproduce the error,
-especially if the bug pertains to parsing of a file.
+Provide any example files that are needed to reproduce the error, especially if the bug pertains to parsing a file. If the file format is not supported by GitHub, zip it into an archive and upload that.
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+#### Expected behavior
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+What do you expect to happen?
 
-**Environment (please supply relevant versions and platform info):**
+#### Environment
+
+Relevant versions and platform info:
 
 - OS: (e.g. Mac, Windows, Linux)
-- Version (e.g. 2022.11.17)
+- Version (e.g. v2023.05.10)
 
-**Additional context**
-Add any other context about the problem here.
+#### Additional context
+
+More context like related issues/PRs.

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
@@ -8,7 +5,7 @@ x y value pairs.
 
 from __future__ import annotations
 
-from typing import Callable, Literal
+from typing import TYPE_CHECKING, Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -16,7 +13,9 @@ from scipy import stats
 from scipy.ndimage import convolve1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
@@ -65,19 +64,19 @@ class Spectrum(MSONable):
         self._args = args
         self._kwargs = kwargs
 
-    def __getattr__(self, item):
-        if item == self.XLABEL.lower():
+    def __getattr__(self, name):
+        if name == self.XLABEL.lower():
             return self.x
-        if item == self.YLABEL.lower():
+        if name == self.YLABEL.lower():
             return self.y
-        raise AttributeError(f"Invalid attribute name {str(item)}")
+        raise AttributeError(f"Invalid attribute {name=}")
 
     def __len__(self):
         return self.ydim[0]
 
     def normalize(self, mode: Literal["max", "sum"] = "max", value: float = 1.0):
         """
-        Normalize the spectrum with respect to the sum of intensity
+        Normalize the spectrum with respect to the sum of intensity.
 
         Args:
             mode ("max" | "sum"): Normalization mode. "max" sets the max y value to value,
@@ -90,7 +89,7 @@ class Spectrum(MSONable):
         elif mode.lower() == "max":
             factor = np.max(self.y, axis=0)
         else:
-            raise ValueError(f"Unsupported normalization mode {mode}!")
+            raise ValueError(f"Unsupported normalization {mode=}!")
 
         self.y /= factor / value
 
@@ -111,7 +110,7 @@ class Spectrum(MSONable):
         elif func.lower() == "lorentzian":
             weights = lorentzian(points, sigma=sigma)
         else:
-            raise ValueError(f"Invalid func {func}")
+            raise ValueError(f"Invalid {func=}")
         weights /= np.sum(weights)
         if len(self.ydim) == 1:
             total = np.sum(self.y)
@@ -162,7 +161,7 @@ class Spectrum(MSONable):
         """
         Subtract one Spectrum object from another. Checks that x scales are
         the same.
-        Otherwise, a ValueError is thrown
+        Otherwise, a ValueError is thrown.
 
         Args:
             other: Another Spectrum object
@@ -176,7 +175,7 @@ class Spectrum(MSONable):
 
     def __mul__(self, other):
         """
-        Scale the Spectrum's y values
+        Scale the Spectrum's y values.
 
         Args:
             other: scalar, The scale amount
@@ -191,7 +190,7 @@ class Spectrum(MSONable):
         """
         True division of y
         Args:
-            other: The divisor
+            other: The divisor.
 
         Returns:
             Spectrum object with y values divided
@@ -202,7 +201,7 @@ class Spectrum(MSONable):
         """
         True division of y
         Args:
-            other: The divisor
+            other: The divisor.
 
         Returns:
             Spectrum object with y values divided
@@ -219,7 +218,5 @@ class Spectrum(MSONable):
         return f"{type(self).__name__}\n{self.XLABEL}: {self.x}\n{self.YLABEL}: {self.y}"
 
     def __repr__(self):
-        """
-        Returns a printable representation of the class
-        """
+        """Returns a printable representation of the class."""
         return str(self)

@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import json
@@ -27,39 +23,30 @@ from pymatgen.util.testing import PymatgenTest
 class ContainsSpecieFilterTest(PymatgenTest):
     def test_filtering(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0.00], [0.00, -2.0, 3.0]])
-        s = Structure(
-            lattice,
-            [
-                {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
-                {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
-                {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
-                {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
-            ],
-            coords,
-        )
+        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
+        struct = Structure(lattice, [{"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}] * 4, coords)
 
         species1 = [Species("Si", 5), Species("Mg", 2)]
         f1 = ContainsSpecieFilter(species1, strict_compare=True, AND=False)
-        assert not f1.test(s), "Incorrect filter"
+        assert not f1.test(struct), "Incorrect filter"
         f2 = ContainsSpecieFilter(species1, strict_compare=False, AND=False)
-        assert f2.test(s), "Incorrect filter"
+        assert f2.test(struct), "Incorrect filter"
         species2 = [Species("Si", 4), Species("Mg", 2)]
         f3 = ContainsSpecieFilter(species2, strict_compare=True, AND=False)
-        assert f3.test(s), "Incorrect filter"
+        assert f3.test(struct), "Incorrect filter"
         f4 = ContainsSpecieFilter(species2, strict_compare=False, AND=False)
-        assert f4.test(s), "Incorrect filter"
+        assert f4.test(struct), "Incorrect filter"
 
         species3 = [Species("Si", 5), Species("O", -2)]
         f5 = ContainsSpecieFilter(species3, strict_compare=True, AND=True)
-        assert not f5.test(s), "Incorrect filter"
+        assert not f5.test(struct), "Incorrect filter"
         f6 = ContainsSpecieFilter(species3, strict_compare=False, AND=True)
-        assert f6.test(s), "Incorrect filter"
+        assert f6.test(struct), "Incorrect filter"
         species4 = [Species("Si", 4), Species("Mg", 2)]
         f7 = ContainsSpecieFilter(species4, strict_compare=True, AND=True)
-        assert not f7.test(s), "Incorrect filter"
+        assert not f7.test(struct), "Incorrect filter"
         f8 = ContainsSpecieFilter(species4, strict_compare=False, AND=True)
-        assert not f8.test(s), "Incorrect filter"
+        assert not f8.test(struct), "Incorrect filter"
 
     def test_to_from_dict(self):
         species1 = ["Si5+", "Mg2+"]
@@ -70,15 +57,15 @@ class ContainsSpecieFilterTest(PymatgenTest):
 
 class SpecieProximityFilterTest(PymatgenTest):
     def test_filter(self):
-        s = self.get_structure("Li10GeP2S12")
+        struct = self.get_structure("Li10GeP2S12")
         sf = SpecieProximityFilter({"Li": 1})
-        assert sf.test(s)
+        assert sf.test(struct)
         sf = SpecieProximityFilter({"Li": 2})
-        assert not sf.test(s)
+        assert not sf.test(struct)
         sf = SpecieProximityFilter({"P": 1})
-        assert sf.test(s)
+        assert sf.test(struct)
         sf = SpecieProximityFilter({"P": 5})
-        assert not sf.test(s)
+        assert not sf.test(struct)
 
     def test_to_from_dict(self):
         sf = SpecieProximityFilter({"Li": 1})
@@ -122,7 +109,3 @@ class RemoveExistingFilterTest(unittest.TestCase):
             self._struct_list[-1],
             transmuter.transformed_structures[-1].final_structure,
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

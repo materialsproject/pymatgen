@@ -1,17 +1,14 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Defines an abstract base class contract for Transformation object.
-"""
+"""Defines an abstract base class contract for Transformation object."""
 
 from __future__ import annotations
 
 import abc
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
-from pymatgen.core import Structure
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -22,9 +19,7 @@ __date__ = "Sep 23, 2011"
 
 
 class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
-    """
-    Abstract transformation class.
-    """
+    """Abstract transformation class."""
 
     @abc.abstractmethod
     def apply_transformation(self, structure: Structure):
@@ -36,10 +31,9 @@ class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
         Args:
             structure:
                 input structure
-            return_ranked_list:
-                Boolean stating whether or not multiple structures are
-                returned. If return_ranked_list is a number, that number of
-                structures is returned.
+            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
+
+                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
             depending on returned_ranked list, either a transformed structure

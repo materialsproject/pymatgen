@@ -1,9 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-This module defines Entry classes for containing experimental data.
-"""
+"""This module defines Entry classes for containing experimental data."""
 
 from __future__ import annotations
 
@@ -56,9 +51,6 @@ class ExpEntry(PDEntry, MSONable):
     def __repr__(self):
         return f"ExpEntry {self.composition.formula}, Energy = {self.energy:.4f}"
 
-    def __str__(self):
-        return self.__repr__()
-
     @classmethod
     def from_dict(cls, d):
         """
@@ -69,9 +61,7 @@ class ExpEntry(PDEntry, MSONable):
         return cls(d["composition"], thermodata, d["temperature"])
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

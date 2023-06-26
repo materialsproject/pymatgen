@@ -1,10 +1,6 @@
 #!/usr/bin/env python
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 
-"""
-A convenience script engine to read Gaussian output in a directory tree.
-"""
+"""A convenience script engine to read Gaussian output in a directory tree."""
 
 
 from __future__ import annotations
@@ -65,9 +61,7 @@ def get_energies(rootdir, reanalyze, verbose):
 
 
 def main():
-    """
-    Main function
-    """
+    """Main function."""
     desc = """
     Convenient Gaussian run analyzer which can recursively go into a directory
     to search results.
@@ -107,4 +101,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

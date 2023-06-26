@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides a class to predict and analyze interfacial reactions between two
 solids, with or without an open element (e.g., flowing O2).
@@ -230,8 +227,7 @@ class InterfacialReactivity(MSONable):
             for _, ratio, reactivity, rxn, rxn_energy in self.get_kinks()
         ]
 
-        df = DataFrame(rxns)
-        return df
+        return DataFrame(rxns)
 
     def get_critical_original_kink_ratio(self):
         """
@@ -269,7 +265,7 @@ class InterfacialReactivity(MSONable):
             return 1
         c1_coeff = reaction.get_coeff(self.c1_original) if self.c1_original in reaction.reactants else 0
         c2_coeff = reaction.get_coeff(self.c2_original) if self.c2_original in reaction.reactants else 0
-        return c1_coeff * 1.0 / (c1_coeff + c2_coeff)
+        return c1_coeff * 1 / (c1_coeff + c2_coeff)
 
     def _get_energy(self, x):
         """
@@ -285,7 +281,7 @@ class InterfacialReactivity(MSONable):
         return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1 - x)) - self.e1 * x - self.e2 * (1 - x)
 
     def _get_reactants(self, x: float) -> list[Composition]:
-        """Returns a list of relevant reactant compositions given an x coordinate"""
+        """Returns a list of relevant reactant compositions given an x coordinate."""
         # Uses original composition for reactants.
         if np.isclose(x, 0):
             reactants = [self.c2_original]
@@ -339,7 +335,7 @@ class InterfacialReactivity(MSONable):
         return sum(rxn.get_el_amount(e) for e in self.pd.elements)
 
     def _get_plotly_figure(self) -> Figure:
-        """Returns a Plotly figure of reaction kinks diagram"""
+        """Returns a Plotly figure of reaction kinks diagram."""
         kinks = map(list, zip(*self.get_kinks()))
         _, x, energy, reactions, _ = kinks
 
@@ -348,7 +344,7 @@ class InterfacialReactivity(MSONable):
             y=energy,
             mode="lines",
             name="Lines",
-            line=dict(color="navy", dash="solid", width=5.0),
+            line={"color": "navy", "dash": "solid", "width": 5.0},
             hoverinfo="none",
         )
 
@@ -372,13 +368,13 @@ class InterfacialReactivity(MSONable):
             name="Reactions",
             hoverinfo="text",
             hovertext=labels,
-            marker=dict(
-                color="black",
-                size=12,
-                opacity=0.8,
-                line=dict(color="black", width=3),
-            ),
-            hoverlabel=dict(bgcolor="navy"),
+            marker={
+                "color": "black",
+                "size": 12,
+                "opacity": 0.8,
+                "line": {"color": "black", "width": 3},
+            },
+            hoverlabel={"bgcolor": "navy"},
         )
 
         min_label = f"{htmlify(str(rxn_min))} <br>\u0394E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"  # type: ignore
@@ -389,7 +385,7 @@ class InterfacialReactivity(MSONable):
             mode="markers",
             hoverinfo="text",
             hovertext=[min_label],
-            marker=dict(color="darkred", size=24, symbol="star"),
+            marker={"color": "darkred", "size": 24, "symbol": "star"},
             name="Suggested reaction",
         )
 
@@ -399,11 +395,10 @@ class InterfacialReactivity(MSONable):
         layout["xaxis"]["title"] = self._get_xaxis_title(latex=False)
         layout["annotations"] = annotations
 
-        fig = Figure(data=data, layout=layout)
-        return fig
+        return Figure(data=data, layout=layout)
 
     def _get_matplotlib_figure(self) -> plt.Figure:
-        """Returns a matplotlib figure of reaction kinks diagram"""
+        """Returns a matplotlib figure of reaction kinks diagram."""
         pretty_plot(8, 5)
         plt.xlim([-0.05, 1.05])  # plot boundary is 5% wider on each side
 
@@ -424,7 +419,7 @@ class InterfacialReactivity(MSONable):
                 textcoords="offset points",
                 ha="right",
                 va="bottom",
-                arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0"),
+                arrowprops={"arrowstyle": "->", "connectionstyle": "arc3,rad=0"},
             )
 
         if self.norm:
@@ -441,7 +436,7 @@ class InterfacialReactivity(MSONable):
         return fig
 
     def _get_xaxis_title(self, latex: bool = True) -> str:
-        """Returns the formatted title of the x axis (using either html/latex)"""
+        """Returns the formatted title of the x axis (using either html/latex)."""
         if latex:
             f1 = latexify(self.c1.reduced_formula)
             f2 = latexify(self.c2.reduced_formula)
@@ -455,13 +450,13 @@ class InterfacialReactivity(MSONable):
 
     @staticmethod
     def _get_plotly_annotations(x: list[float], y: list[float], reactions: list[Reaction]):
-        """Returns dictionary of annotations for the Plotly figure layout"""
+        """Returns dictionary of annotations for the Plotly figure layout."""
         annotations = []
         for x_coord, y_coord, rxn in zip(x, y, reactions):
             products = ", ".join(
                 [htmlify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )
-            annotation = dict(x=x_coord, y=y_coord, text=products, font=dict(size=18), ax=-25, ay=55)
+            annotation = {"x": x_coord, "y": y_coord, "text": products, "font": {"size": 18}, "ax": -25, "ay": 55}
             annotations.append(annotation)
         return annotations
 
@@ -556,7 +551,7 @@ class InterfacialReactivity(MSONable):
             phase at given temperature and pressure.
         """
         if element not in ["O", "N", "Cl", "F", "H"]:
-            warnings.warn(f"Element {element} not one of valid options: ['O', 'N', 'Cl', 'F', 'H']")
+            warnings.warn(f"{element=} not one of valid options: ['O', 'N', 'Cl', 'F', 'H']")
             return 0
 
         std_temp = 298.15
@@ -589,9 +584,9 @@ class InterfacialReactivity(MSONable):
         """
         Returns a dictionary containing kink information:
         {index: 'x= mixing_ratio energy= reaction_energy reaction_equation'}.
-        E.g., {1: 'x= 0.0 energy = 0.0 Mn -> Mn',
-               2: 'x= 0.5 energy = -15.0 O2 + Mn -> MnO2',
-               3: 'x= 1.0 energy = 0.0 O2 -> O2'}.
+        E.g., {1: 'x= 0 energy = 0 Mn -> Mn',
+               2: 'x= 0.5 energy = -15 O2 + Mn -> MnO2',
+               3: 'x= 1 energy = 0 O2 -> O2'}.
         """
         return {
             j: "x= " + str(round(x, 4)) + " energy in eV/atom = " + str(round(energy, 4)) + " " + str(reaction)
@@ -611,12 +606,10 @@ class InterfacialReactivity(MSONable):
 
     @property
     def products(self):
-        """
-        List of formulas of potential products. E.g., ['Li','O2','Mn'].
-        """
+        """List of formulas of potential products. E.g., ['Li','O2','Mn']."""
         products = set()
         for _, _, _, react, _ in self.get_kinks():
-            products = products | {k.reduced_formula for k in react.products}
+            products = products | {key.reduced_formula for key in react.products}
         return list(products)
 
 
@@ -663,6 +656,8 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         """
         if not isinstance(grand_pd, GrandPotentialPhaseDiagram):
             raise ValueError("Please use the InterfacialReactivity class if using a regular phase diagram!")
+        if not isinstance(pd_non_grand, PhaseDiagram):
+            raise ValueError("Please provide non-grand phase diagram to compute no_mixing_energy!")
 
         super().__init__(
             c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy, bypass_grand_warning=True
@@ -708,7 +703,7 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         ]
 
     def _get_reactants(self, x: float) -> list[Composition]:
-        """Returns a list of relevant reactant compositions given an x coordinate"""
+        """Returns a list of relevant reactant compositions given an x coordinate."""
         reactants = super()._get_reactants(x)
         reactants += [Composition(e.symbol) for e, v in self.pd.chempots.items()]
 

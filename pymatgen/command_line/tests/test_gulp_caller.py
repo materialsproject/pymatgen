@@ -1,8 +1,5 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
-Created on Jan 22, 2013
+Created on Jan 22, 2013.
 
 @author: Bharat Medasani
 """
@@ -29,7 +26,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
 
-gulp_present = which("gulp") and os.environ.get("GULP_LIB") and ("win" not in sys.platform)
+gulp_present = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.platform)
 # disable gulp tests for now. Right now, it is compiled against libgfortran3, which is no longer supported in the new
 # Ubuntu 20.04.
 gulp_present = False
@@ -38,7 +35,7 @@ gulp_present = False
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpCallerTest(unittest.TestCase):
     def test_run(self):
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_lattice = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -50,7 +47,7 @@ class GulpCallerTest(unittest.TestCase):
             [0, 0, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        mgo_uc = Structure(mgo_lattice, mgo_specie, mgo_frac_cord, True, True)
         gio = GulpIO()
         gin = gio.keyword_line("optimise", "conp")
         gin += gio.structure_lines(mgo_uc, symm_flg=False)
@@ -63,7 +60,7 @@ class GulpCallerTest(unittest.TestCase):
         gc = GulpCaller()
 
         """Some inherent checks are in the run_gulp function itself.
-        They should be suffcient for raising errors."""
+        They should be sufficient for raising errors."""
         gc.run(gin)
 
     def test_decimal(self):
@@ -256,9 +253,9 @@ class GulpIOTest(unittest.TestCase):
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
-        assert 8 == len(struct.sites)
-        assert 4.212 == struct.lattice.a
-        assert 90 == struct.lattice.alpha
+        assert len(struct) == 8
+        assert struct.lattice.a == 4.212
+        assert struct.lattice.alpha == 90
 
     @unittest.skip("Test later")
     def test_tersoff_inpt(self):
@@ -289,12 +286,12 @@ class GlobalFunctionsTest(unittest.TestCase):
     def test_get_energy_tersoff(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False)
         structure = p.structure
-        enrgy = get_energy_tersoff(structure)
-        assert isinstance(enrgy, float)
+        energy = get_energy_tersoff(structure)
+        assert isinstance(energy, float)
 
     def test_get_energy_buckingham(self):
-        enrgy = get_energy_buckingham(self.mgo_uc)
-        assert isinstance(enrgy, float)
+        energy = get_energy_buckingham(self.mgo_uc)
+        assert isinstance(energy, float)
         # test with vacancy structure
         del self.mgo_uc[0]
         energy = get_energy_buckingham(
@@ -305,11 +302,11 @@ class GlobalFunctionsTest(unittest.TestCase):
         assert isinstance(energy, float)
 
     def test_get_energy_relax_structure_buckingham(self):
-        enrgy, struct = get_energy_relax_structure_buckingham(self.mgo_uc)
-        assert isinstance(enrgy, float)
+        energy, struct = get_energy_relax_structure_buckingham(self.mgo_uc)
+        assert isinstance(energy, float)
         assert isinstance(struct, Structure)
-        site_len = len(struct.sites)
-        assert site_len == len(self.mgo_uc.sites)
+        site_len = len(struct)
+        assert site_len == len(self.mgo_uc)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -334,12 +331,12 @@ class BuckinghamPotentialLewisTest(unittest.TestCase):
         assert "Sc_4+" not in self.bpl.species_dict
 
     def test_values(self):
-        assert "" != self.bpl.species_dict["Sc_2+"]
-        assert "" != self.bpl.pot_dict["Sc_2+"]
+        assert self.bpl.species_dict["Sc_2+"] != ""
+        assert self.bpl.pot_dict["Sc_2+"] != ""
 
     def test_spring(self):
         assert "Li" not in self.bpl.spring_dict
-        assert "" != self.bpl.spring_dict["O"]
+        assert self.bpl.spring_dict["O"] != ""
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -360,12 +357,8 @@ class BuckinghamPotentialBushTest(unittest.TestCase):
         assert "Mn" not in self.bpb.species_dict
 
     def test_element_different_valence(self):
-        assert 2 != self.bpb.species_dict["Li"]["oxi"]
+        assert self.bpb.species_dict["Li"]["oxi"] != 2
 
     def test_spring(self):
-        assert "" == self.bpb.spring_dict["Li"]
-        assert "" != self.bpb.spring_dict["O"]
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert self.bpb.spring_dict["Li"] == ""
+        assert self.bpb.spring_dict["O"] != ""

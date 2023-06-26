@@ -30,11 +30,11 @@ Add-ons for Input/Output
 
 * `pymatgen-io-fleur <http://pypi.org/project/pymatgen-io-fleur>`_: Provides modules for reading and writing
   files used by the `fleur <https://www.flapw.de/rel>`_ DFT code. This package is maintained by the juDFT team.
-  
-Add-ons for Externals Services
+
+Add-ons for External Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* None at present.
+* None at present
 
 External Tools
 --------------
@@ -45,7 +45,7 @@ look at `pymatgen dependents <https://github.com/materialsproject/pymatgen/netwo
 * `QuAcc <https://github.com/arosen93/quacc>`_: A platform to enable high-throughput, database-driven quantum
   chemistry and computational materials science.
 
-* `LobsterPy <https://github.com/JaGeo/LobsterPy>`_: Automatically analyze Lobster (http://www.cohp.de) runs.
+* `LobsterPy <https://github.com/JaGeo/LobsterPy>`_: Automatically analyze `Lobster runs <https://cohp.de>_`.
 
 * `pymatviz <https://github.com/janosh/pymatviz>`_: Complements ``pymatgen`` with additional plotting
   functionality for larger datasets common in materials informatics.
@@ -59,4 +59,10 @@ look at `pymatgen dependents <https://github.com/materialsproject/pymatgen/netwo
 * `rxn-network <https://github.com/GENESIS-EFRC/reaction-network>`_: Reaction Network is a Python package for predicting likely
   inorganic chemical reaction pathways using graph theory.
 
-* `Matbench <https://github.com/materialsproject/matbench>`_: Benchmarks for materials science property prediction.
+* `Matbench <https://github.com/materialsproject/matbench>`_: Benchmarks for machine learning property prediction.
+
+* `Matbench Discovery <https://github.com/janosh/matbench-discovery>`_: Benchmark for machine learning crystal stability prediction.
+
+* `matgl <https://github.com/materialsvirtuallab/matgl>`_: Graph deep learning library for materials. Implements M3GNet and MEGNet in DGL and Pytorch with more to come.
+
+* `chgnet <https://github.com/CederGroupHub/chgnet>`_: Pretrained universal neural network potential for charge-informed atomistic modeling.

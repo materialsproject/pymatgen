@@ -1,6 +1,4 @@
-"""
-Predicting potential dopants
-"""
+"""Predicting potential dopants."""
 
 from __future__ import annotations
 
@@ -8,9 +6,7 @@ import warnings
 
 import numpy as np
 
-from pymatgen.analysis.structure_prediction.substitution_probability import (
-    SubstitutionPredictor,
-)
+from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
 from pymatgen.core.periodic_table import Element, Species
 
 
@@ -128,9 +124,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
 
 
 def _get_dopants(substitutions, num_dopants, match_oxi_sign):
-    """
-    Utility method to get n- and p-type dopants from a list of substitutions.
-    """
+    """Utility method to get n- and p-type dopants from a list of substitutions."""
     n_type = [
         pred
         for pred in substitutions
@@ -202,7 +196,7 @@ def _int_to_roman(number):
 
     result = []
     for arabic, roman in roman_conv:
-        (factor, number) = divmod(number, arabic)
+        factor, number = divmod(number, arabic)
         result.append(roman * factor)
         if number == 0:
             break

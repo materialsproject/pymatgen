@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements an interface to the VAMPIRE code for atomistic
 simulations of magnetic materials.
@@ -91,7 +88,7 @@ class VampireCaller:
             mat_id_dict (dict): Maps sites to material id # for vampire
                 indexing.
 
-        TODO:
+        Todo:
             * Create input files in a temp folder that gets cleaned up after run terminates
         """
         self.mc_box_size = mc_box_size
@@ -126,9 +123,9 @@ class VampireCaller:
         self.mat_name = hm.formula
 
         # Switch to scratch dir which automatically cleans up vampire inputs files unless user specifies to save them
-        # with ScratchDir('/scratch', copy_from_current_on_enter=self.save_inputs,
-        #                 copy_to_current_on_exit=self.save_inputs) as temp_dir:
-        #     os.chdir(temp_dir)
+        # with ScratchDir(
+        #     "/scratch", copy_from_current_on_enter=self.save_inputs, copy_to_current_on_exit=self.save_inputs
+        # ):
 
         # Create input files
         self._create_mat()
@@ -280,20 +277,11 @@ class VampireCaller:
         ]
 
         # Set temperature range and step size of simulation
-        if "start_t" in self.user_input_settings:
-            start_t = self.user_input_settings["start_t"]
-        else:
-            start_t = 0
+        start_t = self.user_input_settings["start_t"] if "start_t" in self.user_input_settings else 0
 
-        if "end_t" in self.user_input_settings:
-            end_t = self.user_input_settings["end_t"]
-        else:
-            end_t = 1500
+        end_t = self.user_input_settings["end_t"] if "end_t" in self.user_input_settings else 1500
 
-        if "temp_increment" in self.user_input_settings:
-            temp_increment = self.user_input_settings["temp_increment"]
-        else:
-            temp_increment = 25
+        temp_increment = self.user_input_settings.get("temp_increment", 25)
 
         input_script += [
             f"sim:minimum-temperature = {start_t}",
@@ -364,10 +352,8 @@ class VampireCaller:
                 dist = round(c[-1], 2)
 
                 # Look up J_ij between the sites
-                if self.avg is True:  # Just use <J> estimate
-                    j_exc = self.hm.javg
-                else:
-                    j_exc = self.hm._get_j_exc(idx, j, dist)
+                # if case: Just use <J> estimate
+                j_exc = self.hm.javg if self.avg is True else self.hm._get_j_exc(idx, j, dist)
 
                 # Convert J_ij from meV to Joules
                 j_exc *= 1.6021766e-22
@@ -399,7 +385,7 @@ class VampireCaller:
 
         # Parsing vampire MC output
         df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)
-        df.drop("nan", axis=1, inplace=True)
+        df = df.drop("nan", axis=1)
 
         parsed_out = df.to_json()
 

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -146,7 +143,3 @@ class Critic2AnalysisTest(unittest.TestCase):
             "ellipticity",
             "frac_coords",
         }
-
-
-if __name__ == "__main__":
-    unittest.main()

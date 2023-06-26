@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import unittest
@@ -526,26 +522,26 @@ loop_
         assert m.fit(cif.get_structures()[0], poscar.structure)
 
         # for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
-        #     self.assertEqual(l1.strip(), l2.strip())
+        #     assert l1.strip() == l2.strip()
 
-        s = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
-        writer = CifWriter(s, symprec=0.1)
+        struct = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
+        writer = CifWriter(struct, symprec=0.1)
         s2 = CifParser.from_string(str(writer)).get_structures()[0]
 
-        assert m.fit(s, s2)
+        assert m.fit(struct, s2)
 
-        s = self.get_structure("Li2O")
-        writer = CifWriter(s, symprec=0.1)
+        struct = self.get_structure("Li2O")
+        writer = CifWriter(struct, symprec=0.1)
         s2 = CifParser.from_string(str(writer)).get_structures()[0]
-        assert m.fit(s, s2)
+        assert m.fit(struct, s2)
 
         # test angle tolerance.
-        s = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
-        writer = CifWriter(s, symprec=0.1, angle_tolerance=0)
+        struct = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
+        writer = CifWriter(struct, symprec=0.1, angle_tolerance=0)
         d = list(writer.ciffile.data.values())[0]
         assert d["_symmetry_Int_Tables_number"] == 14
-        s = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
-        writer = CifWriter(s, symprec=0.1, angle_tolerance=2)
+        struct = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
+        writer = CifWriter(struct, symprec=0.1, angle_tolerance=2)
         d = list(writer.ciffile.data.values())[0]
         assert d["_symmetry_Int_Tables_number"] == 62
 
@@ -556,13 +552,11 @@ loop_
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
         lattice = Lattice(
-            np.array(
-                [
-                    [3.8401979337, 0.00, 0.00],
-                    [1.9200989668, 3.3257101909, 0.00],
-                    [0.00, -2.2171384943, 3.1355090603],
-                ]
-            )
+            [
+                [3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603],
+            ]
         )
         struct = Structure(lattice, [si, {si: 0.5, n: 0.5}], coords)
         writer = CifWriter(struct)
@@ -616,13 +610,11 @@ loop_
         coords.append(np.array([0.75, 0.5, 0.75]))
         coords.append(np.array([0, 0, 0]))
         lattice = Lattice(
-            np.array(
-                [
-                    [3.8401979337, 0.00, 0.00],
-                    [1.9200989668, 3.3257101909, 0.00],
-                    [0.00, -2.2171384943, 3.1355090603],
-                ]
-            )
+            [
+                [3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603],
+            ]
         )
         struct = Structure(lattice, [n, {si3: 0.5, n: 0.5}, si4], coords)
         writer = CifWriter(struct)
@@ -1187,7 +1179,6 @@ loop_
 """
         assert self.mcif_ncl.get_bibtex_string() == ref_bibtex_string
 
-
 class Test_Skip_Checks(PymatgenTest):
     def setUp(self):
         self.structure = CifParser(
@@ -1200,3 +1191,4 @@ class Test_Skip_Checks(PymatgenTest):
 
 if __name__ == "__main__":
     unittest.main()
+

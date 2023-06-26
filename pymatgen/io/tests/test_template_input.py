@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 from __future__ import annotations
 
 import os
@@ -39,7 +36,7 @@ class TestTemplateInputGen:
 
             # test len, iter, getitem
             assert len(tis.inputs) == 1
-            assert len([i for i in tis.inputs]) == 1
+            assert len(list(tis.inputs)) == 1
             assert isinstance(tis.inputs["hello_world.in"], str)
 
             with pytest.raises(FileExistsError):
@@ -52,4 +49,4 @@ class TestTemplateInputGen:
 
             tis.write_input(scratch_dir, zip_inputs=True)
 
-            assert "InputSet.zip" in [f for f in os.listdir(scratch_dir)]
+            assert "InputSet.zip" in list(os.listdir(scratch_dir))

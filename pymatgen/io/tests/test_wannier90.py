@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Tests for pymatgen.io.wannier90
 """
@@ -9,7 +6,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.io.wannier90 import Unk
@@ -37,13 +33,13 @@ class UnkTest(PymatgenTest):
         assert not self.unk_std.is_noncollinear
 
         # too small data
+        data_bad_shape = np.random.rand(2, 2, 2).astype(np.complex128)
         with pytest.raises(ValueError):
-            data_bad_shape = np.random.rand(2, 2, 2).astype(np.complex128)
             Unk(1, data_bad_shape)
 
         # too big data
+        data_bad_shape = np.random.rand(2, 2, 2, 2, 2, 2).astype(np.complex128)
         with pytest.raises(ValueError):
-            data_bad_shape = np.random.rand(2, 2, 2, 2, 2, 2).astype(np.complex128)
             Unk(1, data_bad_shape)
 
         # noncollinear unk file
@@ -57,8 +53,8 @@ class UnkTest(PymatgenTest):
         assert self.unk_ncl.is_noncollinear
 
         # too big data
+        data_bad_ncl = np.random.rand(2, 3, 2, 2, 2).astype(np.complex128)
         with pytest.raises(ValueError):
-            data_bad_ncl = np.random.rand(2, 3, 2, 2, 2).astype(np.complex128)
             Unk(1, data_bad_ncl)
 
     def test_from_file(self):
@@ -83,28 +79,24 @@ class UnkTest(PymatgenTest):
         assert unk.data[0, 1, 0, 0, 0].real == approx(0.0)
 
     def test_write_file(self):
-        with ScratchDir("."):
-            self.unk_std.write_file("UNK00001.1")
-            temp_unk = Unk.from_file("UNK00001.1")
-            assert self.unk_std == temp_unk
+        self.unk_std.write_file("UNK00001.1")
+        temp_unk = Unk.from_file("UNK00001.1")
+        assert self.unk_std == temp_unk
 
-        with ScratchDir("."):
-            self.unk_ncl.write_file("UNK00001.NC")
-            temp_unk = Unk.from_file("UNK00001.NC")
-            assert self.unk_ncl == temp_unk
+        self.unk_ncl.write_file("UNK00001.NC")
+        temp_unk = Unk.from_file("UNK00001.NC")
+        assert self.unk_ncl == temp_unk
 
     def test_read_write(self):
         unk0 = Unk.from_file(self.TEST_FILES_DIR / "UNK.std")
-        with ScratchDir("."):
-            unk0.write_file("UNK00001.1")
-            unk1 = Unk.from_file("UNK00001.1")
-            assert unk0 == unk1
+        unk0.write_file("UNK00001.1")
+        unk1 = Unk.from_file("UNK00001.1")
+        assert unk0 == unk1
 
         unk0 = Unk.from_file(self.TEST_FILES_DIR / "UNK.ncl")
-        with ScratchDir("."):
-            unk0.write_file("UNK00001.NC")
-            unk1 = Unk.from_file("UNK00001.NC")
-            assert unk0 == unk1
+        unk0.write_file("UNK00001.NC")
+        unk1 = Unk.from_file("UNK00001.NC")
+        assert unk0 == unk1
 
     def test_repr(self):
         assert repr(self.unk_std) != ""
@@ -112,28 +104,28 @@ class UnkTest(PymatgenTest):
 
     def test_eq(self):
         # not implemented
-        assert not self.unk_std == "poop"
+        assert self.unk_std != "poop"
 
         # ng
         tmp_unk = Unk(1, np.random.rand(10, 5, 5, 4))
-        assert not self.unk_std == tmp_unk
+        assert self.unk_std != tmp_unk
 
         # ik
         tmp_unk = Unk(2, self.data_std)
-        assert not self.unk_std == tmp_unk
+        assert self.unk_std != tmp_unk
 
         # noncol
-        assert not self.unk_std == self.unk_ncl
+        assert self.unk_std != self.unk_ncl
 
         # nbnd
         tmp_unk = Unk(1, np.random.rand(9, 5, 5, 5))
-        assert not self.unk_std == tmp_unk
+        assert self.unk_std != tmp_unk
 
         # data
         tmp_unk = Unk(1, np.random.rand(10, 5, 5, 5))
-        assert not self.unk_std == tmp_unk
+        assert self.unk_std != tmp_unk
         tmp_unk = Unk(1, np.random.rand(10, 2, 5, 5, 5))
-        assert not self.unk_ncl == tmp_unk
+        assert self.unk_ncl != tmp_unk
 
         # same
         assert self.unk_std == self.unk_std

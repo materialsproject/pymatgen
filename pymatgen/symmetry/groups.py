@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
 Shyue Ping Ong thanks Marc De Graef for his generous sharing of his
@@ -16,34 +13,28 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
 from fractions import Fraction
 from itertools import product
-from typing import TYPE_CHECKING, Literal, overload
+from typing import TYPE_CHECKING, ClassVar, Literal, overload
 
 import numpy as np
+from frozendict import frozendict
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
     # don't import at runtime to avoid circular import
     from pymatgen.core.lattice import Lattice
-    from pymatgen.core.operations import SymmOp
-    from pymatgen.util.typing import ArrayLike
-
-SYMM_DATA = None
+    from pymatgen.core.operations import SymmOp  # noqa: TCH004
 
 
-def _get_symm_data(name):
-    global SYMM_DATA
-    if SYMM_DATA is None:
-        SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
-    return SYMM_DATA[name]
+SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
 
 
 class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
-    """
-    Abstract class representing a symmetry group.
-    """
+    """Abstract class representing a symmetry group."""
 
     @property
     @abstractmethod
@@ -57,10 +48,7 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         if not isinstance(item, SymmOp):
             return NotImplemented
 
-        for i in self.symmetry_ops:
-            if np.allclose(i.affine_matrix, item.affine_matrix):
-                return True
-        return False
+        return any(np.allclose(i.affine_matrix, item.affine_matrix) for i in self.symmetry_ops)
 
     def __hash__(self) -> int:
         return len(self)
@@ -143,9 +131,7 @@ class PointGroup(SymmetryGroup):
         from pymatgen.core.operations import SymmOp
 
         self.symbol = int_symbol
-        self.generators = [
-            _get_symm_data("generator_matrices")[c] for c in _get_symm_data("point_group_encoding")[int_symbol]
-        ]
+        self.generators = [SYMM_DATA["generator_matrices"][c] for c in SYMM_DATA["point_group_encoding"][int_symbol]]
         self._symmetry_ops = {SymmOp.from_rotation_and_translation(m) for m in self._generate_full_symmetry_ops()}
         self.order = len(self._symmetry_ops)
 
@@ -215,19 +201,19 @@ class SpaceGroup(SymmetryGroup):
     """
 
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))
-    SG_SYMBOLS = set(_get_symm_data("space_group_encoding"))
+    SG_SYMBOLS: ClassVar[set] = set(SYMM_DATA["space_group_encoding"])
     for op in SYMM_OPS:
         op["hermann_mauguin"] = re.sub(r" ", "", op["hermann_mauguin"])
         op["universal_h_m"] = re.sub(r" ", "", op["universal_h_m"])
         SG_SYMBOLS.add(op["hermann_mauguin"])
         SG_SYMBOLS.add(op["universal_h_m"])
 
-    gen_matrices = _get_symm_data("generator_matrices")
+    gen_matrices = SYMM_DATA["generator_matrices"]
     # POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
-    sgencoding = _get_symm_data("space_group_encoding")
-    abbrev_sg_mapping = _get_symm_data("abbreviated_spacegroup_symbols")
-    translations = {k: Fraction(v) for k, v in _get_symm_data("translations").items()}
-    full_sg_mapping = {v["full_symbol"]: k for k, v in _get_symm_data("space_group_encoding").items()}
+    sgencoding = SYMM_DATA["space_group_encoding"]
+    abbrev_sg_mapping = SYMM_DATA["abbreviated_spacegroup_symbols"]
+    translations = frozendict({k: Fraction(v) for k, v in SYMM_DATA["translations"].items()})
+    full_sg_mapping = frozendict({v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()})
 
     def __init__(self, int_symbol: str) -> None:
         """
@@ -272,7 +258,7 @@ class SpaceGroup(SymmetryGroup):
                 break
         else:
             if int_symbol not in SpaceGroup.sgencoding:
-                raise ValueError(f"Bad international symbol {int_symbol}")
+                raise ValueError(f"Bad international symbol {int_symbol!r}")
 
             data = SpaceGroup.sgencoding[int_symbol]
 
@@ -482,14 +468,13 @@ class SpaceGroup(SymmetryGroup):
         return "cubic"
 
     def is_subgroup(self, supergroup: SymmetryGroup) -> bool:
-        """
-        True if this space group is a subgroup of the supplied group.
+        """Check if space group is a subgroup of the supplied symmetry group.
 
         Args:
-            group (Spacegroup): Supergroup to test.
+            supergroup (Spacegroup): Supergroup to test.
 
         Returns:
-            True if this space group is a subgroup of the supplied group.
+            bool: True if this space group is a subgroup of the supplied group.
         """
         if not isinstance(supergroup, SpaceGroup):
             return NotImplemented
@@ -499,7 +484,7 @@ class SpaceGroup(SymmetryGroup):
 
         groups = [{supergroup.int_number}]
         all_groups = [supergroup.int_number]
-        max_subgroups = {int(k): v for k, v in _get_symm_data("maximal_subgroups").items()}
+        max_subgroups = {int(k): v for k, v in SYMM_DATA["maximal_subgroups"].items()}
         while True:
             new_sub_groups = set()
             for i in groups[-1]:
@@ -567,10 +552,10 @@ def sg_symbol_from_int_number(int_number: int, hexagonal: bool = True) -> str:
             hexagonal setting (default) or rhombohedral setting.
 
     Returns:
-        (str) Spacegroup symbol
+        str: Spacegroup symbol
     """
     syms = []
-    for n, v in _get_symm_data("space_group_encoding").items():
+    for n, v in SYMM_DATA["space_group_encoding"].items():
         if v["int_number"] == int_number:
             syms.append(n)
     if len(syms) == 0:
@@ -594,9 +579,8 @@ def in_array_list(array_list: list[np.ndarray] | np.ndarray, arr: np.ndarray, to
 
     Args:
         array_list ([array]): A list of arrays to compare to.
-        a (array): The test array for comparison.
-        tol (float): The tolerance. Defaults to 1e-5. If 0, an exact match is
-            done.
+        arr (array): The test array for comparison.
+        tol (float): The tolerance. Defaults to 1e-5. If 0, an exact match is done.
 
     Returns:
         (bool)

@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains the class describing the coordination geometries that can exist in a given structure. These
 "model" coordination geometries are described in the following articles :
@@ -54,9 +51,7 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def as_dict(self):
-        """
-        A JSON-serializable dict representation of the algorithm
-        """
+        """A JSON-serializable dict representation of the algorithm."""
 
     @property
     def algorithm_type(self):
@@ -147,7 +142,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         other_plane_points=None,
     ):
         """
-            Initializes a separation plane for a given perfect coordination geometry
+            Initializes a separation plane for a given perfect coordination geometry.
 
         Args:
             plane_points: Indices of the points that are in the plane in the perfect structure (and should be
@@ -241,6 +236,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         Simple and safe permutations for this separation plane.
 
         This is not meant to be used in production. Default configuration for ChemEnv does not use this method.
+
         Args:
             ordered_plane: Whether the order of the points in the plane can be used to reduce the
                 number of permutations.
@@ -329,7 +325,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """
         Reconstructs the SeparationPlane algorithm from its JSON-serializable dict representation.
 
@@ -338,36 +334,30 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
         Returns: a SeparationPlane algorithm.
         """
-        eop = (
-            [np.array(eoperm) for eoperm in dd["explicit_optimized_permutations"]]
-            if ("explicit_optimized_permutations" in dd and dd["explicit_optimized_permutations"] is not None)
-            else None
-        )
+        eop = [np.array(eo_perm) for eo_perm in dct.get("explicit_optimized_permutations", [])] or None
         return cls(
-            plane_points=dd["plane_points"],
-            mirror_plane=dd["mirror_plane"],
-            ordered_plane=dd["ordered_plane"],
-            point_groups=dd["point_groups"],
-            ordered_point_groups=dd["ordered_point_groups"],
-            explicit_permutations=[np.array(eperm) for eperm in dd["explicit_permutations"]],
+            plane_points=dct["plane_points"],
+            mirror_plane=dct["mirror_plane"],
+            ordered_plane=dct["ordered_plane"],
+            point_groups=dct["point_groups"],
+            ordered_point_groups=dct["ordered_point_groups"],
+            explicit_permutations=[np.array(eperm) for eperm in dct["explicit_permutations"]],
             explicit_optimized_permutations=eop,
-            multiplicity=dd["multiplicity"] if "multiplicity" in dd else None,
-            other_plane_points=dd["other_plane_points"] if "other_plane_points" in dd else None,
-            minimum_number_of_points=dd["minimum_number_of_points"],
+            multiplicity=dct.get("multiplicity"),
+            other_plane_points=dct.get("other_plane_points"),
+            minimum_number_of_points=dct["minimum_number_of_points"],
         )
 
     def __str__(self):
         out = "Separation plane algorithm with the following reference separation :\n"
-        out += f"[{'-'.join(str(pp) for pp in [self.point_groups[0]])}] | "
-        out += f"[{'-'.join(str(pp) for pp in [self.plane_points])}] | "
-        out += f"[{'-'.join(str(pp) for pp in [self.point_groups[1]])}]"
+        out += f"[{'-'.join(map(str, [self.point_groups[0]]))}] | "
+        out += f"[{'-'.join(map(str, [self.plane_points]))}] | "
+        out += f"[{'-'.join(map(str, [self.point_groups[1]]))}]"
         return out
 
 
 class CoordinationGeometry:
-    """
-    Class used to store the ideal representation of a chemical environment or "coordination geometry".
-    """
+    """Class used to store the ideal representation of a chemical environment or "coordination geometry"."""
 
     # Default value of continuous symmetry measure beyond which no further
     # search is performed for the separation plane algorithms
@@ -380,7 +370,7 @@ class CoordinationGeometry:
         This allows to possibly get a lower coordination from a capped-like model polyhedron.
         """
 
-        ALLOWED_HINTS_TYPES = ["single_cap", "double_cap", "triple_cap"]
+        ALLOWED_HINTS_TYPES = ("single_cap", "double_cap", "triple_cap")
 
         def __init__(self, hints_type, options):
             """
@@ -453,11 +443,7 @@ class CoordinationGeometry:
             new_site_voronoi_indices2.remove(second_cap_voronoi_index)
             new_site_voronoi_indices3.remove(first_cap_voronoi_index)
             new_site_voronoi_indices3.remove(second_cap_voronoi_index)
-            return [
-                new_site_voronoi_indices1,
-                new_site_voronoi_indices2,
-                new_site_voronoi_indices3,
-            ]
+            return new_site_voronoi_indices1, new_site_voronoi_indices2, new_site_voronoi_indices3
 
         def triple_cap_hints(self, hints_info):
             """
@@ -508,9 +494,7 @@ class CoordinationGeometry:
             ]
 
         def as_dict(self):
-            """
-            A JSON-serializable dict representation of this NeighborsSetsHints
-            """
+            """A JSON-serializable dict representation of this NeighborsSetsHints."""
             return {"hints_type": self.hints_type, "options": self.options}
 
         @classmethod
@@ -594,9 +578,7 @@ class CoordinationGeometry:
         self._pauling_stability_ratio = None
 
     def as_dict(self):
-        """
-        A JSON-serializable dict representation of this CoordinationGeometry.
-        """
+        """A JSON-serializable dict representation of this CoordinationGeometry."""
         return {
             "mp_symbol": self._mp_symbol,
             "name": self.name,
@@ -605,12 +587,12 @@ class CoordinationGeometry:
             "IUCr_symbol": self.IUCrsymbol,
             "coordination": self.coordination,
             "central_site": [float(xx) for xx in self.central_site],
-            "points": [[float(xx) for xx in pp] for pp in self.points] if self.points is not None else None,
-            "solid_angles": [float(ang) for ang in self._solid_angles] if self._solid_angles is not None else None,
+            "points": [[float(xx) for xx in pp] for pp in (self.points or [])] or None,
+            "solid_angles": [float(ang) for ang in (self._solid_angles or [])] or None,
             "deactivate": self.deactivate,
             "_faces": self._faces,
             "_edges": self._edges,
-            "_algorithms": [algo.as_dict for algo in self._algorithms] if self._algorithms is not None else None,
+            "_algorithms": [algo.as_dict for algo in (self._algorithms or [])] or None,
             "equivalent_indices": self.equivalent_indices,
             "neighbors_sets_hints": [nbsh.as_dict() for nbsh in self.neighbors_sets_hints]
             if self.neighbors_sets_hints is not None
@@ -618,37 +600,39 @@ class CoordinationGeometry:
         }
 
     @classmethod
-    def from_dict(cls, dd):
+    def from_dict(cls, dct):
         """
         Reconstructs the CoordinationGeometry from its JSON-serializable dict representation.
 
         Args:
-            dd: a JSON-serializable dict representation of a CoordinationGeometry.
+            dct: a JSON-serializable dict representation of a CoordinationGeometry.
 
         Returns: a CoordinationGeometry.
         """
         dec = MontyDecoder()
         return cls(
-            mp_symbol=dd["mp_symbol"],
-            name=dd["name"],
-            alternative_names=dd["alternative_names"],
-            IUPAC_symbol=dd["IUPAC_symbol"],
-            IUCr_symbol=dd["IUCr_symbol"],
-            coordination=dd["coordination"],
-            central_site=dd["central_site"],
-            points=dd["points"],
+            mp_symbol=dct["mp_symbol"],
+            name=dct["name"],
+            alternative_names=dct["alternative_names"],
+            IUPAC_symbol=dct["IUPAC_symbol"],
+            IUCr_symbol=dct["IUCr_symbol"],
+            coordination=dct["coordination"],
+            central_site=dct["central_site"],
+            points=dct["points"],
             solid_angles=(
-                dd["solid_angles"] if "solid_angles" in dd else [4.0 * np.pi / dd["coordination"]] * dd["coordination"]
+                dct["solid_angles"]
+                if "solid_angles" in dct
+                else [4.0 * np.pi / dct["coordination"]] * dct["coordination"]
             ),
-            deactivate=dd["deactivate"],
-            faces=dd["_faces"],
-            edges=dd["_edges"],
-            algorithms=[dec.process_decoded(algo_d) for algo_d in dd["_algorithms"]]
-            if dd["_algorithms"] is not None
+            deactivate=dct["deactivate"],
+            faces=dct["_faces"],
+            edges=dct["_edges"],
+            algorithms=[dec.process_decoded(algo_d) for algo_d in dct["_algorithms"]]
+            if dct["_algorithms"] is not None
             else None,
-            equivalent_indices=dd["equivalent_indices"] if "equivalent_indices" in dd else None,
-            neighbors_sets_hints=[cls.NeighborsSetsHints.from_dict(nbshd) for nbshd in dd["neighbors_sets_hints"]]
-            if ("neighbors_sets_hints" in dd and dd["neighbors_sets_hints"] is not None)
+            equivalent_indices=dct.get("equivalent_indices"),
+            neighbors_sets_hints=[cls.NeighborsSetsHints.from_dict(nbshd) for nbshd in dct["neighbors_sets_hints"]]
+            if ("neighbors_sets_hints" in dct and dct["neighbors_sets_hints"] is not None)
             else None,
         )
 
@@ -724,16 +708,12 @@ class CoordinationGeometry:
 
     @property
     def coordination_number(self):
-        """
-        Returns the coordination number of this coordination geometry.
-        """
+        """Returns the coordination number of this coordination geometry."""
         return self.coordination
 
     @property
     def pauling_stability_ratio(self):
-        """
-        Returns the theoretical Pauling stability ratio (rC/rA) for this environment.
-        """
+        """Returns the theoretical Pauling stability ratio (rC/rA) for this environment."""
         if self._pauling_stability_ratio is None:
             if self.ce_symbol in ["S:1", "L:2"]:
                 self._pauling_stability_ratio = 0.0
@@ -753,69 +733,49 @@ class CoordinationGeometry:
 
     @property
     def mp_symbol(self):
-        """
-        Returns the MP symbol of this coordination geometry.
-        """
+        """Returns the MP symbol of this coordination geometry."""
         return self._mp_symbol
 
     @property
     def ce_symbol(self):
-        """
-        Returns the symbol of this coordination geometry.
-        """
+        """Returns the symbol of this coordination geometry."""
         return self._mp_symbol
 
     def get_coordination_number(self):
-        """
-        Returns the coordination number of this coordination geometry.
-        """
+        """Returns the coordination number of this coordination geometry."""
         return self.coordination
 
     def is_implemented(self) -> bool:
-        """
-        Returns True if this coordination geometry is implemented.
-        """
+        """Returns True if this coordination geometry is implemented."""
         return bool(self.points)
 
     def get_name(self):
-        """
-        Returns the name of this coordination geometry.
-        """
+        """Returns the name of this coordination geometry."""
         return self.name
 
     @property
     def IUPAC_symbol(self):
-        """
-        Returns the IUPAC symbol of this coordination geometry.
-        """
+        """Returns the IUPAC symbol of this coordination geometry."""
         return self.IUPACsymbol
 
     @property
     def IUPAC_symbol_str(self):
-        """
-        Returns a string representation of the IUPAC symbol of this coordination geometry.
-        """
+        """Returns a string representation of the IUPAC symbol of this coordination geometry."""
         return str(self.IUPACsymbol)
 
     @property
     def IUCr_symbol(self):
-        """
-        Returns the IUCr symbol of this coordination geometry.
-        """
+        """Returns the IUCr symbol of this coordination geometry."""
         return self.IUCrsymbol
 
     @property
     def IUCr_symbol_str(self):
-        """
-        Returns a string representation of the IUCr symbol of this coordination geometry.
-        """
+        """Returns a string representation of the IUCr symbol of this coordination geometry."""
         return str(self.IUCrsymbol)
 
     @property
     def number_of_permutations(self):
-        """
-        Returns the number of permutations of this coordination geometry.
-        """
+        """Returns the number of permutations of this coordination geometry."""
         if self.permutations_safe_override:
             return factorial(self.coordination)
         if self.permutations is None:  # pylint: disable=E1101
@@ -841,15 +801,11 @@ class CoordinationGeometry:
 
     @property
     def algorithms(self):
-        """
-        Returns the list of algorithms that are used to identify this coordination geometry.
-        """
+        """Returns the list of algorithms that are used to identify this coordination geometry."""
         return self._algorithms
 
     def get_central_site(self):
-        """
-        Returns the central site of this coordination geometry.
-        """
+        """Returns the central site of this coordination geometry."""
         return self.central_site
 
     def faces(self, sites, permutation=None):
@@ -857,10 +813,7 @@ class CoordinationGeometry:
         Returns the list of faces of this coordination geometry. Each face is given as a
         list of its vertices coordinates.
         """
-        if permutation is None:
-            coords = [site.coords for site in sites]
-        else:
-            coords = [sites[ii].coords for ii in permutation]
+        coords = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
         return [[coords[ii] for ii in f] for f in self._faces]
 
     def edges(self, sites, permutation=None, input="sites"):
@@ -890,15 +843,10 @@ class CoordinationGeometry:
         return [self._solid_angles[ii] for ii in permutation]
 
     def get_pmeshes(self, sites, permutation=None):
-        """
-        Returns the pmesh strings used for jmol to show this geometry.
-        """
+        """Returns the pmesh strings used for jmol to show this geometry."""
         pmeshes = []
         # _vertices = [site.coords for site in sites]
-        if permutation is None:
-            _vertices = [site.coords for site in sites]
-        else:
-            _vertices = [sites[ii].coords for ii in permutation]
+        _vertices = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
         _face_centers = []
         number_of_faces = 0
         for face in self._faces:
@@ -940,7 +888,7 @@ class CoordinationGeometry:
 class AllCoordinationGeometries(dict):
     """
     Class used to store all the reference "coordination geometries" (list with instances of the CoordinationGeometry
-    classes)
+    classes).
     """
 
     def __init__(self, permutations_safe_override=False, only_symbols=None):
@@ -1010,9 +958,7 @@ class AllCoordinationGeometries(dict):
             return False
 
     def __repr__(self):
-        """
-        Returns a string with the list of coordination geometries.
-        """
+        """Returns a string with the list of coordination geometries."""
         outs = [
             "",
             "#=================================#",
@@ -1026,9 +972,7 @@ class AllCoordinationGeometries(dict):
         return "\n".join(outs)
 
     def __str__(self):
-        """
-        Returns a string with the list of coordination geometries that are implemented.
-        """
+        """Returns a string with the list of coordination geometries that are implemented."""
         outs = [
             "",
             "#=======================================================#",
@@ -1233,36 +1177,30 @@ class AllCoordinationGeometries(dict):
         if mp_symbol is not None:
             try:
                 cg = self.get_geometry_from_mp_symbol(mp_symbol)
-                if IUPAC_symbol is not None:
-                    if IUPAC_symbol != cg.IUPAC_symbol:
-                        return False
-                if IUCr_symbol is not None:
-                    if IUCr_symbol != cg.IUCr_symbol:
-                        return False
-                if cn is not None:
-                    if int(cn) != int(cg.coordination_number):
-                        return False
+                if IUPAC_symbol is not None and IUPAC_symbol != cg.IUPAC_symbol:
+                    return False
+                if IUCr_symbol is not None and IUCr_symbol != cg.IUCr_symbol:
+                    return False
+                if cn is not None and int(cn) != int(cg.coordination_number):
+                    return False
                 return True
             except LookupError:
                 return False
         elif IUPAC_symbol is not None:
             try:
                 cg = self.get_geometry_from_IUPAC_symbol(IUPAC_symbol)
-                if IUCr_symbol is not None:
-                    if IUCr_symbol != cg.IUCr_symbol:
-                        return False
-                if cn is not None:
-                    if cn != cg.coordination_number:
-                        return False
+                if IUCr_symbol is not None and IUCr_symbol != cg.IUCr_symbol:
+                    return False
+                if cn is not None and cn != cg.coordination_number:
+                    return False
                 return True
             except LookupError:
                 return False
         elif IUCr_symbol is not None:
             try:
                 cg = self.get_geometry_from_IUCr_symbol(IUCr_symbol)
-                if cn is not None:
-                    if cn != cg.coordination_number:
-                        return False
+                if cn is not None and cn != cg.coordination_number:
+                    return False
                 return True
             except LookupError:
                 return True
@@ -1318,10 +1256,7 @@ class AllCoordinationGeometries(dict):
                     for cg in self.get_implemented_geometries(coordination=cn):
                         if additional_info is not None:
                             if "nb_hints" in additional_info:
-                                if cg.neighbors_sets_hints is not None:
-                                    addinfo = " *"
-                                else:
-                                    addinfo = ""
+                                addinfo = " *" if cg.neighbors_sets_hints is not None else ""
                             else:
                                 addinfo = ""
                         else:

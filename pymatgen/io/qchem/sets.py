@@ -1,22 +1,19 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Input sets for Qchem
-"""
+"""Input sets for Qchem."""
 
 from __future__ import annotations
 
 import logging
 import os
 import warnings
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from monty.io import zopen
 
-from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
+
+if TYPE_CHECKING:
+    from pymatgen.core.structure import Molecule
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -131,9 +128,7 @@ CMIRS_SETTINGS = {
 
 
 class QChemDictSet(QCInput):
-    """
-    Build a QCInput given all the various input parameters. Can be extended by standard implementations below.
-    """
+    """Build a QCInput given all the various input parameters. Can be extended by standard implementations below."""
 
     def __init__(
         self,
@@ -163,7 +158,7 @@ class QChemDictSet(QCInput):
     ):
         """
         Args:
-            molecule (Pymatgen Molecule object)
+            molecule (Pymatgen Molecule object): Molecule to run QChem on.
             job_type (str): QChem job type to run. Valid options are "opt" for optimization,
                 "sp" for single point, "freq" for frequency calculation, or "force" for
                 force evaluation.
@@ -179,7 +174,7 @@ class QChemDictSet(QCInput):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 
@@ -251,9 +246,9 @@ class QChemDictSet(QCInput):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
-                calculations using constrainted density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                Each entry in the main list represents one state (allowing for multi-configuration
+                calculations using constrained density functional theory - configuration interaction
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -280,7 +275,7 @@ class QChemDictSet(QCInput):
                 accessed by requesting a type of "c" or "charge").
 
 
-                2. For a CDFT-CI multireference calculation:
+                2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
                         {
@@ -315,6 +310,7 @@ class QChemDictSet(QCInput):
                         },
                     ]
                 ]
+            cdft_constraints (list[list[dict]]): A list of lists of dictionaries, where each
             almo_coupling_states (list of lists of int 2-tuples):
                 A list of lists of int 2-tuples used for calculations of diabatization and state
                 coupling calculations relying on the absolutely localized molecular orbitals (ALMO)
@@ -391,24 +387,18 @@ class QChemDictSet(QCInput):
 
         plots_defaults = {"grid_spacing": "0.05", "total_density": "0"}
 
-        if self.opt_variables is None:
-            myopt = {}
-        else:
-            myopt = self.opt_variables
+        myopt = {} if self.opt_variables is None else self.opt_variables
 
-        if self.scan_variables is None:
-            myscan = {}
-        else:
-            myscan = self.scan_variables
+        myscan = {} if self.scan_variables is None else self.scan_variables
 
-        mypcm: dict = dict()
-        mysolvent: dict = dict()
-        mysmx: dict = dict()
-        myvdw: dict = dict()
-        myplots: dict = dict()
-        myrem: dict = dict()
-        mysvp: dict = dict()
-        mypcm_nonels: dict = dict()
+        mypcm: dict = {}
+        mysolvent: dict = {}
+        mysmx: dict = {}
+        myvdw: dict = {}
+        myplots: dict = {}
+        myrem: dict = {}
+        mysvp: dict = {}
+        mypcm_nonels: dict = {}
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = str(self.max_scf_cycles)
@@ -466,12 +456,11 @@ class QChemDictSet(QCInput):
             if self.smd_solvent in ("custom", "other"):
                 if self.custom_smd is None:
                     raise ValueError(
-                        "A user-defined SMD requires passing custom_smd, a string"
-                        + " of seven comma separated values in the following order:"
-                        + " dielectric, refractive index, acidity, basicity, surface"
-                        + " tension, aromaticity, electronegative halogenicity"
+                        "A user-defined SMD requires passing custom_smd, a string of seven comma separated values "
+                        "in the following order: dielectric, refractive index, acidity, basicity, surface"
+                        " tension, aromaticity, electronegative halogenicity"
                     )
-                elif self.qchem_version == 6:
+                if self.qchem_version == 6:
                     custom_smd_vals = self.custom_smd.split(",")
                     mysmx["epsilon"] = custom_smd_vals[0]
                     mysmx["SolN"] = custom_smd_vals[1]
@@ -513,28 +502,31 @@ class QChemDictSet(QCInput):
 
         tmp_geom_opt = self.geom_opt
         my_geom_opt = self.geom_opt
-        if self.job_type.lower() in ["opt", "optimization"]:
-            if self.qchem_version == 6 or (self.qchem_version == 5 and self.geom_opt is not None):
-                if self.qchem_version == 5:
-                    myrem["geom_opt2"] = "3"
-                elif self.qchem_version == 6 and not self.geom_opt:
-                    tmp_geom_opt = {}
-                if tmp_geom_opt is not None:
-                    if "maxiter" in tmp_geom_opt:
-                        if tmp_geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
-                            raise RuntimeError("Max # of optimization cycles must be the same! Exiting...")
-                    else:
-                        tmp_geom_opt["maxiter"] = str(self.geom_opt_max_cycles)
-                    if self.qchem_version == 6:
-                        if "coordinates" not in tmp_geom_opt:
-                            tmp_geom_opt["coordinates"] = "redundant"
-                        if "max_displacement" not in tmp_geom_opt:
-                            tmp_geom_opt["max_displacement"] = "0.1"
-                        if "optimization_restart" not in tmp_geom_opt:
-                            tmp_geom_opt["optimization_restart"] = "false"
-                    my_geom_opt = {}
-                    for key in tmp_geom_opt:
-                        my_geom_opt[key] = tmp_geom_opt[key]
+        if (
+            self.job_type.lower() in ["opt", "optimization"]
+            and self.qchem_version == 6
+            or (self.qchem_version == 5 and self.geom_opt is not None)
+        ):
+            if self.qchem_version == 5:
+                myrem["geom_opt2"] = "3"
+            elif self.qchem_version == 6 and not self.geom_opt:
+                tmp_geom_opt = {}
+            if tmp_geom_opt is not None:
+                if "maxiter" in tmp_geom_opt:
+                    if tmp_geom_opt["maxiter"] != str(self.geom_opt_max_cycles):
+                        raise RuntimeError("Max # of optimization cycles must be the same! Exiting...")
+                else:
+                    tmp_geom_opt["maxiter"] = str(self.geom_opt_max_cycles)
+                if self.qchem_version == 6:
+                    if "coordinates" not in tmp_geom_opt:
+                        tmp_geom_opt["coordinates"] = "redundant"
+                    if "max_displacement" not in tmp_geom_opt:
+                        tmp_geom_opt["max_displacement"] = "0.1"
+                    if "optimization_restart" not in tmp_geom_opt:
+                        tmp_geom_opt["optimization_restart"] = "false"
+                my_geom_opt = {}
+                for key in tmp_geom_opt:
+                    my_geom_opt[key] = tmp_geom_opt[key]
 
         if self.overwrite_inputs:
             for sec, sec_dict in self.overwrite_inputs.items():
@@ -581,16 +573,15 @@ class QChemDictSet(QCInput):
                 if sec == "svp":
                     temp_svp = lower_and_check_unique(sec_dict)
                     for k, v in temp_svp.items():
-                        if k == "rhoiso":
-                            if self.cmirs_solvent is not None:
-                                # must update both svp and pcm_nonels sections
-                                if v not in ["0.001", "0.0005"]:
-                                    raise RuntimeError(
-                                        "CMIRS is only parameterized for RHOISO values of 0.001 or 0.0005! Exiting..."
-                                    )
-                                for k2, _v2 in mypcm_nonels.items():
-                                    if CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2):  # type: ignore
-                                        mypcm_nonels[k2] = CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2)  # type: ignore
+                        if k == "rhoiso" and self.cmirs_solvent is not None:
+                            # must update both svp and pcm_nonels sections
+                            if v not in ["0.001", "0.0005"]:
+                                raise RuntimeError(
+                                    "CMIRS is only parameterized for RHOISO values of 0.001 or 0.0005! Exiting..."
+                                )
+                            for k2, _v2 in mypcm_nonels.items():
+                                if CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2):  # type: ignore
+                                    mypcm_nonels[k2] = CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2)  # type: ignore
                         if k == "idefesr":
                             if self.cmirs_solvent is not None and v == "0":
                                 warnings.warn(
@@ -619,9 +610,7 @@ class QChemDictSet(QCInput):
             # If extra_scf_print is specified, make sure that the convergence of the
             # SCF cycle is at least 1e-8. Anything less than that might not be appropriate
             # for printing out the Fock Matrix and coefficients of the MO.
-            if "scf_convergence" not in myrem:
-                myrem["scf_convergence"] = "8"
-            elif int(myrem["scf_convergence"]) < 8:
+            if "scf_convergence" not in myrem or int(myrem["scf_convergence"]) < 8:
                 myrem["scf_convergence"] = "8"
 
         super().__init__(
@@ -646,7 +635,7 @@ class QChemDictSet(QCInput):
     def write(self, input_file: str):
         """
         Args:
-            input_file (str): Filename
+            input_file (str): Filename.
         """
         self.write_file(input_file)
         if self.smd_solvent in ("custom", "other") and self.qchem_version == 5:
@@ -655,9 +644,7 @@ class QChemDictSet(QCInput):
 
 
 class SinglePointSet(QChemDictSet):
-    """
-    QChemDictSet for a single point calculation
-    """
+    """QChemDictSet for a single point calculation."""
 
     def __init__(
         self,
@@ -699,7 +686,7 @@ class SinglePointSet(QChemDictSet):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 
@@ -746,9 +733,9 @@ class SinglePointSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
-                calculations using constrainted density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                Each entry in the main list represents one state (allowing for multi-configuration
+                calculations using constrained density functional theory - configuration interaction
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -775,7 +762,7 @@ class SinglePointSet(QChemDictSet):
                 accessed by requesting a type of "c" or "charge").
 
 
-                2. For a CDFT-CI multireference calculation:
+                2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
                         {
@@ -882,9 +869,7 @@ class SinglePointSet(QChemDictSet):
 
 
 class OptSet(QChemDictSet):
-    """
-    QChemDictSet for a geometry optimization
-    """
+    """QChemDictSet for a geometry optimization."""
 
     def __init__(
         self,
@@ -926,7 +911,7 @@ class OptSet(QChemDictSet):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 
@@ -981,9 +966,9 @@ class OptSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
-                calculations using constrainted density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                Each entry in the main list represents one state (allowing for multi-configuration
+                calculations using constrained density functional theory - configuration interaction
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -1010,7 +995,7 @@ class OptSet(QChemDictSet):
                 accessed by requesting a type of "c" or "charge").
 
 
-                2. For a CDFT-CI multireference calculation:
+                2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
                         {
@@ -1094,9 +1079,7 @@ class OptSet(QChemDictSet):
 
 
 class TransitionStateSet(QChemDictSet):
-    """
-    QChemDictSet for a transition-state search
-    """
+    """QChemDictSet for a transition-state search."""
 
     def __init__(
         self,
@@ -1135,7 +1118,7 @@ class TransitionStateSet(QChemDictSet):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 
@@ -1230,9 +1213,7 @@ class TransitionStateSet(QChemDictSet):
 
 
 class ForceSet(QChemDictSet):
-    """
-    QChemDictSet for a force (gradient) calculation
-    """
+    """QChemDictSet for a force (gradient) calculation."""
 
     def __init__(
         self,
@@ -1269,7 +1250,7 @@ class ForceSet(QChemDictSet):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 
@@ -1317,9 +1298,9 @@ class ForceSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
-                calculations using constrainted density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                Each entry in the main list represents one state (allowing for multi-configuration
+                calculations using constrained density functional theory - configuration interaction
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -1346,7 +1327,7 @@ class ForceSet(QChemDictSet):
                 accessed by requesting a type of "c" or "charge").
 
 
-                2. For a CDFT-CI multireference calculation:
+                2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
                         {
@@ -1422,9 +1403,7 @@ class ForceSet(QChemDictSet):
 
 
 class FreqSet(QChemDictSet):
-    """
-    QChemDictSet for a frequency calculation
-    """
+    """QChemDictSet for a frequency calculation."""
 
     def __init__(
         self,
@@ -1461,7 +1440,7 @@ class FreqSet(QChemDictSet):
                 2 (GGA) = B97-D3(BJ)
                 3 (metaGGA) = B97M-V
                 4 (hybrid metaGGA) = ωB97M-V
-                5 (double hybrid metaGGA) = ωB97M-(2)
+                5 (double hybrid metaGGA) = ωB97M-(2).
 
                 (Default: 4)
 
@@ -1509,9 +1488,9 @@ class FreqSet(QChemDictSet):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
 
-                Each entry in the main list represents one state (allowing for multiconfiguration
-                calculations using constrainted density functional theory - configuration interaction
-                (CDFT-CI). Each state is relresented by a list, which itself contains some number of
+                Each entry in the main list represents one state (allowing for multi-configuration
+                calculations using constrained density functional theory - configuration interaction
+                (CDFT-CI). Each state is represented by a list, which itself contains some number of
                 constraints (dictionaries).
 
                 Ex:
@@ -1538,7 +1517,7 @@ class FreqSet(QChemDictSet):
                 accessed by requesting a type of "c" or "charge").
 
 
-                2. For a CDFT-CI multireference calculation:
+                2. For a CDFT-CI multi-reference calculation:
                 cdft_constraints=[
                     [
                         {

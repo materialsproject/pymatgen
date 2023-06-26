@@ -1,7 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 from __future__ import annotations
 
 import json
@@ -32,8 +28,7 @@ def get_table():
 
     json_file = os.path.join(data_dir, "test_lambda.json")
     with open(json_file) as f:
-        lambda_table = json.load(f)
-    return lambda_table
+        return json.load(f)
 
 
 class SubstitutionProbabilityTest(unittest.TestCase):

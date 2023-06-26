@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis namespace &mdash; pymatgen 2023.1.30 documentation</title>
+  <title>pymatgen.analysis namespace &mdash; pymatgen 2023.5.10 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -36,14 +38,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
-                2023.1.30
+                2023.5.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -99,7 +105,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
       <li class="breadcrumb-item active">pymatgen.analysis namespace</li>
@@ -1156,7 +1162,6 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.ZSLGenerator"><code class="docutils literal notranslate"><span class="pre">ZSLGenerator</span></code></a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.ZSLGenerator.generate_sl_transformation_sets"><code class="docutils literal notranslate"><span class="pre">ZSLGenerator.generate_sl_transformation_sets()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.ZSLGenerator.get_equiv_transformations"><code class="docutils literal notranslate"><span class="pre">ZSLGenerator.get_equiv_transformations()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.ZSLGenerator.is_same_vectors"><code class="docutils literal notranslate"><span class="pre">ZSLGenerator.is_same_vectors()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.ZSLMatch"><code class="docutils literal notranslate"><span class="pre">ZSLMatch</span></code></a><ul>
@@ -1171,8 +1176,9 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.fast_norm"><code class="docutils literal notranslate"><span class="pre">fast_norm()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.gen_sl_transform_matricies"><code class="docutils literal notranslate"><span class="pre">gen_sl_transform_matricies()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.gen_sl_transform_matrices"><code class="docutils literal notranslate"><span class="pre">gen_sl_transform_matrices()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.get_factors"><code class="docutils literal notranslate"><span class="pre">get_factors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.is_same_vectors"><code class="docutils literal notranslate"><span class="pre">is_same_vectors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.reduce_vectors"><code class="docutils literal notranslate"><span class="pre">reduce_vectors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.rel_angle"><code class="docutils literal notranslate"><span class="pre">rel_angle()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.interfaces.zsl.html#pymatgen.analysis.interfaces.zsl.rel_strain"><code class="docutils literal notranslate"><span class="pre">rel_strain()</span></code></a></li>
@@ -1866,6 +1872,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.get_okeeffe_params"><code class="docutils literal notranslate"><span class="pre">get_okeeffe_params()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.gramschmidt"><code class="docutils literal notranslate"><span class="pre">gramschmidt()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.metal_edge_extender"><code class="docutils literal notranslate"><span class="pre">metal_edge_extender()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.oxygen_edge_extender"><code class="docutils literal notranslate"><span class="pre">oxygen_edge_extender()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.site_is_of_motif_type"><code class="docutils literal notranslate"><span class="pre">site_is_of_motif_type()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.solid_angle"><code class="docutils literal notranslate"><span class="pre">solid_angle()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.vol_tetra"><code class="docutils literal notranslate"><span class="pre">vol_tetra()</span></code></a></li>
@@ -2058,6 +2065,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PatchedPhaseDiagram.get_chempot_range_stability_phase"><code class="docutils literal notranslate"><span class="pre">PatchedPhaseDiagram.get_chempot_range_stability_phase()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PatchedPhaseDiagram.get_composition_chempots"><code class="docutils literal notranslate"><span class="pre">PatchedPhaseDiagram.get_composition_chempots()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PatchedPhaseDiagram.get_critical_compositions"><code class="docutils literal notranslate"><span class="pre">PatchedPhaseDiagram.get_critical_compositions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PatchedPhaseDiagram.get_decomp_and_e_above_hull"><code class="docutils literal notranslate"><span class="pre">PatchedPhaseDiagram.get_decomp_and_e_above_hull()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PatchedPhaseDiagram.get_decomposition"><code class="docutils literal notranslate"><span class="pre">PatchedPhaseDiagram.get_decomposition()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PatchedPhaseDiagram.get_element_profile"><code class="docutils literal notranslate"><span class="pre">PatchedPhaseDiagram.get_element_profile()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PatchedPhaseDiagram.get_equilibrium_reaction_energy"><code class="docutils literal notranslate"><span class="pre">PatchedPhaseDiagram.get_equilibrium_reaction_energy()</span></code></a></li>
@@ -2096,6 +2104,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_hull_energy"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_hull_energy()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_hull_energy_per_atom"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_hull_energy_per_atom()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_phase_separation_energy"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_phase_separation_energy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_plot"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_plot()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_reference_energy_per_atom"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_reference_energy_per_atom()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_transition_chempots"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_transition_chempots()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.getmu_vertices_stability_phase"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.getmu_vertices_stability_phase()</span></code></a></li>
@@ -2363,7 +2372,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.substrate_analyzer.html">pymatgen.analysis.substrate_analyzer module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.surface_analysis.html">pymatgen.analysis.surface_analysis module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.NanoscaleStability"><code class="docutils literal notranslate"><span class="pre">NanoscaleStability</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.NanoscaleStability.se_analyzers"><code class="docutils literal notranslate"><span class="pre">NanoscaleStability.se_analyzers</span></code></a></li>
