@@ -21,6 +21,7 @@ from scipy.optimize import minimize
 
 from pymatgen.analysis.eos import EOS, PolynomialEOS
 from pymatgen.core.units import FloatWithUnit
+from pymatgen.util.due import Doi, due
 
 __author__ = "Kiran Mathew, Brandon Bocklund"
 __credits__ = "Cormac Toher"
@@ -29,6 +30,18 @@ __credits__ = "Cormac Toher"
 logger = logging.getLogger(__name__)
 
 
+@due.dcite(
+    Doi("10.1016/j.comphy.2003.12.001"),
+    description="GIBBS: isothermal-isobaric thermodynamics of solids from energy curves using a "
+    "quasi-harmonic Debye model",
+    path="pymatgen.analysis.quasiharmonic",
+)
+@due.dcite(
+    Doi("10.1103/PhysRevB.90.174107"),
+    description="High-throughput computational screening of thermal conductivity, Debye "
+    "temperature, and Grüneisen parameter using a quasiharmonic Debye model",
+    path="pymatgen.analysis.quasiharmonic",
+)
 class QuasiharmonicDebyeApprox:
     """Quasiharmonic approximation."""
 

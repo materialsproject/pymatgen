@@ -33,10 +33,10 @@ __copyright__ = "Copyright 2011-2020, The Materials Project"
 __version__ = "1.1"
 __date__ = "April 2020"
 
-with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as f:
-    G_ELEMS = json.load(f)
-with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as f:
-    G_GASES = json.load(f)
+with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as file:
+    G_ELEMS = json.load(file)
+with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as file:
+    G_GASES = json.load(file)
 
 
 class EnergyAdjustment(MSONable):

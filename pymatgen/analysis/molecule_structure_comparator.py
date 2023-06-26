@@ -15,6 +15,8 @@ import itertools
 from frozendict import frozendict
 from monty.json import MSONable
 
+from pymatgen.util.due import Doi, due
+
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -24,11 +26,12 @@ __status__ = "Experimental"
 __date__ = "Jan 22, 2014"
 
 
+@due.dcite(Doi("10.1039/b801115j"), description="Covalent radii revisited")
 class CovalentRadius:
     """
-    Covalent Radius of the elements.
+    Covalent radius of the elements.
 
-    Beatriz C. et al. Dalton Trans. 2008, 2832-2838. DOI: 10.1039/b801115j
+    Beatriz C. et al. Dalton Trans. 2008, 2832-2838. https://doi.org/10.1039/b801115j
     """
 
     radius = frozendict(

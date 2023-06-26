@@ -4,16 +4,6 @@ solids, with or without an open element (e.g., flowing O2).
 
 Please consider citing one or both of the following papers if you use this
 code in your own work.
-
-References:
-    (1) Richards, W. D., Miara, L. J., Wang, Y., Kim, J. C., &amp; Ceder, G. (2015).
-    Interface stability in solid-state batteries. Chemistry of Materials, 28(1),
-    266-273. https://doi.org/10.1021/acs.chemmater.5b04082
-
-    (2) Xiao, Y., Wang, Y., Bo, S.-H., Kim, J. C., Miara, L. J., &amp; Ceder, G. (2019).
-    Understanding interface stability in solid-state batteries.
-    Nature Reviews Materials, 5(2), 105-126. https://doi.org/10.1038/s41578-019-0157-5
-
 """
 
 from __future__ import annotations
@@ -32,6 +22,7 @@ from plotly.graph_objects import Figure, Scatter
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition
+from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
 
@@ -44,6 +35,14 @@ with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_interfac
     plotly_layouts = json.load(f)
 
 
+@due.dcite(
+    Doi("10.1021/acs.chemmater.5b04082"),
+    description="Interface stability in solid-state batteries",
+)
+@due.dcite(
+    Doi("10.1038/s41578-019-0157-5"),
+    description="Understanding interface stability in solid-state batteries",
+)
 class InterfacialReactivity(MSONable):
     """
     Class for modeling an interface between two solids and its possible reactions.
