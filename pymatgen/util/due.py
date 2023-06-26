@@ -1,17 +1,20 @@
 """
-
 Stub file for a guaranteed safe import of duecredit constructs: if duecredit
 is not available.
 
-See  https://github.com/duecredit/duecredit/blob/master/README.md
+Then use in your code as
+
+    from .due import due, Doi, BibTeX, Text
+
+See  https://github.com/duecredit/duecredit/blob/master/README.md for examples.
 
 Origin:     Originally a part of the duecredit
-Copyright:  2015-2019  DueCredit developers
+Copyright:  2015-2021  DueCredit developers
 License:    BSD-2
 """
 from __future__ import annotations
 
-__version__ = "0.0.8"
+__version__ = "0.0.9"
 
 
 class InactiveDueCreditCollector:
