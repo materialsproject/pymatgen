@@ -538,6 +538,12 @@ Direct
         p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
         self.assert_all_close(sorted(c_distances), sorted(p_distances))
 
+        s = Structure(s.lattice, s.species, s.frac_coords)
+        s.apply_strain(0.01)
+        c_indices1, c_indices2, c_offsets, c_distances = s.get_neighbor_list(3)
+        p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
+        self.assert_all_close(sorted(c_distances), sorted(p_distances))
+
     # @skipIf(not os.getenv("CI"), "Only run this in CI tests")
     # def test_get_all_neighbors_crosscheck_old(self):
     #     warnings.simplefilter("ignore")
