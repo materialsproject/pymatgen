@@ -1179,6 +1179,7 @@ loop_
 """
         assert self.mcif_ncl.get_bibtex_string() == ref_bibtex_string
 
+
 class Test_Skip_Checks(PymatgenTest):
     def setUp(self):
         self.structure = CifParser(
@@ -1191,4 +1192,3 @@ class Test_Skip_Checks(PymatgenTest):
 
 if __name__ == "__main__":
     unittest.main()
-
