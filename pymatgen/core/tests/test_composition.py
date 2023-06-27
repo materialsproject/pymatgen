@@ -648,10 +648,8 @@ class CompositionTest(PymatgenTest):
 
         # Check with oxidation-state decorated compositions
         Ca2NF_oxi = Ca2NF.add_charges_from_oxi_state_guesses()
-        print(Ca2NF_oxi)
         example_sub_4 = {"Ca2+": "Mg2+", "N3-": "O2-", "F-": "O2-"}
         c_new_4 = Ca2NF_oxi.replace(example_sub_4)
-        print(c_new_4)
         assert c_new_4 == Composition("Mg2O2").add_charges_from_oxi_state_guesses()
 
 

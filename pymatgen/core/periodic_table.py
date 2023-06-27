@@ -861,17 +861,17 @@ class ElementBase(Enum):
                 table containing only elements with Pauling electronegativity > 2.
         """
         for row in range(1, 10):
-            rowstr = []
+            row_str = []
             for group in range(1, 19):
                 try:
                     el = Element.from_row_and_group(row, group)
                 except ValueError:
                     el = None
                 if el and ((not filter_function) or filter_function(el)):
-                    rowstr.append(f"{el.symbol:3s}")
+                    row_str.append(f"{el.symbol:3s}")
                 else:
-                    rowstr.append("   ")
-            print(" ".join(rowstr))
+                    row_str.append("   ")
+            print(" ".join(row_str))
 
 
 @functools.total_ordering
@@ -1577,4 +1577,4 @@ def get_el_sp(obj) -> Element | Species | DummySpecies:
             try:
                 return DummySpecies.from_string(obj)
             except Exception:
-                raise ValueError(f"Can't parse Element or String from type {type(obj)}: {obj}.")
+                raise ValueError(f"Can't parse Element or String from {type(obj).__name__}: {obj}.")

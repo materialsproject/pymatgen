@@ -477,7 +477,7 @@ class StructureMatcher(MSONable):
         under frac_tol. s2 should be a subset of s1.
         """
         if len(s2) > len(s1):
-            raise ValueError("s1 must be larger than s2")
+            raise ValueError(f"{len(s1)=} must be larger than {len(s2)=}")
         if mask.shape != (len(s2), len(s1)):
             raise ValueError("mask has incorrect shape")
 
@@ -504,7 +504,7 @@ class StructureMatcher(MSONable):
             Mapping from s1 to s2, i.e. with numpy slicing, s1[mapping] => s2
         """
         if len(s2) > len(s1):
-            raise ValueError("s1 must be larger than s2")
+            raise ValueError(f"{len(s1)=} must be larger than {len(s2)=}")
         if mask.shape != (len(s2), len(s1)):
             raise ValueError("mask has incorrect shape")
 
