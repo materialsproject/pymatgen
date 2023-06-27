@@ -126,38 +126,38 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             order.
             (None, None) if unform atom is not available.
         """
-        obmol1 = BabelMolAdaptor(mol1).openbabel_mol
-        obmol2 = BabelMolAdaptor(mol2).openbabel_mol
+        ob_mol1 = BabelMolAdaptor(mol1).openbabel_mol
+        ob_mol2 = BabelMolAdaptor(mol2).openbabel_mol
 
-        h1 = self.get_molecule_hash(obmol1)
-        h2 = self.get_molecule_hash(obmol2)
+        h1 = self.get_molecule_hash(ob_mol1)
+        h2 = self.get_molecule_hash(ob_mol2)
         if h1 != h2:
             return None, None
 
-        query = openbabel.CompileMoleculeQuery(obmol1)
-        isomapper = openbabel.OBIsomorphismMapper.GetInstance(query)
+        query = openbabel.CompileMoleculeQuery(ob_mol1)
+        iso_mapper = openbabel.OBIsomorphismMapper.GetInstance(query)
         isomorph = openbabel.vvpairUIntUInt()
-        isomapper.MapAll(obmol2, isomorph)
+        iso_mapper.MapAll(ob_mol2, isomorph)
 
         sorted_isomorph = [sorted(x, key=lambda morp: morp[0]) for x in isomorph]
         label2_list = tuple(tuple(p[1] + 1 for p in x) for x in sorted_isomorph)
 
-        vmol1 = obmol1
+        vmol1 = ob_mol1
         aligner = openbabel.OBAlign(True, False)
         aligner.SetRefMol(vmol1)
         least_rmsd = float("Inf")
         best_label2 = None
-        label1 = list(range(1, obmol1.NumAtoms() + 1))
+        label1 = list(range(1, ob_mol1.NumAtoms() + 1))
         # noinspection PyProtectedMember
         elements1 = InchiMolAtomMapper._get_elements(vmol1, label1)
         for label2 in label2_list:
             # noinspection PyProtectedMember
-            elements2 = InchiMolAtomMapper._get_elements(obmol2, label2)
+            elements2 = InchiMolAtomMapper._get_elements(ob_mol2, label2)
             if elements1 != elements2:
                 continue
             vmol2 = openbabel.OBMol()
             for i in label2:
-                vmol2.AddAtom(obmol2.GetAtom(i))
+                vmol2.AddAtom(ob_mol2.GetAtom(i))
             aligner.SetTargetMol(vmol2)
             aligner.Align()
             rmsd = aligner.GetRMSD()

@@ -21,7 +21,7 @@ from pymatgen.core.structure import Lattice, Molecule, Structure
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import openbabel
+    from openbabel import openbabel
 except (ImportError, RuntimeError):
     openbabel = None
 
