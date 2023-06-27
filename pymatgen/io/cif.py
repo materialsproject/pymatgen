@@ -1320,7 +1320,7 @@ class CifWriter:
                         mag = sp.spin
                     else:
                         mag = 0
-                        
+
                     magmom = Magmom(mag)
                     if write_magmoms and abs(magmom) > 0:
                         moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)

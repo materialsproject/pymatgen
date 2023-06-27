@@ -1,4 +1,7 @@
-"""Module contains classes presenting Element and Species (Element + oxidation state) and PeriodicTable."""
+"""Module contains classes presenting Element, Species (Element + oxidation state) and PeriodicTable.
+
+It should be noted that Element and Species are meant to be immutable objects.
+"""
 
 from __future__ import annotations
 
@@ -1025,8 +1028,8 @@ class Species(MSONable, Stringify):
             symbol (str): Element symbol optionally incl. oxidation state. E.g. Fe, Fe2+, O2-.
             oxidation_state (float): Explicit oxidation state of element, e.g. -2, -1, 0, 1, 2, ...
                 If oxidation state is present in symbol, this argument is ignored.
-            properties: Properties associated with the Species, e.g.,
-                {"spin": 5}. Defaults to None. This is now deprecated and retained purely for backward comaptibility.
+            properties: Properties associated with the Species, e.g., {"spin": 5}. Defaults to None. This is now
+                deprecated and retained purely for backward compatibility.
             spin: Spin associated with Species. Defaults to None.
 
         Raises:
@@ -1383,8 +1386,8 @@ class DummySpecies(Species):
                 be parsed wrongly. E.g., "X" is fine, but "Vac" is not
                 because Vac contains V, a valid Element.
             oxidation_state (float): Oxidation state for dummy specie. Defaults to 0.
-            properties: Properties associated with the Species, e.g.,
-                {"spin": 5}. Defaults to None. This is now deprecated and retained purely for backward comaptibility.
+            properties: Properties associated with the Species, e.g. {"spin": 5}. Defaults to None. This is now
+                deprecated and retained purely for backward compatibility.
             spin: Spin associated with Species. Defaults to None.
         """
         # enforce title case to match other elements, reduces confusion
