@@ -1016,7 +1016,7 @@ class Species(MSONable, Stringify):
         symbol: SpeciesLike,
         oxidation_state: float | None = None,
         properties: dict | None = None,
-            spin: float | None = None,
+        spin: float | None = None,
     ) -> None:
         """
         Initializes a Species.
@@ -1053,6 +1053,7 @@ class Species(MSONable, Stringify):
                 self._spin = properties.get("spin", None)
         else:
             self._spin = spin
+
     def __getattr__(self, attr):
         """Allows Specie to inherit properties of underlying element."""
         return getattr(self._el, attr)
@@ -1062,13 +1063,16 @@ class Species(MSONable, Stringify):
 
     def __setstate__(self, d):
         self.__dict__.update(d)
+
     def __eq__(self, other: object) -> bool:
         """Species is equal to other only if element and oxidation states are exactly the same."""
         if not hasattr(other, "oxi_state") or not hasattr(other, "symbol") or not hasattr(other, "spin"):
             return NotImplemented
 
-        return self.symbol == other.symbol and self.oxi_state == other.oxi_state and (
-                self.spin == other.spin  # type: ignore
+        return (
+            self.symbol == other.symbol
+            and self.oxi_state == other.oxi_state
+            and (self.spin == other.spin)  # type: ignore
         )
 
     def __hash__(self):
@@ -1142,7 +1146,6 @@ class Species(MSONable, Stringify):
                 return d["Ionic radii ls"][oxstr]
         warnings.warn(f"No ionic radius for {self}!")
         return None
-
 
     @staticmethod
     def from_string(species_string: str) -> Species:
@@ -1369,7 +1372,7 @@ class DummySpecies(Species):
         symbol: str = "X",
         oxidation_state: float | None = 0,
         properties: dict | None = None,
-            spin: float | None = None,
+        spin: float | None = None,
     ) -> None:
         """
         Args:
@@ -1485,7 +1488,7 @@ class DummySpecies(Species):
             "@class": type(self).__name__,
             "element": self.symbol,
             "oxidation_state": self._oxi_state,
-            "spin": self._spin
+            "spin": self._spin,
         }
         d["properties"] = {"spin": self._spin}  # type: ignore
         return d
