@@ -1,9 +1,6 @@
 """
 This module provides a class to predict and analyze interfacial reactions between two
 solids, with or without an open element (e.g., flowing O2).
-
-Please consider citing one or both of the following papers if you use this
-code in your own work.
 """
 
 from __future__ import annotations

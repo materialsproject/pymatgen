@@ -37,6 +37,12 @@ class EwaldSummation(MSONable):
     Calculates the electrostatic energy of a periodic array of charges using
     the Ewald technique.
 
+    Ref:
+        Ewald summation techniques in perspective: a survey
+        Abdulnour Y. Toukmaji and John A. Board Jr.
+        DOI: 10.1016/0010-4655(96)00016-1
+        URL: http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html
+
     This matrix can be used to do fast calculations of Ewald sums after species
     removal.
 
