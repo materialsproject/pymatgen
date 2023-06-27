@@ -1135,7 +1135,7 @@ class LobsterNeighbors(NearNeighbors):
             percentage: will determine which ICOHPs/ICOOP/ICOBI will be considered (only 0.15 from the maximum value)
             adapt_extremum_to_add_cond: should the extrumum be adapted to the additional condition
             additional_condition: additional condition to determine which bonds are relevant
-            
+
         Returns: [-inf, min(max_icohp*0.15,noise_cutoff)] / [max(max_icohp*0.15, noise_cutoff),inf]
         """
         # TODO: make it work for COOPs/COBIs
