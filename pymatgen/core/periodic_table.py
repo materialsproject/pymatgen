@@ -1010,13 +1010,13 @@ class Species(MSONable, Stringify):
     """
 
     STRING_MODE = "SUPERSCRIPT"
-    supported_properties = ("spin",)
 
     def __init__(
         self,
         symbol: SpeciesLike,
         oxidation_state: float | None = None,
         properties: dict | None = None,
+            spin: float | None = None,
     ) -> None:
         """
         Initializes a Species.
@@ -1026,8 +1026,8 @@ class Species(MSONable, Stringify):
             oxidation_state (float): Explicit oxidation state of element, e.g. -2, -1, 0, 1, 2, ...
                 If oxidation state is present in symbol, this argument is ignored.
             properties: Properties associated with the Species, e.g.,
-                {"spin": 5}. Defaults to None. Properties must be one of the
-                Species supported_properties.
+                {"spin": 5}. Defaults to None. This is now deprecated and retained purely for backward comaptibility.
+            spin: Spin associated with Species. Defaults to None.
 
         Raises:
             ValueError: If oxidation state passed both in symbol and via oxidation_state kwarg.
@@ -1044,25 +1044,32 @@ class Species(MSONable, Stringify):
             self._oxi_state = oxidation_state
 
         self._el = Element(symbol)
-        self._properties = properties or {}
-        for key in self._properties:
-            if key not in Species.supported_properties:
-                raise ValueError(f"{key} is not a supported property")
 
+        if properties:
+            warnings.warn("Use of properties is now deprecated. Set the spin by setting the spin arg instead.")
+            for key in properties:
+                if key != "spin":
+                    raise ValueError(f"{key} is not a supported property")
+                self._spin = properties.get("spin", None)
+        else:
+            self._spin = spin
     def __getattr__(self, attr):
-        # overriding getattr doesn't play nice with pickle, so we
-        # can't use self._properties
-        props = object.__getattribute__(self, "_properties")
-        if attr in props:
-            return props[attr]
+        """Allows Specie to inherit properties of underlying element."""
         return getattr(self._el, attr)
 
+    def __getstate__(self):
+        return self.__dict__
+
+    def __setstate__(self, d):
+        self.__dict__.update(d)
     def __eq__(self, other: object) -> bool:
         """Species is equal to other only if element and oxidation states are exactly the same."""
-        if not hasattr(other, "oxi_state") or not hasattr(other, "symbol") or not hasattr(other, "_properties"):
+        if not hasattr(other, "oxi_state") or not hasattr(other, "symbol") or not hasattr(other, "spin"):
             return NotImplemented
 
-        return all(getattr(self, attr) == getattr(other, attr) for attr in ["symbol", "oxi_state", "_properties"])
+        return self.symbol == other.symbol and self.oxi_state == other.oxi_state and (
+                self.spin == other.spin  # type: ignore
+        )
 
     def __hash__(self):
         """
@@ -1091,15 +1098,33 @@ class Species(MSONable, Stringify):
         if self.oxi_state:
             other_oxi = 0 if (isinstance(other, Element) or other.oxi_state is None) else other.oxi_state
             return self.oxi_state < other_oxi
-        if getattr(self, "spin", False):
-            other_spin = getattr(other, "spin", 0)
-            return self.spin < other_spin
+        if self.spin is not None:
+            if other.spin is not None:
+                return self.spin < other.spin
+            return False
+
         return False
 
     @property
     def element(self):
         """Underlying element object."""
         return self._el
+
+    @property
+    def oxi_state(self) -> float | None:
+        """Oxidation state of Species."""
+        return self._oxi_state
+
+    @property
+    def spin(self) -> float | None:
+        """Spin of Species."""
+        return self._spin
+
+    @property
+    def properties(self) -> dict:
+        """Retained for backwards incompatibility."""
+        warnings.warn("Use of properties is now deprecated. Use Species.spin instead.")
+        return {"spin": self._spin}
 
     @property
     def ionic_radius(self) -> float | None:
@@ -1118,10 +1143,6 @@ class Species(MSONable, Stringify):
         warnings.warn(f"No ionic radius for {self}!")
         return None
 
-    @property
-    def oxi_state(self) -> float | None:
-        """Oxidation state of Species."""
-        return self._oxi_state
 
     @staticmethod
     def from_string(species_string: str) -> Species:
@@ -1176,8 +1197,8 @@ class Species(MSONable, Stringify):
         output = self.symbol
         if self.oxi_state is not None:
             output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
-        for prop, val in self._properties.items():
-            output += f",{prop}={val}"
+        if self._spin is not None:
+            output += f",spin={self._spin}"
         return output
 
     def to_pretty_string(self) -> str:
@@ -1296,7 +1317,7 @@ class Species(MSONable, Stringify):
         raise RuntimeError(f"should not reach here, {spin_config=}, {coordination=}")
 
     def __deepcopy__(self, memo):
-        return Species(self.symbol, self.oxi_state, self._properties)
+        return Species(self.symbol, self.oxi_state, spin=self._spin)
 
     def as_dict(self) -> dict:
         """:return: Json-able dictionary representation."""
@@ -1305,9 +1326,9 @@ class Species(MSONable, Stringify):
             "@class": type(self).__name__,
             "element": self.symbol,
             "oxidation_state": self._oxi_state,
+            "spin": self._spin,
         }
-        if self._properties:
-            d["properties"] = self._properties
+        d["properties"] = {"spin": self._spin}
         return d
 
     @classmethod
@@ -1316,7 +1337,7 @@ class Species(MSONable, Stringify):
         :param d: Dict representation.
         :return: Species.
         """
-        return cls(d["element"], d["oxidation_state"], d.get("properties"))
+        return cls(d["element"], d["oxidation_state"], properties=d.get("properties"), spin=d.get("spin"))
 
 
 @functools.total_ordering
@@ -1348,6 +1369,7 @@ class DummySpecies(Species):
         symbol: str = "X",
         oxidation_state: float | None = 0,
         properties: dict | None = None,
+            spin: float | None = None,
     ) -> None:
         """
         Args:
@@ -1358,7 +1380,9 @@ class DummySpecies(Species):
                 be parsed wrongly. E.g., "X" is fine, but "Vac" is not
                 because Vac contains V, a valid Element.
             oxidation_state (float): Oxidation state for dummy specie. Defaults to 0.
-            properties (dict): Arbitrary properties associated with dummy specie.
+            properties: Properties associated with the Species, e.g.,
+                {"spin": 5}. Defaults to None. This is now deprecated and retained purely for backward comaptibility.
+            spin: Spin associated with Species. Defaults to None.
         """
         # enforce title case to match other elements, reduces confusion
         # when multiple DummySpecies in a "formula" string
@@ -1372,16 +1396,13 @@ class DummySpecies(Species):
         # most instances.
         self._symbol = symbol
         self._oxi_state = oxidation_state
-        self._properties = properties or {}
-        if invalid := set(self._properties) - set(Species.supported_properties):
-            raise ValueError(f"Invalid properties: {invalid}")
-
-    def __getattr__(self, attr):
-        # overriding getattr doesn't play nice with pickle, so we can't use self._properties
-        props = object.__getattribute__(self, "_properties")
-        if attr in props:
-            return props[attr]
-        raise AttributeError(attr)
+        if properties:
+            for key in properties:
+                if key != "spin":
+                    raise ValueError(f"{key} is not a supported property")
+                self._spin = properties.get("spin", None)
+        else:
+            self._spin = spin
 
     def __lt__(self, other):
         """
@@ -1464,9 +1485,9 @@ class DummySpecies(Species):
             "@class": type(self).__name__,
             "element": self.symbol,
             "oxidation_state": self._oxi_state,
+            "spin": self._spin
         }
-        if self._properties:
-            d["properties"] = self._properties  # type: ignore
+        d["properties"] = {"spin": self._spin}  # type: ignore
         return d
 
     @classmethod
@@ -1475,7 +1496,7 @@ class DummySpecies(Species):
         :param d: Dict representation
         :return: DummySpecies
         """
-        return cls(d["element"], d["oxidation_state"], d.get("properties"))
+        return cls(d["element"], d["oxidation_state"], spin=d.get("spin"), properties=d.get("properties"))
 
     def __repr__(self):
         return f"DummySpecies {self}"
@@ -1484,8 +1505,7 @@ class DummySpecies(Species):
         output = self.symbol
         if self.oxi_state is not None:
             output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
-        for prop, val in self._properties.items():
-            output += f",{prop}={val}"
+        output += f",spin={self._spin}"
         return output
 
 
