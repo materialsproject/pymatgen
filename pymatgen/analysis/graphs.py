@@ -1697,7 +1697,7 @@ class MoleculeGraph(MSONable):
         :return: mg, a MoleculeGraph
         """
         if not strategy.molecules_allowed:
-            raise ValueError("Chosen strategy is not designed for use with molecules! Please choose another strategy.")
+            raise ValueError(f"{strategy=} is not designed for use with molecules! Choose another strategy.")
         extend_structure = strategy.extend_structure_molecules
 
         mg = MoleculeGraph.with_empty_graph(molecule, name="bonds", edge_weight_name="weight", edge_weight_units="")
