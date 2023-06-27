@@ -1314,7 +1314,14 @@ class CifWriter:
                     atom_site_label.append(f"{sp.symbol}{count}")
                     atom_site_occupancy.append(str(occu))
 
-                    magmom = Magmom(site.properties.get("magmom", getattr(sp, "spin", 0)))
+                    if "magmom" in site.properties:
+                        mag = site.properties["magmom"]
+                    elif getattr(sp, "spin", None) is not None:
+                        mag = sp.spin
+                    else:
+                        mag = 0
+                        
+                    magmom = Magmom(mag)
                     if write_magmoms and abs(magmom) > 0:
                         moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
                         atom_site_moment_label.append(f"{sp.symbol}{count}")

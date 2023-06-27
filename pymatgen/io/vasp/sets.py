@@ -473,7 +473,7 @@ class DictSet(VaspInputSet):
                 for site in structure:
                     if hasattr(site, "magmom"):
                         mag.append(site.magmom)
-                    elif hasattr(site.specie, "spin"):
+                    elif hasattr(site.specie, "spin") and self.specie.spin is not None:
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
                         if site.specie.symbol == "Co" and v[str(site.specie)] <= 1.0:

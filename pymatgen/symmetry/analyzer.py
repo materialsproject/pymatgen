@@ -89,7 +89,7 @@ class SpacegroupAnalyzer:
         for site in structure:
             if hasattr(site, "magmom"):
                 magmoms.append(site.magmom)
-            elif site.is_ordered and hasattr(site.specie, "spin"):
+            elif site.is_ordered and getattr(site.specie, "spin", None) is not None:
                 magmoms.append(site.specie.spin)
 
         self._unique_species = unique_species
