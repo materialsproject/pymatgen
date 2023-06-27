@@ -2599,8 +2599,8 @@ class MoleculeGraph(MSONable):
                 d["arrowhead"] = "normal" if d["headlabel"] else "none"
 
             # optionally color edges using node colors
-            color_u = g.node[u]["fillcolor"]
-            color_v = g.node[v]["fillcolor"]
+            color_u = g.nodes[u]["fillcolor"]
+            color_v = g.nodes[v]["fillcolor"]
             d["color_uv"] = f"{color_u};0.5:{color_v};0.5" if edge_colors else "#000000"
 
             # optionally add weights to graph
