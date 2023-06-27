@@ -87,7 +87,7 @@ setup(
             "seekpath>=1.9.4",
             "tblite[ase]>=0.3.0; platform_system=='Linux'",
             # "hiphive>=0.6",
-            "openbabel>=3.1.1; platform_system=='Linux'",
+            # "openbabel>=3.1.1; platform_system=='Linux'",
         ],
         "numba": [
             "numba",
