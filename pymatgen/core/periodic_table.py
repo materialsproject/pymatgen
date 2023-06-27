@@ -1508,7 +1508,8 @@ class DummySpecies(Species):
         output = self.symbol
         if self.oxi_state is not None:
             output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
-        output += f",spin={self._spin}"
+        if self._spin is not None:
+            output += f",spin={self._spin}"
         return output
 
 
