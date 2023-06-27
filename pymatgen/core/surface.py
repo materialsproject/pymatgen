@@ -36,9 +36,18 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
+from pymatgen.util.due import Doi, due
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 
+due.dcite(
+    Doi("10.1038/sdata.2016.80"),
+    description="Surface Energies of Elemental Crystals",
+)
+due.dcite(
+    Doi("10.1016/j.susc.2013.05.016"),
+    description="Efficient creation and convergence of surface slabs",
+)
 
 logger = logging.getLogger(__name__)
 

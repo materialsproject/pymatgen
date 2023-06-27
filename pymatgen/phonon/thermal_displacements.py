@@ -11,6 +11,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifFile, CifParser, CifWriter, str2float
 from pymatgen.symmetry.groups import SYMM_DATA
+from pymatgen.util.due import Doi, due
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
@@ -229,6 +230,11 @@ class ThermalDisplacementMatrices(MSONable):
         angle_rad = np.arccos(np.round(divided, 10))
         return np.degrees(angle_rad)
 
+    @due.dcite(
+        Doi("10.1039/C9CE00794F"),
+        description="Angle: A new tool for validating theoretically derived anisotropic displacement "
+        "parameters with experiment.",
+    )
     def compute_directionality_quality_criterion(self, other):
         """
         Will compute directionality of prolate displacement ellipsoids as described in
