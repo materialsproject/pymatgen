@@ -612,8 +612,12 @@ class MoleculeGraphTest(unittest.TestCase):
         assert mol_graph_edges.isomorphic_to(mol_graph_strat)
 
         # Check inappropriate strategy
-        with pytest.raises(ValueError, match="Strategy must be a LocalEnvStrategy"):
-            MoleculeGraph.with_local_env_strategy(self.pc, VoronoiNN())
+        non_mol_strategy = VoronoiNN()
+        with pytest.raises(
+            ValueError,
+            match=f"strategy='{non_mol_strategy}' is not designed for use with molecules! Choose another strategy",
+        ):
+            MoleculeGraph.with_local_env_strategy(self.pc, non_mol_strategy)
 
     def test_properties(self):
         assert self.cyclohexene.name == "bonds"
