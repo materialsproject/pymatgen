@@ -1,6 +1,6 @@
 """
 Module to call mcsqs, distributed with AT-AT
-https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
+https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/.
 """
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ def run_mcsqs(
             function (default = 1)
         wn (int or float): Multiplicative decrease in weight per additional point in cluster (default: 1)
         wd (int or float): Exponent of decay in weight as function of cluster diameter (default: 0.5)
-        tol (int or float): Tolerance for matching correlations (default: 1e-3)
+        tol (int or float): Tolerance for matching correlations (default: 1e-3).
 
     Returns:
         Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
@@ -88,8 +88,8 @@ def run_mcsqs(
     os.chdir(directory)
 
     if isinstance(scaling, (int, float)):
-        if scaling % 1:
-            raise ValueError(f"Scaling should be an integer, not {scaling}")
+        if scaling % 1 != 0:
+            raise ValueError(f"{scaling=} should be an integer")
         mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * num_atoms}"]
 
     else:
@@ -163,8 +163,7 @@ def run_mcsqs(
             process.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
-            sqs = _parse_sqs_path(".")
-            return sqs
+            return _parse_sqs_path(".")
 
         os.chdir(original_directory)
         raise TimeoutError("Cluster expansion took too long.")
@@ -174,7 +173,7 @@ def _parse_sqs_path(path) -> Sqs:
     """
     Private function to parse mcsqs output directory
     Args:
-        path: directory to perform parsing
+        path: directory to perform parsing.
 
     Returns:
         Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
@@ -236,7 +235,7 @@ def _parse_clusters(filename):
     """
     Private function to parse clusters.out file
     Args:
-        path: directory to perform parsing
+        path: directory to perform parsing.
 
     Returns:
         List of dicts

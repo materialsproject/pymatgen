@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 from mpl_toolkits.mplot3d import Axes3D
 from numpy.testing import assert_array_equal
@@ -160,11 +159,7 @@ class WulffShapeTest(PymatgenTest):
         # Simple test to check if the values of some
         # properties are consistent with what we already have
 
-        wulff_shapes = {
-            "mp-8636": self.wulff_Nb,
-            "mp-72": self.wulff_Ti,
-            "mp-101": self.wulff_Ir,
-        }
+        wulff_shapes = {"mp-8636": self.wulff_Nb, "mp-72": self.wulff_Ti, "mp-101": self.wulff_Ir}
         for mp_id, wulff in wulff_shapes.items():
             properties = self.surface_properties[mp_id]
             assert round(wulff.weighted_surface_energy, 3) == round(properties["weighted_surface_energy"], 3)
@@ -177,7 +172,3 @@ class WulffShapeTest(PymatgenTest):
         assert_array_equal(self.cube.tot_edges, 12)
         assert_array_equal(self.hex_prism.tot_corner_sites, 12)
         assert_array_equal(self.hex_prism.tot_edges, 18)
-
-
-if __name__ == "__main__":
-    unittest.main()

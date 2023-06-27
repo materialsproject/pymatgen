@@ -1,5 +1,5 @@
 # pylint: disable=C0414,W0718,C0301
-
+# ruff: noqa: PLC0414
 """This package contains core modules and classes for representing structures and operations on them."""
 
 from __future__ import annotations

@@ -544,7 +544,3 @@ class BondDissociationTest(unittest.TestCase):
         BDE = BondDissociationEnergies(self.neg_EC_40_principle, self.neg_EC_40_fragments)
         assert len(BDE.filtered_entries) == 18
         assert BDE.bond_dissociation_energies == self.EC_correct
-
-
-if __name__ == "__main__":
-    unittest.main()

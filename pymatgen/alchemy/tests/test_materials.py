@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 import warnings
 
 import pytest
@@ -29,17 +28,17 @@ class TransformedStructureTest(PymatgenTest):
         self.trans = TransformedStructure(structure, trans)
 
     def test_append_transformation(self):
-        t = SubstitutionTransformation({"Fe": "Mn"})
-        self.trans.append_transformation(t)
+        trafo = SubstitutionTransformation({"Fe": "Mn"})
+        self.trans.append_transformation(trafo)
         assert self.trans.final_structure.composition.reduced_formula == "NaMnPO4"
         assert len(self.trans.structures) == 3
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         lattice = [
-            [3.8401979337, 0.00, 0.00],
-            [1.9200989668, 3.3257101909, 0.00],
-            [0.00, -2.2171384943, 3.1355090603],
+            [3.8401979337, 0, 0],
+            [1.9200989668, 3.3257101909, 0],
+            [0, -2.2171384943, 3.1355090603],
         ]
         struct = Structure(lattice, ["Si4+", "Si4+"], coords)
         ts = TransformedStructure(struct, [])
@@ -83,13 +82,13 @@ class TransformedStructureTest(PymatgenTest):
         assert ts.final_structure.composition.reduced_formula == "NaFePO4"
         ts.undo_last_change()
         assert ts.final_structure.composition.reduced_formula == "LiFePO4"
-        with pytest.raises(IndexError):
+        with pytest.raises(IndexError, match="No more changes to undo"):
             ts.undo_last_change()
         ts.redo_next_change()
         assert ts.final_structure.composition.reduced_formula == "NaFePO4"
         ts.redo_next_change()
         assert ts.final_structure.composition.reduced_formula == "NaMnPO4"
-        with pytest.raises(IndexError):
+        with pytest.raises(IndexError, match="No more changes to redo"):
             ts.redo_next_change()
         # Make sure that this works with filters.
         f3 = ContainsSpecieFilter(["O2-"], strict_compare=True, AND=False)
@@ -119,7 +118,3 @@ class TransformedStructureTest(PymatgenTest):
         snl = TransformedStructure.from_snl(snl).to_snl([("notwill", "notwill@test.com")])
         assert snl.history == [h]
         assert snl.authors == [("notwill", "notwill@test.com")]
-
-
-if __name__ == "__main__":
-    unittest.main()

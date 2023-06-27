@@ -117,8 +117,7 @@ class DielectricFunctionCalculator(MSONable):
             """Return None if failed."""
             for dtype in dtypes:
                 try:
-                    waveder = Waveder.from_binary(d_ / "WAVEDER", data_type=dtype)
-                    return waveder
+                    return Waveder.from_binary(d_ / "WAVEDER", data_type=dtype)
                 except ValueError as e:
                     if "reshape" in str(e):
                         continue
@@ -252,7 +251,7 @@ def delta_methfessel_paxton(x, n):
     """
     D_n (x) = exp -x^2 * sum_i=0^n A_i H_2i(x)
     where H is a Hermite polynomial and
-    A_i = (-1)^i / ( i! 4^i sqrt(pi) )
+    A_i = (-1)^i / ( i! 4^i sqrt(pi) ).
     """
     ii = np.arange(0, n + 1)
     A = (-1) ** ii / (scipy.special.factorial(ii) * 4**ii * np.sqrt(np.pi))
@@ -264,7 +263,7 @@ def step_methfessel_paxton(x, n):
     """
     S_n (x) = (1 + erf x)/2 - exp -x^2 * sum_i=1^n A_i H_{2i-1}(x)
     where H is a Hermite polynomial and
-    A_i = (-1)^i / ( i! 4^i sqrt(pi) )
+    A_i = (-1)^i / ( i! 4^i sqrt(pi) ).
     """
     ii = np.arange(1, n + 1)
     A = (-1) ** ii / (scipy.special.factorial(ii) * 4**ii * np.sqrt(np.pi))
@@ -273,7 +272,7 @@ def step_methfessel_paxton(x, n):
 
 
 def delta_func(x, ismear):
-    """Replication of VASP's delta function"""
+    """Replication of VASP's delta function."""
     if ismear < -1:
         raise ValueError("Delta function not implemented for ismear < -1")
     if ismear == -1:
@@ -284,7 +283,7 @@ def delta_func(x, ismear):
 
 
 def step_func(x, ismear):
-    """Replication of VASP's step function"""
+    """Replication of VASP's step function."""
     if ismear < -1:
         raise ValueError("Delta function not implemented for ismear < -1")
     if ismear == -1:

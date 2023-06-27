@@ -1,6 +1,4 @@
-"""
-Utilities for generating nicer plots.
-"""
+"""Utilities for generating nicer plots."""
 from __future__ import annotations
 
 import math
@@ -330,7 +328,7 @@ def periodic_table_heatmap(
 def format_formula(formula):
     """
     Converts str of chemical formula into
-    latex format for labelling purposes
+    latex format for labelling purposes.
 
     Args:
         formula (str): Chemical formula
@@ -365,7 +363,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
                 Interscience, New York (1956)
         and
             J.A.A Ketelaar, Chemical Constitution (2nd edition), An Introduction
-                to the Theory of the Chemical Bond, Elsevier, New York (1958)
+                to the Theory of the Chemical Bond, Elsevier, New York (1958).
 
     Args:
          list_of_materials (list): A list of computed entries of binary
@@ -435,32 +433,32 @@ def van_arkel_triangle(list_of_materials, annotate=True):
         edgecolor=[1, 1, 0],
     )
     # metal filling
-    XPt = Element("Pt").X
+    x_pt = Element("Pt").X
     ax.fill_between(
-        [min(chi_list), (XPt + min(chi_list)) / 2],
-        [0, slope1 * (XPt + min(chi_list)) / 2 + b1],
+        [min(chi_list), (x_pt + min(chi_list)) / 2],
+        [0, slope1 * (x_pt + min(chi_list)) / 2 + b1],
         facecolor=[1, 0, 0],
         zorder=-3,
         alpha=0.8,
     )
     ax.fill_between(
-        [(XPt + min(chi_list)) / 2, XPt],
-        [slope1 * ((XPt + min(chi_list)) / 2) + b1, 0],
+        [(x_pt + min(chi_list)) / 2, x_pt],
+        [slope1 * ((x_pt + min(chi_list)) / 2) + b1, 0],
         facecolor=[1, 0, 0],
         zorder=-3,
         alpha=0.8,
     )
     # covalent filling
     ax.fill_between(
-        [(XPt + min(chi_list)) / 2, ((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2],
-        [0, slope2 * (((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2],
+        [(x_pt + min(chi_list)) / 2, ((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2],
+        [0, slope2 * (((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2],
         facecolor=[0, 1, 0],
         zorder=-4,
         alpha=0.8,
     )
     ax.fill_between(
-        [((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2, -b2 / slope2],
-        [slope2 * (((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2, 0],
+        [((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2, -b2 / slope2],
+        [slope2 * (((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2, 0],
         facecolor=[0, 1, 0],
         zorder=-4,
         alpha=0.8,

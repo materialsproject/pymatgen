@@ -5,6 +5,7 @@ import warnings
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
@@ -46,7 +47,7 @@ class PointGroupTest(unittest.TestCase):
             pg6mmm = PointGroup("6/mmm")
             pg3m = PointGroup("-3m")
             # TODO: Fix the test below.
-            # self.assertTrue(pg3m.is_subgroup(pgm3m))
+            # assert pg3m.is_subgroup(pgm3m)
             assert pg3m.is_subgroup(pg6mmm)
             assert not pgm3m.is_supergroup(pg6mmm)
 
@@ -125,9 +126,9 @@ class SpaceGroupTest(unittest.TestCase):
         orbit, generators = sg.get_orbit_and_generators(p)
         assert len(orbit) <= sg.order
         pp = generators[0].operate(orbit[0])
-        assert p[0] == pytest.approx(pp[0])
-        assert p[1] == pytest.approx(pp[1])
-        assert p[2] == pytest.approx(pp[2])
+        assert p[0] == approx(pp[0])
+        assert p[1] == approx(pp[1])
+        assert p[2] == approx(pp[2])
 
     def test_is_compatible(self):
         cubic = Lattice.cubic(1)
@@ -186,7 +187,7 @@ class SpaceGroupTest(unittest.TestCase):
         sg = SpaceGroup("Pbnm")
         assert sg.int_number == 62
         assert sg.order == 8
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Bad international symbol 'hello'"):
             SpaceGroup("hello")
 
     def test_subgroup_supergroup(self):
@@ -208,7 +209,3 @@ class SpaceGroupTest(unittest.TestCase):
         assert sg.to_latex_string() == "P6/mmm"
         sg = SpaceGroup("P4_1")
         assert sg.to_unicode_string() == "P4₁"
-
-
-if __name__ == "__main__":
-    unittest.main()

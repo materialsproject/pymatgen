@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
-import pytest
 from numpy.testing import assert_array_equal
+from pytest import approx
 
 from pymatgen.analysis.interfaces.zsl import (
     ZSLGenerator,
@@ -38,9 +36,9 @@ class ZSLGenTest(PymatgenTest):
     def test_zsl(self):
         zsl_gen = ZSLGenerator()
 
-        assert fast_norm(np.array([3.0, 2.0, 1.0])) == pytest.approx(3.74165738)
-        assert_array_equal(reduce_vectors(np.array([1.0, 0.0, 0.0]), np.array([2.0, 2.0, 0.0])), [[1, 0, 0], [0, 2, 0]])
-        assert vec_area(np.array([1.0, 0.0, 0.0]), np.array([0.0, 2.0, 0.0])) == 2
+        assert fast_norm(np.array([3, 2, 1])) == approx(3.74165738)
+        assert_array_equal(reduce_vectors(np.array([1, 0, 0]), np.array([2, 2, 0])), [[1, 0, 0], [0, 2, 0]])
+        assert vec_area(np.array([1, 0, 0]), np.array([0, 2, 0])) == 2
         assert_array_equal(list(get_factors(18)), [1, 2, 3, 6, 9, 18])
         assert is_same_vectors(
             np.array([[1.01, 0, 0], [0, 2, 0]], dtype=float), np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float)
@@ -68,7 +66,3 @@ class ZSLGenTest(PymatgenTest):
         for match in matches:
             assert match is not None
             assert isinstance(match.match_area, float)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 import numpy as np
 import pytest
@@ -748,7 +747,7 @@ class StructureMatcherTest(PymatgenTest):
             comparator=OrderDisorderElementComparator(),
         )
         lp = Lattice.orthorhombic(10, 20, 30)
-        coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         s1 = Structure(lp, [{"Na": 0.5, "Cl": 0.5}, {"Na": 0.5, "Cl": 0.5}], coords)
         s2 = Structure(lp, [{"Na": 0.5, "Cl": 0.5}, {"Na": 0.5, "Br": 0.5}], coords)
 
@@ -811,7 +810,3 @@ class StructureMatcherTest(PymatgenTest):
         assert sm.fit(s1, s2) is False
         assert sm.fit_anonymous(s1, s2) is False
         assert sm.get_mapping(s1, s2) is None
-
-
-if __name__ == "__main__":
-    unittest.main()

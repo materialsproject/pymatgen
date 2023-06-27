@@ -1,5 +1,5 @@
 """
-Created on Jan 22, 2013
+Created on Jan 22, 2013.
 
 @author: Bharat Medasani
 """
@@ -362,7 +362,3 @@ class BuckinghamPotentialBushTest(unittest.TestCase):
     def test_spring(self):
         assert self.bpb.spring_dict["Li"] == ""
         assert self.bpb.spring_dict["O"] != ""
-
-
-if __name__ == "__main__":
-    unittest.main()

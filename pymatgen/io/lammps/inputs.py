@@ -2,7 +2,7 @@
 This module implements methods for reading/manupilating/writing LAMMPS input files.
 It does not implement methods for automatically creating inputs based on a structure
 and computation type. For this, see the InputSet and InputGenerator in sets.py, or
-https://github.com/Matgenix/atomate2-lammps
+https://github.com/Matgenix/atomate2-lammps.
 """
 
 from __future__ import annotations
@@ -183,7 +183,7 @@ class LammpsInputFile(InputFile):
 
     def add_stage(
         self,
-        stage: dict = None,
+        stage: dict | None = None,
         commands: str | list[str] | dict[str, str | float] | None = None,
         stage_name: str | None = None,
         after_stage: str | int | None = None,

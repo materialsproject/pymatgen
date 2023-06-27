@@ -1,6 +1,4 @@
-"""
-Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/
-"""
+"""Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/."""
 
 from __future__ import annotations
 
@@ -21,9 +19,7 @@ try:
     from phonopy.file_IO import write_disp_yaml
     from phonopy.structure.atoms import PhonopyAtoms
 except ImportError:
-    Phonopy = None
-    write_disp_yaml = None
-    PhonopyAtoms = None
+    Phonopy = write_disp_yaml = PhonopyAtoms = None
 
 
 @requires(Phonopy, "phonopy not installed!")
@@ -175,7 +171,7 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
 
     labels_dict = labels_dict or phonopy_labels_dict
 
-    ph_bs = PhononBandStructureSymmLine(
+    return PhononBandStructureSymmLine(
         qpts,
         frequencies,
         rec_latt,
@@ -184,8 +180,6 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
         structure=structure,
         eigendisplacements=eigendisplacements,
     )
-
-    return ph_bs
 
 
 def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):
@@ -666,7 +660,7 @@ def get_thermal_displacement_matrices(
     ThermalDisplacementMatrices objects
     Args:
         thermal_displacements_yaml: path to thermal_displacement_matrices.yaml
-        structure_path: path to POSCAR
+        structure_path: path to POSCAR.
 
     Returns:
     """

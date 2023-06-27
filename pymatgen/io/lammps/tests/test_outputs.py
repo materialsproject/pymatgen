@@ -160,7 +160,3 @@ class FuncTest(unittest.TestCase):
         peptide0_select = peptide0.loc[[0, 6], ["Step", "TotEng", "Press"]]
         peptide0_data = [[0, -5237.4580, -837.0112], [300, -5251.3637, -471.5505]]
         assert_array_almost_equal(peptide0_select, peptide0_data)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -5,6 +5,7 @@ files.
 
 from __future__ import annotations
 
+import hashlib
 import itertools
 import json
 import logging
@@ -16,11 +17,12 @@ import warnings
 from collections import namedtuple
 from enum import Enum
 from glob import glob
-from hashlib import md5, sha256
+from hashlib import sha256
 from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import numpy as np
 import scipy.constants as const
+from frozendict import frozendict
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
@@ -158,32 +160,32 @@ class Poscar(MSONable):
 
     @property
     def velocities(self):
-        """Velocities in Poscar"""
+        """Velocities in Poscar."""
         return self.structure.site_properties.get("velocities")
 
     @property
     def selective_dynamics(self):
-        """Selective dynamics in Poscar"""
+        """Selective dynamics in Poscar."""
         return self.structure.site_properties.get("selective_dynamics")
 
     @property
     def predictor_corrector(self):
-        """Predictor corrector in Poscar"""
+        """Predictor corrector in Poscar."""
         return self.structure.site_properties.get("predictor_corrector")
 
     @velocities.setter  # type: ignore
     def velocities(self, velocities):
-        """Setter for Poscar.velocities"""
+        """Setter for Poscar.velocities."""
         self.structure.add_site_property("velocities", velocities)
 
     @selective_dynamics.setter  # type: ignore
     def selective_dynamics(self, selective_dynamics):
-        """Setter for Poscar.selective_dynamics"""
+        """Setter for Poscar.selective_dynamics."""
         self.structure.add_site_property("selective_dynamics", selective_dynamics)
 
     @predictor_corrector.setter  # type: ignore
     def predictor_corrector(self, predictor_corrector):
-        """Setter for Poscar.predictor_corrector"""
+        """Setter for Poscar.predictor_corrector."""
         self.structure.add_site_property("predictor_corrector", predictor_corrector)
 
     @property
@@ -446,9 +448,7 @@ class Poscar(MSONable):
                     d3 = [float(tok) for tok in lines[st + 2 * n_sites].split()]
                     predictor_corrector.append([d1, d2, d3])
         else:
-            velocities = None
-            predictor_corrector = None
-            predictor_corrector_preamble = None
+            velocities = predictor_corrector = predictor_corrector_preamble = None
 
         return Poscar(
             struct,
@@ -535,9 +535,7 @@ class Poscar(MSONable):
         return self.get_string()
 
     def __str__(self):
-        """
-        String representation of Poscar file.
-        """
+        """String representation of Poscar file."""
         return self.get_string()
 
     def write_file(self, filename: PathLike, **kwargs):
@@ -549,9 +547,7 @@ class Poscar(MSONable):
             f.write(self.get_string(**kwargs))
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -581,7 +577,7 @@ class Poscar(MSONable):
     def set_temperature(self, temperature: float):
         """
         Initializes the velocities based on Maxwell-Boltzmann distribution.
-        Removes linear, but not angular drift (same as VASP)
+        Removes linear, but not angular drift (same as VASP).
 
         Scales the energies to the exact temperature (microcanonical ensemble)
         Velocities are given in A/fs. This is the vasp default when
@@ -635,15 +631,13 @@ with open(os.path.join(cwd, "incar_parameters.json")) as incar_params:
 
 
 class BadIncarWarning(UserWarning):
-    """
-    Warning class for bad Incar parameters.
-    """
+    """Warning class for bad Incar parameters."""
 
 
 class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
-    a dictionary with some helper functions
+    a dictionary with some helper functions.
     """
 
     def __init__(self, params: dict[str, Any] | None = None):
@@ -679,9 +673,7 @@ class Incar(dict, MSONable):
         )
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         d = dict(self)
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -889,14 +881,12 @@ class Incar(dict, MSONable):
 
         # Not in standard keys. We will try a hierarchy of conversions.
         try:
-            val = int(val)
-            return val
+            return int(val)
         except ValueError:
             pass
 
         try:
-            val = float(val)
-            return val
+            return float(val)
         except ValueError:
             pass
 
@@ -994,9 +984,7 @@ class Incar(dict, MSONable):
 
 
 class Kpoints_supported_modes(Enum):
-    """
-    Enum type of all supported modes for Kpoint generation.
-    """
+    """Enum type of all supported modes for Kpoint generation."""
 
     Automatic = 0
     Gamma = 1
@@ -1022,9 +1010,7 @@ class Kpoints_supported_modes(Enum):
 
 
 class Kpoints(MSONable):
-    """
-    KPOINT reader/writer.
-    """
+    """KPOINT reader/writer."""
 
     supported_modes = Kpoints_supported_modes
 
@@ -1274,7 +1260,7 @@ class Kpoints(MSONable):
         return Kpoints(comment, num_kpts, style, [num_div], (0, 0, 0))
 
     @staticmethod
-    def automatic_density_by_vol(structure: Structure, kppvol: int, force_gamma: bool = False):
+    def automatic_density_by_vol(structure: Structure, kppvol: int, force_gamma: bool = False) -> Kpoints:
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density per inverse Angstrom^3 of reciprocal cell.
@@ -1545,9 +1531,7 @@ class Kpoints(MSONable):
         return "\n".join(lines) + "\n"
 
     def as_dict(self):
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         d = {
             "comment": self.comment,
             "nkpoints": self.num_kpts,
@@ -1624,9 +1608,7 @@ OrbitalDescription = namedtuple("OrbitalDescription", ["l", "E", "Type", "Rcut",
 
 
 class UnknownPotcarWarning(UserWarning):
-    """
-    Warning raised when POTCAR hashes do not pass validation
-    """
+    """Warning raised when POTCAR hashes do not pass validation."""
 
 
 class PotcarSingle:
@@ -1649,68 +1631,70 @@ class PotcarSingle:
     are raised if a POTCAR hash fails validation.
     """
 
-    functional_dir = {
-        "PBE": "POT_GGA_PAW_PBE",
-        "PBE_52": "POT_GGA_PAW_PBE_52",
-        "PBE_54": "POT_GGA_PAW_PBE_54",
-        "LDA": "POT_LDA_PAW",
-        "LDA_52": "POT_LDA_PAW_52",
-        "LDA_54": "POT_LDA_PAW_54",
-        "PW91": "POT_GGA_PAW_PW91",
-        "LDA_US": "POT_LDA_US",
-        "PW91_US": "POT_GGA_US_PW91",
-        "Perdew-Zunger81": "POT_LDA_PAW",
-    }
+    functional_dir = frozendict(
+        PBE="POT_GGA_PAW_PBE",
+        PBE_52="POT_GGA_PAW_PBE_52",
+        PBE_54="POT_GGA_PAW_PBE_54",
+        LDA="POT_LDA_PAW",
+        LDA_52="POT_LDA_PAW_52",
+        LDA_54="POT_LDA_PAW_54",
+        PW91="POT_GGA_PAW_PW91",
+        LDA_US="POT_LDA_US",
+        PW91_US="POT_GGA_US_PW91",
+        Perdew_Zunger81="POT_LDA_PAW",
+    )
 
-    functional_tags = {
-        "pe": {"name": "PBE", "class": "GGA"},
-        "91": {"name": "PW91", "class": "GGA"},
-        "rp": {"name": "revPBE", "class": "GGA"},
-        "am": {"name": "AM05", "class": "GGA"},
-        "ps": {"name": "PBEsol", "class": "GGA"},
-        "pw": {"name": "PW86", "class": "GGA"},
-        "lm": {"name": "Langreth-Mehl-Hu", "class": "GGA"},
-        "pb": {"name": "Perdew-Becke", "class": "GGA"},
-        "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
-        "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
-        "wi": {"name": "Wigner Interpolation", "class": "LDA"},
-    }
+    functional_tags = frozendict(
+        {
+            "pe": {"name": "PBE", "class": "GGA"},
+            "91": {"name": "PW91", "class": "GGA"},
+            "rp": {"name": "revPBE", "class": "GGA"},
+            "am": {"name": "AM05", "class": "GGA"},
+            "ps": {"name": "PBEsol", "class": "GGA"},
+            "pw": {"name": "PW86", "class": "GGA"},
+            "lm": {"name": "Langreth-Mehl-Hu", "class": "GGA"},
+            "pb": {"name": "Perdew-Becke", "class": "GGA"},
+            "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
+            "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
+            "wi": {"name": "Wigner Interpolation", "class": "LDA"},
+        }
+    )
 
-    parse_functions = {
-        "LULTRA": _parse_bool,
-        "LUNSCR": _parse_bool,
-        "LCOR": _parse_bool,
-        "LPAW": _parse_bool,
-        "EATOM": _parse_float,
-        "RPACOR": _parse_float,
-        "POMASS": _parse_float,
-        "ZVAL": _parse_float,
-        "RCORE": _parse_float,
-        "RWIGS": _parse_float,
-        "ENMAX": _parse_float,
-        "ENMIN": _parse_float,
-        "EMMIN": _parse_float,
-        "EAUG": _parse_float,
-        "DEXC": _parse_float,
-        "RMAX": _parse_float,
-        "RAUG": _parse_float,
-        "RDEP": _parse_float,
-        "RDEPT": _parse_float,
-        "QCUT": _parse_float,
-        "QGAM": _parse_float,
-        "RCLOC": _parse_float,
-        "IUNSCR": _parse_int,
-        "ICORE": _parse_int,
-        "NDATA": _parse_int,
-        "VRHFIN": _parse_string,
-        "LEXCH": _parse_string,
-        "TITEL": _parse_string,
-        "STEP": _parse_list,
-        "RRKJ": _parse_list,
-        "GGA": _parse_list,
-        "SHA256": _parse_string,
-        "COPYR": _parse_string,
-    }
+    parse_functions = frozendict(
+        LULTRA=_parse_bool,
+        LUNSCR=_parse_bool,
+        LCOR=_parse_bool,
+        LPAW=_parse_bool,
+        EATOM=_parse_float,
+        RPACOR=_parse_float,
+        POMASS=_parse_float,
+        ZVAL=_parse_float,
+        RCORE=_parse_float,
+        RWIGS=_parse_float,
+        ENMAX=_parse_float,
+        ENMIN=_parse_float,
+        EMMIN=_parse_float,
+        EAUG=_parse_float,
+        DEXC=_parse_float,
+        RMAX=_parse_float,
+        RAUG=_parse_float,
+        RDEP=_parse_float,
+        RDEPT=_parse_float,
+        QCUT=_parse_float,
+        QGAM=_parse_float,
+        RCLOC=_parse_float,
+        IUNSCR=_parse_int,
+        ICORE=_parse_int,
+        NDATA=_parse_int,
+        VRHFIN=_parse_string,
+        LEXCH=_parse_string,
+        TITEL=_parse_string,
+        STEP=_parse_list,
+        RRKJ=_parse_list,
+        GGA=_parse_list,
+        SHA256=_parse_string,
+        COPYR=_parse_string,
+    )
 
     def __init__(self, data, symbol=None):
         """
@@ -1851,9 +1835,7 @@ class PotcarSingle:
 
     @property
     def electron_configuration(self):
-        """
-        :return: Electronic configuration of the PotcarSingle.
-        """
+        """:return: Electronic configuration of the PotcarSingle."""
         if not self.nelectrons.is_integer():
             warnings.warn("POTCAR has non-integer charge, electron configuration not well-defined.")
             return None
@@ -1870,7 +1852,7 @@ class PotcarSingle:
     def write_file(self, filename: str) -> None:
         """
         Writes PotcarSingle to a file.
-        :param filename: Filename
+        :param filename: Filename.
         """
         with zopen(filename, "wt") as f:
             f.write(str(self))
@@ -1911,7 +1893,7 @@ class PotcarSingle:
         d = SETTINGS.get("PMG_VASP_PSP_DIR")
         if d is None:
             raise ValueError(
-                f"No POTCAR for {symbol} with functional {functional} found. Please set the PMG_VASP_PSP_DIR "
+                f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR "
                 "environment in .pmgrc.yaml, or you may need to set PMG_DEFAULT_FUNCTIONAL to PBE_52 or "
                 "PBE_54 if you are using newer psps from VASP."
             )
@@ -1923,18 +1905,15 @@ class PotcarSingle:
             p = os.path.expanduser(p)
             p = zpath(p)
             if os.path.exists(p):
-                psingle = PotcarSingle.from_file(p)
-                return psingle
+                return PotcarSingle.from_file(p)
         raise OSError(
-            f"You do not have the right POTCAR with functional {functional} and label {symbol} "
+            f"You do not have the right POTCAR with {functional=} and label {symbol} "
             f"in your VASP_PSP_DIR. Paths tried: {paths_to_try}"
         )
 
     @property
     def element(self):
-        """
-        Attempt to return the atomic symbol based on the VRHFIN keyword.
-        """
+        """Attempt to return the atomic symbol based on the VRHFIN keyword."""
         element = self.keywords["VRHFIN"].split(":")[0].strip()
         try:
             return Element(element).symbol
@@ -1947,30 +1926,22 @@ class PotcarSingle:
 
     @property
     def atomic_no(self) -> int:
-        """
-        Attempt to return the atomic number based on the VRHFIN keyword.
-        """
+        """Attempt to return the atomic number based on the VRHFIN keyword."""
         return Element(self.element).Z
 
     @property
     def nelectrons(self):
-        """
-        :return: Number of electrons
-        """
+        """:return: Number of electrons"""
         return self.zval
 
     @property
     def symbol(self):
-        """
-        :return: The POTCAR symbol, e.g. W_pv
-        """
+        """:return: The POTCAR symbol, e.g. W_pv"""
         return self._symbol
 
     @property
     def potential_type(self) -> str:
-        """
-        :return: Type of PSP. E.g., US, PAW, etc.
-        """
+        """:return: Type of PSP. E.g., US, PAW, etc."""
         if self.lultra:
             return "US"
         if self.lpaw:
@@ -1979,16 +1950,12 @@ class PotcarSingle:
 
     @property
     def functional(self):
-        """
-        :return: Functional associated with PotcarSingle.
-        """
+        """:return: Functional associated with PotcarSingle."""
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("name")
 
     @property
     def functional_class(self):
-        """
-        :return: Functional class associated with PotcarSingle.
-        """
+        """:return: Functional class associated with PotcarSingle."""
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
 
     def verify_potcar(self) -> tuple[bool, bool]:
@@ -2153,7 +2120,7 @@ class PotcarSingle:
 
     def get_sha256_file_hash(self):
         """
-        Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'CPRY'
+        Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'CPRY'.
 
         This hash corresponds to the sha256 hash printed in the header of modern POTCAR files.
 
@@ -2174,7 +2141,11 @@ class PotcarSingle:
 
         :return: Hash value.
         """
-        return md5(self.data.encode("utf-8")).hexdigest()
+        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+        # https://github.com/materialsproject/pymatgen/issues/2804
+        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5.update(self.data.encode("utf-8"))
+        return md5.hexdigest()
 
     def get_potcar_hash(self):
         """
@@ -2211,7 +2182,11 @@ class PotcarSingle:
                 hash_str += v.replace(" ", "")
 
         self.hash_str = hash_str
-        return md5(hash_str.lower().encode("utf-8")).hexdigest()
+        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+        # https://github.com/materialsproject/pymatgen/issues/2804
+        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5.update(hash_str.lower().encode("utf-8"))
+        return md5.hexdigest()
 
     def __getattr__(self, a):
         """
@@ -2233,7 +2208,7 @@ class Potcar(list, MSONable):
     list of PotcarSingle.
     """
 
-    FUNCTIONAL_CHOICES = list(PotcarSingle.functional_dir)
+    FUNCTIONAL_CHOICES = tuple(PotcarSingle.functional_dir)
 
     def __init__(self, symbols=None, functional=None, sym_potcar_map=None):
         """
@@ -2259,9 +2234,7 @@ class Potcar(list, MSONable):
             self.set_symbols(symbols, functional, sym_potcar_map)
 
     def as_dict(self):
-        """
-        :return: MSONable dict representation
-        """
+        """:return: MSONable dict representation"""
         return {
             "functional": self.functional,
             "symbols": self.symbols,
@@ -2292,7 +2265,7 @@ class Potcar(list, MSONable):
         functionals = []
         for p in fdata.split("End of Dataset"):
             if p_strip := p.strip():
-                single = PotcarSingle(p_strip + "End of Dataset\n")
+                single = PotcarSingle(p_strip + "\nEnd of Dataset\n")
                 potcar.append(single)
                 functionals.append(single.functional)
         if len(set(functionals)) != 1:
@@ -2315,9 +2288,7 @@ class Potcar(list, MSONable):
 
     @property
     def symbols(self):
-        """
-        Get the atomic symbols of all the atoms in the POTCAR file.
-        """
+        """Get the atomic symbols of all the atoms in the POTCAR file."""
         return [p.symbol for p in self]
 
     @symbols.setter
@@ -2326,9 +2297,7 @@ class Potcar(list, MSONable):
 
     @property
     def spec(self):
-        """
-        Get the atomic symbols and hash of all the atoms in the POTCAR file.
-        """
+        """Get the atomic symbols and hash of all the atoms in the POTCAR file."""
         return [{"symbol": p.symbol, "hash": p.get_potcar_hash()} for p in self]
 
     def set_symbols(self, symbols, functional=None, sym_potcar_map=None):
@@ -2357,9 +2326,7 @@ class Potcar(list, MSONable):
 
 
 class VaspInput(dict, MSONable):
-    """
-    Class to contain a set of vasp input objects corresponding to a run.
-    """
+    """Class to contain a set of vasp input objects corresponding to a run."""
 
     def __init__(self, incar, kpoints, poscar, potcar, optional_files=None, **kwargs):
         """
@@ -2386,9 +2353,7 @@ class VaspInput(dict, MSONable):
         return "\n".join(output)
 
     def as_dict(self):
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         d = {k: v.as_dict() for k, v in self.items()}
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__

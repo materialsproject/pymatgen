@@ -80,9 +80,7 @@ class BabelMolAdaptor:
 
     @property
     def pymatgen_mol(self):
-        """
-        Returns pymatgen Molecule object.
-        """
+        """Returns pymatgen Molecule object."""
         sp = []
         coords = []
         for atom in openbabel.OBMolAtomIter(self._obmol):
@@ -92,9 +90,7 @@ class BabelMolAdaptor:
 
     @property
     def openbabel_mol(self):
-        """
-        Returns OpenBabel's OBMol.
-        """
+        """Returns OpenBabel's OBMol."""
         return self._obmol
 
     def localopt(self, forcefield="mmff94", steps=500):
@@ -134,14 +130,12 @@ class BabelMolAdaptor:
         self._obmol = pbmol.OBMol
 
     def add_hydrogen(self):
-        """
-        Add hydrogens (make all hydrogen explicit).
-        """
+        """Add hydrogens (make all hydrogen explicit)."""
         self._obmol.AddHydrogens()
 
     def remove_bond(self, idx1, idx2):
         """
-        Remove a bond from an openbabel molecule
+        Remove a bond from an openbabel molecule.
 
         Args:
             idx1: The atom index of one of the atoms participating the in bond
@@ -182,7 +176,7 @@ class BabelMolAdaptor:
         ff = openbabel.OBForceField_FindType(forcefield)
         if ff == 0:
             warnings.warn(
-                f"This input forcefield {forcefield} is not supported "
+                f"This input {forcefield=} is not supported "
                 "in openbabel. The forcefield will be reset as "
                 "default 'mmff94' for now."
             )
@@ -263,10 +257,7 @@ class BabelMolAdaptor:
 
         ff = openbabel.OBForceField_FindType(forcefield)
         if ff == 0:
-            print(
-                f"Could not find forcefield {forcefield} in openbabel, the forcefield "
-                "will be reset as default 'mmff94'"
-            )
+            print(f"Could not find {forcefield=} in openbabel, the forcefield will be reset as default 'mmff94'")
             ff = openbabel.OBForceField_FindType("mmff94")
 
         if freeze_atoms:
@@ -296,9 +287,7 @@ class BabelMolAdaptor:
 
     @property
     def pybel_mol(self):
-        """
-        Returns Pybel's Molecule object.
-        """
+        """Returns Pybel's Molecule object."""
         return pb.Molecule(self._obmol)
 
     def write_file(self, filename, file_format="xyz"):

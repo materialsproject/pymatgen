@@ -234,9 +234,7 @@ _gulp_kw = {
 
 
 class GulpIO:
-    """
-    To generate GULP input and process output
-    """
+    """To generate GULP input and process output."""
 
     @staticmethod
     def keyword_line(*args):
@@ -469,7 +467,7 @@ class GulpIO:
 
     def tersoff_input(self, structure: Structure, periodic=False, uc=True, *keywords):
         """
-        Gets a GULP input with Tersoff potential for an oxide structure
+        Gets a GULP input with Tersoff potential for an oxide structure.
 
         Args:
             structure: pymatgen.core.structure.Structure
@@ -495,7 +493,7 @@ class GulpIO:
     @staticmethod
     def tersoff_potential(structure):
         """
-        Generate the species, tersoff potential lines for an oxide structure
+        Generate the species, tersoff potential lines for an oxide structure.
 
         Args:
             structure: pymatgen.core.structure.Structure
@@ -636,13 +634,11 @@ class GulpIO:
 
 
 class GulpCaller:
-    """
-    Class to run gulp from commandline
-    """
+    """Class to run gulp from commandline."""
 
     def __init__(self, cmd="gulp"):
         """
-        Initialize with the executable if not in the standard path
+        Initialize with the executable if not in the standard path.
 
         Args:
             cmd: Command. Defaults to gulp.
@@ -667,7 +663,7 @@ class GulpCaller:
 
     def run(self, gin):
         """
-        Run GULP using the gin as input
+        Run GULP using the gin as input.
 
         Args:
             gin: GULP input string
@@ -767,13 +763,13 @@ def get_energy_relax_structure_buckingham(structure, gulp_cmd="gulp", keywords=(
 class GulpError(Exception):
     """
     Exception class for GULP.
-    Raised when the GULP gives an error
+    Raised when the GULP gives an error.
     """
 
     def __init__(self, msg):
         """
         Args:
-            msg (str): Message
+            msg (str): Message.
         """
         self.msg = msg
 
@@ -785,13 +781,13 @@ class GulpConvergenceError(Exception):
     """
     Exception class for GULP.
     Raised when proper convergence is not reached in Mott-Littleton
-    defect energy optimization procedure in GULP
+    defect energy optimization procedure in GULP.
     """
 
     def __init__(self, msg=""):
         """
         Args:
-            msg (str): Message
+            msg (str): Message.
         """
         self.msg = msg
 
@@ -880,14 +876,10 @@ class BuckinghamPotential:
 
 
 class TersoffPotential:
-    """
-    Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file
-    """
+    """Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file."""
 
     def __init__(self):
-        """
-        Init TersoffPotential
-        """
+        """Init TersoffPotential."""
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "OxideTersoffPotentials")) as f:
             data = {}

@@ -2,7 +2,7 @@
 
 """
 Developer script to convert yaml periodic table to json format.
-Created on Nov 15, 2011
+Created on Nov 15, 2011.
 """
 
 from __future__ import annotations
@@ -251,9 +251,7 @@ def gen_iupac_ordering():
 
 
 def add_electron_affinities():
-    """
-    Update the periodic table data file with electron affinities.
-    """
+    """Update the periodic table data file with electron affinities."""
     import requests
     from bs4 import BeautifulSoup
 
@@ -279,9 +277,7 @@ def add_electron_affinities():
 
 
 def add_ionization_energies():
-    """
-    Update the periodic table data file with ground level and ionization energies from NIST.
-    """
+    """Update the periodic table data file with ground level and ionization energies from NIST."""
     import collections
 
     from bs4 import BeautifulSoup

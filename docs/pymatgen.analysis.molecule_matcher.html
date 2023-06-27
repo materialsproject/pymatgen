@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -226,7 +228,7 @@ rmsd: Root-mean-square-deviation between <cite>p_prime</cite> and the <cite>targ
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.molecule_matcher.BruteForceOrderMatcher.match">
-<span class="sig-name descname"><span class="pre">match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_warning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/molecule_matcher.py#L861-L926"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.BruteForceOrderMatcher.match" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_warning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/molecule_matcher.py#L861-L926"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.BruteForceOrderMatcher.match" title="Permalink to this definition"></a></dt>
 <dd><p>Similar as <cite>KabschMatcher.match</cite> but this method also finds the order of
 atoms which belongs to the best match.</p>
 <p>A <cite>ValueError</cite> will be raised when the total number of possible combinations
@@ -234,7 +236,7 @@ become unfeasible (more than a million combination).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>p</strong> – a <cite>Molecule</cite> object what will be matched with the target one.</p></li>
+<li><p><strong>mol</strong> – a <cite>Molecule</cite> object what will be matched with the target one.</p></li>
 <li><p><strong>ignore_warning</strong> – ignoring error when the number of combination is too large</p></li>
 </ul>
 </dd>

@@ -123,9 +123,9 @@ class VampireCaller:
         self.mat_name = hm.formula
 
         # Switch to scratch dir which automatically cleans up vampire inputs files unless user specifies to save them
-        # with ScratchDir('/scratch', copy_from_current_on_enter=self.save_inputs,
-        #                 copy_to_current_on_exit=self.save_inputs) as temp_dir:
-        #     os.chdir(temp_dir)
+        # with ScratchDir(
+        #     "/scratch", copy_from_current_on_enter=self.save_inputs, copy_to_current_on_exit=self.save_inputs
+        # ):
 
         # Create input files
         self._create_mat()

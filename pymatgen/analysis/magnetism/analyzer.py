@@ -47,9 +47,7 @@ except Exception:
 
 @unique
 class Ordering(Enum):
-    """
-    Enumeration defining possible magnetic orderings.
-    """
+    """Enumeration defining possible magnetic orderings."""
 
     FM = "FM"  # Ferromagnetic
     AFM = "AFM"  # Antiferromagnetic
@@ -60,9 +58,7 @@ class Ordering(Enum):
 
 @unique
 class OverwriteMagmomMode(Enum):
-    """
-    Enumeration defining different modes for analyzer.
-    """
+    """Enumeration defining different modes for analyzer."""
 
     none = "none"
     respect_sign = "respect_sign"
@@ -86,7 +82,7 @@ class CollinearMagneticStructureAnalyzer:
         make_primitive: bool = True,
         default_magmoms: dict | None = None,
         set_net_positive: bool = True,
-        threshold: float = 0.00,
+        threshold: float = 0,
         threshold_nonmag: float = 0.1,
     ):
         """
@@ -145,7 +141,9 @@ class CollinearMagneticStructureAnalyzer:
 
         # check for disorder
         if not structure.is_ordered:
-            raise NotImplementedError("Not implemented for disordered structures, make ordered approximation first.")
+            raise NotImplementedError(
+                f"{type(self).__name__} not implemented for disordered structures, make ordered approximation first."
+            )
 
         if detect_valences:
             trans = AutoOxiStateDecorationTransformation()
@@ -427,9 +425,7 @@ class CollinearMagneticStructureAnalyzer:
     def types_of_magnetic_specie(
         self,
     ) -> tuple[Element | Species | DummySpecies, ...]:
-        """
-        Specie->Species rename. Used to maintain backwards compatibility.
-        """
+        """Specie->Species rename. Used to maintain backwards compatibility."""
         return self.types_of_magnetic_species
 
     @property
@@ -465,7 +461,7 @@ class CollinearMagneticStructureAnalyzer:
         """
         Args:
           symprec: same as in SpacegroupAnalyzer (Default value = 1e-3)
-          angle_tolerance: same as in SpacegroupAnalyzer (Default value = 5)
+          angle_tolerance: same as in SpacegroupAnalyzer (Default value = 5).
 
         Returns: Number of symmetrically-distinct magnetic sites present
         in structure.
@@ -517,7 +513,7 @@ class CollinearMagneticStructureAnalyzer:
             return Ordering.AFM
         return Ordering.NM
 
-    def get_exchange_group_info(self, symprec: float = 1e-2, angle_tolerance: float = 5.0) -> tuple[str, int]:
+    def get_exchange_group_info(self, symprec: float = 1e-2, angle_tolerance: float = 5) -> tuple[str, int]:
         """Returns the information on the symmetry of the Hamiltonian
         describing the exchange energy of the system, taking into
         account relative direction of magnetic moments but not their
@@ -530,7 +526,7 @@ class CollinearMagneticStructureAnalyzer:
 
         Args:
           symprec: same as SpacegroupAnalyzer (Default value = 1e-2)
-          angle_tolerance: same as SpacegroupAnalyzer (Default value = 5.0)
+          angle_tolerance: same as SpacegroupAnalyzer (Default value = 5)
 
         Returns:
           spacegroup_symbol, international_number
@@ -879,7 +875,7 @@ class MagneticStructureEnumerator:
                 constraints = [
                     MagOrderParameterConstraint(0.5, site_constraint_name="wyckoff", site_constraints=symbol),
                     MagOrderParameterConstraint(
-                        1.0,
+                        1,
                         site_constraint_name="wyckoff",
                         site_constraints=list(wyckoff_symbols - {symbol}),
                     ),
@@ -902,7 +898,7 @@ class MagneticStructureEnumerator:
                 constraints = [
                     MagOrderParameterConstraint(0.5, species_constraints=str(sp)),
                     MagOrderParameterConstraint(
-                        1.0,
+                        1,
                         species_constraints=list(map(str, set(types_mag_species) - {sp})),
                     ),
                 ]
@@ -1045,8 +1041,7 @@ class MagneticStructureEnumerator:
         # if our input structure isn't in our generated structures,
         # let's add it manually and also keep a note of which structure
         # is our input: this is mostly for book-keeping/benchmarking
-        self.input_index = None
-        self.input_origin = None
+        self.input_index = self.input_origin = None
         if self.input_analyzer.ordering != Ordering.NM:
             matches = [self.input_analyzer.matches_ordering(s) for s in ordered_structures]
             if not any(matches):

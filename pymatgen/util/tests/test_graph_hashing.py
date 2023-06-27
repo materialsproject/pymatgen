@@ -36,7 +36,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
 import networkx as nx
-from emmet.core.graph_hashing import weisfeiler_lehman_graph_hash, weisfeiler_lehman_subgraph_hashes
+import pytest
+
+try:
+    from emmet.core.graph_hashing import weisfeiler_lehman_graph_hash, weisfeiler_lehman_subgraph_hashes
+except (ImportError, ModuleNotFoundError):
+    pytest.skip("emmet not installed", allow_module_level=True)
 
 
 def test_graph_hash():

@@ -47,7 +47,7 @@ AnyComputedEntry = Union[ComputedEntry, ComputedStructureEntry]
 class CompatibilityError(Exception):
     """
     Exception class for Compatibility. Raised by attempting correction
-    on incompatible calculation
+    on incompatible calculation.
     """
 
 
@@ -121,7 +121,7 @@ class PotcarCorrection(Correction):
         """
         Args:
             input_set: InputSet object used to generate the runs (used to check
-                for correct potcar symbols)
+                for correct potcar symbols).
 
             check_hash (bool): If true, uses the potcar hash to check for valid
                 potcars. If false, uses the potcar symbol (Less reliable).
@@ -413,20 +413,9 @@ class UCorrection(Correction):
     these fields populated.
     """
 
-    common_peroxides = [
-        "Li2O2",
-        "Na2O2",
-        "K2O2",
-        "Cs2O2",
-        "Rb2O2",
-        "BeO2",
-        "MgO2",
-        "CaO2",
-        "SrO2",
-        "BaO2",
-    ]
-    common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
-    ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
+    common_peroxides = ("Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2", "BeO2", "MgO2", "CaO2", "SrO2", "BaO2")
+    common_superoxides = ("LiO2", "NaO2", "KO2", "RbO2", "CsO2")
+    ozonides = ("LiO3", "NaO3", "KO3", "NaO5")
 
     def __init__(self, config_file, input_set, compat_type, error_file=None):
         """
@@ -443,7 +432,7 @@ class UCorrection(Correction):
             error_file: Path to the selected compatibilityErrors.yaml config file.
         """
         if compat_type not in ["GGA", "Advanced"]:
-            raise CompatibilityError(f"Invalid compat_type {compat_type}")
+            raise CompatibilityError(f"Invalid {compat_type=}")
 
         c = loadfn(config_file)
 
@@ -891,7 +880,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1-10 (2011).
         """
         if compat_type not in ["GGA", "Advanced"]:
-            raise CompatibilityError(f"Invalid compat_type {compat_type}")
+            raise CompatibilityError(f"Invalid {compat_type=}")
 
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide

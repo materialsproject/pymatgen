@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Implementation for `pmg structure` CLI.
-"""
+"""Implementation for `pmg structure` CLI."""
 
 from __future__ import annotations
 
@@ -22,7 +20,7 @@ __date__ = "Aug 13 2016"
 
 def convert_fmt(args):
     """
-    Convert files from one format to another
+    Convert files from one format to another.
 
     Args:
         args (dict): Args from argparse.
@@ -65,12 +63,14 @@ def analyze_localenv(args):
     for filename in args.filenames:
         print(f"Analyzing {filename}...")
         data = []
-        s = Structure.from_file(filename)
-        for i, site in enumerate(s):
+        struct = Structure.from_file(filename)
+        for i, site in enumerate(struct):
             for species, dist in bonds.items():
                 if species[0] in [sp.symbol for sp in site.species]:
                     dists = [
-                        d for nn, d in s.get_neighbors(site, dist) if species[1] in [sp.symbol for sp in nn.species]
+                        d
+                        for nn, d in struct.get_neighbors(site, dist)
+                        if species[1] in [sp.symbol for sp in nn.species]
                     ]
                     dists = ", ".join(f"{d:.3f}" for d in sorted(dists))
                     data.append([i, species[0], species[1], dists])

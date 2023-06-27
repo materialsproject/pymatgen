@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -406,9 +408,9 @@ axis of the lattice.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.coord.is_coord_subset">
-<span class="sig-name descname"><span class="pre">is_coord_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">superset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../util/coord.py#L61-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.is_coord_subset" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_coord_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">superset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../util/coord.py#L61-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.coord.is_coord_subset" title="Permalink to this definition"></a></dt>
 <dd><p>Tests if all coords in subset are contained in superset.
-Doesn’t use periodic boundary conditions</p>
+Doesn’t use periodic boundary conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

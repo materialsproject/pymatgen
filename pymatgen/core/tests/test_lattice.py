@@ -5,6 +5,7 @@ import itertools
 import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
+from pytest import approx
 
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
@@ -64,11 +65,9 @@ class LatticeTestCase(PymatgenTest):
         assert lattice is not None, "Initialization from new_cubic failed"
         assert_array_equal(lattice.pbc, (True, True, True))
         lattice2 = Lattice([[a, 0, 0], [0, a, 0], [0, 0, a]])
-        for i in range(0, 3):
-            for j in range(0, 3):
-                assert (
-                    round(abs(lattice.matrix[i][j] - lattice2.matrix[i][j]), 5) == 0
-                ), "Inconsistent matrix from two inits!"
+        for ii in range(0, 3):
+            for jj in range(0, 3):
+                assert lattice.matrix[ii][jj] == lattice2.matrix[ii][jj], "Inconsistent matrix from two inits!"
         assert_array_equal(self.cubic_partial_pbc.pbc, (True, True, False))
 
     def test_copy(self):
@@ -130,43 +129,36 @@ class LatticeTestCase(PymatgenTest):
         self.assert_all_close(recip_latt.matrix, recip_latt_xtal.matrix * 2 * np.pi, 5)
 
     def test_static_methods(self):
-        lengths_c = [3.840198, 3.84019885, 3.8401976]
-        angles_c = [119.99998575, 90, 60.00000728]
-        mat_c = [
+        expected_lengths = [3.840198, 3.84019885, 3.8401976]
+        expected_angles = [119.99998575, 90, 60.00000728]
+        matrix = [
             [3.840198, 0.000000, 0.0000],
             [1.920099, 3.325710, 0.000000],
             [0.000000, -2.217138, 3.135509],
         ]
         # should give the lengths and angles above
-        newlatt = Lattice(mat_c)
-        lengths = newlatt.lengths
-        angles = newlatt.angles
-        for i in range(0, 3):
-            assert round(abs(lengths[i] - lengths_c[i]), 5) == 0, "Lengths incorrect!"
-            assert round(abs(angles[i] - angles_c[i]), 5) == 0, "Angles incorrect!"
-        latt = Lattice.from_parameters(*lengths, *angles)
-        lengths = latt.lengths
-        angles = latt.angles
-        for i in range(0, 3):
-            assert round(abs(lengths[i] - lengths_c[i]), 5) == 0, "Lengths incorrect!"
-            assert round(abs(angles[i] - angles_c[i]), 5) == 0, "Angles incorrect!"
+        lattice = Lattice(matrix)
+        assert lattice.lengths == approx(expected_lengths)
+        assert lattice.angles == approx(expected_angles)
+
+        lattice = Lattice.from_parameters(*lattice.parameters)
+        assert lattice.lengths == approx(expected_lengths)
+        assert lattice.angles == approx(expected_angles)
 
     def test_attributes(self):
-        """docstring for test_attributes"""
+        """Docstring for test_attributes."""
         lattice = Lattice.cubic(10.0)
         assert lattice.a == 10.0
         assert lattice.b == 10.0
         assert lattice.c == 10.0
-        assert round(abs(lattice.volume - 1000.0), 7) == 0
+        assert lattice.volume == 1000.0
         xyz = lattice.get_cartesian_coords([0.25, 0.35, 0.45])
         assert xyz[0] == 2.5
         assert xyz[1] == 3.5
         assert xyz[2] == 4.5
 
     def test_lattice_matrices(self):
-        """
-        If alpha == 90 and beta == 90, two matrices are identical.
-        """
+        """If alpha == 90 and beta == 90, two matrices are identical."""
 
         def _identical(a, b, c, alpha, beta, gamma):
             mat1 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, False).matrix
@@ -187,13 +179,13 @@ class LatticeTestCase(PymatgenTest):
         reduced_latt = lattice.get_lll_reduced_lattice()
 
         expected = Lattice([[0, 1, 0], [1, 0, 1], [-2, 0, 1]])
-        assert round(abs(np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) - 1), 7) == 0
+        assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         self.assert_all_close(sorted(reduced_latt.abc), sorted(expected.abc))
-        assert round(abs(reduced_latt.volume - lattice.volume), 7) == 0
+        assert reduced_latt.volume == approx(lattice.volume)
         latt = [7.164750, 2.481942, 0.000000, -4.298850, 2.481942, 0.000000, 0.000000, 0.000000, 14.253000]
         expected = Lattice([-4.298850, 2.481942, 0.000000, 2.865900, 4.963884, 0.000000, 0.000000, 0.000000, 14.253000])
         reduced_latt = Lattice(latt).get_lll_reduced_lattice()
-        assert round(abs(np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) - 1), 7) == 0
+        assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         self.assert_all_close(sorted(reduced_latt.abc), sorted(expected.abc))
 
         expected = Lattice([0.0, 10.0, 10.0, 10.0, 10.0, 0.0, 30.0, -30.0, 40.0])
@@ -202,66 +194,43 @@ class LatticeTestCase(PymatgenTest):
         lattice = lattice.reshape(3, 3)
         lattice = Lattice(lattice.T)
         reduced_latt = lattice.get_lll_reduced_lattice()
-        assert round(abs(np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) - 1), 7) == 0
+        assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         self.assert_all_close(sorted(reduced_latt.abc), sorted(expected.abc))
 
         random_latt = Lattice(np.random.random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:
             reduced_random_latt = random_latt.get_lll_reduced_lattice()
-            assert round(abs(reduced_random_latt.volume - random_latt.volume), 7) == 0
+            assert reduced_random_latt.volume == approx(random_latt.volume)
 
     def test_get_niggli_reduced_lattice(self):
         latt = Lattice.from_parameters(3, 5.196, 2, 103 + 55 / 60, 109 + 28 / 60, 134 + 53 / 60)
         reduced_cell = latt.get_niggli_reduced_lattice()
         abc = reduced_cell.lengths
         angles = reduced_cell.angles
-        assert round(abs(abc[0] - 2), 3) == 0
-        assert round(abs(abc[1] - 3), 3) == 0
-        assert round(abs(abc[2] - 3), 3) == 0
-        assert round(abs(angles[0] - 116.382855225), 3) == 0
-        assert round(abs(angles[1] - 94.769790287999996), 3) == 0
-        assert round(abs(angles[2] - 109.466666667), 3) == 0
+        assert abc == approx([2, 3, 3], abs=1e-3)
+        assert angles == approx([116.382855225, 94.769790287999996, 109.466666667])
 
         mat = [[5.0, 0, 0], [0, 5.0, 0], [5.0, 0, 5.0]]
         latt = Lattice(np.dot([[1, 1, 1], [1, 1, 0], [0, 1, 1]], mat))
         reduced_cell = latt.get_niggli_reduced_lattice()
-        abc = reduced_cell.lengths
-        angles = reduced_cell.angles
-        for length in abc:
-            assert round(abs(length - 5), 3) == 0
-        for angle in angles:
-            assert round(abs(angle - 90), 3) == 0
+        assert reduced_cell.lengths == approx([5, 5, 5])
+        assert reduced_cell.angles == approx([90, 90, 90])
 
-        latt = Lattice(
-            [
-                1.432950,
-                0.827314,
-                4.751000,
-                -1.432950,
-                0.827314,
-                4.751000,
-                0.0,
-                -1.654628,
-                4.751000,
-            ]
-        )
-        # ans = [[-1.432950, -2.481942, 0.0],
-        #       [-2.8659, 0.0, 0.0],
-        #       [-1.432950, -0.827314, -4.751000]]
-        ans = [
+        latt = Lattice([1.432950, 0.827314, 4.751000, -1.432950, 0.827314, 4.751000, 0.0, -1.654628, 4.751000])
+        expected = [
             [-1.43295, -2.481942, 0.0],
             [-2.8659, 0.0, 0.0],
             [-1.43295, -0.827314, -4.751],
         ]
-        self.assert_all_close(latt.get_niggli_reduced_lattice().matrix, ans)
+        self.assert_all_close(latt.get_niggli_reduced_lattice().matrix, expected)
 
         latt = Lattice.from_parameters(7.365450, 6.199506, 5.353878, 75.542191, 81.181757, 156.396627)
-        ans = [
+        expected = [
             [2.578932, 0.826965, 0.000000],
             [-0.831059, 2.067413, 1.547813],
             [-0.458407, -2.480895, 1.129126],
         ]
-        self.assert_all_close(latt.get_niggli_reduced_lattice().matrix, np.array(ans), 5)
+        self.assert_all_close(latt.get_niggli_reduced_lattice().matrix, np.array(expected), 5)
 
     def test_find_mapping(self):
         m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
@@ -273,7 +242,7 @@ class LatticeTestCase(PymatgenTest):
 
         latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
         (aligned_out, rot_out, scale_out) = latt2.find_mapping(latt)
-        assert round(abs(abs(np.linalg.det(rot)) - 1), 7) == 0
+        assert abs(np.linalg.det(rot)) == approx(1)
 
         rotated = SymmOp.from_rotation_and_translation(rot_out).operate_multi(latt.matrix)
 
@@ -333,7 +302,7 @@ class LatticeTestCase(PymatgenTest):
         new_volume = 10
         for lattice in self.families.values():
             new_lattice = lattice.scale(new_volume)
-            assert round(abs(new_lattice.volume - new_volume), 7) == 0
+            assert new_lattice.volume == approx(new_volume)
             self.assert_all_close(new_lattice.angles, lattice.angles)
 
     def test_get_wigner_seitz_cell(self):
@@ -346,7 +315,6 @@ class LatticeTestCase(PymatgenTest):
         frac_basis = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 
         for lattice in self.families.values():
-            # print(family_name)
             self.assert_all_close(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
             self.assert_all_close(lattice.norm(frac_basis), lattice.abc, 5)
             for i, vec in enumerate(frac_basis):
@@ -356,15 +324,15 @@ class LatticeTestCase(PymatgenTest):
                 assert hasattr(length, "shape")
 
         # Passing complex arrays should raise TypeError
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="Complex array"):
             lattice.norm(np.zeros(3, dtype=np.complex128))
 
         # Cannot reshape the second argument.
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="cannot reshape array"):
             lattice.dot(np.zeros(6), np.zeros(8))
 
         # Passing vectors of different length is invalid.
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Coordinates must have same length"):
             lattice.dot(np.zeros(3), np.zeros(6))
 
     def test_get_points_in_sphere(self):
@@ -436,10 +404,8 @@ class LatticeTestCase(PymatgenTest):
         self.assert_all_close(output3, expected_pbc, 3)
 
     def test_monoclinic(self):
-        a, b, c, alpha, beta, gamma = self.monoclinic.parameters
-        assert round(abs(beta - 90), 7) != 0
-        assert round(abs(alpha - 90), 7) == 0
-        assert round(abs(gamma - 90), 7) == 0
+        assert self.monoclinic.angles == approx([90, 66, 90])
+        assert self.monoclinic.lengths == approx([10, 20, 30])
 
     def test_is_hexagonal(self):
         assert not self.cubic.is_hexagonal()
@@ -451,7 +417,7 @@ class LatticeTestCase(PymatgenTest):
 
     def test_get_distance_and_image(self):
         dist, image = self.cubic.get_distance_and_image([0, 0, 0.1], [0, 0.0, 0.9])
-        assert round(abs(dist - 2), 7) == 0
+        assert dist == approx(2)
         self.assert_all_close(image, [0, 0, -1])
 
     def test_get_distance_and_image_strict(self):
@@ -570,11 +536,9 @@ class LatticeTestCase(PymatgenTest):
         assert Lattice.selling_dist(Lattice.cubic(5), Lattice.cubic(5)) == 0
         hex_lattice = Lattice.hexagonal(5, 8)
         triclinic_lattice = Lattice.from_parameters(4, 10, 11, 100, 110, 80)
-        assert Lattice.selling_dist(hex_lattice, triclinic_lattice) == pytest.approx(76, abs=0.1)
-        assert Lattice.selling_dist(Lattice.tetragonal(10, 12), Lattice.tetragonal(10.1, 11.9)) == pytest.approx(
-            3.7, abs=0.1
-        )
-        assert Lattice.selling_dist(Lattice.cubic(5), Lattice.from_parameters(8, 10, 12, 80, 90, 95)) == pytest.approx(
+        assert Lattice.selling_dist(hex_lattice, triclinic_lattice) == approx(76, abs=0.1)
+        assert Lattice.selling_dist(Lattice.tetragonal(10, 12), Lattice.tetragonal(10.1, 11.9)) == approx(3.7, abs=0.1)
+        assert Lattice.selling_dist(Lattice.cubic(5), Lattice.from_parameters(8, 10, 12, 80, 90, 95)) == approx(
             125.99, abs=0.1
         )
 

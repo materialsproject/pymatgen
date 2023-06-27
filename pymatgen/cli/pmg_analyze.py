@@ -1,6 +1,4 @@
-"""
-Implementation for `pmg analyze` CLI.
-"""
+"""Implementation for `pmg analyze` CLI."""
 
 from __future__ import annotations
 

@@ -1,6 +1,4 @@
-"""
-Determine functional groups present in a Molecule.
-"""
+"""Determine functional groups present in a Molecule."""
 
 
 from __future__ import annotations

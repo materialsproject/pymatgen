@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -126,7 +128,7 @@ Part of this module is automatically generated so be careful when refactoring st
 Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum values.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.core.libxcfunc.LibxcFunc">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LibxcFunc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/libxcfunc.py#L34-L510"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.libxcfunc.LibxcFunc" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LibxcFunc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/libxcfunc.py#L34-L508"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.libxcfunc.LibxcFunc" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>Enumerator with the identifiers. This object is used by Xcfunc
 declared in xcfunc.py to create an internal representation of the XC functional.
@@ -1951,7 +1953,7 @@ but use the API provided by Xcfunc.</p>
 <dt class="sig sig-object py" id="pymatgen.core.libxcfunc.LibxcFunc.all_families">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_families</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/libxcfunc.py#L420-L426"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.libxcfunc.LibxcFunc.all_families" title="Permalink to this definition"></a></dt>
 <dd><p>List of strings with the libxc families.
-Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA</p>
+Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1959,7 +1961,7 @@ Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA</p
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_kinds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/libxcfunc.py#L428-L435"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.libxcfunc.LibxcFunc.all_kinds" title="Permalink to this definition"></a></dt>
 <dd><p>List of strings with the libxc kinds.
 Also in this case, the string is obtained by remove the <a href="#id1"><span class="problematic" id="id2">XC_</span></a> prefix.
-XC_CORRELATION –&gt; CORRELATION</p>
+XC_CORRELATION –&gt; CORRELATION.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1979,13 +1981,13 @@ easier serialization.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.libxcfunc.LibxcFunc.info_dict">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">info_dict</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/libxcfunc.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.libxcfunc.LibxcFunc.info_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Dictionary with metadata. see libxc_docs.json</p>
+<dd><p>Dictionary with metadata. see libxc_docs.json.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.libxcfunc.LibxcFunc.is_c_kind">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_c_kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/libxcfunc.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.libxcfunc.LibxcFunc.is_c_kind" title="Permalink to this definition"></a></dt>
-<dd><p>True if this is a correlation-only functional</p>
+<dd><p>True if this is a correlation-only functional.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -2009,7 +2011,7 @@ easier serialization.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.libxcfunc.LibxcFunc.is_k_kind">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_k_kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/libxcfunc.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.libxcfunc.LibxcFunc.is_k_kind" title="Permalink to this definition"></a></dt>
-<dd><p>True if this is a kinetic functional</p>
+<dd><p>True if this is a kinetic functional.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -2027,18 +2029,18 @@ easier serialization.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.libxcfunc.LibxcFunc.is_x_kind">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_x_kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/libxcfunc.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.libxcfunc.LibxcFunc.is_x_kind" title="Permalink to this definition"></a></dt>
-<dd><p>True if this is an exchange-only functional</p>
+<dd><p>True if this is an exchange-only functional.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.core.libxcfunc.LibxcFunc.is_xc_kind">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_xc_kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/libxcfunc.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.libxcfunc.LibxcFunc.is_xc_kind" title="Permalink to this definition"></a></dt>
-<dd><p>True if this is a exchange+correlation functional</p>
+<dd><p>True if this is a exchange+correlation functional.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.core.libxcfunc.LibxcFunc.to_json">
-<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/libxcfunc.py#L506-L510"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.libxcfunc.LibxcFunc.to_json" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/libxcfunc.py#L506-L508"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.libxcfunc.LibxcFunc.to_json" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a json string representation of the MSONable object.</p>
 </dd></dl>
 

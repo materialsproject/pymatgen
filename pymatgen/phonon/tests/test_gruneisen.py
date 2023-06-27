@@ -8,10 +8,9 @@ from pytest import approx
 try:
     import phonopy
     from phonopy.phonon.dos import TotalDos
-except ImportError as ex:
-    print(ex)
-    phonopy = None
-    TotalDos = None
+except ImportError as exc:
+    print(exc)
+    phonopy = TotalDos = None
 
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line, get_gruneisenparameter
 from pymatgen.phonon.gruneisen import GruneisenParameter
@@ -66,16 +65,13 @@ class GruneisenParameterTest(PymatgenTest):
         self.gruneisen_obj2 = GruneisenParameter.from_dict(new_dict)
 
     def test_frequencies(self):
-        assert self.gruneisen_obj_small.frequencies[0] == approx(0.1264214687)
-        assert self.gruneisen_obj_small.frequencies[1] == approx(0.1264214687)
-        assert self.gruneisen_obj_small.frequencies[2] == approx(0.2527200484)
-        assert self.gruneisen_obj_small.frequencies[3] == approx(8.8520245263)
-        assert self.gruneisen_obj_small.frequencies[4] == approx(8.8520245263)
-        assert self.gruneisen_obj_small.frequencies[5] == approx(9.6601659578)
+        assert self.gruneisen_obj_small.frequencies == approx(
+            [0.12642146, 0.12642146, 0.25272004, 8.85202452, 8.85202452, 9.66016595]
+        )
 
     def test_multi(self):
-        assert self.gruneisen_obj_small.multiplicities[0] == approx(1)
-        assert self.gruneisen_obj.multiplicities[0] == approx(2)
+        assert self.gruneisen_obj_small.multiplicities[0] == 1
+        assert self.gruneisen_obj.multiplicities[0] == 2
 
     def test_gruneisen(self):
         assert self.gruneisen_obj_small.gruneisen[0] == approx(-0.6176464482)
@@ -108,7 +104,3 @@ class GruneisenParameterTest(PymatgenTest):
         assert self.gruneisen_obj_small.acoustic_debye_temp == approx(317.54811309631845)
         assert self.gruneisen_obj.acoustic_debye_temp == approx(342.2046198151735)
         assert self.gruneisen_obj_Si.acoustic_debye_temp == approx(526.0725636300882)
-
-
-if __name__ == "__main__":
-    unittest.main()

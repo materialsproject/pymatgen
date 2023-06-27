@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -74,7 +72,3 @@ class TestElectricFieldGradient(PymatgenTest):
         assert efg.V_zz == approx(-15.721, abs=1e-3)
         assert efg.asymmetry == approx(0.465, abs=1e-3)
         assert efg.coupling_constant("Al") == approx(5.573, abs=1e-3)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 from pytest import approx
@@ -451,7 +449,7 @@ class EOSTest(PymatgenTest):
 
         # TODO: Reactivate
         # fig = birch_eos_fit.plot_ax(ax=None, show=False, fontsize=8, title="birch eos")
-        # self.assertTrue(hasattr(fig, "savefig"))
+        # assert hasattr(fig, "savefig")
 
     def test_eos_func_call(self):
         # eos_fit_obj.func(volume) == eos_fit_obj(volume)
@@ -465,7 +463,3 @@ class EOSTest(PymatgenTest):
             "v0": self.num_eos_fit.v0,
         }
         assert self.num_eos_fit.results == d
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -51,9 +51,7 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def as_dict(self):
-        """
-        A JSON-serializable dict representation of the algorithm
-        """
+        """A JSON-serializable dict representation of the algorithm."""
 
     @property
     def algorithm_type(self):
@@ -144,7 +142,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         other_plane_points=None,
     ):
         """
-            Initializes a separation plane for a given perfect coordination geometry
+            Initializes a separation plane for a given perfect coordination geometry.
 
         Args:
             plane_points: Indices of the points that are in the plane in the perfect structure (and should be
@@ -359,9 +357,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
 
 class CoordinationGeometry:
-    """
-    Class used to store the ideal representation of a chemical environment or "coordination geometry".
-    """
+    """Class used to store the ideal representation of a chemical environment or "coordination geometry"."""
 
     # Default value of continuous symmetry measure beyond which no further
     # search is performed for the separation plane algorithms
@@ -374,7 +370,7 @@ class CoordinationGeometry:
         This allows to possibly get a lower coordination from a capped-like model polyhedron.
         """
 
-        ALLOWED_HINTS_TYPES = ["single_cap", "double_cap", "triple_cap"]
+        ALLOWED_HINTS_TYPES = ("single_cap", "double_cap", "triple_cap")
 
         def __init__(self, hints_type, options):
             """
@@ -498,9 +494,7 @@ class CoordinationGeometry:
             ]
 
         def as_dict(self):
-            """
-            A JSON-serializable dict representation of this NeighborsSetsHints
-            """
+            """A JSON-serializable dict representation of this NeighborsSetsHints."""
             return {"hints_type": self.hints_type, "options": self.options}
 
         @classmethod
@@ -584,9 +578,7 @@ class CoordinationGeometry:
         self._pauling_stability_ratio = None
 
     def as_dict(self):
-        """
-        A JSON-serializable dict representation of this CoordinationGeometry.
-        """
+        """A JSON-serializable dict representation of this CoordinationGeometry."""
         return {
             "mp_symbol": self._mp_symbol,
             "name": self.name,
@@ -716,16 +708,12 @@ class CoordinationGeometry:
 
     @property
     def coordination_number(self):
-        """
-        Returns the coordination number of this coordination geometry.
-        """
+        """Returns the coordination number of this coordination geometry."""
         return self.coordination
 
     @property
     def pauling_stability_ratio(self):
-        """
-        Returns the theoretical Pauling stability ratio (rC/rA) for this environment.
-        """
+        """Returns the theoretical Pauling stability ratio (rC/rA) for this environment."""
         if self._pauling_stability_ratio is None:
             if self.ce_symbol in ["S:1", "L:2"]:
                 self._pauling_stability_ratio = 0.0
@@ -745,69 +733,49 @@ class CoordinationGeometry:
 
     @property
     def mp_symbol(self):
-        """
-        Returns the MP symbol of this coordination geometry.
-        """
+        """Returns the MP symbol of this coordination geometry."""
         return self._mp_symbol
 
     @property
     def ce_symbol(self):
-        """
-        Returns the symbol of this coordination geometry.
-        """
+        """Returns the symbol of this coordination geometry."""
         return self._mp_symbol
 
     def get_coordination_number(self):
-        """
-        Returns the coordination number of this coordination geometry.
-        """
+        """Returns the coordination number of this coordination geometry."""
         return self.coordination
 
     def is_implemented(self) -> bool:
-        """
-        Returns True if this coordination geometry is implemented.
-        """
+        """Returns True if this coordination geometry is implemented."""
         return bool(self.points)
 
     def get_name(self):
-        """
-        Returns the name of this coordination geometry.
-        """
+        """Returns the name of this coordination geometry."""
         return self.name
 
     @property
     def IUPAC_symbol(self):
-        """
-        Returns the IUPAC symbol of this coordination geometry.
-        """
+        """Returns the IUPAC symbol of this coordination geometry."""
         return self.IUPACsymbol
 
     @property
     def IUPAC_symbol_str(self):
-        """
-        Returns a string representation of the IUPAC symbol of this coordination geometry.
-        """
+        """Returns a string representation of the IUPAC symbol of this coordination geometry."""
         return str(self.IUPACsymbol)
 
     @property
     def IUCr_symbol(self):
-        """
-        Returns the IUCr symbol of this coordination geometry.
-        """
+        """Returns the IUCr symbol of this coordination geometry."""
         return self.IUCrsymbol
 
     @property
     def IUCr_symbol_str(self):
-        """
-        Returns a string representation of the IUCr symbol of this coordination geometry.
-        """
+        """Returns a string representation of the IUCr symbol of this coordination geometry."""
         return str(self.IUCrsymbol)
 
     @property
     def number_of_permutations(self):
-        """
-        Returns the number of permutations of this coordination geometry.
-        """
+        """Returns the number of permutations of this coordination geometry."""
         if self.permutations_safe_override:
             return factorial(self.coordination)
         if self.permutations is None:  # pylint: disable=E1101
@@ -833,15 +801,11 @@ class CoordinationGeometry:
 
     @property
     def algorithms(self):
-        """
-        Returns the list of algorithms that are used to identify this coordination geometry.
-        """
+        """Returns the list of algorithms that are used to identify this coordination geometry."""
         return self._algorithms
 
     def get_central_site(self):
-        """
-        Returns the central site of this coordination geometry.
-        """
+        """Returns the central site of this coordination geometry."""
         return self.central_site
 
     def faces(self, sites, permutation=None):
@@ -879,9 +843,7 @@ class CoordinationGeometry:
         return [self._solid_angles[ii] for ii in permutation]
 
     def get_pmeshes(self, sites, permutation=None):
-        """
-        Returns the pmesh strings used for jmol to show this geometry.
-        """
+        """Returns the pmesh strings used for jmol to show this geometry."""
         pmeshes = []
         # _vertices = [site.coords for site in sites]
         _vertices = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
@@ -926,7 +888,7 @@ class CoordinationGeometry:
 class AllCoordinationGeometries(dict):
     """
     Class used to store all the reference "coordination geometries" (list with instances of the CoordinationGeometry
-    classes)
+    classes).
     """
 
     def __init__(self, permutations_safe_override=False, only_symbols=None):
@@ -996,9 +958,7 @@ class AllCoordinationGeometries(dict):
             return False
 
     def __repr__(self):
-        """
-        Returns a string with the list of coordination geometries.
-        """
+        """Returns a string with the list of coordination geometries."""
         outs = [
             "",
             "#=================================#",
@@ -1012,9 +972,7 @@ class AllCoordinationGeometries(dict):
         return "\n".join(outs)
 
     def __str__(self):
-        """
-        Returns a string with the list of coordination geometries that are implemented.
-        """
+        """Returns a string with the list of coordination geometries that are implemented."""
         outs = [
             "",
             "#=======================================================#",

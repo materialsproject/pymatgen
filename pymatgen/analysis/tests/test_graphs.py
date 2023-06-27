@@ -94,10 +94,10 @@ class StructureGraphTest(PymatgenTest):
         c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(include_critical_points=False)
 
-        latt = Lattice.cubic(4.17)
+        lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        self.NiO = Structure.from_spacegroup(225, latt, species, coords).get_primitive_structure()
+        self.NiO = Structure.from_spacegroup(225, lattice, species, coords).get_primitive_structure()
 
         # BCC example.
         self.bcc = Structure(Lattice.cubic(5.0), ["He", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
@@ -109,7 +109,7 @@ class StructureGraphTest(PymatgenTest):
 
     def test_inappropriate_construction(self):
         # Check inappropriate strategy
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Chosen strategy is not designed for use with structures"):
             StructureGraph.with_local_env_strategy(self.NiO, CovalentBondNN())
 
     def test_properties(self):
@@ -285,7 +285,6 @@ from    to  to_image      bond_length (A)
    0     2  (0, 0, 0)     2.417e+00
 """
 
-        # don't care about testing Py 2.7 unicode support,
         # change Å to A
         self.mos2_sg.graph.graph["edge_weight_units"] = "A"
         self.assert_str_content_equal(str(self.square_sg), square_sg_str_ref)
@@ -331,7 +330,7 @@ from    to  to_image
         sq_sg_2 = self.square_sg * (4, 4, 1)
         assert sq_sg_1.graph.number_of_edges() == sq_sg_2.graph.number_of_edges()
         # TODO: the below test still gives 8 != 4
-        # self.assertEqual(self.square_sg.get_coordination_of_site(0), 4)
+        # assert self.square_sg.get_coordination_of_site(0) == 4
 
         mos2_sg_mul = self.mos2_sg * (3, 3, 1)
         for idx in mos2_sg_mul.structure.indices_from_symbol("Mo"):
@@ -497,12 +496,8 @@ from    to  to_image
 
 class MoleculeGraphTest(unittest.TestCase):
     def setUp(self):
-        cyclohexene = Molecule.from_file(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR,
-                "graphs/cyclohexene.xyz",
-            )
-        )
+        cyclohexene_xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/cyclohexene.xyz")
+        cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.with_empty_graph(
             cyclohexene, edge_weight_name="strength", edge_weight_units=""
         )
@@ -617,8 +612,12 @@ class MoleculeGraphTest(unittest.TestCase):
         assert mol_graph_edges.isomorphic_to(mol_graph_strat)
 
         # Check inappropriate strategy
-        with pytest.raises(ValueError):
-            MoleculeGraph.with_local_env_strategy(self.pc, VoronoiNN())
+        non_mol_strategy = VoronoiNN()
+        with pytest.raises(
+            ValueError,
+            match=f"strategy='{non_mol_strategy}' is not designed for use with molecules! Choose another strategy",
+        ):
+            MoleculeGraph.with_local_env_strategy(self.pc, non_mol_strategy)
 
     def test_properties(self):
         assert self.cyclohexene.name == "bonds"
@@ -754,7 +753,7 @@ class MoleculeGraphTest(unittest.TestCase):
         assert reactants[0] == self.ethylene
         assert reactants[1] == self.butadiene
 
-        with pytest.raises(MolGraphSplitError):
+        with pytest.raises(MolGraphSplitError, match="Cannot split molecule; MoleculeGraph is still connected."):
             self.cyclohexene.split_molecule_subgraphs([(0, 1)])
 
         # Test naive charge redistribution
@@ -920,7 +919,3 @@ class MoleculeGraphTest(unittest.TestCase):
         assert list(sg.graph.edges) == [(0, 1, 0), (0, 2, 0), (0, 3, 0), (1, 4, 0), (1, 5, 0)]
         sg.sort()
         assert list(sg.graph.edges) == [(4, 5, 0), (0, 4, 0), (1, 4, 0), (2, 5, 0), (3, 5, 0)]
-
-
-if __name__ == "__main__":
-    unittest.main()

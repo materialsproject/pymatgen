@@ -20,11 +20,11 @@ import subprocess
 import warnings
 from glob import glob
 from shutil import which
+from tempfile import TemporaryDirectory
 
 import numpy as np
 from monty.dev import requires
 from monty.io import zopen
-from monty.tempfile import ScratchDir
 
 from pymatgen.io.common import VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
@@ -156,107 +156,104 @@ class BaderAnalysis:
             chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
             self.reference_used = bool(chgref_filename)
 
-        with ScratchDir("."):
-            tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
-            with zopen(fpath, "rt") as f_in, open(tmpfile, "w") as f_out:
+        tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
+        with zopen(fpath, "rt") as f_in, open(tmpfile, "w") as f_out:
+            shutil.copyfileobj(f_in, f_out)
+        args = [BADEREXE, tmpfile]
+        if chgref_filename:
+            with zopen(chgrefpath, "rt") as f_in, open("CHGCAR_ref", "w") as f_out:
                 shutil.copyfileobj(f_in, f_out)
-            args = [BADEREXE, tmpfile]
-            if chgref_filename:
-                with zopen(chgrefpath, "rt") as f_in, open("CHGCAR_ref", "w") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-                args += ["-ref", "CHGCAR_ref"]
-            if parse_atomic_densities:
-                args += ["-p", "all_atom"]
-            with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
-                stdout, _ = rs.communicate()
-            if rs.returncode != 0:
-                raise RuntimeError(
-                    f"bader exited with return code {rs.returncode}. Please check your bader installation."
-                )
+            args += ["-ref", "CHGCAR_ref"]
+        if parse_atomic_densities:
+            args += ["-p", "all_atom"]
+        with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
+            stdout, _ = rs.communicate()
+        if rs.returncode != 0:
+            raise RuntimeError(f"bader exited with return code {rs.returncode}. Please check your bader installation.")
 
-            try:
-                self.version = float(stdout.split()[5])
-            except ValueError:
-                self.version = -1  # Unknown
-            if self.version < 1.0:
-                warnings.warn(
-                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
-                    UserWarning,
-                )
+        try:
+            self.version = float(stdout.split()[5])
+        except ValueError:
+            self.version = -1  # Unknown
+        if self.version < 1.0:
+            warnings.warn(
+                "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
+                UserWarning,
+            )
 
-            data = []
-            with open("ACF.dat") as f:
-                raw = f.readlines()
-                headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
-                raw.pop(0)
-                raw.pop(0)
-                while True:
-                    line = raw.pop(0).strip()
-                    if line.startswith("-"):
-                        break
-                    vals = map(float, line.split()[1:])
-                    data.append(dict(zip(headers, vals)))
-                for line in raw:
-                    toks = line.strip().split(":")
-                    if toks[0] == "VACUUM CHARGE":
-                        self.vacuum_charge = float(toks[1])
-                    elif toks[0] == "VACUUM VOLUME":
-                        self.vacuum_volume = float(toks[1])
-                    elif toks[0] == "NUMBER OF ELECTRONS":
-                        self.nelectrons = float(toks[1])
-            self.data = data
+        data = []
+        with open("ACF.dat") as f:
+            raw = f.readlines()
+            headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
+            raw.pop(0)
+            raw.pop(0)
+            while True:
+                line = raw.pop(0).strip()
+                if line.startswith("-"):
+                    break
+                vals = map(float, line.split()[1:])
+                data.append(dict(zip(headers, vals)))
+            for line in raw:
+                tokens = line.strip().split(":")
+                if tokens[0] == "VACUUM CHARGE":
+                    self.vacuum_charge = float(tokens[1])
+                elif tokens[0] == "VACUUM VOLUME":
+                    self.vacuum_volume = float(tokens[1])
+                elif tokens[0] == "NUMBER OF ELECTRONS":
+                    self.nelectrons = float(tokens[1])
+        self.data = data
 
-            if self.parse_atomic_densities:
-                # convert the charge density for each atom spit out by Bader into Chgcar objects for easy parsing
-                atom_chgcars = [
-                    Chgcar.from_file(f"BvAt{str(i).zfill(4)}.dat") for i in range(1, len(self.chgcar.structure) + 1)
-                ]
+        if self.parse_atomic_densities:
+            # convert the charge density for each atom spit out by Bader into Chgcar objects for easy parsing
+            atom_chgcars = [
+                Chgcar.from_file(f"BvAt{str(i).zfill(4)}.dat") for i in range(1, len(self.chgcar.structure) + 1)
+            ]
 
-                atomic_densities = []
-                # For each atom in the structure
-                for _, loc, chg in zip(
-                    self.chgcar.structure,
-                    self.chgcar.structure.frac_coords,
-                    atom_chgcars,
-                ):
-                    # Find the index of the atom in the charge density atom
-                    index = np.round(np.multiply(loc, chg.dim))
+            atomic_densities = []
+            # For each atom in the structure
+            for _, loc, chg in zip(
+                self.chgcar.structure,
+                self.chgcar.structure.frac_coords,
+                atom_chgcars,
+            ):
+                # Find the index of the atom in the charge density atom
+                index = np.round(np.multiply(loc, chg.dim))
 
-                    data = chg.data["total"]
-                    # Find the shift vector in the array
-                    shift = (np.divide(chg.dim, 2) - index).astype(int)
+                data = chg.data["total"]
+                # Find the shift vector in the array
+                shift = (np.divide(chg.dim, 2) - index).astype(int)
 
-                    # Shift the data so that the atomic charge density to the center for easier manipulation
-                    shifted_data = np.roll(data, shift, axis=(0, 1, 2))
+                # Shift the data so that the atomic charge density to the center for easier manipulation
+                shifted_data = np.roll(data, shift, axis=(0, 1, 2))
 
-                    # Slices a central window from the data array
-                    def slice_from_center(data, xwidth, ywidth, zwidth):
-                        x, y, z = data.shape
-                        startx = x // 2 - (xwidth // 2)
-                        starty = y // 2 - (ywidth // 2)
-                        startz = z // 2 - (zwidth // 2)
-                        return data[
-                            startx : startx + xwidth,
-                            starty : starty + ywidth,
-                            startz : startz + zwidth,
-                        ]
+                # Slices a central window from the data array
+                def slice_from_center(data, xwidth, ywidth, zwidth):
+                    x, y, z = data.shape
+                    startx = x // 2 - (xwidth // 2)
+                    starty = y // 2 - (ywidth // 2)
+                    startz = z // 2 - (zwidth // 2)
+                    return data[
+                        startx : startx + xwidth,
+                        starty : starty + ywidth,
+                        startz : startz + zwidth,
+                    ]
 
-                    # Finds the central encompassing volume which holds all the data within a precision
-                    def find_encompassing_vol(data):
-                        total = np.sum(data)
-                        for i in range(np.max(data.shape)):
-                            sliced_data = slice_from_center(data, i, i, i)
-                            if total - np.sum(sliced_data) < 0.1:
-                                return sliced_data
-                        return None
+                # Finds the central encompassing volume which holds all the data within a precision
+                def find_encompassing_vol(data):
+                    total = np.sum(data)
+                    for i in range(np.max(data.shape)):
+                        sliced_data = slice_from_center(data, i, i, i)
+                        if total - np.sum(sliced_data) < 0.1:
+                            return sliced_data
+                    return None
 
-                    d = {
-                        "data": find_encompassing_vol(shifted_data),
-                        "shift": shift,
-                        "dim": self.chgcar.dim,
-                    }
-                    atomic_densities.append(d)
-                self.atomic_densities = atomic_densities
+                d = {
+                    "data": find_encompassing_vol(shifted_data),
+                    "shift": shift,
+                    "dim": self.chgcar.dim,
+                }
+                atomic_densities.append(d)
+            self.atomic_densities = atomic_densities
 
     def get_charge(self, atom_index):
         """
@@ -320,7 +317,7 @@ class BaderAnalysis:
 
     def get_charge_decorated_structure(self):
         """
-        Returns a charge decorated structure
+        Returns a charge decorated structure.
 
         Note, this assumes that the Bader analysis was correctly performed on a file
         with electron densities
@@ -381,9 +378,7 @@ class BaderAnalysis:
 
     @property
     def summary(self):
-        """
-        :return: Dict summary of key analysis, e.g., atomic volume, charge, etc.
-        """
+        """:return: Dict summary of key analysis, e.g., atomic volume, charge, etc."""
         summary = {
             "min_dist": [d["min_dist"] for d in self.data],
             "charge": [d["charge"] for d in self.data],
@@ -489,8 +484,7 @@ def bader_analysis_from_path(path, suffix=""):
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
             warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
-        path = paths[0]
-        return path
+        return paths[0]
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
     chgcar = Chgcar.from_file(chgcar_path)
@@ -525,21 +519,21 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
     :param aeccar2: (optional) Chgcar object from aeccar2 file
     :return: summary dict
     """
-    with ScratchDir(".") as temp_dir:
+    with TemporaryDirectory() as tmp_dir:
         if aeccar0 and aeccar2:
             # construct reference file
             chgref = aeccar0.linear_add(aeccar2)
-            chgref_path = os.path.join(temp_dir, "CHGCAR_ref")
+            chgref_path = os.path.join(tmp_dir, "CHGCAR_ref")
             chgref.write_file(chgref_path)
         else:
             chgref_path = None
 
         chgcar.write_file("CHGCAR")
-        chgcar_path = os.path.join(temp_dir, "CHGCAR")
+        chgcar_path = os.path.join(tmp_dir, "CHGCAR")
 
         if potcar:
             potcar.write_file("POTCAR")
-            potcar_path = os.path.join(temp_dir, "POTCAR")
+            potcar_path = os.path.join(tmp_dir, "POTCAR")
         else:
             potcar_path = None
 
@@ -569,7 +563,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
             chgcar.is_spin_polarized = False
             chgcar.write_file("CHGCAR_mag")
 
-            chgcar_mag_path = os.path.join(temp_dir, "CHGCAR_mag")
+            chgcar_mag_path = os.path.join(tmp_dir, "CHGCAR_mag")
             ba = BaderAnalysis(
                 chgcar_filename=chgcar_mag_path,
                 potcar_filename=potcar_path,

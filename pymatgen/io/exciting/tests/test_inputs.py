@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 import xml.etree.ElementTree as ET
 
 from pymatgen.core import Lattice, Structure
@@ -164,7 +163,3 @@ class ExcitingInputTest(PymatgenTest):
         ref_string = ET.tostring(root, encoding="unicode")
 
         assert ref_string.strip() == test_string.strip()
-
-
-if __name__ == "__main__":
-    unittest.main()

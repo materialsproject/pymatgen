@@ -84,7 +84,7 @@ BASE_UNITS["memory"].update({k.lower(): v for k, v in BASE_UNITS["memory"].items
 
 # This current list are supported derived units defined in terms of powers of
 # SI base units and constants.
-DERIVED_UNITS = {
+DERIVED_UNITS: dict[str, dict] = {
     "energy": {
         "eV": {"kg": 1, "m": 2, "s": -2, const.e: 1},
         "meV": {"kg": 1, "m": 2, "s": -2, const.e * 1e-3: 1},
@@ -131,7 +131,7 @@ DERIVED_UNITS = {
     "cross_section": {"barn": {"m": 2, 1e-28: 1}, "mbarn": {"m": 2, 1e-31: 1}},
 }
 
-ALL_UNITS = {**BASE_UNITS, **DERIVED_UNITS}  # type: ignore
+ALL_UNITS: dict[str, dict] = {**BASE_UNITS, **DERIVED_UNITS}
 SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d)
 
 # Mapping unit name --> unit type (unit names must be unique).
@@ -149,9 +149,7 @@ def _get_si_unit(unit):
 
 
 class UnitError(BaseException):
-    """
-    Exception class for unit errors.
-    """
+    """Exception class for unit errors."""
 
 
 def _check_mappings(u):
@@ -336,7 +334,7 @@ class FloatWithUnit(float):
         return cls(num, unit, unit_type=unit_type)
 
     def __new__(cls, val, unit, unit_type=None):
-        """Overrides __new__ since we are subclassing a Python primitive/"""
+        """Overrides __new__ since we are subclassing a Python primitive/."""
         new = float.__new__(cls, val)
         new._unit = Unit(unit)
         new._unit_type = unit_type
@@ -424,16 +422,12 @@ class FloatWithUnit(float):
 
     @property
     def unit_type(self) -> str:
-        """
-        :return: The type of unit. Energy, Charge, etc.
-        """
+        """:return: The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
     @property
     def unit(self) -> str:
-        """
-        :return: The unit, e.g., "eV".
-        """
+        """:return: The unit, e.g., "eV"."""
         return self._unit
 
     def to(self, new_unit):
@@ -471,9 +465,7 @@ class FloatWithUnit(float):
 
     @property
     def supported_units(self):
-        """
-        Supported units for specific unit type.
-        """
+        """Supported units for specific unit type."""
         return tuple(ALL_UNITS[self._unit_type])
 
 
@@ -499,9 +491,7 @@ class ArrayWithUnit(np.ndarray):
     Error = UnitError
 
     def __new__(cls, input_array, unit, unit_type=None):
-        """
-        Override __new__.
-        """
+        """Override __new__."""
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
         obj = np.asarray(input_array).view(cls)
@@ -522,16 +512,12 @@ class ArrayWithUnit(np.ndarray):
 
     @property
     def unit_type(self) -> str:
-        """
-        :return: The type of unit. Energy, Charge, etc.
-        """
+        """:return: The type of unit. Energy, Charge, etc."""
         return self._unit_type
 
     @property
     def unit(self) -> str:
-        """
-        :return: The unit, e.g., "eV".
-        """
+        """:return: The unit, e.g., "eV"."""
         return self._unit
 
     def __reduce__(self):
@@ -659,9 +645,7 @@ class ArrayWithUnit(np.ndarray):
     # TODO abstract base class property?
     @property
     def supported_units(self):
-        """
-        Supported units for specific unit type.
-        """
+        """Supported units for specific unit type."""
         return ALL_UNITS[self.unit_type]
 
     # TODO abstract base class method?
@@ -820,7 +804,7 @@ def unitized(unit):
             elif val is None:
                 pass
             else:
-                raise TypeError(f"Don't know how to assign units to {val!s}")
+                raise TypeError(f"Don't know how to assign units to {val}")
             return val
 
         return wrapped_f

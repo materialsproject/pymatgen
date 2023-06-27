@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import os
 import struct
-import unittest
 
 import pytest
 from monty.io import zopen
@@ -17,7 +16,7 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 logger = logging.getLogger(__name__)
 
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files")
+test_dir = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files"
 
 
 class UtilTest(PymatgenTest):
@@ -59,7 +58,3 @@ class UtilTest(PymatgenTest):
         for ii, val in enumerate(data_132):
             diff = abs(val - processed_data_HESS[ii])
             assert diff < 1e-15
-
-
-if __name__ == "__main__":
-    unittest.main()

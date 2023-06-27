@@ -36,9 +36,5 @@ class CODTest(unittest.TestCase):
         assert data[0]["structure"].composition.reduced_formula == "Li2O"
 
     def test_get_structure_by_id(self):
-        s = COD().get_structure_by_id(2002926)
-        assert s.formula == "Be8 H64 N16 F32"
-
-
-if __name__ == "__main__":
-    unittest.main()
+        struct = COD().get_structure_by_id(2002926)
+        assert struct.formula == "Be8 H64 N16 F32"

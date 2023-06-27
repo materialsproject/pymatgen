@@ -1,6 +1,4 @@
-"""
-This module defines classes representing non-periodic and periodic sites.
-"""
+"""This module defines classes representing non-periodic and periodic sites."""
 
 from __future__ import annotations
 
@@ -77,13 +75,11 @@ class Site(collections.abc.Hashable, MSONable):
         props = object.__getattribute__(self, "properties")
         if attr in props:
             return props[attr]
-        raise AttributeError(attr)
+        raise AttributeError(f"{attr=} not found on {type(self).__name__}")
 
     @property
     def species(self) -> Composition:
-        """
-        :return: The species on the site as a composition, e.g., Fe0.5Mn0.5.
-        """
+        """:return: The species on the site as a composition, e.g., Fe0.5Mn0.5."""
         return self._species
 
     @species.setter
@@ -100,9 +96,7 @@ class Site(collections.abc.Hashable, MSONable):
 
     @property
     def x(self) -> float:
-        """
-        Cartesian x coordinate
-        """
+        """Cartesian x coordinate."""
         return self.coords[0]
 
     @x.setter
@@ -111,9 +105,7 @@ class Site(collections.abc.Hashable, MSONable):
 
     @property
     def y(self) -> float:
-        """
-        Cartesian y coordinate
-        """
+        """Cartesian y coordinate."""
         return self.coords[1]
 
     @y.setter
@@ -122,9 +114,7 @@ class Site(collections.abc.Hashable, MSONable):
 
     @property
     def z(self) -> float:
-        """
-        Cartesian z coordinate
-        """
+        """Cartesian z coordinate."""
         return self.coords[2]
 
     @z.setter
@@ -157,9 +147,7 @@ class Site(collections.abc.Hashable, MSONable):
 
     @property
     def species_string(self) -> str:
-        """
-        String representation of species on the site.
-        """
+        """String representation of species on the site."""
         if self.is_ordered:
             return str(list(self.species)[0])
         sorted_species = sorted(self.species)
@@ -191,9 +179,7 @@ class Site(collections.abc.Hashable, MSONable):
         return total_occu == 1 and len(self.species) == 1
 
     def __getitem__(self, el):
-        """
-        Get the occupancy for element
-        """
+        """Get the occupancy for element."""
         return self.species[el]
 
     def __eq__(self, other: object) -> bool:
@@ -244,9 +230,7 @@ class Site(collections.abc.Hashable, MSONable):
         return f"{self.coords} {self.species_string}"
 
     def as_dict(self) -> dict:
-        """
-        JSON-serializable dict representation for Site.
-        """
+        """JSON-serializable dict representation for Site."""
         species_list = []
         for spec, occu in self.species.items():
             spec_dct = spec.as_dict()
@@ -268,9 +252,7 @@ class Site(collections.abc.Hashable, MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Site:
-        """
-        Create Site from dict representation
-        """
+        """Create Site from dict representation."""
         atoms_n_occu = {}
         for sp_occu in dct["species"]:
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(sp_occu["element"]):
@@ -359,56 +341,42 @@ class PeriodicSite(Site, MSONable):
 
     @property
     def lattice(self) -> Lattice:
-        """
-        Lattice associated with PeriodicSite
-        """
+        """Lattice associated with PeriodicSite."""
         return self._lattice
 
     @lattice.setter
     def lattice(self, lattice: Lattice):
-        """
-        Sets Lattice associated with PeriodicSite
-        """
+        """Sets Lattice associated with PeriodicSite."""
         self._lattice = lattice
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property  # type: ignore
     def coords(self) -> np.ndarray:  # type: ignore
-        """
-        Cartesian coordinates
-        """
+        """Cartesian coordinates."""
         if self._coords is None:
             self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
         return self._coords
 
     @coords.setter
     def coords(self, coords):
-        """
-        Set Cartesian coordinates
-        """
+        """Set Cartesian coordinates."""
         self._coords = np.array(coords)
         self._frac_coords = self._lattice.get_fractional_coords(self._coords)
 
     @property
     def frac_coords(self) -> np.ndarray:
-        """
-        Fractional coordinates
-        """
+        """Fractional coordinates."""
         return self._frac_coords  # type: ignore
 
     @frac_coords.setter
     def frac_coords(self, frac_coords):
-        """
-        Set fractional coordinates
-        """
+        """Set fractional coordinates."""
         self._frac_coords = np.array(frac_coords)
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
     def a(self) -> float:
-        """
-        Fractional a coordinate
-        """
+        """Fractional a coordinate."""
         return self._frac_coords[0]  # type: ignore
 
     @a.setter
@@ -418,9 +386,7 @@ class PeriodicSite(Site, MSONable):
 
     @property
     def b(self) -> float:
-        """
-        Fractional b coordinate
-        """
+        """Fractional b coordinate."""
         return self._frac_coords[1]  # type: ignore
 
     @b.setter
@@ -430,9 +396,7 @@ class PeriodicSite(Site, MSONable):
 
     @property
     def c(self) -> float:
-        """
-        Fractional c coordinate
-        """
+        """Fractional c coordinate."""
         return self._frac_coords[2]  # type: ignore
 
     @c.setter
@@ -442,9 +406,7 @@ class PeriodicSite(Site, MSONable):
 
     @property
     def x(self) -> float:
-        """
-        Cartesian x coordinate
-        """
+        """Cartesian x coordinate."""
         return self.coords[0]
 
     @x.setter
@@ -454,9 +416,7 @@ class PeriodicSite(Site, MSONable):
 
     @property
     def y(self) -> float:
-        """
-        Cartesian y coordinate
-        """
+        """Cartesian y coordinate."""
         return self.coords[1]
 
     @y.setter
@@ -466,9 +426,7 @@ class PeriodicSite(Site, MSONable):
 
     @property
     def z(self) -> float:
-        """
-        Cartesian z coordinate
-        """
+        """Cartesian z coordinate."""
         return self.coords[2]
 
     @z.setter
@@ -477,9 +435,7 @@ class PeriodicSite(Site, MSONable):
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
     def to_unit_cell(self, in_place=False) -> PeriodicSite | None:
-        """
-        Move frac coords to within the unit cell.
-        """
+        """Move frac coords to within the unit cell."""
         frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords)]
         if in_place:
             self.frac_coords = np.array(frac_coords)

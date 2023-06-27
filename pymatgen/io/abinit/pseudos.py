@@ -14,6 +14,7 @@ from collections import defaultdict, namedtuple
 from typing import TYPE_CHECKING
 
 import numpy as np
+from frozendict import frozendict
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
@@ -79,7 +80,7 @@ def l2str(l_ang_mom):
 
 
 def str2l(s):
-    """Convert a string to the angular momentum l (int)"""
+    """Convert a string to the angular momentum l (int)."""
     return _str2l[s]
 
 
@@ -100,7 +101,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         return obj if isinstance(obj, cls) else cls.from_file(obj)
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename) -> Pseudo:
         """
         Build an instance of a concrete Pseudo subclass from filename.
         Note: the parser knows the concrete class that should be instantiated
@@ -117,20 +118,20 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             and self.__class__ == other.__class__
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         try:
             return f"<{type(self).__name__} at {os.path.relpath(self.filepath)}>"
         except Exception:
             # relpath can fail if the code is executed in demon mode.
             return f"<{type(self).__name__} at {self.filepath}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.to_string()
 
-    def to_string(self, verbose=0):
+    def to_string(self, verbose=0) -> str:
         """String representation."""
         # pylint: disable=E1101
-        lines = []
+        lines: list[str] = []
         app = lines.append
         app(f"<{type(self).__name__}: {self.basename}>")
         app("  summary: " + self.summary.strip())
@@ -152,38 +153,36 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def summary(self):
+    def summary(self) -> str:
         """String summarizing the most important properties."""
 
     @property
-    def filepath(self):
+    def filepath(self) -> str:
         """Absolute path to pseudopotential file."""
-        # pylint: disable=E1101
         return os.path.abspath(self.path)
 
     @property
-    def basename(self):
+    def basename(self) -> str:
         """File basename."""
-        # pylint: disable=E1101
         return os.path.basename(self.filepath)
 
     @property
     @abc.abstractmethod
-    def Z(self):
+    def Z(self) -> int:
         """The atomic number of the atom."""
 
     @property
     @abc.abstractmethod
-    def Z_val(self):
+    def Z_val(self) -> int:
         """Valence charge."""
 
     @property
-    def type(self):
+    def type(self) -> str:
         """Type of pseudo."""
         return type(self).__name__
 
     @property
-    def element(self):
+    def element(self) -> Element:
         """Pymatgen :class:`Element`."""
         try:
             return Element.from_Z(self.Z)
@@ -191,27 +190,27 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             return Element.from_Z(int(self.Z))
 
     @property
-    def symbol(self):
+    def symbol(self) -> str:
         """Element symbol."""
         return self.element.symbol
 
     @property
     @abc.abstractmethod
-    def l_max(self):
+    def l_max(self) -> int:
         """Maximum angular momentum."""
 
     @property
     @abc.abstractmethod
-    def l_local(self):
+    def l_local(self) -> int:
         """Angular momentum used for the local part."""
 
     @property
-    def isnc(self):
+    def isnc(self) -> bool:
         """True if norm-conserving pseudopotential."""
         return isinstance(self, NcPseudo)
 
     @property
-    def ispaw(self):
+    def ispaw(self) -> bool:
         """True if PAW pseudopotential."""
         return isinstance(self, PawPseudo)
 
@@ -222,14 +221,17 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         return self.compute_md5()
 
     def compute_md5(self):
-        """Compute and erturn MD5 hash value."""
+        """Compute and return MD5 hash value."""
         # pylint: disable=E1101
         import hashlib
 
         with open(self.path) as fh:
             text = fh.read()
-            m = hashlib.md5(text.encode("utf-8"))
-            return m.hexdigest()
+            # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+            # https://github.com/materialsproject/pymatgen/issues/2804
+            md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+            md5.update(text.encode("utf-8"))
+            return md5.hexdigest()
 
     @property
     @abc.abstractmethod
@@ -241,7 +243,6 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def as_dict(self, **kwargs):
         """Return dictionary for MSONable protocol."""
-        # pylint: disable=E1101
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -310,8 +311,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         """The path of the djrepo file. None if file does not exist."""
         # pylint: disable=E1101
         root, ext = os.path.splitext(self.filepath)
-        path = root + ".djrepo"
-        return path
+        return root + ".djrepo"
         # if os.path.exists(path): return path
         # return None
 
@@ -337,9 +337,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     @property
     def has_hints(self):
-        """
-        True if self provides hints on the cutoff energy.
-        """
+        """True if self provides hints on the cutoff energy."""
         for acc in ["low", "normal", "high"]:
             try:
                 if self.hint_for_accuracy(acc) is None:
@@ -456,9 +454,7 @@ class PawPseudo(metaclass=abc.ABCMeta):
 
 
 class AbinitPseudo(Pseudo):
-    """
-    An AbinitPseudo is a pseudopotential whose file contains an abinit header.
-    """
+    """An AbinitPseudo is a pseudopotential whose file contains an abinit header."""
 
     def __init__(self, path, header):
         """
@@ -646,8 +642,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
             keys[0] = keys[0][1:]
 
         if len(values) != len(keys):
-            msg = f"line: {line}\n len(keys) != len(value)\nkeys: {keys}\n values: {values}"
-            raise ValueError(msg)
+            raise ValueError(f"{line=}\n {len(keys)=} must equal {len(values)=}")
 
         kwargs.update(zip(keys, values))
 
@@ -671,7 +666,7 @@ class AbinitHeader(dict):
 
 def _int_from_str(string):
     """
-    Convert string into integer
+    Convert string into integer.
 
     Raise:
         TypeError if string is not a valid integer
@@ -691,22 +686,20 @@ class NcAbinitHeader(AbinitHeader):
 
     _attr_desc = namedtuple("_attr_desc", "default astype")
 
-    _VARS = {
-        # Mandatory
-        "zatom": _attr_desc(None, _int_from_str),
-        "zion": _attr_desc(None, float),
-        "pspdat": _attr_desc(None, float),
-        "pspcod": _attr_desc(None, int),
-        "pspxc": _attr_desc(None, int),
-        "lmax": _attr_desc(None, int),
-        "lloc": _attr_desc(None, int),
-        "r2well": _attr_desc(None, float),
-        "mmax": _attr_desc(None, float),
-        # Optional variables for non linear-core correction. HGH does not have it.
-        "rchrg": _attr_desc(0.0, float),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
-        "fchrg": _attr_desc(0.0, float),
-        "qchrg": _attr_desc(0.0, float),
-    }
+    _VARS = frozendict(
+        zatom=_attr_desc(None, _int_from_str),
+        zion=_attr_desc(None, float),
+        pspdat=_attr_desc(None, float),
+        pspcod=_attr_desc(None, int),
+        pspxc=_attr_desc(None, int),
+        lmax=_attr_desc(None, int),
+        lloc=_attr_desc(None, int),
+        r2well=_attr_desc(None, float),
+        mmax=_attr_desc(None, float),
+        rchrg=_attr_desc(0.0, float),
+        fchrg=_attr_desc(0.0, float),
+        qchrg=_attr_desc(0.0, float),
+    )
     del _attr_desc
 
     def __init__(self, summary, **kwargs):
@@ -730,7 +723,7 @@ class NcAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except Exception:
-                    raise RuntimeError(f"Conversion Error for key {key}, value {value}")
+                    raise RuntimeError(f"Conversion Error for {key=}, {value=}")
 
             self[key] = value
 
@@ -889,26 +882,26 @@ class PawAbinitHeader(AbinitHeader):
 
     _attr_desc = namedtuple("_attr_desc", "default astype")
 
-    _VARS = {
-        "zatom": _attr_desc(None, _int_from_str),
-        "zion": _attr_desc(None, float),
-        "pspdat": _attr_desc(None, float),
-        "pspcod": _attr_desc(None, int),
-        "pspxc": _attr_desc(None, int),
-        "lmax": _attr_desc(None, int),
-        "lloc": _attr_desc(None, int),
-        "mmax": _attr_desc(None, int),
-        "r2well": _attr_desc(None, float),
-        "pspfmt": _attr_desc(None, str),
-        "creatorID": _attr_desc(None, int),
-        "basis_size": _attr_desc(None, int),
-        "lmn_size": _attr_desc(None, int),
-        "orbitals": _attr_desc(None, list),
-        "number_of_meshes": _attr_desc(None, int),
-        "r_cut": _attr_desc(None, float),  # r_cut(PAW) in the header
-        "shape_type": _attr_desc(None, int),
-        "rshape": _attr_desc(None, float),
-    }
+    _VARS = frozendict(
+        zatom=_attr_desc(None, _int_from_str),
+        zion=_attr_desc(None, float),
+        pspdat=_attr_desc(None, float),
+        pspcod=_attr_desc(None, int),
+        pspxc=_attr_desc(None, int),
+        lmax=_attr_desc(None, int),
+        lloc=_attr_desc(None, int),
+        mmax=_attr_desc(None, int),
+        r2well=_attr_desc(None, float),
+        pspfmt=_attr_desc(None, str),
+        creatorID=_attr_desc(None, int),
+        basis_size=_attr_desc(None, int),
+        lmn_size=_attr_desc(None, int),
+        orbitals=_attr_desc(None, list),
+        number_of_meshes=_attr_desc(None, int),
+        r_cut=_attr_desc(None, float),  # r_cut(PAW) in the header
+        shape_type=_attr_desc(None, int),
+        rshape=_attr_desc(None, float),
+    )
     del _attr_desc
 
     def __init__(self, summary, **kwargs):
@@ -929,12 +922,12 @@ class PawAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except Exception:
-                    raise RuntimeError(f"Conversion Error for key {key}, with value {value}")
+                    raise RuntimeError(f"Conversion Error for {key=}, with {value=}")
 
             self[key] = value
 
         if kwargs:
-            raise RuntimeError(f"kwargs should be empty but got {kwargs!s}")
+            raise RuntimeError(f"kwargs should be empty but got {kwargs}")
 
     @staticmethod
     def paw_header(filename, ppdesc):
@@ -1019,7 +1012,7 @@ class PawAbinitHeader(AbinitHeader):
 
 
 class PseudoParserError(Exception):
-    """Base Error class for the exceptions raised by :class:`PseudoParser`"""
+    """Base Error class for the exceptions raised by :class:`PseudoParser`."""
 
 
 class PseudoParser:
@@ -1037,17 +1030,19 @@ class PseudoParser:
     ppdesc = namedtuple("ppdesc", "pspcod name psp_type format")
 
     # TODO Recheck
-    _PSPCODES = {
-        1: ppdesc(1, "TM", "NC", None),
-        2: ppdesc(2, "GTH", "NC", None),
-        3: ppdesc(3, "HGH", "NC", None),
-        4: ppdesc(4, "Teter", "NC", None),
-        # 5: ppdesc(5, "NC",     , None),
-        6: ppdesc(6, "FHI", "NC", None),
-        7: ppdesc(6, "PAW_abinit_text", "PAW", None),
-        8: ppdesc(8, "ONCVPSP", "NC", None),
-        10: ppdesc(10, "HGHK", "NC", None),
-    }
+    _PSPCODES = frozendict(
+        {
+            1: ppdesc(1, "TM", "NC", None),
+            2: ppdesc(2, "GTH", "NC", None),
+            3: ppdesc(3, "HGH", "NC", None),
+            4: ppdesc(4, "Teter", "NC", None),
+            # 5: ppdesc(5, "NC",     , None),
+            6: ppdesc(6, "FHI", "NC", None),
+            7: ppdesc(6, "PAW_abinit_text", "PAW", None),
+            8: ppdesc(8, "ONCVPSP", "NC", None),
+            10: ppdesc(10, "HGHK", "NC", None),
+        }
+    )
     del ppdesc
 
     # renumber functionals from oncvpsp todo confirm that 3 is 2
@@ -1131,7 +1126,7 @@ class PseudoParser:
                     return None
 
                 if pspcod not in self._PSPCODES:
-                    raise self.Error(f"{filename}: Don't know how to handle pspcod {pspcod}\n")
+                    raise self.Error(f"{filename}: Don't know how to handle {pspcod=}\n")
 
                 ppdesc = self._PSPCODES[pspcod]
 
@@ -1195,19 +1190,18 @@ class PseudoParser:
 
 # TODO use RadialFunction from pseudo_dojo.
 class RadialFunction(namedtuple("RadialFunction", "mesh values")):
-    """
-    Radial Function class.
-    """
+    """Radial Function class."""
+
+    __slots__ = ()
 
 
 class PawXmlSetup(Pseudo, PawPseudo):
-    """
-    Setup class for PawXml.
-    """
+    """Setup class for PawXml."""
 
     def __init__(self, filepath):
         """
-        :param filepath:
+        Args:
+            filepath (str): Path to the XML file.
         """
         # pylint: disable=E1101
         self.path = os.path.abspath(filepath)
@@ -1280,9 +1274,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     @lazy_property
     def root(self):
-        """
-        Root tree of XML.
-        """
+        """Root tree of XML."""
         from xml.etree import ElementTree as Et
 
         tree = Et.parse(self.filepath)
@@ -1319,16 +1311,14 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     @property
     def supports_soc(self):
-        """
-        Here I assume that the ab-initio code can treat the SOC within the on-site approximation
-        """
+        """Here I assume that the ab-initio code can treat the SOC within the on-site approximation."""
         return True
 
     @staticmethod
     def _eval_grid(grid_params):
         """
         This function receives a dictionary with the parameters defining the
-        radial mesh and returns a `ndarray` with the mesh
+        radial mesh and returns a `ndarray` with the mesh.
         """
         eq = grid_params.get("eq").replace(" ", "")
         istart, iend = int(grid_params.get("istart")), int(grid_params.get("iend"))
@@ -1423,9 +1413,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return projector_functions
 
     def yield_figs(self, **kwargs):  # pragma: no cover
-        """
-        This function *generates* a predefined list of matplotlib figures with minimal input from the user.
-        """
+        """This function *generates* a predefined list of matplotlib figures with minimal input from the user."""
         yield self.plot_densities(title="PAW densities", show=False)
         yield self.plot_waves(title="PAW waves", show=False)
         yield self.plot_projectors(title="PAW projectors", show=False)
@@ -1575,9 +1563,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
     @classmethod
     def as_table(cls, items):
-        """
-        Return an instance of :class:`PseudoTable` from the iterable items.
-        """
+        """Return an instance of :class:`PseudoTable` from the iterable items."""
         if isinstance(items, cls):
             return items
         return cls(items)
@@ -1628,7 +1614,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
     def __init__(self, pseudos):
         """
         Args:
-            pseudos: List of pseudopotentials or filepaths
+            pseudos: List of pseudopotentials or filepaths.
         """
         # Store pseudos in a default dictionary with z as key.
         # Note that we can have more than one pseudo for given z.
@@ -1652,14 +1638,12 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             symbols = [p.symbol for p in pseudo_list]
             symbol = symbols[0]
             if any(symb != symbol for symb in symbols):
-                raise ValueError(f"All symbols must be equal while they are: {symbols!s}")
+                raise ValueError(f"All symbols must be equal while they are: {symbols}")
 
             setattr(self, symbol, pseudo_list)
 
     def __getitem__(self, Z):
-        """
-        Retrieve pseudos for the atomic number z. Accepts both int and slice objects.
-        """
+        """Retrieve pseudos for the atomic number z. Accepts both int and slice objects."""
         if isinstance(Z, slice):
             assert Z.stop is not None
             pseudos = []
@@ -1729,9 +1713,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return cls(pseudos)
 
     def is_complete(self, zmax=118) -> bool:
-        """
-        True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential
-        """
+        """True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential."""
         return all(self[z] for z in range(1, zmax))
 
     def all_combinations_for_elements(self, element_symbols):
@@ -1766,7 +1748,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """
         pseudos = self.select_symbols(symbol, ret_list=True)
         if not pseudos or (len(pseudos) > 1 and not allow_multi):
-            raise ValueError(f"Found {len(pseudos)} occurrences of symbol {symbol}")
+            raise ValueError(f"Found {len(pseudos)} occurrences of {symbol=}")
 
         if not allow_multi:
             return pseudos[0]
@@ -1882,7 +1864,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return self.__class__([self[a[0]] for a in sorted(attrs, key=lambda t: t[1], reverse=reverse)])
 
     def sort_by_z(self):
-        """Return a new :class:`PseudoTable` with pseudos sorted by Z"""
+        """Return a new :class:`PseudoTable` with pseudos sorted by Z."""
         return self.__class__(sorted(self, key=lambda p: p.Z))
 
     def select(self, condition) -> PseudoTable:
@@ -1911,8 +1893,6 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return self.__class__([p for p in self if p.element.row in rows])
 
     def select_family(self, family):
-        """
-        Return PseudoTable with element belonging to the specified family, e.g. family="alkaline"
-        """
+        """Return PseudoTable with element belonging to the specified family, e.g. family="alkaline"."""
         # e.g element.is_alkaline
         return self.__class__([p for p in self if getattr(p.element, "is_" + family)])

@@ -1,6 +1,4 @@
-"""
-This module provides classes to perform topological analyses of structures.
-"""
+"""This module provides classes to perform topological analyses of structures."""
 
 from __future__ import annotations
 
@@ -53,8 +51,7 @@ def average_coordination_number(structures, freq=10):
             cn = vnn.get_cn(s, j, use_weights=True)
             coordination_numbers[atom.species_string] += cn
     elements = structures[0].composition.as_dict()
-    coordination_numbers = {el: v / elements[el] / count for el, v in coordination_numbers.items()}
-    return coordination_numbers
+    return {el: v / elements[el] / count for el, v in coordination_numbers.items()}
 
 
 class VoronoiAnalyzer:
@@ -77,7 +74,7 @@ class VoronoiAnalyzer:
         Args:
             cutoff (float): cutoff distance to search for neighbors of a given atom
                 (default = 5.0)
-            qhull_options (str): options to pass to qhull (optional)
+            qhull_options (str): options to pass to qhull (optional).
         """
         self.cutoff = cutoff
         self.qhull_options = qhull_options
@@ -174,9 +171,7 @@ class VoronoiAnalyzer:
 
 
 class RelaxationAnalyzer:
-    """
-    This class analyzes the relaxation in a calculation.
-    """
+    """This class analyzes the relaxation in a calculation."""
 
     def __init__(self, initial_structure, final_structure):
         """
@@ -202,9 +197,7 @@ class RelaxationAnalyzer:
         Returns:
             Volume change in percentage, e.g., 0.055 implies a 5.5% increase.
         """
-        initial_vol = self.initial.lattice.volume
-        final_vol = self.final.lattice.volume
-        return final_vol / initial_vol - 1
+        return self.final.volume / self.initial.volume - 1
 
     def get_percentage_lattice_parameter_changes(self):
         """
@@ -217,8 +210,7 @@ class RelaxationAnalyzer:
         """
         initial_latt = self.initial.lattice
         final_latt = self.final.lattice
-        dct = {length: getattr(final_latt, length) / getattr(initial_latt, length) - 1 for length in ["a", "b", "c"]}
-        return dct
+        return {length: getattr(final_latt, length) / getattr(initial_latt, length) - 1 for length in ["a", "b", "c"]}
 
     def get_percentage_bond_dist_changes(self, max_radius=3.0):
         """
@@ -234,7 +226,7 @@ class RelaxationAnalyzer:
             Bond distance changes as a dict of dicts. E.g.,
             {index1: {index2: 0.011, ...}}. For economy of representation, the
             index1 is always less than index2, i.e., since bonding between
-            site1 and siten is the same as bonding between siten and site1,
+            site1 and site_n is the same as bonding between site_n and site1,
             there is no reason to duplicate the information or computation.
         """
         data = collections.defaultdict(dict)
@@ -317,7 +309,7 @@ class VoronoiConnectivity:
     def max_connectivity(self):
         """
         Returns the 2d array [site_i, site_j] that represents the maximum connectivity of
-        site i to any periodic image of site j
+        site i to any periodic image of site j.
         """
         return np.max(self.connectivity_array, axis=2)
 
@@ -339,7 +331,7 @@ class VoronoiConnectivity:
         """
         Assuming there is some value in the connectivity array at indices
         (1, 3, 12). sitei can be obtained directly from the input structure
-        (structure[1]). sitej can be obtained by passing 3, 12 to this function
+        (structure[1]). sitej can be obtained by passing 3, 12 to this function.
 
         Args:
             site_index (int): index of the site (3 in the example)
@@ -418,9 +410,7 @@ def contains_peroxide(structure, relative_cutoff=1.1):
 
 
 class OxideType:
-    """
-    Separate class for determining oxide type.
-    """
+    """Separate class for determining oxide type."""
 
     def __init__(self, structure: Structure, relative_cutoff=1.1):
         """
@@ -507,7 +497,7 @@ def oxide_type(
     structure: Structure, relative_cutoff: float = 1.1, return_nbonds: bool = False
 ) -> str | tuple[str, int]:
     """
-    Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide
+    Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
     Args:
         structure (Structure): Input structure.
@@ -523,7 +513,7 @@ def oxide_type(
 
 def sulfide_type(structure):
     """
-    Determines if a structure is a sulfide/polysulfide/sulfate
+    Determines if a structure is a sulfide/polysulfide/sulfate.
 
     Args:
         structure (Structure): Input structure.
@@ -533,19 +523,19 @@ def sulfide_type(structure):
     """
     structure = structure.copy()
     structure.remove_oxidation_states()
-    s = Element("S")
+    sulphur = Element("S")
     comp = structure.composition
-    if comp.is_element or s not in comp:
+    if comp.is_element or sulphur not in comp:
         return None
 
     try:
         finder = SpacegroupAnalyzer(structure, symprec=0.1)
         symm_structure = finder.get_symmetrized_structure()
-        s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
+        s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == sulphur]
     except Exception:
         # Sometimes the symmetry analyzer fails for some tolerance or other issues. This is a fall back that simply
         # analyzes all S sites.
-        s_sites = [site for site in structure if site.specie == s]
+        s_sites = [site for site in structure if site.specie == sulphur]
 
     def process_site(site):
         # in an exceptionally rare number of structures, the search
@@ -562,9 +552,9 @@ def sulfide_type(structure):
         dist = neighbors[0].nn_distance
         coord_elements = [nn.specie for nn in neighbors if nn.nn_distance < dist + 0.4][:4]
         avg_electroneg = np.mean([e.X for e in coord_elements])
-        if avg_electroneg > s.X:
+        if avg_electroneg > sulphur.X:
             return "sulfate"
-        if avg_electroneg == s.X and s in coord_elements:
+        if avg_electroneg == sulphur.X and sulphur in coord_elements:
             return "polysulfide"
         return "sulfide"
 

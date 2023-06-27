@@ -30,9 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class QuasiharmonicDebyeApprox:
-    """
-    Quasiharmonic approximation.
-    """
+    """Quasiharmonic approximation."""
 
     def __init__(
         self,
@@ -168,7 +166,7 @@ class QuasiharmonicDebyeApprox:
     def vibrational_free_energy(self, temperature, volume):
         """
         Vibrational Helmholtz free energy, A_vib(V, T).
-        Eq(4) in doi.org/10.1016/j.comphy.2003.12.001
+        Eq(4) in doi.org/10.1016/j.comphy.2003.12.001.
 
         Args:
             temperature (float): temperature in K
@@ -185,7 +183,7 @@ class QuasiharmonicDebyeApprox:
     def vibrational_internal_energy(self, temperature, volume):
         """
         Vibrational internal energy, U_vib(V, T).
-        Eq(4) in doi.org/10.1016/j.comphy.2003.12.001
+        Eq(4) in doi.org/10.1016/j.comphy.2003.12.001.
 
         Args:
             temperature (float): temperature in K
@@ -229,7 +227,7 @@ class QuasiharmonicDebyeApprox:
     @staticmethod
     def debye_integral(y):
         """
-        Debye integral. Eq(5) in  doi.org/10.1016/j.comphy.2003.12.001
+        Debye integral. Eq(5) in  doi.org/10.1016/j.comphy.2003.12.001.
 
         Args:
             y (float): debye temperature/T, upper limit
@@ -250,7 +248,7 @@ class QuasiharmonicDebyeApprox:
         """
         Slater-gamma formulation(the default):
             gruneisen parameter = - d log(theta)/ d log(V) = - (1/6 + 0.5 d log(B)/ d log(V))
-                                = - (1/6 + 0.5 V/B dB/dV), where dB/dV = d^2E/dV^2 + V * d^3E/dV^3
+                                = - (1/6 + 0.5 V/B dB/dV), where dB/dV = d^2E/dV^2 + V * d^3E/dV^3.
 
         Mie-gruneisen formulation:
             Eq(31) in doi.org/10.1016/j.comphy.2003.12.001
@@ -301,7 +299,7 @@ class QuasiharmonicDebyeApprox:
 
     def thermal_conductivity(self, temperature, volume):
         """
-        Eq(17) in 10.1103/PhysRevB.90.174107
+        Eq(17) in 10.1103/PhysRevB.90.174107.
 
         Args:
             temperature (float): temperature in K
@@ -319,13 +317,10 @@ class QuasiharmonicDebyeApprox:
         kappa = prefactor / (gamma**2 - 0.514 * gamma + 0.228)
         # kg/K/s^3 * Ang = (kg m/s^2)/(Ks)*1e-10
         # = N/(Ks)*1e-10 = Nm/(Kms)*1e-10 = W/K/m*1e-10
-        kappa = kappa * theta_a**2 * volume ** (1 / 3) * 1e-10
-        return kappa
+        return kappa * theta_a**2 * volume ** (1 / 3) * 1e-10
 
     def get_summary_dict(self):
-        """
-        Returns a dict with a summary of the computed properties.
-        """
+        """Returns a dict with a summary of the computed properties."""
         d = defaultdict(list)
         d["pressure"] = self.pressure
         d["poisson"] = self.poisson

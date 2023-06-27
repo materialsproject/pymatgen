@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import os
 import pickle
-import unittest
 
 import numpy as np
 import pytest
@@ -331,7 +330,3 @@ class PiezoSensitivityTest(PymatgenTest):
                 asum2 += dynmass[j][i]
             assert np.allclose(asum1, np.zeros([3, 3]), atol=1e-05)
             assert np.allclose(asum2, np.zeros([3, 3]), atol=1e-05)
-
-
-if __name__ == "__main__":
-    unittest.main()

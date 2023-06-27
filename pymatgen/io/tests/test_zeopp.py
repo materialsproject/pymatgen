@@ -135,15 +135,15 @@ class ZeoVoronoiXYZTest(unittest.TestCase):
         self.xyz = ZeoVoronoiXYZ(self.mol)
 
     def test_str(self):
-        ans = """5
+        expected = """5
 H4 C1
 C 0.000000 0.000000 0.000000 0.400000
 H 1.089000 0.000000 0.000000 0.200000
 H -0.363000 1.026719 0.000000 0.200000
 H -0.363000 -0.513360 -0.889165 0.200000
 H -0.363000 -0.513360 0.889165 0.200000"""
-        assert str(self.xyz) == ans
-        assert str(self.xyz) == ans
+        assert str(self.xyz) == expected
+        assert str(self.xyz) == expected
 
     def test_from_file(self):
         filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI_voro.xyz")
@@ -243,7 +243,3 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
         assert isinstance(vor_face_center_struct, Structure)
-
-
-if __name__ == "__main__":
-    unittest.main()

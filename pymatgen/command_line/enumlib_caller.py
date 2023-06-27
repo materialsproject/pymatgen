@@ -131,12 +131,10 @@ class EnumlibAdaptor:
         self.timeout = timeout
 
     def run(self):
-        """
-        Run the enumeration.
-        """
+        """Run the enumeration."""
         # Create a temporary directory for working.
-        with ScratchDir(".") as d:
-            logger.debug(f"Temp dir : {d}")
+        with ScratchDir(".") as tmp_dir:
+            logger.debug(f"Temp dir : {tmp_dir}")
             # Generate input files
             self._gen_input_file()
             # Perform the actual enumeration
@@ -382,8 +380,8 @@ class EnumlibAdaptor:
                     transformation = np.dot(new_latt.matrix, inv_org_latt)
                     transformation = [[int(round(cell)) for cell in row] for row in transformation]
                     logger.debug(f"Supercell matrix: {transformation}")
-                    s = ordered_structure * transformation
-                    sites.extend([site.to_unit_cell() for site in s])
+                    struct = ordered_structure * transformation
+                    sites.extend([site.to_unit_cell() for site in struct])
                     super_latt = sites[-1].lattice
                 else:
                     super_latt = new_latt
@@ -408,6 +406,4 @@ class EnumlibAdaptor:
 
 
 class EnumError(BaseException):
-    """
-    Error subclass for enumeration errors.
-    """
+    """Error subclass for enumeration errors."""

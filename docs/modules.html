@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -1013,6 +1015,7 @@
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_hull_energy"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_hull_energy()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_hull_energy_per_atom"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_hull_energy_per_atom()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_phase_separation_energy"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_phase_separation_energy()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_plot"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_plot()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_reference_energy_per_atom"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_reference_energy_per_atom()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_transition_chempots"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.get_transition_chempots()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.getmu_vertices_stability_phase"><code class="docutils literal notranslate"><span class="pre">PhaseDiagram.getmu_vertices_stability_phase()</span></code></a></li>
@@ -2599,6 +2602,7 @@
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_neighbors"><code class="docutils literal notranslate"><span class="pre">IMolecule.get_neighbors()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_neighbors_in_shell"><code class="docutils literal notranslate"><span class="pre">IMolecule.get_neighbors_in_shell()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_sites_in_sphere"><code class="docutils literal notranslate"><span class="pre">IMolecule.get_sites_in_sphere()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_zmatrix"><code class="docutils literal notranslate"><span class="pre">IMolecule.get_zmatrix()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.nelectrons"><code class="docutils literal notranslate"><span class="pre">IMolecule.nelectrons</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.sites"><code class="docutils literal notranslate"><span class="pre">IMolecule.sites</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.spin_multiplicity"><code class="docutils literal notranslate"><span class="pre">IMolecule.spin_multiplicity</span></code></a></li>
@@ -2649,9 +2653,11 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule"><code class="docutils literal notranslate"><span class="pre">Molecule</span></code></a><ul>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.append"><code class="docutils literal notranslate"><span class="pre">Molecule.append()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.apply_operation"><code class="docutils literal notranslate"><span class="pre">Molecule.apply_operation()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.calculate"><code class="docutils literal notranslate"><span class="pre">Molecule.calculate()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.copy"><code class="docutils literal notranslate"><span class="pre">Molecule.copy()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.insert"><code class="docutils literal notranslate"><span class="pre">Molecule.insert()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.perturb"><code class="docutils literal notranslate"><span class="pre">Molecule.perturb()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.relax"><code class="docutils literal notranslate"><span class="pre">Molecule.relax()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.remove_sites"><code class="docutils literal notranslate"><span class="pre">Molecule.remove_sites()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.remove_species"><code class="docutils literal notranslate"><span class="pre">Molecule.remove_species()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.rotate_sites"><code class="docutils literal notranslate"><span class="pre">Molecule.rotate_sites()</span></code></a></li>
@@ -2715,6 +2721,7 @@
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.append"><code class="docutils literal notranslate"><span class="pre">Structure.append()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.apply_operation"><code class="docutils literal notranslate"><span class="pre">Structure.apply_operation()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.apply_strain"><code class="docutils literal notranslate"><span class="pre">Structure.apply_strain()</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.calculate"><code class="docutils literal notranslate"><span class="pre">Structure.calculate()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.from_prototype"><code class="docutils literal notranslate"><span class="pre">Structure.from_prototype()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.insert"><code class="docutils literal notranslate"><span class="pre">Structure.insert()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.lattice"><code class="docutils literal notranslate"><span class="pre">Structure.lattice</span></code></a></li>
@@ -4090,6 +4097,7 @@
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.allocations_keys"><code class="docutils literal notranslate"><span class="pre">Control.allocations_keys</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.as_dict"><code class="docutils literal notranslate"><span class="pre">Control.as_dict()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.crystal_keys"><code class="docutils literal notranslate"><span class="pre">Control.crystal_keys</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.data_keys"><code class="docutils literal notranslate"><span class="pre">Control.data_keys</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.flags_keys"><code class="docutils literal notranslate"><span class="pre">Control.flags_keys</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.from_dict"><code class="docutils literal notranslate"><span class="pre">Control.from_dict()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.from_file"><code class="docutils literal notranslate"><span class="pre">Control.from_file()</span></code></a></li>
@@ -4195,7 +4203,6 @@
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.optimization.neighbors.html">pymatgen.optimization.neighbors module</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.optimization.neighbors.html#pymatgen.optimization.neighbors.compute_offset_vectors"><code class="docutils literal notranslate"><span class="pre">compute_offset_vectors()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.optimization.neighbors.html#pymatgen.optimization.neighbors.find_points_in_spheres"><code class="docutils literal notranslate"><span class="pre">find_points_in_spheres()</span></code></a></li>
 </ul>
 </li>
@@ -4384,7 +4391,6 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html#submodules">Submodules</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.symmetry.analyzer.html">pymatgen.symmetry.analyzer module</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer</span></code></a><ul>
-<li class="toctree-l7"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.sch_symbol"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.sch_symbol</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.get_equivalent_atoms()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_pointgroup"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.get_pointgroup()</span></code></a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_rotational_symmetry_number"><code class="docutils literal notranslate"><span class="pre">PointGroupAnalyzer.get_rotational_symmetry_number()</span></code></a></li>

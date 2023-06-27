@@ -93,7 +93,7 @@ class CorrectionCalculator:
                     {"formula": chemical formula, "exp energy": formation energy in eV/formula unit,
                     "uncertainty": uncertainty in formation energy}
             comp_gz: name of .json.gz file that contains computed entries
-                    data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry}
+                    data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry}.
         """
         exp_entries = loadfn(exp_gz)
         calc_entries = loadfn(comp_gz)
@@ -149,7 +149,7 @@ class CorrectionCalculator:
             for anion in self.exclude_polyanions:
                 if anion in name or anion in cmpd_info["formula"]:
                     allow = False
-                    warnings.warn(f"Compound {name} contains the polyanion {anion} and is excluded from the fit")
+                    warnings.warn(f"Compound {name} contains the poly{anion=} and is excluded from the fit")
                     break
 
             # filter out compounds that are unstable
@@ -216,7 +216,7 @@ class CorrectionCalculator:
                         try:
                             coeff.append(comp[specie])
                         except ValueError:
-                            raise ValueError(f"We can't detect this specie: {specie}")
+                            raise ValueError(f"We can't detect this {specie=} in {name=}")
 
                 self.names.append(name)
                 self.diffs.append((cmpd_info["exp energy"] - energy) / comp.num_atoms)
@@ -264,9 +264,7 @@ class CorrectionCalculator:
         return self.corrections_dict
 
     def graph_residual_error(self) -> go.Figure:
-        """
-        Graphs the residual errors for all compounds after applying computed corrections.
-        """
+        """Graphs the residual errors for all compounds after applying computed corrections."""
         if len(self.corrections) == 0:
             raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 

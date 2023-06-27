@@ -64,14 +64,12 @@ class OptimadeTest(PymatgenTest):
 
     # Tests fail in CI for unknown reason, use for development only.
     # def test_get_structures_mcloud_2dstructures(self):
-    #
     #     with OptimadeRester("mcloud.2dstructures") as optimade:
-    #
     #         structs = optimade.get_structures(elements=["B", "N"], nelements=2)
-    #
+
     #     test_struct = next(iter(structs["mcloud.2dstructures"].values()))
-    #
-    #     self.assertEqual([str(el) for el in test_struct.types_of_species], ["B", "N"])
+
+    #     assert [str(el) for el in test_struct.types_of_species] == ["B", "N"]
 
     # def test_update_aliases(self):
     #
@@ -92,8 +90,8 @@ class OptimadeTest(PymatgenTest):
                 '(elements HAS ALL "Ga", "N")'
                 " AND (nsites>=1 AND nsites<=100)"
                 " AND (nelements=2)"
-                ' AND (chemical_formula_anonymous="A2B")'
-                ' AND (chemical_formula_hill="GaN")'
+                " AND (chemical_formula_anonymous='A2B')"
+                " AND (chemical_formula_hill='GaN')"
             )
 
             assert optimade._build_filter(
@@ -106,6 +104,6 @@ class OptimadeTest(PymatgenTest):
                 '(elements HAS ALL "C", "H", "O")'
                 " AND (nsites>=1 AND nsites<=100)"
                 " AND (nelements>=3 AND nelements<=4)"
-                ' AND (chemical_formula_anonymous="A4B3C")'
-                ' AND (chemical_formula_hill="C4H3O")'
+                " AND (chemical_formula_anonymous='A4B3C')"
+                " AND (chemical_formula_hill='C4H3O')"
             )

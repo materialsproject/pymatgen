@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 import warnings
 
 from pymatgen.analysis.transition_state import NEBAnalysis, combine_neb_plots
@@ -63,10 +62,6 @@ class NEBAnalysisTest(PymatgenTest):
         self.assert_all_close(neb_analysis2.get_extrema()[1][0], (0.30371133723478794, 528.46229631648691))
 
     def test_combine_neb_plots(self):
-        neb_dir = os.path.join(test_dir, "neb1", "neb")
+        neb_dir = f"{test_dir}/neb1/neb"
         neb_analysis = NEBAnalysis.from_dir(neb_dir)
         combine_neb_plots([neb_analysis, neb_analysis])
-
-
-if __name__ == "__main__":
-    unittest.main()

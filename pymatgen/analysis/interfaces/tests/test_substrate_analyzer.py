@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from pymatgen.analysis.elasticity.elastic import ElasticTensor
 from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -20,12 +18,12 @@ class SubstrateAnalyzerTest(PymatgenTest):
 
         film_elac = ElasticTensor.from_voigt(
             [
-                [324.32, 187.3, 170.92, 0.0, 0.0, 0.0],
-                [187.3, 324.32, 170.92, 0.0, 0.0, 0.0],
-                [170.92, 170.92, 408.41, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 150.73, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0, 150.73, 0.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0, 238.74],
+                [324.32, 187.3, 170.92, 0, 0, 0],
+                [187.3, 324.32, 170.92, 0, 0, 0],
+                [170.92, 170.92, 408.41, 0, 0, 0],
+                [0, 0, 0, 150.73, 0, 0],
+                [0, 0, 0, 0, 150.73, 0],
+                [0, 0, 0, 0, 0, 238.74],
             ]
         )
 
@@ -36,7 +34,3 @@ class SubstrateAnalyzerTest(PymatgenTest):
         for match in matches:
             assert match is not None
             assert isinstance(match.match_area, float)
-
-
-if __name__ == "__main__":
-    unittest.main()

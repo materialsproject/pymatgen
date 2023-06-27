@@ -118,9 +118,7 @@ class Res:
 
 
 class ParseError(RuntimeError):
-    """
-    This exception indicates a problem was encountered during parsing due to unexpected formatting.
-    """
+    """This exception indicates a problem was encountered during parsing due to unexpected formatting."""
 
     ...
 
@@ -168,7 +166,7 @@ class ResParser:
         """Parses the CELL entry."""
         fields = line.split()
         if len(fields) != 7:
-            raise ParseError(f"Failed to parse CELL line {line}, expected 7 fields.")
+            raise ParseError(f"Failed to parse CELL {line=}, expected 7 fields.")
         field_1, a, b, c, alpha, beta, gamma = map(float, fields)
         return ResCELL(field_1, a, b, c, alpha, beta, gamma)
 
@@ -232,7 +230,7 @@ class ResParser:
                 elif first == "SFAC":
                     _SFAC = self._parse_sfac(rest, it)
                 else:
-                    raise Warning(f"Skipping line {line}, tag {first} not recognized.")
+                    raise Warning(f"Skipping {line=}, tag {first} not recognized.")
         except StopIteration:
             pass
         if _CELL is None or _SFAC is None:
@@ -257,9 +255,7 @@ class ResParser:
 
 
 class ResWriter:
-    """
-    This class provides a means to write a Structure or ComputedStructureEntry to a res file.
-    """
+    """This class provides a means to write a Structure or ComputedStructureEntry to a res file."""
 
     @classmethod
     def _cell_from_lattice(cls, lattice: Lattice) -> ResCELL:
@@ -309,9 +305,7 @@ class ResWriter:
         )
 
     def __init__(self, entry: Structure | ComputedStructureEntry):
-        """
-        This class can be constructed from either a pymatgen Structure or ComputedStructureEntry object.
-        """
+        """This class can be constructed from either a pymatgen Structure or ComputedStructureEntry object."""
         func: Callable[[Structure], Res] | Callable[[ComputedStructureEntry], Res]
         func = self._res_from_structure
         if isinstance(entry, ComputedStructureEntry):
@@ -333,9 +327,7 @@ class ResWriter:
 
 
 class ResProvider(MSONable):
-    """
-    Provides access to elements of the res file in the form of familiar pymatgen objects.
-    """
+    """Provides access to elements of the res file in the form of familiar pymatgen objects."""
 
     def __init__(self, res: Res) -> None:
         """The :func:`from_str` and :func:`from_file` methods should be used instead of constructing this directly."""
@@ -432,7 +424,7 @@ class AirssProvider(ResProvider):
         """Parses a date from a string where the date is in the format typically used by CASTEP."""
         match = cls._date_fmt.search(string)
         if match is None:
-            raise ParseError(f"Could not parse the date from string {string}.")
+            raise ParseError(f"Could not parse the date from {string=}.")
         date_string = match.group(0)
         return dateutil.parser.parse(date_string)  # type: ignore
 
@@ -600,9 +592,7 @@ class AirssProvider(ResProvider):
 
     @property
     def entry(self) -> ComputedStructureEntry:
-        """
-        Get this res file as a ComputedStructureEntry.
-        """
+        """Get this res file as a ComputedStructureEntry."""
         return ComputedStructureEntry(self.structure, self.energy, data={"rems": self.rems})
 
     def as_dict(self, verbose: bool = True) -> dict[str, Any]:
@@ -629,56 +619,40 @@ class ResIO:
 
     @classmethod
     def structure_from_str(cls, string: str) -> Structure:
-        """
-        Produces a pymatgen Structure from contents of a res file.
-        """
+        """Produces a pymatgen Structure from contents of a res file."""
         return ResProvider.from_str(string).structure
 
     @classmethod
     def structure_from_file(cls, filename: str) -> Structure:
-        """
-        Produces a pymatgen Structure from a res file.
-        """
+        """Produces a pymatgen Structure from a res file."""
         return ResProvider.from_file(filename).structure
 
     @classmethod
     def structure_to_str(cls, structure: Structure) -> str:
-        """
-        Produce the contents of a res file from a pymatgen Structure.
-        """
+        """Produce the contents of a res file from a pymatgen Structure."""
         return str(ResWriter(structure))
 
     @classmethod
     def structure_to_file(cls, structure: Structure, filename: str) -> None:
-        """
-        Write a pymatgen Structure to a res file.
-        """
+        """Write a pymatgen Structure to a res file."""
         return ResWriter(structure).write(filename)
 
     @classmethod
     def entry_from_str(cls, string: str) -> ComputedStructureEntry:
-        """
-        Produce a pymatgen ComputedStructureEntry from contents of a res file.
-        """
+        """Produce a pymatgen ComputedStructureEntry from contents of a res file."""
         return AirssProvider.from_str(string).entry
 
     @classmethod
     def entry_from_file(cls, filename: str) -> ComputedStructureEntry:
-        """
-        Produce a pymatgen ComputedStructureEntry from a res file.
-        """
+        """Produce a pymatgen ComputedStructureEntry from a res file."""
         return AirssProvider.from_file(filename).entry
 
     @classmethod
     def entry_to_str(cls, entry: ComputedStructureEntry) -> str:
-        """
-        Produce the contents of a res file from a pymatgen ComputedStructureEntry.
-        """
+        """Produce the contents of a res file from a pymatgen ComputedStructureEntry."""
         return str(ResWriter(entry))
 
     @classmethod
     def entry_to_file(cls, entry: ComputedStructureEntry, filename: str) -> None:
-        """
-        Write a pymatgen ComputedStructureEntry to a res file.
-        """
+        """Write a pymatgen ComputedStructureEntry to a res file."""
         return ResWriter(entry).write(filename)

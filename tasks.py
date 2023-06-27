@@ -20,7 +20,7 @@ import requests
 from invoke import task
 from monty.os import cd
 
-from pymatgen.core import __version__ as CURRENT_VER
+from pymatgen.core import __version__
 
 
 @task
@@ -90,7 +90,7 @@ def make_doc(ctx):
 @task
 def make_dash(ctx):
     """
-    Make customized doc version for Dash
+    Make customized doc version for Dash.
 
     :param ctx:
     """
@@ -248,7 +248,7 @@ def update_changelog(ctx, version=None, dry_run=False):
     :param ctx:
     """
     version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
-    output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{CURRENT_VER}..HEAD"])
+    output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
     ignored_commits = []
     for line in output.decode("utf-8").strip().split("\n"):

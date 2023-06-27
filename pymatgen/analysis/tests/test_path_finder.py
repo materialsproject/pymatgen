@@ -49,7 +49,3 @@ class PathFinderTest(unittest.TestCase):
         dists = [s1.sites[moving_site].distance(s2.sites[moving_site]) for s1, s2 in zip(pf.images[:-1], pf.images[1:])]
         # check that all the small distances are about equal
         assert abs(min(dists) - max(dists)) / mean(dists) < 0.02
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -1069,6 +1071,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_neighbors"><code class="docutils literal notranslate"><span class="pre">IMolecule.get_neighbors()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_neighbors_in_shell"><code class="docutils literal notranslate"><span class="pre">IMolecule.get_neighbors_in_shell()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_sites_in_sphere"><code class="docutils literal notranslate"><span class="pre">IMolecule.get_sites_in_sphere()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_zmatrix"><code class="docutils literal notranslate"><span class="pre">IMolecule.get_zmatrix()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.nelectrons"><code class="docutils literal notranslate"><span class="pre">IMolecule.nelectrons</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.sites"><code class="docutils literal notranslate"><span class="pre">IMolecule.sites</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.spin_multiplicity"><code class="docutils literal notranslate"><span class="pre">IMolecule.spin_multiplicity</span></code></a></li>
@@ -1119,9 +1122,11 @@
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule"><code class="docutils literal notranslate"><span class="pre">Molecule</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.append"><code class="docutils literal notranslate"><span class="pre">Molecule.append()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.apply_operation"><code class="docutils literal notranslate"><span class="pre">Molecule.apply_operation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.calculate"><code class="docutils literal notranslate"><span class="pre">Molecule.calculate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.copy"><code class="docutils literal notranslate"><span class="pre">Molecule.copy()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.insert"><code class="docutils literal notranslate"><span class="pre">Molecule.insert()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.perturb"><code class="docutils literal notranslate"><span class="pre">Molecule.perturb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.relax"><code class="docutils literal notranslate"><span class="pre">Molecule.relax()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.remove_sites"><code class="docutils literal notranslate"><span class="pre">Molecule.remove_sites()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.remove_species"><code class="docutils literal notranslate"><span class="pre">Molecule.remove_species()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule.rotate_sites"><code class="docutils literal notranslate"><span class="pre">Molecule.rotate_sites()</span></code></a></li>
@@ -1185,6 +1190,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.append"><code class="docutils literal notranslate"><span class="pre">Structure.append()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.apply_operation"><code class="docutils literal notranslate"><span class="pre">Structure.apply_operation()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.apply_strain"><code class="docutils literal notranslate"><span class="pre">Structure.apply_strain()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.calculate"><code class="docutils literal notranslate"><span class="pre">Structure.calculate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.from_prototype"><code class="docutils literal notranslate"><span class="pre">Structure.from_prototype()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.insert"><code class="docutils literal notranslate"><span class="pre">Structure.insert()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure.lattice"><code class="docutils literal notranslate"><span class="pre">Structure.lattice</span></code></a></li>

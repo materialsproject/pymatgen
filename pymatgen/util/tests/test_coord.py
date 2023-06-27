@@ -14,11 +14,11 @@ from pymatgen.util.testing import PymatgenTest
 
 class CoordUtilsTest(PymatgenTest):
     def test_get_linear_interpolated_value(self):
-        xvals = [0, 1, 2, 3, 4, 5]
-        yvals = [3, 6, 7, 8, 10, 12]
-        assert coord.get_linear_interpolated_value(xvals, yvals, 3.6) == 9.2
-        with pytest.raises(ValueError):
-            coord.get_linear_interpolated_value(xvals, yvals, 6)
+        x_vals = [0, 1, 2, 3, 4, 5]
+        y_vals = [3, 6, 7, 8, 10, 12]
+        assert coord.get_linear_interpolated_value(x_vals, y_vals, 3.6) == 9.2
+        with pytest.raises(ValueError, match="x is out of range of provided x_values"):
+            coord.get_linear_interpolated_value(x_vals, y_vals, 6)
 
     def test_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -46,9 +46,9 @@ class CoordUtilsTest(PymatgenTest):
         b = np.array([c3, c2, c1])
         inds = coord.coord_list_mapping(a, b)
         assert np.allclose(a, b[inds])
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="not a subset of superset"):
             coord.coord_list_mapping([c1, c2], [c2, c3])
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Something wrong with the inputs, likely duplicates in superset"):
             coord.coord_list_mapping([c2], [c2, c2])
 
     def test_coord_list_mapping_pbc(self):
@@ -64,12 +64,12 @@ class CoordUtilsTest(PymatgenTest):
         diff = a - b[inds]
         diff -= np.round(diff)
         assert np.allclose(diff, 0)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="not a subset of superset"):
             coord.coord_list_mapping_pbc([c1, c2], [c2, c3])
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Something wrong with the inputs, likely duplicates in superset"):
             coord.coord_list_mapping_pbc([c2], [c2, c2])
         coord.coord_list_mapping_pbc([c1, c2], [c2, c1], pbc=(False, False, False))
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="not a subset of superset"):
             coord.coord_list_mapping_pbc(a, b, pbc=(True, True, False))
 
     def test_find_in_coord_list(self):
@@ -191,7 +191,7 @@ class CoordUtilsTest(PymatgenTest):
         assert np.allclose(output2[2], coord.barycentric_coords(pts2[2], simplex2))
 
     def test_pbc_shortest_vectors(self):
-        fcoords = np.array(
+        frac_coords = np.array(
             [
                 [0.3, 0.3, 0.5],
                 [0.1, 0.1, 0.3],
@@ -210,14 +210,14 @@ class CoordUtilsTest(PymatgenTest):
             ]
         )
 
-        vectors = coord.pbc_shortest_vectors(lattice, fcoords[:-1], fcoords)
+        vectors = coord.pbc_shortest_vectors(lattice, frac_coords[:-1], frac_coords)
         dists = np.sum(vectors**2, axis=-1) ** 0.5
         self.assert_all_close(dists, expected, 3)
 
         prev_threshold = coord.LOOP_THRESHOLD
         coord.LOOP_THRESHOLD = 0
 
-        vectors = coord.pbc_shortest_vectors(lattice, fcoords[:-1], fcoords)
+        vectors = coord.pbc_shortest_vectors(lattice, frac_coords[:-1], frac_coords)
         dists = np.sum(vectors**2, axis=-1) ** 0.5
         self.assert_all_close(dists, expected, 3)
 
@@ -232,7 +232,7 @@ class CoordUtilsTest(PymatgenTest):
                 [3.519, 1.131, 2.251, 0.000, 4.235],
             ]
         )
-        vectors = coord.pbc_shortest_vectors(lattice_pbc, fcoords[:-1], fcoords)
+        vectors = coord.pbc_shortest_vectors(lattice_pbc, frac_coords[:-1], frac_coords)
         dists = np.sum(vectors**2, axis=-1) ** 0.5
         self.assert_all_close(dists, expected_pbc, 3)
 
@@ -265,15 +265,15 @@ class SimplexTest(PymatgenTest):
             assert self.simplex.in_simplex(coord)
 
     def test_2dtriangle(self):
-        s = coord.Simplex([[0, 1], [1, 1], [1, 0]])
-        self.assert_all_close(s.bary_coords([0.5, 0.5]), [0.5, 0, 0.5])
-        self.assert_all_close(s.bary_coords([0.5, 1]), [0.5, 0.5, 0])
-        self.assert_all_close(s.bary_coords([0.5, 0.75]), [0.5, 0.25, 0.25])
-        self.assert_all_close(s.bary_coords([0.75, 0.75]), [0.25, 0.5, 0.25])
+        simplex = coord.Simplex([[0, 1], [1, 1], [1, 0]])
+        self.assert_all_close(simplex.bary_coords([0.5, 0.5]), [0.5, 0, 0.5])
+        self.assert_all_close(simplex.bary_coords([0.5, 1]), [0.5, 0.5, 0])
+        self.assert_all_close(simplex.bary_coords([0.5, 0.75]), [0.5, 0.25, 0.25])
+        self.assert_all_close(simplex.bary_coords([0.75, 0.75]), [0.25, 0.5, 0.25])
 
-        s = coord.Simplex([[1, 1], [1, 0]])
-        with pytest.raises(ValueError):
-            s.bary_coords([0.5, 0.5])
+        simplex = coord.Simplex([[1, 1], [1, 0]])
+        with pytest.raises(ValueError, match="Simplex is not full-dimensional"):
+            simplex.bary_coords([0.5, 0.5])
 
     def test_volume(self):
         # Should be value of a right tetrahedron.

@@ -1,6 +1,4 @@
-"""
-Module for BondDissociationEnergies.
-"""
+"""Module for BondDissociationEnergies."""
 
 from __future__ import annotations
 
@@ -256,7 +254,7 @@ class BondDissociationEnergies(MSONable):
         Search all fragment entries for those isomorphic to the given fragment.
         We distinguish between entries where both initial and final molgraphs are isomorphic to the
         given fragment (entries) vs those where only the initial molgraph is isomorphic to the given
-        fragment (initial_entries) vs those where only the final molgraph is isomorphic (final_entries)
+        fragment (initial_entries) vs those where only the final molgraph is isomorphic (final_entries).
 
         Args:
             frag: Fragment

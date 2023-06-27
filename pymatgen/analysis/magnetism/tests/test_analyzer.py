@@ -95,7 +95,11 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
             Species("Fe", oxidation_state=0, properties={"spin": 5}): 0.5,
             "Ni": 0.5,
         }
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(
+            NotImplementedError,
+            match="CollinearMagneticStructureAnalyzer not implemented for disordered structures,"
+            " make ordered approximation first.",
+        ):
             CollinearMagneticStructureAnalyzer(self.Fe)
 
     def test_matches(self):
@@ -256,9 +260,10 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
         # (enable for further development of workflow, too slow for CI)
 
         # structure = Structure.from_file(os.path.join(ref_dir, "CuO.json"))
-        # enumerator = MagneticOrderingsenumerator(structure, default_magmoms={'Cu': 1.73},
-        #                         transformation_kwargs={'max_cell_size': 4})
-        # self.assertEqual(enumerator.input_origin, "afm")
+        # enumerator = MagneticOrderingsenumerator(
+        #     structure, default_magmoms={"Cu": 1.73}, transformation_kwargs={"max_cell_size": 4}
+        # )
+        # assert enumerator.input_origin == "afm"
 
         # antiferromagnetic by structural motif
         structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings/Ca3Co2O6.json"))
@@ -279,7 +284,3 @@ class MagneticDeformationTest(unittest.TestCase):
 
         assert mag_def.type == "NM-FM"
         assert mag_def.deformation == approx(5.0130859485170971)
-
-
-if __name__ == "__main__":
-    unittest.main()

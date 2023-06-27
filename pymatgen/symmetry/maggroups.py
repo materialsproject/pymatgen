@@ -1,6 +1,4 @@
-"""
-Magnetic space groups.
-"""
+"""Magnetic space groups."""
 
 from __future__ import annotations
 
@@ -30,9 +28,7 @@ MAGSYMM_DATA = os.path.join(os.path.dirname(__file__), "symm_data_magnetic.sqlit
 
 @cached_class
 class MagneticSpaceGroup(SymmetryGroup):
-    """
-    Representation of a magnetic space group.
-    """
+    """Representation of a magnetic space group."""
 
     def __init__(self, label, setting_transformation="a,b,c;0,0,0"):
         """
@@ -140,11 +136,10 @@ class MagneticSpaceGroup(SymmetryGroup):
                 (idx - 1, is_hex),
             )
             op = c.fetchone()
-            op = {
+            return {
                 "symbol": op[0],
                 "matrix": np.array(op[1].split(","), dtype="f").reshape(3, 3),
             }
-            return op
 
         def _parse_operators(b):
             """Parses compact binary representation into list of MagSymmOps."""
@@ -312,9 +307,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @property
     def crystal_system(self):
-        """
-        :return: Crystal system, e.g., cubic, hexagonal, etc.
-        """
+        """:return: Crystal system, e.g., cubic, hexagonal, etc."""
         i = self._data["bns_number"][0]
         if i <= 2:
             return "triclinic"
@@ -332,16 +325,14 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @property
     def sg_symbol(self):
-        """
-        :return: Space group symbol
-        """
+        """:return: Space group symbol"""
         return self._data["bns_label"]
 
     @property
     def symmetry_ops(self):
         """
         Retrieve magnetic symmetry operations of the space group.
-        :return: List of :class:`pymatgen.core.operations.MagSymmOp`
+        :return: List of :class:`pymatgen.core.operations.MagSymmOp`.
         """
         ops = [op_data["op"] for op_data in self._data["bns_operators"]]
 
@@ -363,9 +354,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         ops = ops + centered_ops
 
         # apply jones faithful transformation
-        ops = [self.jf.transform_symmop(op) for op in ops]
-
-        return ops
+        return [self.jf.transform_symmop(op) for op in ops]
 
     def get_orbit(self, p, magmom, tol: float = 1e-5):
         """
@@ -436,7 +425,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     def data_str(self, include_og=True):
         """
         Get description of all data, including information for OG setting.
-        :return: str
+        :return: str.
         """
         # __str__() omits information on OG setting to reduce confusion
         # as to which set of symops are active, this property gives
@@ -550,7 +539,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         String representation of the space group, specifying the setting
         of the space group, its magnetic symmetry operators and Wyckoff
         positions.
-        :return: str
+        :return: str.
         """
         return self.data_str(include_og=False)
 
@@ -559,10 +548,8 @@ def _write_all_magnetic_space_groups_to_file(filename):
     """
     Write all magnetic space groups to a human-readable text file.
     Should contain same information as text files provided by ISO-MAG.
-    :param filename:
-    :return:
     """
-    s = (
+    out = (
         "Data parsed from raw data from:\n"
         "ISO-MAG, ISOTROPY Software Suite, iso.byu.edu\n"
         "http://stokes.byu.edu/iso/magnetic_data.txt\n"
@@ -572,6 +559,6 @@ def _write_all_magnetic_space_groups_to_file(filename):
     for i in range(1, 1652):
         all_msgs.append(MagneticSpaceGroup(i))
     for msg in all_msgs:
-        s += f"\n{msg.data_str()}\n\n--------\n"
+        out += f"\n{msg.data_str()}\n\n--------\n"
     with open(filename, "w") as f:
-        f.write(s)
+        f.write(out)

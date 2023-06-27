@@ -59,9 +59,7 @@ CROSS_SECTIONS = _load_cross_sections(Path(__file__).parent / "atomic_subshell_p
 
 
 class XPS(Spectrum):
-    """
-    Class representing an X-ray photoelectron spectra.
-    """
+    """Class representing an X-ray photoelectron spectra."""
 
     XLABEL = "Binding Energy (eV)"
     YLABEL = "Intensity"

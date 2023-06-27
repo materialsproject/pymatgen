@@ -118,8 +118,8 @@ class LammpsDataTest(unittest.TestCase):
         assert ld_ni.structure.composition.reduced_formula == "Ni"
 
     def test_sort_structure(self):
-        s = Structure(Lattice.cubic(4), ["S", "Fe"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        lmp = LammpsData.from_structure(s, is_sort=False)
+        struct = Structure(Lattice.cubic(4), ["S", "Fe"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        lmp = LammpsData.from_structure(struct, is_sort=False)
         lmp.write_file("test1.data")
         lmp2 = LammpsData.from_file("test1.data", atom_style="charge")
 
@@ -129,7 +129,7 @@ class LammpsDataTest(unittest.TestCase):
         assert lmp2.atoms["type"].tolist() == [2, 1]
 
         # with sorting the atom types in structures will be [1, 2]
-        lmp = LammpsData.from_structure(s, is_sort=True)
+        lmp = LammpsData.from_structure(struct, is_sort=True)
         lmp.write_file("test1.data")
         lmp2 = LammpsData.from_file("test1.data", atom_style="charge")
         assert lmp2.atoms["type"].tolist() == [1, 2]
@@ -1155,7 +1155,3 @@ class CombinedDataTest(unittest.TestCase):
         assert ec_fec_lines[112] == "16  multi/harmonic 0.382999522 -1.148998570 0.000000000 1.531998090 0.000000000"
         assert ec_fec_lines[140] == "1  10.5 -1  2"
         assert len(ec_fec_lines) == 99159
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -59,9 +59,7 @@ __date__ = "August 23, 2013"
 
 
 class BoltztrapRunner(MSONable):
-    """
-    This class is used to run Boltztrap on a band structure object.
-    """
+    """This class is used to run Boltztrap on a band structure object."""
 
     @requires(
         which("x_trans"),
@@ -216,8 +214,8 @@ class BoltztrapRunner(MSONable):
 
     def _auto_set_energy_range(self):
         """
-        automatically determine the energy range as min/max eigenvalue
-        minus/plus the buffer_in_ev
+        Automatically determine the energy range as min/max eigenvalue
+        minus/plus the buffer_in_ev.
         """
         emins = [min(e_k[0] for e_k in self._bs.bands[Spin.up])]
         emaxs = [max(e_k[0] for e_k in self._bs.bands[Spin.up])]
@@ -244,16 +242,12 @@ class BoltztrapRunner(MSONable):
 
     @property
     def bs(self):
-        """
-        :return: The BandStructure
-        """
+        """:return: The BandStructure"""
         return self._bs
 
     @property
     def nelec(self):
-        """
-        :return: Number of electrons
-        """
+        """:return: Number of electrons"""
         return self._nelec
 
     def write_energy(self, output_file):
@@ -538,7 +532,7 @@ class BoltztrapRunner(MSONable):
     ):
         """
         Write inputs (optional), run BoltzTraP, and ensure
-        convergence (optional)
+        convergence (optional).
 
         Args:
             path_dir (str): directory in which to run BoltzTraP
@@ -691,9 +685,7 @@ class BoltztrapRunner(MSONable):
             return path_dir
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         results = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -723,14 +715,12 @@ class BoltztrapRunner(MSONable):
 class BoltztrapError(Exception):
     """
     Exception class for boltztrap.
-    Raised when the boltztrap gives an error
+    Raised when the boltztrap gives an error.
     """
 
 
 class BoltztrapAnalyzer:
-    """
-    Class used to store all the data from a boltztrap run
-    """
+    """Class used to store all the data from a boltztrap run."""
 
     def __init__(
         self,
@@ -868,7 +858,7 @@ class BoltztrapAnalyzer:
         the specified structure. They could be extracted from the
         BandStructureSymmLine object that you want to compare with. efermi
         variable must be specified to create the BandStructureSymmLine
-        object (usually it comes from DFT or Boltztrap calc)
+        object (usually it comes from DFT or Boltztrap calc).
         """
         try:
             if kpt_line is None:
@@ -900,11 +890,9 @@ class BoltztrapAnalyzer:
             bz_bands_in_eV = (self._bz_bands * Energy(1, "Ry").to("eV") + efermi).T
             bands_dict = {Spin.up: bz_bands_in_eV[:, idx_list[:, 1]].tolist()}  # type: ignore
 
-            sbs = BandStructureSymmLine(
+            return BandStructureSymmLine(
                 kpt_line, bands_dict, structure.lattice.reciprocal_lattice, efermi, labels_dict=labels_dict
             )
-
-            return sbs
 
         except Exception:
             raise BoltztrapError(
@@ -933,7 +921,7 @@ class BoltztrapAnalyzer:
         - "acc_err": list of two bools:
                      True if the avg_corr > warn_thr[0], and
                      True if the avg_dist > warn_thr[1]
-        See also compare_sym_bands function doc
+        See also compare_sym_bands function doc.
         """
         if not sbs_ref.is_metal() and not sbs_bz.is_metal():
             vbm_idx = sbs_bz.get_vbm()["band_index"][Spin.up][-1]
@@ -988,7 +976,7 @@ class BoltztrapAnalyzer:
         (trace/3.0) If doping_levels=True, the results are given at
         different p and n doping
         levels (given by self.doping), otherwise it is given as a series
-        of electron chemical potential values
+        of electron chemical potential values.
 
         Args:
             output (str): the type of output. 'tensor' give the full
@@ -1020,7 +1008,7 @@ class BoltztrapAnalyzer:
         (trace/3.0) If doping_levels=True, the results are given at
         different p and n doping
         levels (given by self.doping), otherwise it is given as a series
-        of electron chemical potential values
+        of electron chemical potential values.
 
         Args:
             output (str): the type of output. 'tensor' give the full
@@ -1057,7 +1045,7 @@ class BoltztrapAnalyzer:
         doping_levels=True, the results are given at
         different p and n doping levels (given by self.doping), otherwise it
         is given as a series of
-        electron chemical potential values
+        electron chemical potential values.
 
         Args:
             output (str): the type of output. 'tensor' give the full 3x3
@@ -1082,8 +1070,7 @@ class BoltztrapAnalyzer:
 
             units are microW/(m K^2)
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
 
@@ -1121,7 +1108,7 @@ class BoltztrapAnalyzer:
         doping_levels=True, the results are given at
         different p and n doping levels (given by self.doping), otherwise it
         is given as a series of
-        electron chemical potential values
+        electron chemical potential values.
 
         Args:
             output (str): the type of output. 'tensor' give the full 3x3
@@ -1147,8 +1134,7 @@ class BoltztrapAnalyzer:
 
             units are W/mK
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
             for doping in result_doping:
@@ -1190,7 +1176,7 @@ class BoltztrapAnalyzer:
         is given as a series of
         electron chemical potential values. We assume a constant relaxation
         time and a constant
-        lattice thermal conductivity
+        lattice thermal conductivity.
 
         Args:
             output (str): the type of output. 'tensor' give the full 3x3
@@ -1214,8 +1200,7 @@ class BoltztrapAnalyzer:
             The result includes a given constant relaxation time and lattice
             thermal conductivity
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
 
@@ -1266,7 +1251,7 @@ class BoltztrapAnalyzer:
         This effective mass tensor takes into account:
         -non-parabolicity
         -multiple extrema
-        -multiple bands
+        -multiple bands.
 
         For more information about it. See:
 
@@ -1302,8 +1287,7 @@ class BoltztrapAnalyzer:
             The 'p' links to hole effective mass tensor and 'n' to electron
             effective mass tensor.
         """
-        result = None
-        result_doping = None
+        result = result_doping = None
         conc = self.get_carrier_concentration()
         if doping_levels:
             result_doping = {doping: {t: [] for t in self._cond_doping[doping]} for doping in self.doping}
@@ -1482,7 +1466,7 @@ class BoltztrapAnalyzer:
 
         def is_isotropic(x, isotropy_tolerance) -> bool:
             """
-            Internal method to tell you if 3-vector "x" is isotropic
+            Internal method to tell you if 3-vector "x" is isotropic.
 
             Args:
                 x: the vector to determine isotropy for
@@ -1518,10 +1502,7 @@ class BoltztrapAnalyzer:
 
         absval = True  # take the absolute value of properties
 
-        x_val = None
-        x_temp = None
-        x_doping = None
-        x_isotropic = None
+        x_val = x_temp = x_doping = x_isotropic = None
         output = {}
 
         min_temp = min_temp or 0
@@ -1608,7 +1589,7 @@ class BoltztrapAnalyzer:
 
     def get_complete_dos(self, structure: Structure, analyzer_for_second_spin=None):
         """
-        Gives a CompleteDos object with the DOS from the interpolated projected band structure
+        Gives a CompleteDos object with the DOS from the interpolated projected band structure.
 
         Args:
             structure: necessary to identify sites for projection
@@ -1671,7 +1652,7 @@ class BoltztrapAnalyzer:
 
     def get_carrier_concentration(self):
         """
-        gives the carrier concentration (in cm^-3)
+        gives the carrier concentration (in cm^-3).
 
         Returns:
             a dictionary {temp:[]} with an array of carrier concentration
@@ -1704,7 +1685,7 @@ class BoltztrapAnalyzer:
     @staticmethod
     def parse_outputtrans(path_dir):
         """
-        Parses .outputtrans file
+        Parses .outputtrans file.
 
         Args:
             path_dir: dir containing boltztrap.outputtrans
@@ -1712,10 +1693,7 @@ class BoltztrapAnalyzer:
         Returns:
             tuple - (run_type, warning, efermi, gap, doping_levels)
         """
-        run_type = None
-        warning = None
-        efermi = None
-        gap = None
+        run_type = warning = efermi = gap = None
         doping_levels = []
 
         with open(os.path.join(path_dir, "boltztrap.outputtrans")) as f:
@@ -1741,7 +1719,7 @@ class BoltztrapAnalyzer:
             path_dir: (str) dir containing DOS files
             efermi: (float) Fermi energy
             dos_spin: (int) -1 for spin down, +1 for spin up
-            trim_dos: (bool) whether to post-process / trim DOS
+            trim_dos: (bool) whether to post-process / trim DOS.
 
         Returns:
             tuple - (DOS, dict of partial DOS)
@@ -1812,7 +1790,7 @@ class BoltztrapAnalyzer:
     def parse_intrans(path_dir):
         """
         Parses boltztrap.intrans mainly to extract the value of scissor applied
-        to the bands or some other inputs
+        to the bands or some other inputs.
 
         Args:
             path_dir: (str) dir containing the boltztrap.intrans file
@@ -1833,7 +1811,7 @@ class BoltztrapAnalyzer:
     @staticmethod
     def parse_struct(path_dir):
         """
-        Parses boltztrap.struct file (only the volume)
+        Parses boltztrap.struct file (only the volume).
 
         Args:
             path_dir: (str) dir containing the boltztrap.struct file
@@ -1853,7 +1831,7 @@ class BoltztrapAnalyzer:
         Parses the conductivity and Hall tensors
         Args:
             path_dir: Path containing .condtens / .halltens files
-            doping_levels: ([float]) - doping lvls, parse outtrans to get this
+            doping_levels: ([float]) - doping lvls, parse outtrans to get this.
 
         Returns:
             mu_steps, cond, seebeck, kappa, hall, pn_doping_levels,
@@ -1983,7 +1961,7 @@ class BoltztrapAnalyzer:
     @staticmethod
     def from_files(path_dir, dos_spin=1):
         """
-        get a BoltztrapAnalyzer object from a set of files
+        get a BoltztrapAnalyzer object from a set of files.
 
         Args:
             path_dir: directory where the boltztrap files are
@@ -2068,9 +2046,7 @@ class BoltztrapAnalyzer:
         raise ValueError(f"Run type: {run_type} not recognized!")
 
     def as_dict(self):
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         results = {
             "gap": self.gap,
             "mu_steps": self.mu_steps,
@@ -2343,9 +2319,7 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
 
 
 def seebeck_spb(eta, Lambda=0.5):
-    """
-    Seebeck analytic formula in the single parabolic model
-    """
+    """Seebeck analytic formula in the single parabolic model."""
     try:
         from fdint import fdk
     except ImportError:
@@ -2365,7 +2339,7 @@ def eta_from_seebeck(seeb, Lambda):
     """
     It takes a value of seebeck and adjusts the analytic seebeck until it's equal
     Returns: eta where the two seebeck coefficients are equal
-    (reduced chemical potential)
+    (reduced chemical potential).
     """
     from scipy.optimize import fsolve
 
@@ -2376,7 +2350,7 @@ def eta_from_seebeck(seeb, Lambda):
 def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
     """
     Calculate seebeck effective mass at a certain carrier concentration
-    eta in kB*T units, n in cm-3, T in K, returns mass in m0 units
+    eta in kB*T units, n in cm-3, T in K, returns mass in m0 units.
     """
     try:
         from fdint import fdk
@@ -2394,8 +2368,7 @@ def seebeck_eff_mass_from_seebeck_carr(seeb, n, T, Lambda):
     """
     Find the chemical potential where analytic and calculated seebeck are identical
     and then calculate the seebeck effective mass at that chemical potential and
-    a certain carrier concentration n
+    a certain carrier concentration n.
     """
     eta = eta_from_seebeck(seeb, Lambda)
-    mass = seebeck_eff_mass_from_carr(eta, n, T, Lambda)
-    return mass
+    return seebeck_eff_mass_from_carr(eta, n, T, Lambda)

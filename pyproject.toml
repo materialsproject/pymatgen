@@ -26,57 +26,49 @@ repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest
 target-version = "py38"
 line-length = 120
 select = [
-  "B",   # flake8-bugbear
-  "C4",  # flake8-comprehensions
-  "D",   # pydocstyle
-  "E",   # pycodestyle error
-  "EXE", # flake8-executable
-  "F",   # pyflakes
-  "FLY", # flynt
-  "I",   # isort
-  "ICN", # flake8-import-conventions
-  "ISC", # flake8-implicit-str-concat
-  "PD",  # pandas-vet
-  "PIE", # flake8-pie
-  "PL",  # pylint
-  "PT",  # flake8-pytest-style
-  "PYI", # flakes8-pyi
-  "Q",   # flake8-quotes
-  "RET", # flake8-return
-  "RSE", # flake8-raise
-  "RUF", # Ruff-specific rules
-  "SIM", # flake8-simplify
-  "TCH", # flake8-type-checking
-  "TID", # tidy imports
-  "TID", # flake8-tidy-imports
-  "UP",  # pyupgrade
-  "W",   # pycodestyle warning
-  "YTT", # flake8-2020
+  "B",    # flake8-bugbear
+  "C4",   # flake8-comprehensions
+  "D",    # pydocstyle
+  "E",    # pycodestyle error
+  "EXE",  # flake8-executable
+  "F",    # pyflakes
+  "FA",   # flake8-future-annotations
+  "FLY",  # flynt
+  "I",    # isort
+  "ICN",  # flake8-import-conventions
+  "ISC",  # flake8-implicit-str-concat
+  "PD",   # pandas-vet
+  "PERF", # perflint
+  "PIE",  # flake8-pie
+  "PL",   # pylint
+  "PT",   # flake8-pytest-style
+  "PYI",  # flakes8-pyi
+  "Q",    # flake8-quotes
+  "RET",  # flake8-return
+  "RSE",  # flake8-raise
+  "RUF",  # Ruff-specific rules
+  "SIM",  # flake8-simplify
+  "SLOT", # flake8-slots
+  "TCH",  # flake8-type-checking
+  "TID",  # tidy imports
+  "TID",  # flake8-tidy-imports
+  "UP",   # pyupgrade
+  "W",    # pycodestyle warning
+  "YTT",  # flake8-2020
 ]
 ignore = [
-  "B018",    # Found useless expression. Either assign it to a variable or remove it.
-  "B019",    # functools.lru_cache on methods can lead to memory leaks
   "B023",    # Function definition does not bind loop variable
   "B028",    # No explicit stacklevel keyword argument found
   "B904",    # Within an except clause, raise exceptions with ...
   "C408",    # unnecessary-collection-call
-  "D100",    # Missing docstring in public module
-  "D104",    # Missing docstring in public package
   "D105",    # Missing docstring in magic method
-  "D107",    # Missing docstring in __init__
-  "D200",    # One-line docstring should fit on one line with quotes
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
-  "D415",    # First line should end with a period, question mark, or exclamation point
   "PD901",   # pandas-df-variable-name
-  "PLC0414", # useless-import-alias
-  "PLC1901", # compare-to-empty-string
   "PLR",     # pylint refactor
-  "PLR2004", # Magic number
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT011",   # pytest-raises-too-broad
   "PT013",   # pytest-incorrect-pytest-import
-  "RET504",  # unnecessary-assign
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
 ]
 pydocstyle.convention = "google"

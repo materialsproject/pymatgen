@@ -1,6 +1,4 @@
-"""
-Predicting potential dopants
-"""
+"""Predicting potential dopants."""
 
 from __future__ import annotations
 
@@ -126,9 +124,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
 
 
 def _get_dopants(substitutions, num_dopants, match_oxi_sign):
-    """
-    Utility method to get n- and p-type dopants from a list of substitutions.
-    """
+    """Utility method to get n- and p-type dopants from a list of substitutions."""
     n_type = [
         pred
         for pred in substitutions

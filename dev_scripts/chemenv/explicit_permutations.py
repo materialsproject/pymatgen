@@ -1,6 +1,6 @@
 """
 Development script of the ChemEnv utility to get the explicit permutations for coordination environments identified
-with the explicit permutations algorithms (typically with coordination numbers <= 6)
+with the explicit permutations algorithms (typically with coordination numbers <= 6).
 """
 
 from __future__ import annotations
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         coordination_geometry=cg, algo=algo, points_perfect=points_perfect
     )
 
-    csms_with_recorded_permutation = []
+    csms_with_recorded_permutation: list[float] = []
     explicit_permutations = []
     for icsm, csm in enumerate(csms):
         found = False

@@ -13,6 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -131,10 +133,10 @@
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lobster.inputs.html">pymatgen.io.lobster.inputs module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin"><code class="docutils literal notranslate"><span class="pre">Lobsterin</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.AVAILABLEKEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.AVAILABLEKEYWORDS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.BOOLEANKEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.BOOLEANKEYWORDS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.FLOATKEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.FLOATKEYWORDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.BOOLEAN_KEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.BOOLEAN_KEYWORDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.FLOAT_KEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.FLOAT_KEYWORDS</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.LISTKEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.LISTKEYWORDS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.STRINGKEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.STRINGKEYWORDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.STRING_KEYWORDS"><code class="docutils literal notranslate"><span class="pre">Lobsterin.STRING_KEYWORDS</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.as_dict"><code class="docutils literal notranslate"><span class="pre">Lobsterin.as_dict()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.diff"><code class="docutils literal notranslate"><span class="pre">Lobsterin.diff()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.inputs.html#pymatgen.io.lobster.inputs.Lobsterin.from_dict"><code class="docutils literal notranslate"><span class="pre">Lobsterin.from_dict()</span></code></a></li>
@@ -152,6 +154,15 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html">pymatgen.io.lobster.lobsterenv module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo"><code class="docutils literal notranslate"><span class="pre">ICOHPNeighborsInfo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.atoms"><code class="docutils literal notranslate"><span class="pre">ICOHPNeighborsInfo.atoms</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.central_isites"><code class="docutils literal notranslate"><span class="pre">ICOHPNeighborsInfo.central_isites</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.labels"><code class="docutils literal notranslate"><span class="pre">ICOHPNeighborsInfo.labels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.list_icohps"><code class="docutils literal notranslate"><span class="pre">ICOHPNeighborsInfo.list_icohps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.n_bonds"><code class="docutils literal notranslate"><span class="pre">ICOHPNeighborsInfo.n_bonds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.total_icohp"><code class="docutils literal notranslate"><span class="pre">ICOHPNeighborsInfo.total_icohp</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments"><code class="docutils literal notranslate"><span class="pre">LobsterLightStructureEnvironments</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.as_dict"><code class="docutils literal notranslate"><span class="pre">LobsterLightStructureEnvironments.as_dict()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.from_Lobster"><code class="docutils literal notranslate"><span class="pre">LobsterLightStructureEnvironments.from_Lobster()</span></code></a></li>
@@ -159,6 +170,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.anion_types"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.anion_types</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_anion_types"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.get_anion_types()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_cohps_to_neighbors"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.get_info_cohps_to_neighbors()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.lobster.lobsterenv.html#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_icohps_between_neighbors"><code class="docutils literal notranslate"><span class="pre">LobsterNeighbors.get_info_icohps_between_neighbors()</span></code></a></li>

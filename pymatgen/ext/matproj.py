@@ -63,7 +63,7 @@ def get_chunks(sequence: Sequence[Any], size=1):
 
 @unique
 class TaskType(Enum):
-    """task types available in legacy MP data"""
+    """task types available in legacy MP data."""
 
     GGA_OPT = "GGA Structure Optimization"
     GGAU_OPT = "GGA+U Structure Optimization"
@@ -83,12 +83,12 @@ class TaskType(Enum):
 
 class _MPResterLegacy:
     """
-    A class to conveniently interface with the Materials Project REST
-    interface. The recommended way to use MPRester is with the "with" context
-    manager to ensure that sessions are properly closed after usage::
+    A class to conveniently interface with the Materials Project REST interface.
+    The recommended way to use MPRester is with the "with" context manager to ensure
+    sessions are properly closed after usage.
 
-        with MPRester("API_KEY") as m:
-            do_something
+        with MPRester("API_KEY") as mpr:
+            mpr.some_method()
 
     MPRester uses the "requests" package, which provides for HTTP connection
     pooling. All connections are made via https for security.
@@ -201,7 +201,7 @@ class _MPResterLegacy:
             warnings.warn(f"Non-default endpoint used: {self.preamble}")
 
         self.session = requests.Session()
-        self.session.headers = {"x-api-key": self.api_key}  # type: ignore
+        self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
             pymatgen_info = f"pymatgen/{PMG_VERSION}"
             python_info = f"Python/{sys.version.split()[0]}"
@@ -215,12 +215,10 @@ class _MPResterLegacy:
 
             try:
                 with open(MP_LOG_FILE) as f:
-                    dct = dict(yaml.load(f))
+                    dct = dict(yaml.load(f)) or {}
             except (OSError, TypeError):
                 # TypeError: 'NoneType' object is not iterable occurs if MP_LOG_FILE exists but is empty
                 dct = {}
-
-            dct = dct or {}
 
             if "MAPI_DB_VERSION" not in dct:
                 dct["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
@@ -257,20 +255,22 @@ class _MPResterLegacy:
                 pass
 
     def __enter__(self):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         self.session.close()
 
-    def _make_request(self, sub_url, payload=None, method="GET", mp_decode=True):
+    def _make_request(
+        self,
+        sub_url: str,
+        payload: Any = None,
+        method: Literal["GET", "POST", "PUT", "DELETE"] = "GET",
+        mp_decode: bool = True,
+    ) -> Any:
         response = None
-        url = self.preamble + sub_url
+        url = f"{self.preamble}{sub_url}"
         try:
             if method == "POST":
                 response = self.session.post(url, data=payload, verify=True)
@@ -286,11 +286,11 @@ class _MPResterLegacy:
 
             raise MPRestError(f"REST query returned with error status code {response.status_code}")
 
-        except Exception as ex:
-            msg = f"{ex}. Content: {getattr(response, 'content', str(ex))}"
+        except Exception as exc:
+            msg = f"{exc}. Content: {getattr(response, 'content', str(exc))}"
             raise MPRestError(msg)
 
-    def get_database_version(self):
+    def get_database_version(self) -> str:
         """
         The Materials Project database is periodically updated and has a
         database version associated with it. When the database is updated,
@@ -304,13 +304,13 @@ class _MPResterLegacy:
 
         Returns: database version as a string
         """
-        d = self._make_request("/api_check")
-        return d["version"]["db"]
+        dct = self._make_request("/api_check")
+        return dct["version"]["db"]
 
     def get_materials_id_from_task_id(self, task_id):
         """
         Returns a new MP materials id from a task id (which can be
-        equivalent to an old materials id)
+        equivalent to an old materials id).
 
         Args:
             task_id (str): A task id.
@@ -471,23 +471,20 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            if isinstance(filename_or_structure, str):
-                s = Structure.from_file(filename_or_structure)
-            elif isinstance(filename_or_structure, Structure):
-                s = filename_or_structure
-            else:
-                raise MPRestError("Provide filename or Structure object.")
-            payload = {"structure": json.dumps(s.as_dict(), cls=MontyEncoder)}
-            response = self.session.post(f"{self.preamble}/find_structure", data=payload)
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    return resp["response"]
-                raise MPRestError(resp["error"])
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        if isinstance(filename_or_structure, str):
+            struct = Structure.from_file(filename_or_structure)
+        elif isinstance(filename_or_structure, Structure):
+            struct = filename_or_structure
+        else:
+            raise MPRestError("Provide filename or Structure object.")
+        payload = {"structure": json.dumps(struct.as_dict(), cls=MontyEncoder)}
+        response = self.session.post(f"{self.preamble}/find_structure", data=payload)
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                return resp["response"]
+            raise MPRestError(resp["error"])
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_entries(
         self,
@@ -578,13 +575,13 @@ class _MPResterLegacy:
             else:
                 prim = d["initial_structure"] if inc_structure == "initial" else d["structure"]
                 if conventional_unit_cell:
-                    s = SpacegroupAnalyzer(prim).get_conventional_standard_structure()
-                    energy = d["energy"] * (len(s) / len(prim))
+                    struct = SpacegroupAnalyzer(prim).get_conventional_standard_structure()
+                    energy = d["energy"] * (len(struct) / len(prim))
                 else:
-                    s = prim.copy()
+                    struct = prim.copy()
                     energy = d["energy"]
                 e = ComputedStructureEntry(
-                    s,
+                    struct,
                     energy,
                     parameters={k: d[k] for k in params},
                     data=data,
@@ -733,7 +730,7 @@ class _MPResterLegacy:
                 return self.get_structure_by_material_id(new_material_id)
             except MPRestError:
                 raise MPRestError(
-                    f"material_id {material_id} unknown, if this seems like an error "
+                    f"{material_id=} unknown, if this seems like an error "
                     "please let us know at matsci.org/materials-project"
                 )
 
@@ -913,14 +910,13 @@ class _MPResterLegacy:
         if additional_criteria:
             criteria.update(additional_criteria)
 
-        entries = self.get_entries(
+        return self.get_entries(
             criteria,
             compatible_only=compatible_only,
             inc_structure=inc_structure,
             property_data=property_data,
             conventional_unit_cell=conventional_unit_cell,
         )
-        return entries
 
     def get_exp_thermo_data(self, formula):
         """
@@ -1152,23 +1148,19 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            snl = snl if isinstance(snl, list) else [snl]
-            jsondata = [s.as_dict() for s in snl]
-            payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
-            response = self.session.post(f"{self.preamble}/snl/submit", data=payload)
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp["inserted_ids"]
-                raise MPRestError(resp["error"])
+        snl = snl if isinstance(snl, list) else [snl]
+        jsondata = [s.as_dict() for s in snl]
+        payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
+        response = self.session.post(f"{self.preamble}/snl/submit", data=payload)
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp["inserted_ids"]
+            raise MPRestError(resp["error"])
 
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def delete_snl(self, snl_ids):
         """
@@ -1186,22 +1178,18 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            payload = {"ids": json.dumps(snl_ids)}
-            response = self.session.post(f"{self.preamble}/snl/delete", data=payload)
+        payload = {"ids": json.dumps(snl_ids)}
+        response = self.session.post(f"{self.preamble}/snl/delete", data=payload)
 
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp
-                raise MPRestError(resp["error"])
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp
+            raise MPRestError(resp["error"])
 
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def query_snl(self, criteria):
         """
@@ -1222,21 +1210,17 @@ class _MPResterLegacy:
         Raises:
             MPRestError
         """
-        try:
-            payload = {"criteria": json.dumps(criteria)}
-            response = self.session.post(f"{self.preamble}/snl/query", data=payload)
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp["response"]
-                raise MPRestError(resp["error"])
+        payload = {"criteria": json.dumps(criteria)}
+        response = self.session.post(f"{self.preamble}/snl/query", data=payload)
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp["response"]
+            raise MPRestError(resp["error"])
 
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def submit_vasp_directory(
         self,
@@ -1323,25 +1307,20 @@ class _MPResterLegacy:
         )
 
     def get_stability(self, entries):
-        """
-        Returns the stability of all entries.
-        """
-        try:
-            payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
-            response = self.session.post(
-                f"{self.preamble}/phase_diagram/calculate_stability",
-                data=payload,
-            )
-            if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
-                if resp["valid_response"]:
-                    if resp.get("warning"):
-                        warnings.warn(resp["warning"])
-                    return resp["response"]
-                raise MPRestError(resp["error"])
-            raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        """Returns the stability of all entries."""
+        payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
+        response = self.session.post(
+            f"{self.preamble}/phase_diagram/calculate_stability",
+            data=payload,
+        )
+        if response.status_code in [200, 400]:
+            resp = json.loads(response.text, cls=MontyDecoder)
+            if resp["valid_response"]:
+                if resp.get("warning"):
+                    warnings.warn(resp["warning"])
+                return resp["response"]
+            raise MPRestError(resp["error"])
+        raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_cohesive_energy(self, material_id, per_atom=False):
         """
@@ -1408,7 +1387,7 @@ class _MPResterLegacy:
     def get_all_substrates(self):
         """
         Gets the list of all possible substrates considered in the
-        Materials Project substrate database
+        Materials Project substrate database.
 
         Returns:
             list of material_ids corresponding to possible substrates
@@ -1579,7 +1558,7 @@ class _MPResterLegacy:
 
     def get_download_info(self, material_ids, task_types=None, file_patterns=None):
         """
-        Get a list of URLs to retrieve raw VASP output files from the NoMaD repository
+        Get a list of URLs to retrieve raw VASP output files from the NoMaD repository.
 
         Args:
             material_ids (list): list of material identifiers (mp-id's)
@@ -1638,7 +1617,7 @@ class _MPResterLegacy:
     def _print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types):
         non_exist_ids = set(task_ids) - set(nomad_exist_task_ids)
         warnings.warn(
-            f"For file patterns [{file_patterns}] and task_types [{task_types}], \n"
+            f"For {file_patterns=}] and {task_types=}, \n"
             f"the following ids are not found on NOMAD [{list(non_exist_ids)}]. \n"
             f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov"
         )
@@ -1736,8 +1715,9 @@ class _MPResterLegacy:
 
 class MPRester:
     """
-    A class to conveniently interface with the new and legacy Materials Project REST
-    interface. The recommended way to use MPRester is as a context manager to ensure
+    A class to conveniently interface with the new and legacy Materials Project REST interface.
+
+    The recommended way to use MPRester is as a context manager to ensure
     that sessions are properly closed after usage:
 
         with MPRester("API_KEY") as mpr:

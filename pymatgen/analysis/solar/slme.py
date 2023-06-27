@@ -1,5 +1,5 @@
 """
-Calculate spectroscopy limited maximum efficiency (SLME) given dielectric function data
+Calculate spectroscopy limited maximum efficiency (SLME) given dielectric function data.
 
 Forked and adjusted from :
 https://github.com/usnistgov/jarvis
@@ -26,9 +26,7 @@ eV_to_recip_cm = 1.0 / (physical_constants["Planck constant in eV s"][0] * speed
 
 
 def get_dir_indir_gap(run=""):
-    """
-    Get direct and indirect bandgaps for a vasprun.xml
-    """
+    """Get direct and indirect bandgaps for a vasprun.xml."""
     v = Vasprun(run)
     bandstructure = v.get_band_structure()
     dir_gap = bandstructure.get_direct_band_gap()
@@ -66,8 +64,7 @@ def to_matrix(xx, yy, zz, xy, yz, xz):
     Returns:
         (np.array): The matrix, as a 3x3 numpy array.
     """
-    matrix = np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
-    return matrix
+    return np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
 
 
 def parse_dielectric_data(data):
@@ -121,9 +118,7 @@ def absorption_coefficient(dielectric):
 
 
 def optics(path=""):
-    """
-    Helper function to calculate optical absorption coefficient
-    """
+    """Helper function to calculate optical absorption coefficient."""
     dirgap, indirgap = get_dir_indir_gap(path)
 
     run = Vasprun(path, occu_tol=1e-2)
@@ -148,7 +143,7 @@ def slme(
     plot_current_voltage=False,
 ):
     """
-    Calculate the SLME
+    Calculate the SLME.
 
     Args:
         material_energy_for_absorbance_data: energy grid for absorbance data
@@ -252,12 +247,10 @@ def slme(
     J_sc = e * simps(solar_spectra_photon_flux * absorbed_by_wavelength, solar_spectra_wavelength)
 
     def J(V):
-        J = J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)
-        return J
+        return J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)
 
     def power(V):
-        p = J(V) * V
-        return p
+        return J(V) * V
 
     test_voltage = 0
     voltage_step = 0.001

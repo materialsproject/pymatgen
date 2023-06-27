@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from pathlib import Path
 
 from pytest import approx
@@ -111,7 +110,3 @@ class SetTest(PymatgenTest):
             ],
         ]
         self.assert_all_close(dat[0], ref)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -252,7 +252,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         return processed_entry_list
 
-    def get_adjustments(self, entry, mixing_state_data: pd.DataFrame = None):
+    def get_adjustments(self, entry, mixing_state_data: pd.DataFrame | None = None):
         """
         Returns the corrections applied to a particular entry. Note that get_adjustments is not
         intended to be called directly in the R2SCAN mixing scheme. Call process_entries instead,
@@ -292,7 +292,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         if run_type not in self.valid_rtypes_1 + self.valid_rtypes_2:
             raise CompatibilityError(
-                f"WARNING! Invalid run_type {run_type} for entry {entry.entry_id}. Must be one of "
+                f"WARNING! Invalid {run_type=} for entry {entry.entry_id}. Must be one of "
                 f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
             )
 
@@ -531,7 +531,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         ]
 
         def _get_sg(struct) -> int:
-            """Helper function to get spacegroup with a loose tolerance"""
+            """Helper function to get spacegroup with a loose tolerance."""
             try:
                 return struct.get_space_group_info(symprec=0.1)[1]
             except Exception:
@@ -541,9 +541,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # this logic follows emmet.builders.vasp.materials.MaterialsBuilder.filter_and_group_tasks
         structures = []
         for entry in all_entries:
-            s = entry.structure
-            s.entry_id = entry.entry_id
-            structures.append(s)
+            struct = entry.structure
+            struct.entry_id = entry.entry_id
+            structures.append(struct)
 
         # First group by composition, then by spacegroup number, then by structure matching
         for comp, compgroup in groupby(sorted(structures, key=lambda s: s.composition), key=lambda s: s.composition):
@@ -569,38 +569,37 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                         row_list.append(self._populate_df_row(grp, comp, sg, n, pd_type_1, pd_type_2, all_entries))
 
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
-        mixing_state_data = mixing_state_data.sort_values(
-            ["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True
-        )
-
-        return mixing_state_data
+        return mixing_state_data.sort_values(["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True)
 
     def _filter_and_sort_entries(self, entries, verbose=True):
         """
         Given a single list of entries, separate them by run_type and return two lists, one containing
-        only entries of each run_type
+        only entries of each run_type.
         """
         filtered_entries = []
 
         for entry in entries:
+            entry_id = entry.entry_id
             if not entry.parameters.get("run_type"):
                 warnings.warn(
-                    f"Entry {entry.entry_id} is missing parameters.run_type! This field"
+                    f"Entry {entry_id} is missing parameters.run_type! This field"
                     "is required. This entry will be ignored."
                 )
                 continue
 
-            if entry.parameters.get("run_type") not in self.valid_rtypes_1 + self.valid_rtypes_2:
+            run_type = entry.parameters.get("run_type")
+            if run_type not in [*self.valid_rtypes_1, *self.valid_rtypes_2]:
                 warnings.warn(
-                    f"Invalid run_type {entry.parameters.get('run_type')} for entry {entry.entry_id}. Must be one of "
+                    f"Invalid {run_type=} for entry {entry_id}. Must be one of "
                     f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
                 )
                 continue
 
-            if entry.entry_id is None:
+            formula = entry.composition.reduced_formula
+            if entry_id is None:
                 warnings.warn(
-                    f"Entry_id for {entry.composition.reduced_formula} entry {entry.entry_id} is invalid. "
-                    "Unique entry_ids are required for every ComputedStructureEntry. This entry will be ignored."
+                    f"{entry_id=} for {formula=}. Unique entry_ids are required for every ComputedStructureEntry."
+                    " This entry will be ignored."
                 )
                 continue
 
@@ -666,7 +665,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
     def _populate_df_row(self, struct_group, comp, sg, n, pd_type_1, pd_type_2, all_entries):
         """
         Helper function to populate a row of the mixing state DataFrame, given
-        a list of matched structures
+        a list of matched structures.
         """
         # within the group of matched structures, keep the lowest energy entry from
         # each run_type
@@ -728,9 +727,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     @staticmethod
     def display_entries(entries):
-        """
-        Generate a pretty printout of key properties of a list of ComputedEntry
-        """
+        """Generate a pretty printout of key properties of a list of ComputedEntry."""
         entries = sorted(entries, key=lambda e: (e.composition.reduced_formula, e.energy_per_atom))
         try:
             pd = PhaseDiagram(entries)

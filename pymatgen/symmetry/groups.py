@@ -13,9 +13,10 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
 from fractions import Fraction
 from itertools import product
-from typing import TYPE_CHECKING, Literal, overload
+from typing import TYPE_CHECKING, ClassVar, Literal, overload
 
 import numpy as np
+from frozendict import frozendict
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
@@ -33,9 +34,7 @@ SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
 
 
 class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
-    """
-    Abstract class representing a symmetry group.
-    """
+    """Abstract class representing a symmetry group."""
 
     @property
     @abstractmethod
@@ -202,7 +201,7 @@ class SpaceGroup(SymmetryGroup):
     """
 
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))
-    SG_SYMBOLS = set(SYMM_DATA["space_group_encoding"])
+    SG_SYMBOLS: ClassVar[set] = set(SYMM_DATA["space_group_encoding"])
     for op in SYMM_OPS:
         op["hermann_mauguin"] = re.sub(r" ", "", op["hermann_mauguin"])
         op["universal_h_m"] = re.sub(r" ", "", op["universal_h_m"])
@@ -213,8 +212,8 @@ class SpaceGroup(SymmetryGroup):
     # POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
     sgencoding = SYMM_DATA["space_group_encoding"]
     abbrev_sg_mapping = SYMM_DATA["abbreviated_spacegroup_symbols"]
-    translations = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
-    full_sg_mapping = {v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
+    translations = frozendict({k: Fraction(v) for k, v in SYMM_DATA["translations"].items()})
+    full_sg_mapping = frozendict({v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()})
 
     def __init__(self, int_symbol: str) -> None:
         """
@@ -259,7 +258,7 @@ class SpaceGroup(SymmetryGroup):
                 break
         else:
             if int_symbol not in SpaceGroup.sgencoding:
-                raise ValueError(f"Bad international symbol {int_symbol}")
+                raise ValueError(f"Bad international symbol {int_symbol!r}")
 
             data = SpaceGroup.sgencoding[int_symbol]
 

@@ -1,10 +1,10 @@
-"""
-This module contains the definition of some objects used in the chemenv package.
-"""
+"""This module contains the definition of some objects used in the chemenv package."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+
+from frozendict import frozendict
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import is_anion_cation_bond
 
@@ -35,9 +35,7 @@ STATS_ENV_PAPER = (
 
 
 def chemenv_citations():
-    """
-    :return:
-    """
+    """:return:"""
     out = ""
     out += "\nIf you use the ChemEnv tool for your research, please consider citing the following reference(s) :\n"
     out += "==================================================================================================\n"
@@ -46,9 +44,7 @@ def chemenv_citations():
 
 
 class AdditionalConditions:
-    """
-    Class for additional conditions.
-    """
+    """Class for additional conditions."""
 
     NO_ADDITIONAL_CONDITION = 0
     ONLY_ANION_CATION_BONDS = 1
@@ -63,17 +59,18 @@ class AdditionalConditions:
     ONLY_ACB_AND_NO_E2SEB = ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
     ONLY_E2OB = ONLY_ELEMENT_TO_OXYGEN_BONDS
     # Dictionary mapping of integer for the condition and its "description"
-    CONDITION_DESCRIPTION = {
-        NO_ADDITIONAL_CONDITION: "No additional condition",
-        ONLY_ANION_CATION_BONDS: "Only anion-cation bonds",
-        NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "No element-element bonds (same elements)",
-        ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "Only anion-cation bonds and"
-        " no element-element bonds"
-        " (same elements)",
-        ONLY_ELEMENT_TO_OXYGEN_BONDS: "Only element-oxygen bonds",
-    }
+    CONDITION_DESCRIPTION = frozendict(
+        {
+            NO_ADDITIONAL_CONDITION: "No additional condition",
+            ONLY_ANION_CATION_BONDS: "Only anion-cation bonds",
+            NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "No element-element bonds (same elements)",
+            ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "Only anion-cation bonds and"
+            " no element-element bonds (same elements)",
+            ONLY_ELEMENT_TO_OXYGEN_BONDS: "Only element-oxygen bonds",
+        }
+    )
 
-    ALL = [NONE, ONLY_ACB, NO_E2SEB, ONLY_ACB_AND_NO_E2SEB, ONLY_E2OB]
+    ALL = (NONE, ONLY_ACB, NO_E2SEB, ONLY_ACB_AND_NO_E2SEB, ONLY_E2OB)
 
     def check_condition(self, condition, structure: Structure, parameters):
         """

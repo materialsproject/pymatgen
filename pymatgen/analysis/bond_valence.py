@@ -1,6 +1,4 @@
-"""
-This module implements classes to perform bond valence analyses.
-"""
+"""This module implements classes to perform bond valence analyses."""
 
 from __future__ import annotations
 
@@ -283,8 +281,8 @@ class BVAnalyzer:
 
             def evaluate_assignment(v_set):
                 el_oxi = collections.defaultdict(list)
-                for i, sites in enumerate(equi_sites):
-                    el_oxi[sites[0].specie.symbol].append(v_set[i])
+                for idx, sites in enumerate(equi_sites):
+                    el_oxi[sites[0].specie.symbol].append(v_set[idx])
                 max_diff = max(max(v) - min(v) for v in el_oxi.values())
                 if max_diff > 1:
                     return
@@ -340,7 +338,7 @@ class BVAnalyzer:
                 for sp, occu in get_z_ordered_elmap(sites[0].species):
                     elements.append(sp.symbol)
                     fractions.append(occu)
-            fractions = np.array(fractions, np.float_)
+            fractions = np.array(fractions, np.float_)  # type: ignore[assignment]
             new_valences = []
             for vals in valences:
                 for val in vals:

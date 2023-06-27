@@ -57,8 +57,9 @@ class EntrySetTest(unittest.TestCase):
         entries = self.entry_set.get_subset_in_chemsys(["Li", "O"])
         for e in entries:
             assert {Element.Li, Element.O}.issuperset(e.composition)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as exc:
             self.entry_set.get_subset_in_chemsys(["Fe", "F"])
+        assert "['F', 'Fe'] is not a subset of ['Fe', 'Li', 'O', 'P'], extra: {'F'}" in str(exc.value)
 
     def test_remove_non_ground_states(self):
         length = len(self.entry_set)
@@ -70,7 +71,3 @@ class EntrySetTest(unittest.TestCase):
         entry_set = loadfn("temp_entry_set.json")
         assert len(entry_set) == len(self.entry_set)
         os.remove("temp_entry_set.json")
-
-
-if __name__ == "__main__":
-    unittest.main()

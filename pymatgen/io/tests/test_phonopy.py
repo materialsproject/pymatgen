@@ -6,7 +6,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from monty.tempfile import ScratchDir
 from numpy.testing import assert_array_equal
 from pytest import approx
 
@@ -34,8 +33,8 @@ from pymatgen.util.testing import PymatgenTest
 try:
     from phonopy import Phonopy
     from phonopy.file_IO import parse_FORCE_CONSTANTS
-except ImportError as ex:
-    print(ex)
+except ImportError as exc:
+    print(exc)
     Phonopy = None
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "phonopy")
@@ -140,14 +139,13 @@ class GetDisplacedStructuresTest(PymatgenTest):
         self.assert_all_close(structures[0].lattice._matrix, structures[8].lattice._matrix, 8)
 
         # test writing output
-        with ScratchDir("."):
-            structures = get_displaced_structures(
-                pmg_structure=pmg_s,
-                atom_disp=0.01,
-                supercell_matrix=supercell_matrix,
-                yaml_fname="test.yaml",
-            )
-            assert os.path.exists("test.yaml")
+        structures = get_displaced_structures(
+            pmg_structure=pmg_s,
+            atom_disp=0.01,
+            supercell_matrix=supercell_matrix,
+            yaml_fname="test.yaml",
+        )
+        assert os.path.exists("test.yaml")
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
@@ -272,7 +270,3 @@ class TestThermalDisplacementMatrices(PymatgenTest):
 
         assert list_matrices[-1].temperature == approx(300.0)
         assert list_matrices[0].temperature == approx(0.0)
-
-
-if __name__ == "__main__":
-    unittest.main()

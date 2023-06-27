@@ -292,6 +292,6 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
             break
 
     if not ok_outer:
-        raise ValueError("subset is not a subset of superset")
+        raise ValueError("not a subset of superset")
 
     return inds

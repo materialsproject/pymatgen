@@ -21,8 +21,8 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
 
     def test_get_energy(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0.00], [0.00, -2.0, 3.0]])
-        s = Structure(
+        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
+        struct = Structure(
             lattice,
             [
                 {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
@@ -35,7 +35,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
 
         m = EwaldElectrostaticModel()
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
-        assert m.get_energy(s) == approx(-264.66364858, abs=1e-2)  # Result from GULP
+        assert m.get_energy(struct) == approx(-264.66364858, abs=1e-2)  # Result from GULP
         s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
         assert m.get_energy(s2) == approx(-145.39050015844839, abs=1e-4)
 

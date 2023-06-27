@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Implementation for `pmg config` CLI.
-"""
+"""Implementation for `pmg config` CLI."""
 
 from __future__ import annotations
 
@@ -22,7 +20,7 @@ if TYPE_CHECKING:
 
 
 def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
-    """Setup CP2K basis and potential data directory"""
+    """Setup CP2K basis and potential data directory."""
     data_dir, target_dir = (os.path.abspath(dir) for dir in cp2k_data_dirs)
     try:
         os.mkdir(target_dir)
@@ -163,8 +161,8 @@ def setup_potcars(potcar_dirs: list[str]):
                     shutil.move(os.path.join(base_dir, "POTCAR"), dest)
                     with subprocess.Popen(["gzip", "-f", dest]) as p:
                         p.communicate()
-                except Exception as ex:
-                    print(f"An error has occurred. Message is {ex!s}. Trying to continue... ")
+                except Exception as exc:
+                    print(f"An error has occurred. Message is {exc}. Trying to continue... ")
 
     print(
         "\nPSP resources directory generated. It is recommended that you "
@@ -192,8 +190,8 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
         for f in ["enum.x", "makestr.x"]:
             subprocess.call(["make", f])
             shutil.copy(f, os.path.join("..", ".."))
-    except Exception as ex:
-        print(ex)
+    except Exception as exc:
+        print(exc)
         state = False
     finally:
         os.chdir(cwd)
@@ -240,12 +238,11 @@ def install_software(install: Literal["enumlib", "bader"]):
             subprocess.call(["gfortran", "--version"])
             print("Found gfortran")
             fortran_command = "gfortran"
-        except Exception as ex:
-            print(str(ex))
+        except Exception as exc:
+            print(str(exc))
             raise SystemExit("No fortran compiler found.")
 
-    enum = None
-    bader = None
+    enum = bader = None
     if install == "enumlib":
         print("Building enumlib")
         enum = build_enum(fortran_command)

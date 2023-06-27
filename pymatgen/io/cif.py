@@ -1,6 +1,4 @@
-"""
-Wrapper classes for Cif input and output from Structures.
-"""
+"""Wrapper classes for Cif input and output from Structures."""
 
 from __future__ import annotations
 
@@ -58,7 +56,7 @@ class CifBlock:
             data: dict of data to go into the cif. Values should be convertible to string,
                 or lists of these if the key is in a loop
             loops: list of lists of keys, grouped by which loop they should appear in
-            header: name of the block (appears after the data_ on the first line)
+            header: name of the block (appears after the data_ on the first line).
         """
         self.loops = loops
         self.data = data
@@ -75,9 +73,7 @@ class CifBlock:
         return self.data[key]
 
     def __str__(self):
-        """
-        Returns the cif string for the data block
-        """
+        """Returns the cif string for the data block."""
         out = [f"data_{self.header}"]
         keys = list(self.data)
         written = []
@@ -210,14 +206,12 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif issue := "".join(s).strip():
-                warnings.warn(f"Possible issue in cif file at line: {issue}")
+                warnings.warn(f"Possible issue in CIF file at line: {issue}")
         return cls(data, loops, header)
 
 
 class CifFile:
-    """
-    Reads and parses CifBlocks from a .cif file or string
-    """
+    """Reads and parses CifBlocks from a .cif file or string."""
 
     def __init__(self, data, orig_string=None, comment=None):
         """
@@ -300,9 +294,7 @@ class CifParser:
         self.warnings = []
 
         def is_magcif() -> bool:
-            """
-            Checks to see if file appears to be a magCIF file (heuristic).
-            """
+            """Checks to see if file appears to be a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
             prefixes = [
@@ -589,7 +581,7 @@ class CifParser:
         """
         Generate the lattice from the provided lattice parameters. In
         the absence of all six lattice parameters, the crystal system
-        and necessary parameters are parsed
+        and necessary parameters are parsed.
         """
         try:
             return self.get_lattice_no_exception(
@@ -620,7 +612,7 @@ class CifParser:
         data, length_strings=("a", "b", "c"), angle_strings=("alpha", "beta", "gamma"), lattice_type=None
     ):
         """
-        Take a dictionary of CIF data and returns a pymatgen Lattice object
+        Take a dictionary of CIF data and returns a pymatgen Lattice object.
 
         Args:
             data: a dictionary of the CIF file
@@ -799,9 +791,7 @@ class CifParser:
 
     @staticmethod
     def parse_oxi_states(data):
-        """
-        Parse oxidation states from data dictionary
-        """
+        """Parse oxidation states from data dictionary."""
         try:
             oxi_states = {
                 data["_atom_type_symbol"][i]: str2float(data["_atom_type_oxidation_number"][i])
@@ -818,9 +808,7 @@ class CifParser:
 
     @staticmethod
     def parse_magmoms(data, lattice=None):
-        """
-        Parse atomic magnetic moments from data dictionary
-        """
+        """Parse atomic magnetic moments from data dictionary."""
         if lattice is None:
             raise Exception("Magmoms given in terms of crystal axes in magCIF spec.")
         try:
@@ -884,9 +872,7 @@ class CifParser:
         return parsed_sym
 
     def _get_structure(self, data, primitive, symmetrized):
-        """
-        Generate structure from part of the cif.
-        """
+        """Generate structure from part of the cif."""
 
         def get_num_implicit_hydrogens(sym):
             num_h = {"Wat": 2, "wat": 2, "O-H": 1}
@@ -1118,9 +1104,9 @@ class CifParser:
         structures = []
         for i, d in enumerate(self._cif.data.values()):
             try:
-                s = self._get_structure(d, primitive, symmetrized)
-                if s:
-                    structures.append(s)
+                struct = self._get_structure(d, primitive, symmetrized)
+                if struct:
+                    structures.append(struct)
             except (KeyError, ValueError) as exc:
                 # Warn the user (Errors should never pass silently)
                 # A user reported a problem with cif files produced by Avogadro
@@ -1128,7 +1114,7 @@ class CifParser:
                 self.warnings.append(str(exc))
                 warnings.warn(f"No structure parsed for {i + 1} structure in CIF. Section of CIF file below.")
                 warnings.warn(str(d))
-                warnings.warn(f"Error is {exc!s}.")
+                warnings.warn(f"Error is {exc}.")
 
         if self.warnings:
             warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
@@ -1140,7 +1126,7 @@ class CifParser:
         """
         Get BibTeX reference from CIF file.
         :param data:
-        :return: BibTeX string
+        :return: BibTeX string.
         """
         try:
             from pybtex.database import BibliographyData, Entry
@@ -1204,9 +1190,7 @@ class CifParser:
         return BibliographyData(entries).to_string(bib_format="bibtex")
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         dct = {}
         for k, v in self._cif.data.items():
             dct[k] = {}
@@ -1216,16 +1200,12 @@ class CifParser:
 
     @property
     def has_errors(self):
-        """
-        :return: Whether there are errors/warnings detected in CIF parsing.
-        """
+        """:return: Whether there are errors/warnings detected in CIF parsing."""
         return len(self.warnings) > 0
 
 
 class CifWriter:
-    """
-    A wrapper around CifFile to write CIF files from pymatgen structures.
-    """
+    """A wrapper around CifFile to write CIF files from pymatgen structures."""
 
     def __init__(
         self,
@@ -1409,29 +1389,21 @@ class CifWriter:
 
     @property
     def ciffile(self):
-        """
-        Returns: CifFile associated with the CifWriter.
-        """
+        """Returns: CifFile associated with the CifWriter."""
         return self._cf
 
     def __str__(self):
-        """
-        Returns the cif as a string.
-        """
+        """Returns the cif as a string."""
         return str(self._cf)
 
     def write_file(self, filename):
-        """
-        Write the cif file.
-        """
+        """Write the cif file."""
         with zopen(filename, "wt") as f:
             f.write(str(self))
 
 
 def str2float(text):
-    """
-    Remove uncertainty brackets from strings and return the float.
-    """
+    """Remove uncertainty brackets from strings and return the float."""
     try:
         # Note that the ending ) is sometimes missing. That is why the code has
         # been modified to treat it as optional. Same logic applies to lists.
@@ -1439,8 +1411,8 @@ def str2float(text):
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
             return float(re.sub(r"\(.+\)*", "", text[0]))
-    except ValueError as ex:
+    except ValueError as exc:
         if text.strip() == ".":
             return 0
-        raise ex
+        raise exc
     raise ValueError(f"{text} cannot be converted to float")

@@ -1,6 +1,4 @@
-"""
-Piezo sensitivity analysis module.
-"""
+"""Piezo sensitivity analysis module."""
 
 from __future__ import annotations
 
@@ -33,9 +31,7 @@ __date__ = "Feb, 2019"
 
 
 class BornEffectiveCharge:
-    """
-    This class describes the Nx3x3 born effective charge tensor
-    """
+    """This class describes the Nx3x3 born effective charge tensor."""
 
     def __init__(self, structure: Structure, bec, pointops, tol: float = 1e-3):
         """
@@ -60,7 +56,7 @@ class BornEffectiveCharge:
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
-        index 1 to site index 2]]
+        index 1 to site index 2]].
 
 
         Args:
@@ -119,7 +115,7 @@ class BornEffectiveCharge:
     def get_rand_BEC(self, max_charge=1):
         """
         Generate a random born effective charge tensor which obeys a structure's
-        symmetry and the acoustic sum rule
+        symmetry and the acoustic sum rule.
 
         Args:
             max_charge (float): maximum born effective charge value
@@ -198,7 +194,7 @@ class InternalStrainTensor:
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
-        index 1 to site index 2]]
+        index 1 to site index 2]].
 
 
         Args:
@@ -236,7 +232,7 @@ class InternalStrainTensor:
     def get_rand_IST(self, max_force=1):
         """
         Generate a random internal strain tensor which obeys a structure's
-        symmetry and the acoustic sum rule
+        symmetry and the acoustic sum rule.
 
         Args:
             max_force(float): maximum born effective charge value
@@ -291,7 +287,7 @@ class ForceConstantMatrix:
         Returns the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1a, site index 1b, site index 2a, site index 2b,
-        [Symmops mapping from site index 1a, 1b to site index 2a, 2b]]
+        [Symmops mapping from site index 1a, 1b to site index 2a, 2b]].
 
 
         Args:
@@ -365,7 +361,7 @@ class ForceConstantMatrix:
 
     def get_unstable_FCM(self, max_force=1):
         """
-        Generate an unsymmeterized force constant matrix
+        Generate an unsymmeterized force constant matrix.
 
         Args:
             max_charge (float): maximum born effective charge value
@@ -424,7 +420,7 @@ class ForceConstantMatrix:
 
     def get_symmetrized_FCM(self, unsymmetrized_fcm, max_force=1):
         """
-        Generate a symmeterized force constant matrix from an unsymmeterized matrix
+        Generate a symmeterized force constant matrix from an unsymmeterized matrix.
 
         Args:
             unsymmetrized_fcm (numpy array): unsymmeterized force constant matrix
@@ -484,7 +480,7 @@ class ForceConstantMatrix:
         """
         Generate a symmeterized force constant matrix that obeys the objects symmetry
         constraints, has no unstable modes and also obeys the acoustic sum rule through an
-        iterative procedure
+        iterative procedure.
 
         Args:
             fcm (numpy array): unsymmeterized force constant matrix
@@ -532,7 +528,7 @@ class ForceConstantMatrix:
     def get_asum_FCM(self, fcm: np.ndarray, numiter: int = 15):
         """
         Generate a symmeterized force constant matrix that obeys the objects symmetry
-        constraints and obeys the acoustic sum rule through an iterative procedure
+        constraints and obeys the acoustic sum rule through an iterative procedure.
 
         Args:
             fcm (numpy array): 3Nx3N unsymmeterized force constant matrix
@@ -622,7 +618,7 @@ class ForceConstantMatrix:
         """
         Generate a symmeterized force constant matrix from an unsymmeterized matrix
         that has no unstable modes and also obeys the acoustic sum rule through an
-        iterative procedure
+        iterative procedure.
 
         Args:
             force (float): maximum force constant
@@ -662,15 +658,13 @@ class ForceConstantMatrix:
         converter.set_dynamical_matrices(dynmat=[dyn])
 
         converter.run()
-        fc = converter.get_force_constants()
-
-        return fc
+        return converter.get_force_constants()
 
 
 def get_piezo(BEC, IST, FCM, rcond=0.0001):
     """
     Generate a random piezoelectric tensor based on a structure and corresponding
-    symmetry
+    symmetry.
 
     Args:
         BEC (numpy array): Nx3x3 array representing the born effective charge tensor
@@ -698,7 +692,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
 def rand_piezo(struct, pointops, sharedops, BEC, IST, FCM, anumiter=10):
     """
     Generate a random piezoelectric tensor based on a structure and corresponding
-    symmetry
+    symmetry.
 
     Args:
         struct (pymatgen structure): structure whose symmetry operations the piezo tensor must obey

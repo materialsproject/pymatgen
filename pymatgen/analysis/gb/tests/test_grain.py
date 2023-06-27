@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 import warnings
 
 import numpy as np
@@ -346,7 +345,3 @@ class GrainBoundaryGeneratorTest(PymatgenTest):
         close_angle = [36.86989764584403, 143.13010235415598]
         angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(6, [1, 0, 0], lat_type="o", ratio=[270, 30, 29])
         self.assert_all_close(close_angle, angle)
-
-
-if __name__ == "__main__":
-    unittest.main()
