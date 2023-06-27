@@ -17,6 +17,7 @@ from operator import mul
 from monty.design_patterns import cached_class
 
 from pymatgen.core.periodic_table import Species, get_el_sp
+from pymatgen.util.due import Doi, due
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -26,6 +27,10 @@ __email__ = "wrichard@mit.edu"
 __date__ = "Aug 31, 2012"
 
 
+@due.dcite(
+    Doi("10.1021/ic102031h"),
+    description="Data Mined Ionic Substitutions for the Discovery of New Compounds",
+)
 @cached_class
 class SubstitutionProbability:
     """

@@ -30,12 +30,15 @@ __credits__ = "Cormac Toher"
 logger = logging.getLogger(__name__)
 
 
-@due.dcite(
+cite_gibbs = due.dcite(
     Doi("10.1016/j.comphy.2003.12.001"),
     description="GIBBS: isothermal-isobaric thermodynamics of solids from energy curves using a "
     "quasi-harmonic Debye model",
     path="pymatgen.analysis.quasiharmonic",
 )
+
+
+@cite_gibbs
 @due.dcite(
     Doi("10.1103/PhysRevB.90.174107"),
     description="High-throughput computational screening of thermal conductivity, Debye "
@@ -176,6 +179,7 @@ class QuasiharmonicDebyeApprox:
         # G_opt=G(V_opt, T, P), V_opt
         return min_wrt_vol.fun, min_wrt_vol.x[0]
 
+    @cite_gibbs
     def vibrational_free_energy(self, temperature, volume):
         """
         Vibrational Helmholtz free energy, A_vib(V, T).
@@ -193,6 +197,7 @@ class QuasiharmonicDebyeApprox:
             self.kb * self.natoms * temperature * (9.0 / 8.0 * y + 3 * np.log(1 - np.exp(-y)) - self.debye_integral(y))
         )
 
+    @cite_gibbs
     def vibrational_internal_energy(self, temperature, volume):
         """
         Vibrational internal energy, U_vib(V, T).
@@ -208,6 +213,7 @@ class QuasiharmonicDebyeApprox:
         y = self.debye_temperature(volume) / temperature
         return self.kb * self.natoms * temperature * (9.0 / 8.0 * y + 3 * self.debye_integral(y))
 
+    @cite_gibbs
     def debye_temperature(self, volume):
         """
         Calculates the debye temperature.
@@ -237,6 +243,7 @@ class QuasiharmonicDebyeApprox:
             return debye * (self.ev_eos_fit.v0 / volume) ** (gamma)
         return debye
 
+    @cite_gibbs
     @staticmethod
     def debye_integral(y):
         """
@@ -257,6 +264,7 @@ class QuasiharmonicDebyeApprox:
             return list(integral)[0] * factor
         return 6.493939 * factor
 
+    @cite_gibbs
     def gruneisen_parameter(self, temperature, volume):
         """
         Slater-gamma formulation(the default):

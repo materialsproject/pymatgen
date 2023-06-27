@@ -21,6 +21,18 @@ from scipy.integrate import simps
 from scipy.interpolate import interp1d
 
 from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.util.due import Doi, due
+
+due.cite(
+    Doi("10.1021/acs.chemmater.9b02166"),
+    description="Accelerated Discovery of Efficient Solar Cell Materials Using Quantum and Machine-Learning Methods",
+)
+due.cite(
+    Doi("10.1103/PhysRevLett.108.068701"),
+    description="Identification of Potential Photovoltaic Absorbers Based on First-Principles "
+    "Spectroscopic Screening of Materials",
+)
+
 
 eV_to_recip_cm = 1.0 / (physical_constants["Planck constant in eV s"][0] * speed_of_light * 1e2)
 
