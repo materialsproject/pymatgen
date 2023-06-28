@@ -77,7 +77,7 @@ class StructureMatcherTest(PymatgenTest):
         assert sm._get_supercell_size(s2, s1) == (1, True)
 
         sm = StructureMatcher(supercell_size="wfieoh")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Can't parse Element or String from str: wfieoh"):
             sm._get_supercell_size(s1, s2)
 
     def test_cmp_fstruct(self):
@@ -89,7 +89,7 @@ class StructureMatcherTest(PymatgenTest):
         mask = np.array([[False, False]])
         mask2 = np.array([[True, False]])
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"len\(s1\)=1 must be larger than len\(s2\)=2"):
             sm._cmp_fstruct(s2, s1, frac_tol, mask.T)
         with pytest.raises(ValueError):
             sm._cmp_fstruct(s1, s2, frac_tol, mask.T)
@@ -114,9 +114,9 @@ class StructureMatcherTest(PymatgenTest):
         n1 = (len(s1) / latt.volume) ** (1 / 3)
         n2 = (len(s2) / latt.volume) ** (1 / 3)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"len\(s1\)=1 must be larger than len\(s2\)=2"):
             sm._cart_dists(s2, s1, latt, mask.T, n2)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="mask has incorrect shape"):
             sm._cart_dists(s1, s2, latt, mask.T, n1)
 
         d, ft, s = sm._cart_dists(s1, s2, latt, mask, n1)
@@ -698,7 +698,7 @@ class StructureMatcherTest(PymatgenTest):
         assert not sm_sites.fit(prim, supercell)
         assert sm_atoms.fit(prim, supercell)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Struct1 must be the supercell, not the other way around"):
             sm_atoms.get_s2_like_s1(prim, supercell)
         assert len(sm_atoms.get_s2_like_s1(supercell, prim)) == 4
 

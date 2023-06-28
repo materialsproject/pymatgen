@@ -45,14 +45,14 @@ class PiezoTest(PymatgenTest):
         pt = PiezoTensor(self.full_tensor_array)
         self.assert_all_close(pt, self.full_tensor_array)
         bad_dim_array = np.zeros((3, 3))
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="PiezoTensor input must be rank 3"):
             PiezoTensor(bad_dim_array)
 
     def test_from_voigt(self):
         bad_voigt = np.zeros((3, 7))
         pt = PiezoTensor.from_voigt(self.voigt_matrix)
         assert_array_equal(pt, self.full_tensor_array)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Invalid shape for Voigt matrix"):
             PiezoTensor.from_voigt(bad_voigt)
         assert_array_equal(self.voigt_matrix, pt.voigt)
 
@@ -60,6 +60,6 @@ class PiezoTest(PymatgenTest):
         bad_voigt = np.zeros((3, 7))
         pt = PiezoTensor.from_vasp_voigt(self.vasp_matrix)
         assert_array_equal(pt, self.full_tensor_array)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Invalid shape for Voigt matrix"):
             PiezoTensor.from_voigt(bad_voigt)
         assert_array_equal(self.voigt_matrix, pt.voigt)

@@ -3103,10 +3103,7 @@ class IMolecule(SiteCollection, MSONable):
         return hash(self.composition)
 
     def __repr__(self):
-        outs = ["Molecule Summary"]
-        for s in self:
-            outs.append(s.__repr__())
-        return "\n".join(outs)
+        return "Molecule Summary\n" + "\n".join(map(repr, self))
 
     def __str__(self):
         outs = [
@@ -3116,7 +3113,7 @@ class IMolecule(SiteCollection, MSONable):
             f"Sites ({len(self)})",
         ]
         for idx, site in enumerate(self):
-            outs.append(f"{idx} {site.species_string} {' '.join([f'{j:0.6f}'.rjust(12) for j in site.coords])}")
+            outs.append(f"{idx} {site.species_string} {' '.join([f'{coord:0.6f}'.rjust(12) for coord in site.coords])}")
         return "\n".join(outs)
 
     def as_dict(self):
