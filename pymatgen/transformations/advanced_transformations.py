@@ -840,16 +840,15 @@ class MagOrderingTransformation(AbstractTransformation):
                 spin = getattr(site.specie, "spin", None)
                 sign = int(spin) if spin else 0
                 if spin:
-                    new_properties = site.specie.properties.copy()
                     # this very hacky bit of code only works because we know
                     # that on disordered sites in this class, all species are the same
                     # but have different spins, and this is comma-delimited
                     sp = str(site.specie).split(",", maxsplit=1)[0]
-                    new_properties.update({"spin": sign * self.mag_species_spin.get(sp, 0)})
+                    new_spin = sign * self.mag_species_spin.get(sp, 0)
                     new_specie = Species(
                         site.specie.symbol,
                         getattr(site.specie, "oxi_state", None),
-                        new_properties,
+                        spin=new_spin,
                     )
                     structure.replace(idx, new_specie, properties=site.properties)
         logger.debug(f"Structure with spin magnitudes:\n{structure}")
