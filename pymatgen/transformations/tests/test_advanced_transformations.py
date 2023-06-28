@@ -402,10 +402,10 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(struct)
         Li_site = alls.indices_from_symbol("Li")[0]
         # Ensure s does not have a spin property
-        assert "spin" not in struct.sites[Li_site].specie._properties
+        assert struct.sites[Li_site].specie.spin is None
         # ensure sites are assigned a spin property in alls
-        assert "spin" in alls.sites[Li_site].specie._properties
-        assert alls.sites[Li_site].specie._properties["spin"] == 0
+        # assert "spin" in alls.sites[Li_site].specie.properties
+        assert alls.sites[Li_site].specie.spin == 0
 
     def test_advanced_usage(self):
         # test spin on just one oxidation state

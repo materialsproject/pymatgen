@@ -801,7 +801,7 @@ class MagOrderingTransformation(AbstractTransformation):
         for idx, site in enumerate(structure):
             if isinstance(site.specie, DummySpecies):
                 sites_to_remove.append(idx)
-                spin = site.specie._properties.get("spin")
+                spin = getattr(site.specie, "spin", None)
                 neighbors = structure.get_neighbors(
                     site,
                     0.05,  # arbitrary threshold, needs to be << any bond length
@@ -836,11 +836,11 @@ class MagOrderingTransformation(AbstractTransformation):
             Structure: Structure with spin magnitudes added.
         """
         for idx, site in enumerate(structure):
-            if getattr(site.specie, "_properties", None):
-                spin = site.specie._properties.get("spin")
+            if getattr(site.specie, "spin", None):
+                spin = getattr(site.specie, "spin", None)
                 sign = int(spin) if spin else 0
                 if spin:
-                    new_properties = site.specie._properties.copy()
+                    new_properties = site.specie.properties.copy()
                     # this very hacky bit of code only works because we know
                     # that on disordered sites in this class, all species are the same
                     # but have different spins, and this is comma-delimited
