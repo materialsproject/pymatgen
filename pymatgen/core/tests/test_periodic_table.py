@@ -544,6 +544,13 @@ class DummySpeciesTestCase(unittest.TestCase):
         assert r == [DummySpecies("X"), Element.Fe]
         assert DummySpecies("X", 3) < DummySpecies("X", 4)
 
+    def test_immutable(self):
+        sp = Species("Fe", 2, spin=5)
+        with pytest.raises(AttributeError):
+            sp.spin = 6
+        sp.properties["spin"] = 7
+        assert sp.spin == 5
+
 
 class FuncTest(unittest.TestCase):
     def test_get_el_sp(self):
