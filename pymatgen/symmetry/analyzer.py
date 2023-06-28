@@ -89,8 +89,8 @@ class SpacegroupAnalyzer:
         for site in structure:
             if hasattr(site, "magmom"):
                 magmoms.append(site.magmom)
-            elif site.is_ordered and getattr(site.specie, "spin", None) is not None:
-                magmoms.append(site.specie.spin)
+            elif site.is_ordered:
+                magmoms.append(getattr(site.specie, "spin", 0) or 0)
             else:
                 magmoms.append(0)
 
