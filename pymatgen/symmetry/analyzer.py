@@ -91,6 +91,8 @@ class SpacegroupAnalyzer:
                 magmoms.append(site.magmom)
             elif site.is_ordered and getattr(site.specie, "spin", None) is not None:
                 magmoms.append(site.specie.spin)
+            else:
+                magmoms.append(0)
 
         self._unique_species = unique_species
         self._numbers = zs

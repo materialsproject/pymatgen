@@ -145,10 +145,10 @@ class SpinComparator(AbstractComparator):
             Boolean indicating whether species are equal.
         """
         for s1 in sp1:
-            spin1 = getattr(s1, "spin", 0)
+            spin1 = getattr(s1, "spin", 0) or 0
             oxi1 = getattr(s1, "oxi_state", 0)
             for s2 in sp2:
-                spin2 = getattr(s2, "spin", 0)
+                spin2 = getattr(s2, "spin", 0) or 0
                 oxi2 = getattr(s2, "oxi_state", 0)
                 if s1.symbol == s2.symbol and oxi1 == oxi2 and spin2 == -spin1:
                     break

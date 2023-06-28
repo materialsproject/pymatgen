@@ -349,7 +349,6 @@ class MagOrderingTransformationTest(PymatgenTest):
         trans = MagOrderingTransformation({"Fe": 5})
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         struct = p.structure
-        print(struct)
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
         f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
