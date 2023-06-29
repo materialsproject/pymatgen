@@ -1,8 +1,11 @@
-# Distributed under the terms of the MIT License
-
 """
 Module for reading Lobster input files. For more information
 on LOBSTER see www.cohp.de.
+If you use this module, please cite:
+J. George, G. Petretto, A. Naik, M. Esters, A. J. Jackson, R. Nelson, R. Dronskowski, G.-M. Rignanese, G. Hautier,
+"Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+ChemPlusChem 2022, e202200123,
+DOI: 10.1002/cplu.202200123.
 """
 
 from __future__ import annotations
@@ -22,6 +25,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.core.composition import Composition
@@ -30,11 +34,17 @@ if TYPE_CHECKING:
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__maintainer__ = "Janine George, Marco Esters"
-__email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
+__maintainer__ = "Janine George"
+__email__ = "janinegeorge.ulfen@gmail.com"
 __date__ = "Dec 13, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+due.cite(
+    Doi("10.1002/cplu.202200123"),
+    description="Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+)
 
 
 class Lobsterin(dict, MSONable):
