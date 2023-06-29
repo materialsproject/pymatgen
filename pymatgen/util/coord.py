@@ -80,7 +80,7 @@ def is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8) 
 def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8):
     """
     Gives the index mapping from a subset to a superset.
-    Subset and superset cannot contain duplicate rows
+    Subset and superset cannot contain duplicate rows.
 
     Args:
         subset (ArrayLike): List of coords
@@ -104,7 +104,7 @@ def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-
 def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
     """
     Gives the index mapping from a subset to a superset.
-    Superset cannot contain duplicate matching rows
+    Superset cannot contain duplicate matching rows.
 
     Args:
         subset, superset: List of frac_coords
@@ -149,7 +149,7 @@ def get_linear_interpolated_value(x_values, y_values, x):
 
 def all_distances(coords1, coords2):
     """
-    Returns the distances between two lists of coordinates
+    Returns the distances between two lists of coordinates.
 
     Args:
         coords1: First set of Cartesian coordinates.
@@ -281,7 +281,7 @@ def lattice_points_in_supercell(supercell_matrix):
     """
     Returns the list of points on the original lattice contained in the
     supercell in fractional coordinates (with the supercell basis).
-    e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]]
+    e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]].
 
     Args:
         supercell_matrix: 3x3 matrix describing the supercell
@@ -304,9 +304,9 @@ def lattice_points_in_supercell(supercell_matrix):
 
     frac_points = np.dot(all_points, np.linalg.inv(supercell_matrix))
 
-    tvects = frac_points[np.all(frac_points < 1 - 1e-10, axis=1) & np.all(frac_points >= -1e-10, axis=1)]
-    assert len(tvects) == round(abs(np.linalg.det(supercell_matrix)))
-    return tvects
+    t_vecs = frac_points[np.all(frac_points < 1 - 1e-10, axis=1) & np.all(frac_points >= -1e-10, axis=1)]
+    assert len(t_vecs) == round(abs(np.linalg.det(supercell_matrix)))
+    return t_vecs
 
 
 def barycentric_coords(coords, simplex):
@@ -384,9 +384,7 @@ class Simplex(MSONable):
 
     @property
     def volume(self):
-        """
-        Volume of the simplex.
-        """
+        """Volume of the simplex."""
         return abs(np.linalg.det(self._aug)) / math.factorial(self.simplex_dim)
 
     def bary_coords(self, point):
@@ -399,21 +397,21 @@ class Simplex(MSONable):
         """
         try:
             return np.dot(np.concatenate([point, [1]]), self._aug_inv)
-        except AttributeError:
-            raise ValueError("Simplex is not full-dimensional")
+        except AttributeError as exc:
+            raise ValueError("Simplex is not full-dimensional") from exc
 
     def point_from_bary_coords(self, bary_coords):
         """
         Args:
-            bary_coords (): Barycentric coordinates
+            bary_coords (): Barycentric coordinates.
 
         Returns:
             Point coordinates
         """
         try:
             return np.dot(bary_coords, self._aug[:, :-1])
-        except AttributeError:
-            raise ValueError("Simplex is not full-dimensional")
+        except AttributeError as exc:
+            raise ValueError("Simplex is not full-dimensional") from exc
 
     def in_simplex(self, point, tolerance=1e-8):
         """
@@ -439,7 +437,7 @@ class Simplex(MSONable):
         Args:
             point1, point2 ([float]): Points that determine the line
         Returns:
-            points where the line intersects the simplex (0, 1, or 2)
+            points where the line intersects the simplex (0, 1, or 2).
         """
         b1 = self.bary_coords(point1)
         b2 = self.bary_coords(point2)
@@ -480,7 +478,5 @@ class Simplex(MSONable):
 
     @property
     def coords(self):
-        """
-        Returns a copy of the vertex coordinates in the simplex.
-        """
+        """Returns a copy of the vertex coordinates in the simplex."""
         return self._coords.copy()

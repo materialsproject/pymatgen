@@ -1,6 +1,4 @@
-"""
-Predict volumes of crystal structures.
-"""
+"""Predict volumes of crystal structures."""
 
 from __future__ import annotations
 
@@ -21,7 +19,7 @@ bond_params = loadfn(os.path.join(MODULE_DIR, "DLS_bond_params.yaml"))
 def _is_ox(structure):
     for elem in structure.composition:
         try:
-            elem.oxi_state
+            elem.oxi_state  # noqa: B018
         except AttributeError:
             return False
     return True
@@ -161,7 +159,7 @@ class DLSVolumePredictor:
                 too-small volumes)
             max_scaling (float): if not None, this will ensure that the new
                 volume is at most this fraction of the original (preventing
-                too-large volumes)
+                too-large volumes).
         """
         self.cutoff = cutoff
         self.min_scaling = min_scaling

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-A master convenience script with many tools for vasp and structure analysis.
-"""
+"""A master convenience script with many tools for vasp and structure analysis."""
 
 from __future__ import annotations
 
@@ -31,9 +29,9 @@ def parse_view(args):
     from pymatgen.vis.structure_vtk import StructureVis
 
     excluded_bonding_elements = args.exclude_bonding[0].split(",") if args.exclude_bonding else []
-    s = Structure.from_file(args.filename[0])
+    struct = Structure.from_file(args.filename[0])
     vis = StructureVis(excluded_bonding_elements=excluded_bonding_elements)
-    vis.set_structure(s)
+    vis.set_structure(struct)
     vis.show()
     return 0
 
@@ -81,9 +79,7 @@ def diff_incar(args):
 
 
 def main():
-    """
-    Handle main.
-    """
+    """Handle main."""
     parser = argparse.ArgumentParser(
         description="""
     pmg is a convenient script that uses pymatgen to perform many
@@ -449,7 +445,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        args.func
+        args.func  # noqa: B018
     except AttributeError:
         parser.print_help()
         raise SystemExit("Please specify a command.")
@@ -457,4 +453,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

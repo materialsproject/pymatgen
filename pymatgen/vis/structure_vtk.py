@@ -1,6 +1,4 @@
-"""
-This module contains classes to wrap Python VTK to make nice molecular plots.
-"""
+"""This module contains classes to wrap Python VTK to make nice molecular plots."""
 
 from __future__ import annotations
 
@@ -35,9 +33,7 @@ EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
 
 
 class StructureVis:
-    """
-    Provides Structure object visualization using VTK.
-    """
+    """Provides Structure object visualization using VTK."""
 
     @requires(vtk, "Visualization requires the installation of VTK with Python bindings.")
     def __init__(
@@ -180,17 +176,13 @@ class StructureVis:
         self.ren_win.Render()
 
     def orthongonalize_structure(self):
-        """
-        Orthogonalize the structure.
-        """
+        """Orthogonalize the structure."""
         if self.structure is not None:
             self.set_structure(self.structure.copy(sanitize=True))
         self.ren_win.Render()
 
     def display_help(self):
-        """
-        Display the help for various keyboard shortcuts.
-        """
+        """Display the help for various keyboard shortcuts."""
         help_text = [
             "h : Toggle help",
             "A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector",
@@ -222,13 +214,13 @@ class StructureVis:
         has_lattice = hasattr(structure, "lattice")
 
         if has_lattice:
-            s = Structure.from_sites(structure, to_unit_cell=to_unit_cell)
-            s.make_supercell(self.supercell, to_unit_cell=to_unit_cell)
+            struct = Structure.from_sites(structure, to_unit_cell=to_unit_cell)
+            struct.make_supercell(self.supercell, to_unit_cell=to_unit_cell)
         else:
-            s = structure
+            struct = structure
 
         inc_coords = []
-        for site in s:
+        for site in struct:
             self.add_site(site)
             inc_coords.append(site.coords)
 
@@ -237,7 +229,7 @@ class StructureVis:
         colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
 
         if has_lattice:
-            matrix = s.lattice.matrix
+            matrix = struct.lattice.matrix
 
         if self.show_unit_cell and has_lattice:
             # matrix = s.lattice.matrix
@@ -252,14 +244,14 @@ class StructureVis:
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
 
         if self.show_bonds or self.show_polyhedron:
-            elements = sorted(s.composition.elements, key=lambda a: a.X)
+            elements = sorted(struct.composition.elements, key=lambda a: a.X)
             anion = elements[-1]
 
             def contains_anion(site):
                 return any(sp.symbol == anion.symbol for sp in site.species)
 
             anion_radius = anion.average_ionic_radius
-            for site in s:
+            for site in struct:
                 exclude = False
                 max_radius = 0
                 color = np.array([0, 0, 0])
@@ -296,32 +288,28 @@ class StructureVis:
         if reset_camera:
             if has_lattice:
                 # Adjust the camera for best viewing
-                lengths = s.lattice.abc
+                lengths = struct.lattice.abc
                 pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5
                 camera.SetPosition(pos)
                 camera.SetViewUp(matrix[2])
                 camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
             else:
-                origin = s.center_of_mass
-                max_site = max(s, key=lambda site: site.distance_from_point(origin))
+                origin = struct.center_of_mass
+                max_site = max(struct, key=lambda site: site.distance_from_point(origin))
                 camera.SetPosition(origin + 5 * (max_site.coords - origin))
-                camera.SetFocalPoint(s.center_of_mass)
+                camera.SetFocalPoint(struct.center_of_mass)
 
         self.structure = structure
-        self.title = s.composition.formula
+        self.title = struct.composition.formula
 
     def zoom(self, factor):
-        """
-        Zoom the camera view by a factor.
-        """
+        """Zoom the camera view by a factor."""
         camera = self.ren.GetActiveCamera()
         camera.Zoom(factor)
         self.ren_win.Render()
 
     def show(self):
-        """
-        Display the visualizer.
-        """
+        """Display the visualizer."""
         self.iren.Initialize()
         self.ren_win.SetSize(800, 800)
         self.ren_win.SetWindowName(self.title)
@@ -717,9 +705,7 @@ class StructureVis:
         self.ren.AddActor(actor)
 
     def add_picker_fixed(self):
-        """
-        Create a cell picker.Returns:
-        """
+        """Create a cell picker.Returns:"""
         picker = vtk.vtkCellPicker()
 
         # Create a Python function to create the text for the text mapper used
@@ -749,9 +735,7 @@ class StructureVis:
         self.iren.SetPicker(picker)
 
     def add_picker(self):
-        """
-        Create a cell picker.
-        """
+        """Create a cell picker."""
         picker = vtk.vtkCellPicker()
         # Create a Python function to create the text for the text mapper used
         # to display the results of picking.
@@ -788,15 +772,9 @@ class StructureVis:
 
 
 class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
-    """
-    A custom interactor style for visualizing structures.
-    """
+    """A custom interactor style for visualizing structures."""
 
     def __init__(self, parent):
-        """
-        Args:
-            parent ():
-        """
         self.parent = parent
         self.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent)
         self.AddObserver("MouseMoveEvent", self.mouseMoveEvent)
@@ -804,29 +782,14 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
         self.AddObserver("KeyPressEvent", self.keyPressEvent)
 
     def leftButtonPressEvent(self, obj, event):
-        """
-        Args:
-            obj ():
-            event ():
-        """
         self.mouse_motion = 0
         self.OnLeftButtonDown()
 
     def mouseMoveEvent(self, obj, event):
-        """
-        Args:
-            obj ():
-            event ():
-        """
         self.mouse_motion = 1
         self.OnMouseMove()
 
     def leftButtonReleaseEvent(self, obj, event):
-        """
-        Args:
-            obj ():
-            event ():
-        """
         ren = obj.GetCurrentRenderer()
         iren = ren.GetRenderWindow().GetInteractor()
         if self.mouse_motion == 0:
@@ -835,11 +798,6 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
         self.OnLeftButtonUp()
 
     def keyPressEvent(self, obj, event):
-        """
-        Args:
-            obj ():
-            event ():
-        """
         parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
 
@@ -935,9 +893,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
 
 
 class MultiStructuresVis(StructureVis):
-    """
-    Visualization for multiple structures.
-    """
+    """Visualization for multiple structures."""
 
     DEFAULT_ANIMATED_MOVIE_OPTIONS = frozendict(
         time_between_frames=0.1,
@@ -986,8 +942,8 @@ class MultiStructuresVis(StructureVis):
             poly_radii_tol_factor=poly_radii_tol_factor,
             excluded_bonding_elements=excluded_bonding_elements,
         )
-        self.warningtxt_actor = vtk.vtkActor2D()
-        self.infotxt_actor = vtk.vtkActor2D()
+        self.warning_txt_actor = vtk.vtkActor2D()
+        self.info_txt_actor = vtk.vtkActor2D()
         self.structures = None
         style = MultiStructuresInteractorStyle(self)
         self.iren.SetInteractorStyle(style)
@@ -1041,9 +997,7 @@ class MultiStructuresVis(StructureVis):
         self.apply_tags()
 
     def apply_tags(self):
-        """
-        Apply tags.
-        """
+        """Apply tags."""
         tags = {}
         for tag in self.tags:
             istruct = tag.get("istruct", "all")
@@ -1118,9 +1072,7 @@ class MultiStructuresVis(StructureVis):
             self.animated_movie_options.update(animated_movie_options)
 
     def display_help(self):
-        """
-        Display the help for various keyboard shortcuts.
-        """
+        """Display the help for various keyboard shortcuts."""
         helptxt = [
             "h : Toggle help",
             "A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector",
@@ -1143,78 +1095,63 @@ class MultiStructuresVis(StructureVis):
     def display_warning(self, warning):
         """
         Args:
-            warning (str): Warning
+            warning (str): Warning.
         """
-        self.warningtxt_mapper = vtk.vtkTextMapper()
-        tprops = self.warningtxt_mapper.GetTextProperty()
+        self.warning_txt_mapper = vtk.vtkTextMapper()
+        tprops = self.warning_txt_mapper.GetTextProperty()
         tprops.SetFontSize(14)
         tprops.SetFontFamilyToTimes()
         tprops.SetColor(1, 0, 0)
         tprops.BoldOn()
         tprops.SetJustificationToRight()
-        self.warningtxt = f"WARNING : {warning}"
-        self.warningtxt_actor = vtk.vtkActor2D()
-        self.warningtxt_actor.VisibilityOn()
-        self.warningtxt_actor.SetMapper(self.warningtxt_mapper)
-        self.ren.AddActor(self.warningtxt_actor)
-        self.warningtxt_mapper.SetInput(self.warningtxt)
+        self.warning_txt = f"WARNING : {warning}"
+        self.warning_txt_actor = vtk.vtkActor2D()
+        self.warning_txt_actor.VisibilityOn()
+        self.warning_txt_actor.SetMapper(self.warning_txt_mapper)
+        self.ren.AddActor(self.warning_txt_actor)
+        self.warning_txt_mapper.SetInput(self.warning_txt)
         winsize = self.ren_win.GetSize()
-        self.warningtxt_actor.SetPosition(winsize[0] - 10, 10)
-        self.warningtxt_actor.VisibilityOn()
+        self.warning_txt_actor.SetPosition(winsize[0] - 10, 10)
+        self.warning_txt_actor.VisibilityOn()
 
     def erase_warning(self):
-        """
-        Remove warnings.
-        """
-        self.warningtxt_actor.VisibilityOff()
+        """Remove warnings."""
+        self.warning_txt_actor.VisibilityOff()
 
     def display_info(self, info):
         """
         Args:
             info (str): Information.
         """
-        self.infotxt_mapper = vtk.vtkTextMapper()
-        tprops = self.infotxt_mapper.GetTextProperty()
+        self.info_txt_mapper = vtk.vtkTextMapper()
+        tprops = self.info_txt_mapper.GetTextProperty()
         tprops.SetFontSize(14)
         tprops.SetFontFamilyToTimes()
         tprops.SetColor(0, 0, 1)
         tprops.BoldOn()
         tprops.SetVerticalJustificationToTop()
-        self.infotxt = f"INFO : {info}"
-        self.infotxt_actor = vtk.vtkActor2D()
-        self.infotxt_actor.VisibilityOn()
-        self.infotxt_actor.SetMapper(self.infotxt_mapper)
-        self.ren.AddActor(self.infotxt_actor)
-        self.infotxt_mapper.SetInput(self.infotxt)
+        self.info_txt = f"INFO : {info}"
+        self.info_txt_actor = vtk.vtkActor2D()
+        self.info_txt_actor.VisibilityOn()
+        self.info_txt_actor.SetMapper(self.info_txt_mapper)
+        self.ren.AddActor(self.info_txt_actor)
+        self.info_txt_mapper.SetInput(self.info_txt)
         winsize = self.ren_win.GetSize()
-        self.infotxt_actor.SetPosition(10, winsize[1] - 10)
-        self.infotxt_actor.VisibilityOn()
+        self.info_txt_actor.SetPosition(10, winsize[1] - 10)
+        self.info_txt_actor.VisibilityOn()
 
     def erase_info(self):
-        """
-        Erase all info.
-        """
-        self.infotxt_actor.VisibilityOff()
+        """Erase all info."""
+        self.info_txt_actor.VisibilityOff()
 
 
 class MultiStructuresInteractorStyle(StructureInteractorStyle):
-    """
-    Interactor for MultiStructureVis.
-    """
+    """Interactor for MultiStructureVis."""
 
     def __init__(self, parent) -> None:
-        """
-        Args:
-            parent ():
-        """
         StructureInteractorStyle.__init__(self, parent=parent)
 
     def keyPressEvent(self, obj, event):
-        """
-        Args:
-            obj ():
-            event ():
-        """
         parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
 

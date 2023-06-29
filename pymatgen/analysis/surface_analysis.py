@@ -50,6 +50,7 @@ from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.vasp.outputs import Locpot, Outcar, Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
@@ -147,9 +148,7 @@ class SlabEntry(ComputedStructureEntry):
         )
 
     def as_dict(self):
-        """
-        Returns dict which contains Slab Entry data.
-        """
+        """Returns dict which contains Slab Entry data."""
         d = {"@module": type(self).__module__, "@class": type(self).__name__}
         d["structure"] = self.structure
         d["energy"] = self.energy
@@ -248,8 +247,7 @@ class SlabEntry(ComputedStructureEntry):
         """
         A_ads = self.surface_area
         A_clean = self.clean_entry.surface_area
-        n = A_ads / A_clean
-        return n
+        return A_ads / A_clean
 
     @property
     def get_monolayer(self):
@@ -264,16 +262,12 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def Nads_in_slab(self):
-        """
-        Returns the TOTAL number of adsorbates in the slab on BOTH sides
-        """
+        """Returns the TOTAL number of adsorbates in the slab on BOTH sides."""
         return sum(self.composition.as_dict()[a] for a in self.ads_entries_dict)
 
     @property
     def Nsurfs_ads_in_slab(self):
-        """
-        Returns the TOTAL number of adsorbed surfaces in the slab
-        """
+        """Returns the TOTAL number of adsorbed surfaces in the slab."""
         struct = self.structure
         weights = [s.species.weight for s in struct]
         center_of_mass = np.average(struct.frac_coords, weights=weights, axis=0)
@@ -294,9 +288,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @classmethod
     def from_dict(cls, dct):
-        """
-        Returns a SlabEntry by reading in an dictionary
-        """
+        """Returns a SlabEntry by reading in an dictionary."""
         structure = SlabEntry.from_dict(dct["structure"])
         energy = SlabEntry.from_dict(dct["energy"])
         miller_index = dct["miller_index"]
@@ -315,17 +307,13 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def surface_area(self):
-        """
-        Calculates the surface area of the slab
-        """
+        """Calculates the surface area of the slab."""
         m = self.structure.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
     @property
     def cleaned_up_slab(self):
-        """
-        Returns a slab with the adsorbates removed
-        """
+        """Returns a slab with the adsorbates removed."""
         ads_strs = list(self.ads_entries_dict)
         cleaned = self.structure.copy()
         cleaned.remove_species(ads_strs)
@@ -333,9 +321,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def create_slab_label(self):
-        """
-        Returns a label (str) for this particular slab based on composition, coverage and Miller index.
-        """
+        """Returns a label (str) for this particular slab based on composition, coverage and Miller index."""
         if "label" in self.data:
             return self.data["label"]
 
@@ -353,9 +339,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @staticmethod
     def from_computed_structure_entry(entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs):
-        """
-        Returns SlabEntry from a ComputedStructureEntry
-        """
+        """Returns SlabEntry from a ComputedStructureEntry."""
         return SlabEntry(
             entry.structure,
             entry.energy,
@@ -1049,9 +1033,7 @@ class SurfaceEnergyPlotter:
 
         # Make the figure look nice
         plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
-        plt = self.chempot_plot_addons(plt, chempot_range, str(ref_delu).split("_")[1], axes, ylim=ylim)
-
-        return plt
+        return self.chempot_plot_addons(plt, chempot_range, str(ref_delu).split("_")[1], axes, ylim=ylim)
 
     def monolayer_vs_BE(self, plot_eads=False):
         """
@@ -1508,7 +1490,7 @@ class WorkFunctionAnalyzer:
     def get_locpot_along_slab_plot(self, label_energies=True, plt=None, label_fontsize=10):
         """
         Returns a plot of the local potential (eV) vs the
-            position along the c axis of the slab model (Ang)
+            position along the c axis of the slab model (Ang).
 
         Args:
             label_energies (bool): Whether to label relevant energy
@@ -1565,7 +1547,7 @@ class WorkFunctionAnalyzer:
         Args:
             plt (plt): Plot of the locpot vs c axis
             label_fontsize (float): Fontsize of labels
-        Returns Labelled plt
+        Returns Labelled plt.
         """
         # center of vacuum and bulk region
         if len(self.slab_regions) > 1:
@@ -1684,6 +1666,10 @@ class WorkFunctionAnalyzer:
         )
 
 
+@due.dcite(
+    Doi("10.1021/nl404557w"),
+    description="Nanoscale stabilization of sodium oxides: Implications for Na-O2 batteries",
+)
 class NanoscaleStability:
     """
     A class for analyzing the stability of nanoparticles of different
@@ -1711,9 +1697,7 @@ class NanoscaleStability:
     """
 
     def __init__(self, se_analyzers, symprec=1e-5):
-        """
-        Analyzes the nanoscale stability of different polymorphs.
-        """
+        """Analyzes the nanoscale stability of different polymorphs."""
         self.se_analyzers = se_analyzers
         self.symprec = symprec
 
@@ -1812,7 +1796,7 @@ class NanoscaleStability:
         e = e / 1000 if e_units == "keV" else e
         e = e / ((4 / 3) * np.pi * new_r**3) if normalize else e
         bulk_struct = bulk_entry.structure
-        density = len(bulk_struct) / bulk_struct.lattice.volume
+        density = len(bulk_struct) / bulk_struct.volume
         e = e / (density * w_vol) if scale_per_atom else e
 
         return e, new_r
@@ -1820,11 +1804,15 @@ class NanoscaleStability:
     @staticmethod
     def bulk_gform(bulk_entry):
         """
-        Returns the formation energy of the bulk
+        Returns the formation energy of the bulk.
+
         Args:
             bulk_entry (ComputedStructureEntry): Entry of the corresponding bulk.
+
+        Returns:
+            float: bulk formation energy (in eV)
         """
-        return bulk_entry.energy / bulk_entry.structure.lattice.volume
+        return bulk_entry.energy / bulk_entry.structure.volume
 
     def scaled_wulff(self, wulffshape, r):
         """
@@ -1869,7 +1857,7 @@ class NanoscaleStability:
     ):
         """
         Returns the plot of the formation energy of a particle against its
-            effect radius
+            effect radius.
 
         Args:
             analyzer (SurfaceEnergyPlotter): Analyzer associated with the
@@ -1933,7 +1921,7 @@ class NanoscaleStability:
     ):
         """
         Returns the plot of the formation energy of a particles
-            of different polymorphs against its effect radius
+            of different polymorphs against its effect radius.
 
         Args:
             max_r (float): The maximum radius of the particle to plot up to.

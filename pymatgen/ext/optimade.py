@@ -1,6 +1,4 @@
-"""
-Optimade support.
-"""
+"""Optimade support."""
 
 from __future__ import annotations
 
@@ -11,10 +9,12 @@ from os.path import join
 from urllib.parse import urlparse
 
 import requests
+from frozendict import frozendict
 from tqdm import tqdm
 
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
+from pymatgen.util.due import Doi, due
 from pymatgen.util.provenance import StructureNL
 
 # from retrying import retry
@@ -29,6 +29,10 @@ _logger.addHandler(_handler)
 _logger.setLevel(logging.WARNING)
 
 
+@due.dcite(
+    Doi("10.1038/s41597-021-00974-z"),
+    description="OPTIMADE, an API for exchanging materials data",
+)
 class OptimadeRester:
     """
     Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
@@ -38,35 +42,36 @@ class OptimadeRester:
     [1] Andersen, C.W., *et al*.
         OPTIMADE, an API for exchanging materials data.
         Sci Data 8, 217 (2021). https://doi.org/10.1038/s41597-021-00974-z
-
     """
 
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
-    aliases: dict[str, str] = {
-        "aflow": "http://aflow.org/API/optimade/",
-        "cod": "https://www.crystallography.net/cod/optimade",
-        "mcloud.mc3d": "https://aiida.materialscloud.org/mc3d/optimade",
-        "mcloud.mc2d": "https://aiida.materialscloud.org/mc2d/optimade",
-        "mcloud.2dtopo": "https://aiida.materialscloud.org/2dtopo/optimade",
-        "mcloud.tc-applicability": "https://aiida.materialscloud.org/tc-applicability/optimade",
-        "mcloud.pyrene-mofs": "https://aiida.materialscloud.org/pyrene-mofs/optimade",
-        "mcloud.curated-cofs": "https://aiida.materialscloud.org/curated-cofs/optimade",
-        "mcloud.stoceriaitf": "https://aiida.materialscloud.org/stoceriaitf/optimade",
-        "mcloud.scdm": "https://aiida.materialscloud.org/autowannier/optimade",
-        "mcloud.tin-antimony-sulfoiodide": "https://aiida.materialscloud.org/tin-antimony-sulfoiodide/optimade",
-        "mcloud.optimade-sample": "https://aiida.materialscloud.org/optimade-sample/optimade",
-        "mp": "https://optimade.materialsproject.org",
-        "mpds": "https://api.mpds.io",
-        "nmd": "https://nomad-lab.eu/prod/rae/optimade/",
-        "odbx": "https://optimade.odbx.science",
-        "odbx.odbx_misc": "https://optimade-misc.odbx.science",
-        "omdb.omdb_production": "http://optimade.openmaterialsdb.se",
-        "oqmd": "http://oqmd.org/optimade/",
-        "jarvis": "https://jarvis.nist.gov/optimade/jarvisdft",
-        "tcod": "https://www.crystallography.net/tcod/optimade",
-        "twodmatpedia": "http://optimade.2dmatpedia.org",
-    }
+    aliases = frozendict(
+        {
+            "aflow": "http://aflow.org/API/optimade/",
+            "cod": "https://www.crystallography.net/cod/optimade",
+            "mcloud.mc3d": "https://aiida.materialscloud.org/mc3d/optimade",
+            "mcloud.mc2d": "https://aiida.materialscloud.org/mc2d/optimade",
+            "mcloud.2dtopo": "https://aiida.materialscloud.org/2dtopo/optimade",
+            "mcloud.tc-applicability": "https://aiida.materialscloud.org/tc-applicability/optimade",
+            "mcloud.pyrene-mofs": "https://aiida.materialscloud.org/pyrene-mofs/optimade",
+            "mcloud.curated-cofs": "https://aiida.materialscloud.org/curated-cofs/optimade",
+            "mcloud.stoceriaitf": "https://aiida.materialscloud.org/stoceriaitf/optimade",
+            "mcloud.scdm": "https://aiida.materialscloud.org/autowannier/optimade",
+            "mcloud.tin-antimony-sulfoiodide": "https://aiida.materialscloud.org/tin-antimony-sulfoiodide/optimade",
+            "mcloud.optimade-sample": "https://aiida.materialscloud.org/optimade-sample/optimade",
+            "mp": "https://optimade.materialsproject.org",
+            "mpds": "https://api.mpds.io",
+            "nmd": "https://nomad-lab.eu/prod/rae/optimade/",
+            "odbx": "https://optimade.odbx.science",
+            "odbx.odbx_misc": "https://optimade-misc.odbx.science",
+            "omdb.omdb_production": "http://optimade.openmaterialsdb.se",
+            "oqmd": "http://oqmd.org/optimade/",
+            "jarvis": "https://jarvis.nist.gov/optimade/jarvisdft",
+            "tcod": "https://www.crystallography.net/tcod/optimade",
+            "twodmatpedia": "http://optimade.2dmatpedia.org",
+        }
+    )
 
     # The set of OPTIMADE fields that are required to define a `pymatgen.core.Structure`
     mandatory_response_fields = ("lattice_vectors", "cartesian_site_positions", "species", "species_at_sites")
@@ -150,12 +155,9 @@ class OptimadeRester:
         return self.describe()
 
     def describe(self):
-        """
-        Provides human-readable information about the resources being searched by the OptimadeRester.
-        """
+        """Provides human-readable information about the resources being searched by the OptimadeRester."""
         provider_text = "\n".join(map(str, (provider for provider in self._providers.values() if provider)))
-        description = f"OptimadeRester connected to:\n{provider_text}"
-        return description
+        return f"OptimadeRester connected to:\n{provider_text}"
 
     # @retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=2000)
     def _get_json(self, url):
@@ -173,9 +175,7 @@ class OptimadeRester:
         chemical_formula_anonymous: str | None = None,
         chemical_formula_hill: str | None = None,
     ):
-        """
-        Convenience method to build an OPTIMADE filter.
-        """
+        """Convenience method to build an OPTIMADE filter."""
         filters = []
 
         if elements:
@@ -197,10 +197,10 @@ class OptimadeRester:
                 filters.append(f"({nelements=})")
 
         if chemical_formula_anonymous:
-            filters.append(f'(chemical_formula_anonymous="{chemical_formula_anonymous}")')
+            filters.append(f"({chemical_formula_anonymous=})")
 
         if chemical_formula_hill:
-            filters.append(f'(chemical_formula_hill="{chemical_formula_hill}")')
+            filters.append(f"({chemical_formula_hill=})")
 
         return " AND ".join(filters)
 
@@ -438,9 +438,7 @@ class OptimadeRester:
         """
 
         def is_url(url) -> bool:
-            """
-            Basic URL validation thanks to https://stackoverflow.com/a/52455972
-            """
+            """Basic URL validation thanks to https://stackoverflow.com/a/52455972."""
             try:
                 result = urlparse(url)
                 return all([result.scheme, result.netloc])
@@ -553,13 +551,9 @@ class OptimadeRester:
 
     # TODO: revisit context manager logic here and in MPRester
     def __enter__(self):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         self.session.close()

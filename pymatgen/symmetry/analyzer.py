@@ -29,12 +29,18 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule, PeriodicSite, Structure
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.core.periodic_table import Element, Species
     from pymatgen.core.sites import Site
 
 logger = logging.getLogger(__name__)
+
+cite_conventional_cell_algo = due.dcite(
+    Doi("10.1016/j.commatsci.2010.05.010"),
+    description="High-throughput electronic band structure calculations: Challenges and tools",
+)
 
 
 @lru_cache(maxsize=32)
@@ -83,7 +89,7 @@ class SpacegroupAnalyzer:
         for site in structure:
             if hasattr(site, "magmom"):
                 magmoms.append(site.magmom)
-            elif site.is_ordered and hasattr(site.specie, "spin"):
+            elif site.is_ordered and getattr(site.specie, "spin", None) is not None:
                 magmoms.append(site.specie.spin)
 
         self._unique_species = unique_species
@@ -340,8 +346,8 @@ class SpacegroupAnalyzer:
                 site_properties[k] = [v[i - 1] for i in numbers]
         else:
             site_properties = None
-        s = Structure(lattice, species, scaled_positions, site_properties=site_properties)
-        return s.get_sorted_structure()
+        struct = Structure(lattice, species, scaled_positions, site_properties=site_properties)
+        return struct.get_sorted_structure()
 
     def find_primitive(self, keep_site_properties=False):
         """Find a primitive version of the unit cell.
@@ -419,6 +425,7 @@ class SpacegroupAnalyzer:
 
         return grid_fractional_coords, mapping
 
+    @cite_conventional_cell_algo
     def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
         """Gives the transformation matrix to transform a conventional unit cell to a
         primitive cell according to certain standards the standards are defined in
@@ -462,6 +469,7 @@ class SpacegroupAnalyzer:
 
         return transf
 
+    @cite_conventional_cell_algo
     def get_primitive_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
         """Gives a structure with a primitive cell according to certain standards the
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput
@@ -540,6 +548,7 @@ class SpacegroupAnalyzer:
 
         return Structure.from_sites(new_sites)
 
+    @cite_conventional_cell_algo
     def get_conventional_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
         """Gives a structure with a conventional cell according to certain standards. The
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput
@@ -898,15 +907,16 @@ class SpacegroupAnalyzer:
         return [w / sum(weights) for w in weights]
 
     def is_laue(self) -> bool:
-        """Check if the point group of the structure has Laue symmetry (centrosymmetry)"""
+        """Check if the point group of the structure has Laue symmetry (centrosymmetry)."""
         laue = ("-1", "2/m", "mmm", "4/m", "4/mmm", "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m")
 
         return str(self.get_point_group_symbol()) in laue
 
 
 class PointGroupAnalyzer:
-    """A class to analyze the point group of a molecule. The general outline of the
-    algorithm is as follows:
+    """A class to analyze the point group of a molecule.
+
+    The general outline of the algorithm is as follows:
 
     1. Center the molecule around its center of mass.
     2. Compute the inertia tensor and the eigenvalues and eigenvectors.
@@ -922,9 +932,8 @@ class PointGroupAnalyzer:
         d. Spherical top molecules have all three eigenvalues equal. They
            have the rare T, O or I point groups.
 
-    .. attribute:: sch_symbol
-
-        Schoenflies symbol of the detected point group.
+    Attribute:
+        sch_symbol (str): Schoenflies symbol of the detected point group.
     """
 
     inversion_op = SymmOp.inversion()

@@ -1,6 +1,4 @@
-"""
-Analysis classes for batteries
-"""
+"""Analysis classes for batteries."""
 
 from __future__ import annotations
 
@@ -25,13 +23,11 @@ ELECTRON_TO_AMPERE_HOURS = EV_PER_ATOM_TO_J_PER_MOL / 3600
 
 
 class BatteryAnalyzer:
-    """
-    A suite of methods for starting with an oxidized structure and determining its potential as a battery
-    """
+    """A suite of methods for starting with an oxidized structure and determining its potential as a battery."""
 
     def __init__(self, struc_oxid, working_ion="Li", oxi_override=None):
         """
-        Pass in a structure for analysis
+        Pass in a structure for analysis.
 
         Arguments:
             struc_oxid: a Structure object; oxidation states *must* be assigned for this structure; disordered
@@ -123,7 +119,7 @@ class BatteryAnalyzer:
     def _get_max_cap_ah(self, remove, insert):
         """
         Give max capacity in mAh for inserting and removing a charged ion
-        This method does not normalize the capacity and intended as a helper method
+        This method does not normalize the capacity and intended as a helper method.
         """
         num_working_ions = 0
         if remove:
@@ -245,7 +241,7 @@ class BatteryAnalyzer:
 
 def is_redox_active_intercalation(element) -> bool:
     """
-    True if element is redox active and interesting for intercalation materials
+    True if element is redox active and interesting for intercalation materials.
 
     Args:
         element: Element object

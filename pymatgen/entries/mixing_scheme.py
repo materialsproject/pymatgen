@@ -531,7 +531,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         ]
 
         def _get_sg(struct) -> int:
-            """Helper function to get spacegroup with a loose tolerance"""
+            """Helper function to get spacegroup with a loose tolerance."""
             try:
                 return struct.get_space_group_info(symprec=0.1)[1]
             except Exception:
@@ -541,9 +541,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # this logic follows emmet.builders.vasp.materials.MaterialsBuilder.filter_and_group_tasks
         structures = []
         for entry in all_entries:
-            s = entry.structure
-            s.entry_id = entry.entry_id
-            structures.append(s)
+            struct = entry.structure
+            struct.entry_id = entry.entry_id
+            structures.append(struct)
 
         # First group by composition, then by spacegroup number, then by structure matching
         for comp, compgroup in groupby(sorted(structures, key=lambda s: s.composition), key=lambda s: s.composition):
@@ -569,16 +569,12 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                         row_list.append(self._populate_df_row(grp, comp, sg, n, pd_type_1, pd_type_2, all_entries))
 
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
-        mixing_state_data = mixing_state_data.sort_values(
-            ["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True
-        )
-
-        return mixing_state_data
+        return mixing_state_data.sort_values(["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True)
 
     def _filter_and_sort_entries(self, entries, verbose=True):
         """
         Given a single list of entries, separate them by run_type and return two lists, one containing
-        only entries of each run_type
+        only entries of each run_type.
         """
         filtered_entries = []
 
@@ -669,7 +665,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
     def _populate_df_row(self, struct_group, comp, sg, n, pd_type_1, pd_type_2, all_entries):
         """
         Helper function to populate a row of the mixing state DataFrame, given
-        a list of matched structures
+        a list of matched structures.
         """
         # within the group of matched structures, keep the lowest energy entry from
         # each run_type
@@ -731,9 +727,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     @staticmethod
     def display_entries(entries):
-        """
-        Generate a pretty printout of key properties of a list of ComputedEntry
-        """
+        """Generate a pretty printout of key properties of a list of ComputedEntry."""
         entries = sorted(entries, key=lambda e: (e.composition.reduced_formula, e.energy_per_atom))
         try:
             pd = PhaseDiagram(entries)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 from numpy.testing import assert_array_equal
+from pytest import approx
 
 from pymatgen.core.units import (
     ArrayWithUnit,
@@ -41,42 +42,42 @@ class FloatWithUnitTest(PymatgenTest):
     def test_energy(self):
         a = Energy(1.1, "eV")
         b = a.to("Ha")
-        assert round(abs(b - 0.0404242579378), 7) == 0
+        assert b == approx(0.0404242579378)
         c = Energy(3.14, "J")
-        assert round(abs(c.to("eV") - 1.9598338493806797e19), 7) == 0
-        with pytest.raises(UnitError):
+        assert c.to("eV") == approx(1.9598338493806797e19)
+        with pytest.raises(UnitError, match="m is not a supported unit for energy"):
             Energy(1, "m")
 
         d = Energy(1, "Ha")
-        assert round(abs(a + d - 28.311386245987997), 7) == 0
-        assert round(abs(a - d - -26.111386245987994), 7) == 0
+        assert a + d == approx(28.311386245987997)
+        assert a - d == approx(-26.111386245987994)
         assert a + 1 == 2.1
         assert str(a / d) == "1.1 eV Ha^-1"
 
         e = Energy(1, "kJ")
         f = e.to("kCal")
-        assert round(abs(f - 0.2390057361376673), 7) == 0
+        assert f == approx(0.2390057361376673)
         assert str(e + f) == "2.0 kJ"
         assert str(f + e) == "0.4780114722753346 kCal"
 
     def test_time(self):
         a = Time(20, "h")
-        assert round(abs(float(a.to("s")) - 3600 * 20), 7) == 0
+        assert float(a.to("s")) == approx(3600 * 20)
         # Test left and right multiplication.
         b = a * 3
-        assert round(abs(float(b) - 60.0), 7) == 0
+        assert float(b) == approx(60)
         assert str(b.unit) == "h"
         assert float(3 * a) == 60.0
         a = Time(0.5, "d")
-        assert round(abs(float(a.to("s")) - 3600 * 24 * 0.5), 7) == 0
+        assert float(a.to("s")) == approx(3600 * 24 * 0.5)
 
     def test_length(self):
         x = Length(4.2, "ang")
-        assert round(abs(x.to("cm") - 4.2e-08), 7) == 0
+        assert x.to("cm") == approx(4.2e-08)
         assert x.to("pm") == 420
         assert str(x / 2) == "2.1 ang"
         y = x**3
-        assert round(abs(y - 74.088), 7) == 0
+        assert y == approx(74.088)
         assert str(y.unit) == "ang^3"
 
     def test_memory(self):
@@ -135,17 +136,18 @@ class FloatWithUnitTest(PymatgenTest):
         e = Mass(1, "kg") * g * Length(1, "m")
         assert str(e) == "10.0 N m"
         form_e = FloatWithUnit(10, unit="kJ mol^-1").to("eV atom^-1")
-        assert round(abs(float(form_e) - 0.103642691905), 7) == 0
+        assert form_e == approx(0.103642691905)
         assert str(form_e.unit) == "eV atom^-1"
-        with pytest.raises(UnitError):
+        with pytest.raises(UnitError) as exc:
             form_e.to("m s^-1")
+        assert "Units ('mol', -1) and ('m', 1) are not compatible" in str(exc.value)
         a = FloatWithUnit(1.0, "Ha^3")
         b = a.to("J^3")
-        assert round(abs(b - 8.28672661615e-53), 7) == 0
+        assert b == approx(8.28672661615e-53)
         assert str(b.unit) == "J^3"
         a = FloatWithUnit(1.0, "Ha bohr^-2")
         b = a.to("J m^-2")
-        assert round(abs(b - 1556.8931028218924), 7) == 0
+        assert b == approx(1556.8931028218924)
         assert str(b.unit) == "J m^-2"
 
     def test_as_base_units(self):
@@ -168,14 +170,14 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         """
         a = EnergyArray(1.1, "eV")
         b = a.to("Ha")
-        assert round(abs(float(b) - 0.0404242579378), 7) == 0
+        assert (b) == approx(0.0404242579378)
         c = EnergyArray(3.14, "J")
-        assert round(abs(float(c.to("eV")) - 1.9598338493806797e19), 5) == 0
+        assert (c.to("eV")) == approx(1.9598338493806797e19)
         # self.assertRaises(ValueError, Energy, 1, "m")
 
         d = EnergyArray(1, "Ha")
-        assert round(abs(float(a + d) - 28.311386245987997), 7) == 0
-        assert round(abs(float(a - d) - -26.111386245987994), 7) == 0
+        assert (a + d) == approx(28.311386245987997)
+        assert (a - d) == approx(-26.111386245987994)
         assert float(a + 1) == 2.1
 
     def test_time(self):
@@ -183,8 +185,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
-        # here there's a minor difference because we have a ndarray with
-        # dtype=int.
+        # here there's a minor difference because we have a ndarray with dtype=int
         a = TimeArray(20, "h")
         assert a.to("s") == 3600 * 20
         # Test left and right multiplication.
@@ -197,7 +198,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
         x = LengthArray(4.2, "ang")
-        assert round(abs(float(x.to("cm")) - 4.2e-08), 7) == 0
+        assert float(x.to("cm")) == approx(4.2e-08)
         assert float(x.to("pm")) == 420
         assert str(x / 2) == "2.1 ang"
 
@@ -245,7 +246,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         for obj in objects_without_unit:
             assert not hasattr(obj, "unit")
 
-        with pytest.raises(UnitError):
+        with pytest.raises(UnitError, match="Adding different types of units is not allowed"):
             ene_ha + time_s
 
     def test_factors(self):
@@ -263,7 +264,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
 
 class DataPersistenceTest(PymatgenTest):
     def test_pickle(self):
-        """Test whether FloatWithUnit and ArrayWithUnit support pickle"""
+        """Test whether FloatWithUnit and ArrayWithUnit support pickle."""
         for cls in [FloatWithUnit, ArrayWithUnit]:
             a = cls(1, "eV")
             b = cls(10, "N bohr")

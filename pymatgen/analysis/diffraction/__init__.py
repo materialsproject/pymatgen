@@ -1,3 +1,1 @@
-"""
-This package implements various diffraction analyses.
-"""
+"""This package implements various diffraction analyses."""

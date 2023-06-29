@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 def _load_bond_length_data():
-    """Loads bond length data from json file"""
+    """Loads bond length data from json file."""
     with open(os.path.join(os.path.dirname(__file__), "bond_lengths.json")) as f:
         data = collections.defaultdict(dict)
         for row in json.load(f):
@@ -32,9 +32,7 @@ bond_lengths = _load_bond_length_data()
 
 
 class CovalentBond:
-    """
-    Defines a covalent bond between two sites.
-    """
+    """Defines a covalent bond between two sites."""
 
     def __init__(self, site1: Site, site2: Site):
         """
@@ -114,7 +112,7 @@ class CovalentBond:
 
 def obtain_all_bond_lengths(sp1, sp2, default_bl: float | None = None):
     """
-    Obtain bond lengths for all bond orders from bond length database
+    Obtain bond lengths for all bond orders from bond length database.
 
     Args:
         sp1 (Species): First specie.
@@ -140,7 +138,7 @@ def obtain_all_bond_lengths(sp1, sp2, default_bl: float | None = None):
 
 def get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: float | None = None):
     """
-    Calculate the bond order given the distance of 2 species
+    Calculate the bond order given the distance of 2 species.
 
     Args:
         sp1 (Species): First specie.

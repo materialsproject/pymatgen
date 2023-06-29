@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2023.5.10 documentation</title>
+  <title>Change log &mdash; pymatgen 2023.6.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -36,18 +36,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-
-          
-          
-          <a href="index.html">
-            
+            <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.5.10
+                2023.6.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -57,6 +53,8 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2023-6-28">v2023.6.28</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2023-6-23">v2023.6.23</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2023-5-31">v2023.5.31</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2023-5-10">v2023.5.10</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2023-5-8">v2023.5.8</a><ul>
@@ -412,8 +410,8 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Change log</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Change log</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/change_log.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -425,6 +423,43 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
+<section id="v2023-6-28">
+<h2>v2023.6.28<a class="headerlink" href="#v2023-6-28" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Use lru_cache to speed up get_el_sp by 400x (&#64;v1kko).</p></li>
+<li><p>Related to lru_cache of get_el_sp, Species.properties is now deprecated in favor of setting Species(spin=5). The rationale is
+that spin is the only supported property for Species anyway. Species and DummySpecies is now mostly immutable, i.e., setting specie.spin = 5 have no effect. This is as intended since the first version of pymatgen.</p></li>
+<li><p>PR #3111 from &#64;xjf729 fix-MoleculeGraph-draw_graph</p></li>
+<li><p>PR #3030 from &#64;lbluque Remove superfluous structure argument docstring from <cite>SQSTransformation</cite> init</p></li>
+<li><p>PR #3031 from &#64;kavanase Quick fix to allow direct initialisation of the <cite>DictSet</cite> class.</p></li>
+<li><p>PR #3015 from &#64;lbluque Optimized cython code in <cite>find_points_in_spheres</cite>, getting ~5x faster runtime.</p></li>
+</ul>
+</section>
+<section id="v2023-6-23">
+<h2>v2023.6.23<a class="headerlink" href="#v2023-6-23" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><dl class="simple">
+<dt>PR #3062 from &#64;arosen93 asefix</dt><dd><p>Closes #3061. &#64;JaGeo</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>PR #3030 from &#64;lbluque master</dt><dd><p>Remove superfluous structure argument docstring from <cite>SQSTransformation</cite> init</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>PR #3031 from &#64;kavanase master</dt><dd><p>This is a quick fix to allow direct initialisation of the <cite>DictSet</cite> class, which was possible before but broke in <a class="reference external" href="https://github.com/materialsproject/pymatgen/pull/2972">https://github.com/materialsproject/pymatgen/pull/2972</a> due to the <cite>Yb_2</cite> check querying <cite>self.CONFIG</cite>, which is only defined if <cite>DictSet</cite> was being initialised from a subclass and not directly.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>PR #3015 from &#64;lbluque neighbors</dt><dd><p>Optimized cython code in <cite>find_points_in_spheres</cite>, getting ~5x faster runtime.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
 <section id="v2023-5-31">
 <h2>v2023.5.31<a class="headerlink" href="#v2023-5-31" title="Permalink to this heading"></a></h2>
 <ul class="simple">

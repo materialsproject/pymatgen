@@ -23,7 +23,7 @@ class IonTest(unittest.TestCase):
         self.comp.append(Ion.from_formula("Ca[2+]"))
         self.comp.append(Ion.from_formula("NaOH(aq)"))
 
-    def test_init_(self):
+    def test_init(self):
         c = Composition({"Fe": 4, "O": 16, "P": 4})
         charge = 4
         assert Ion(c, charge).formula == "Fe4 P4 O16 +4"
@@ -89,7 +89,7 @@ class IonTest(unittest.TestCase):
         ]
         all_formulas = [c.formula for c in self.comp]
         assert all_formulas == correct_formulas
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="co2 is an invalid formula"):
             Ion.from_formula("(co2)(po4)2")
 
     def test_mixed_valence(self):

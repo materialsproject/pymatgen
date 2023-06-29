@@ -1,6 +1,4 @@
-"""
-Development script to get the multiplicity of the separation facets for some model coordination environments
-"""
+"""Development script to get the multiplicity of the separation facets for some model coordination environments."""
 
 from __future__ import annotations
 

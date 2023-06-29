@@ -1,6 +1,4 @@
-"""
-Provides classes for generating high-symmetry k-paths using different conventions.
-"""
+"""Provides classes for generating high-symmetry k-paths using different conventions."""
 
 from __future__ import annotations
 
@@ -18,7 +16,7 @@ from scipy.linalg import sqrtm
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, cite_conventional_cell_algo
 
 try:
     from seekpath import get_path
@@ -69,7 +67,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def structure(self):
         """
         Returns:
-        The input structure
+        The input structure.
         """
         return self._structure
 
@@ -77,7 +75,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def lattice(self):
         """
         Returns:
-        The real space lattice
+        The real space lattice.
         """
         return self._latt
 
@@ -85,7 +83,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def rec_lattice(self):
         """
         Returns:
-        The reciprocal space lattice
+        The reciprocal space lattice.
         """
         return self._rec_lattice
 
@@ -93,7 +91,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     def kpath(self):
         """
         Returns:
-        The symmetry line path in reciprocal space
+        The symmetry line path in reciprocal space.
         """
         return self._kpath
 
@@ -132,6 +130,7 @@ class KPathBase(metaclass=abc.ABCMeta):
         return frac_k_points, sym_point_labels
 
 
+@cite_conventional_cell_algo
 class KPathSetyawanCurtarolo(KPathBase):
     """
     This class looks for a path along high-symmetry lines in
@@ -194,7 +193,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "I" in spg_symbol:
                 self._kpath = self.bcc()
             else:
-                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
+                warn(f"Unexpected value for {spg_symbol=}")
 
         elif lattice_type == "tetragonal":
             if "P" in spg_symbol:
@@ -207,7 +206,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 else:
                     self._kpath = self.bctet2(c, a)
             else:
-                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
+                warn(f"Unexpected value for {spg_symbol=}")
 
         elif lattice_type == "orthorhombic":
             a = self._conv.lattice.abc[0]
@@ -231,7 +230,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "C" in spg_symbol or "A" in spg_symbol:
                 self._kpath = self.orcc(a, b, c)
             else:
-                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
+                warn(f"Unexpected value for {spg_symbol=}")
 
         elif lattice_type == "hexagonal":
             self._kpath = self.hex()
@@ -265,7 +264,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                     if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
             else:
-                warn(f"Unexpected value for spg_symbol: {spg_symbol}")
+                warn(f"Unexpected value for {spg_symbol=}")
 
         elif lattice_type == "triclinic":
             kalpha = self._rec_lattice.parameters[3]
@@ -287,7 +286,7 @@ class KPathSetyawanCurtarolo(KPathBase):
     def conventional(self):
         """
         Returns:
-            The conventional cell structure
+            The conventional cell structure.
         """
         return self._conv
 
@@ -295,7 +294,7 @@ class KPathSetyawanCurtarolo(KPathBase):
     def prim(self):
         """
         Returns:
-            The primitive cell structure
+            The primitive cell structure.
         """
         return self._prim
 
@@ -303,14 +302,12 @@ class KPathSetyawanCurtarolo(KPathBase):
     def prim_rec(self):
         """
         Returns:
-            The primitive reciprocal cell structure
+            The primitive reciprocal cell structure.
         """
         return self._rec_lattice
 
     def cubic(self):
-        """
-        CUB Path
-        """
+        """CUB Path."""
         self.name = "CUB"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -322,9 +319,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def fcc(self):
-        """
-        FCC Path
-        """
+        """FCC Path."""
         self.name = "FCC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -341,9 +336,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bcc(self):
-        """
-        BCC Path
-        """
+        """BCC Path."""
         self.name = "BCC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -355,9 +348,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def tet(self):
-        """
-        TET Path
-        """
+        """TET Path."""
         self.name = "TET"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -375,9 +366,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bctet1(self, c, a):
-        """
-        BCT1 Path
-        """
+        """BCT1 Path."""
         self.name = "BCT1"
         eta = (1 + c**2 / a**2) / 4.0
         kpoints = {
@@ -393,9 +382,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bctet2(self, c, a):
-        """
-        BCT2 Path
-        """
+        """BCT2 Path."""
         self.name = "BCT2"
         eta = (1 + a**2 / c**2) / 4.0
         zeta = a**2 / (2 * c**2)
@@ -429,9 +416,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orc(self):
-        """
-        ORC Path
-        """
+        """ORC Path."""
         self.name = "ORC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -452,9 +437,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf1(self, a, b, c):
-        """
-        ORFC1 Path
-        """
+        """ORFC1 Path."""
         self.name = "ORCF1"
         zeta = (1 + a**2 / b**2 - a**2 / c**2) / 4
         eta = (1 + a**2 / b**2 + a**2 / c**2) / 4
@@ -479,9 +462,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf2(self, a, b, c):
-        """
-        ORFC2 Path
-        """
+        """ORFC2 Path."""
         self.name = "ORCF2"
         phi = (1 + c**2 / b**2 - c**2 / a**2) / 4
         eta = (1 + a**2 / b**2 - a**2 / c**2) / 4
@@ -509,9 +490,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf3(self, a, b, c):
-        """
-        ORFC3 Path
-        """
+        """ORFC3 Path."""
         self.name = "ORCF3"
         zeta = (1 + a**2 / b**2 - a**2 / c**2) / 4
         eta = (1 + a**2 / b**2 + a**2 / c**2) / 4
@@ -534,9 +513,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orci(self, a, b, c):
-        """
-        ORCI Path
-        """
+        """ORCI Path."""
         self.name = "ORCI"
         zeta = (1 + a**2 / c**2) / 4
         eta = (1 + b**2 / c**2) / 4
@@ -565,9 +542,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcc(self, a, b, c):
-        """
-        ORCC Path
-        """
+        """ORCC Path."""
         self.name = "ORCC"
         zeta = (1 + a**2 / b**2) / 4
         kpoints = {
@@ -602,9 +577,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def hex(self):
-        """
-        HEX Path
-        """
+        """HEX Path."""
         self.name = "HEX"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -622,9 +595,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def rhl1(self, alpha):
-        """
-        RHL1 Path
-        """
+        """RHL1 Path."""
         self.name = "RHL1"
         eta = (1 + 4 * cos(alpha)) / (2 + 4 * cos(alpha))
         nu = 3 / 4 - eta / 2.0
@@ -651,9 +622,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def rhl2(self, alpha):
-        """
-        RHL2 Path
-        """
+        """RHL2 Path."""
         self.name = "RHL2"
         eta = 1 / (2 * tan(alpha / 2.0) ** 2)
         nu = 3 / 4 - eta / 2.0
@@ -671,9 +640,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mcl(self, b, c, beta):
-        """
-        MCL Path
-        """
+        """MCL Path."""
         self.name = "MCL"
         eta = (1 - b * cos(beta) / c) / (2 * sin(beta) ** 2)
         nu = 0.5 - eta * c * cos(beta) / b
@@ -703,9 +670,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc1(self, a, b, c, alpha):
-        """
-        MCLC1 Path
-        """
+        """MCLC1 Path."""
         self.name = "MCLC1"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -739,9 +704,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc2(self, a, b, c, alpha):
-        """
-        MCLC2 Path
-        """
+        """MCLC2 Path."""
         self.name = "MCLC2"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -774,9 +737,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc3(self, a, b, c, alpha):
-        """
-        MCLC3 Path
-        """
+        """MCLC3 Path."""
         self.name = "MCLC3"
         mu = (1 + b**2 / a**2) / 4.0
         delta = b * c * cos(alpha) / (2 * a**2)
@@ -811,9 +772,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc4(self, a, b, c, alpha):
-        """
-        MCLC4 Path
-        """
+        """MCLC4 Path."""
         self.name = "MCLC4"
         mu = (1 + b**2 / a**2) / 4.0
         delta = b * c * cos(alpha) / (2 * a**2)
@@ -848,9 +807,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc5(self, a, b, c, alpha):
-        """
-        MCLC5 Path
-        """
+        """MCLC5 Path."""
         self.name = "MCLC5"
         zeta = (b**2 / a**2 + (1 - b * cos(alpha) / c) / sin(alpha) ** 2) / 4
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -889,9 +846,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def tria(self):
-        """
-        TRI1a Path
-        """
+        """TRI1a Path."""
         self.name = "TRI1a"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -912,9 +867,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def trib(self):
-        """
-        TRI1b Path
-        """
+        """TRI1b Path."""
         self.name = "TRI1b"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -2275,9 +2228,7 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def LabelPoints(index):
-        """
-        Axes used in generating labels for Latimer-Munro convention
-        """
+        """Axes used in generating labels for Latimer-Munro convention."""
         points = [
             [1, 0, 0],
             [0, 1, 0],
@@ -2311,9 +2262,7 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def LabelSymbol(index):
-        """
-        Letters used in generating labels for the Latimer-Munro convention
-        """
+        """Letters used in generating labels for the Latimer-Munro convention."""
         symbols = [
             "a",
             "b",

@@ -44,7 +44,7 @@ __date__ = "February 2, 2021"
 class LobsterNeighbors(NearNeighbors):
     """
     This class combines capabilities from LocalEnv and ChemEnv to determine coordination environments based on
-    bonding analysis
+    bonding analysis.
     """
 
     def __init__(
@@ -100,7 +100,7 @@ class LobsterNeighbors(NearNeighbors):
             id_blist_sg1: (str) Identity of data in filename_blist_sg1,
                 e.g., "icoop" or "icobi"
             id_blist_sg2: (str) Identity of data in filename_blist_sg2,
-                e.g., "icoop" or "icobi"
+                e.g., "icoop" or "icobi".
         """
         self.ICOHP = Icohplist(are_coops=are_coops, filename=filename_ICOHP)
         self.Icohpcollection = self.ICOHP.icohpcollection
@@ -213,7 +213,7 @@ class LobsterNeighbors(NearNeighbors):
     def anion_types(self):
         """
         Return the types of anions present in crystal structure as a set
-        Returns: set of Element describing anions in the crystal structure
+        Returns: set of Element describing anions in the crystal structure.
         """
         if self.valences is None:
             raise ValueError("No cations and anions defined")
@@ -253,7 +253,7 @@ class LobsterNeighbors(NearNeighbors):
     def get_light_structure_environment(self, only_cation_environments=False, only_indices=None):
         """
         Return a LobsterLightStructureEnvironments object
-        if the structure only contains coordination environments smaller 13
+        if the structure only contains coordination environments smaller 13.
 
         Args:
             only_cation_environments: only data for cations will be returned
@@ -409,7 +409,7 @@ class LobsterNeighbors(NearNeighbors):
         integrated=False,
     ):
         """
-        Will plot summed cohps (please be careful in the spin polarized case (plots might overlap (exactly!))
+        Will plot summed cohps (please be careful in the spin polarized case (plots might overlap (exactly!)).
 
         Args:
             isites: list of site ids, if isite==[], all isites will be used to add the icohps of the neighbors
@@ -460,7 +460,7 @@ class LobsterNeighbors(NearNeighbors):
     ):
         """
         Return info about the cohps as a summed cohp object and a label
-         from all sites mentioned in isites with neighbors
+         from all sites mentioned in isites with neighbors.
 
         Args:
             path_to_COHPCAR: str, path to COHPCAR
@@ -578,7 +578,7 @@ class LobsterNeighbors(NearNeighbors):
 
     def get_info_icohps_between_neighbors(self, isites=None, onlycation_isites=True):
         """
-        Return infos about interactions between neighbors of a certain atom
+        Return infos about interactions between neighbors of a certain atom.
 
         Args:
             isites: list of site ids, if isite==None, all isites will be used
@@ -691,7 +691,7 @@ class LobsterNeighbors(NearNeighbors):
             perc_strength_ICOHP: will be used to determine how strong the ICOHPs (percentage*strongest ICOHP) will be
             that are still considered for the evalulation
             adapt_extremum_to_add_cond: will recalculate the limit based on the bonding type and not on the overall
-            extremum
+            extremum.
 
         Returns:
         """
@@ -802,7 +802,7 @@ class LobsterNeighbors(NearNeighbors):
 
     def _find_environments(self, additional_condition, lowerlimit, upperlimit, only_bonds_to):
         """
-        Will find all relevant neighbors based on certain restrictions
+        Will find all relevant neighbors based on certain restrictions.
 
         Args:
             additional_condition (int): additional condition (see above)
@@ -918,7 +918,7 @@ class LobsterNeighbors(NearNeighbors):
 
     def _find_relevant_atoms_additional_condition(self, isite, icohps, additional_condition):
         """
-        Will find all relevant atoms that fulfill the additional_conditions
+        Will find all relevant atoms that fulfill the additional_conditions.
 
         Args:
             isite: number of site in structure (starts with 0)
@@ -1057,7 +1057,7 @@ class LobsterNeighbors(NearNeighbors):
     @staticmethod
     def _get_icohps(icohpcollection, isite, lowerlimit, upperlimit, only_bonds_to):
         """
-        Return icohp dict for certain site
+        Return icohp dict for certain site.
 
         Args:
             icohpcollection: Icohpcollection object
@@ -1068,19 +1068,18 @@ class LobsterNeighbors(NearNeighbors):
 
         Returns:
         """
-        icohps = icohpcollection.get_icohp_dict_of_site(
+        return icohpcollection.get_icohp_dict_of_site(
             site=isite,
             maxbondlength=6.0,
             minsummedicohp=lowerlimit,
             maxsummedicohp=upperlimit,
             only_bonds_to=only_bonds_to,
         )
-        return icohps
 
     @staticmethod
     def _get_atomnumber(atomstring):
         """
-        Return the number of the atom within the initial POSCAR (e.g., Return 0 for "Na1")
+        Return the number of the atom within the initial POSCAR (e.g., Return 0 for "Na1").
 
         Args:
             atomstring: string such as "Na1"
@@ -1092,7 +1091,7 @@ class LobsterNeighbors(NearNeighbors):
     @staticmethod
     def _split_string(s):
         """
-        Will split strings such as "Na1" in "Na" and "1" and return "1"
+        Will split strings such as "Na1" in "Na" and "1" and return "1".
 
         Args:
             s (str): string
@@ -1104,7 +1103,7 @@ class LobsterNeighbors(NearNeighbors):
     @staticmethod
     def _determine_unit_cell(site):
         """
-        Based on the site it will determine the unit cell, in which this site is based
+        Based on the site it will determine the unit cell, in which this site is based.
 
         Args:
             site: site object
@@ -1215,9 +1214,7 @@ class LobsterNeighbors(NearNeighbors):
 
 
 class LobsterLightStructureEnvironments(LightStructureEnvironments):
-    """
-    Class to store LightStructureEnvironments based on Lobster outputs
-    """
+    """Class to store LightStructureEnvironments based on Lobster outputs."""
 
     @classmethod
     def from_Lobster(
@@ -1231,7 +1228,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         valences=None,
     ):
         """
-        Will set up a LightStructureEnvironments from Lobster
+        Will set up a LightStructureEnvironments from Lobster.
 
         Args:
             structure: Structure object
@@ -1326,9 +1323,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
 
     @property
     def uniquely_determines_coordination_environments(self):
-        """
-        True if the coordination environments are uniquely determined.
-        """
+        """True if the coordination environments are uniquely determined."""
         return True
 
     def as_dict(self):

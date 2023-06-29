@@ -9,6 +9,7 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.core.periodic_table import DummySpecies, Element, ElementBase, Species, get_el_sp
 from pymatgen.util.testing import PymatgenTest
@@ -16,16 +17,15 @@ from pymatgen.util.testing import PymatgenTest
 
 class ElementTestCase(PymatgenTest):
     def test_init(self):
-        assert Element("Fe").symbol == "Fe", "Fe test failed"
+        assert Element("Fe").symbol == "Fe"
 
         fictional_symbols = ["D", "T", "Zebra"]
 
         for sym in fictional_symbols:
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError, match=f"{sym!r} is not a valid Element"):
                 Element(sym)
 
-        # Test caching
-        assert id(Element("Fe")) == id(Element("Fe"))
+        assert id(Element("Fe")) == id(Element("Fe"))  # Test caching
 
     def test_is_metal(self):
         for metal in ["Fe", "Eu", "Li", "Ca", "In"]:
@@ -44,7 +44,7 @@ class ElementTestCase(PymatgenTest):
         assert fe == Element.from_dict(d)
 
     def test_block(self):
-        testsets = {
+        cases = {
             "O": "p",
             "Fe": "d",
             "Li": "s",
@@ -53,11 +53,11 @@ class ElementTestCase(PymatgenTest):
             "Lu": "d",
             "Lr": "d",
         }
-        for k, v in testsets.items():
-            assert Element(k).block == v
+        for key, val in cases.items():
+            assert Element(key).block == val
 
     def test_full_electronic_structure(self):
-        testsets = {
+        cases = {
             "O": [(1, "s", 2), (2, "s", 2), (2, "p", 4)],
             "Fe": [
                 (1, "s", 2),
@@ -90,13 +90,13 @@ class ElementTestCase(PymatgenTest):
                 (7, "s", 2),
             ],
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert Element(k).full_electronic_structure == v
 
         assert Element.Ac.electronic_structure == "[Rn].6d1.7s2"
 
     def test_group(self):
-        testsets = {
+        cases = {
             "H": 1,
             "He": 18,
             "Li": 1,
@@ -109,11 +109,11 @@ class ElementTestCase(PymatgenTest):
             "Lr": 3,
             "Og": 18,
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert Element(k).group == v
 
     def test_row(self):
-        testsets = {
+        cases = {
             "H": 1,
             "He": 1,
             "Li": 2,
@@ -126,11 +126,11 @@ class ElementTestCase(PymatgenTest):
             "Lr": 7,
             "Og": 7,
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert Element(k).row == v
 
     def test_from_name(self):
-        testsets = {
+        cases = {
             "H": "hydrogen",
             "He": "Helium",
             "Li": "lithium",
@@ -140,11 +140,11 @@ class ElementTestCase(PymatgenTest):
             "Ce": "Cerium",
             "U": "Uranium",
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert ElementBase.from_name(v) == Element(k)
 
     def test_from_row_and_group(self):
-        testsets = {
+        cases = {
             "H": (1, 1),
             "He": (1, 18),
             "Li": (2, 1),
@@ -157,23 +157,23 @@ class ElementTestCase(PymatgenTest):
             "Lr": (9, 17),
             "Og": (7, 18),
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert ElementBase.from_row_and_group(v[0], v[1]) == Element(k)
 
     def test_valence(self):
-        testsets = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}
-        for k, v in testsets.items():
+        cases = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}
+        for k, v in cases.items():
             assert Element(k).valence == v
 
-        with pytest.raises(ValueError):
-            Element("U").valence
+        with pytest.raises(ValueError, match="U has ambiguous valence"):
+            _ = Element("U").valence
 
         valence = Element("He").valence
         assert np.isnan(valence[0])
         assert valence[1] == 0
 
     def test_term_symbols(self):
-        testsets = {
+        cases = {
             "Li": [["2S0.5"]],  # s1
             "C": [["1D2.0"], ["3P0.0", "3P1.0", "3P2.0"], ["1S0.0"]],  # p2
             "Ti": [
@@ -203,18 +203,18 @@ class ElementTestCase(PymatgenTest):
                 ["4S1.5"],
             ],  # f3
         }
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert Element(k).term_symbols == v
 
     def test_ground_state_term_symbol(self):
-        testsets = {
+        cases = {
             "Li": "2S0.5",  # s1
             "C": "3P0.0",  # p2
             "O": "3P2.0",  # p4
             "Ti": "3F2.0",  # d2
             "Pr": "4I4.5",
         }  # f3
-        for k, v in testsets.items():
+        for k, v in cases.items():
             assert Element(k).ground_state_term_symbol == v
 
     def test_attributes(self):
@@ -276,8 +276,8 @@ class ElementTestCase(PymatgenTest):
         ]
 
         # Test all elements up to Uranium
-        for i in range(1, 104):
-            el = Element.from_Z(i)
+        for idx in range(1, 104):
+            el = Element.from_Z(idx)
             d = el.data
             for k in keys:
                 k_str = k.capitalize().replace("_", " ")
@@ -288,7 +288,7 @@ class ElementTestCase(PymatgenTest):
                 elif k == "iupac_ordering":
                     assert "IUPAC ordering" in d
                     assert getattr(el, k) is not None
-            el = Element.from_Z(i)
+            el = Element.from_Z(idx)
             if len(el.oxidation_states) > 0:
                 assert max(el.oxidation_states) == el.max_oxidation_state
                 assert min(el.oxidation_states) == el.min_oxidation_state
@@ -296,13 +296,13 @@ class ElementTestCase(PymatgenTest):
             if el.symbol not in ["He", "Ne", "Ar"]:
                 assert el.X > 0, f"No electroneg for {el}"
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Unexpected atomic number Z=1000"):
             Element.from_Z(1000)
 
     def test_ie_ea(self):
-        assert round(abs(Element.Fe.ionization_energies[2] - 30.651), 7) == 0
+        assert Element.Fe.ionization_energies[2] == approx(30.651)
         assert Element.Fe.ionization_energy == Element.Fe.ionization_energies[0]
-        assert round(abs(Element.Br.electron_affinity - 3.3635883), 7) == 0
+        assert Element.Br.electron_affinity == approx(3.3635883)
 
     def test_oxidation_states(self):
         el = Element.Fe
@@ -357,16 +357,16 @@ class SpeciesTestCase(PymatgenTest):
         self.specie1 = Species.from_string("Fe2+")
         self.specie2 = Species("Fe", 3)
         self.specie3 = Species("Fe", 2)
-        self.specie4 = Species("Fe", 2, {"spin": 5})
+        self.specie4 = Species("Fe", 2, spin=5)
 
     def test_init(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="magmom is not a supported property"):
             Species("Fe", 2, {"magmom": 5})
 
     def test_ionic_radius(self):
         assert self.specie2.ionic_radius == 78.5 / 100
         assert self.specie3.ionic_radius == 92 / 100
-        assert round(abs(Species("Mn", 4).ionic_radius - 0.67), 7) == 0
+        assert Species("Mn", 4).ionic_radius == approx(0.67)
 
     def test_eq(self):
         assert self.specie1 == self.specie3, "Static and actual constructor gives unequal result!"
@@ -413,15 +413,13 @@ class SpeciesTestCase(PymatgenTest):
         assert Species("Ni", 3).get_crystal_field_spin(spin_config="low") == 1
         assert Species("Ni", 4).get_crystal_field_spin(spin_config="low") == 0
 
-        with pytest.raises(AttributeError):
-            Species("Li", 1).get_crystal_field_spin()
-        with pytest.raises(AttributeError):
-            Species("Ge", 4).get_crystal_field_spin()
-        with pytest.raises(AttributeError):
-            Species("H", 1).get_crystal_field_spin()
-        with pytest.raises(AttributeError):
+        for elem in ("Li+", "Ge4+", "H+"):
+            symbol = Species(elem).symbol
+            with pytest.raises(AttributeError, match=f"Invalid element {symbol} for crystal field calculation"):
+                Species(elem).get_crystal_field_spin()
+        with pytest.raises(AttributeError, match="Invalid oxidation state 10 for element Fe"):
             Species("Fe", 10).get_crystal_field_spin()
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Invalid coordination or spin config"):
             Species("Fe", 2).get_crystal_field_spin("hex")
 
         s = Species("Co", 3).get_crystal_field_spin("tet", spin_config="low")
@@ -432,7 +430,7 @@ class SpeciesTestCase(PymatgenTest):
         assert Species("Li").get_nmr_quadrupole_moment() == -0.808
         assert Species("Li").get_nmr_quadrupole_moment("Li-7") == -40.1
         assert Species("Si").get_nmr_quadrupole_moment() == 0.0
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="No quadrupole moment for isotope='Li-109'"):
             Species("Li").get_nmr_quadrupole_moment("Li-109")
 
     def test_get_shannon_radius(self):
@@ -460,23 +458,23 @@ class SpeciesTestCase(PymatgenTest):
         assert sorted(els) == [Species("Si", 3), Species("Si", 4), Species("N", -3)]
 
     def test_to_from_string(self):
-        fe3 = Species("Fe", 3, {"spin": 5})
+        fe3 = Species("Fe", 3, spin=5)
         assert str(fe3) == "Fe3+,spin=5"
         fe = Species.from_string("Fe3+,spin=5")
         assert fe.spin == 5
-        mo0 = Species("Mo", 0, {"spin": 5})
+        mo0 = Species("Mo", 0, spin=5)
         assert str(mo0) == "Mo0+,spin=5"
         mo = Species.from_string("Mo0+,spin=4")
         assert mo.spin == 4
 
         # Shyue Ping: I don't understand the need for a None for oxidation state. That to me is basically an element.
         # Why make the thing so complicated for a use case that I have never seen???
-        # fe_no_ox = Species("Fe", oxidation_state=None, properties={"spin": 5})
+        # fe_no_ox = Species("Fe", oxidation_state=None, spin=5)
         # fe_no_ox_from_str = Species.from_string("Fe,spin=5")
         # assert fe_no_ox == fe_no_ox_from_str
 
     def test_no_oxidation_state(self):
-        mo0 = Species("Mo", None, {"spin": 5})
+        mo0 = Species("Mo", None, spin=5)
         assert str(mo0) == "Mo,spin=5"
 
     def test_stringify(self):
@@ -509,13 +507,13 @@ def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
 class DummySpeciesTestCase(unittest.TestCase):
     def test_init(self):
         self.specie1 = DummySpecies("X")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Xe contains Xe, which is a valid element symbol"):
             DummySpecies("Xe")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Xec contains Xe, which is a valid element symbol"):
             DummySpecies("Xec")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Vac contains V, which is a valid element symbol"):
             DummySpecies("Vac")
-        self.specie2 = DummySpecies("X", 2, {"spin": 3})
+        self.specie2 = DummySpecies("X", 2, spin=3)
         assert self.specie2.spin == 3
 
     def test_eq(self):
@@ -545,6 +543,13 @@ class DummySpeciesTestCase(unittest.TestCase):
         r = sorted([Element.Fe, DummySpecies("X")])
         assert r == [DummySpecies("X"), Element.Fe]
         assert DummySpecies("X", 3) < DummySpecies("X", 4)
+
+    def test_immutable(self):
+        sp = Species("Fe", 2, spin=5)
+        with pytest.raises(AttributeError):
+            sp.spin = 6
+        sp.properties["spin"] = 7
+        assert sp.spin == 5
 
 
 class FuncTest(unittest.TestCase):

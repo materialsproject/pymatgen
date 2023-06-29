@@ -317,7 +317,7 @@ class BaderAnalysis:
 
     def get_charge_decorated_structure(self):
         """
-        Returns a charge decorated structure
+        Returns a charge decorated structure.
 
         Note, this assumes that the Bader analysis was correctly performed on a file
         with electron densities
@@ -378,9 +378,7 @@ class BaderAnalysis:
 
     @property
     def summary(self):
-        """
-        :return: Dict summary of key analysis, e.g., atomic volume, charge, etc.
-        """
+        """:return: Dict summary of key analysis, e.g., atomic volume, charge, etc."""
         summary = {
             "min_dist": [d["min_dist"] for d in self.data],
             "charge": [d["charge"] for d in self.data],
@@ -486,8 +484,7 @@ def bader_analysis_from_path(path, suffix=""):
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
             warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
-        path = paths[0]
-        return path
+        return paths[0]
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
     chgcar = Chgcar.from_file(chgcar_path)

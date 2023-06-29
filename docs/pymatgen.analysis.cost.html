@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.cost module &mdash; pymatgen 2023.5.10 documentation</title>
+  <title>pymatgen.analysis.cost module &mdash; pymatgen 2023.6.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -36,18 +36,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-
-          
-          
-          <a href="index.html">
-            
+            <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.5.10
+                2023.6.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -103,11 +99,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
-      <li class="breadcrumb-item active">pymatgen.analysis.cost module</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
+      <li>pymatgen.analysis.cost module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.cost.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -126,9 +122,9 @@ optimization is performed to determine a set of compositions that can be mixed
 to give the desired compound with lowest total cost.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.cost.CostAnalyzer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CostAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costdb</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/cost.py#L135-L195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostAnalyzer" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CostAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costdb</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../analysis/cost.py#L129-L187"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostAnalyzer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Given a CostDB, figures out the minimum cost solutions via convex hull</p>
+<p>Given a CostDB, figures out the minimum cost solutions via convex hull.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>costdb</em>) – Cost database.</p>
@@ -136,8 +132,8 @@ to give the desired compound with lowest total cost.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.cost.CostAnalyzer.get_cost_per_kg">
-<span class="sig-name descname"><span class="pre">get_cost_per_kg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/cost.py#L184-L195"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostAnalyzer.get_cost_per_kg" title="Permalink to this definition"></a></dt>
-<dd><p>Get best estimate of minimum cost/kg based on known data</p>
+<span class="sig-name descname"><span class="pre">get_cost_per_kg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../analysis/cost.py#L176-L187"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostAnalyzer.get_cost_per_kg" title="Permalink to this definition"></a></dt>
+<dd><p>Get best estimate of minimum cost/kg based on known data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>comp</strong> – Composition as a pymatgen.core.structure.Composition</p>
@@ -150,8 +146,8 @@ to give the desired compound with lowest total cost.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.cost.CostAnalyzer.get_cost_per_mol">
-<span class="sig-name descname"><span class="pre">get_cost_per_mol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/cost.py#L170-L182"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostAnalyzer.get_cost_per_mol" title="Permalink to this definition"></a></dt>
-<dd><p>Get best estimate of minimum cost/mol based on known data</p>
+<span class="sig-name descname"><span class="pre">get_cost_per_mol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../analysis/cost.py#L162-L174"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostAnalyzer.get_cost_per_mol" title="Permalink to this definition"></a></dt>
+<dd><p>Get best estimate of minimum cost/mol based on known data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>comp</strong> – Composition as a pymatgen.core.structure.Composition</p>
@@ -164,8 +160,8 @@ to give the desired compound with lowest total cost.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.cost.CostAnalyzer.get_lowest_decomposition">
-<span class="sig-name descname"><span class="pre">get_lowest_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/cost.py#L147-L168"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostAnalyzer.get_lowest_decomposition" title="Permalink to this definition"></a></dt>
-<dd><p>Get the decomposition leading to lowest cost</p>
+<span class="sig-name descname"><span class="pre">get_lowest_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../analysis/cost.py#L139-L160"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostAnalyzer.get_lowest_decomposition" title="Permalink to this definition"></a></dt>
+<dd><p>Get the decomposition leading to lowest cost.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>composition</strong> – Composition as a pymatgen.core.structure.Composition</p>
@@ -183,14 +179,14 @@ to give the desired compound with lowest total cost.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.cost.CostDB">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CostDB</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/cost.py#L63-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostDB" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CostDB</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../analysis/cost.py#L61-L79"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostDB" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Abstract class for representing a Cost database.
-Can be extended, e.g. for file-based or REST-based databases</p>
+Can be extended, e.g. for file-based or REST-based databases.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.cost.CostDB.get_entries">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemsys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/cost.py#L69-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostDB.get_entries" title="Permalink to this definition"></a></dt>
-<dd><p>For a given chemical system, return an array of CostEntries</p>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemsys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../analysis/cost.py#L67-L79"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostDB.get_entries" title="Permalink to this definition"></a></dt>
+<dd><p>For a given chemical system, return an array of CostEntries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>chemsys</strong> – array of Elements defining the chemical system.</p>
@@ -205,10 +201,10 @@ Can be extended, e.g. for file-based or REST-based databases</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.cost.CostDBCSV">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CostDBCSV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/cost.py#L84-L119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostDBCSV" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CostDBCSV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../analysis/cost.py#L82-L117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostDBCSV" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.cost.CostDB" title="pymatgen.analysis.cost.CostDB"><code class="xref py py-class docutils literal notranslate"><span class="pre">CostDB</span></code></a></p>
 <p>Read a CSV file to get costs
-Format is formula,cost_per_kg,name,BibTeX</p>
+Format is formula,cost_per_kg,name,BibTeX.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename of cost database.</p>
@@ -216,8 +212,8 @@ Format is formula,cost_per_kg,name,BibTeX</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.cost.CostDBCSV.get_entries">
-<span class="sig-name descname"><span class="pre">get_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemsys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/cost.py#L107-L119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostDBCSV.get_entries" title="Permalink to this definition"></a></dt>
-<dd><p>For a given chemical system, return an array of CostEntries</p>
+<span class="sig-name descname"><span class="pre">get_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chemsys</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../analysis/cost.py#L105-L117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostDBCSV.get_entries" title="Permalink to this definition"></a></dt>
+<dd><p>For a given chemical system, return an array of CostEntries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>chemsys</strong> – array of Elements defining the chemical system.</p>
@@ -232,9 +228,9 @@ Format is formula,cost_per_kg,name,BibTeX</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.cost.CostEntry">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CostEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../analysis/cost.py#L36-L60"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostEntry" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CostEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../analysis/cost.py#L36-L58"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.cost.CostEntry" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PDEntry" title="pymatgen.analysis.phase_diagram.PDEntry"><code class="xref py py-class docutils literal notranslate"><span class="pre">PDEntry</span></code></a></p>
-<p>Extends PDEntry to include a BibTeX reference and include language about cost</p>
+<p>Extends PDEntry to include a BibTeX reference and include language about cost.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -242,7 +238,7 @@ Format is formula,cost_per_kg,name,BibTeX</p>
 <li><p><strong>cost</strong> – Cost (per mol, NOT per kg) of the full Composition</p></li>
 <li><p><strong>name</strong> – Optional parameter to name the entry. Defaults to the reduced
 chemical formula as in PDEntry.</p></li>
-<li><p><strong>reference</strong> – Reference data as BiBTeX string</p></li>
+<li><p><strong>reference</strong> – Reference data as BiBTeX string.</p></li>
 </ul>
 </dd>
 </dl>

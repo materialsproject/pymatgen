@@ -1,3 +1,1 @@
-"""
-Utility package for chemenv
-"""
+"""Utility package for chemenv."""

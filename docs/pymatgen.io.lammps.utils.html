@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.lammps.utils module &mdash; pymatgen 2023.5.10 documentation</title>
+  <title>pymatgen.io.lammps.utils module &mdash; pymatgen 2023.6.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -36,18 +36,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-
-          
-          
-          <a href="index.html">
-            
+            <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.5.10
+                2023.6.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -103,12 +99,12 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.io.lammps.html">pymatgen.io.lammps package</a></li>
-      <li class="breadcrumb-item active">pymatgen.io.lammps.utils module</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
+          <li><a href="pymatgen.io.html">pymatgen.io namespace</a> &raquo;</li>
+          <li><a href="pymatgen.io.lammps.html">pymatgen.io.lammps package</a> &raquo;</li>
+      <li>pymatgen.io.lammps.utils module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.lammps.utils.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -123,20 +119,20 @@
 <p>This module defines utility classes and functions.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.utils.LammpsRunner">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lammps.in'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lammps'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lammps/utils.py#L439-L468"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LammpsRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lammps.in'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lammps'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lammps/utils.py#L428-L453"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>LAMMPS wrapper</p>
+<p>LAMMPS wrapper.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_filename</strong> (<em>str</em>) – input file name</p></li>
-<li><p><strong>bin</strong> (<em>str</em>) – command to run, excluding the input file name</p></li>
+<li><p><strong>bin</strong> (<em>str</em>) – command to run, excluding the input file name.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.utils.LammpsRunner.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lammps/utils.py#L460-L468"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lammps/utils.py#L447-L453"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner.run" title="Permalink to this definition"></a></dt>
 <dd><p>Write the input/data files and run LAMMPS.</p>
 </dd></dl>
 
@@ -144,7 +140,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lammps.utils.Polymer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Polymer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_chain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lammps/utils.py#L31-L170"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.Polymer" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Polymer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_monomer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_chain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lammps/utils.py#L29-L166"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.Polymer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generate polymer chain via Random walk. At each position there are
 a total of 5 possible moves(excluding the previous direction).</p>
@@ -164,7 +160,7 @@ tail to head</p></li>
 <li><p><strong>n_units</strong> (<em>int</em>) – number of monomer units excluding the start and
 terminal molecules</p></li>
 <li><p><strong>link_distance</strong> (<em>float</em>) – distance between consecutive monomers</p></li>
-<li><p><strong>linear_chain</strong> (<em>bool</em>) – linear or random walk polymer chain</p></li>
+<li><p><strong>linear_chain</strong> (<em>bool</em>) – linear or random walk polymer chain.</p></li>
 </ul>
 </dd>
 </dl>

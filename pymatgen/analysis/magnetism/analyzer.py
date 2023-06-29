@@ -23,6 +23,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.transformations.advanced_transformations import MagOrderingTransformation, MagOrderParameterConstraint
 from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
@@ -47,9 +48,7 @@ except Exception:
 
 @unique
 class Ordering(Enum):
-    """
-    Enumeration defining possible magnetic orderings.
-    """
+    """Enumeration defining possible magnetic orderings."""
 
     FM = "FM"  # Ferromagnetic
     AFM = "AFM"  # Antiferromagnetic
@@ -60,9 +59,7 @@ class Ordering(Enum):
 
 @unique
 class OverwriteMagmomMode(Enum):
-    """
-    Enumeration defining different modes for analyzer.
-    """
+    """Enumeration defining different modes for analyzer."""
 
     none = "none"
     respect_sign = "respect_sign"
@@ -429,9 +426,7 @@ class CollinearMagneticStructureAnalyzer:
     def types_of_magnetic_specie(
         self,
     ) -> tuple[Element | Species | DummySpecies, ...]:
-        """
-        Specie->Species rename. Used to maintain backwards compatibility.
-        """
+        """Specie->Species rename. Used to maintain backwards compatibility."""
         return self.types_of_magnetic_species
 
     @property
@@ -467,7 +462,7 @@ class CollinearMagneticStructureAnalyzer:
         """
         Args:
           symprec: same as in SpacegroupAnalyzer (Default value = 1e-3)
-          angle_tolerance: same as in SpacegroupAnalyzer (Default value = 5)
+          angle_tolerance: same as in SpacegroupAnalyzer (Default value = 5).
 
         Returns: Number of symmetrically-distinct magnetic sites present
         in structure.
@@ -1064,6 +1059,10 @@ class MagneticStructureEnumerator:
 MagneticDeformation = namedtuple("MagneticDeformation", "type deformation")
 
 
+@due.dcite(
+    Doi("10.1021/acs.chemmater.6b04729"),
+    description="A Simple Computational Proxy for Screening Magnetocaloric Compounds",
+)
 def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> MagneticDeformation:
     """Calculates 'magnetic deformation proxy',
     a measure of deformation (norm of finite strain)

@@ -39,7 +39,7 @@ __date__ = "Nov 2021"
 class PackmolSet(InputSet):
     """
     InputSet for the Packmol software. This class defines several attributes related
-    to
+    to.
     """
 
     def run(self, path: str | Path, timeout=30):

@@ -1,6 +1,4 @@
-"""
-Write Prismatic (http://prism-em.com) input files.
-"""
+"""Write Prismatic (http://prism-em.com) input files."""
 
 from __future__ import annotations
 
@@ -20,7 +18,7 @@ class Prismatic:
         """
         Args:
             structure: pymatgen Structure
-            comment (str): comment
+            comment (str): comment.
         """
         self.structure = structure
         self.comment = comment

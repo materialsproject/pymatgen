@@ -65,30 +65,22 @@ class AbstractVoltagePair(MSONable):
 
     @property
     def working_ion(self) -> Element:
-        """
-        Working ion as pymatgen Element object
-        """
+        """Working ion as pymatgen Element object."""
         return self.working_ion_entry.composition.elements[0]
 
     @property
     def framework(self) -> Composition:
-        """
-        The composition object representing the framework
-        """
+        """The composition object representing the framework."""
         return Composition(self.framework_formula)
 
     @property
     def x_charge(self) -> float:
-        """
-        The number of working ions per formula unit of host in the charged state
-        """
+        """The number of working ions per formula unit of host in the charged state."""
         return self.frac_charge * self.framework.num_atoms / (1 - self.frac_charge)
 
     @property
     def x_discharge(self) -> float:
-        """
-        The number of working ions per formula unit of host in the discharged state
-        """
+        """The number of working ions per formula unit of host in the discharged state."""
         return self.frac_discharge * self.framework.num_atoms / (1 - self.frac_discharge)
 
 
@@ -160,37 +152,27 @@ class AbstractElectrode(Sequence, MSONable):
 
     @property
     def working_ion(self):
-        """
-        Working ion as pymatgen Element object
-        """
+        """Working ion as pymatgen Element object."""
         return self.working_ion_entry.composition.elements[0]
 
     @property
     def framework(self):
-        """
-        The composition object representing the framework
-        """
+        """The composition object representing the framework."""
         return Composition(self.framework_formula)
 
     @property
     def x_charge(self) -> float:
-        """
-        The number of working ions per formula unit of host in the charged state
-        """
+        """The number of working ions per formula unit of host in the charged state."""
         return self.voltage_pairs[0].x_charge
 
     @property
     def x_discharge(self) -> float:
-        """
-        The number of working ions per formula unit of host in the discharged state
-        """
+        """The number of working ions per formula unit of host in the discharged state."""
         return self.voltage_pairs[-1].x_discharge
 
     @property
     def max_delta_volume(self):
-        """
-        Maximum volume change along insertion
-        """
+        """Maximum volume change along insertion."""
         vols = [v.vol_charge for v in self.voltage_pairs]
         vols.extend([v.vol_discharge for v in self.voltage_pairs])
         return max(vols) / min(vols) - 1
@@ -199,29 +181,23 @@ class AbstractElectrode(Sequence, MSONable):
     def num_steps(self):
         """
         The number of distinct voltage steps in from fully charge to discharge
-        based on the stable intermediate states
+        based on the stable intermediate states.
         """
         return len(self.voltage_pairs)
 
     @property
     def max_voltage(self):
-        """
-        Highest voltage along insertion
-        """
+        """Highest voltage along insertion."""
         return max(p.voltage for p in self.voltage_pairs)
 
     @property
     def min_voltage(self):
-        """
-        Lowest voltage along insertion
-        """
+        """Lowest voltage along insertion."""
         return min(p.voltage for p in self.voltage_pairs)
 
     @property
     def max_voltage_step(self):
-        """
-        Maximum absolute difference in adjacent voltage steps
-        """
+        """Maximum absolute difference in adjacent voltage steps."""
         steps = [
             self.voltage_pairs[i].voltage - self.voltage_pairs[i + 1].voltage
             for i in range(len(self.voltage_pairs) - 1)

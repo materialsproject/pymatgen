@@ -47,7 +47,7 @@ class PointGroupTest(unittest.TestCase):
             pg6mmm = PointGroup("6/mmm")
             pg3m = PointGroup("-3m")
             # TODO: Fix the test below.
-            # self.assertTrue(pg3m.is_subgroup(pgm3m))
+            # assert pg3m.is_subgroup(pgm3m)
             assert pg3m.is_subgroup(pg6mmm)
             assert not pgm3m.is_supergroup(pg6mmm)
 
@@ -187,7 +187,7 @@ class SpaceGroupTest(unittest.TestCase):
         sg = SpaceGroup("Pbnm")
         assert sg.int_number == 62
         assert sg.order == 8
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Bad international symbol 'hello'"):
             SpaceGroup("hello")
 
     def test_subgroup_supergroup(self):

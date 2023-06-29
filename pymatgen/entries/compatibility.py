@@ -30,6 +30,7 @@ from pymatgen.entries.computed_entries import (
     TemperatureEnergyAdjustment,
 )
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
+from pymatgen.util.due import Doi, due
 
 __author__ = "Amanda Wang, Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012-2020, The Materials Project"
@@ -47,7 +48,7 @@ AnyComputedEntry = Union[ComputedEntry, ComputedStructureEntry]
 class CompatibilityError(Exception):
     """
     Exception class for Compatibility. Raised by attempting correction
-    on incompatible calculation
+    on incompatible calculation.
     """
 
 
@@ -121,7 +122,7 @@ class PotcarCorrection(Correction):
         """
         Args:
             input_set: InputSet object used to generate the runs (used to check
-                for correct potcar symbols)
+                for correct potcar symbols).
 
             check_hash (bool): If true, uses the potcar hash to check for valid
                 potcars. If false, uses the potcar symbol (Less reliable).
@@ -413,20 +414,9 @@ class UCorrection(Correction):
     these fields populated.
     """
 
-    common_peroxides = [
-        "Li2O2",
-        "Na2O2",
-        "K2O2",
-        "Cs2O2",
-        "Rb2O2",
-        "BeO2",
-        "MgO2",
-        "CaO2",
-        "SrO2",
-        "BaO2",
-    ]
-    common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
-    ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
+    common_peroxides = ("Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2", "BeO2", "MgO2", "CaO2", "SrO2", "BaO2")
+    common_superoxides = ("LiO2", "NaO2", "KO2", "RbO2", "CsO2")
+    ozonides = ("LiO3", "NaO3", "KO3", "NaO5")
 
     def __init__(self, config_file, input_set, compat_type, error_file=None):
         """
@@ -1186,6 +1176,7 @@ class MITAqueousCompatibility(CorrectionsList):
 
 
 @cached_class
+@due.dcite(Doi("10.1103/PhysRevB.85.235438", "Pourbaix scheme to combine calculated and experimental data"))
 class MaterialsProjectAqueousCompatibility(Compatibility):
     """
     This class implements the Aqueous energy referencing scheme for constructing

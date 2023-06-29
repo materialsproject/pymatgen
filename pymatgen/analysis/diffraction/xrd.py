@@ -1,6 +1,4 @@
-"""
-This module implements an XRD pattern calculator.
-"""
+"""This module implements an XRD pattern calculator."""
 
 from __future__ import annotations
 

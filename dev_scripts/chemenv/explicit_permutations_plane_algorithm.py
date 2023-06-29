@@ -1,6 +1,6 @@
 """
 Development script of the ChemEnv utility to get the explicit permutations for coordination environments identified
-with the separation plane algorithms (typically with coordination numbers >= 6)
+with the separation plane algorithms (typically with coordination numbers >= 6).
 """
 
 from __future__ import annotations
@@ -19,11 +19,11 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane, c
 
 if __name__ == "__main__":
     # Choose the geometry
-    allcg = AllCoordinationGeometries()
+    all_cg = AllCoordinationGeometries()
     while True:
         cg_symbol = input("Enter symbol of the geometry for which you want to get the explicit permutations : ")
         try:
-            cg = allcg[cg_symbol]
+            cg = all_cg[cg_symbol]
             break
         except LookupError:
             print("Wrong geometry, try again ...")

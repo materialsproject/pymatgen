@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.lobster.lobsterenv module &mdash; pymatgen 2023.5.10 documentation</title>
+  <title>pymatgen.io.lobster.lobsterenv module &mdash; pymatgen 2023.6.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -36,18 +36,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-
-          
-          
-          <a href="index.html">
-            
+            <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.5.10
+                2023.6.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -103,12 +99,12 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.io.lobster.html">pymatgen.io.lobster package</a></li>
-      <li class="breadcrumb-item active">pymatgen.io.lobster.lobsterenv module</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
+          <li><a href="pymatgen.io.html">pymatgen.io namespace</a> &raquo;</li>
+          <li><a href="pymatgen.io.lobster.html">pymatgen.io.lobster package</a> &raquo;</li>
+      <li>pymatgen.io.lobster.lobsterenv module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.lobster.lobsterenv.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -125,10 +121,71 @@ the local environments (e.g., finding near neighbors)
 of single sites in molecules and structures based on
 bonding analysis with Lobster.</p>
 <dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ICOHPNeighborsInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_icohp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_icohps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bonds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_isites</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lobster/lobsterenv.py#L1350-L1370"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<p>Tuple to represent information on relevant bonds
+:param total_icohp: sum of icohp values of neighbors to the selected sites [given by the id in structure]
+:type total_icohp: float
+:param list_icohps: list of summed icohp values for all identified interactions with neighbors
+:type list_icohps: list
+:param n_bonds: number of identified bonds to the selected sites
+:type n_bonds: int
+:param labels: labels (from ICOHPLIST) for all identified bonds
+:type labels: list(str)
+:param atoms: list of list describing the species present in the identified interactions</p>
+<blockquote>
+<div><p>(names from ICOHPLIST), e.g., [‘Ag3’, ‘O5’]</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>central_isites</strong> (<em>list</em><em>(</em><em>int</em><em>)</em>) – list of the central isite for each identified interaction.</p>
+</dd>
+</dl>
+<p>Create new instance of ICOHPNeighborsInfo(total_icohp, list_icohps, n_bonds, labels, atoms, central_isites)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.atoms">
+<span class="sig-name descname"><span class="pre">atoms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.atoms" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.central_isites">
+<span class="sig-name descname"><span class="pre">central_isites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.central_isites" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.labels">
+<span class="sig-name descname"><span class="pre">labels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.labels" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.list_icohps">
+<span class="sig-name descname"><span class="pre">list_icohps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.list_icohps" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.n_bonds">
+<span class="sig-name descname"><span class="pre">n_bonds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.n_bonds" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.total_icohp">
+<span class="sig-name descname"><span class="pre">total_icohp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.ICOHPNeighborsInfo.total_icohp" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LobsterLightStructureEnvironments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordination_environments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_nbs_sites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbors_sets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences_origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lobster/lobsterenv.py#L1222-L1363"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LobsterLightStructureEnvironments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordination_environments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_nbs_sites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbors_sets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences_origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lobster/lobsterenv.py#L1211-L1347"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments" title="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments"><code class="xref py py-class docutils literal notranslate"><span class="pre">LightStructureEnvironments</span></code></a></p>
-<p>Class to store LightStructureEnvironments based on Lobster outputs</p>
+<p>Class to store LightStructureEnvironments based on Lobster outputs.</p>
 <p>Constructor for the LightStructureEnvironments object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -146,15 +203,15 @@ structure).</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lobster/lobsterenv.py#L1339-L1363"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.as_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lobster/lobsterenv.py#L1324-L1347"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.as_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Bson-serializable dict representation of the LightStructureEnvironments object.
 :return: Bson-serializable dict representation of the LightStructureEnvironments object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.from_Lobster">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_Lobster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_ce_symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_csm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_permutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_neighsite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_neighisite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lobster/lobsterenv.py#L1227-L1330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.from_Lobster" title="Permalink to this definition"></a></dt>
-<dd><p>Will set up a LightStructureEnvironments from Lobster</p>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_Lobster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_ce_symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_csm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_permutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_neighsite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_neighisite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lobster/lobsterenv.py#L1214-L1317"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.from_Lobster" title="Permalink to this definition"></a></dt>
+<dd><p>Will set up a LightStructureEnvironments from Lobster.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -173,7 +230,7 @@ structure).</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.uniquely_determines_coordination_environments">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uniquely_determines_coordination_environments</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.uniquely_determines_coordination_environments" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uniquely_determines_coordination_environments</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterLightStructureEnvironments.uniquely_determines_coordination_environments" title="Permalink to this definition"></a></dt>
 <dd><p>True if the coordination environments are uniquely determined.</p>
 </dd></dl>
 
@@ -181,21 +238,20 @@ structure).</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LobsterNeighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">are_coops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_ICOHP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_condition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_bonds_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perc_strength_ICOHP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences_from_charges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_CHARGE</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Mulliken'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_extremum_to_add_cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_additional_data_sg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_blist_sg1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_blist_sg2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_blist_sg1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ICOOP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_blist_sg2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ICOBI'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lobster/lobsterenv.py#L38-L1219"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LobsterNeighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_ICOHP</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ICOHPLIST.lobster'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">are_coops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_bonds_to</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perc_strength_ICOHP</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valences_from_charges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_CHARGE</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Mulliken'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_extremum_to_add_cond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_additional_data_sg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_blist_sg1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_blist_sg2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_blist_sg1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ICOOP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_blist_sg2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ICOBI'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lobster/lobsterenv.py#L39-L1208"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">NearNeighbors</span></code></a></p>
 <p>This class combines capabilities from LocalEnv and ChemEnv to determine coordination environments based on
-bonding analysis</p>
+bonding analysis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>are_coops</strong> – (bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for</p></li>
-<li><p><strong>far</strong> (<em>ICOHPLIST.lobster so</em>) – </p></li>
 <li><p><strong>filename_ICOHP</strong> – (str) Path to ICOHPLIST.lobster</p></li>
-<li><p><strong>valences</strong> (<em>Mulliken</em><em>) </em><em>instead of</em>) – (list of integers/floats) gives valence/charge for each element</p></li>
-<li><p><strong>limits</strong> – limit to decide which ICOHPs should be considered</p></li>
-<li><p><strong>structure</strong> – (Structure Object) typically constructed by: Structure.from_file(“POSCAR”) (Structure object</p></li>
-<li><p><strong>pymatgen.core.structure</strong><strong>)</strong> (<em>from</em>) – </p></li>
-<li><p><strong>additional_condition</strong> – Additional condition that decides which kind of bonds will be considered
+<li><p><strong>structure</strong> – (Structure): typically constructed by Structure.from_file(“POSCAR”)</p></li>
+<li><p><strong>are_coops</strong> – (bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for
+ICOHPLIST.lobster so far</p></li>
+<li><p><strong>valences</strong> (<em>Mulliken</em><em>) </em><em>instead of</em>) – (list[int | float]): gives valence/charge for each element</p></li>
+<li><p><strong>limits</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>] </em><em>| </em><em>None</em>) – limit to decide which ICOHPs should be considered</p></li>
+<li><p><strong>additional_condition</strong> (<em>int</em>) – Additional condition that decides which kind of bonds will be considered
 NO_ADDITIONAL_CONDITION = 0
 ONLY_ANION_CATION_BONDS = 1
 NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
@@ -203,7 +259,7 @@ ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
 ONLY_ELEMENT_TO_OXYGEN_BONDS = 4
 DO_NOT_CONSIDER_ANION_CATION_BONDS=5
 ONLY_CATION_CATION_BONDS=6</p></li>
-<li><p><strong>only_bonds_to</strong> – (list of str) will only consider bonds to certain elements (e.g. [“O”] for oxygen)</p></li>
+<li><p><strong>only_bonds_to</strong> – (list[str]) will only consider bonds to certain elements (e.g. [“O”] for oxygen)</p></li>
 <li><p><strong>perc_strength_ICOHP</strong> – if no limits are given, this will decide which icohps will still be considered (</p></li>
 <li><p><strong>to</strong> (<em>relative</em>) – </p></li>
 <li><p><strong>ICOHP</strong><strong>)</strong> (<em>the strongest</em>) – </p></li>
@@ -219,21 +275,29 @@ ONLY_CATION_CATION_BONDS=6</p></li>
 <li><p><strong>id_blist_sg1</strong> – (str) Identity of data in filename_blist_sg1,
 e.g., “icoop” or “icobi”</p></li>
 <li><p><strong>id_blist_sg2</strong> – (str) Identity of data in filename_blist_sg2,
-e.g., “icoop” or “icobi”</p></li>
+e.g., “icoop” or “icobi”.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_anion_types">
-<span class="sig-name descname"><span class="pre">get_anion_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lobster/lobsterenv.py#L216-L229"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_anion_types" title="Permalink to this definition"></a></dt>
-<dd><p>Return the types of anions present in crystal structure
-Returns:</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors.anion_types">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">anion_types</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.anion_types" title="Permalink to this definition"></a></dt>
+<dd><p>Return the types of anions present in crystal structure as a set
+Returns: set of Element describing anions in the crystal structure.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_anion_types">
+<span class="sig-name descname"><span class="pre">get_anion_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../../../monty/monty/dev.py#L64-L67"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_anion_types" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_cohps_to_neighbors">
-<span class="sig-name descname"><span class="pre">get_info_cohps_to_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_COHPCAR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'COHPCAR.lobster'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_bonds_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onlycation_isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_bond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summed_spin_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lobster/lobsterenv.py#L455-L558"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_cohps_to_neighbors" title="Permalink to this definition"></a></dt>
-<dd><p>Return info about the cohps from all sites mentioned in isites with neighbors</p>
+<span class="sig-name descname"><span class="pre">get_info_cohps_to_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_COHPCAR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'COHPCAR.lobster'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_bonds_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onlycation_isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_bond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summed_spin_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lobster/lobsterenv.py#L447-L551"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_cohps_to_neighbors" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Return info about the cohps as a summed cohp object and a label</dt><dd><p>from all sites mentioned in isites with neighbors.</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -252,8 +316,8 @@ and the other parameters</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_icohps_between_neighbors">
-<span class="sig-name descname"><span class="pre">get_info_icohps_between_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onlycation_isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lobster/lobsterenv.py#L581-L675"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_icohps_between_neighbors" title="Permalink to this definition"></a></dt>
-<dd><p>Return infos about interactions between neighbors of a certain atom</p>
+<span class="sig-name descname"><span class="pre">get_info_icohps_between_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onlycation_isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lobster/lobsterenv.py#L574-L667"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_icohps_between_neighbors" title="Permalink to this definition"></a></dt>
+<dd><p>Return infos about interactions between neighbors of a certain atom.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -261,41 +325,31 @@ and the other parameters</p>
 <li><p><strong>onlycation_isites</strong> – will only use cations, if isite==None</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>summed_icohps, list_icohps, number_bonds, label_list, atoms_list</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple</p>
-</dd>
 </dl>
+<p>Returns: ICOHPNeighborsInfo</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_icohps_to_neighbors">
-<span class="sig-name descname"><span class="pre">get_info_icohps_to_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onlycation_isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lobster/lobsterenv.py#L356-L400"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_icohps_to_neighbors" title="Permalink to this definition"></a></dt>
-<dd><p>this method Return information of cohps of neighbors</p>
+<span class="sig-name descname"><span class="pre">get_info_icohps_to_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onlycation_isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lobster/lobsterenv.py#L352-L392"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_info_icohps_to_neighbors" title="Permalink to this definition"></a></dt>
+<dd><p>This method returns information on the icohps of neighbors for certain sites as identified by their site id.
+This is useful for plotting the relevant cohps of a site in the structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>isites</strong> – list of site ids, if isite==None, all isites will be used to add the icohps of the neighbors</p></li>
-<li><p><strong>onlycation_isites</strong> – will only use cations, if isite==[]</p></li>
+<li><p><strong>isites</strong> – list of site ids. If isite==None, all isites will be used to add the icohps of the neighbors</p></li>
+<li><p><strong>onlycation_isites</strong> – if True and if isite==None, it will only analyse the sites of the cations</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>sum of icohps of neighbors to certain sites [given by the id in structure], number of bonds to this site,
-labels (from ICOHPLIST) for
-these bonds
-[the latter is useful for plotting summed COHP plots],
-list of the central isite for each label</p>
-</dd>
 </dl>
+<p>Returns: ICOHPNeighborsInfo</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_light_structure_environment">
-<span class="sig-name descname"><span class="pre">get_light_structure_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_cation_environments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lobster/lobsterenv.py#L252-L354"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_light_structure_environment" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_light_structure_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_cation_environments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lobster/lobsterenv.py#L248-L350"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_light_structure_environment" title="Permalink to this definition"></a></dt>
 <dd><p>Return a LobsterLightStructureEnvironments object
-if the structure only contains coordination environments smaller 13</p>
+if the structure only contains coordination environments smaller 13.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -309,7 +363,7 @@ if the structure only contains coordination environments smaller 13</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_nn_info">
-<span class="sig-name descname"><span class="pre">get_nn_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lobster/lobsterenv.py#L231-L250"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_nn_info" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_nn_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lobster/lobsterenv.py#L227-L246"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.get_nn_info" title="Permalink to this definition"></a></dt>
 <dd><p>Get coordination number, CN, of site with index n in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -334,7 +388,7 @@ True is not implemented for LobsterNeighbors</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors.molecules_allowed">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">molecules_allowed</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.molecules_allowed" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">molecules_allowed</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.molecules_allowed" title="Permalink to this definition"></a></dt>
 <dd><p>can this NearNeighbors class be used with Molecule
 objects?</p>
 <dl class="field-list simple">
@@ -346,8 +400,8 @@ objects?</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors.plot_cohps_of_neighbors">
-<span class="sig-name descname"><span class="pre">plot_cohps_of_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_COHPCAR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'COHPCAR.lobster'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onlycation_isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_bonds_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_bond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summed_spin_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-10,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integrated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/core/../io/lobster/lobsterenv.py#L402-L453"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.plot_cohps_of_neighbors" title="Permalink to this definition"></a></dt>
-<dd><p>Will plot summed cohps (please be careful in the spin polarized case (plots might overlap (exactly!))</p>
+<span class="sig-name descname"><span class="pre">plot_cohps_of_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_COHPCAR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'COHPCAR.lobster'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onlycation_isites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_bonds_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_bond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summed_spin_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-10,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integrated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../io/lobster/lobsterenv.py#L394-L445"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.plot_cohps_of_neighbors" title="Permalink to this definition"></a></dt>
+<dd><p>Will plot summed cohps (please be careful in the spin polarized case (plots might overlap (exactly!)).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -370,7 +424,7 @@ objects?</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.lobster.lobsterenv.LobsterNeighbors.structures_allowed">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structures_allowed</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.structures_allowed" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structures_allowed</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/io/lobster/lobsterenv.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.lobsterenv.LobsterNeighbors.structures_allowed" title="Permalink to this definition"></a></dt>
 <dd><p>can this NearNeighbors class be used with Structure
 objects?</p>
 <dl class="field-list simple">

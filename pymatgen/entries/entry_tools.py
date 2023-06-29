@@ -31,9 +31,9 @@ logger = logging.getLogger(__name__)
 
 def _get_host(structure, species_to_remove):
     if species_to_remove:
-        s = structure.copy()
-        s.remove_species(species_to_remove)
-        return s
+        struct = structure.copy()
+        struct.remove_species(species_to_remove)
+        return struct
     return structure
 
 
@@ -232,7 +232,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     def chemsys(self) -> set:
         """
         Returns:
-            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}
+            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}.
         """
         chemsys = set()
         for e in self.entries:
@@ -259,9 +259,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         self.entries = self.ground_states
 
     def is_ground_state(self, entry) -> bool:
-        """
-        Boolean indicating whether a given Entry is a ground state
-        """
+        """Boolean indicating whether a given Entry is a ground state."""
         return entry in self.ground_states
 
     def get_subset_in_chemsys(self, chemsys: list[str]):
@@ -281,7 +279,9 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """
         chem_sys = set(chemsys)
         if not chem_sys.issubset(self.chemsys):
-            raise ValueError(f"{chem_sys} is not a subset of {self.chemsys}")
+            raise ValueError(
+                f"{sorted(chem_sys)} is not a subset of {sorted(self.chemsys)}, extra: {chem_sys - self.chemsys}"
+            )
         subset = set()
         for e in self.entries:
             elements = [sp.symbol for sp in e.composition]
@@ -290,14 +290,12 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return EntrySet(subset)
 
     def as_dict(self) -> dict[Literal["entries"], list[Entry]]:
-        """
-        Returns MSONable dict.
-        """
+        """Returns MSONable dict."""
         return {"entries": list(self.entries)}
 
     def to_csv(self, filename: str, latexify_names: bool = False) -> None:
         """
-        Exports PDEntries to a csv
+        Exports PDEntries to a csv.
 
         Args:
             filename: Filename to write to.

@@ -28,9 +28,20 @@ import pandas as pd
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.spectrum import Spectrum
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.electronic_structure.dos import CompleteDos
+
+
+due.cite(
+    Doi("10.21105/joss.007733"),
+    description="Galore: Broadening and weighting for simulation of photoelectron spectroscopy.",
+)
+due.cite(
+    Doi("10.1016/0092-640X(85)90016-6"),
+    description="Atomic Subshell Photoionization Cross Sections and Asymmetry Parameters: 1 ⩽ Z ⩽ 103.",
+)
 
 
 def _load_cross_sections(fname):
@@ -59,9 +70,7 @@ CROSS_SECTIONS = _load_cross_sections(Path(__file__).parent / "atomic_subshell_p
 
 
 class XPS(Spectrum):
-    """
-    Class representing an X-ray photoelectron spectra.
-    """
+    """Class representing an X-ray photoelectron spectra."""
 
     XLABEL = "Binding Energy (eV)"
     YLABEL = "Intensity"

@@ -93,8 +93,8 @@ class TransformedStructure(MSONable):
         self.final_structure = s
 
     def __getattr__(self, name) -> Any:
-        s = object.__getattribute__(self, "final_structure")
-        return getattr(s, name)
+        struct = object.__getattribute__(self, "final_structure")
+        return getattr(struct, name)
 
     def __len__(self) -> int:
         return len(self.history)
@@ -128,33 +128,33 @@ class TransformedStructure(MSONable):
             input_structure = self.final_structure.as_dict()
             alts = []
             for x in ranked_list[1:]:
-                s = x.pop("structure")
+                struct = x.pop("structure")
                 actual_transformation = x.pop("transformation", transformation)
                 h_dict = actual_transformation.as_dict()
                 h_dict["input_structure"] = input_structure
                 h_dict["output_parameters"] = x
-                self.final_structure = s
+                self.final_structure = struct
                 d = self.as_dict()
                 d["history"].append(h_dict)
-                d["final_structure"] = s.as_dict()
+                d["final_structure"] = struct.as_dict()
                 alts.append(TransformedStructure.from_dict(d))
 
             x = ranked_list[0]
-            s = x.pop("structure")
+            struct = x.pop("structure")
             actual_transformation = x.pop("transformation", transformation)
             h_dict = actual_transformation.as_dict()
             h_dict["input_structure"] = self.final_structure.as_dict()
             h_dict["output_parameters"] = x
             self.history.append(h_dict)
-            self.final_structure = s
+            self.final_structure = struct
             return alts
 
-        s = transformation.apply_transformation(self.final_structure)
+        struct = transformation.apply_transformation(self.final_structure)
         h_dict = transformation.as_dict()
         h_dict["input_structure"] = self.final_structure.as_dict()
         h_dict["output_parameters"] = {}
         self.history.append(h_dict)
-        self.final_structure = s
+        self.final_structure = struct
         return None
 
     def append_filter(self, structure_filter: AbstractStructureFilter) -> None:
@@ -232,7 +232,7 @@ class TransformedStructure(MSONable):
 
     def set_parameter(self, key: str, value: Any) -> None:
         """
-        Set a parameter
+        Set a parameter.
 
         :param key: The string key
         :param value: The value.
@@ -322,18 +322,16 @@ class TransformedStructure(MSONable):
                 "Transformation can be created only from POSCAR strings with proper VASP5 element symbols."
             )
         raw_string = re.sub(r"'", '"', poscar_string)
-        s = p.structure
+        struct = p.structure
         source_info = {
             "source": "POSCAR",
             "datetime": str(datetime.datetime.now()),
             "original_file": raw_string,
         }
-        return TransformedStructure(s, transformations, history=[source_info])
+        return TransformedStructure(struct, transformations, history=[source_info])
 
     def as_dict(self) -> dict[str, Any]:
-        """
-        Dict representation of the TransformedStructure.
-        """
+        """Dict representation of the TransformedStructure."""
         d = self.final_structure.as_dict()
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -344,9 +342,7 @@ class TransformedStructure(MSONable):
 
     @classmethod
     def from_dict(cls, d) -> TransformedStructure:
-        """
-        Creates a TransformedStructure from a dict.
-        """
+        """Creates a TransformedStructure from a dict."""
         struct = Structure.from_dict(d)
         return cls(struct, history=d["history"], other_parameters=d.get("other_parameters"))
 

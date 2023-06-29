@@ -1,6 +1,4 @@
-"""
-This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.
-"""
+"""This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis."""
 
 from __future__ import annotations
 
@@ -61,9 +59,7 @@ def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
 
 
 class DetailedVoronoiContainer(MSONable):
-    """
-    Class used to store the full Voronoi of a given structure.
-    """
+    """Class used to store the full Voronoi of a given structure."""
 
     AC = AdditionalConditions()
     default_voronoi_cutoff = 10.0

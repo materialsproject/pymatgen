@@ -54,7 +54,7 @@ class FuncUtilsTest(unittest.TestCase):
 
         with pytest.raises(
             ValueError,
-            match="function='powern_decreasing' is not allowed in RatioFunction of type \"CSMFiniteRatioFunction\"",
+            match="function='powern_decreasing' is not allowed in RatioFunction of type CSMFiniteRatioFunction",
         ):
             CSMFiniteRatioFunction(
                 function="powern_decreasing",

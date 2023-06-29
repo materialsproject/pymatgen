@@ -41,7 +41,7 @@ class SymmOpTestCase(PymatgenTest):
         point = np.random.rand(3)
         new_coord = refl.operate(point)
         # Distance to the plane should be negatives of each other.
-        assert round(abs(np.dot(new_coord - origin, normal) - -np.dot(point - origin, normal)), 7) == 0
+        assert np.allclose(np.dot(new_coord - origin, normal), -np.dot(point - origin, normal))
 
     def test_apply_rotation_only(self):
         point = np.random.rand(3)

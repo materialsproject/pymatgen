@@ -1,6 +1,4 @@
-"""
-Utilities for generating nicer plots.
-"""
+"""Utilities for generating nicer plots."""
 from __future__ import annotations
 
 import math
@@ -330,7 +328,7 @@ def periodic_table_heatmap(
 def format_formula(formula):
     """
     Converts str of chemical formula into
-    latex format for labelling purposes
+    latex format for labelling purposes.
 
     Args:
         formula (str): Chemical formula
@@ -365,7 +363,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
                 Interscience, New York (1956)
         and
             J.A.A Ketelaar, Chemical Constitution (2nd edition), An Introduction
-                to the Theory of the Chemical Bond, Elsevier, New York (1958)
+                to the Theory of the Chemical Bond, Elsevier, New York (1958).
 
     Args:
          list_of_materials (list): A list of computed entries of binary

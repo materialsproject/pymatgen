@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.optimization.neighbors module &mdash; pymatgen 2023.5.10 documentation</title>
+  <title>pymatgen.optimization.neighbors module &mdash; pymatgen 2023.6.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -36,18 +36,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-
-          
-          
-          <a href="index.html">
-            
+            <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.5.10
+                2023.6.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -103,11 +99,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
-      <li class="breadcrumb-item active">pymatgen.optimization.neighbors module</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
+          <li><a href="pymatgen.optimization.html">pymatgen.optimization package</a> &raquo;</li>
+      <li>pymatgen.optimization.neighbors module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.optimization.neighbors.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -120,23 +116,18 @@
   <section id="module-pymatgen.optimization.neighbors">
 <span id="pymatgen-optimization-neighbors-module"></span><h1>pymatgen.optimization.neighbors module<a class="headerlink" href="#module-pymatgen.optimization.neighbors" title="Permalink to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="pymatgen.optimization.neighbors.compute_offset_vectors">
-<span class="sig-name descname"><span class="pre">compute_offset_vectors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/optimization/neighbors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.compute_offset_vectors" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.optimization.neighbors.find_points_in_spheres">
-<span class="sig-name descname"><span class="pre">find_points_in_spheres</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.5.10/pymatgen/optimization/neighbors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.find_points_in_spheres" title="Permalink to this definition"></a></dt>
-<dd><p>For each point in <cite>center_coords</cite>, get all the neighboring points in <cite>all_coords</cite> that are within the
-cutoff radius <cite>r</cite>. All the coordinates should be in Cartesian.</p>
+<span class="sig-name descname"><span class="pre">find_points_in_spheres</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/optimization/neighbors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.find_points_in_spheres" title="Permalink to this definition"></a></dt>
+<dd><p>For each point in <cite>center_coords</cite>, get all the neighboring points in <cite>all_coords</cite>
+that are within the cutoff radius <cite>r</cite>. All the coordinates should be Cartesian.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>all_coords</strong> – (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,
-this is all the points in the lattice.</p></li>
+<li><p><strong>all_coords</strong> – (np.ndarray[double, dim=2]) all available points.
+When periodic boundary is considered, this is all the points in the lattice.</p></li>
 <li><p><strong>center_coords</strong> – (np.ndarray[double, dim=2]) all centering points</p></li>
 <li><p><strong>r</strong> – (float) cutoff radius</p></li>
-<li><p><strong>pbc</strong> – (list of bool) whether to set periodic boundaries</p></li>
+<li><p><strong>pbc</strong> – (np.ndarray[long, dim=1]) whether to set periodic boundaries</p></li>
 <li><p><strong>lattice</strong> – (np.ndarray[double, dim=2]) 3x3 lattice matrix</p></li>
 <li><p><strong>tol</strong> – (float) numerical tolerance</p></li>
 <li><p><strong>min_r</strong> – (float) minimal cutoff to calculate the neighbor list
@@ -146,11 +137,9 @@ those that have larger distances.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ). index1 of center_coords, and index2 of all_coords that form the neighbor pair</dt><dd><p>offset_vectors are the periodic image offsets for the all_coords.</p>
-</dd>
-</dl>
-</p>
+<dd class="field-even"><p>index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ).
+index1 of center_coords, and index2 of all_coords that form the neighbor pair
+offset_vectors are the periodic image offsets for the all_coords.</p>
 </dd>
 </dl>
 </dd></dl>

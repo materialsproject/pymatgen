@@ -1,3 +1,1 @@
-"""
-Phonon DOS and bandstructure analysis package.
-"""
+"""Phonon DOS and bandstructure analysis package."""

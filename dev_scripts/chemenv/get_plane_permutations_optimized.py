@@ -1,6 +1,6 @@
 """
 Development script of the ChemEnv utility to get the optimized explicit permutations for coordination environments
-identified with the separation plane algorithms (typically with coordination numbers >= 6)
+identified with the separation plane algorithms (typically with coordination numbers >= 6).
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def prt2(string, printing_volume):
 # Iterator function for the random permutations
 def random_permutations_iterator(initial_permutation, n_permutations):
     """
-    It takes a list and returns an iterator that yields random permutations of that list
+    It takes a list and returns an iterator that yields random permutations of that list.
 
     Args:
         initial_permutation: the initial permutation of the data

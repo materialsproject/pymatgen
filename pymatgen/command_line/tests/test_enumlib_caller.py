@@ -96,40 +96,40 @@ class EnumlibAdaptorTest(PymatgenTest):
         assert len(adaptor.structures) == 197
 
     def test_partial_disorder(self):
-        s = Structure.from_file(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "garnet.cif"))
-        a = SpacegroupAnalyzer(s, 0.1)
-        prim = a.find_primitive()
-        s = prim.copy()
-        s["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
-        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01)
+        struct = Structure.from_file(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "garnet.cif"))
+        spga = SpacegroupAnalyzer(struct, 0.1)
+        prim = spga.find_primitive()
+        struct = prim.copy()
+        struct["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
+        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 7
-        for s in structures:
-            assert s.formula == "Ca12 Al4 Ga4 Si12 O48"
-        s = prim.copy()
-        s["Ca2+"] = {"Ca2+": 1 / 3, "Mg2+": 2 / 3}
-        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01)
+        for struct in structures:
+            assert struct.formula == "Ca12 Al4 Ga4 Si12 O48"
+        struct = prim.copy()
+        struct["Ca2+"] = {"Ca2+": 1 / 3, "Mg2+": 2 / 3}
+        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 20
-        for s in structures:
-            assert s.formula == "Ca4 Mg8 Al8 Si12 O48"
+        for struct in structures:
+            assert struct.formula == "Ca4 Mg8 Al8 Si12 O48"
 
-        s = prim.copy()
-        s["Si4+"] = {"Si4+": 1 / 3, "Ge4+": 2 / 3}
-        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01)
+        struct = prim.copy()
+        struct["Si4+"] = {"Si4+": 1 / 3, "Ge4+": 2 / 3}
+        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 18
-        for s in structures:
-            assert s.formula == "Ca12 Al8 Si4 Ge8 O48"
+        for struct in structures:
+            assert struct.formula == "Ca12 Al8 Si4 Ge8 O48"
 
     @unittest.skip("Fails seemingly at random.")
     def test_timeout(self):
-        s = Structure.from_file(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "garnet.cif"))
-        SpacegroupAnalyzer(s, 0.1)
-        s["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
-        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001)
+        struct = Structure.from_file(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "garnet.cif"))
+        SpacegroupAnalyzer(struct, 0.1)
+        struct["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
+        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001)
         with pytest.raises(TimeoutError):
             adaptor._run_multienum()

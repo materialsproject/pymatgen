@@ -1,6 +1,4 @@
-"""
-This module defines classes to represent the density of states, etc.
-"""
+"""This module defines classes to represent the density of states, etc."""
 
 from __future__ import annotations
 
@@ -62,7 +60,7 @@ class DOS(Spectrum):
 
     def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """
-        Expects a DOS object and finds the gap
+        Expects a DOS object and finds the gap.
 
         Args:
             tol: tolerance in occupations for determining the gap
@@ -161,9 +159,7 @@ class DOS(Spectrum):
         return max(cbm - vbm, 0.0)
 
     def __str__(self):
-        """
-        Returns a string which can be easily plotted (using gnuplot).
-        """
+        """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
@@ -236,7 +232,7 @@ class Dos(MSONable):
     def get_smeared_densities(self, sigma: float):
         """
         Returns the Dict representation of the densities, {Spin: densities},
-        but with a Gaussian smearing of std dev sigma
+        but with a Gaussian smearing of std dev sigma.
 
         Args:
             sigma: Std dev of Gaussian smearing function.
@@ -283,7 +279,7 @@ class Dos(MSONable):
 
     def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """
-        Expects a DOS object and finds the gap
+        Expects a DOS object and finds the gap.
 
         Args:
             tol: tolerance in occupations for determining the gap
@@ -371,9 +367,7 @@ class Dos(MSONable):
         return max(cbm - vbm, 0.0)
 
     def __str__(self):
-        """
-        Returns a string which can be easily plotted (using gnuplot).
-        """
+        """Returns a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             stringarray = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
@@ -386,9 +380,7 @@ class Dos(MSONable):
 
     @classmethod
     def from_dict(cls, d) -> Dos:
-        """
-        Returns Dos object from dict representation of Dos.
-        """
+        """Returns Dos object from dict representation of Dos."""
         return Dos(
             d["efermi"],
             d["energies"],
@@ -396,9 +388,7 @@ class Dos(MSONable):
         )
 
     def as_dict(self) -> dict:
-        """
-        JSON-serializable dict representation of Dos.
-        """
+        """JSON-serializable dict representation of Dos."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -607,9 +597,7 @@ class FermiDos(Dos, MSONable):
 
     @classmethod
     def from_dict(cls, d) -> FermiDos:
-        """
-        Returns Dos object from dict representation of Dos.
-        """
+        """Returns Dos object from dict representation of Dos."""
         dos = Dos(
             d["efermi"],
             d["energies"],
@@ -618,9 +606,7 @@ class FermiDos(Dos, MSONable):
         return FermiDos(dos, structure=Structure.from_dict(d["structure"]), nelecs=d["nelecs"])
 
     def as_dict(self) -> dict:
-        """
-        JSON-serializable dict representation of Dos.
-        """
+        """JSON-serializable dict representation of Dos."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -675,9 +661,7 @@ class CompleteDos(Dos):
         self.structure = structure
 
     def get_normalized(self) -> CompleteDos:
-        """
-        Returns a normalized version of the CompleteDos.
-        """
+        """Returns a normalized version of the CompleteDos."""
         if self.norm_vol is not None:
             return self
         return CompleteDos(
@@ -715,7 +699,7 @@ class CompleteDos(Dos):
 
     def get_site_spd_dos(self, site: PeriodicSite) -> dict[OrbitalType, Dos]:
         """
-        Get orbital projected Dos of a particular site
+        Get orbital projected Dos of a particular site.
 
         Args:
             site: Site in Structure associated with CompleteDos.
@@ -792,7 +776,7 @@ class CompleteDos(Dos):
 
     def get_element_spd_dos(self, el: SpeciesLike) -> dict[OrbitalType, Dos]:
         """
-        Get element and spd projected Dos
+        Get element and spd projected Dos.
 
         Args:
             el: Element in Structure.composition associated with CompleteDos
@@ -851,7 +835,7 @@ class CompleteDos(Dos):
     ) -> float:
         """
         Compute the orbital-projected band filling, defined as the zeroth moment
-        up to the Fermi level
+        up to the Fermi level.
 
         Args:
             band: Orbital type to get the band center of (default is d-band)
@@ -889,11 +873,7 @@ class CompleteDos(Dos):
 
         # Only consider up to Fermi level in numerator
         energies = dos.energies - dos.efermi
-        band_filling = np.trapz(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapz(
-            dos_densities, x=energies
-        )
-
-        return band_filling
+        return np.trapz(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapz(dos_densities, x=energies)
 
     def get_band_center(
         self,
@@ -923,11 +903,7 @@ class CompleteDos(Dos):
         Returns:
             band center in eV, often denoted epsilon_d for the d-band center
         """
-        band_center = self.get_n_moment(
-            1, elements=elements, sites=sites, band=band, spin=spin, erange=erange, center=False
-        )
-
-        return band_center
+        return self.get_n_moment(1, elements=elements, sites=sites, band=band, spin=spin, erange=erange, center=False)
 
     def get_band_width(
         self,
@@ -955,9 +931,7 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected band width in eV
         """
-        band_width = np.sqrt(self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange))
-
-        return band_width
+        return np.sqrt(self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange))
 
     def get_band_skewness(
         self,
@@ -987,11 +961,9 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected skewness in eV
         """
-        skewness = self.get_n_moment(
+        return self.get_n_moment(
             3, elements=elements, sites=sites, band=band, spin=spin, erange=erange
         ) / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** (3 / 2)
-
-        return skewness
 
     def get_band_kurtosis(
         self,
@@ -1021,12 +993,10 @@ class CompleteDos(Dos):
         Returns:
             Orbital-projected kurtosis in eV
         """
-        kurtosis = (
+        return (
             self.get_n_moment(4, elements=elements, sites=sites, band=band, spin=spin, erange=erange)
             / self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange) ** 2
         )
-
-        return kurtosis
 
     def get_n_moment(
         self,
@@ -1092,9 +1062,7 @@ class CompleteDos(Dos):
             p = energies
 
         # Take the nth moment
-        nth_moment = np.trapz(p**n * dos_densities, x=energies) / np.trapz(dos_densities, x=energies)
-
-        return nth_moment
+        return np.trapz(p**n * dos_densities, x=energies) / np.trapz(dos_densities, x=energies)
 
     def get_hilbert_transform(
         self,
@@ -1174,8 +1142,7 @@ class CompleteDos(Dos):
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
 
         # Calculate the upper band edge
-        upper_band_edge = energies[np.argmax(densities)]
-        return upper_band_edge
+        return energies[np.argmax(densities)]
 
     def get_dos_fp(
         self,
@@ -1190,7 +1157,7 @@ class CompleteDos(Dos):
         Generates the DOS fingerprint based on work of
         F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
         Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
-        Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno
+        Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
 
 
         Args:
@@ -1267,7 +1234,7 @@ class CompleteDos(Dos):
 
     @staticmethod
     def fp_to_dict(fp: NamedTuple) -> dict:
-        """Converts a fingerprint into a dictionary
+        """Converts a fingerprint into a dictionary.
 
         Args:
             fp: The DOS fingerprint to be converted into a dictionary
@@ -1289,7 +1256,7 @@ class CompleteDos(Dos):
         normalize: bool = False,
         tanimoto: bool = False,
     ) -> float:
-        """Calculates the similarity index (dot product) of two fingerprints
+        """Calculates the similarity index (dot product) of two fingerprints.
 
         Args:
             fp1 (NamedTuple): The 1st dos fingerprint object
@@ -1334,9 +1301,7 @@ class CompleteDos(Dos):
 
     @classmethod
     def from_dict(cls, d) -> CompleteDos:
-        """
-        Returns CompleteDos object from dict representation.
-        """
+        """Returns CompleteDos object from dict representation."""
         tdos = Dos.from_dict(d)
         struct = Structure.from_dict(d["structure"])
         pdoss = {}
@@ -1350,9 +1315,7 @@ class CompleteDos(Dos):
         return CompleteDos(struct, tdos, pdoss)
 
     def as_dict(self) -> dict:
-        """
-        JSON-serializable dict representation of CompleteDos.
-        """
+        """JSON-serializable dict representation of CompleteDos."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1379,9 +1342,7 @@ class CompleteDos(Dos):
 
 
 class LobsterCompleteDos(CompleteDos):
-    """
-    Extended CompleteDOS for Lobster
-    """
+    """Extended CompleteDOS for Lobster."""
 
     def get_site_orbital_dos(self, site: PeriodicSite, orbital: str) -> Dos:  # type: ignore
         """
@@ -1449,7 +1410,7 @@ class LobsterCompleteDos(CompleteDos):
         """
         Get orbital projected Dos.
         For example, if 3s and 4s are included in the basis of some element, they will be both summed in the orbital
-        projected DOS
+        projected DOS.
 
         Returns:
             dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
@@ -1467,7 +1428,7 @@ class LobsterCompleteDos(CompleteDos):
 
     def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:  # type: ignore
         """
-        Get element and spd projected Dos
+        Get element and spd projected Dos.
 
 
         Args:
@@ -1542,7 +1503,7 @@ def f0(E, fermi, T) -> float:
 def _get_orb_type_lobster(orb) -> OrbitalType | None:
     """
     Args:
-        orb: string representation of orbital
+        orb: string representation of orbital.
 
     Returns:
         OrbitalType
@@ -1563,7 +1524,7 @@ def _get_orb_lobster(orb):
     Args:
         orb: string representation of orbital
     Returns:
-         Orbital
+         Orbital.
     """
     orb_labs = [
         "s",
@@ -1585,8 +1546,7 @@ def _get_orb_lobster(orb):
     ]
 
     try:
-        orbital = Orbital(orb_labs.index(orb[1:]))
-        return orbital
+        return Orbital(orb_labs.index(orb[1:]))
     except AttributeError:
         print("Orb not in list")
     return None

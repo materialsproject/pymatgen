@@ -1,6 +1,27 @@
 Change log
 ==========
 
+v2023.6.28
+----------
+* Use lru_cache to speed up get_el_sp by 400x (@v1kko).
+* Related to lru_cache of get_el_sp, Species.properties is now deprecated in favor of setting Species(spin=5). The rationale is
+  that spin is the only supported property for Species anyway. Species and DummySpecies is now mostly immutable, i.e., setting specie.spin = 5 have no effect. This is as intended since the first version of pymatgen.
+* PR #3111 from @xjf729 fix-MoleculeGraph-draw_graph
+* PR #3030 from @lbluque Remove superfluous structure argument docstring from `SQSTransformation` init
+* PR #3031 from @kavanase Quick fix to allow direct initialisation of the `DictSet` class.
+* PR #3015 from @lbluque Optimized cython code in `find_points_in_spheres`, getting ~5x faster runtime.
+
+v2023.6.23
+----------
+* PR #3062 from @arosen93 asefix
+    Closes #3061. @JaGeo
+* PR #3030 from @lbluque master
+    Remove superfluous structure argument docstring from `SQSTransformation` init
+* PR #3031 from @kavanase master
+    This is a quick fix to allow direct initialisation of the `DictSet` class, which was possible before but broke in https://github.com/materialsproject/pymatgen/pull/2972 due to the `Yb_2` check querying `self.CONFIG`, which is only defined if `DictSet` was being initialised from a subclass and not directly.
+* PR #3015 from @lbluque neighbors
+    Optimized cython code in `find_points_in_spheres`, getting ~5x faster runtime.
+
 v2023.5.31
 ----------
 - Breaking: Default ``user_potcar_settings`` to ``{"W": "W_sv"}`` in all input sets if ``user_potcar_functional == "PBE_54"`` `#3022 <https://github.com/materialsproject/pymatgen/pull/3022>`_

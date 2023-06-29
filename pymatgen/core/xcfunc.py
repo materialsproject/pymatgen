@@ -1,11 +1,10 @@
-"""
-This module provides
-"""
+"""This module provides."""
 
 from __future__ import annotations
 
 from collections import namedtuple
 
+from frozendict import frozendict
 from monty.functools import lazy_property
 from monty.json import MSONable
 from monty.string import is_string
@@ -24,6 +23,7 @@ __date__ = "May 16, 2016"
 class XcFunc(MSONable):
     """
     This object stores information about the XC correlation functional.
+
     Client code usually creates the object by calling the class methods:
 
         - from_name
@@ -75,24 +75,27 @@ class XcFunc(MSONable):
     type_name = namedtuple("type_name", "type, name")
 
     xcf = LibxcFunc
-    defined_aliases = {  # (x, c) --> type_name
-        # LDAs
-        (xcf.LDA_X, xcf.LDA_C_PW): type_name("LDA", "PW"),  # ixc 7
-        (xcf.LDA_X, xcf.LDA_C_PW_MOD): type_name("LDA", "PW_MOD"),
-        (xcf.LDA_X, xcf.LDA_C_PZ): type_name("LDA", "PZ"),  # ixc 2
-        (xcf.LDA_X, xcf.LDA_C_WIGNER): type_name("LDA", "W"),  # ixc 4
-        (xcf.LDA_X, xcf.LDA_C_HL): type_name("LDA", "HL"),  # ixc 5
-        (xcf.LDA_X, xcf.LDA_C_GL): type_name("LDA", "GL"),
-        (xcf.LDA_X, xcf.LDA_C_VWN): type_name("LDA", "VWN"),
-        # GGAs
-        (xcf.GGA_X_PW91, xcf.GGA_C_PW91): type_name("GGA", "PW91"),
-        (xcf.GGA_X_PBE, xcf.GGA_C_PBE): type_name("GGA", "PBE"),
-        (xcf.GGA_X_RPBE, xcf.GGA_C_PBE): type_name("GGA", "RPBE"),  # ixc 15
-        (xcf.GGA_X_PBE_R, xcf.GGA_C_PBE): type_name("GGA", "revPBE"),  # ixc 14
-        (xcf.GGA_X_PBE_SOL, xcf.GGA_C_PBE_SOL): type_name("GGA", "PBEsol"),
-        (xcf.GGA_X_AM05, xcf.GGA_C_AM05): type_name("GGA", "AM05"),
-        (xcf.GGA_X_B88, xcf.GGA_C_LYP): type_name("GGA", "BLYP"),
-    }
+    defined_aliases = frozendict(
+        {
+            # (x, c) --> type_name
+            # LDAs
+            (xcf.LDA_X, xcf.LDA_C_PW): type_name("LDA", "PW"),  # ixc 7
+            (xcf.LDA_X, xcf.LDA_C_PW_MOD): type_name("LDA", "PW_MOD"),
+            (xcf.LDA_X, xcf.LDA_C_PZ): type_name("LDA", "PZ"),  # ixc 2
+            (xcf.LDA_X, xcf.LDA_C_WIGNER): type_name("LDA", "W"),  # ixc 4
+            (xcf.LDA_X, xcf.LDA_C_HL): type_name("LDA", "HL"),  # ixc 5
+            (xcf.LDA_X, xcf.LDA_C_GL): type_name("LDA", "GL"),
+            (xcf.LDA_X, xcf.LDA_C_VWN): type_name("LDA", "VWN"),
+            # GGAs
+            (xcf.GGA_X_PW91, xcf.GGA_C_PW91): type_name("GGA", "PW91"),
+            (xcf.GGA_X_PBE, xcf.GGA_C_PBE): type_name("GGA", "PBE"),
+            (xcf.GGA_X_RPBE, xcf.GGA_C_PBE): type_name("GGA", "RPBE"),  # ixc 15
+            (xcf.GGA_X_PBE_R, xcf.GGA_C_PBE): type_name("GGA", "revPBE"),  # ixc 14
+            (xcf.GGA_X_PBE_SOL, xcf.GGA_C_PBE_SOL): type_name("GGA", "PBEsol"),
+            (xcf.GGA_X_AM05, xcf.GGA_C_AM05): type_name("GGA", "AM05"),
+            (xcf.GGA_X_B88, xcf.GGA_C_LYP): type_name("GGA", "BLYP"),
+        }
+    )
 
     del type_name
 
@@ -100,16 +103,18 @@ class XcFunc(MSONable):
     # see: http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#ixc
     # and 42_libpaw/m_pawpsp.F90 for the implementation.
     # Fortunately, all the other cases are handled with libxc.
-    abinitixc_to_libxc = {
-        1: {"xc": xcf.LDA_XC_TETER93},
-        2: {"x": xcf.LDA_X, "c": xcf.LDA_C_PZ},  # PZ  001009
-        4: {"x": xcf.LDA_X, "c": xcf.LDA_C_WIGNER},  # W
-        5: {"x": xcf.LDA_X, "c": xcf.LDA_C_HL},  # HL
-        7: {"x": xcf.LDA_X, "c": xcf.LDA_C_PW},  # PW 001012
-        11: {"x": xcf.GGA_X_PBE, "c": xcf.GGA_C_PBE},  # PBE
-        14: {"x": xcf.GGA_X_PBE_R, "c": xcf.GGA_C_PBE},  # revPBE
-        15: {"x": xcf.GGA_X_RPBE, "c": xcf.GGA_C_PBE},  # RPBE
-    }
+    abinitixc_to_libxc = frozendict(
+        {
+            1: {"xc": xcf.LDA_XC_TETER93},
+            2: {"x": xcf.LDA_X, "c": xcf.LDA_C_PZ},  # PZ  001009
+            4: {"x": xcf.LDA_X, "c": xcf.LDA_C_WIGNER},  # W
+            5: {"x": xcf.LDA_X, "c": xcf.LDA_C_HL},  # HL
+            7: {"x": xcf.LDA_X, "c": xcf.LDA_C_PW},  # PW 001012
+            11: {"x": xcf.GGA_X_PBE, "c": xcf.GGA_C_PBE},  # PBE
+            14: {"x": xcf.GGA_X_PBE_R, "c": xcf.GGA_C_PBE},  # revPBE
+            15: {"x": xcf.GGA_X_RPBE, "c": xcf.GGA_C_PBE},  # RPBE
+        }
+    )
     del xcf
 
     @classmethod
@@ -128,7 +133,7 @@ class XcFunc(MSONable):
 
     @classmethod
     def from_abinit_ixc(cls, ixc):
-        """Build the object from Abinit ixc (integer)"""
+        """Build the object from Abinit ixc (integer)."""
         ixc = int(ixc)
         if ixc == 0:
             return None
@@ -148,7 +153,7 @@ class XcFunc(MSONable):
 
     @classmethod
     def from_name(cls, name):
-        """Build the object from one of the registered names"""
+        """Build the object from one of the registered names."""
         return cls.from_type_name(None, name)
 
     @classmethod
@@ -176,15 +181,11 @@ class XcFunc(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
-        """
+        """Makes XcFunc obey the general json interface used in pymatgen for easier serialization."""
         return cls(xc=d.get("xc"), x=d.get("x"), c=d.get("c"))
 
     def as_dict(self):
-        """
-        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
-        """
+        """Makes XcFunc obey the general json interface used in pymatgen for easier serialization."""
         d = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
             d["x"] = self.x.as_dict()
@@ -228,7 +229,7 @@ class XcFunc(MSONable):
     def name(self) -> str:
         """
         The name of the functional. If the functional is not found in the aliases,
-        the string has the form X_NAME+C_NAME
+        the string has the form X_NAME+C_NAME.
         """
         if self.xc in self.defined_aliases:
             return self.defined_aliases[self.xc].name

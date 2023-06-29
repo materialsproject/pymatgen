@@ -1,6 +1,4 @@
-"""
-Script to visualize the model coordination environments
-"""
+"""Script to visualize the model coordination environments."""
 
 from __future__ import annotations
 

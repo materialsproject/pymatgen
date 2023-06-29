@@ -109,7 +109,7 @@ class StructureGraphTest(PymatgenTest):
 
     def test_inappropriate_construction(self):
         # Check inappropriate strategy
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Chosen strategy is not designed for use with structures"):
             StructureGraph.with_local_env_strategy(self.NiO, CovalentBondNN())
 
     def test_properties(self):
@@ -612,8 +612,12 @@ class MoleculeGraphTest(unittest.TestCase):
         assert mol_graph_edges.isomorphic_to(mol_graph_strat)
 
         # Check inappropriate strategy
-        with pytest.raises(ValueError):
-            MoleculeGraph.with_local_env_strategy(self.pc, VoronoiNN())
+        non_mol_strategy = VoronoiNN()
+        with pytest.raises(
+            ValueError,
+            match=f"strategy='{non_mol_strategy}' is not designed for use with molecules! Choose another strategy",
+        ):
+            MoleculeGraph.with_local_env_strategy(self.pc, non_mol_strategy)
 
     def test_properties(self):
         assert self.cyclohexene.name == "bonds"
@@ -749,7 +753,7 @@ class MoleculeGraphTest(unittest.TestCase):
         assert reactants[0] == self.ethylene
         assert reactants[1] == self.butadiene
 
-        with pytest.raises(MolGraphSplitError):
+        with pytest.raises(MolGraphSplitError, match="Cannot split molecule; MoleculeGraph is still connected."):
             self.cyclohexene.split_molecule_subgraphs([(0, 1)])
 
         # Test naive charge redistribution

@@ -90,8 +90,8 @@ class OptimadeTest(PymatgenTest):
                 '(elements HAS ALL "Ga", "N")'
                 " AND (nsites>=1 AND nsites<=100)"
                 " AND (nelements=2)"
-                ' AND (chemical_formula_anonymous="A2B")'
-                ' AND (chemical_formula_hill="GaN")'
+                " AND (chemical_formula_anonymous='A2B')"
+                " AND (chemical_formula_hill='GaN')"
             )
 
             assert optimade._build_filter(
@@ -104,6 +104,6 @@ class OptimadeTest(PymatgenTest):
                 '(elements HAS ALL "C", "H", "O")'
                 " AND (nsites>=1 AND nsites<=100)"
                 " AND (nelements>=3 AND nelements<=4)"
-                ' AND (chemical_formula_anonymous="A4B3C")'
-                ' AND (chemical_formula_hill="C4H3O")'
+                " AND (chemical_formula_anonymous='A4B3C')"
+                " AND (chemical_formula_hill='C4H3O')"
             )

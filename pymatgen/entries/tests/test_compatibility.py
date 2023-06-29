@@ -33,9 +33,7 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class CorrectionSpecificityTest(unittest.TestCase):
-    """
-    Make sure corrections are only applied to GGA or GGA+U entries
-    """
+    """Make sure corrections are only applied to GGA or GGA+U entries."""
 
     def setUp(self):
         warnings.simplefilter("ignore")
@@ -112,18 +110,14 @@ class CorrectionSpecificityTest(unittest.TestCase):
 
 # abstract Compatibility tests
 class DummyCompatibility(Compatibility):
-    """
-    Dummy class to test abstract Compatibility interface
-    """
+    """Dummy class to test abstract Compatibility interface."""
 
     def get_adjustments(self, entry):
         return [ConstantEnergyAdjustment(-10, name="Dummy adjustment")]
 
 
 def test_process_entries_return_type():
-    """
-    process_entries should accept single entries or a list, and always return a list
-    """
+    """process_entries should accept single entries or a list, and always return a list."""
     entry = ComputedEntry("Fe2O3", -2)
     compat = DummyCompatibility()
 
@@ -132,9 +126,7 @@ def test_process_entries_return_type():
 
 
 def test_no_duplicate_corrections():
-    """
-    Compatibility should never apply the same correction twice
-    """
+    """Compatibility should never apply the same correction twice."""
     entry = ComputedEntry("Fe2O3", -2)
     compat = DummyCompatibility()
 
@@ -150,7 +142,7 @@ def test_no_duplicate_corrections():
 def test_clean_arg():
     """
     clean=False should preserve existing corrections, clean=True should delete
-    them before processing
+    them before processing.
     """
     entry = ComputedEntry("Fe2O3", -2, correction=-4)
     compat = DummyCompatibility()
@@ -165,7 +157,7 @@ def test_clean_arg():
 def test_energy_adjustment_normalize():
     """
     Both manual and automatically generated energy adjustments should be scaled
-    by the normalize method
+    by the normalize method.
     """
     entry = ComputedEntry("Fe4O6", -2, correction=-4)
     entry = entry.normalize()
@@ -1490,7 +1482,7 @@ class MITCompatibilityTest(unittest.TestCase):
 
         assert compat.process_entry(entry) is not None
         # raise if check_potcar_hash is set
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Cannot check hash without potcar_spec field"):
             self.compat.process_entry(entry)
 
     def test_potcar_doenst_match_structure(self):
@@ -1990,7 +1982,7 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
 
 class TestMaterialsProjectAqueousCompatibility:
     """
-    Test MaterialsProjectAqueousCompatibility
+    Test MaterialsProjectAqueousCompatibility.
 
     -x- formation energy of H2O should always be -2.458 eV/H2O
     -x- H2 energy should always be the same value
@@ -2354,25 +2346,21 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-
+        potcar_spec = [
+            {
+                "titel": "PAW_PBE Li_sv 10Sep2004",
+                "hash": "8245d7383d7556214082aa40a887cd96",
+            },
+            {
+                "titel": "PAW_PBE H 15Jun2001",
+                "hash": "bb43c666e3d36577264afe07669e9582",
+            },
+        ]
         self.entry_hydride = ComputedEntry(
             "LiH",
             -2,
             correction=0.0,
-            parameters={
-                "is_hubbard": False,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li_sv 10Sep2004",
-                        "hash": "8245d7383d7556214082aa40a887cd96",
-                    },
-                    {
-                        "titel": "PAW_PBE H 15Jun2001",
-                        "hash": "bb43c666e3d36577264afe07669e9582",
-                    },
-                ],
-            },
+            parameters={"is_hubbard": False, "run_type": "GGA", "potcar_spec": potcar_spec},
         )
 
     def tearDown(self):

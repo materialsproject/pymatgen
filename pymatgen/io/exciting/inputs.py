@@ -1,6 +1,4 @@
-"""
-Classes for reading/manipulating/writing exciting input files.
-"""
+"""Classes for reading/manipulating/writing exciting input files."""
 
 from __future__ import annotations
 
@@ -68,9 +66,7 @@ class ExcitingInput(MSONable):
 
     @property
     def lockxyz(self):
-        """
-        :return: Selective dynamics site properties.
-        """
+        """:return: Selective dynamics site properties."""
         return self.structure.site_properties.get("selective_dynamics")
 
     @lockxyz.setter
@@ -79,9 +75,7 @@ class ExcitingInput(MSONable):
 
     @staticmethod
     def from_string(data):
-        """
-        Reads the exciting input from a string
-        """
+        """Reads the exciting input from a string."""
         root = ET.fromstring(data)
         speciesnode = root.find("structure").iter("species")
         elements = []

@@ -1,6 +1,4 @@
-"""
-This module implements input and output processing from PWSCF.
-"""
+"""This module implements input and output processing from PWSCF."""
 
 from __future__ import annotations
 
@@ -174,12 +172,12 @@ class PWInput:
 
     def as_dict(self):
         """
-        Create a dictionary representation of a PWInput object
+        Create a dictionary representation of a PWInput object.
 
         Returns:
             dict
         """
-        pwinput_dict = {
+        return {
             "structure": self.structure.as_dict(),
             "pseudo": self.pseudo,
             "sections": self.sections,
@@ -187,7 +185,6 @@ class PWInput:
             "kpoints_grid": self.kpoints_grid,
             "kpoints_shift": self.kpoints_shift,
         }
-        return pwinput_dict
 
     @classmethod
     def from_dict(cls, pwinput_dict):
@@ -200,7 +197,7 @@ class PWInput:
         Returns:
             PWInput object
         """
-        pwinput = cls(
+        return cls(
             structure=Structure.from_dict(pwinput_dict["structure"]),
             pseudo=pwinput_dict["pseudo"],
             control=pwinput_dict["sections"]["control"],
@@ -212,7 +209,6 @@ class PWInput:
             kpoints_grid=pwinput_dict["kpoints_grid"],
             kpoints_shift=pwinput_dict["kpoints_shift"],
         )
-        return pwinput
 
     def write_file(self, filename):
         """
@@ -499,15 +495,11 @@ class PWInput:
 
 
 class PWInputError(BaseException):
-    """
-    Error for PWInput
-    """
+    """Error for PWInput."""
 
 
 class PWOutput:
-    """
-    Parser for PWSCF output file.
-    """
+    """Parser for PWSCF output file."""
 
     patterns = frozendict(
         energies=r"total energy\s+=\s+([\d\.\-]+)\sRy",
@@ -525,7 +517,7 @@ class PWOutput:
     def __init__(self, filename):
         """
         Args:
-            filename (str): Filename
+            filename (str): Filename.
         """
         self.filename = filename
         self.data = defaultdict(list)
@@ -574,7 +566,7 @@ class PWOutput:
     def get_celldm(self, idx: int):
         """
         Args:
-            idx (int): index
+            idx (int): index.
 
         Returns:
             Cell dimension along index
@@ -583,14 +575,10 @@ class PWOutput:
 
     @property
     def final_energy(self):
-        """
-        Returns: Final energy
-        """
+        """Returns: Final energy."""
         return self.data["energies"][-1]
 
     @property
     def lattice_type(self):
-        """
-        Returns: Lattice type.
-        """
+        """Returns: Lattice type."""
         return self.data["lattice_type"]

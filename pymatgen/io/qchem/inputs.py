@@ -1,6 +1,4 @@
-"""
-Classes for reading/manipulating/writing QChem input files.
-"""
+"""Classes for reading/manipulating/writing QChem input files."""
 
 from __future__ import annotations
 
@@ -205,9 +203,7 @@ class QCInput(InputFile):
         #   - Check OPT and PCM sections?
 
     def get_string(self):
-        """
-        Return a string representation of an entire input file.
-        """
+        """Return a string representation of an entire input file."""
         return str(self)
 
     def __str__(self):
@@ -274,7 +270,7 @@ class QCInput(InputFile):
     def multi_job_string(job_list: list[QCInput]) -> str:
         """
         Args:
-            job_list (): List of jobs
+            job_list (): List of jobs.
 
         Returns:
             (str) String representation of multi job input file.
@@ -391,14 +387,13 @@ class QCInput(InputFile):
             # the delimiter between QChem jobs is @@@
             multi_job_strings = f.read().split("@@@")
             # list of individual QChem jobs
-            input_list = [cls.from_string(i) for i in multi_job_strings]
-            return input_list
+            return [cls.from_string(i) for i in multi_job_strings]
 
     @staticmethod
     def molecule_template(molecule: Molecule | list[Molecule] | Literal["read"]) -> str:
         """
         Args:
-            molecule (Molecule, list of Molecules, or "read")
+            molecule (Molecule, list of Molecules, or "read").
 
         Returns:
             (str) Molecule template.
@@ -542,7 +537,7 @@ class QCInput(InputFile):
         """
         Args:
             scan (dict): Dictionary with scan section information.
-                Ex: {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
+                Ex: {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}.
 
         Returns:
             String representing Q-Chem input format for scan section
@@ -571,7 +566,7 @@ class QCInput(InputFile):
                 represent the atomic number associated with each radius (e.g., '12' = carbon).
                 In 'sequential' mode, dict keys represent the sequential position of
                 a single specific atom in the input structure.
-                **NOTE: keys must be given as strings even though they are numbers!**
+                **NOTE: keys must be given as strings even though they are numbers!**.
 
         Returns:
             String representing Q-Chem input format for van_der_waals section
@@ -663,7 +658,7 @@ class QCInput(InputFile):
     def cdft_template(cdft: list[list[dict]]) -> str:
         """
         Args:
-            cdft: list of lists of dicts
+            cdft: list of lists of dicts.
 
         Returns:
             (str)
@@ -705,7 +700,7 @@ class QCInput(InputFile):
     def almo_template(almo_coupling: list[list[tuple[int, int]]]) -> str:
         """
         Args:
-            almo: list of lists of int 2-tuples
+            almo: list of lists of int 2-tuples.
 
         Returns:
             (str)
@@ -1220,9 +1215,7 @@ class QCInput(InputFile):
 
     @staticmethod
     def read_svp(string: str) -> dict:
-        """
-        Read svp parameters from string.
-        """
+        """Read svp parameters from string."""
         header = r"^\s*\$svp"
         row = r"(\w.*)\n"
         footer = r"^\s*\$end"

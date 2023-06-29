@@ -114,7 +114,7 @@ class Lobsterin(dict, MSONable):
     def __init__(self, settingsdict: dict):
         """
         Args:
-            settingsdict: dict to initialize Lobsterin
+            settingsdict: dict to initialize Lobsterin.
         """
         super().__init__()
         # check for duplicates
@@ -143,9 +143,7 @@ class Lobsterin(dict, MSONable):
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
 
     def __getitem__(self, item):
-        """
-        Implements getitem from dict to avoid problems with cases
-        """
+        """Implements getitem from dict to avoid problems with cases."""
         found = False
         for key_here in self:
             if item.strip().lower() == key_here.lower():
@@ -154,8 +152,7 @@ class Lobsterin(dict, MSONable):
         if not found:
             new_key = item
 
-        val = dict.__getitem__(self, new_key)
-        return val
+        return dict.__getitem__(self, new_key)
 
     def diff(self, other):
         """
@@ -214,9 +211,7 @@ class Lobsterin(dict, MSONable):
         return {"Same": similar_param, "Different": different_param}
 
     def _get_nbands(self, structure: Structure):
-        """
-        Get number of bands.
-        """
+        """Get number of bands."""
         if self.get("basisfunctions") is None:
             raise OSError("No basis functions are provided. The program cannot calculate nbands.")
 
@@ -244,7 +239,7 @@ class Lobsterin(dict, MSONable):
 
     def write_lobsterin(self, path="lobsterin", overwritedict=None):
         """
-        Writes a lobsterin file
+        Writes a lobsterin file.
 
         Args:
             path (str): filename of the lobsterin file that will be written
@@ -282,9 +277,7 @@ class Lobsterin(dict, MSONable):
                             f.write(key + " " + str(entry) + "\n")
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         d = dict(self)
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -344,7 +337,7 @@ class Lobsterin(dict, MSONable):
     ):
         """
         Will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
-        #include this in lobsterin class
+        #include this in lobsterin class.
 
         Args:
             structure (Structure): Structure object
@@ -392,7 +385,7 @@ class Lobsterin(dict, MSONable):
             structure: Structure object
             potcar_symbols: list of the potcar symbols
             address_basis_file_min: path to file with the minimum required basis by the POTCAR
-            address_basis_file_max: path to file with the largest possible basis of the POTCAR
+            address_basis_file_max: path to file with the largest possible basis of the POTCAR.
 
         Returns: List of dictionaries that can be used to create new Lobsterin objects in
         standard_calculations_from_vasp_files as dict_for_basis
@@ -425,7 +418,7 @@ class Lobsterin(dict, MSONable):
         POSCAR_input="POSCAR", POSCAR_output="POSCAR.lobster", symprec: float = 0.01
     ):
         """
-        Writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath
+        Writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath.
 
         Args:
             POSCAR_input (str): filename of input POSCAR
@@ -450,7 +443,7 @@ class Lobsterin(dict, MSONable):
         symprec: float = 0.01,
     ):
         """
-        Writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
+        Writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered.
 
         Args:
             POSCAR_input (str): path to POSCAR
@@ -575,7 +568,7 @@ class Lobsterin(dict, MSONable):
     def from_file(cls, lobsterin: str):
         """
         Args:
-            lobsterin (str): path to lobsterin
+            lobsterin (str): path to lobsterin.
 
         Returns:
             Lobsterin object
@@ -618,7 +611,7 @@ class Lobsterin(dict, MSONable):
     @staticmethod
     def _get_potcar_symbols(POTCAR_input: str) -> list:
         """
-        Will return the name of the species in the POTCAR
+        Will return the name of the species in the POTCAR.
 
         Args:
             POTCAR_input(str): string to potcar file
@@ -648,8 +641,7 @@ class Lobsterin(dict, MSONable):
         if potcar.functional != "PBE":
             raise OSError("We only have BASIS options for PBE so far")
 
-        Potcar_names = [name["symbol"] for name in potcar.spec]
-        return Potcar_names
+        return [name["symbol"] for name in potcar.spec]
 
     @classmethod
     def standard_calculations_from_vasp_files(
@@ -662,7 +654,7 @@ class Lobsterin(dict, MSONable):
         option: str = "standard",
     ):
         """
-        Will generate Lobsterin with standard settings
+        Will generate Lobsterin with standard settings.
 
         Args:
             POSCAR_input(str): path to POSCAR
@@ -838,7 +830,7 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
 
     Args:
         min_basis: list of basis entries: e.g., ['Si 3p 3s ']
-        max_basis: list of basis entries: e.g., ['Si 3p 3s ']
+        max_basis: list of basis entries: e.g., ['Si 3p 3s '].
 
     Returns: all possible combinations of basis functions, e.g. [['Si 3p 3s']]
     """

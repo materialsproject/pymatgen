@@ -82,59 +82,59 @@ class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
 
 class VoronoiNNTest(PymatgenTest):
     def setUp(self):
-        self.s = self.get_structure("LiFePO4")
+        self.struct = self.get_structure("LiFePO4")
         self.nn = VoronoiNN(targets=[Element("O")])
         self.s_sic = self.get_structure("Si")
         self.s_sic["Si"] = {"Si": 0.5, "C": 0.5}
         self.nn_sic = VoronoiNN()
 
     def test_get_voronoi_polyhedra(self):
-        assert len(self.nn.get_voronoi_polyhedra(self.s, 0).items()) == 8
+        assert len(self.nn.get_voronoi_polyhedra(self.struct, 0).items()) == 8
 
     def test_get_cn(self):
-        site_0_coord_num = self.nn.get_cn(self.s, 0, use_weights=True, on_disorder="take_max_species")
+        site_0_coord_num = self.nn.get_cn(self.struct, 0, use_weights=True, on_disorder="take_max_species")
         assert site_0_coord_num == approx(5.809265748999465, abs=1e-7)
 
         site_0_coord_num = self.nn_sic.get_cn(self.s_sic, 0, use_weights=True, on_disorder="take_max_species")
         assert site_0_coord_num == approx(4.5381161643940668, abs=1e-7)
 
     def test_get_coordinated_sites(self):
-        assert len(self.nn.get_nn(self.s, 0)) == 8
+        assert len(self.nn.get_nn(self.struct, 0)) == 8
 
     def test_volume(self):
         self.nn.targets = None
         volume = 0
-        for n in range(len(self.s)):
-            for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
+        for n in range(len(self.struct)):
+            for nn in self.nn.get_voronoi_polyhedra(self.struct, n).values():
                 volume += nn["volume"]
-        assert self.s.volume == approx(volume)
+        assert self.struct.volume == approx(volume)
 
     def test_solid_angle(self):
         self.nn.targets = None
-        for n in range(len(self.s)):
+        for n in range(len(self.struct)):
             angle = 0
-            for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
+            for nn in self.nn.get_voronoi_polyhedra(self.struct, n).values():
                 angle += nn["solid_angle"]
             assert 4 * np.pi == approx(angle)
         assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == pi
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier
-        s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
+        struct = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
 
         # Get the 1NN shell
         self.nn.targets = None
-        nns = self.nn.get_nn_shell_info(s, 0, 1)
+        nns = self.nn.get_nn_shell_info(struct, 0, 1)
         assert len(nns) == 6
 
         # Test the 2nd NN shell
-        nns = self.nn.get_nn_shell_info(s, 0, 2)
+        nns = self.nn.get_nn_shell_info(struct, 0, 2)
         assert len(nns) == 18
         self.assert_all_close([1] * 6, [x["weight"] for x in nns if max(np.abs(x["image"])) == 2])
         self.assert_all_close([2] * 12, [x["weight"] for x in nns if max(np.abs(x["image"])) == 1])
 
         # Test the 3rd NN shell
-        nns = self.nn.get_nn_shell_info(s, 0, 3)
+        nns = self.nn.get_nn_shell_info(struct, 0, 3)
         for nn in nns:
             #  Check that the coordinates were set correctly
             self.assert_all_close(nn["site"].frac_coords, nn["image"])
@@ -174,16 +174,16 @@ class VoronoiNNTest(PymatgenTest):
             assert len(nn_info["adj_neighbors"]) == 4
 
             for adj_key in nn_info["adj_neighbors"]:
-                assert np.dot(nn_info["normal"], neighbors[adj_key]["normal"]) == 0
+                assert np.dot(nn_info["normal"], neighbors[adj_key]["normal"]) == approx(0)
 
     def test_all_at_once(self):
         # Get all of the sites for LiFePO4
-        all_sites = self.nn.get_all_voronoi_polyhedra(self.s)
+        all_sites = self.nn.get_all_voronoi_polyhedra(self.struct)
 
         # Make sure they are the same as the single-atom ones
         for i, site in enumerate(all_sites):
             # Compute the tessellation using only one site
-            by_one = self.nn.get_voronoi_polyhedra(self.s, i)
+            by_one = self.nn.get_voronoi_polyhedra(self.struct, i)
 
             # Match the coordinates the of the neighbors, as site matching does not seem to work?
             all_coords = np.sort([x["site"].coords for x in site.values()], axis=0)
@@ -192,10 +192,10 @@ class VoronoiNNTest(PymatgenTest):
             self.assert_all_close(all_coords, by_one_coords)
 
         # Test the nn_info operation
-        all_nn_info = self.nn.get_all_nn_info(self.s)
+        all_nn_info = self.nn.get_all_nn_info(self.struct)
         for i, info in enumerate(all_nn_info):
             # Compute using the by-one method
-            by_one = self.nn.get_nn_info(self.s, i)
+            by_one = self.nn.get_nn_info(self.struct, i)
 
             # Get the weights
             all_weights = sorted(x["weight"] for x in info)
@@ -253,7 +253,7 @@ class VoronoiNNTest(PymatgenTest):
         ] * 16 == [len(x) for x in all_nns]
 
     def tearDown(self):
-        del self.s
+        del self.struct
         del self.nn
 
 
@@ -263,28 +263,28 @@ class JmolNNTest(PymatgenTest):
         self.jmol_update = JmolNN(el_radius_updates={"Li": 1})
 
     def test_get_nn(self):
-        s = self.get_structure("LiFePO4")
+        struct = self.get_structure("LiFePO4")
 
         # Test the default near-neighbor finder.
         nsites_checked = 0
 
-        for site_idx, site in enumerate(s):
+        for site_idx, site in enumerate(struct):
             if site.specie == Element("Li"):
-                assert self.jmol.get_cn(s, site_idx) == 0
+                assert self.jmol.get_cn(struct, site_idx) == 0
                 nsites_checked += 1
             elif site.specie == Element("Fe"):
-                assert self.jmol.get_cn(s, site_idx) == 6
+                assert self.jmol.get_cn(struct, site_idx) == 6
                 nsites_checked += 1
             elif site.specie == Element("P"):
-                assert self.jmol.get_cn(s, site_idx) == 4
+                assert self.jmol.get_cn(struct, site_idx) == 4
                 nsites_checked += 1
         assert nsites_checked == 12
 
         # Test a user override that would cause Li to show up as 2-coordinated
-        assert self.jmol_update.get_cn(s, 0) == 2
+        assert self.jmol_update.get_cn(struct, 0) == 2
 
         # Verify get_nn function works
-        assert len(self.jmol_update.get_nn(s, 0)) == 2
+        assert len(self.jmol_update.get_nn(struct, 0)) == 2
 
     def tearDown(self):
         del self.jmol
@@ -294,12 +294,12 @@ class JmolNNTest(PymatgenTest):
 class TestIsayevNN(PymatgenTest):
     def test_get_nn(self):
         inn = IsayevNN()
-        s = self.get_structure("LiFePO4")
+        struct = self.get_structure("LiFePO4")
 
-        assert inn.get_cn(s, 0) == 2
-        assert inn.get_cn(s, 5) == 6
-        assert inn.get_cn(s, 10) == 4
-        assert len(inn.get_nn(s, 0)) == 2
+        assert inn.get_cn(struct, 0) == 2
+        assert inn.get_cn(struct, 5) == 6
+        assert inn.get_cn(struct, 10) == 4
+        assert len(inn.get_nn(struct, 0)) == 2
 
 
 class OpenBabelNNTest(PymatgenTest):
@@ -1236,11 +1236,12 @@ class CrystalNNTest(PymatgenTest):
 
     def test_sanity(self):
         cnn = CrystalNN()
-        with pytest.raises(ValueError):
+        expected_msg = "The weighted_cn parameter and use_weights parameter should match"
+        with pytest.raises(ValueError, match=expected_msg):
             cnn.get_cn(self.lifepo4, 0, use_weights=True)
 
         cnn = CrystalNN(weighted_cn=True)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=expected_msg):
             cnn.get_cn(self.lifepo4, 0, use_weights=False)
 
     def test_discrete_cn(self):
@@ -1330,9 +1331,13 @@ class CrystalNNTest(PymatgenTest):
         assert site_0_coord_num == 8
         assert site_0_coord_num == site_0_coord_num_strict_majority
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="Site 0 has no majority species, the max species is Fe with occupancy 0.4"
+        ):
             cnn.get_cn(self.disordered_struct, 0, on_disorder="take_majority_strict")
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="enerating StructureGraphs for disordered Structures is unsupported. Pass on_disorder="
+        ):
             cnn.get_cn(self.disordered_struct, 0, on_disorder="error")
 
     def test_get_bonded_structure(self):
@@ -1350,12 +1355,13 @@ class CrystalNNTest(PymatgenTest):
         assert len(structure_graph) == 2
         assert structure_graph == structure_graph_strict_majority == structure_graph_drop_majority
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="Site 0 has no majority species, the max species is Fe with occupancy 0.4"
+        ):
             cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="take_majority_strict")
-        with pytest.raises(ValueError):
-            cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="error")
 
-        with pytest.raises(ValueError):
+        expected_msg = "Generating StructureGraphs for disordered Structures is unsupported. Pass on_disorder="
+        with pytest.raises(ValueError, match=expected_msg):
             cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="error")
 
 
@@ -1385,7 +1391,7 @@ class CutOffDictNNTest(PymatgenTest):
         assert nn.get_cn(self.diamond, 0) == 4
 
         # test error thrown on unknown preset
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Unknown preset='test'"):
             CutOffDictNN.from_preset("test")
 
 

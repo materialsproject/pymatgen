@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING
 from monty.serialization import loadfn
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -27,6 +28,10 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 AFLOW_PROTOTYPE_LIBRARY = loadfn(os.path.join(os.path.dirname(os.path.abspath(__file__)), "aflow_prototypes.json"))
 
 
+@due.dcite(
+    Doi("10.1016/j.commatsci.2017.01.017"),
+    description="The AFLOW library of crystallographic prototypes: part 1.",
+)
 class AflowPrototypeMatcher:
     """
     This class will match structures to their crystal prototypes, and will
@@ -83,32 +88,23 @@ class AflowPrototypeMatcher:
                 break
         return tags
 
-    def get_prototypes(self, structure: Structure):
+    def get_prototypes(self, structure: Structure) -> list | None:
         """
-        Get prototype(s) structures for a given
-        input structure. If you use this method in
-        your work, please cite the appropriate
-        AFLOW publication:
+        Get prototype(s) structures for a given input structure. If you use this method in
+        your work, please cite the appropriate AFLOW publication:
 
-        Mehl, M. J., Hicks, D., Toher, C., Levy, O.,
-        Hanson, R. M., Hart, G., & Curtarolo, S. (2017).
-        The AFLOW library of crystallographic prototypes: part 1.
-        Computational Materials Science, 136, S1-S828.
-        https://doi.org/10.1016/j.commatsci.2017.01.017
+        Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., & Curtarolo,
+        S. (2017). The AFLOW library of crystallographic prototypes: part 1. Computational
+        Materials Science, 136, S1-S828. https://doi.org/10.1016/j.commatsci.2017.01.017
 
         Args:
             structure: structure to match
 
-        Returns (list): A list of dicts with keys
-        'snl' for the matched prototype and 'tags',
-        a dict of tags ('mineral', 'strukturbericht'
-        and 'aflow') of that prototype. This should
-        be a list containing just a single entry,
-        but it is possible a material can match
-        multiple prototypes.
+        Returns (list): A list of dicts with keys 'snl' for the matched prototype and
+            'tags', a dict of tags ('mineral', 'strukturbericht' and 'aflow') of that
+            prototype. This should be a list containing just a single entry, but it is
+            possible a material can match multiple prototypes.
         """
         tags = self._match_single_prototype(structure)
 
-        if len(tags) == 0:
-            return None
-        return tags
+        return tags or None

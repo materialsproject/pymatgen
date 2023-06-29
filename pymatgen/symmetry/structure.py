@@ -1,6 +1,4 @@
-"""
-This module implements symmetry-related structure forms.
-"""
+"""This module implements symmetry-related structure forms."""
 
 from __future__ import annotations
 
@@ -39,7 +37,7 @@ class SymmetrizedStructure(Structure):
             structure (Structure): Original structure
             spacegroup (SpacegroupOperations): An input SpacegroupOperations from SpacegroupAnalyzer.
             equivalent_positions (list[int]): Equivalent positions from SpacegroupAnalyzer.
-            wyckoff_letters (list[str]): Wyckoff letters
+            wyckoff_letters (list[str]): Wyckoff letters.
         """
         self.spacegroup = spacegroup
         uniq, inverse = np.unique(equivalent_positions, return_inverse=True)
@@ -65,9 +63,7 @@ class SymmetrizedStructure(Structure):
         self.wyckoff_symbols = [f"{len(symb)}{symb[0]}" for symb in wyckoff_symbols]
 
     def copy(self):
-        """
-        :return: Copy of structure.
-        """
+        """:return: Copy of structure."""
         return SymmetrizedStructure(
             self,
             spacegroup=self.spacegroup,
@@ -77,7 +73,7 @@ class SymmetrizedStructure(Structure):
 
     def find_equivalent_sites(self, site: PeriodicSite) -> list[PeriodicSite]:
         """
-        Finds all symmetrically equivalent sites for a particular site
+        Finds all symmetrically equivalent sites for a particular site.
 
         Args:
             site (PeriodicSite): A site in the structure
@@ -128,9 +124,7 @@ class SymmetrizedStructure(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         structure = Structure.from_sites(self.sites)
         return {
             "structure": structure.as_dict(),

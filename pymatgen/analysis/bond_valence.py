@@ -1,6 +1,4 @@
-"""
-This module implements classes to perform bond valence analyses.
-"""
+"""This module implements classes to perform bond valence analyses."""
 
 from __future__ import annotations
 
@@ -50,7 +48,7 @@ def calculate_bv_sum(site, nn_list, scale_factor=1.0):
             which may tend to under (GGA) or over bind (LDA).
     """
     el1 = Element(site.specie.symbol)
-    bvsum = 0
+    bv_sum = 0
     for nn in nn_list:
         el2 = Element(nn.specie.symbol)
         if (el1 in ELECTRONEG or el2 in ELECTRONEG) and el1 != el2:
@@ -60,8 +58,8 @@ def calculate_bv_sum(site, nn_list, scale_factor=1.0):
             c2 = BV_PARAMS[el2]["c"]
             R = r1 + r2 - r1 * r2 * (sqrt(c1) - sqrt(c2)) ** 2 / (c1 * r1 + c2 * r2)
             vij = exp((R - nn.nn_distance * scale_factor) / 0.31)
-            bvsum += vij * (1 if el1.X < el2.X else -1)
-    return bvsum
+            bv_sum += vij * (1 if el1.X < el2.X else -1)
+    return bv_sum
 
 
 def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
@@ -283,8 +281,8 @@ class BVAnalyzer:
 
             def evaluate_assignment(v_set):
                 el_oxi = collections.defaultdict(list)
-                for i, sites in enumerate(equi_sites):
-                    el_oxi[sites[0].specie.symbol].append(v_set[i])
+                for idx, sites in enumerate(equi_sites):
+                    el_oxi[sites[0].specie.symbol].append(v_set[idx])
                 max_diff = max(max(v) - min(v) for v in el_oxi.values())
                 if max_diff > 1:
                     return
