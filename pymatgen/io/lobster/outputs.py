@@ -29,6 +29,7 @@ from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, VolumetricData
+from pymatgen.util.due import Doi, due
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -38,6 +39,11 @@ __email__ = "janinegeorge.ulfen@gmail.com"
 __date__ = "Dec 13, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+due.cite(
+    Doi("10.1002/cplu.202200123"),
+    description="Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+)
 
 
 class Cohpcar:

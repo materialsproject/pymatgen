@@ -28,6 +28,7 @@ from pymatgen.electronic_structure.cohp import CompleteCohp
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.plotter import CohpPlotter
 from pymatgen.io.lobster import Charge, Icohplist
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -39,6 +40,11 @@ __maintainer__ = "J. George"
 __email__ = "janinegeorge.ulfen@gmail.com"
 __status__ = "Production"
 __date__ = "February 2, 2021"
+
+due.cite(
+    Doi("10.1002/cplu.202200123"),
+    description="Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+)
 
 
 class LobsterNeighbors(NearNeighbors):

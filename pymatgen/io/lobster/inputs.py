@@ -27,6 +27,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.core.composition import Composition
@@ -40,6 +41,12 @@ __email__ = "janinegeorge.ulfen@gmail.com"
 __date__ = "Dec 13, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+due.cite(
+    Doi("10.1002/cplu.202200123"),
+    description="Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+)
 
 
 class Lobsterin(dict, MSONable):

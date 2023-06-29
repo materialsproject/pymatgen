@@ -25,6 +25,7 @@ from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lmto import LMTOCopl
 from pymatgen.io.lobster import Cohpcar
 from pymatgen.util.coord import get_linear_interpolated_value
+from pymatgen.util.due import Doi, due
 from pymatgen.util.num import round_to_sigfigs
 
 __author__ = "Marco Esters, Janine George"
@@ -33,6 +34,11 @@ __version__ = "0.2"
 __maintainer__ = "Janine George"
 __email__ = "janinegeorge.ulfen@gmail.com"
 __date__ = "Dec 13, 2017"
+
+due.cite(
+    Doi("10.1002/cplu.202200123"),
+    description="Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+)
 
 
 class Cohp(MSONable):
