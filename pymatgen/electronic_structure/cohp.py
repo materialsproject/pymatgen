@@ -1,7 +1,12 @@
 """
 This module defines classes to represent crystal orbital Hamilton
 populations (COHP) and integrated COHP (ICOHP), but can also be used
-for crystal orbital overlap populations (COOP).
+for crystal orbital overlap populations (COOP) or crystal orbital bond indices.
+If you use this module, please cite the following:
+J. George, G. Petretto, A. Naik, M. Esters, A. J. Jackson, R. Nelson, R. Dronskowski, G.-M. Rignanese, G. Hautier,
+"Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+ChemPlusChem 2022, e202200123,
+DOI: 10.1002/cplu.202200123.
 """
 
 from __future__ import annotations
@@ -25,8 +30,8 @@ from pymatgen.util.num import round_to_sigfigs
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__maintainer__ = "Marco Esters, Janine George"
-__email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
+__maintainer__ = "Janine George"
+__email__ = "janinegeorge.ulfen@gmail.com"
 __date__ = "Dec 13, 2017"
 
 
