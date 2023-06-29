@@ -836,19 +836,22 @@ class MagOrderingTransformation(AbstractTransformation):
             Structure: Structure with spin magnitudes added.
         """
         for idx, site in enumerate(structure):
-            spin = getattr(site.specie, "spin", None)
-            sign = int(spin) if spin else 0
-            # this very hacky bit of code only works because we know
-            # that on disordered sites in this class, all species are the same
-            # but have different spins, and this is comma-delimited
-            sp = str(site.specie).split(",", maxsplit=1)[0]
-            new_spin = sign * self.mag_species_spin.get(sp, 0)
-            new_specie = Species(
-                site.specie.symbol,
-                getattr(site.specie, "oxi_state", None),
-                spin=new_spin,
-            )
-            structure.replace(idx, new_specie, properties=site.properties)
+            if getattr(site.specie, "spin", None):
+                spin = site.specie.spin
+                spin = getattr(site.specie, "spin", None)
+                sign = int(spin) if spin else 0
+                if spin:
+                    # this very hacky bit of code only works because we know
+                    # that on disordered sites in this class, all species are the same
+                    # but have different spins, and this is comma-delimited
+                    sp = str(site.specie).split(",", maxsplit=1)[0]
+                    new_spin = sign * self.mag_species_spin.get(sp, 0)
+                    new_specie = Species(
+                        site.specie.symbol,
+                        getattr(site.specie, "oxi_state", None),
+                        spin=new_spin,
+                    )
+                    structure.replace(idx, new_specie, properties=site.properties)
         logger.debug(f"Structure with spin magnitudes:\n{structure}")
         return structure
 
