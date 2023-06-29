@@ -1,7 +1,7 @@
 """
 This module defines classes to represent crystal orbital Hamilton
 populations (COHP) and integrated COHP (ICOHP), but can also be used
-for crystal orbital overlap populations (COOP) or crystal orbital bond indices.
+for crystal orbital overlap populations (COOP) or crystal orbital bond indices (COBIs).
 If you use this module, please cite the following:
 J. George, G. Petretto, A. Naik, M. Esters, A. J. Jackson, R. Nelson, R. Dronskowski, G.-M. Rignanese, G. Hautier,
 "Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
