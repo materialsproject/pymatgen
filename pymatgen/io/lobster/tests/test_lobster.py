@@ -695,7 +695,7 @@ class DoscarTest(unittest.TestCase):
         # test structure argument
         self.DOSCAR_spin_pol2 = Doscar(doscar=doscar, structure_file=None, structure=Structure.from_file(poscar))
 
-    def test_completedos(self):
+    def test_complete_dos(self):
         # first for spin polarized version
         energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_up = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02577]
@@ -715,18 +715,15 @@ class DoscarTest(unittest.TestCase):
         assert tdos_up == self.DOSCAR_spin_pol.completedos.densities[Spin.up].tolist()
         assert tdos_down == self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist()
         assert fermi == approx(self.DOSCAR_spin_pol.completedos.efermi)
-        for coords, coords2 in zip(
+
+        assert np.allclose(
             self.DOSCAR_spin_pol.completedos.structure.frac_coords,
             self.structure.frac_coords,
-        ):
-            for xyz, xyz2 in zip(coords, coords2):
-                assert xyz == approx(xyz2)
-        for coords, coords2 in zip(
+        )
+        assert np.allclose(
             self.DOSCAR_spin_pol2.completedos.structure.frac_coords,
             self.structure.frac_coords,
-        ):
-            for xyz, xyz2 in zip(coords, coords2):
-                assert xyz == approx(xyz2)
+        )
         assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == PDOS_F_2s_up
         assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down].tolist() == PDOS_F_2s_down
         assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == PDOS_F_2py_up
@@ -2317,12 +2314,10 @@ class GrosspopTest(unittest.TestCase):
             ],
         }
 
-        newstructure = self.grosspop1.get_structure_with_total_grosspop(
+        new_structure = self.grosspop1.get_structure_with_total_grosspop(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.SiO2")
         )
-        for coords, coords2 in zip(newstructure.frac_coords, Structure.from_dict(struct_dict).frac_coords):
-            for xyz, xyz2 in zip(coords, coords2):
-                assert xyz == approx(xyz2)
+        assert np.allclose(new_structure.frac_coords, Structure.from_dict(struct_dict).frac_coords)
 
 
 class TestUtils(PymatgenTest):

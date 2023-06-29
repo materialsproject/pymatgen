@@ -7,7 +7,7 @@ makestr.x available in the path. Please download the library at
 https://github.com/msg-byu/enumlib and follow the instructions in the README to
 compile these two executables accordingly.
 
-If you use this module, please cite the following:
+If you use this module, please cite:
 
 Gus L. W. Hart and Rodney W. Forcade, "Algorithm for generating derivative
 structures," Phys. Rev. B 77 224115 (26 June 2008)

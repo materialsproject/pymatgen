@@ -6,7 +6,7 @@ This module depends on a compiled bader executable available in the path.
 Please download the library at http://theory.cm.utexas.edu/henkelman/code/bader/
 and follow the instructions to compile the executable.
 
-If you use this module, please cite the following:
+If you use this module, please cite:
 
 G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm for
 Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).

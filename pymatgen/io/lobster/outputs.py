@@ -1,9 +1,7 @@
-# Distributed under the terms of the MIT License
-
 """
 Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
-If you use this module, please cite the following:
+If you use this module, please cite:
 J. George, G. Petretto, A. Naik, M. Esters, A. J. Jackson, R. Nelson, R. Dronskowski, G.-M. Rignanese, G. Hautier,
 "Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
 ChemPlusChem 2022, e202200123,
@@ -494,10 +492,8 @@ class Doscar:
                 directly. structure_file will be preferred.
         """
         self._doscar = doscar
-        if structure_file is not None:
-            self._final_structure = Structure.from_file(structure_file)
-        else:
-            self._final_structure = structure
+
+        self._final_structure = Structure.from_file(structure_file) if structure_file is not None else structure
 
         self._parse_doscar()
 
