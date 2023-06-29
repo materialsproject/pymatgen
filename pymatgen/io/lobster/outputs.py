@@ -480,18 +480,21 @@ class Doscar:
     def __init__(
         self,
         doscar: str = "DOSCAR.lobster",
-        structure_file: str = "POSCAR",
-        dftprogram: str = "Vasp",
+        structure_file: str | None = "POSCAR",
+        structure: Structure | None = None,
     ):
         """
         Args:
             doscar: DOSCAR filename, typically "DOSCAR.lobster"
             structure_file: for vasp, this is typically "POSCAR"
-            dftprogram: so far only "vasp" is implemented.
+            structure: instead of a structure file, the structure can be given
+                directly. structure_file will be preferred.
         """
         self._doscar = doscar
-        if dftprogram == "Vasp":
+        if structure_file is not None:
             self._final_structure = Structure.from_file(structure_file)
+        else:
+            self._final_structure = structure
 
         self._parse_doscar()
 

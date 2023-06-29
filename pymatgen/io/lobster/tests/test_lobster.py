@@ -692,6 +692,9 @@ class DoscarTest(unittest.TestCase):
 
         self.structure = Structure.from_dict(data)
 
+        # test structure argument
+        self.DOSCAR_spin_pol2 = Doscar(doscar=doscar, structure_file=None, structure=Structure.from_file(poscar))
+
     def test_completedos(self):
         # first for spin polarized version
         energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
@@ -714,6 +717,12 @@ class DoscarTest(unittest.TestCase):
         assert fermi == approx(self.DOSCAR_spin_pol.completedos.efermi)
         for coords, coords2 in zip(
             self.DOSCAR_spin_pol.completedos.structure.frac_coords,
+            self.structure.frac_coords,
+        ):
+            for xyz, xyz2 in zip(coords, coords2):
+                assert xyz == approx(xyz2)
+        for coords, coords2 in zip(
+            self.DOSCAR_spin_pol2.completedos.structure.frac_coords,
             self.structure.frac_coords,
         ):
             for xyz, xyz2 in zip(coords, coords2):
