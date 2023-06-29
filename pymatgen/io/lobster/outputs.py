@@ -18,7 +18,7 @@ import os
 import re
 import warnings
 from collections import defaultdict
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
