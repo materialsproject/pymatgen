@@ -31,6 +31,9 @@ from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, VolumetricData
 from pymatgen.util.due import Doi, due
 
+if TYPE_CHECKING:
+    from pymatgen.core.structure import IStructure
+
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
@@ -481,7 +484,7 @@ class Doscar:
         self,
         doscar: str = "DOSCAR.lobster",
         structure_file: str | None = "POSCAR",
-        structure: Structure | None = None,
+        structure: IStructure | Structure | None = None,
     ):
         """
         Args:
