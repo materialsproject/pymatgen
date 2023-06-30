@@ -963,7 +963,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_spacegroup(
         cls,
-        sg: str,
+        sg: str | int,
         lattice: list | np.ndarray | Lattice,
         species: Sequence[str | Element | Species | DummySpecies | Composition],
         coords: Sequence[Sequence[float]],
@@ -1016,7 +1016,7 @@ class IStructure(SiteCollection, MSONable):
             i = int(sg)
             spg = SpaceGroup.from_int_number(i)
         except ValueError:
-            spg = SpaceGroup(sg)
+            spg = SpaceGroup(sg)  # type: ignore
 
         latt = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
