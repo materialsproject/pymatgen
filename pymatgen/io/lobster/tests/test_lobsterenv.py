@@ -353,22 +353,22 @@ class TestLobsterNeighbors(unittest.TestCase):
             == 2
         )
         assert (
-                len(
-                    self.chemenvlobster1_charges_noisecutoff.get_nn(
-                        structure=self.chemenvlobster1_charges_noisecutoff.structure,
-                        n=1,
-                    )
+            len(
+                self.chemenvlobster1_charges_noisecutoff.get_nn(
+                    structure=self.chemenvlobster1_charges_noisecutoff.structure,
+                    n=1,
                 )
-                == 0
+            )
+            == 0
         )
         assert (
-                len(
-                    self.chemenvlobster1_charges_wo_noisecutoff.get_nn(
-                        structure=self.chemenvlobster1_charges_wo_noisecutoff.structure,
-                        n=1,
-                    )
+            len(
+                self.chemenvlobster1_charges_wo_noisecutoff.get_nn(
+                    structure=self.chemenvlobster1_charges_wo_noisecutoff.structure,
+                    n=1,
                 )
-                == 8
+            )
+            == 8
         )
         # NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
         assert (
