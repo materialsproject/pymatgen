@@ -1149,7 +1149,7 @@ class LobsterNeighbors(NearNeighbors):
             adapt_extremum_to_add_cond: should the extrumum be adapted to the additional condition
             additional_condition: additional condition to determine which bonds are relevant
 
-        Returns: [-inf, min(max_icohp*0.15,-noise_cutoff)] / [max(max_icohp*0.15, noise_cutoff),inf]
+        Returns: [-inf, min(strongest_icohp*0.15,-noise_cutoff)] / [max(strongest_icohp*0.15, noise_cutoff),inf]
         """
         # TODO: make it work for COOPs/COBIs
         if not adapt_extremum_to_add_cond or additional_condition == 0:
