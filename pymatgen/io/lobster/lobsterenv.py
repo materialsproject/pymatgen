@@ -78,13 +78,13 @@ class LobsterNeighbors(NearNeighbors):
         """
 
         Args:
-            filename_ICOHP: (str) Path to ICOHPLIST.lobster/ICOOPLIST.lobster/ICOBILIST.lobster
+            filename_ICOHP: (str) Path to ICOHPLIST.lobster or ICOOPLIST.lobster or ICOBILIST.lobster
             structure: (Structure) typically constructed by Structure.from_file("POSCAR")
             are_coops: (bool) if True, the file is a ICOOPLIST.lobster and not a ICOHPLIST.lobster; only tested for
                 ICOHPLIST.lobster so far
             are_cobis: (bool) if True, the file is a ICOBILIST.lobster and not a ICOHPLIST.lobster
             valences: (list[int | float]): gives valence/charge for each element
-            limits (tuple[float, float] | None): limit to decide which ICOHPs should be considered
+            limits (tuple[float, float] | None): limit to decide which ICOHPs (ICOOP or ICOBI) should be considered
             additional_condition (int): Additional condition that decides which kind of bonds will be considered
                 NO_ADDITIONAL_CONDITION = 0
                 ONLY_ANION_CATION_BONDS = 1
@@ -96,7 +96,7 @@ class LobsterNeighbors(NearNeighbors):
             only_bonds_to: (list[str]) will only consider bonds to certain elements (e.g. ["O"] for oxygen)
             perc_strength_ICOHP: if no limits are given, this will decide which icohps will still be considered (
             relative to
-            the strongest ICOHP/ICOOP/ICOBI)
+            the strongest ICOHP (ICOOP or ICOBI)
             noise_cutoff: if provided hardcodes the lower limit of icohps considered
             valences_from_charges: if True and path to CHARGE.lobster is provided, will use Lobster charges (
             Mulliken) instead of valences
@@ -367,7 +367,7 @@ class LobsterNeighbors(NearNeighbors):
         """
         This method returns information on the icohps of neighbors for certain sites as identified by their site id.
         This is useful for plotting the relevant cohps of a site in the structure.
-        (could be ICOOPLIST.lobster/ICOHPLIST.lobster/ICOBILIST.lobster)
+        (could be ICOOPLIST.lobster or ICOHPLIST.lobster or ICOBILIST.lobster)
 
         Args:
             isites: list of site ids. If isite==None, all isites will be used to add the icohps of the neighbors
@@ -418,7 +418,7 @@ class LobsterNeighbors(NearNeighbors):
         integrated=False,
     ):
         """
-        Will plot summed cohps (please be careful in the spin polarized case (plots might overlap (exactly!)).
+        Will plot summed cohps or cobis or coops (please be careful in the spin polarized case (plots might overlap (exactly!)).
 
         Args:
             isites: list of site ids, if isite==[], all isites will be used to add the icohps of the neighbors
@@ -432,7 +432,7 @@ class LobsterNeighbors(NearNeighbors):
             integrated: bool, if true will show integrated cohp instead of cohp
 
         Returns:
-            plt of the cohps
+            plt of the cohps or coops or cobis
         """
         # include COHPPlotter and plot a sum of these COHPs
         # might include option to add Spin channels
@@ -468,19 +468,19 @@ class LobsterNeighbors(NearNeighbors):
         summed_spin_channels=False,
     ):
         """
-        Return info about the cohps as a summed cohp object and a label
+        Return info about the cohps (coops or cobis) as a summed cohp object and a label
          from all sites mentioned in isites with neighbors.
 
         Args:
-            path_to_COHPCAR: str, path to COHPCAR
+            path_to_COHPCAR: str, path to COHPCAR or COOPCAR or COBICAR
             isites: list of int that indicate the number of the site
             only_bonds_to: list of str, e.g. ["O"] to only show cohps of anything to oxygen
             onlycation_isites: if isites=None, only cation sites will be returned
             per_bond: will normalize per bond
             summed_spin_channels: will sum all spin channels
 
-        Returns: label for cohp (str), CompleteCohp object which describes all cohps of the sites as given by isites
-        and the other parameters
+        Returns: label for cohp (str), CompleteCohp object which describes all cohps (coops or cobis) of the sites
+        as given by isites and the other parameters
         """
         # TODO: add options for orbital-resolved cohps
         (
@@ -1143,7 +1143,7 @@ class LobsterNeighbors(NearNeighbors):
 
         Args:
             icohpcollection: icohpcollection object
-            percentage: will determine which ICOHPs/ICOOP/ICOBI will be considered (only 0.15 from the maximum value)
+            percentage: will determine which ICOHPs or ICOOP or ICOBI will be considered (only 0.15 from the maximum value)
             adapt_extremum_to_add_cond: should the extrumum be adapted to the additional condition
             additional_condition: additional condition to determine which bonds are relevant
 
