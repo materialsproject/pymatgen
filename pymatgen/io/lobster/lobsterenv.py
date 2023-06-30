@@ -418,7 +418,8 @@ class LobsterNeighbors(NearNeighbors):
         integrated=False,
     ):
         """
-        Will plot summed cohps or cobis or coops (please be careful in the spin polarized case (plots might overlap (exactly!)).
+        Will plot summed cohps or cobis or coops
+        (please be careful in the spin polarized case (plots might overlap (exactly!)).
 
         Args:
             isites: list of site ids, if isite==[], all isites will be used to add the icohps of the neighbors
@@ -1143,7 +1144,8 @@ class LobsterNeighbors(NearNeighbors):
 
         Args:
             icohpcollection: icohpcollection object
-            percentage: will determine which ICOHPs or ICOOP or ICOBI will be considered (only 0.15 from the maximum value)
+            percentage: will determine which ICOHPs or ICOOP or ICOBI will be considered
+            (only 0.15 from the maximum value)
             adapt_extremum_to_add_cond: should the extrumum be adapted to the additional condition
             additional_condition: additional condition to determine which bonds are relevant
 
