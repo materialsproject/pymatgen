@@ -1657,7 +1657,7 @@
     "pymatgen/io/lobster/tests/test_lobster.py::CohpcarTest::test_cohp_data": 0.07920433301478624,
     "pymatgen/io/lobster/tests/test_lobster.py::CohpcarTest::test_energies": 0.07907520799199119,
     "pymatgen/io/lobster/tests/test_lobster.py::CohpcarTest::test_orbital_resolved_cohp": 0.08125483398907818,
-    "pymatgen/io/lobster/tests/test_lobster.py::DoscarTest::test_completedos": 0.002467168014845811,
+    "pymatgen/io/lobster/tests/test_lobster.py::DoscarTest::test_complete_dos": 0.002467168014845811,
     "pymatgen/io/lobster/tests/test_lobster.py::DoscarTest::test_energies": 0.0008928750030463561,
     "pymatgen/io/lobster/tests/test_lobster.py::DoscarTest::test_is_spin_polarized": 0.0008428330183960497,
     "pymatgen/io/lobster/tests/test_lobster.py::DoscarTest::test_itdensities": 0.0008630430093035102,

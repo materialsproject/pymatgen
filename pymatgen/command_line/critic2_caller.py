@@ -26,7 +26,7 @@ appropriate (e.g. the two nucleus critical points linked to
  a bond critical point)
 * critic2 can do many other things besides
 
-If you use this module, please cite the following:
+If you use this module, please cite:
 
 A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,
 Comput. Phys. Communications 185, 1007-1018 (2014)
