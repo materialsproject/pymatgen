@@ -54,14 +54,16 @@ class ZSLGenTest(PymatgenTest):
         z = ZSLGenerator(max_area_ratio_tol=0.05, max_angle_tol=0.05, max_length_tol=0.05)
 
         matches = list(z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
-        assert len(matches) == 48
+        assert len(matches) == 60
+        assert max([vec_area(*match.substrate_sl_vectors) for match in matches]) <= z.max_area
+        assert max([vec_area(*match.film_sl_vectors) for match in matches]) <= z.max_area
 
         matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
-        assert len(matches) == 40
+        assert len(matches) == 52
 
         z.bidirectional = True
         matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
-        assert len(matches) == 48
+        assert len(matches) == 60
 
         for match in matches:
             assert match is not None
