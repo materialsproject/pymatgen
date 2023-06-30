@@ -23,6 +23,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.transformations.advanced_transformations import MagOrderingTransformation, MagOrderParameterConstraint
 from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
@@ -1058,6 +1059,10 @@ class MagneticStructureEnumerator:
 MagneticDeformation = namedtuple("MagneticDeformation", "type deformation")
 
 
+@due.dcite(
+    Doi("10.1021/acs.chemmater.6b04729"),
+    description="A Simple Computational Proxy for Screening Magnetocaloric Compounds",
+)
 def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> MagneticDeformation:
     """Calculates 'magnetic deformation proxy',
     a measure of deformation (norm of finite strain)

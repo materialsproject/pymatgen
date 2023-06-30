@@ -63,6 +63,7 @@ from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.util.due import Doi, due
 
 MODULE_DIR = Path(__file__).resolve().parent
 # TODO (janosh): replace with following line once PMG is py3.9+ only
@@ -472,7 +473,7 @@ class DictSet(VaspInputSet):
                 for site in structure:
                     if hasattr(site, "magmom"):
                         mag.append(site.magmom)
-                    elif hasattr(site.specie, "spin"):
+                    elif getattr(site.specie, "spin", None) is not None:
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
                         if site.specie.symbol == "Co" and v[str(site.specie)] <= 1.0:
@@ -825,6 +826,10 @@ def primes_less_than(max_val: int) -> list[int]:
     return res
 
 
+@due.dcite(
+    Doi("10.1016/j.commatsci.2011.02.023"),
+    description="A high-throughput infrastructure for density functional theory calculations",
+)
 class MITRelaxSet(DictSet):
     """
     Standard implementation of VaspInputSet utilizing parameters in the MIT
@@ -871,6 +876,18 @@ class MPRelaxSet(DictSet):
         self.kwargs = kwargs
 
 
+@due.dcite(
+    Doi("10.1021/acs.jpclett.0c02405"),
+    description="AccurAccurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
+)
+@due.dcite(
+    Doi("10.1103/PhysRevLett.115.036402"),
+    description="Strongly Constrained and Appropriately Normed Semilocal Density Functional",
+)
+@due.dcite(
+    Doi("doi:10.1103/PhysRevB.93.155109"),
+    description="Efficient generation of generalized Monkhorst-Pack grids through the use of informatics",
+)
 class MPScanRelaxSet(DictSet):
     """
     Class for writing a relaxation input set using the accurate and numerically
@@ -1902,6 +1919,10 @@ class MPNMRSet(MPStaticSet):
         return incar
 
 
+@due.dcite(
+    Doi("10.1149/2.0061602jes"),
+    description="Elastic Properties of Alkali Superionic Conductor Electrolytes from First Principles Calculations",
+)
 class MVLElasticSet(MPRelaxSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual

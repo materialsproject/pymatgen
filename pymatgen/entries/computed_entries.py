@@ -23,6 +23,7 @@ from uncertainties import ufloat
 
 from pymatgen.core.composition import Composition
 from pymatgen.entries import Entry
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -32,10 +33,10 @@ __copyright__ = "Copyright 2011-2020, The Materials Project"
 __version__ = "1.1"
 __date__ = "April 2020"
 
-with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as f:
-    G_ELEMS = json.load(f)
-with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as f:
-    G_GASES = json.load(f)
+with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as file:
+    G_ELEMS = json.load(file)
+with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as file:
+    G_GASES = json.load(file)
 
 
 class EnergyAdjustment(MSONable):
@@ -768,6 +769,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
         self._energy = self.gibbs_fn()
 
+    @due.dcite(Doi("10.1038/s41467-018-06682-4", "Gibbs free energy SISSO descriptor"))
     def gf_sisso(self) -> float:
         """
         Gibbs Free Energy of formation as calculated by SISSO descriptor from Bartel

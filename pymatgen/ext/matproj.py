@@ -38,6 +38,7 @@ from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
@@ -1394,6 +1395,10 @@ class _MPResterLegacy:
         """
         return self._make_request("/materials/all_substrate_ids")
 
+    @due.dcite(
+        Doi("10.1038/sdata.2016.80"),
+        description="Data Descriptor: Surface energies of elemental crystals. Scientific Data",
+    )
     def get_surface_data(self, material_id, miller_index=None, inc_structures=False):
         """
         Gets surface data for a material. Useful for Wulff shapes.

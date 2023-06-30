@@ -28,7 +28,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2023.06.23",
+    version="2023.6.28",
     python_requires=">=3.8",
     install_requires=[
         "frozendict",

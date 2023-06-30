@@ -9,6 +9,7 @@ from typing import Iterator
 import numpy as np
 from monty.json import MSONable
 
+from pymatgen.util.due import Doi, due
 from pymatgen.util.numba import njit
 
 
@@ -55,6 +56,10 @@ class ZSLMatch(MSONable):
         return np.transpose(np.linalg.solve(film_matrix, substrate_matrix))
 
 
+@due.dcite(
+    Doi("10.1063/1.333084"),
+    description="Lattice match: An application to heteroepitaxy",
+)
 class ZSLGenerator(MSONable):
     """
     This class generate matching interface super lattices based on the methodology

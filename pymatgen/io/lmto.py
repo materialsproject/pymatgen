@@ -1,5 +1,3 @@
-# Distributed under the terms of the MIT License
-
 """
 Module for implementing a CTRL file object class for the Stuttgart
 LMTO-ASA code. It will primarily be used to generate a pymatgen

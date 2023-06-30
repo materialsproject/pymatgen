@@ -1,8 +1,11 @@
-# Distributed under the terms of the MIT License
-
 """
 Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
+If you use this module, please cite:
+J. George, G. Petretto, A. Naik, M. Esters, A. J. Jackson, R. Nelson, R. Dronskowski, G.-M. Rignanese, G. Hautier,
+"Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+ChemPlusChem 2022, e202200123,
+DOI: 10.1002/cplu.202200123.
 """
 
 from __future__ import annotations
@@ -13,7 +16,7 @@ import os
 import re
 import warnings
 from collections import defaultdict
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.io import zopen
@@ -24,15 +27,24 @@ from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, VolumetricData
+from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from pymatgen.core.structure import IStructure
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__maintainer__ = "Janine George, Marco Esters "
-__email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
+__maintainer__ = "Janine George "
+__email__ = "janinegeorge.ulfen@gmail.com"
 __date__ = "Dec 13, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+due.cite(
+    Doi("10.1002/cplu.202200123"),
+    description="Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+)
 
 
 class Cohpcar:
@@ -469,18 +481,19 @@ class Doscar:
     def __init__(
         self,
         doscar: str = "DOSCAR.lobster",
-        structure_file: str = "POSCAR",
-        dftprogram: str = "Vasp",
+        structure_file: str | None = "POSCAR",
+        structure: IStructure | Structure | None = None,
     ):
         """
         Args:
             doscar: DOSCAR filename, typically "DOSCAR.lobster"
             structure_file: for vasp, this is typically "POSCAR"
-            dftprogram: so far only "vasp" is implemented.
+            structure: instead of a structure file, the structure can be given
+                directly. structure_file will be preferred.
         """
         self._doscar = doscar
-        if dftprogram == "Vasp":
-            self._final_structure = Structure.from_file(structure_file)
+
+        self._final_structure = Structure.from_file(structure_file) if structure_file is not None else structure
 
         self._parse_doscar()
 

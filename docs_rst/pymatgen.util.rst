@@ -17,6 +17,7 @@ Submodules
    pymatgen.util.convergence
    pymatgen.util.coord
    pymatgen.util.coord_cython
+   pymatgen.util.due
    pymatgen.util.graph_hashing
    pymatgen.util.io_utils
    pymatgen.util.num

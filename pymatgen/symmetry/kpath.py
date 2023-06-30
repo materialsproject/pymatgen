@@ -16,7 +16,7 @@ from scipy.linalg import sqrtm
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, cite_conventional_cell_algo
 
 try:
     from seekpath import get_path
@@ -130,6 +130,7 @@ class KPathBase(metaclass=abc.ABCMeta):
         return frac_k_points, sym_point_labels
 
 
+@cite_conventional_cell_algo
 class KPathSetyawanCurtarolo(KPathBase):
     """
     This class looks for a path along high-symmetry lines in

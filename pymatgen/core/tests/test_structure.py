@@ -949,8 +949,7 @@ class StructureTest(PymatgenTest):
         assert nio[0].specie.spin == 5, "Failed to add spin states"
 
         nio.remove_spin()
-        with pytest.raises(AttributeError, match="Element has no attribute spin"):
-            _ = nio[0].specie.spin
+        assert nio[0].specie.spin is None
 
         spins = [5, -5, -5, 5, 0, 0, 0, 0]  # AFM on (001)
         nio.add_spin_by_site(spins)

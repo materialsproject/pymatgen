@@ -357,7 +357,7 @@ class SpeciesTestCase(PymatgenTest):
         self.specie1 = Species.from_string("Fe2+")
         self.specie2 = Species("Fe", 3)
         self.specie3 = Species("Fe", 2)
-        self.specie4 = Species("Fe", 2, {"spin": 5})
+        self.specie4 = Species("Fe", 2, spin=5)
 
     def test_init(self):
         with pytest.raises(ValueError, match="magmom is not a supported property"):
@@ -458,23 +458,23 @@ class SpeciesTestCase(PymatgenTest):
         assert sorted(els) == [Species("Si", 3), Species("Si", 4), Species("N", -3)]
 
     def test_to_from_string(self):
-        fe3 = Species("Fe", 3, {"spin": 5})
+        fe3 = Species("Fe", 3, spin=5)
         assert str(fe3) == "Fe3+,spin=5"
         fe = Species.from_string("Fe3+,spin=5")
         assert fe.spin == 5
-        mo0 = Species("Mo", 0, {"spin": 5})
+        mo0 = Species("Mo", 0, spin=5)
         assert str(mo0) == "Mo0+,spin=5"
         mo = Species.from_string("Mo0+,spin=4")
         assert mo.spin == 4
 
         # Shyue Ping: I don't understand the need for a None for oxidation state. That to me is basically an element.
         # Why make the thing so complicated for a use case that I have never seen???
-        # fe_no_ox = Species("Fe", oxidation_state=None, properties={"spin": 5})
+        # fe_no_ox = Species("Fe", oxidation_state=None, spin=5)
         # fe_no_ox_from_str = Species.from_string("Fe,spin=5")
         # assert fe_no_ox == fe_no_ox_from_str
 
     def test_no_oxidation_state(self):
-        mo0 = Species("Mo", None, {"spin": 5})
+        mo0 = Species("Mo", None, spin=5)
         assert str(mo0) == "Mo,spin=5"
 
     def test_stringify(self):
@@ -513,7 +513,7 @@ class DummySpeciesTestCase(unittest.TestCase):
             DummySpecies("Xec")
         with pytest.raises(ValueError, match="Vac contains V, which is a valid element symbol"):
             DummySpecies("Vac")
-        self.specie2 = DummySpecies("X", 2, {"spin": 3})
+        self.specie2 = DummySpecies("X", 2, spin=3)
         assert self.specie2.spin == 3
 
     def test_eq(self):
@@ -543,6 +543,13 @@ class DummySpeciesTestCase(unittest.TestCase):
         r = sorted([Element.Fe, DummySpecies("X")])
         assert r == [DummySpecies("X"), Element.Fe]
         assert DummySpecies("X", 3) < DummySpecies("X", 4)
+
+    def test_immutable(self):
+        sp = Species("Fe", 2, spin=5)
+        with pytest.raises(AttributeError):
+            sp.spin = 6
+        sp.properties["spin"] = 7
+        assert sp.spin == 5
 
 
 class FuncTest(unittest.TestCase):

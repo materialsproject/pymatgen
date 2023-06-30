@@ -25,6 +25,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
+from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
 
@@ -296,6 +297,12 @@ class TransformedPDEntryError(Exception):
     """An exception class for TransformedPDEntry."""
 
 
+@due.dcite(Doi("10.1021/cm702327g"), description="Phase Diagram from First Principles Calculations")
+@due.dcite(
+    Doi("10.1016/j.elecom.2010.01.010"),
+    description="Thermal stabilities of delithiated olivine MPO4 (M=Fe, Mn) cathodes "
+    "investigated using first principles calculations",
+)
 class PhaseDiagram(MSONable):
     """
     Simple phase diagram class taking in elements and entries as inputs.
@@ -1351,6 +1358,12 @@ class PhaseDiagram(MSONable):
         )
 
 
+@due.dcite(Doi("10.1021/cm702327g"), description="Phase Diagram from First Principles Calculations")
+@due.dcite(
+    Doi("10.1016/j.elecom.2010.01.010"),
+    description="Thermal stabilities of delithiated olivine MPO4 (M=Fe, Mn) cathodes "
+    "investigated using first principles calculations",
+)
 class GrandPotentialPhaseDiagram(PhaseDiagram):
     """
     A class representing a Grand potential phase diagram. Grand potential phase

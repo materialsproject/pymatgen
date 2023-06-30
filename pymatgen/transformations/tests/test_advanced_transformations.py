@@ -402,10 +402,10 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(struct)
         Li_site = alls.indices_from_symbol("Li")[0]
         # Ensure s does not have a spin property
-        assert "spin" not in struct.sites[Li_site].specie._properties
+        assert struct.sites[Li_site].specie.spin is None
         # ensure sites are assigned a spin property in alls
-        assert "spin" in alls.sites[Li_site].specie._properties
-        assert alls.sites[Li_site].specie._properties["spin"] == 0
+        # assert "spin" in alls.sites[Li_site].specie.properties
+        assert alls.sites[Li_site].specie.spin == 0
 
     def test_advanced_usage(self):
         # test spin on just one oxidation state
@@ -414,7 +414,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(self.Fe3O4_oxi)
         assert isinstance(alls, Structure)
         assert str(alls[0].specie) == "Fe2+,spin=5"
-        assert str(alls[2].specie) == "Fe3+"
+        assert str(alls[2].specie) == "Fe3+,spin=0"
 
         # test multiple order parameters
         # this should only order on Fe3+ site, but assign spin to both
