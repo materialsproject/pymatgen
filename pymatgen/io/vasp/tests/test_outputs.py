@@ -473,91 +473,89 @@ class VasprunTest(PymatgenTest):
         assert vasprun.as_dict()["input"]["nkpoints"] == 24
 
     def test_get_band_structure(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            filepath = self.TEST_FILES_DIR / "vasprun_Si_bands.xml"
-            vasprun = Vasprun(filepath, parse_projected_eigen=True, parse_potcar_file=False)
-            bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS_Si_bands")
-            cbm = bs.get_cbm()
-            vbm = bs.get_vbm()
-            assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"
-            assert cbm["energy"] == approx(6.2301), "wrong cbm energy"
-            assert cbm["band_index"] == {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands"
-            assert vbm["kpoint_index"] == [0, 63, 64]
-            assert vbm["energy"] == approx(5.6158), "wrong vbm energy"
-            assert vbm["band_index"] == {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]}, "wrong vbm bands"
-            assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
-            assert cbm["kpoint"].label is None, "wrong cbm label"
+        filepath = self.TEST_FILES_DIR / "vasprun_Si_bands.xml"
+        vasprun = Vasprun(filepath, parse_projected_eigen=True, parse_potcar_file=False)
+        bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS_Si_bands")
+        cbm = bs.get_cbm()
+        vbm = bs.get_vbm()
+        assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"
+        assert cbm["energy"] == approx(6.2301), "wrong cbm energy"
+        assert cbm["band_index"] == {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands"
+        assert vbm["kpoint_index"] == [0, 63, 64]
+        assert vbm["energy"] == approx(5.6158), "wrong vbm energy"
+        assert vbm["band_index"] == {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]}, "wrong vbm bands"
+        assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
+        assert cbm["kpoint"].label is None, "wrong cbm label"
 
-            projected = bs.get_projection_on_elements()
-            assert projected[Spin.up][0][0]["Si"] == approx(0.4238)
-            projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
-            assert projected[Spin.up][0][0]["Si"]["s"] == approx(0.4238)
+        projected = bs.get_projection_on_elements()
+        assert projected[Spin.up][0][0]["Si"] == approx(0.4238)
+        projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
+        assert projected[Spin.up][0][0]["Si"]["s"] == approx(0.4238)
 
-            # Test compressed files case 1: compressed KPOINTS in current dir
-            copyfile(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "vasprun.xml")
+        # Test compressed files case 1: compressed KPOINTS in current dir
+        copyfile(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "vasprun.xml")
 
-            # Check for error if no KPOINTS file
-            vasprun = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
-            with pytest.raises(
-                VaspParserError, match="KPOINTS not found but needed to obtain band structure along symmetry lines"
-            ):
-                _ = vasprun.get_band_structure(line_mode=True)
+        # Check for error if no KPOINTS file
+        vasprun = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
+        with pytest.raises(
+            VaspParserError, match="KPOINTS not found but needed to obtain band structure along symmetry lines"
+        ):
+            _ = vasprun.get_band_structure(line_mode=True)
 
-            # Check KPOINTS.gz successfully inferred and used if present
-            with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in, gzip.open("KPOINTS.gz", "wb") as f_out:
-                copyfileobj(f_in, f_out)
-            bs_kpts_gzip = vasprun.get_band_structure()
-            assert bs.efermi == bs_kpts_gzip.efermi
-            assert bs.as_dict() == bs_kpts_gzip.as_dict()
+        # Check KPOINTS.gz successfully inferred and used if present
+        with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in, gzip.open("KPOINTS.gz", "wb") as f_out:
+            copyfileobj(f_in, f_out)
+        bs_kpts_gzip = vasprun.get_band_structure()
+        assert bs.efermi == bs_kpts_gzip.efermi
+        assert bs.as_dict() == bs_kpts_gzip.as_dict()
 
-            # Test compressed files case 2: compressed vasprun in another dir
-            os.mkdir("deeper")
-            copyfile(self.TEST_FILES_DIR / "KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
-            with open(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "rb") as f_in, gzip.open(
-                os.path.join("deeper", "vasprun.xml.gz"), "wb"
-            ) as f_out:
-                copyfileobj(f_in, f_out)
-            vasprun = Vasprun(
-                os.path.join("deeper", "vasprun.xml.gz"),
-                parse_projected_eigen=True,
-                parse_potcar_file=False,
-            )
-            bs_vasprun_gzip = vasprun.get_band_structure(line_mode=True)
-            assert bs.efermi == bs_vasprun_gzip.efermi
-            assert bs.as_dict() == bs_vasprun_gzip.as_dict()
+        # Test compressed files case 2: compressed vasprun in another dir
+        os.mkdir("deeper")
+        copyfile(self.TEST_FILES_DIR / "KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
+        with open(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "rb") as f_in, gzip.open(
+            os.path.join("deeper", "vasprun.xml.gz"), "wb"
+        ) as f_out:
+            copyfileobj(f_in, f_out)
+        vasprun = Vasprun(
+            os.path.join("deeper", "vasprun.xml.gz"),
+            parse_projected_eigen=True,
+            parse_potcar_file=False,
+        )
+        bs_vasprun_gzip = vasprun.get_band_structure(line_mode=True)
+        assert bs.efermi == bs_vasprun_gzip.efermi
+        assert bs.as_dict() == bs_vasprun_gzip.as_dict()
 
-            # test hybrid band structures
-            vasprun.actual_kpoints_weights[-1] = 0.0
-            bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS_Si_bands")
-            cbm = bs.get_cbm()
-            vbm = bs.get_vbm()
-            assert cbm["kpoint_index"] == [0]
-            assert cbm["energy"] == approx(6.3676)
-            assert cbm["kpoint"].label is None
-            assert vbm["kpoint_index"] == [0]
-            assert vbm["energy"] == approx(2.8218)
-            assert vbm["kpoint"].label is None
+        # test hybrid band structures
+        vasprun.actual_kpoints_weights[-1] = 0.0
+        bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS_Si_bands")
+        cbm = bs.get_cbm()
+        vbm = bs.get_vbm()
+        assert cbm["kpoint_index"] == [0]
+        assert cbm["energy"] == approx(6.3676)
+        assert cbm["kpoint"].label is None
+        assert vbm["kpoint_index"] == [0]
+        assert vbm["energy"] == approx(2.8218)
+        assert vbm["kpoint"].label is None
 
-            # test self-consistent band structure calculation for non-hybrid functionals
-            vasprun = Vasprun(
-                self.TEST_FILES_DIR / "vasprun.xml.forcehybridlikecalc",
-                parse_projected_eigen=True,
-                parse_potcar_file=False,
-            )
-            bs = vasprun.get_band_structure(
-                kpoints_filename=self.TEST_FILES_DIR / "KPOINTS.forcehybridlikecalc",
-                force_hybrid_mode=True,
-                line_mode=True,
-            )
+        # test self-consistent band structure calculation for non-hybrid functionals
+        vasprun = Vasprun(
+            self.TEST_FILES_DIR / "vasprun.xml.forcehybridlikecalc",
+            parse_projected_eigen=True,
+            parse_potcar_file=False,
+        )
+        bs = vasprun.get_band_structure(
+            kpoints_filename=self.TEST_FILES_DIR / "KPOINTS.forcehybridlikecalc",
+            force_hybrid_mode=True,
+            line_mode=True,
+        )
 
-            dict_to_test = bs.get_band_gap()
+        dict_to_test = bs.get_band_gap()
 
-            assert dict_to_test["direct"]
-            assert dict_to_test["energy"] == approx(6.007899999999999)
-            assert dict_to_test["transition"] == "\\Gamma-\\Gamma"
-            assert bs.get_branch(0)[0]["start_index"] == 0
-            assert bs.get_branch(0)[0]["end_index"] == 0
+        assert dict_to_test["direct"]
+        assert dict_to_test["energy"] == approx(6.007899999999999)
+        assert dict_to_test["transition"] == "\\Gamma-\\Gamma"
+        assert bs.get_branch(0)[0]["start_index"] == 0
+        assert bs.get_branch(0)[0]["end_index"] == 0
 
     def test_projected_magnetisation(self):
         filepath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
@@ -673,22 +671,18 @@ class VasprunTest(PymatgenTest):
             ]
 
     def test_parsing_chemical_shift_calculations(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            filepath = self.TEST_FILES_DIR / "nmr" / "cs" / "basic" / "vasprun.xml.chemical_shift.scstep"
-            vasprun = Vasprun(filepath)
-            nestep = len(vasprun.ionic_steps[-1]["electronic_steps"])
-            assert nestep == 10
-            assert vasprun.converged
+        filepath = self.TEST_FILES_DIR / "nmr" / "cs" / "basic" / "vasprun.xml.chemical_shift.scstep"
+        vasprun = Vasprun(filepath)
+        nestep = len(vasprun.ionic_steps[-1]["electronic_steps"])
+        assert nestep == 10
+        assert vasprun.converged
 
     def test_parsing_efg_calcs(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            filepath = self.TEST_FILES_DIR / "nmr" / "efg" / "AlPO4" / "vasprun.xml"
-            vasprun = Vasprun(filepath)
-            nestep = len(vasprun.ionic_steps[-1]["electronic_steps"])
-            assert nestep == 18
-            assert vasprun.converged
+        filepath = self.TEST_FILES_DIR / "nmr" / "efg" / "AlPO4" / "vasprun.xml"
+        vasprun = Vasprun(filepath)
+        nestep = len(vasprun.ionic_steps[-1]["electronic_steps"])
+        assert nestep == 18
+        assert vasprun.converged
 
     def test_charged_structure(self):
         vpath = self.TEST_FILES_DIR / "vasprun.charged.xml"

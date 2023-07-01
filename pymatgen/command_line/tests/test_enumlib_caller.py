@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import unittest
-import warnings
 from shutil import which
 
 import pytest
@@ -26,62 +25,60 @@ class EnumlibAdaptorTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def test_init(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            struct = self.get_structure("LiFePO4")
-            subtrans = SubstitutionTransformation({"Li": {"Li": 0.5}})
-            adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2)
-            adaptor.run()
-            structures = adaptor.structures
-            assert len(structures) == 86
-            for s in structures:
-                assert s.composition.get_atomic_fraction(Element("Li")) == approx(0.5 / 6.5)
-            adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2, refine_structure=True)
-            adaptor.run()
-            structures = adaptor.structures
-            assert len(structures) == 52
+        struct = self.get_structure("LiFePO4")
+        subtrans = SubstitutionTransformation({"Li": {"Li": 0.5}})
+        adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2)
+        adaptor.run()
+        structures = adaptor.structures
+        assert len(structures) == 86
+        for s in structures:
+            assert s.composition.get_atomic_fraction(Element("Li")) == approx(0.5 / 6.5)
+        adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2, refine_structure=True)
+        adaptor.run()
+        structures = adaptor.structures
+        assert len(structures) == 52
 
-            subtrans = SubstitutionTransformation({"Li": {"Li": 0.25}})
-            adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 1, refine_structure=True)
-            adaptor.run()
-            structures = adaptor.structures
-            assert len(structures) == 1
-            for s in structures:
-                assert s.composition.get_atomic_fraction(Element("Li")) == approx(0.25 / 6.25)
+        subtrans = SubstitutionTransformation({"Li": {"Li": 0.25}})
+        adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 1, refine_structure=True)
+        adaptor.run()
+        structures = adaptor.structures
+        assert len(structures) == 1
+        for s in structures:
+            assert s.composition.get_atomic_fraction(Element("Li")) == approx(0.25 / 6.25)
 
-            # Make sure it works for completely disordered structures.
-            struct = Structure([[10, 0, 0], [0, 10, 0], [0, 0, 10]], [{"Fe": 0.5}], [[0, 0, 0]])
-            adaptor = EnumlibAdaptor(struct, 1, 2)
-            adaptor.run()
-            assert len(adaptor.structures) == 3
+        # Make sure it works for completely disordered structures.
+        struct = Structure([[10, 0, 0], [0, 10, 0], [0, 0, 10]], [{"Fe": 0.5}], [[0, 0, 0]])
+        adaptor = EnumlibAdaptor(struct, 1, 2)
+        adaptor.run()
+        assert len(adaptor.structures) == 3
 
-            # Make sure it works properly when symmetry is broken by ordered sites.
-            struct = self.get_structure("LiFePO4")
-            subtrans = SubstitutionTransformation({"Li": {"Li": 0.25}})
-            s = subtrans.apply_transformation(struct)
-            # REmove some ordered sites to break symmetry.
-            removetrans = RemoveSitesTransformation([4, 7])
-            s = removetrans.apply_transformation(s)
-            adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01)
-            adaptor.run()
-            structures = adaptor.structures
-            assert len(structures) == 4
+        # Make sure it works properly when symmetry is broken by ordered sites.
+        struct = self.get_structure("LiFePO4")
+        subtrans = SubstitutionTransformation({"Li": {"Li": 0.25}})
+        s = subtrans.apply_transformation(struct)
+        # REmove some ordered sites to break symmetry.
+        removetrans = RemoveSitesTransformation([4, 7])
+        s = removetrans.apply_transformation(s)
+        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01)
+        adaptor.run()
+        structures = adaptor.structures
+        assert len(structures) == 4
 
-            struct = Structure(
-                [[3, 0, 0], [0, 3, 0], [0, 0, 3]],
-                [{"Si": 0.5}] * 2,
-                [[0, 0, 0], [0.5, 0.5, 0.5]],
-            )
-            adaptor = EnumlibAdaptor(struct, 1, 3, enum_precision_parameter=0.01)
-            adaptor.run()
-            structures = adaptor.structures
-            assert len(structures) == 10
+        struct = Structure(
+            [[3, 0, 0], [0, 3, 0], [0, 0, 3]],
+            [{"Si": 0.5}] * 2,
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
+        )
+        adaptor = EnumlibAdaptor(struct, 1, 3, enum_precision_parameter=0.01)
+        adaptor.run()
+        structures = adaptor.structures
+        assert len(structures) == 10
 
-            struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "EnumerateTest.json"))
-            adaptor = EnumlibAdaptor(struct, 1, 1)
-            adaptor.run()
-            structures = adaptor.structures
-            assert len(structures) == 2
+        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "EnumerateTest.json"))
+        adaptor = EnumlibAdaptor(struct, 1, 1)
+        adaptor.run()
+        structures = adaptor.structures
+        assert len(structures) == 2
 
     def test_rounding_errors(self):
         # It used to be that a rounding issue would result in this structure

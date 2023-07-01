@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import pickle
-import warnings
 from pathlib import Path
 
 import numpy as np
@@ -65,9 +64,7 @@ direct
 0.000000 0.000000 0.000000
 0.750000 0.500000 0.750000
 """
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            poscar = Poscar.from_string(poscar_string)
+        poscar = Poscar.from_string(poscar_string)
         assert poscar.structure.composition == Composition("HHe")
         # VASP 4 style file with default names, i.e. no element symbol found.
         poscar_string = """Test3

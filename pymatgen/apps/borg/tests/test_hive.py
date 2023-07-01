@@ -26,20 +26,18 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_assimilate(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            entry = self.drone.assimilate(PymatgenTest.TEST_FILES_DIR)
-            for p in ["hubbards", "is_hubbard", "potcar_spec", "run_type"]:
-                assert p in entry.parameters
-            assert entry.data["efermi"] == approx(-6.62148548)
-            assert entry.composition.reduced_formula == "Xe"
-            assert entry.energy == approx(0.5559329)
-            entry = self.structure_drone.assimilate(PymatgenTest.TEST_FILES_DIR)
-            assert entry.composition.reduced_formula == "Xe"
-            assert entry.energy == approx(0.5559329)
-            assert isinstance(entry, ComputedStructureEntry)
-            assert entry.structure is not None
-            # assert len(entry.parameters["history"]) == 2
+        entry = self.drone.assimilate(PymatgenTest.TEST_FILES_DIR)
+        for p in ["hubbards", "is_hubbard", "potcar_spec", "run_type"]:
+            assert p in entry.parameters
+        assert entry.data["efermi"] == approx(-6.62148548)
+        assert entry.composition.reduced_formula == "Xe"
+        assert entry.energy == approx(0.5559329)
+        entry = self.structure_drone.assimilate(PymatgenTest.TEST_FILES_DIR)
+        assert entry.composition.reduced_formula == "Xe"
+        assert entry.energy == approx(0.5559329)
+        assert isinstance(entry, ComputedStructureEntry)
+        assert entry.structure is not None
+        # assert len(entry.parameters["history"]) == 2
 
     def tearDown(self):
         warnings.simplefilter("default")
