@@ -83,7 +83,7 @@ class Stringify:
 
 
 def str_delimited(results, header=None, delimiter="\t"):
-    """
+    r"""
     Given a tuple of tuples, generate a delimited string form.
     >>> results = [["a","b","c"],["d","e","f"],[1,2,3]]
     >>> print(str_delimited(results,delimiter=","))
@@ -92,8 +92,9 @@ def str_delimited(results, header=None, delimiter="\t"):
     1,2,3.
 
     Args:
-        result: 2d sequence of arbitrary types.
+        results: 2d sequence of arbitrary types.
         header: optional header
+        delimiter: Defaults to "\t" for tab-delimited output.
 
     Returns:
         Aligned string output in a table-like format.

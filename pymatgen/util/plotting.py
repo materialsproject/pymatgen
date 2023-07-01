@@ -492,6 +492,7 @@ def get_ax_fig_plt(ax=None, **kwargs):
     we return the current active figure.
 
     Args:
+        ax (Axes, optional): Axes object. Defaults to None.
         kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
@@ -517,6 +518,7 @@ def get_ax3d_fig_plt(ax=None, **kwargs):
     Axes3D else we return the current active figure.
 
     Args:
+        ax (Axes3D, optional): Axes3D object. Defaults to None.
         kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:

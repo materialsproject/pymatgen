@@ -42,9 +42,12 @@ def maxloc(seq):
 def min_max_indexes(seq):
     """
     Uses enumerate, max, and min to return the indices of the values
-    in a list with the maximum and minimum value:
+    in a list with the maximum and minimum value.
+
+    Args:
+        seq: A sequence of numbers.
     """
-    lst = sorted(enumerate(seq), key=lambda s: s[1])
+    lst = sorted(enumerate(seq), key=lambda tup: tup[1])
     return lst[0][0], lst[-1][0]
 
 
