@@ -198,18 +198,18 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         struct = p.structure
         expected = [1, 3, 1]
-        for i, frac in enumerate([0.25, 0.5, 0.75]):
+        for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
             s = trans.apply_transformation(struct)
             oxitrans = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
             s = oxitrans.apply_transformation(s)
             alls = enum_trans.apply_transformation(s, 100)
-            assert len(alls) == expected[i]
+            assert len(alls) == expected[idx]
             assert isinstance(trans.apply_transformation(s), Structure)
             for ss in alls:
                 assert "energy" in ss
             alls = enum_trans2.apply_transformation(s, 100)
-            assert len(alls) == expected[i]
+            assert len(alls) == expected[idx]
             assert isinstance(trans.apply_transformation(s), Structure)
             for ss in alls:
                 assert "num_sites" in ss

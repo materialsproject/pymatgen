@@ -345,8 +345,8 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
         Returns: True if structure does not contain the two species are distances
             greater than max_dist.
         """
-        sp1_indices = [i for i, site in enumerate(structure) if site.specie == self.sp1]
-        sp2_indices = [i for i, site in enumerate(structure) if site.specie == self.sp2]
+        sp1_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp1]
+        sp2_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp2]
         fcoords = structure.frac_coords
         fcoords1 = fcoords[sp1_indices, :]
         fcoords2 = fcoords[sp2_indices, :]
