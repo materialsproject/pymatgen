@@ -463,10 +463,10 @@ class StructureVis:
         """
         points = vtk.vtkPoints()
         conv = vtk.vtkConvexPointSet()
-        for i, n in enumerate(neighbors):
-            x, y, z = n.coords
-            points.InsertPoint(i, x, y, z)
-            conv.GetPointIds().InsertId(i, i)
+        for idx, neighbor in enumerate(neighbors):
+            x, y, z = neighbor.coords
+            points.InsertPoint(idx, x, y, z)
+            conv.GetPointIds().InsertId(idx, idx)
         grid = vtk.vtkUnstructuredGrid()
         grid.Allocate(1, 1)
         grid.InsertNextCell(conv.GetCellType(), conv.GetPointIds())

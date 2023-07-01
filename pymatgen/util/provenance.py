@@ -359,15 +359,15 @@ class StructureNL:
         histories = [[]] * len(structures) if histories is None else histories
 
         snl_list = []
-        for i, struct in enumerate(structures):
+        for idx, struct in enumerate(structures):
             snl = StructureNL(
                 struct,
                 authors,
                 projects=projects,
                 references=references,
                 remarks=remarks,
-                data=data[i],
-                history=histories[i],
+                data=data[idx],
+                history=histories[idx],
                 created_at=created_at,
             )
             snl_list.append(snl)

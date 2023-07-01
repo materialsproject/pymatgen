@@ -86,14 +86,14 @@ def monotonic(values, mode="<", atol=1.0e-8):
         return True
 
     if mode == ">":
-        for i in range(len(values) - 1):
-            v, vp = values[i], values[i + 1]
+        for idx in range(len(values) - 1):
+            v, vp = values[idx], values[idx + 1]
             if abs(vp - v) > atol and vp <= v:
                 return False
 
     elif mode == "<":
-        for i in range(len(values) - 1):
-            v, vp = values[i], values[i + 1]
+        for idx in range(len(values) - 1):
+            v, vp = values[idx], values[idx + 1]
             if abs(vp - v) > atol and vp >= v:
                 return False
 

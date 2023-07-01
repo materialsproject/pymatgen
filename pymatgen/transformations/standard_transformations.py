@@ -438,12 +438,10 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         return True
 
     def __str__(self):
-        spec_str = [
-            f"Species = {self.specie_to_remove}",
-            f"Fraction to remove = {self.fraction_to_remove}",
-            f"ALGO = {self.algo}",
-        ]
-        return "PartialRemoveSpecieTransformation : " + ", ".join(spec_str)
+        species = self.specie_to_remove
+        fraction_to_remove = self.fraction_to_remove
+        algo = self.algo
+        return f"PartialRemoveSpecieTransformation({species=}, {fraction_to_remove=}, {algo=})"
 
     def __repr__(self):
         return str(self)
@@ -988,8 +986,8 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         unrelax_params.extend(unrelaxed_structure.lattice.angles)
 
         self.params_percent_change = []
-        for i, p in enumerate(relax_params):
-            self.params_percent_change.append(p / unrelax_params[i])
+        for idx, param in enumerate(relax_params):
+            self.params_percent_change.append(param / unrelax_params[idx])
 
         self.unrelaxed_structure = unrelaxed_structure
         self.relaxed_structure = relaxed_structure

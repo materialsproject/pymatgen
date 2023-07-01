@@ -131,6 +131,7 @@ def charge_string(charge, brackets=True, explicit_one=True):
     '[+2]'. For uncharged species, the string returned is '(aq)'.
 
     Args:
+        charge: the charge of the Ion
         brackets: whether to enclose the charge in brackets, e.g. [+2]. Default: True
         explicit_one: whether to include the number one for monovalent ions, e.g.
             +1 rather than +. Default: True

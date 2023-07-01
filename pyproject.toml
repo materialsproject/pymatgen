@@ -81,7 +81,6 @@ isort.split-on-trailing-comma = false
 "tasks.py" = ["D"]
 "pymatgen/analysis/*" = ["D"]
 "pymatgen/vis/*" = ["D"]
-"pymatgen/util/*" = ["D"]
 "pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
 
