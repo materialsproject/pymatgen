@@ -31,6 +31,9 @@ Add-ons for Input/Output
 * `pymatgen-io-fleur <http://pypi.org/project/pymatgen-io-fleur>`_: Provides modules for reading and writing
   files used by the `fleur <https://www.flapw.de/rel>`_ DFT code. This package is maintained by the juDFT team.
 
+* `pymatgen-io-openmm <https://github.com/orionarcher/pymatgen-io-openmm>`_: Provides easy IO for performing 
+  molecular dynamics on solutions with OpenMM. This package is maintained by Orion Archer Cohen.
+
 Add-ons for External Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
