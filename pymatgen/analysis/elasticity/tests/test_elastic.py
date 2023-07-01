@@ -233,11 +233,7 @@ class ElasticTensorTest(PymatgenTest):
                 [
                     [0.99774738, 0.11520994, -0],
                     [-0.11520994, 0.99774738, 0],
-                    [
-                        -0,
-                        -0,
-                        1,
-                    ],
+                    [-0, -0, 1],
                 ]
             )
         )
@@ -268,9 +264,9 @@ class ElasticTensorExpansionTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_init(self):
-        cijkl = Tensor.from_voigt(self.c2)
-        cijklmn = Tensor.from_voigt(self.c3)
-        exp = ElasticTensorExpansion([cijkl, cijklmn])
+        c_ijkl = Tensor.from_voigt(self.c2)
+        c_ijklmn = Tensor.from_voigt(self.c3)
+        exp = ElasticTensorExpansion([c_ijkl, c_ijklmn])
         ElasticTensorExpansion.from_voigt([self.c2, self.c3])
         assert exp.order == 3
 
