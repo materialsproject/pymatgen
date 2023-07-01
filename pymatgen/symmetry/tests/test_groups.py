@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 import numpy as np
 import pytest
@@ -198,10 +197,8 @@ class SpaceGroupTest(unittest.TestCase):
             SpaceGroup("hello")
 
     def test_subgroup_supergroup(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            assert SpaceGroup("Pma2").is_subgroup(SpaceGroup("Pccm"))
-            assert not SpaceGroup.from_int_number(229).is_subgroup(SpaceGroup.from_int_number(230))
+        assert SpaceGroup("Pma2").is_subgroup(SpaceGroup("Pccm"))
+        assert not SpaceGroup.from_int_number(229).is_subgroup(SpaceGroup.from_int_number(230))
 
     def test_hexagonal(self):
         for num in (146, 148, 155, 160, 161, 166, 167):
