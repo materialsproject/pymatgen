@@ -21,6 +21,9 @@ import random
 import string
 
 import numpy as np
+from monty.dev import deprecated
+
+deprecated(message="pymatgen.util.convergence is deprecated and will be removed in a late 2023 release.")
 
 __author__ = "Michiel van Setten"
 __version__ = "0.9"
