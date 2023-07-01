@@ -2270,12 +2270,12 @@ class BSDOSPlotter:
         Args:
             bs (BandStructureSymmLine): the bandstructure to plot. Projection
                 data must exist for projected plots.
-            dos (Dos): the Dos to plot. Projection data must exist (i.e.,
-                CompleteDos) for projected plots.
+            dos (Dos | CompleteDos): the Dos to plot. For projected plots, the projection data must
+                exist i.e. you need to pass a CompleteDos.
 
         Returns:
-            matplotlib.pyplot object on which you can call commands like show()
-            and savefig()
+            plt: matplotlib.pyplot on which you can call commands like show()
+                and savefig()
         """
         import matplotlib.lines as mlines
         import matplotlib.pyplot as plt
@@ -2283,7 +2283,7 @@ class BSDOSPlotter:
 
         # make sure the user-specified band structure projection is valid
         bs_projection = self.bs_projection
-        if dos:
+        if isinstance(dos, CompleteDos):  # Dos obj has no structure
             elements = [e.symbol for e in dos.structure.composition.elements]
         elif bs_projection and bs.structure:
             elements = [e.symbol for e in bs.structure.composition.elements]
