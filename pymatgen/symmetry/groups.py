@@ -523,9 +523,14 @@ class SpaceGroup(SymmetryGroup):
             hexagonal (bool): For rhombohedral groups, whether to return the
                 hexagonal setting (default) or rhombohedral setting.
 
+        Raises:
+            ValueError: If the international number is not valid, i.e. not between 1 and 230 inclusive.
+
         Returns:
-            (SpaceGroup)
+            SpaceGroup: object with the given international number.
         """
+        if int_number not in range(1, 231):
+            raise ValueError(f"International number must be between 1 and 230, got {int_number}")
         symbol = sg_symbol_from_int_number(int_number, hexagonal=hexagonal)
         if not hexagonal and int_number in (146, 148, 155, 160, 161, 166, 167):
             symbol += ":R"

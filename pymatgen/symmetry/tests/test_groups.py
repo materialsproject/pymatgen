@@ -221,3 +221,8 @@ class SpaceGroupTest(unittest.TestCase):
             sg = SpaceGroup.from_int_number(num)
             symbol = ORDERED_SYMBOLS[num - 1]
             assert repr(sg) in f"SpaceGroup({symbol=})"
+
+    def test_raises_on_bad_int_number(self):
+        for num in (-5, 0, 231, 1000):
+            with pytest.raises(ValueError, match=f"International number must be between 1 and 230, got {num}"):
+                SpaceGroup.from_int_number(num)
