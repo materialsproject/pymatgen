@@ -13,7 +13,7 @@ networkx==2.8.8
 plotly==5.11.0
 beautifulsoup4==4.12.2
 uncertainties==3.1.7
-Cython==0.29.32
+Cython==0.29.35
 pybtex==0.24.0
 mp-api==0.33.3
 tqdm==4.65.0
