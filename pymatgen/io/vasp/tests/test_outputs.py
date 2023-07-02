@@ -98,15 +98,14 @@ class VasprunTest(PymatgenTest):
         with pytest.raises(ET.ParseError):
             Vasprun(self.TEST_FILES_DIR / "bad_vasprun.xml")
 
-        with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-            # Trigger a warning.
+        with pytest.warns(
+            UserWarning,
+            match="XML is malformed. Parsing has stopped but partial data is available",
+        ) as warns:
             v = Vasprun(self.TEST_FILES_DIR / "bad_vasprun.xml", exception_on_bad_xml=False)
-            # Verify some things
             assert len(v.ionic_steps) == 1
             assert v.final_energy == approx(-269.00551374)
-            assert issubclass(w[-1].category, UserWarning)
+        assert len(warns) == 13
 
     def test_runtype(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
@@ -291,18 +290,13 @@ class VasprunTest(PymatgenTest):
 
     def test_unconverged(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.unconverged"
-        with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-            # Trigger a warning.
+        with pytest.warns(UnconvergedVASPWarning, match=f"{filepath} is an unconverged VASP run") as warns:
             vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
-            # Verify some things
-            assert len(w) == 1
-            assert issubclass(w[-1].category, UnconvergedVASPWarning)
+        assert len(warns) == 1
 
-            assert vasprun_unconverged.converged_ionic
-            assert not vasprun_unconverged.converged_electronic
-            assert not vasprun_unconverged.converged
+        assert vasprun_unconverged.converged_ionic
+        assert not vasprun_unconverged.converged_electronic
+        assert not vasprun_unconverged.converged
 
     def test_dfpt(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.dfpt"
@@ -598,10 +592,9 @@ class VasprunTest(PymatgenTest):
 
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.sc_overflow"
-        # with warnings.catch_warnings(record=True) as warns:
-        #     warnings.simplefilter("always")
-        #     vasprun = Vasprun(filepath)
-        #     assert len(warns) == 3
+        with pytest.warns(UserWarning, match="Float overflow .* encountered in vasprun") as warns:
+            vasprun = Vasprun(filepath)
+            assert len(warns) == 15
         vasprun = Vasprun(filepath)
         estep = vasprun.ionic_steps[0]["electronic_steps"][29]
         assert np.isnan(estep["e_wo_entrp"])
@@ -658,17 +651,16 @@ class VasprunTest(PymatgenTest):
     def test_potcar_not_found(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
         # Ensure no potcar is found and nothing is updated
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
+        with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in") as warns:
             vasprun = Vasprun(filepath, parse_potcar_file=".")
-            assert len(w) == 2
-            assert vasprun.potcar_spec == [
-                {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
-                {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-                {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
-                {"titel": "PAW_PBE P 17Jan2003", "hash": None},
-                {"titel": "PAW_PBE O 08Apr2002", "hash": None},
-            ]
+        assert len(warns) == 2
+        assert vasprun.potcar_spec == [
+            {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
+            {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
+            {"titel": "PAW_PBE P 17Jan2003", "hash": None},
+            {"titel": "PAW_PBE O 08Apr2002", "hash": None},
+        ]
 
     def test_parsing_chemical_shift_calculations(self):
         filepath = self.TEST_FILES_DIR / "nmr" / "cs" / "basic" / "vasprun.xml.chemical_shift.scstep"
@@ -1544,14 +1536,12 @@ class ChgcarTest(PymatgenTest):
         self.assert_all_close(chgcar_sum.data["total"], self.chgcar_spin.data["total"] * 2)
         chgcar_copy = self.chgcar_spin.copy()
         chgcar_copy.structure = self.get_structure("Li2O")
-        with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-            # Trigger a warning.
+        with pytest.warns(
+            UserWarning,
+            match="Structures are different. Make sure you know what you are doing...",
+        ) as warns:
             chgcar_sum = chgcar_copy + self.chgcar_spin
-            # Verify some things
-            assert len(w) == 1
-            assert "Structures are different. Make sure you know what you are doing..." in str(w[-1].message)
+        assert len(warns) == 1
         with pytest.raises(
             ValueError, match=r"operands could not be broadcast together with shapes \(48,48,48\) \(72,72,72\)"
         ):

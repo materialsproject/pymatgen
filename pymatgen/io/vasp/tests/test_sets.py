@@ -167,14 +167,13 @@ class MITMPRelaxSetTest(PymatgenTest):
     def test_metal_check(self):
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Cu"], [[0, 0, 0]])
 
-        with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-            # Trigger a warning.
+        with pytest.warns(
+            BadInputSetWarning,
+            match="Relaxation of likely metal with ISMEAR < 1 detected. See VASP recommendations on ISMEAR for metals.",
+        ) as warns:
             vis = MITRelaxSet(structure)
             _ = vis.incar
-            # Verify some things
-            assert "ISMEAR" in str(w[-1].message)
+        assert len(warns) == 1
 
     def test_poscar(self):
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)

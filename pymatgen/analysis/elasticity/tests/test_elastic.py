@@ -187,7 +187,11 @@ class ElasticTensorTest(PymatgenTest):
     def test_from_pseudoinverse(self):
         strain_list = [Strain.from_deformation(def_matrix) for def_matrix in self.def_stress_dict["deformations"]]
         stress_list = list(self.def_stress_dict["stresses"])
-        with warnings.catch_warnings(record=True):
+        with pytest.warns(
+            UserWarning,
+            match="Pseudo-inverse fitting of Strain/Stress lists may yield questionable results from "
+            "vasp data, use with caution",
+        ):
             et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stress_list).voigt
             self.assert_all_close(
                 et_fl.round(2),
@@ -432,9 +436,8 @@ class DiffFitTest(PymatgenTest):
     def test_find_eq_stress(self):
         test_strains = deepcopy(self.strains)
         test_stresses = deepcopy(self.pk_stresses)
-        with warnings.catch_warnings(record=True):
-            no_eq = find_eq_stress(test_strains, test_stresses)
-            self.assert_all_close(no_eq, np.zeros((3, 3)))
+        no_eq = find_eq_stress(test_strains, test_stresses)
+        self.assert_all_close(no_eq, np.zeros((3, 3)))
         test_strains[3] = Strain.from_voigt(np.zeros(6))
         eq_stress = find_eq_stress(test_strains, test_stresses)
         self.assert_all_close(test_stresses[3], eq_stress)

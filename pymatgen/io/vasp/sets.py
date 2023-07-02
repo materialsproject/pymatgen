@@ -302,7 +302,7 @@ class DictSet(VaspInputSet):
             user_kpoints_settings (dict or Kpoints): Allow user to override kpoints
                 setting by supplying a dict E.g., {"reciprocal_density": 1000}.
                 User can also supply Kpoints object. Default is None.
-            user_potcar_settings (dict): Allow user to override POTCARs. E.g.,
+            user_potcar_settings (dict: Allow user to override POTCARs. E.g.,
                 {"Gd": "Gd_3"}. This is generally not recommended. Default is None.
             constrain_total_magmom (bool): Whether to constrain the total magmom
                 (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
@@ -588,7 +588,7 @@ class DictSet(VaspInputSet):
 
         if all(k.is_metal for k in structure.composition) and incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
             warnings.warn(
-                "Relaxation of likely metal with ISMEAR < 1 detected. Please see VASP "
+                "Relaxation of likely metal with ISMEAR < 1 detected. See VASP "
                 "recommendations on ISMEAR for metals.",
                 BadInputSetWarning,
             )
