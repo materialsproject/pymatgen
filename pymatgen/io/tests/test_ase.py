@@ -164,7 +164,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR_overlap"))
         struct = aio.AseAtomsAdaptor.get_structure(atoms)
         assert [s.species_string for s in struct] == atoms.get_chemical_symbols()
-        with pytest.raises(StructureError):
+        with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
             struct = aio.AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
 
     def test_get_structure_mag(self):

@@ -127,7 +127,7 @@ class MPResterOldTest(PymatgenTest):
         for d in data:
             assert set(Composition(d["unit_cell_formula"]).elements).issubset(elements)
 
-        with pytest.raises(MPRestError):
+        with pytest.raises(MPRestError, match="REST query returned with error status code 404"):
             self.rester.get_data("Fe2O3", "badmethod")
 
     def test_get_materials_id_from_task_id(self):
@@ -179,11 +179,10 @@ class MPResterOldTest(PymatgenTest):
     def test_get_entry_by_material_id(self):
         entry = self.rester.get_entry_by_material_id("mp-19017")
         assert isinstance(entry, ComputedEntry)
-        assert entry.composition.reduced_formula, "LiFePO4"
+        assert entry.composition.reduced_formula == "LiFePO4"
 
-        # "mp-2022" does not exist
-        with pytest.raises(MPRestError):
-            self.rester.get_entry_by_material_id("mp-2022")
+        with pytest.raises(MPRestError, match="material_id = 'mp-2022' does not exist"):
+            self.rester.get_entry_by_material_id("mp-2022")  # "mp-2022" does not exist
 
     def test_query(self):
         criteria = {"elements": {"$in": ["Li", "Na", "K"], "$all": ["O"]}}
@@ -465,9 +464,9 @@ class MPResterOldTest(PymatgenTest):
 
         # Let's test some invalid symbols
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="'li' is not a valid Element"):
             _MPResterLegacy.parse_criteria("li-fe")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="'L' is not a valid Element"):
             _MPResterLegacy.parse_criteria("LO2")
 
         crit = _MPResterLegacy.parse_criteria("POPO2")

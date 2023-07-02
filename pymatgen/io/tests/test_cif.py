@@ -776,7 +776,7 @@ loop_
     def test_bad_cif(self):
         f = self.TEST_FILES_DIR / "bad_occu.cif"
         parser = CifParser(f)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Invalid cif file with no structures"):
             parser.get_structures()
         parser = CifParser(f, occupancy_tolerance=2)
         s = parser.get_structures()[0]
@@ -904,16 +904,16 @@ class MagCifTest(PymatgenTest):
 
     def test_get_structures(self):
         # incommensurate structures not currently supported
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(NotImplementedError, match="Incommensurate structures not currently supported"):
             self.mcif_incom.get_structures()
 
         # disordered magnetic structures not currently supported
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(NotImplementedError, match="Disordered magnetic structures not currently supported"):
             self.mcif_disord.get_structures()
 
         # taken from self.mcif_ncl, removing explicit magnetic symmops
         # so that MagneticSymmetryGroup() has to be invoked
-        magcifstr = """
+        mag_cif_str = """
 data_5yOhtAoR
 
 _space_group.magn_name_BNS     "P 4/m' b' m' "
@@ -949,7 +949,7 @@ Gd1 5.05 5.05 0.0"""
 
         # example with non-collinear spin
         s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
-        s_ncl_from_msg = CifParser.from_string(magcifstr).get_structures(primitive=False)[0]
+        s_ncl_from_msg = CifParser.from_string(mag_cif_str).get_structures(primitive=False)[0]
         assert s_ncl.formula == "Gd4 B16"
         assert not Magmom.are_collinear(s_ncl.site_properties["magmom"])
 

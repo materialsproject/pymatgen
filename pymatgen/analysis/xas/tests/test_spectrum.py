@@ -78,7 +78,7 @@ class XASTest(PymatgenTest):
             )
 
     def test_stitch_xafs(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Invalid mode. Only XAFS and L23 are supported"):
             XAS.stitch(self.k_xanes, self.k_exafs, mode="invalid")
         xafs = XAS.stitch(self.k_xanes, self.k_exafs, mode="XAFS")
         assert isinstance(xafs, XAS)
@@ -110,7 +110,7 @@ class XASTest(PymatgenTest):
         assert np.greater_equal(l23.y, self.l2_xanes.y).all()
         assert len(l23.x) == 100
         self.l2_xanes.spectrum_type = "EXAFS"
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Only XANES spectrum can be stitched in L23 mode"):
             XAS.stitch(self.l2_xanes, self.l3_xanes, mode="L23")
         self.l2_xanes.absorbing_element = Element("Pt")
         with pytest.raises(ValueError, match="The absorbing elements for spectra are different"):

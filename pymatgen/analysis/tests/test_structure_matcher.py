@@ -580,7 +580,7 @@ class StructureMatcherTest(PymatgenTest):
         # s2 is smaller than s1
         del s2[0]
         del s2[1]
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="subset is larger than superset"):
             sm.get_mapping(s2, s1)
 
     def test_get_supercell_matrix(self):

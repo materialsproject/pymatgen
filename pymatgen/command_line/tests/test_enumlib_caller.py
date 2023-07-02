@@ -86,7 +86,7 @@ class EnumlibAdaptorTest(PymatgenTest):
         # This has been fixed by multiplying the base by 100.
         struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu7Te5.cif"))
         adaptor = EnumlibAdaptor(struct, 1, 2)
-        with pytest.raises(EnumError):
+        with pytest.raises(EnumError, match="Unable to enumerate structure"):
             adaptor.run()
         adaptor = EnumlibAdaptor(struct, 1, 5)
         adaptor.run()

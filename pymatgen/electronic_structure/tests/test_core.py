@@ -17,7 +17,7 @@ class SpinTest(unittest.TestCase):
     def test_from_int(self):
         assert Spin(1) == Spin.up
         assert Spin(-1) == Spin.down
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="0 is not a valid Spin"):
             Spin(0)
 
     def test_cached(self):

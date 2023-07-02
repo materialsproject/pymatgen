@@ -137,7 +137,7 @@ class GulpIOTest(unittest.TestCase):
         assert "lib" in gin
 
     def test_library_line_wrong_file(self):
-        with pytest.raises(GulpError):
+        with pytest.raises(GulpError, match="GULP library not found"):
             self.gio.library_line("temp_to_fail.lib")
 
     def test_buckingham_potential(self):

@@ -545,7 +545,7 @@ class DummySpeciesTestCase(unittest.TestCase):
 
     def test_immutable(self):
         sp = Species("Fe", 2, spin=5)
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, match="property 'spin' of 'Species' object has no setter"):
             sp.spin = 6
         sp.properties["spin"] = 7
         assert sp.spin == 5

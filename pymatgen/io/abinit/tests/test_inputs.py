@@ -88,7 +88,7 @@ class AbinitInputTestCase(PymatgenTest):
         with pytest.raises(inp.Error):
             inp.set_vars(unit_cell)
 
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="type dict does not have `to_abivars` method"):
             inp.add_abiobjects({})
 
         with pytest.raises(KeyError):
@@ -177,7 +177,7 @@ class TestMultiDataset(PymatgenTest):
         pseudo = abiref_file("14si.pspnc")
         pseudo_dir = os.path.dirname(pseudo)
         multi = BasicMultiDataset(structure=structure, pseudos=pseudo)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="ndtset=-1 cannot be <=0"):
             BasicMultiDataset(structure=structure, pseudos=pseudo, ndtset=-1)
 
         multi = BasicMultiDataset(structure=structure, pseudos=pseudo, pseudo_dir=pseudo_dir)

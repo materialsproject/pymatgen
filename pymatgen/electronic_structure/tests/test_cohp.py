@@ -63,7 +63,7 @@ class CohpTest(unittest.TestCase):
         icoop_ef = self.coop.get_interpolated_value(self.coop.efermi, integrated=True)
         assert icohp_ef_dict == approx(icohp_ef)
         assert icoop_ef_dict == approx(icoop_ef)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="ICOHP is empty"):
             self.cohp_only.get_interpolated_value(5.0, integrated=True)
 
     def test_str(self):
@@ -1057,9 +1057,10 @@ class CompleteCohpTest(PymatgenTest):
         assert_array_equal(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
         assert_array_equal(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
         assert_array_equal(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
-        with pytest.raises(ValueError):
+        expected_msg = "label_list and orbital_list don't have the same length"
+        with pytest.raises(ValueError, match=expected_msg):
             self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1"], ["4px-4pz", "4s-4px"])
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=expected_msg):
             self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "2"], ["4s-4px"])
 
     def test_get_summed_cohp_by_label_and_orbital_list_summed_spin_channels(self):
@@ -1085,11 +1086,12 @@ class CompleteCohpTest(PymatgenTest):
         assert_array_equal(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
         assert_array_equal(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
         assert_array_equal(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
-        with pytest.raises(ValueError):
+        expected_msg = "label_list and orbital_list don't have the same length"
+        with pytest.raises(ValueError, match=expected_msg):
             self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(
                 ["1"], ["4px-4pz", "4s-4px"], summed_spin_channels=True
             )
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=expected_msg):
             self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "2"], ["4s-4px"], summed_spin_channels=True)
 
         # files with spin polarization
