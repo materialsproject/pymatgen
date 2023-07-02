@@ -289,9 +289,8 @@ class VasprunTest(PymatgenTest):
 
     def test_unconverged(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.unconverged"
-        with pytest.warns(UnconvergedVASPWarning) as warns:
+        with pytest.warns(UnconvergedVASPWarning, match="vasprun.xml.unconverged is an unconverged VASP run") as warns:
             vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
-        assert f"{filepath} is an unconverged VASP run" in str(warns[0])
         assert len(warns) == 1
 
         assert vasprun_unconverged.converged_ionic
