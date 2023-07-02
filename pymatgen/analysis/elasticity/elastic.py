@@ -7,6 +7,7 @@ stress-strain data.
 from __future__ import annotations
 
 import itertools
+import math
 import warnings
 from typing import TYPE_CHECKING
 
@@ -996,7 +997,7 @@ def generate_pseudo(strain_states, order=3):
             exps = carr.copy()
             for _ in range(degree - 1):
                 exps = np.dot(exps, strain_v)
-            exps /= np.math.factorial(degree - 1)
+            exps /= math.factorial(degree - 1)
             sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
         svec = sarr.ravel()
         present_syms = set.union(*(exp.atoms(sp.Symbol) for exp in svec))

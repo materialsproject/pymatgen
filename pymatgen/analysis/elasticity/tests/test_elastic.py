@@ -448,15 +448,7 @@ class DiffFitTest(PymatgenTest):
         self.assert_all_close(forward_13, [-11 / 6, 3, -3 / 2, 1 / 3])
         self.assert_all_close(
             backward_26,
-            [
-                137 / 180,
-                -27 / 5,
-                33 / 2,
-                -254 / 9,
-                117 / 4,
-                -87 / 5,
-                203 / 45,
-            ],
+            [137 / 180, -27 / 5, 33 / 2, -254 / 9, 117 / 4, -87 / 5, 203 / 45],
         )
         self.assert_all_close(central_29, central_diff_weights(9, 2))
 
