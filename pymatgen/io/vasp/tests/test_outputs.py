@@ -81,9 +81,9 @@ class VasprunTest(PymatgenTest):
             self.TEST_FILES_DIR / "vasprun.xml.dielectric_5.4.4",
             parse_potcar_file=False,
         )
-        assert (v.dielectric is not None) is True
-        assert ("density" in v.dielectric_data) is True
-        assert ("velocity" in v.dielectric_data) is True
+        assert v.dielectric is not None
+        assert "density" in v.dielectric_data
+        assert "velocity" in v.dielectric_data
 
     def test_optical_absorption_coeff(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.BSE.xml.gz")
@@ -720,8 +720,8 @@ class VasprunTest(PymatgenTest):
         assert props[2][0] == approx(0.7969, abs=1e-4)
         assert props[2][1] == approx(0.3415, abs=1e-4)
         assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), abs=1e-4)
-        assert props[3][0] is True
-        assert props[3][1] is True
+        assert props[3][0]
+        assert props[3][1]
 
 
 class OutcarTest(PymatgenTest):
@@ -871,7 +871,7 @@ class OutcarTest(PymatgenTest):
     def test_polarization(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.BaTiO3.polar"
         outcar = Outcar(filepath)
-        assert outcar.spin is True
+        assert outcar.spin
         assert outcar.noncollinear is False
         assert outcar.p_ion == approx([0.0, 0.0, -5.56684])
         assert outcar.p_elec == approx([0.00024, 0.00019, 3.61674])
@@ -1989,8 +1989,8 @@ class EigenvalTest(PymatgenTest):
 
         assert np.array(props)[:3, :2].flat == approx([2.8772, 1.2810, 3.6741, 1.6225, 0.7969, 0.3415], abs=1e-4)
         assert props2[0] == approx(np.min(props[1]) - np.max(props[2]), abs=1e-4)
-        assert props[3][0] is True
-        assert props[3][1] is True
+        assert props[3][0]
+        assert props[3][1]
 
 
 class WavederTest(PymatgenTest):
