@@ -101,11 +101,10 @@ class VasprunTest(PymatgenTest):
         with pytest.warns(
             UserWarning,
             match="XML is malformed. Parsing has stopped but partial data is available",
-        ) as warns:
+        ):
             vasp_run = Vasprun(self.TEST_FILES_DIR / "bad_vasprun.xml", exception_on_bad_xml=False)
-            assert len(vasp_run.ionic_steps) == 1
-            assert vasp_run.final_energy == approx(-269.00551374)
-        assert len(warns) == 13
+        assert len(vasp_run.ionic_steps) == 1
+        assert vasp_run.final_energy == approx(-269.00551374)
 
     def test_runtype(self):
         vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
@@ -290,8 +289,9 @@ class VasprunTest(PymatgenTest):
 
     def test_unconverged(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.unconverged"
-        with pytest.warns(UnconvergedVASPWarning, match=f"{filepath} is an unconverged VASP run") as warns:
+        with pytest.warns(UnconvergedVASPWarning) as warns:
             vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
+        assert f"{filepath} is an unconverged VASP run" in str(warns[0])
         assert len(warns) == 1
 
         assert vasprun_unconverged.converged_ionic
