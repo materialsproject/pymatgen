@@ -871,7 +871,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
             BandStructureSymmLine: with the applied scissor shift
         """
         if self.is_metal():
-            # moves then the highest index band crossing the fermi level find this band...
+            # moves then the highest index band crossing the Fermi level find this band...
             max_index = -1000
             # spin_index = None
             for idx in range(self.nb_bands):

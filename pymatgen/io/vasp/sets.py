@@ -302,7 +302,7 @@ class DictSet(VaspInputSet):
             user_kpoints_settings (dict or Kpoints): Allow user to override kpoints
                 setting by supplying a dict E.g., {"reciprocal_density": 1000}.
                 User can also supply Kpoints object. Default is None.
-            user_potcar_settings (dict: Allow user to override POTCARs. E.g.,
+            user_potcar_settings (dict): Allow user to override POTCARs. E.g.,
                 {"Gd": "Gd_3"}. This is generally not recommended. Default is None.
             constrain_total_magmom (bool): Whether to constrain the total magmom
                 (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
@@ -602,6 +602,7 @@ class DictSet(VaspInputSet):
 
     @property
     def potcar_functional(self) -> UserPotcarFunctional:
+        """Returns the functional used for POTCAR generation."""
         return self.user_potcar_functional
 
     @property
@@ -1940,13 +1941,12 @@ class MVLElasticSet(MPRelaxSet):
     elastic constants.
     """
 
-    def __init__(self, structure: Structure, potim=0.015, **kwargs):
+    def __init__(self, structure: Structure, potim: float = 0.015, **kwargs):
         """
         Args:
-            scale (float): POTIM parameter. The default of 0.015 is usually fine,
+            structure (pymatgen.Structure): Input structure.
+            potim (float): POTIM parameter. The default of 0.015 is usually fine,
                 but some structures may require a smaller step.
-            user_incar_settings (dict): A dict specifying additional incar
-                settings.
             kwargs:
                 Parameters supported by MPRelaxSet.
         """
@@ -2003,6 +2003,8 @@ class MVLGWSet(DictSet):
             nbands_factor (int): Multiplicative factor for NBANDS when starting
                 from a previous calculation. Only applies if mode=="DIAG".
                 Need to be tested for convergence.
+            reciprocal_density (int): Density of k-mesh by reciprocal atom. Only
+                applies if mode=="STATIC". Defaults to 100.
             ncores (int): Numbers of cores used for the calculation. VASP will alter
                 NBANDS if it was not dividable by ncores. Only applies if
                 mode=="DIAG".
@@ -3060,6 +3062,7 @@ class MPAbsorptionSet(MPRelaxSet):
             structure (Structure): Input structure.
             prev_incar (Incar/string): Incar file from previous run.
             mode (str): Supported modes are "IPA", "RPA"
+            copy_wavecar (bool): Whether to copy the WAVECAR from a previous run. Defaults to True.
             nbands (int): For subsequent calculations, it is generally
                 recommended to perform NBANDS convergence starting from the
                 NBANDS of the previous run for DIAG, and to use the exact same
