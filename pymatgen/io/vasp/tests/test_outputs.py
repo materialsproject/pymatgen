@@ -56,20 +56,20 @@ class VasprunTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_vasprun_ml(self):
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.ml_md")
-        assert len(v.md_data) == 100
-        for d in v.md_data:
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.ml_md")
+        assert len(vasp_run.md_data) == 100
+        for d in vasp_run.md_data:
             assert "structure" in d
             assert "forces" in d
             assert "energy" in d
-        assert v.md_data[-1]["energy"]["total"] == approx(-491.51831988)
+        assert vasp_run.md_data[-1]["energy"]["total"] == approx(-491.51831988)
 
     def test_bad_random_seed(self):
         _ = Vasprun(self.TEST_FILES_DIR / "vasprun.bad_random_seed.xml")
 
     def test_multiple_dielectric(self):
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
-        assert len(v.other_dielectric) == 3
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
+        assert len(vasp_run.other_dielectric) == 3
 
     def test_charge_charge_dielectric(self):
         """
@@ -77,17 +77,17 @@ class VasprunTest(PymatgenTest):
         These are the "density-density" and "velocity-velocity" linear response functions.
         See the comments in `linear_optics.F` for details.
         """
-        v = Vasprun(
+        vasp_run = Vasprun(
             self.TEST_FILES_DIR / "vasprun.xml.dielectric_5.4.4",
             parse_potcar_file=False,
         )
-        assert v.dielectric is not None
-        assert "density" in v.dielectric_data
-        assert "velocity" in v.dielectric_data
+        assert vasp_run.dielectric is not None
+        assert "density" in vasp_run.dielectric_data
+        assert "velocity" in vasp_run.dielectric_data
 
     def test_optical_absorption_coeff(self):
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.BSE.xml.gz")
-        absorption_coeff = v.optical_absorption_coeff
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.BSE.xml.gz")
+        absorption_coeff = vasp_run.optical_absorption_coeff
         assert absorption_coeff[1] == 0.8327903762077188
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
@@ -102,61 +102,61 @@ class VasprunTest(PymatgenTest):
             UserWarning,
             match="XML is malformed. Parsing has stopped but partial data is available",
         ) as warns:
-            v = Vasprun(self.TEST_FILES_DIR / "bad_vasprun.xml", exception_on_bad_xml=False)
-            assert len(v.ionic_steps) == 1
-            assert v.final_energy == approx(-269.00551374)
+            vasp_run = Vasprun(self.TEST_FILES_DIR / "bad_vasprun.xml", exception_on_bad_xml=False)
+            assert len(vasp_run.ionic_steps) == 1
+            assert vasp_run.final_energy == approx(-269.00551374)
         assert len(warns) == 13
 
     def test_runtype(self):
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
-        assert v.run_type in "HF"
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
+        assert vasp_run.run_type in "HF"
 
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.pbesol_vdw")
-        assert v.run_type in "PBEsol+vdW-DFT-D3-BJ"
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.pbesol_vdw")
+        assert vasp_run.run_type in "PBEsol+vdW-DFT-D3-BJ"
 
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.hse06")
-        assert v.run_type in "HSE06"
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.hse06")
+        assert vasp_run.run_type in "HSE06"
 
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.scan_rvv10")
-        assert v.run_type in "SCAN+rVV10"
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.scan_rvv10")
+        assert vasp_run.run_type in "SCAN+rVV10"
 
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt.ionic")
-        assert v.run_type in "GGA"
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt.ionic")
+        assert vasp_run.run_type in "GGA"
 
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt")
-        assert v.run_type in "GGA+U"
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt")
+        assert vasp_run.run_type in "GGA+U"
 
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.r2scan")
-        assert v.run_type in "R2SCAN"
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.r2scan")
+        assert vasp_run.run_type in "R2SCAN"
 
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.scan")
-        assert v.run_type in "SCAN"
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.scan")
+        assert vasp_run.run_type in "SCAN"
 
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.pbesol")
-        assert v.run_type in "PBEsol"
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.pbesol")
+        assert vasp_run.run_type in "PBEsol"
 
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.rscan")
-        assert v.run_type in "RSCAN"
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.rscan")
+        assert vasp_run.run_type in "RSCAN"
 
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.random")
-        assert v.run_type in "RANDOMFUNCTIONAL"
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.random")
+        assert vasp_run.run_type in "RANDOMFUNCTIONAL"
 
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.unknown")
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.unknown")
         with pytest.warns(UserWarning, match="Unknown run type!"):
-            assert v.run_type in "unknown"
+            assert vasp_run.run_type in "unknown"
 
     def test_vdw(self):
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.vdw")
-        assert v.final_energy == approx(-9.78310677)
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.vdw")
+        assert vasp_run.final_energy == approx(-9.78310677)
 
     def test_energies(self):
         # VASP 5.4.1
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz")
-        assert v.final_energy == approx(-11.18981538)
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz")
+        assert vasp_run.final_energy == approx(-11.18981538)
 
         # VASP 6.2.1
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest2.gz")
-        assert v.final_energy == approx(-11.18986774)
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest2.gz")
+        assert vasp_run.final_energy == approx(-11.18986774)
 
         # VASP 5.4.1
         o = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest3.gz")
@@ -368,8 +368,8 @@ class VasprunTest(PymatgenTest):
         assert len(vasprun_diel.other_dielectric) == 0
 
     def test_indirect_vasprun(self):
-        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.indirect.gz")
-        (gap, cbm, vbm, direct) = v.eigenvalue_band_properties
+        vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.indirect.gz")
+        (gap, cbm, vbm, direct) = vasp_run.eigenvalue_band_properties
         assert not direct
 
     def test_optical_vasprun(self):

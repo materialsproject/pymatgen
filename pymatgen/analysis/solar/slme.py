@@ -39,8 +39,8 @@ eV_to_recip_cm = 1.0 / (physical_constants["Planck constant in eV s"][0] * speed
 
 def get_dir_indir_gap(run=""):
     """Get direct and indirect bandgaps for a vasprun.xml."""
-    v = Vasprun(run)
-    bandstructure = v.get_band_structure()
+    vasp_run = Vasprun(run)
+    bandstructure = vasp_run.get_band_structure()
     dir_gap = bandstructure.get_direct_band_gap()
     indir_gap = bandstructure.get_band_gap()["energy"]
     return dir_gap, indir_gap
