@@ -233,15 +233,15 @@ class BSDOSPlotterTest(unittest.TestCase):
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
-        v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun_Si_bands.xml"))
+        vasp_run = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun_Si_bands.xml"))
         p = BSDOSPlotter()
         plt = p.get_plot(
-            v.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands"))
+            vasp_run.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands"))
         )
         plt.close()
         plt = p.get_plot(
-            v.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands")),
-            v.complete_dos,
+            vasp_run.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands")),
+            vasp_run.complete_dos,
         )
         plt.close("all")
 

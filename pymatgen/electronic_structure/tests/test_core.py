@@ -96,7 +96,7 @@ class MagmomTest(unittest.TestCase):
             [[2, 2, 2], [-2, -2, -2], [2, 2, 2]],
         ]
         for magmoms in magmoms_list:
-            assert Magmom.are_collinear(magmoms) is True
+            assert Magmom.are_collinear(magmoms)
         ncl_magmoms = [[[0, 0, 1], [0, 0, 1], [1, 2, 3]]]
         assert Magmom.are_collinear(ncl_magmoms) is False
 

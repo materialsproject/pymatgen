@@ -228,9 +228,8 @@ class CorrectionCalculator:
         sigma[sigma == 0] = np.nan
 
         with warnings.catch_warnings():
-            warnings.simplefilter(
-                "ignore", category=RuntimeWarning
-            )  # numpy raises warning if the entire array is nan values
+            # numpy raises warning if the entire array is nan values
+            warnings.simplefilter("ignore", category=RuntimeWarning)
             mean_uncer = np.nanmean(sigma)
 
         sigma = np.where(np.isnan(sigma), mean_uncer, sigma)

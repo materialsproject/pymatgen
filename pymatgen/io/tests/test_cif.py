@@ -752,8 +752,8 @@ loop_
   O  O24  1  0.956628  0.250000  0.292862  1
 
 """
-        cp = CifParser.from_string(cif_structure)
-        s_test = cp.get_structures(False)[0]
+        parser = CifParser.from_string(cif_structure)
+        s_test = parser.get_structures(False)[0]
         filepath = self.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath)
         s_ref = poscar.structure
@@ -775,41 +775,40 @@ loop_
 
     def test_bad_cif(self):
         f = self.TEST_FILES_DIR / "bad_occu.cif"
-        p = CifParser(f)
+        parser = CifParser(f)
         with pytest.raises(ValueError):
-            p.get_structures()
-        p = CifParser(f, occupancy_tolerance=2)
-        s = p.get_structures()[0]
+            parser.get_structures()
+        parser = CifParser(f, occupancy_tolerance=2)
+        s = parser.get_structures()[0]
         assert s[0].species["Al3+"] == approx(0.5)
 
     def test_one_line_symm(self):
         f = self.TEST_FILES_DIR / "OneLineSymmP1.cif"
-        p = CifParser(f)
-        s = p.get_structures()[0]
+        parser = CifParser(f)
+        s = parser.get_structures()[0]
         assert s.formula == "Ga4 Pb2 O8"
 
     def test_no_symmops(self):
         f = self.TEST_FILES_DIR / "nosymm.cif"
-        p = CifParser(f)
-        s = p.get_structures()[0]
+        parser = CifParser(f)
+        s = parser.get_structures()[0]
         assert s.formula == "H96 C60 O8"
 
     def test_dot_positions(self):
         f = self.TEST_FILES_DIR / "ICSD59959.cif"
-        p = CifParser(f)
-        s = p.get_structures()[0]
+        parser = CifParser(f)
+        s = parser.get_structures()[0]
         assert s.formula == "K1 Mn1 F3"
 
     def test_replacing_finite_precision_frac_coords(self):
-        f = self.TEST_FILES_DIR / "cif_finite_precision_frac_coord_error.cif"
-        with warnings.catch_warnings():
-            p = CifParser(f)
-            s = p.get_structures()[0]
-            assert str(s.composition) == "N5+24"
-            assert (
-                "Some fractional coordinates rounded to ideal values to avoid issues with finite precision."
-                in p.warnings
-            )
+        cif = self.TEST_FILES_DIR / "cif_finite_precision_frac_coord_error.cif"
+        parser = CifParser(cif)
+        struct = parser.get_structures()[0]
+        assert str(struct.composition) == "N5+24"
+        assert (
+            "Some fractional coordinates rounded to ideal values to avoid issues with finite precision."
+            in parser.warnings
+        )
 
     def test_empty_deque(self):
         s = """data_1526655
@@ -845,8 +844,8 @@ loop_
   3  -x,-y,-z
   4  x-1/2,-y-1/2,z-1/2
 ;"""
-        p = CifParser.from_string(s)
-        assert p.get_structures()[0].formula == "Si1"
+        parser = CifParser.from_string(s)
+        assert parser.get_structures()[0].formula == "Si1"
         cif = """
 data_1526655
 _journal_name_full
@@ -876,9 +875,9 @@ _atom_site_occupancy
 _atom_site_U_iso_or_equiv
 Si1 Si 0 0 0 1 0.0
 """
-        p = CifParser.from_string(cif)
+        parser = CifParser.from_string(cif)
         with pytest.raises(ValueError):
-            p.get_structures()
+            parser.get_structures()
 
 
 class MagCifTest(PymatgenTest):

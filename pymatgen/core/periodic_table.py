@@ -1262,11 +1262,11 @@ class Species(MSONable, Stringify):
         radii = self._el.data["Shannon radii"]
         radii = radii[str(int(self._oxi_state))][cn]  # type: ignore
         if len(radii) == 1:
-            k, data = list(radii.items())[0]
-            if k != spin:
+            key, data = list(radii.items())[0]
+            if key != spin:
                 warnings.warn(
-                    f"Specified spin state of {spin} not consistent with database "
-                    f"spin of {k}. Only one spin data available, and that value is returned."
+                    f"Specified {spin=} not consistent with database spin of {key}. "
+                    "Only one spin data available, and that value is returned."
                 )
         else:
             data = radii[spin]

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import warnings
 
 import numpy as np
 import pytest
@@ -70,7 +69,7 @@ class XASTest(PymatgenTest):
 
     def test_validate(self):
         y_zeros = np.zeros(len(self.k_xanes.x))
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Double check the intensities. Most of them are non-positive"):
             XAS(
                 self.k_xanes.x,
                 y_zeros,
@@ -88,23 +87,20 @@ class XASTest(PymatgenTest):
         assert min(xafs.x) == approx(min(self.k_xanes.x), abs=1e-2)
         assert max(xafs.y) == approx(max(self.k_xanes.y), abs=1e-2)
         assert xafs.x[np.argmax(np.gradient(xafs.y) / np.gradient(xafs.x))] == approx(self.k_xanes.e0, abs=1e-2)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The input structures for spectra mismatch"):
             XAS.stitch(self.k_xanes, self.l2_xanes, mode="XAFS")
         self.k_xanes.x = np.zeros(100)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Energy overlap between XANES and EXAFS is needed for stitching"):
             XAS.stitch(self.k_xanes, self.k_exafs)
         self.k_xanes.absorbing_element = Element("Pt")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The absorbing elements for spectra are different"):
             XAS.stitch(self.k_xanes, self.k_exafs, mode="XAFS")
 
     def test_stitch_l23(self):
         self.l2_xanes.y[0] = 0.1
-        with warnings.catch_warnings(record=True) as warns:
-            warnings.simplefilter("always")
+        with pytest.warns(UserWarning, match="jump") as warns:
             XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
-            # assert len(warns) == 6
-            assert warns[-1].category is UserWarning
-            assert "jump" in str(warns[-1].message)
+            assert len(warns) == 1
         self.l2_xanes = XAS.from_dict(l2_xanes_dict)
         l23 = XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
         assert isinstance(l23, XAS)
@@ -117,9 +113,9 @@ class XASTest(PymatgenTest):
         with pytest.raises(ValueError):
             XAS.stitch(self.l2_xanes, self.l3_xanes, mode="L23")
         self.l2_xanes.absorbing_element = Element("Pt")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The absorbing elements for spectra are different"):
             XAS.stitch(self.l2_xanes, self.l3_xanes, mode="L23")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The input structures for spectra mismatch"):
             XAS.stitch(self.k_xanes, self.l3_xanes, mode="L23")
 
     def test_site_weighted_spectrum(self):

@@ -7,6 +7,7 @@ stress-strain data.
 from __future__ import annotations
 
 import itertools
+import math
 import warnings
 from typing import TYPE_CHECKING
 
@@ -443,7 +444,7 @@ class ElasticTensor(NthOrderElasticTensor):
     def from_pseudoinverse(cls, strains, stresses):
         """
         Class method to fit an elastic tensor from stress/strain
-        data. Method uses Moore-Penrose pseudoinverse to invert
+        data. Method uses Moore-Penrose pseudo-inverse to invert
         the s = C*e equation with elastic tensor, stress, and
         strain in voigt notation.
 
@@ -453,11 +454,11 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         # convert the stress/strain to Nx6 arrays of voigt-notation
         warnings.warn(
-            "Pseudoinverse fitting of Strain/Stress lists may yield "
+            "Pseudo-inverse fitting of Strain/Stress lists may yield "
             "questionable results from vasp data, use with caution."
         )
         stresses = np.array([Stress(stress).voigt for stress in stresses])
-        with warnings.catch_warnings(record=True):
+        with warnings.catch_warnings():
             strains = np.array([Strain(strain).voigt for strain in strains])
 
         voigt_fit = np.transpose(np.dot(np.linalg.pinv(strains), stresses))
@@ -837,7 +838,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
     3. Find first, second .. nth derivatives of each stress
        with respect to scalar variable corresponding to
        the smallest perturbation in the strain.
-    4. Use the pseudoinverse of a matrix-vector expression
+    4. Use the pseudo-inverse of a matrix-vector expression
        corresponding to the parameterized stress-strain
        relationship and multiply that matrix by the respective
        calculated first or second derivatives from the
@@ -969,13 +970,13 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10,
 
 def generate_pseudo(strain_states, order=3):
     """
-    Generates the pseudoinverse for a given set of strains.
+    Generates the pseudo-inverse for a given set of strains.
 
     Args:
         strain_states (6xN array like): a list of voigt-notation
             "strain-states", i. e. perturbed indices of the strain
             as a function of the smallest strain e. g. (0, 1, 0, 0, 1, 0)
-        order (int): order of pseudoinverse to calculate
+        order (int): order of pseudo-inverse to calculate
 
     Returns:
         mis: pseudo inverses for each order tensor, these can
@@ -996,7 +997,7 @@ def generate_pseudo(strain_states, order=3):
             exps = carr.copy()
             for _ in range(degree - 1):
                 exps = np.dot(exps, strain_v)
-            exps /= np.math.factorial(degree - 1)
+            exps /= math.factorial(degree - 1)
             sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
         svec = sarr.ravel()
         present_syms = set.union(*(exp.atoms(sp.Symbol) for exp in svec))

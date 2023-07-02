@@ -867,7 +867,7 @@ class BruteForceOrderMatcher(KabschMatcher):
         _, count = np.unique(mol.atomic_numbers, return_counts=True)
         total_permutations = 1
         for c in count:
-            total_permutations *= np.math.factorial(c)  # type: ignore
+            total_permutations *= math.factorial(c)
 
         if not ignore_warning and total_permutations > 1_000_000:
             raise ValueError(
