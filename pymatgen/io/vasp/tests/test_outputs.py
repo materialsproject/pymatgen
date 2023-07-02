@@ -167,113 +167,113 @@ class VasprunTest(PymatgenTest):
 
     def test_nonlmn(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.nonlm"
-        vasprun = Vasprun(filepath, parse_potcar_file=False)
-        orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[0]])
+        vasp_run = Vasprun(filepath, parse_potcar_file=False)
+        orbs = list(vasp_run.complete_dos.pdos[vasp_run.final_structure[0]])
         assert OrbitalType.s in orbs
 
     def test_standard(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
-        vasprun = Vasprun(filepath, parse_potcar_file=False)
+        vasp_run = Vasprun(filepath, parse_potcar_file=False)
 
         # Test NELM parsing.
-        assert vasprun.parameters["NELM"] == 60
+        assert vasp_run.parameters["NELM"] == 60
         # test pdos parsing
 
-        assert vasprun.complete_dos.spin_polarization == 1.0
+        assert vasp_run.complete_dos.spin_polarization == 1.0
         assert Vasprun(self.TEST_FILES_DIR / "vasprun.xml.etest1.gz").complete_dos.spin_polarization is None
 
-        pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]
+        pdos0 = vasp_run.complete_dos.pdos[vasp_run.final_structure[0]]
         assert pdos0[Orbital.s][Spin.up][16] == approx(0.0026)
         assert pdos0[Orbital.pz][Spin.down][16] == approx(0.0012)
         assert pdos0[Orbital.s][Spin.up].shape == (301,)
 
-        pdos0_norm = vasprun.complete_dos_normalized.pdos[vasprun.final_structure[0]]
+        pdos0_norm = vasp_run.complete_dos_normalized.pdos[vasp_run.final_structure[0]]
         assert pdos0_norm[Orbital.s][Spin.up][16] == approx(0.0026)  # the site data should not change
         assert pdos0_norm[Orbital.s][Spin.up].shape == (301,)
 
-        cdos_norm, cdos = vasprun.complete_dos_normalized, vasprun.complete_dos
+        cdos_norm, cdos = vasp_run.complete_dos_normalized, vasp_run.complete_dos
         ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
-        assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
+        assert ratio == approx(vasp_run.final_structure.volume)  # the site data should not change
 
         # check you can normalize an existing DOS
         cdos_norm2 = cdos.get_normalized()
         ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm2.densities[Spin.up])
-        assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
+        assert ratio == approx(vasp_run.final_structure.volume)  # the site data should not change
 
         # but doing so twice should not change the data
         cdos_norm3 = cdos_norm2.get_normalized()
         ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm3.densities[Spin.up])
-        assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
+        assert ratio == approx(vasp_run.final_structure.volume)  # the site data should not change
 
-        pdos0_norm = vasprun.complete_dos_normalized.pdos[vasprun.final_structure[0]]
+        pdos0_norm = vasp_run.complete_dos_normalized.pdos[vasp_run.final_structure[0]]
         assert pdos0_norm[Orbital.s][Spin.up][16] == approx(0.0026)  # the site data should not change
         assert pdos0_norm[Orbital.s][Spin.up].shape == (301,)
 
-        cdos_norm, cdos = vasprun.complete_dos_normalized, vasprun.complete_dos
+        cdos_norm, cdos = vasp_run.complete_dos_normalized, vasp_run.complete_dos
         ratio = np.nanmax(cdos.densities[Spin.up] / cdos_norm.densities[Spin.up])
-        assert ratio == approx(vasprun.final_structure.volume)  # the site data should not change
+        assert ratio == approx(vasp_run.final_structure.volume)  # the site data should not change
 
         filepath2 = self.TEST_FILES_DIR / "lifepo4.xml"
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True, parse_potcar_file=False)
-        totalscsteps = sum(len(i["electronic_steps"]) for i in vasprun.ionic_steps)
-        assert len(vasprun.ionic_steps) == 29
-        assert len(vasprun.structures) == len(vasprun.ionic_steps)
+        totalscsteps = sum(len(i["electronic_steps"]) for i in vasp_run.ionic_steps)
+        assert len(vasp_run.ionic_steps) == 29
+        assert len(vasp_run.structures) == len(vasp_run.ionic_steps)
 
-        trajectory = vasprun.get_trajectory()
-        assert len(trajectory) == len(vasprun.ionic_steps)
+        trajectory = vasp_run.get_trajectory()
+        assert len(trajectory) == len(vasp_run.ionic_steps)
         assert "forces" in trajectory[0].site_properties
 
-        for i, step in enumerate(vasprun.ionic_steps):
-            assert vasprun.structures[i] == step["structure"]
+        for i, step in enumerate(vasp_run.ionic_steps):
+            assert vasp_run.structures[i] == step["structure"]
 
         assert all(
-            vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps))
+            vasp_run.structures[i] == vasp_run.ionic_steps[i]["structure"] for i in range(len(vasp_run.ionic_steps))
         )
 
         assert totalscsteps == 308, "Incorrect number of energies read from vasprun.xml"
 
-        assert ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"] == vasprun.atomic_symbols
-        assert vasprun.final_structure.composition.reduced_formula == "LiFe4(PO4)4"
-        assert vasprun.incar is not None, "Incar cannot be read"
-        assert vasprun.kpoints is not None, "Kpoints cannot be read"
-        assert vasprun.eigenvalues is not None, "Eigenvalues cannot be read"
-        assert vasprun.final_energy == approx(-269.38319884, abs=1e-7)
-        assert vasprun.tdos.get_gap() == approx(2.0589, abs=1e-4)
+        assert ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"] == vasp_run.atomic_symbols
+        assert vasp_run.final_structure.composition.reduced_formula == "LiFe4(PO4)4"
+        assert vasp_run.incar is not None, "Incar cannot be read"
+        assert vasp_run.kpoints is not None, "Kpoints cannot be read"
+        assert vasp_run.eigenvalues is not None, "Eigenvalues cannot be read"
+        assert vasp_run.final_energy == approx(-269.38319884, abs=1e-7)
+        assert vasp_run.tdos.get_gap() == approx(2.0589, abs=1e-4)
         expectedans = (2.539, 4.0906, 1.5516, False)
-        (gap, cbm, vbm, direct) = vasprun.eigenvalue_band_properties
+        (gap, cbm, vbm, direct) = vasp_run.eigenvalue_band_properties
         assert gap == approx(expectedans[0])
         assert cbm == approx(expectedans[1])
         assert vbm == approx(expectedans[2])
         assert direct == expectedans[3]
-        assert not vasprun.is_hubbard
-        assert vasprun.potcar_symbols == [
+        assert not vasp_run.is_hubbard
+        assert vasp_run.potcar_symbols == [
             "PAW_PBE Li 17Jan2003",
             "PAW_PBE Fe 06Sep2000",
             "PAW_PBE Fe 06Sep2000",
             "PAW_PBE P 17Jan2003",
             "PAW_PBE O 08Apr2002",
         ]
-        assert vasprun.kpoints is not None, "Kpoints cannot be read"
-        assert vasprun.actual_kpoints is not None, "Actual kpoints cannot be read"
-        assert vasprun.actual_kpoints_weights is not None, "Actual kpoints weights cannot be read"
-        for atomdoses in vasprun.pdos:
+        assert vasp_run.kpoints is not None, "Kpoints cannot be read"
+        assert vasp_run.actual_kpoints is not None, "Actual kpoints cannot be read"
+        assert vasp_run.actual_kpoints_weights is not None, "Actual kpoints weights cannot be read"
+        for atomdoses in vasp_run.pdos:
             for orbitaldos in atomdoses:
                 assert orbitaldos is not None, "Partial Dos cannot be read"
 
         # test skipping ionic steps.
         vasprun_skip = Vasprun(filepath, 3, parse_potcar_file=False)
         assert vasprun_skip.nionic_steps == 29
-        assert len(vasprun_skip.ionic_steps) == int(vasprun.nionic_steps / 3) + 1
+        assert len(vasprun_skip.ionic_steps) == int(vasp_run.nionic_steps / 3) + 1
         assert len(vasprun_skip.ionic_steps) == len(vasprun_skip.structures)
-        assert len(vasprun_skip.ionic_steps) == int(vasprun.nionic_steps / 3) + 1
+        assert len(vasprun_skip.ionic_steps) == int(vasp_run.nionic_steps / 3) + 1
         # Check that nionic_steps is preserved no matter what.
-        assert vasprun_skip.nionic_steps == vasprun.nionic_steps
+        assert vasprun_skip.nionic_steps == vasp_run.nionic_steps
 
-        assert vasprun_skip.final_energy != approx(vasprun.final_energy)
+        assert vasprun_skip.final_energy != approx(vasp_run.final_energy)
 
         # Test with ionic_step_offset
         vasprun_offset = Vasprun(filepath, 3, 6, parse_potcar_file=False)
-        assert len(vasprun_offset.ionic_steps) == int(len(vasprun.ionic_steps) / 3) - 1
+        assert len(vasprun_offset.ionic_steps) == int(len(vasp_run.ionic_steps) / 3) - 1
         assert vasprun_offset.structures[0] == vasprun_skip.structures[2]
 
         assert vasprun_ggau.is_hubbard
@@ -283,7 +283,7 @@ class VasprunTest(PymatgenTest):
         assert d["elements"] == ["Fe", "Li", "O", "P"]
         assert d["nelements"] == 4
 
-        entry = vasprun.get_computed_entry(inc_structure=True)
+        entry = vasp_run.get_computed_entry(inc_structure=True)
         assert entry.entry_id.startswith("vasprun")
         assert entry.parameters["run_type"] == "PBEO or other Hybrid Functional"
 
@@ -460,16 +460,16 @@ class VasprunTest(PymatgenTest):
 
     def test_as_dict(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
-        vasprun = Vasprun(filepath, parse_potcar_file=False)
+        vasp_run = Vasprun(filepath, parse_potcar_file=False)
         # Test that as_dict() is json-serializable
-        assert json.dumps(vasprun.as_dict()) is not None
-        assert vasprun.as_dict()["input"]["potcar_type"] == ["PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE"]
-        assert vasprun.as_dict()["input"]["nkpoints"] == 24
+        assert json.dumps(vasp_run.as_dict()) is not None
+        assert vasp_run.as_dict()["input"]["potcar_type"] == ["PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE"]
+        assert vasp_run.as_dict()["input"]["nkpoints"] == 24
 
     def test_get_band_structure(self):
         filepath = self.TEST_FILES_DIR / "vasprun_Si_bands.xml"
-        vasprun = Vasprun(filepath, parse_projected_eigen=True, parse_potcar_file=False)
-        bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS_Si_bands")
+        vasp_run = Vasprun(filepath, parse_projected_eigen=True, parse_potcar_file=False)
+        bs = vasp_run.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS_Si_bands")
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [13], "wrong cbm kpoint index"
@@ -490,16 +490,16 @@ class VasprunTest(PymatgenTest):
         copyfile(self.TEST_FILES_DIR / "vasprun_Si_bands.xml", "vasprun.xml")
 
         # Check for error if no KPOINTS file
-        vasprun = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
+        vasp_run = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
         with pytest.raises(
             VaspParserError, match="KPOINTS not found but needed to obtain band structure along symmetry lines"
         ):
-            _ = vasprun.get_band_structure(line_mode=True)
+            _ = vasp_run.get_band_structure(line_mode=True)
 
         # Check KPOINTS.gz successfully inferred and used if present
         with open(self.TEST_FILES_DIR / "KPOINTS_Si_bands", "rb") as f_in, gzip.open("KPOINTS.gz", "wb") as f_out:
             copyfileobj(f_in, f_out)
-        bs_kpts_gzip = vasprun.get_band_structure()
+        bs_kpts_gzip = vasp_run.get_band_structure()
         assert bs.efermi == bs_kpts_gzip.efermi
         assert bs.as_dict() == bs_kpts_gzip.as_dict()
 
@@ -510,18 +510,18 @@ class VasprunTest(PymatgenTest):
             os.path.join("deeper", "vasprun.xml.gz"), "wb"
         ) as f_out:
             copyfileobj(f_in, f_out)
-        vasprun = Vasprun(
+        vasp_run = Vasprun(
             os.path.join("deeper", "vasprun.xml.gz"),
             parse_projected_eigen=True,
             parse_potcar_file=False,
         )
-        bs_vasprun_gzip = vasprun.get_band_structure(line_mode=True)
+        bs_vasprun_gzip = vasp_run.get_band_structure(line_mode=True)
         assert bs.efermi == bs_vasprun_gzip.efermi
         assert bs.as_dict() == bs_vasprun_gzip.as_dict()
 
         # test hybrid band structures
-        vasprun.actual_kpoints_weights[-1] = 0.0
-        bs = vasprun.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS_Si_bands")
+        vasp_run.actual_kpoints_weights[-1] = 0.0
+        bs = vasp_run.get_band_structure(kpoints_filename=self.TEST_FILES_DIR / "KPOINTS_Si_bands")
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         assert cbm["kpoint_index"] == [0]
@@ -532,12 +532,12 @@ class VasprunTest(PymatgenTest):
         assert vbm["kpoint"].label is None
 
         # test self-consistent band structure calculation for non-hybrid functionals
-        vasprun = Vasprun(
+        vasp_run = Vasprun(
             self.TEST_FILES_DIR / "vasprun.xml.forcehybridlikecalc",
             parse_projected_eigen=True,
             parse_potcar_file=False,
         )
-        bs = vasprun.get_band_structure(
+        bs = vasp_run.get_band_structure(
             kpoints_filename=self.TEST_FILES_DIR / "KPOINTS.forcehybridlikecalc",
             force_hybrid_mode=True,
             line_mode=True,
@@ -553,10 +553,10 @@ class VasprunTest(PymatgenTest):
 
     def test_projected_magnetisation(self):
         filepath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
-        vasprun = Vasprun(filepath, parse_projected_eigen=True)
-        assert vasprun.projected_magnetisation is not None
-        assert vasprun.projected_magnetisation.shape == (76, 240, 4, 9, 3)
-        assert vasprun.projected_magnetisation[0, 0, 0, 0, 0] == approx(-0.0712)
+        vasp_run = Vasprun(filepath, parse_projected_eigen=True)
+        assert vasp_run.projected_magnetisation is not None
+        assert vasp_run.projected_magnetisation.shape == (76, 240, 4, 9, 3)
+        assert vasp_run.projected_magnetisation[0, 0, 0, 0, 0] == approx(-0.0712)
 
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band
@@ -592,19 +592,18 @@ class VasprunTest(PymatgenTest):
 
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.sc_overflow"
-        with pytest.warns(UserWarning, match="Float overflow .* encountered in vasprun") as warns:
-            vasprun = Vasprun(filepath)
-            assert len(warns) == 15
-        vasprun = Vasprun(filepath)
-        estep = vasprun.ionic_steps[0]["electronic_steps"][29]
+        with pytest.warns(UserWarning, match="Float overflow .* encountered in vasprun"):
+            vasp_run = Vasprun(filepath)
+        vasp_run = Vasprun(filepath)
+        estep = vasp_run.ionic_steps[0]["electronic_steps"][29]
         assert np.isnan(estep["e_wo_entrp"])
 
     def test_update_potcar(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
         potcar_path = self.TEST_FILES_DIR / "POTCAR.LiFePO4.gz"
         potcar_path2 = self.TEST_FILES_DIR / "POTCAR2.LiFePO4.gz"
-        vasprun = Vasprun(filepath, parse_potcar_file=False)
-        assert vasprun.potcar_spec == [
+        vasp_run = Vasprun(filepath, parse_potcar_file=False)
+        assert vasp_run.potcar_spec == [
             {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
             {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
             {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
@@ -612,8 +611,8 @@ class VasprunTest(PymatgenTest):
             {"titel": "PAW_PBE O 08Apr2002", "hash": None},
         ]
 
-        vasprun.update_potcar_spec(potcar_path)
-        assert vasprun.potcar_spec == [
+        vasp_run.update_potcar_spec(potcar_path)
+        assert vasp_run.potcar_spec == [
             {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
             {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
             {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
@@ -624,9 +623,9 @@ class VasprunTest(PymatgenTest):
         vasprun2 = Vasprun(filepath, parse_potcar_file=False)
         with pytest.raises(ValueError, match="Potcar TITELs do not match Vasprun"):
             vasprun2.update_potcar_spec(potcar_path2)
-        vasprun = Vasprun(filepath, parse_potcar_file=potcar_path)
+        vasp_run = Vasprun(filepath, parse_potcar_file=potcar_path)
 
-        assert vasprun.potcar_spec == [
+        assert vasp_run.potcar_spec == [
             {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
             {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
             {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
@@ -639,8 +638,8 @@ class VasprunTest(PymatgenTest):
 
     def test_search_for_potcar(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
-        vasprun = Vasprun(filepath, parse_potcar_file=True)
-        assert [spec["titel"] for spec in vasprun.potcar_spec] == [
+        vasp_run = Vasprun(filepath, parse_potcar_file=True)
+        assert [spec["titel"] for spec in vasp_run.potcar_spec] == [
             "PAW_PBE Li 17Jan2003",
             "PAW_PBE Fe 06Sep2000",
             "PAW_PBE Fe 06Sep2000",
@@ -652,9 +651,9 @@ class VasprunTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "vasprun.xml"
         # Ensure no potcar is found and nothing is updated
         with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in") as warns:
-            vasprun = Vasprun(filepath, parse_potcar_file=".")
+            vasp_run = Vasprun(filepath, parse_potcar_file=".")
         assert len(warns) == 2
-        assert vasprun.potcar_spec == [
+        assert vasp_run.potcar_spec == [
             {"titel": "PAW_PBE Li 17Jan2003", "hash": None},
             {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
             {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
@@ -664,41 +663,41 @@ class VasprunTest(PymatgenTest):
 
     def test_parsing_chemical_shift_calculations(self):
         filepath = self.TEST_FILES_DIR / "nmr" / "cs" / "basic" / "vasprun.xml.chemical_shift.scstep"
-        vasprun = Vasprun(filepath)
-        nestep = len(vasprun.ionic_steps[-1]["electronic_steps"])
+        vasp_run = Vasprun(filepath)
+        nestep = len(vasp_run.ionic_steps[-1]["electronic_steps"])
         assert nestep == 10
-        assert vasprun.converged
+        assert vasp_run.converged
 
     def test_parsing_efg_calcs(self):
         filepath = self.TEST_FILES_DIR / "nmr" / "efg" / "AlPO4" / "vasprun.xml"
-        vasprun = Vasprun(filepath)
-        nestep = len(vasprun.ionic_steps[-1]["electronic_steps"])
+        vasp_run = Vasprun(filepath)
+        nestep = len(vasp_run.ionic_steps[-1]["electronic_steps"])
         assert nestep == 18
-        assert vasprun.converged
+        assert vasp_run.converged
 
     def test_charged_structure(self):
         vpath = self.TEST_FILES_DIR / "vasprun.charged.xml"
         potcar_path = self.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Si.gz"
-        vasprun = Vasprun(vpath, parse_potcar_file=False)
-        vasprun.update_charge_from_potcar(potcar_path)
-        assert vasprun.parameters.get("NELECT", 8) == 9
-        assert vasprun.structures[0].charge == -1
-        assert vasprun.initial_structure.charge == -1
-        assert vasprun.final_structure.charge == -1
+        vasp_run = Vasprun(vpath, parse_potcar_file=False)
+        vasp_run.update_charge_from_potcar(potcar_path)
+        assert vasp_run.parameters.get("NELECT", 8) == 9
+        assert vasp_run.structures[0].charge == -1
+        assert vasp_run.initial_structure.charge == -1
+        assert vasp_run.final_structure.charge == -1
 
         vpath = self.TEST_FILES_DIR / "vasprun.split.charged.xml"
         potcar_path = self.TEST_FILES_DIR / "POTCAR.split.charged.gz"
-        vasprun = Vasprun(vpath, parse_potcar_file=False)
-        vasprun.update_charge_from_potcar(potcar_path)
-        assert vasprun.parameters.get("NELECT", 0) == 7
-        assert vasprun.structures[-1].charge == -1
-        assert vasprun.initial_structure.charge == -1
-        assert vasprun.final_structure.charge == -1
+        vasp_run = Vasprun(vpath, parse_potcar_file=False)
+        vasp_run.update_charge_from_potcar(potcar_path)
+        assert vasp_run.parameters.get("NELECT", 0) == 7
+        assert vasp_run.structures[-1].charge == -1
+        assert vasp_run.initial_structure.charge == -1
+        assert vasp_run.final_structure.charge == -1
 
     def test_kpointset_electronvelocities(self):
         vpath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
-        vasprun = Vasprun(vpath, parse_potcar_file=False)
-        assert vasprun.eigenvalues[Spin.up].shape[0] == len(vasprun.actual_kpoints)
+        vasp_run = Vasprun(vpath, parse_potcar_file=False)
+        assert vasp_run.eigenvalues[Spin.up].shape[0] == len(vasp_run.actual_kpoints)
 
     def test_eigenvalue_band_properties_separate_spins(self):
         eig = Vasprun(self.TEST_FILES_DIR / "vasprun_eig_separate_spins.xml.gz", separate_spins=True)
