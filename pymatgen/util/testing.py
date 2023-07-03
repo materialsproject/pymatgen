@@ -58,7 +58,7 @@ class PymatgenTest(unittest.TestCase):
     """
 
     _multiprocess_shared_ = True
-    TEST_FILES_DIR = f"{SETTINGS.get('PMG_TEST_FILES_DIR', ROOT)}/test_files"
+    TEST_FILES_DIR = SETTINGS.get("PMG_TEST_FILES_DIR") or f"{ROOT}/test_files"
 
     @pytest.fixture(autouse=True)  # make all tests run a in a temporary directory accessible via self.tmp_path
     def _tmp_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
