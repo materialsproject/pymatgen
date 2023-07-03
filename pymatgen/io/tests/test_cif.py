@@ -901,6 +901,7 @@ Si1 Si 0 0 0 1 0.0
         p = CifParser.from_string(cif)
         with pytest.raises(ValueError):
             p.get_structures()
+    
     def test_skip_checks(self):
         structure = CifParser(
             self.TEST_FILES_DIR / "Skip_checks_test.cif", occupancy_tolerance=10000000
