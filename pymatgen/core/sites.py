@@ -197,7 +197,7 @@ class Site(collections.abc.Hashable, MSONable):
             and self.properties == other.properties
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
@@ -332,7 +332,7 @@ class PeriodicSite(Site, MSONable):
         self._coords: np.ndarray | None = None
         self.properties: dict = properties or {}
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """
         Minimally effective hash function that just distinguishes between Sites
         with different elements.

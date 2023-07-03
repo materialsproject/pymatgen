@@ -471,13 +471,12 @@ class Simplex(MSONable):
             return NotImplemented
         return any(np.allclose(p, other.coords) for p in itertools.permutations(self._coords))
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return len(self._coords)
 
     def __repr__(self):
         output = [f"{self.simplex_dim}-simplex in {self.space_dim}D space\nVertices:"]
-        for coord in self._coords:
-            output.append(f"\t({', '.join(map(str, coord))})")
+        output += [f"\t({', '.join(map(str, coord))})" for coord in self._coords]
         return "\n".join(output)
 
     @property

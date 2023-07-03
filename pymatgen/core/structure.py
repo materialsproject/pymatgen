@@ -3098,7 +3098,7 @@ class IMolecule(SiteCollection, MSONable):
         all_dist = sorted(all_dist, key=lambda x: x[0])
         return [d[1] for d in all_dist]
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # For now, just use the composition hash code.
         return hash(self.composition)
 

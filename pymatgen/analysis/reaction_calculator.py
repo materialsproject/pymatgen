@@ -172,7 +172,7 @@ class BalancedReaction(MSONable):
                 return False
         return True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return 7
 
     @classmethod

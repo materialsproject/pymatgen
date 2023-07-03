@@ -925,7 +925,7 @@ class Lattice(MSONable):
             return True
         return np.allclose(self.matrix, other.matrix) and self.pbc == other.pbc  # type: ignore
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return 7
 
     def __str__(self):
