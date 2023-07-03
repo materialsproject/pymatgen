@@ -901,6 +901,11 @@ Si1 Si 0 0 0 1 0.0
         p = CifParser.from_string(cif)
         with pytest.raises(ValueError):
             p.get_structures()
+    def test_skip_checks(self):
+        structure = CifParser(
+            self.TEST_FILES_DIR / "Skip_checks_test.cif", occupancy_tolerance=10000000
+        ).get_structures(primitive=False, symmetrized=True, skip_checks=True)[0]
+        assert structure[0].species.as_dict()["O"] == 1.36
 
 
 class MagCifTest(PymatgenTest):
@@ -1178,17 +1183,3 @@ loop_
 }
 """
         assert self.mcif_ncl.get_bibtex_string() == ref_bibtex_string
-
-
-class Test_Skip_Checks(PymatgenTest):
-    def setUp(self):
-        self.structure = CifParser(
-            self.TEST_FILES_DIR / "Skip_checks_test.cif", occupancy_tolerance=10000000
-        ).get_structures(primitive=False, symmetrized=True, skip_checks=True)[0]
-
-    def test_skip_checks(self):
-        assert self.structure[0].species.as_dict()["O"] == 1.36
-
-
-if __name__ == "__main__":
-    unittest.main()

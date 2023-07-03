@@ -943,67 +943,33 @@ class CifParser:
                 occu = str2float(data["_atom_site_occupancy"][i])
             except (KeyError, ValueError):
                 occu = 1
-
+            coord = (x, y, z)
+            match = get_matching_coord(coord)
             if skip_checks:
                 if occu > 0:
-                    coord = (x, y, z)
-                    match = get_matching_coord(coord)
                     comp_d = {el: occu}
-                    if num_h > 0:
-                        comp_d["H"] = num_h
-                        self.warnings.append(
-                            "Structure has implicit hydrogens defined, "
-                            "parsed structure unlikely to be suitable for use "
-                            "in calculations unless hydrogens added."
-                        )
-                    comp = Composition(comp_d)
-                    if not match:
-                        coord_to_species[coord] = comp
-                        coord_to_magmoms[coord] = magmom
-                    else:
-                        coord_to_species[match] += comp
-                        # disordered magnetic not currently supported
-                        coord_to_magmoms[match] = None
                 else:
-                    coord = (x, y, z)
-                    match = get_matching_coord(coord)
                     comp_d = {el: 0.00000001}
-                    if num_h > 0:
-                        comp_d["H"] = num_h
-                        self.warnings.append(
-                            "Structure has implicit hydrogens defined, "
-                            "parsed structure unlikely to be suitable for use "
-                            "in calculations unless hydrogens added."
-                        )
-                    comp = Composition(comp_d)
-                    if not match:
-                        coord_to_species[coord] = comp
-                        coord_to_magmoms[coord] = magmom
-                    else:
-                        coord_to_species[match] += comp
-                        # disordered magnetic not currently supported
-                        coord_to_magmoms[match] = None
             else:
                 if occu > 0:
-                    coord = (x, y, z)
-                    match = get_matching_coord(coord)
                     comp_d = {el: occu}
-                    if num_h > 0:
-                        comp_d["H"] = num_h
-                        self.warnings.append(
-                            "Structure has implicit hydrogens defined, "
-                            "parsed structure unlikely to be suitable for use "
-                            "in calculations unless hydrogens added."
-                        )
-                    comp = Composition(comp_d)
-                    if not match:
-                        coord_to_species[coord] = comp
-                        coord_to_magmoms[coord] = magmom
-                    else:
-                        coord_to_species[match] += comp
-                        # disordered magnetic not currently supported
-                        coord_to_magmoms[match] = None
-
+            if comp_d:        
+                if num_h > 0:
+                    comp_d["H"] = num_h
+                    self.warnings.append(
+                        "Structure has implicit hydrogens defined, "
+                        "parsed structure unlikely to be suitable for use "
+                        "in calculations unless hydrogens added."
+                    )
+                comp = Composition(comp_d)
+                if not match:
+                    coord_to_species[coord] = comp
+                    coord_to_magmoms[coord] = magmom
+                else:
+                    coord_to_species[match] += comp
+                    # disordered magnetic not currently supported
+                    coord_to_magmoms[match] = None
+            comp_d = None
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
         ]
