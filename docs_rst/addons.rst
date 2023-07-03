@@ -31,6 +31,9 @@ Add-ons for Input/Output
 * `pymatgen-io-fleur <http://pypi.org/project/pymatgen-io-fleur>`_: Provides modules for reading and writing
   files used by the `fleur <https://www.flapw.de/rel>`_ DFT code. This package is maintained by the juDFT team.
 
+* `pymatgen-io-openmm <https://github.com/orionarcher/pymatgen-io-openmm>`_: Provides easy IO for performing 
+  molecular dynamics on solutions with OpenMM. This package is maintained by Orion Archer Cohen.
+
 Add-ons for External Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -42,16 +45,12 @@ External Tools
 If you would like your own tool to be listed here, please `submit a PR <https://github.com/materialsproject/pymatgen/edit/master/docs_rst/addons.rst>`_! For a more complete but less curated list, have a
 look at `pymatgen dependents <https://github.com/materialsproject/pymatgen/network/dependents>`_.
 
-* `QuAcc <https://github.com/arosen93/quacc>`_: A platform to enable high-throughput, database-driven quantum
-  chemistry and computational materials science.
+* `Atomate2 <https://github.com/materialsproject/atomate2>`_: atomate2 is a library of computational materials science workflows.
 
 * `LobsterPy <https://github.com/JaGeo/LobsterPy>`_: Automatically analyze `Lobster runs <https://cohp.de>_`.
 
 * `pymatviz <https://github.com/janosh/pymatviz>`_: Complements ``pymatgen`` with additional plotting
   functionality for larger datasets common in materials informatics.
-
-* `M3GNet <https://github.com/materialsvirtuallab/m3gnet>`_: Materials graph network with 3-body interactions featuring
-  a DFT surrogate crystal relaxer and property predictor.
 
 * `DiSCoVeR <https://github.com/sparks-baird/mat_discover>`_: A materials discovery algorithm geared towards exploring
   high-performance candidates in new chemical spaces.

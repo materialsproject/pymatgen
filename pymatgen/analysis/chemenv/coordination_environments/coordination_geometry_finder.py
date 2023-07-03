@@ -1,6 +1,6 @@
 """
 This module contains the main object used to identify the coordination environments in a given structure.
-If you use this module, please cite the following:
+If you use this module, please cite:
 David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,
 Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,
 "Statistical analysis of coordination environments in oxides",
@@ -43,11 +43,11 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
     sort_separation,
     sort_separation_tuple,
 )
-from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.due import Doi, due
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -59,6 +59,15 @@ __date__ = "Feb 20, 2016"
 
 debug = False
 DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]
+
+due.cite(
+    Doi("10.1021/acs.chemmater.7b02766"),
+    description="Statistical analysis of coordination environments in oxides",
+)
+due.cite(
+    Doi("10.1107/S2052520620007994"),
+    description="ChemEnv: a fast and robust coordination environment identification tool",
+)
 
 
 class AbstractGeometry:
@@ -362,7 +371,6 @@ class LocalGeometryFinder:
         plane_ordering_override: bool = True,
         plane_safe_permutations: bool = False,
         only_symbols=None,
-        print_citation: bool = False,
     ):
         """
         Args:
@@ -371,7 +379,6 @@ class LocalGeometryFinder:
             plane_ordering_override: If set to False, the ordering of the points in the plane is disabled
             plane_safe_permutations: Whether to use safe permutations.
             only_symbols: Whether to restrict the list of environments to be identified.
-            print_citation: If True, the ChemEnv citation will be printed.
         """
         self.allcg = AllCoordinationGeometries(
             permutations_safe_override=permutations_safe_override,
@@ -386,8 +393,6 @@ class LocalGeometryFinder:
             bva_distance_scale_factor=None,
             structure_refinement=self.STRUCTURE_REFINEMENT_NONE,
         )
-        if print_citation:
-            print(chemenv_citations())
 
     def setup_parameters(
         self,
@@ -870,44 +875,44 @@ class LocalGeometryFinder:
         else:
             logging.debug("Getting StructureEnvironments with standard algorithm")
             cncgsm = self.get_coordination_symmetry_measures()
-        for cg, d in cncgsm.items():
+        for coord_geom_symb, dct in cncgsm.items():
             other_csms = {
-                "csm_wocs_ctwocc": d["csm_wocs_ctwocc"],
-                "csm_wocs_ctwcc": d["csm_wocs_ctwcc"],
-                "csm_wocs_csc": d["csm_wocs_csc"],
-                "csm_wcs_ctwocc": d["csm_wcs_ctwocc"],
-                "csm_wcs_ctwcc": d["csm_wcs_ctwcc"],
-                "csm_wcs_csc": d["csm_wcs_csc"],
-                "rotation_matrix_wocs_ctwocc": d["rotation_matrix_wocs_ctwocc"],
-                "rotation_matrix_wocs_ctwcc": d["rotation_matrix_wocs_ctwcc"],
-                "rotation_matrix_wocs_csc": d["rotation_matrix_wocs_csc"],
-                "rotation_matrix_wcs_ctwocc": d["rotation_matrix_wcs_ctwocc"],
-                "rotation_matrix_wcs_ctwcc": d["rotation_matrix_wcs_ctwcc"],
-                "rotation_matrix_wcs_csc": d["rotation_matrix_wcs_csc"],
-                "scaling_factor_wocs_ctwocc": d["scaling_factor_wocs_ctwocc"],
-                "scaling_factor_wocs_ctwcc": d["scaling_factor_wocs_ctwcc"],
-                "scaling_factor_wocs_csc": d["scaling_factor_wocs_csc"],
-                "scaling_factor_wcs_ctwocc": d["scaling_factor_wcs_ctwocc"],
-                "scaling_factor_wcs_ctwcc": d["scaling_factor_wcs_ctwcc"],
-                "scaling_factor_wcs_csc": d["scaling_factor_wcs_csc"],
-                "translation_vector_wocs_ctwocc": d["translation_vector_wocs_ctwocc"],
-                "translation_vector_wocs_ctwcc": d["translation_vector_wocs_ctwcc"],
-                "translation_vector_wocs_csc": d["translation_vector_wocs_csc"],
-                "translation_vector_wcs_ctwocc": d["translation_vector_wcs_ctwocc"],
-                "translation_vector_wcs_ctwcc": d["translation_vector_wcs_ctwcc"],
-                "translation_vector_wcs_csc": d["translation_vector_wcs_csc"],
+                "csm_wocs_ctwocc": dct["csm_wocs_ctwocc"],
+                "csm_wocs_ctwcc": dct["csm_wocs_ctwcc"],
+                "csm_wocs_csc": dct["csm_wocs_csc"],
+                "csm_wcs_ctwocc": dct["csm_wcs_ctwocc"],
+                "csm_wcs_ctwcc": dct["csm_wcs_ctwcc"],
+                "csm_wcs_csc": dct["csm_wcs_csc"],
+                "rotation_matrix_wocs_ctwocc": dct["rotation_matrix_wocs_ctwocc"],
+                "rotation_matrix_wocs_ctwcc": dct["rotation_matrix_wocs_ctwcc"],
+                "rotation_matrix_wocs_csc": dct["rotation_matrix_wocs_csc"],
+                "rotation_matrix_wcs_ctwocc": dct["rotation_matrix_wcs_ctwocc"],
+                "rotation_matrix_wcs_ctwcc": dct["rotation_matrix_wcs_ctwcc"],
+                "rotation_matrix_wcs_csc": dct["rotation_matrix_wcs_csc"],
+                "scaling_factor_wocs_ctwocc": dct["scaling_factor_wocs_ctwocc"],
+                "scaling_factor_wocs_ctwcc": dct["scaling_factor_wocs_ctwcc"],
+                "scaling_factor_wocs_csc": dct["scaling_factor_wocs_csc"],
+                "scaling_factor_wcs_ctwocc": dct["scaling_factor_wcs_ctwocc"],
+                "scaling_factor_wcs_ctwcc": dct["scaling_factor_wcs_ctwcc"],
+                "scaling_factor_wcs_csc": dct["scaling_factor_wcs_csc"],
+                "translation_vector_wocs_ctwocc": dct["translation_vector_wocs_ctwocc"],
+                "translation_vector_wocs_ctwcc": dct["translation_vector_wocs_ctwcc"],
+                "translation_vector_wocs_csc": dct["translation_vector_wocs_csc"],
+                "translation_vector_wcs_ctwocc": dct["translation_vector_wcs_ctwocc"],
+                "translation_vector_wcs_ctwcc": dct["translation_vector_wcs_ctwcc"],
+                "translation_vector_wcs_csc": dct["translation_vector_wcs_csc"],
             }
             ce.add_coord_geom(
-                cg,
-                d["csm"],
-                algo=d["algo"],
-                permutation=d["indices"],
-                local2perfect_map=d["local2perfect_map"],
-                perfect2local_map=d["perfect2local_map"],
+                coord_geom_symb,
+                dct["csm"],
+                algo=dct["algo"],
+                permutation=dct["indices"],
+                local2perfect_map=dct["local2perfect_map"],
+                perfect2local_map=dct["perfect2local_map"],
                 detailed_voronoi_index={"cn": cn, "index": inb_set},
                 other_symmetry_measures=other_csms,
-                rotation_matrix=d["rotation_matrix"],
-                scaling_factor=d["scaling_factor"],
+                rotation_matrix=dct["rotation_matrix"],
+                scaling_factor=dct["scaling_factor"],
             )
         se.update_coordination_environments(isite=isite, cn=cn, nb_set=nb_set, ce=ce)
         return ce

@@ -252,6 +252,9 @@ class NearNeighbors:
     def __hash__(self) -> int:
         return len(self.__dict__.items())
 
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}()"
+
     @property
     def structures_allowed(self) -> bool:
         """

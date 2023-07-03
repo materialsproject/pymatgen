@@ -112,7 +112,7 @@ class SetTest(PymatgenTest):
 
         # Validator will trip for kpoints + hfx
         ss.update({"force_eval": {"dft": {"kpoints": {}}}})
-        with pytest.raises(Cp2kValidationError):
+        with pytest.raises(Cp2kValidationError, match="CP2K v2022.1: Does not support hartree fock with kpoints"):
             ss.validate()
 
         ss = DftSet(molecule, basis_and_potential=basis_and_potential, xc_functionals="PBE")

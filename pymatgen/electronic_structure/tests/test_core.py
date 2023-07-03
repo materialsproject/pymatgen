@@ -17,7 +17,7 @@ class SpinTest(unittest.TestCase):
     def test_from_int(self):
         assert Spin(1) == Spin.up
         assert Spin(-1) == Spin.down
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="0 is not a valid Spin"):
             Spin(0)
 
     def test_cached(self):
@@ -28,7 +28,7 @@ class OrbitalTest(unittest.TestCase):
     def test_init(self):
         for orb in Orbital:
             assert Orbital(orb.value) == orb
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="100 is not a valid Orbital"):
             Orbital(100)
 
     def test_cached(self):
@@ -96,7 +96,7 @@ class MagmomTest(unittest.TestCase):
             [[2, 2, 2], [-2, -2, -2], [2, 2, 2]],
         ]
         for magmoms in magmoms_list:
-            assert Magmom.are_collinear(magmoms) is True
+            assert Magmom.are_collinear(magmoms)
         ncl_magmoms = [[[0, 0, 1], [0, 0, 1], [1, 2, 3]]]
         assert Magmom.are_collinear(ncl_magmoms) is False
 

@@ -63,6 +63,7 @@ from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.util.due import Doi, due
 
 MODULE_DIR = Path(__file__).resolve().parent
 # TODO (janosh): replace with following line once PMG is py3.9+ only
@@ -472,7 +473,7 @@ class DictSet(VaspInputSet):
                 for site in structure:
                     if hasattr(site, "magmom"):
                         mag.append(site.magmom)
-                    elif hasattr(site.specie, "spin"):
+                    elif getattr(site.specie, "spin", None) is not None:
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
                         if site.specie.symbol == "Co" and v[str(site.specie)] <= 1.0:
@@ -587,7 +588,7 @@ class DictSet(VaspInputSet):
 
         if all(k.is_metal for k in structure.composition) and incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
             warnings.warn(
-                "Relaxation of likely metal with ISMEAR < 1 detected. Please see VASP "
+                "Relaxation of likely metal with ISMEAR < 1 detected. See VASP "
                 "recommendations on ISMEAR for metals.",
                 BadInputSetWarning,
             )
@@ -601,6 +602,7 @@ class DictSet(VaspInputSet):
 
     @property
     def potcar_functional(self) -> UserPotcarFunctional:
+        """Returns the functional used for POTCAR generation."""
         return self.user_potcar_functional
 
     @property
@@ -825,6 +827,10 @@ def primes_less_than(max_val: int) -> list[int]:
     return res
 
 
+@due.dcite(
+    Doi("10.1016/j.commatsci.2011.02.023"),
+    description="A high-throughput infrastructure for density functional theory calculations",
+)
 class MITRelaxSet(DictSet):
     """
     Standard implementation of VaspInputSet utilizing parameters in the MIT
@@ -871,6 +877,18 @@ class MPRelaxSet(DictSet):
         self.kwargs = kwargs
 
 
+@due.dcite(
+    Doi("10.1021/acs.jpclett.0c02405"),
+    description="AccurAccurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
+)
+@due.dcite(
+    Doi("10.1103/PhysRevLett.115.036402"),
+    description="Strongly Constrained and Appropriately Normed Semilocal Density Functional",
+)
+@due.dcite(
+    Doi("doi:10.1103/PhysRevB.93.155109"),
+    description="Efficient generation of generalized Monkhorst-Pack grids through the use of informatics",
+)
 class MPScanRelaxSet(DictSet):
     """
     Class for writing a relaxation input set using the accurate and numerically
@@ -1902,6 +1920,10 @@ class MPNMRSet(MPStaticSet):
         return incar
 
 
+@due.dcite(
+    Doi("10.1149/2.0061602jes"),
+    description="Elastic Properties of Alkali Superionic Conductor Electrolytes from First Principles Calculations",
+)
 class MVLElasticSet(MPRelaxSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual
@@ -1919,13 +1941,12 @@ class MVLElasticSet(MPRelaxSet):
     elastic constants.
     """
 
-    def __init__(self, structure: Structure, potim=0.015, **kwargs):
+    def __init__(self, structure: Structure, potim: float = 0.015, **kwargs):
         """
         Args:
-            scale (float): POTIM parameter. The default of 0.015 is usually fine,
+            structure (pymatgen.Structure): Input structure.
+            potim (float): POTIM parameter. The default of 0.015 is usually fine,
                 but some structures may require a smaller step.
-            user_incar_settings (dict): A dict specifying additional incar
-                settings.
             kwargs:
                 Parameters supported by MPRelaxSet.
         """
@@ -1982,6 +2003,8 @@ class MVLGWSet(DictSet):
             nbands_factor (int): Multiplicative factor for NBANDS when starting
                 from a previous calculation. Only applies if mode=="DIAG".
                 Need to be tested for convergence.
+            reciprocal_density (int): Density of k-mesh by reciprocal atom. Only
+                applies if mode=="STATIC". Defaults to 100.
             ncores (int): Numbers of cores used for the calculation. VASP will alter
                 NBANDS if it was not dividable by ncores. Only applies if
                 mode=="DIAG".
@@ -3039,6 +3062,7 @@ class MPAbsorptionSet(MPRelaxSet):
             structure (Structure): Input structure.
             prev_incar (Incar/string): Incar file from previous run.
             mode (str): Supported modes are "IPA", "RPA"
+            copy_wavecar (bool): Whether to copy the WAVECAR from a previous run. Defaults to True.
             nbands (int): For subsequent calculations, it is generally
                 recommended to perform NBANDS convergence starting from the
                 NBANDS of the previous run for DIAG, and to use the exact same

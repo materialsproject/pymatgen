@@ -29,12 +29,18 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule, PeriodicSite, Structure
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.core.periodic_table import Element, Species
     from pymatgen.core.sites import Site
 
 logger = logging.getLogger(__name__)
+
+cite_conventional_cell_algo = due.dcite(
+    Doi("10.1016/j.commatsci.2010.05.010"),
+    description="High-throughput electronic band structure calculations: Challenges and tools",
+)
 
 
 @lru_cache(maxsize=32)
@@ -83,7 +89,7 @@ class SpacegroupAnalyzer:
         for site in structure:
             if hasattr(site, "magmom"):
                 magmoms.append(site.magmom)
-            elif site.is_ordered and hasattr(site.specie, "spin"):
+            elif site.is_ordered and getattr(site.specie, "spin", None) is not None:
                 magmoms.append(site.specie.spin)
 
         self._unique_species = unique_species
@@ -419,6 +425,7 @@ class SpacegroupAnalyzer:
 
         return grid_fractional_coords, mapping
 
+    @cite_conventional_cell_algo
     def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
         """Gives the transformation matrix to transform a conventional unit cell to a
         primitive cell according to certain standards the standards are defined in
@@ -462,6 +469,7 @@ class SpacegroupAnalyzer:
 
         return transf
 
+    @cite_conventional_cell_algo
     def get_primitive_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
         """Gives a structure with a primitive cell according to certain standards the
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput
@@ -540,6 +548,7 @@ class SpacegroupAnalyzer:
 
         return Structure.from_sites(new_sites)
 
+    @cite_conventional_cell_algo
     def get_conventional_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
         """Gives a structure with a conventional cell according to certain standards. The
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput

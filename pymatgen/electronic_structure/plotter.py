@@ -428,17 +428,17 @@ class BSPlotter:
             {Spin:[np.array(nb_bands,kpoints),...]} as a list of discontinuous kpath
             of energies. The energy of multiple continuous branches are stored together.
             vbm: A list of tuples (distance,energy) marking the vbms. The
-            energies are shifted with respect to the fermi level is the
+            energies are shifted with respect to the Fermi level is the
             option has been selected.
             cbm: A list of tuples (distance,energy) marking the cbms. The
-            energies are shifted with respect to the fermi level is the
+            energies are shifted with respect to the Fermi level is the
             option has been selected.
             lattice: The reciprocal lattice.
             zero_energy: This is the energy used as zero for the plot.
             band_gap:A string indicating the band gap and its nature (empty if
             it's a metal).
             is_metal: True if the band structure is metallic (i.e., there is at
-            least one band crossing the fermi level).
+            least one band crossing the Fermi level).
         """
         if bs is None:
             # if: BSPlotter, else: BSPlotterProjected
@@ -2375,7 +2375,7 @@ class BSDOSPlotter:
         bs_ax.set_xlabel("Wavevector $k$", fontsize=self.axis_fontsize, family=self.font)
         bs_ax.set_ylabel("$E-E_F$ / eV", fontsize=self.axis_fontsize, family=self.font)
 
-        # add BS fermi level line at E=0 and gridlines
+        # add BS Fermi level line at E=0 and gridlines
         bs_ax.hlines(y=0, xmin=0, xmax=x_distances_list[-1][-1], color="k", lw=2)
         bs_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))
         bs_ax.set_yticklabels(np.arange(emin, emax + 1e-5, self.egrid_interval), size=self.tick_fontsize)

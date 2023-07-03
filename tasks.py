@@ -221,8 +221,8 @@ def post_discourse(version):
 
     :param ctx:
     """
-    with open("CHANGES.rst") as f:
-        contents = f.read()
+    with open("CHANGES.rst") as file:
+        contents = file.read()
     toks = re.split(r"\-+", contents)
     desc = toks[1].strip()
     toks = desc.split("\n")

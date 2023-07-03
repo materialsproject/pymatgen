@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 import os
-import warnings
 
 import numpy as np
 import pytest
@@ -467,18 +466,16 @@ class TensorCollectionTest(PymatgenTest):
 
     def test_serialization(self):
         # Test base serialize-deserialize
-        d = self.seq_tc.as_dict()
-        new = TensorCollection.from_dict(d)
+        dct = self.seq_tc.as_dict()
+        new = TensorCollection.from_dict(dct)
         for t, t_new in zip(self.seq_tc, new):
             self.assert_all_close(t, t_new)
 
-        # Suppress vsym warnings and test voigt
-        with warnings.catch_warnings(record=True):
-            vsym = self.rand_tc.voigt_symmetrized
-            d = vsym.as_dict(voigt=True)
-            new_vsym = TensorCollection.from_dict(d)
-            for t, t_new in zip(vsym, new_vsym):
-                self.assert_all_close(t, t_new)
+        voigt_symmetrized = self.rand_tc.voigt_symmetrized
+        dct = voigt_symmetrized.as_dict(voigt=True)
+        new_vsym = TensorCollection.from_dict(dct)
+        for t, t_new in zip(voigt_symmetrized, new_vsym):
+            self.assert_all_close(t, t_new)
 
 
 class SquareTensorTest(PymatgenTest):
@@ -575,17 +572,16 @@ class SquareTensorTest(PymatgenTest):
 
     def test_serialization(self):
         # Test base serialize-deserialize
-        d = self.rand_sqtensor.as_dict()
-        new = SquareTensor.from_dict(d)
+        dct = self.rand_sqtensor.as_dict()
+        new = SquareTensor.from_dict(dct)
         self.assert_all_close(new, self.rand_sqtensor)
         assert isinstance(new, SquareTensor)
 
         # Ensure proper object-independent deserialization
-        obj = MontyDecoder().process_decoded(d)
+        obj = MontyDecoder().process_decoded(dct)
         assert isinstance(obj, SquareTensor)
 
-        with warnings.catch_warnings(record=True):
-            vsym = self.rand_sqtensor.voigt_symmetrized
-            d_vsym = vsym.as_dict(voigt=True)
-            new_voigt = Tensor.from_dict(d_vsym)
-            self.assert_all_close(vsym, new_voigt)
+        vsym = self.rand_sqtensor.voigt_symmetrized
+        d_vsym = vsym.as_dict(voigt=True)
+        new_voigt = Tensor.from_dict(d_vsym)
+        self.assert_all_close(vsym, new_voigt)

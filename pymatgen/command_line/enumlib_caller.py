@@ -7,7 +7,7 @@ makestr.x available in the path. Please download the library at
 https://github.com/msg-byu/enumlib and follow the instructions in the README to
 compile these two executables accordingly.
 
-If you use this module, please cite the following:
+If you use this module, please cite:
 
 Gus L. W. Hart and Rodney W. Forcade, "Algorithm for generating derivative
 structures," Phys. Rev. B 77 224115 (26 June 2008)
@@ -266,7 +266,7 @@ class EnumlibAdaptor:
         # enumeration. See Cu7Te5.cif test file.
         base *= 10
 
-        # base = ndisordered # 10 ** int(math.ceil(math.log10(ndisordered)))
+        # base = n_disordered # 10 ** int(math.ceil(math.log10(n_disordered)))
         # To get a reasonable number of structures, we fix concentrations to the
         # range expected in the original structure.
         total_amounts = sum(index_amounts)
@@ -298,7 +298,7 @@ class EnumlibAdaptor:
                     timer.cancel()
 
                 if timed_out:
-                    raise TimeoutError("Enumeration took too long.")
+                    raise TimeoutError("Enumeration took too long")
 
             else:
                 output = p.communicate()[0].decode("utf-8")

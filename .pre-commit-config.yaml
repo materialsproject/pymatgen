@@ -7,7 +7,7 @@ ci:
   autoupdate_commit_msg: pre-commit autoupdate
 
 repos:
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
+  - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.0.275
     hooks:
       - id: ruff
@@ -27,7 +27,7 @@ repos:
       - id: black
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.3.0
+    rev: v1.4.0
     hooks:
       - id: mypy
 

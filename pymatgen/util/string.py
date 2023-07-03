@@ -83,7 +83,7 @@ class Stringify:
 
 
 def str_delimited(results, header=None, delimiter="\t"):
-    """
+    r"""
     Given a tuple of tuples, generate a delimited string form.
     >>> results = [["a","b","c"],["d","e","f"],[1,2,3]]
     >>> print(str_delimited(results,delimiter=","))
@@ -92,8 +92,9 @@ def str_delimited(results, header=None, delimiter="\t"):
     1,2,3.
 
     Args:
-        result: 2d sequence of arbitrary types.
+        results: 2d sequence of arbitrary types.
         header: optional header
+        delimiter: Defaults to "\t" for tab-delimited output.
 
     Returns:
         Aligned string output in a table-like format.
@@ -131,6 +132,7 @@ def charge_string(charge, brackets=True, explicit_one=True):
     '[+2]'. For uncharged species, the string returned is '(aq)'.
 
     Args:
+        charge: the charge of the Ion
         brackets: whether to enclose the charge in brackets, e.g. [+2]. Default: True
         explicit_one: whether to include the number one for monovalent ions, e.g.
             +1 rather than +. Default: True

@@ -130,12 +130,12 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {filepath} is being parsed.")
 
         try:
-            vasprun = Vasprun(filepath)
+            vasp_run = Vasprun(filepath)
         except Exception as exc:
             logger.debug(f"error in {filepath}: {exc}")
             return None
 
-        return vasprun.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
+        return vasp_run.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
 
         # entry.parameters["history"] = _get_transformation_history(path)
 

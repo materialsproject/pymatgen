@@ -9,7 +9,7 @@ import numpy as np
 from monty.dev import requires
 
 from pymatgen.core.tensors import Tensor
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 try:
     from phonopy import Phonopy
@@ -71,7 +71,7 @@ class BornEffectiveCharge:
         """
         bec = self.bec
         struct = self.structure
-        ops = sga(struct).get_symmetry_operations(cartesian=True)
+        ops = SpacegroupAnalyzer(struct).get_symmetry_operations(cartesian=True)
         uniq_point_ops = []
         for op in ops:
             uniq_point_ops.append(op)
@@ -206,7 +206,7 @@ class InternalStrainTensor:
             the indexes of those sites.
         """
         struct = self.structure
-        ops = sga(struct).get_symmetry_operations(cartesian=True)
+        ops = SpacegroupAnalyzer(struct).get_symmetry_operations(cartesian=True)
         uniquepointops = []
         for op in ops:
             uniquepointops.append(op)
@@ -301,7 +301,7 @@ class ForceConstantMatrix:
             the indexes of those sites.
         """
         struct = self.structure
-        ops = sga(struct).get_symmetry_operations(cartesian=True)
+        ops = SpacegroupAnalyzer(struct).get_symmetry_operations(cartesian=True)
         uniquepointops = []
         for op in ops:
             uniquepointops.append(op)

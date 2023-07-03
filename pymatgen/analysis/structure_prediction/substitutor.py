@@ -15,6 +15,7 @@ from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionProbability
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
+from pymatgen.util.due import Doi, due
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -24,6 +25,10 @@ __email__ = "wrichard@mit.edu"
 __date__ = "Aug 31, 2012"
 
 
+@due.dcite(
+    Doi("10.1021/ic102031h"),
+    description="Data Mined Ionic Substitutions for the Discovery of New Compounds",
+)
 class Substitutor(MSONable):
     """
     This object uses a data mined ionic substitution approach to propose

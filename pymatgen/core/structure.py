@@ -963,7 +963,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_spacegroup(
         cls,
-        sg: str,
+        sg: str | int,
         lattice: list | np.ndarray | Lattice,
         species: Sequence[str | Element | Species | DummySpecies | Composition],
         coords: Sequence[Sequence[float]],
@@ -1013,10 +1013,10 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.symmetry.groups import SpaceGroup
 
         try:
-            i = int(sg)
-            spg = SpaceGroup.from_int_number(i)
+            num = int(sg)
+            spg = SpaceGroup.from_int_number(num)
         except ValueError:
-            spg = SpaceGroup(sg)
+            spg = SpaceGroup(sg)  # type: ignore
 
         latt = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
@@ -1038,12 +1038,12 @@ class IStructure(SiteCollection, MSONable):
         all_sp: list[str | Element | Species | DummySpecies | Composition] = []
         all_coords: list[list[float]] = []
         all_site_properties: dict[str, list] = collections.defaultdict(list)
-        for i, (sp, c) in enumerate(zip(species, frac_coords)):
+        for idx, (sp, c) in enumerate(zip(species, frac_coords)):
             cc = spg.get_orbit(c, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)  # type: ignore
             for k, v in props.items():
-                all_site_properties[k].extend([v[i]] * len(cc))
+                all_site_properties[k].extend([v[idx]] * len(cc))
 
         return cls(latt, all_sp, all_coords, site_properties=all_site_properties)
 
@@ -1522,10 +1522,10 @@ class IStructure(SiteCollection, MSONable):
         else:
             if sites is None:
                 sites = self.sites
-            site_coords = np.array([site.coords for site in sites], dtype=float)
-            cart_coords = np.array(self.cart_coords, dtype=float)
-            lattice_matrix = np.array(self.lattice.matrix, dtype=float)
-            pbc = np.array(self.pbc, dtype=int)
+            site_coords = np.ascontiguousarray([site.coords for site in sites], dtype=float)
+            cart_coords = np.ascontiguousarray(self.cart_coords, dtype=float)
+            lattice_matrix = np.ascontiguousarray(self.lattice.matrix, dtype=float)
+            pbc = np.ascontiguousarray(self.pbc, dtype=int)
             center_indices, points_indices, images, distances = find_points_in_spheres(
                 cart_coords,
                 site_coords,
@@ -3103,10 +3103,7 @@ class IMolecule(SiteCollection, MSONable):
         return hash(self.composition)
 
     def __repr__(self):
-        outs = ["Molecule Summary"]
-        for s in self:
-            outs.append(s.__repr__())
-        return "\n".join(outs)
+        return "Molecule Summary\n" + "\n".join(map(repr, self))
 
     def __str__(self):
         outs = [
@@ -3116,7 +3113,7 @@ class IMolecule(SiteCollection, MSONable):
             f"Sites ({len(self)})",
         ]
         for idx, site in enumerate(self):
-            outs.append(f"{idx} {site.species_string} {' '.join([f'{j:0.6f}'.rjust(12) for j in site.coords])}")
+            outs.append(f"{idx} {site.species_string} {' '.join([f'{coord:0.6f}'.rjust(12) for coord in site.coords])}")
         return "\n".join(outs)
 
     def as_dict(self):
