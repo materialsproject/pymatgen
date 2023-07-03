@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 from pytest import approx
 
@@ -19,7 +17,7 @@ molecule = Molecule(species=["Si"], coords=[[0, 0, 0]])
 
 class SetTest(PymatgenTest):
     def setUp(self) -> None:
-        self.TEST_FILES_DIR = Path.joinpath(self.TEST_FILES_DIR, "cp2k")
+        self.TEST_FILES_DIR = f"{self.TEST_FILES_DIR}/cp2k"
         SETTINGS["PMG_CP2K_DATA_DIR"] = self.TEST_FILES_DIR
         self.setkwargs = {
             "print_pdos": False,
