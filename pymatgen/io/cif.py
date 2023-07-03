@@ -946,14 +946,11 @@ class CifParser:
             coord = (x, y, z)
             match = get_matching_coord(coord)
             if skip_checks:
-                if occu > 0:
-                    comp_d = {el: occu}
-                else:
-                    comp_d = {el: 0.00000001}
+                comp_d = {el: occu} if occu > 0 else {el: 1e-08}
             else:
                 if occu > 0:
                     comp_d = {el: occu}
-            if comp_d:        
+            if comp_d:
                 if num_h > 0:
                     comp_d["H"] = num_h
                     self.warnings.append(
