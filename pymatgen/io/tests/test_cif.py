@@ -584,7 +584,8 @@ loop_
             assert l1.strip() == l2.strip()
 
     def test_cifwrite_without_refinement(self):
-        si2 = Structure.from_file(f"{self.TEST_FILES_DIR}/abinit" / "si.cif")
+        si2 = Structure.from_file(f"{self.TEST_FILES_DIR}/abinit/si.cif")
+
         writer = CifWriter(si2, symprec=1e-3, significant_figures=10, refine_struct=False)
         s = str(writer)
         assert "Fd-3m" in s

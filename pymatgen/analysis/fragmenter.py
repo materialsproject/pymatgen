@@ -154,7 +154,7 @@ class Fragmenter(MSONable):
             self.unique_frag_dict = copy.deepcopy(self.prev_unique_frag_dict)
             for frag_key in self.new_unique_frag_dict:
                 if frag_key in self.unique_frag_dict:
-                    self.unique_frag_dict += [*self.new_unique_frag_dict[frag_key]]
+                    self.unique_frag_dict[frag_key] += [*self.new_unique_frag_dict[frag_key]]
                 else:
                     self.unique_frag_dict[frag_key] = copy.deepcopy(self.new_unique_frag_dict[frag_key])
 

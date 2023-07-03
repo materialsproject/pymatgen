@@ -864,7 +864,7 @@ class PotcarSingleTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        self.psingle = PotcarSingle.from_file(f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE" / "POTCAR.Mn_pv.gz")
+        self.psingle = PotcarSingle.from_file(f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
 
     def test_keywords(self):
         data = {
@@ -897,7 +897,7 @@ class PotcarSingleTest(PymatgenTest):
         assert self.psingle.keywords == data
 
     def test_psctr(self):
-        filename = f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
+        filename = f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
 
         psingle = PotcarSingle.from_file(filename)
 
@@ -973,7 +973,7 @@ class PotcarSingleTest(PymatgenTest):
 
         assert self.psingle.potential_type == "PAW"
 
-        psingle = PotcarSingle.from_file(f"{PymatgenTest.TEST_FILES_DIR}/POT_LDA_PAW" / "POTCAR.Fe.gz")
+        psingle = PotcarSingle.from_file(f"{PymatgenTest.TEST_FILES_DIR}/POT_LDA_PAW/POTCAR.Fe.gz")
 
         assert psingle.functional == "Perdew-Zunger81"
 
@@ -984,31 +984,29 @@ class PotcarSingleTest(PymatgenTest):
         assert self.psingle.symbol == "Mn_pv"
 
     def test_identify_potcar(self):
-        filename = f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
+        filename = f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz"
 
         psingle = PotcarSingle.from_file(filename)
         assert "PBE_54" in psingle.identify_potcar()[0]
         assert "Fe" in psingle.identify_potcar()[1]
 
     def test_potcar_hash_warning(self):
-        filename = f"{PymatgenTest.TEST_FILES_DIR}/modified_potcars_data" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
+        filename = f"{PymatgenTest.TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
         with pytest.warns(UnknownPotcarWarning, match="POTCAR is known to match the following functionals:"):
             PotcarSingle.from_file(filename)
 
     def test_potcar_file_hash_warning(self):
-        filename = f"{PymatgenTest.TEST_FILES_DIR}/modified_potcars_header" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
+        filename = f"{PymatgenTest.TEST_FILES_DIR}/modified_potcars_header/POT_GGA_PAW_PBE/POTCAR.Fe_pv"
         with pytest.warns(UnknownPotcarWarning, match="POTCAR is corrupted"):
             PotcarSingle.from_file(filename)
 
     def test_verify_faulty_potcar_with_hash(self):
-        filename = (
-            f"{PymatgenTest.TEST_FILES_DIR}/modified_potcars_data" / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash"
-        )
+        filename = f"{PymatgenTest.TEST_FILES_DIR}/modified_potcars_data/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash"
         with pytest.warns(UnknownPotcarWarning, match="POTCAR with symbol Fe_pv has metadata that "):
             PotcarSingle.from_file(filename)
 
     def test_verify_correct_potcar_with_hash(self):
-        filename = f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE_54" / "POTCAR.Fe_pv_with_hash.gz"
+        filename = f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv_with_hash.gz"
         cwd = os.path.abspath(os.path.dirname(__file__))
         file_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
         metadata_hash_db = loadfn(os.path.join(cwd, "../vasp_potcar_pymatgen_hashes.json"))
@@ -1019,7 +1017,7 @@ class PotcarSingleTest(PymatgenTest):
         assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
 
     def test_multi_potcar_with_and_without_hash(self):
-        filename = f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE_54" / "POTCAR.Fe_O.gz"
+        filename = f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_O.gz"
         cwd = os.path.abspath(os.path.dirname(__file__))
         loadfn(os.path.join(cwd, "../vasp_potcar_file_hashes.json"))
         Potcar.from_file(filename)
@@ -1056,7 +1054,7 @@ class PotcarTest(PymatgenTest):
         assert {d.header for d in self.potcar} == {"PAW_PBE O 08Apr2002", "PAW_PBE P 17Jan2003", "PAW_PBE Fe 06Sep2000"}
 
     def test_potcar_map(self):
-        fe_potcar = zopen(f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE" / "POTCAR.Fe_pv.gz").read().decode("utf-8")
+        fe_potcar = zopen(f"{PymatgenTest.TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe_pv.gz").read().decode("utf-8")
         # specify V instead of Fe - this makes sure the test won't pass if the
         # code just grabs the POTCAR from the config file (the config file would
         # grab the V POTCAR)

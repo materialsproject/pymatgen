@@ -1407,7 +1407,7 @@
     "pymatgen/entries/tests/test_computed_entries.py::GibbsComputedStructureEntryTest::test_to_from_dict": 0.017555709011503495,
     "pymatgen/entries/tests/test_computed_entries.py::test_composition_energy_adjustment": 0.00017154199304059148,
     "pymatgen/entries/tests/test_computed_entries.py::test_constant_energy_adjustment": 0.00016833300469443202,
-    "pymatgen/entries/tests/test_computed_entries.py::test_energyadjustment": 0.00020037397916894406,
+    "pymatgen/entries/tests/test_computed_entries.py::test_energy_adjustment": 0.00020037397916894406,
     "pymatgen/entries/tests/test_computed_entries.py::test_manual_energy_adjustment": 0.00017504200513940305,
     "pymatgen/entries/tests/test_computed_entries.py::test_temp_energy_adjustment": 0.00018637499306350946,
     "pymatgen/entries/tests/test_correction_calculator.py::CorrectionCalculatorTest::test_missing_entry_response": 0.07523579098051414,

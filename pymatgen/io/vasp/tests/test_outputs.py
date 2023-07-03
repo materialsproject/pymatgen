@@ -658,14 +658,15 @@ class VasprunTest(PymatgenTest):
         ]
 
     def test_parsing_chemical_shift_calculations(self):
-        filepath = f"{self.TEST_FILES_DIR}/nmr" / "cs" / "basic" / "vasprun.xml.chemical_shift.scstep"
+        filepath = f"{self.TEST_FILES_DIR}/nmr/cs/basic/vasprun.xml.chemical_shift.scstep"
         vasp_run = Vasprun(filepath)
-        nestep = len(vasp_run.ionic_steps[-1]["electronic_steps"])
-        assert nestep == 10
+
+        n_estep = len(vasp_run.ionic_steps[-1]["electronic_steps"])
+        assert n_estep == 10
         assert vasp_run.converged
 
     def test_parsing_efg_calcs(self):
-        filepath = f"{self.TEST_FILES_DIR}/nmr" / "efg" / "AlPO4" / "vasprun.xml"
+        filepath = f"{self.TEST_FILES_DIR}/nmr/efg/AlPO4/vasprun.xml"
         vasp_run = Vasprun(filepath)
         nestep = len(vasp_run.ionic_steps[-1]["electronic_steps"])
         assert nestep == 18
@@ -673,7 +674,7 @@ class VasprunTest(PymatgenTest):
 
     def test_charged_structure(self):
         vpath = f"{self.TEST_FILES_DIR}/vasprun.charged.xml"
-        potcar_path = f"{self.TEST_FILES_DIR}/POT_GGA_PAW_PBE" / "POTCAR.Si.gz"
+        potcar_path = f"{self.TEST_FILES_DIR}/POT_GGA_PAW_PBE/POTCAR.Si.gz"
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         vasp_run.update_charge_from_potcar(potcar_path)
         assert vasp_run.parameters.get("NELECT", 8) == 9
@@ -1040,7 +1041,7 @@ class OutcarTest(PymatgenTest):
         assert outcar.as_dict() is not None
 
     def test_chemical_shielding(self):
-        filename = f"{self.TEST_FILES_DIR}/nmr" / "cs" / "core.diff" / "hydromagnesite" / "OUTCAR"
+        filename = f"{self.TEST_FILES_DIR}/nmr/cs/core.diff/hydromagnesite/OUTCAR"
         outcar = Outcar(filename)
         expected_chemical_shielding = [
             [191.9974, 69.5232, 0.6342],
@@ -1062,7 +1063,7 @@ class OutcarTest(PymatgenTest):
         )
 
     def test_chemical_shielding_with_different_core_contribution(self):
-        filename = f"{self.TEST_FILES_DIR}/nmr" / "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
+        filename = f"{self.TEST_FILES_DIR}/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         c_vo = outcar.data["chemical_shielding"]["valence_only"][7]
         assert list(c_vo) == approx([198.7009, 73.7484, 1])
@@ -1070,7 +1071,7 @@ class OutcarTest(PymatgenTest):
         assert list(c_vc) == approx([-1.9406, 73.7484, 1])
 
     def test_cs_raw_tensors(self):
-        filename = f"{self.TEST_FILES_DIR}/nmr" / "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
+        filename = f"{self.TEST_FILES_DIR}/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         unsym_tensors = outcar.data["unsym_cs_tensor"]
         assert unsym_tensors[0] == [
@@ -1085,7 +1086,7 @@ class OutcarTest(PymatgenTest):
         ]
 
     def test_cs_g0_contribution(self):
-        filename = f"{self.TEST_FILES_DIR}/nmr" / "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
+        filename = f"{self.TEST_FILES_DIR}/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         g0_contrib = outcar.data["cs_g0_contribution"]
         assert g0_contrib == [
@@ -1095,13 +1096,13 @@ class OutcarTest(PymatgenTest):
         ]
 
     def test_cs_core_contribution(self):
-        filename = f"{self.TEST_FILES_DIR}/nmr" / "cs" / "core.diff" / "core.diff.chemical.shifts.OUTCAR"
+        filename = f"{self.TEST_FILES_DIR}/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         core_contrib = outcar.data["cs_core_contribution"]
         assert core_contrib == {"Mg": -412.8248405, "C": -200.5098812, "O": -271.0766979}
 
     def test_nmr_efg(self):
-        filename = f"{self.TEST_FILES_DIR}/nmr" / "efg" / "AlPO4" / "OUTCAR"
+        filename = f"{self.TEST_FILES_DIR}/nmr/efg/AlPO4/OUTCAR"
         outcar = Outcar(filename)
         expected_efg = [
             {"eta": 0.465, "nuclear_quadrupole_moment": 146.6, "cq": -5.573},
@@ -1440,16 +1441,16 @@ class LocpotTest(PymatgenTest):
 class ChgcarTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        filepath = cls.TEST_FILES_DIR / "CHGCAR.nospin"
+        filepath = f"{cls.TEST_FILES_DIR}/CHGCAR.nospin"
         cls.chgcar_no_spin = Chgcar.from_file(filepath)
 
-        filepath = cls.TEST_FILES_DIR / "CHGCAR.spin"
+        filepath = f"{cls.TEST_FILES_DIR}/CHGCAR.spin"
         cls.chgcar_spin = Chgcar.from_file(filepath)
 
-        filepath = cls.TEST_FILES_DIR / "CHGCAR.Fe3O4"
+        filepath = f"{cls.TEST_FILES_DIR}/CHGCAR.Fe3O4"
         cls.chgcar_fe3o4 = Chgcar.from_file(filepath)
 
-        filepath = cls.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz"
+        filepath = f"{cls.TEST_FILES_DIR}/CHGCAR.NiO_SOC.gz"
         cls.chgcar_NiO_SOC = Chgcar.from_file(filepath)
 
     def test_init(self):
