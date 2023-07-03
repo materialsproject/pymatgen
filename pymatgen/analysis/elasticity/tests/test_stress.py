@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 from pytest import approx
 
 from pymatgen.analysis.elasticity.strain import Deformation
@@ -45,6 +46,9 @@ class StressTest(PymatgenTest):
         )
         # voigt
         assert list(self.symm_stress.voigt) == [0.51, 5.14, 5.33, 5.07, 2.42, 2.29]
-        # with warnings.catch_warnings(record=True) as w:
-        #     self.non_symm.voigt
-        #     assert len(w) == 1
+
+        with pytest.warns(
+            UserWarning, match="Tensor is not symmetric, information may be lost in voigt conversion"
+        ) as warns:
+            _ = self.non_symm.voigt
+        assert len(warns) == 1

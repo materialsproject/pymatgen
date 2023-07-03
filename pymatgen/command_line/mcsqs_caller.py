@@ -190,7 +190,7 @@ def _parse_sqs_path(path) -> Sqs:
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        bestsqs = Structure.from_file(path / "bestsqs.out")
+        best_sqs = Structure.from_file(path / "bestsqs.out")
 
     # Get best SQS objective function
     with open(path / "bestcorr.out") as f:
@@ -209,9 +209,7 @@ def _parse_sqs_path(path) -> Sqs:
         corr_out = f"bestcorr{i + 1}.out"
         with Popen(f"str2cif < {sqs_out} > {sqs_cif}", shell=True, cwd=path) as p:
             p.communicate()
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            sqs = Structure.from_file(path / sqs_out)
+        sqs = Structure.from_file(path / sqs_out)
         with open(path / corr_out) as f:
             lines = f.readlines()
 
@@ -223,7 +221,7 @@ def _parse_sqs_path(path) -> Sqs:
     clusters = _parse_clusters(path / "clusters.out")
 
     return Sqs(
-        bestsqs=bestsqs,
+        bestsqs=best_sqs,
         objective_function=objective_function,
         allsqs=allsqs,
         directory=str(path.resolve()),

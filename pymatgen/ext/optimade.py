@@ -14,6 +14,7 @@ from tqdm import tqdm
 
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
+from pymatgen.util.due import Doi, due
 from pymatgen.util.provenance import StructureNL
 
 # from retrying import retry
@@ -28,6 +29,10 @@ _logger.addHandler(_handler)
 _logger.setLevel(logging.WARNING)
 
 
+@due.dcite(
+    Doi("10.1038/s41597-021-00974-z"),
+    description="OPTIMADE, an API for exchanging materials data",
+)
 class OptimadeRester:
     """
     Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
@@ -37,7 +42,6 @@ class OptimadeRester:
     [1] Andersen, C.W., *et al*.
         OPTIMADE, an API for exchanging materials data.
         Sci Data 8, 217 (2021). https://doi.org/10.1038/s41597-021-00974-z
-
     """
 
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()

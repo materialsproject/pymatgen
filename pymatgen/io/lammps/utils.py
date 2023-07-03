@@ -18,9 +18,9 @@ from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.coord import get_angle
 
 try:
-    from openbabel import pybel as pb
+    from openbabel import pybel
 except ImportError:
-    pb = None
+    pybel = None
 
 __author__ = "Kiran Mathew, Brandon Wood, Michael Humbert"
 __email__ = "kmathew@lbl.gov"
@@ -276,7 +276,7 @@ class PackmolRunner:
                 # all other filetypes
                 else:
                     a = BabelMolAdaptor(mol)
-                    pm = pb.Molecule(a.openbabel_mol)
+                    pm = pybel.Molecule(a.openbabel_mol)
                     pm.write(
                         self.control_params["filetype"],
                         filename=filename,
@@ -330,7 +330,7 @@ class PackmolRunner:
         name = name or f"ml{num}"
 
         # bma = BabelMolAdaptor(mol)
-        pbm = pb.Molecule(bma._obmol)
+        pbm = pybel.Molecule(bma._obmol)
         for x in pbm.residues:
             x.OBResidue.SetName(name)
             x.OBResidue.SetNum(num)
@@ -353,7 +353,7 @@ class PackmolRunner:
 
         Args:
             atoms ([OBAtom]): list of OBAtom objects
-            residue_name (str): the key in self.map_residue_to_mol. Usec to
+            residue_name (str): the key in self.map_residue_to_mol. Used to
                 restore the site properties in the final packed molecule.
             site_property (str): the site property to be restored.
 
@@ -407,7 +407,7 @@ class PackmolRunner:
 
         filename = filename or self.control_params["output"]
         bma = BabelMolAdaptor.from_file(filename, "pdb")
-        pbm = pb.Molecule(bma._obmol)
+        pbm = pybel.Molecule(bma._obmol)
 
         assert len(pbm.residues) == sum(x["number"] for x in self.param_list)
 

@@ -105,11 +105,10 @@ def parse_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
     with open("radii.csv") as f:
-        radiidata = f.read()
-    radiidata = radiidata.split("\r")
+        radii_data = f.read()
+    radii_data = radii_data.split("\r")
 
-    for i in range(1, len(radiidata)):
-        line = radiidata[i]
+    for line in radii_data:
         toks = line.strip().split(",")
         el = toks[1]
         try:

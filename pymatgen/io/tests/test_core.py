@@ -26,8 +26,8 @@ class StructInputFile(InputFile):
 
     @classmethod
     def from_string(cls, contents: str):
-        cp = CifParser.from_string(contents)
-        struct = cp.get_structures()[0]
+        parser = CifParser.from_string(contents)
+        struct = parser.get_structures()[0]
         return cls(structure=struct)
 
 
@@ -45,7 +45,7 @@ class FakeClass:
 
 class TestInputFile(PymatgenTest):
     def test_file_io(self):
-        with pytest.raises(FileNotFoundError):
+        with pytest.raises(FileNotFoundError, match="No such file or directory: 'fakepath.cif'"):
             StructInputFile.from_file("fakepath.cif")
 
         sif = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
@@ -184,8 +184,8 @@ class TestInputSet(PymatgenTest):
         assert os.path.exists(os.path.join("input_dir", "file_from_str"))
         assert os.path.exists(os.path.join("input_dir", "file_from_strcast"))
         assert len(os.listdir("input_dir")) == 3
-        cp = CifParser(filename=os.path.join("input_dir", "cif1"))
-        assert cp.get_structures()[0] == self.sif1.structure
+        parser = CifParser(filename=os.path.join("input_dir", "cif1"))
+        assert parser.get_structures()[0] == self.sif1.structure
         with open(os.path.join("input_dir", "file_from_str")) as file:
             file_from_str = file.read()
             assert file_from_str == "hello you"

@@ -946,14 +946,11 @@ class CifParser:
             coord = (x, y, z)
             match = get_matching_coord(coord)
             if skip_checks:
-                if occu > 0:
-                    comp_d = {el: occu}
-                else:
-                    comp_d = {el: 0.00000001}
+                comp_d = {el: occu} if occu > 0 else {el: 1e-08}
             else:
                 if occu > 0:
                     comp_d = {el: occu}
-            if comp_d:        
+            if comp_d:
                 if num_h > 0:
                     comp_d["H"] = num_h
                     self.warnings.append(
@@ -1347,7 +1344,14 @@ class CifWriter:
                     atom_site_label.append(f"{sp.symbol}{count}")
                     atom_site_occupancy.append(str(occu))
 
-                    magmom = Magmom(site.properties.get("magmom", getattr(sp, "spin", 0)))
+                    if "magmom" in site.properties:
+                        mag = site.properties["magmom"]
+                    elif getattr(sp, "spin", None) is not None:
+                        mag = sp.spin
+                    else:
+                        mag = 0
+
+                    magmom = Magmom(mag)
                     if write_magmoms and abs(magmom) > 0:
                         moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
                         atom_site_moment_label.append(f"{sp.symbol}{count}")

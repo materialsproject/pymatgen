@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.vasp package &mdash; pymatgen 2023.5.10 documentation</title>
+  <title>pymatgen.io.vasp package &mdash; pymatgen 2023.6.28 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -13,8 +13,6 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -38,18 +36,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-
-          
-          
-          <a href="index.html">
-            
+            <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.5.10
+                2023.6.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -105,11 +99,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.io.html">pymatgen.io namespace</a></li>
-      <li class="breadcrumb-item active">pymatgen.io.vasp package</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
+          <li><a href="pymatgen.io.html">pymatgen.io namespace</a> &raquo;</li>
+      <li>pymatgen.io.vasp package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.vasp.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -130,7 +124,16 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.vasp.help.html">pymatgen.io.vasp.help module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.vasp.help.html">pymatgen.io.vasp.help module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.help.html#pymatgen.io.vasp.help.VaspDoc"><code class="docutils literal notranslate"><span class="pre">VaspDoc</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.help.html#pymatgen.io.vasp.help.VaspDoc.get_help"><code class="docutils literal notranslate"><span class="pre">VaspDoc.get_help()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.help.html#pymatgen.io.vasp.help.VaspDoc.get_incar_tags"><code class="docutils literal notranslate"><span class="pre">VaspDoc.get_incar_tags()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.help.html#pymatgen.io.vasp.help.VaspDoc.print_help"><code class="docutils literal notranslate"><span class="pre">VaspDoc.print_help()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.help.html#pymatgen.io.vasp.help.VaspDoc.print_jupyter_help"><code class="docutils literal notranslate"><span class="pre">VaspDoc.print_jupyter_help()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.io.vasp.inputs.html">pymatgen.io.vasp.inputs module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.BadIncarWarning"><code class="docutils literal notranslate"><span class="pre">BadIncarWarning</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar"><code class="docutils literal notranslate"><span class="pre">Incar</span></code></a><ul>
@@ -592,6 +595,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPSOCSet.from_prev_calc"><code class="docutils literal notranslate"><span class="pre">MPSOCSet.from_prev_calc()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPSOCSet.incar"><code class="docutils literal notranslate"><span class="pre">MPSOCSet.incar</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPSOCSet.override_from_prev_calc"><code class="docutils literal notranslate"><span class="pre">MPSOCSet.override_from_prev_calc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPSOCSet.user_potcar_functional"><code class="docutils literal notranslate"><span class="pre">MPSOCSet.user_potcar_functional</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPScanRelaxSet"><code class="docutils literal notranslate"><span class="pre">MPScanRelaxSet</span></code></a><ul>
@@ -602,6 +606,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPScanStaticSet.from_prev_calc"><code class="docutils literal notranslate"><span class="pre">MPScanStaticSet.from_prev_calc()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPScanStaticSet.incar"><code class="docutils literal notranslate"><span class="pre">MPScanStaticSet.incar</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPScanStaticSet.override_from_prev_calc"><code class="docutils literal notranslate"><span class="pre">MPScanStaticSet.override_from_prev_calc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPScanStaticSet.user_potcar_functional"><code class="docutils literal notranslate"><span class="pre">MPScanStaticSet.user_potcar_functional</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPStaticSet"><code class="docutils literal notranslate"><span class="pre">MPStaticSet</span></code></a><ul>
@@ -609,12 +614,17 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPStaticSet.incar"><code class="docutils literal notranslate"><span class="pre">MPStaticSet.incar</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPStaticSet.kpoints"><code class="docutils literal notranslate"><span class="pre">MPStaticSet.kpoints</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPStaticSet.override_from_prev_calc"><code class="docutils literal notranslate"><span class="pre">MPStaticSet.override_from_prev_calc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPStaticSet.user_potcar_functional"><code class="docutils literal notranslate"><span class="pre">MPStaticSet.user_potcar_functional</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLElasticSet"><code class="docutils literal notranslate"><span class="pre">MVLElasticSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLElasticSet"><code class="docutils literal notranslate"><span class="pre">MVLElasticSet</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLElasticSet.user_potcar_functional"><code class="docutils literal notranslate"><span class="pre">MVLElasticSet.user_potcar_functional</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLGBSet"><code class="docutils literal notranslate"><span class="pre">MVLGBSet</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLGBSet.incar"><code class="docutils literal notranslate"><span class="pre">MVLGBSet.incar</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLGBSet.kpoints"><code class="docutils literal notranslate"><span class="pre">MVLGBSet.kpoints</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLGBSet.user_potcar_functional"><code class="docutils literal notranslate"><span class="pre">MVLGBSet.user_potcar_functional</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLGWSet"><code class="docutils literal notranslate"><span class="pre">MVLGWSet</span></code></a><ul>
@@ -626,15 +636,22 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLGWSet.override_from_prev_calc"><code class="docutils literal notranslate"><span class="pre">MVLGWSet.override_from_prev_calc()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLNPTMDSet"><code class="docutils literal notranslate"><span class="pre">MVLNPTMDSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLNPTMDSet"><code class="docutils literal notranslate"><span class="pre">MVLNPTMDSet</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLNPTMDSet.user_potcar_functional"><code class="docutils literal notranslate"><span class="pre">MVLNPTMDSet.user_potcar_functional</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLRelax52Set"><code class="docutils literal notranslate"><span class="pre">MVLRelax52Set</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLRelax52Set.CONFIG"><code class="docutils literal notranslate"><span class="pre">MVLRelax52Set.CONFIG</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLScanRelaxSet"><code class="docutils literal notranslate"><span class="pre">MVLScanRelaxSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLScanRelaxSet"><code class="docutils literal notranslate"><span class="pre">MVLScanRelaxSet</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLScanRelaxSet.user_potcar_functional"><code class="docutils literal notranslate"><span class="pre">MVLScanRelaxSet.user_potcar_functional</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLSlabSet"><code class="docutils literal notranslate"><span class="pre">MVLSlabSet</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLSlabSet.as_dict"><code class="docutils literal notranslate"><span class="pre">MVLSlabSet.as_dict()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLSlabSet.kpoints"><code class="docutils literal notranslate"><span class="pre">MVLSlabSet.kpoints</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLSlabSet.user_potcar_functional"><code class="docutils literal notranslate"><span class="pre">MVLSlabSet.user_potcar_functional</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.VaspInputSet"><code class="docutils literal notranslate"><span class="pre">VaspInputSet</span></code></a><ul>

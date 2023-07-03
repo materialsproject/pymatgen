@@ -167,14 +167,13 @@ class MITMPRelaxSetTest(PymatgenTest):
     def test_metal_check(self):
         structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Cu"], [[0, 0, 0]])
 
-        with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-            # Trigger a warning.
+        with pytest.warns(
+            BadInputSetWarning,
+            match="Relaxation of likely metal with ISMEAR < 1 detected. See VASP recommendations on ISMEAR for metals.",
+        ) as warns:
             vis = MITRelaxSet(structure)
             _ = vis.incar
-            # Verify some things
-            assert "ISMEAR" in str(w[-1].message)
+        assert len(warns) == 1
 
     def test_poscar(self):
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)
@@ -382,7 +381,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         # test that van-der-Waals parameters are parsed correctly
         incar = MITRelaxSet(struct, vdw="optB86b").incar
         assert incar["GGA"] == "Mk"
-        assert incar["LUSE_VDW"] is True
+        assert incar["LUSE_VDW"]
         assert incar["PARAM1"] == 0.1234
 
         # Test that NELECT is updated when a charge is present
@@ -1421,7 +1420,7 @@ class MPScanRelaxSetTest(PymatgenTest):
     def test_incar(self):
         incar = self.mp_scan_set.incar
         assert incar["METAGGA"] == "R2scan"
-        assert incar["LASPH"] is True
+        assert incar["LASPH"]
         assert incar["ENAUG"] == 1360
         assert incar["ENCUT"] == 680
         assert incar["NSW"] == 500
@@ -1540,7 +1539,7 @@ class MPScanStaticSetTest(PymatgenTest):
         assert vis.incar["NSW"] == 0
         assert vis.incar["LREAL"] is False
         assert vis.incar["LORBIT"] == 11
-        assert vis.incar["LVHAR"] is True
+        assert vis.incar["LVHAR"]
         assert vis.incar["ISMEAR"] == -5
         # Check that ENCUT and other INCAR settings were inherited.
         assert vis.incar["ENCUT"] == 680
@@ -1552,7 +1551,7 @@ class MPScanStaticSetTest(PymatgenTest):
         assert vis.incar["NSW"] == 0
         assert vis.incar["LREAL"] is False
         assert vis.incar["LORBIT"] == 11
-        assert vis.incar["LVHAR"] is True
+        assert vis.incar["LVHAR"]
         # Check that ENCUT and KSPACING were inherited.
         assert vis.incar["ENCUT"] == 680
         assert vis.incar["METAGGA"] == "R2scan"
@@ -1565,7 +1564,7 @@ class MPScanStaticSetTest(PymatgenTest):
         # check that StaticSet settings were applied
         assert non_prev_vis.incar["NSW"] == 0
         assert non_prev_vis.incar["LREAL"] is False
-        assert non_prev_vis.incar["LVHAR"] is True
+        assert non_prev_vis.incar["LVHAR"]
         assert vis.incar["ISMEAR"] == -5
         # Check that ENCUT and other INCAR settings were inherited.
         assert non_prev_vis.incar["METAGGA"] == "R2scan"
@@ -1604,7 +1603,7 @@ class MPScanStaticSetTest(PymatgenTest):
         assert vis.incar["NSW"] == 0
         assert vis.incar["LREAL"] is False
         assert vis.incar["LORBIT"] == 11
-        assert vis.incar["LVHAR"] is True
+        assert vis.incar["LVHAR"]
         assert vis.incar["ISMEAR"] == -5
         # Check that ENCUT and other INCAR settings were inherited.
         assert vis.incar["ENCUT"] == 680

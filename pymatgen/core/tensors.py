@@ -388,7 +388,7 @@ class Tensor(np.ndarray, MSONable):
         rank = sum(voigt_input.shape) // 3
         t = cls(np.zeros([3] * rank))
         if voigt_input.shape != t._vscale.shape:
-            raise ValueError("Invalid shape for voigt matrix")
+            raise ValueError("Invalid shape for Voigt matrix")
         voigt_input = voigt_input / t._vscale
         this_voigt_map = t.get_voigt_dict(rank)
         for ind, v in this_voigt_map.items():

@@ -26,7 +26,7 @@ appropriate (e.g. the two nucleus critical points linked to
  a bond critical point)
 * critic2 can do many other things besides
 
-If you use this module, please cite the following:
+If you use this module, please cite:
 
 A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,
 Comput. Phys. Communications 185, 1007-1018 (2014)
@@ -59,12 +59,22 @@ from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+due.cite(
+    Doi("10.1016/j.cpc.2008.07.018"),
+    description="Critic: a new program for the topological analysis of solid-state electron densities",
+)
+due.cite(
+    Doi("10.1016/j.cpc.2013.10.026"),
+    description="Critic2: A program for real-space analysis of quantum chemical interactions in solids",
+)
 
 
 class Critic2Caller:

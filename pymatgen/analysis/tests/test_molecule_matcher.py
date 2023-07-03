@@ -21,7 +21,7 @@ from pymatgen.core.structure import Lattice, Molecule, Structure
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import openbabel
+    from openbabel import openbabel
 except (ImportError, RuntimeError):
     openbabel = None
 
@@ -382,7 +382,7 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         mol2 = Molecule.from_file(f"{test_dir}/t2.xyz")
         mm = HungarianOrderMatcher(mol1)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
             _, rmsd = mm.fit(mol2)
 
     def test_fit(self):
@@ -562,7 +562,9 @@ class KabschMatcherSiTest(unittest.TestCase):
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster.xyz")
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="The order of the species aren't matching! Please try using PermInvMatcher"
+        ):
             _, rmsd = self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
@@ -617,7 +619,7 @@ class HungarianOrderMatcherSiTest(unittest.TestCase):
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_rotated.xyz")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
             _, rmsd = self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
@@ -688,7 +690,9 @@ class KabschMatcherSi2OTest(unittest.TestCase):
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="The order of the species aren't matching! Please try using PermInvMatcher"
+        ):
             _, rmsd = self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
@@ -705,7 +709,9 @@ class KabschMatcherSi2OTest(unittest.TestCase):
         # This task should fail, because `KabschMatcher` is not capable
         # to handle arbitrary atom's order
         mol2 = Molecule.from_file(f"{test_dir}/Si2O_cluster_permuted.xyz")
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="The order of the species aren't matching! Please try using PermInvMatcher"
+        ):
             _, rmsd = self.mm.fit(mol2)
 
 
@@ -717,7 +723,7 @@ class BruteForceOrderMatcherSi2OTest(unittest.TestCase):
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
             _, rmsd = self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
@@ -749,7 +755,7 @@ class HungarianOrderMatcherSi2OTest(unittest.TestCase):
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster_rotated.xyz")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
             _, rmsd = self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
@@ -781,7 +787,7 @@ class GeneticOrderMatcherSi2OTest(unittest.TestCase):
 
     def test_mismatched_atoms(self):
         mol2 = Molecule.from_file(f"{test_dir}/Si_cluster.xyz")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="The number of the same species aren't matching"):
             self.mm.fit(mol2)
 
     def test_rotated_molecule(self):

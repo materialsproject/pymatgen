@@ -4,7 +4,6 @@ import math
 import os
 import pickle
 import unittest
-import warnings
 from copy import deepcopy
 
 import numpy as np
@@ -357,7 +356,7 @@ class SpeciesTestCase(PymatgenTest):
         self.specie1 = Species.from_string("Fe2+")
         self.specie2 = Species("Fe", 3)
         self.specie3 = Species("Fe", 2)
-        self.specie4 = Species("Fe", 2, {"spin": 5})
+        self.specie4 = Species("Fe", 2, spin=5)
 
     def test_init(self):
         with pytest.raises(ValueError, match="magmom is not a supported property"):
@@ -439,14 +438,14 @@ class SpeciesTestCase(PymatgenTest):
         assert mn2.get_shannon_radius("IV", "High Spin") == 0.66
         assert mn2.get_shannon_radius("V", "High Spin") == 0.75
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            # Trigger a warning.
-            r = mn2.get_shannon_radius("V")
-            # Verify some things
-            assert len(w) == 1
-            assert w[-1].category is UserWarning
-            assert r == 0.75
+        with pytest.warns(
+            UserWarning,
+            match="Specified spin='' not consistent with database spin of High Spin. Only one "
+            "spin data available, and that value is returned.",
+        ) as warns:
+            radius = mn2.get_shannon_radius("V")
+            assert len(warns) == 1
+            assert radius == 0.75
 
         assert mn2.get_shannon_radius("VI", "Low Spin") == 0.67
         assert mn2.get_shannon_radius("VI", "High Spin") == 0.83
@@ -458,23 +457,23 @@ class SpeciesTestCase(PymatgenTest):
         assert sorted(els) == [Species("Si", 3), Species("Si", 4), Species("N", -3)]
 
     def test_to_from_string(self):
-        fe3 = Species("Fe", 3, {"spin": 5})
+        fe3 = Species("Fe", 3, spin=5)
         assert str(fe3) == "Fe3+,spin=5"
         fe = Species.from_string("Fe3+,spin=5")
         assert fe.spin == 5
-        mo0 = Species("Mo", 0, {"spin": 5})
+        mo0 = Species("Mo", 0, spin=5)
         assert str(mo0) == "Mo0+,spin=5"
         mo = Species.from_string("Mo0+,spin=4")
         assert mo.spin == 4
 
         # Shyue Ping: I don't understand the need for a None for oxidation state. That to me is basically an element.
         # Why make the thing so complicated for a use case that I have never seen???
-        # fe_no_ox = Species("Fe", oxidation_state=None, properties={"spin": 5})
+        # fe_no_ox = Species("Fe", oxidation_state=None, spin=5)
         # fe_no_ox_from_str = Species.from_string("Fe,spin=5")
         # assert fe_no_ox == fe_no_ox_from_str
 
     def test_no_oxidation_state(self):
-        mo0 = Species("Mo", None, {"spin": 5})
+        mo0 = Species("Mo", None, spin=5)
         assert str(mo0) == "Mo,spin=5"
 
     def test_stringify(self):
@@ -513,7 +512,7 @@ class DummySpeciesTestCase(unittest.TestCase):
             DummySpecies("Xec")
         with pytest.raises(ValueError, match="Vac contains V, which is a valid element symbol"):
             DummySpecies("Vac")
-        self.specie2 = DummySpecies("X", 2, {"spin": 3})
+        self.specie2 = DummySpecies("X", 2, spin=3)
         assert self.specie2.spin == 3
 
     def test_eq(self):
@@ -543,6 +542,17 @@ class DummySpeciesTestCase(unittest.TestCase):
         r = sorted([Element.Fe, DummySpecies("X")])
         assert r == [DummySpecies("X"), Element.Fe]
         assert DummySpecies("X", 3) < DummySpecies("X", 4)
+
+    def test_immutable(self):
+        sp = Species("Fe", 2, spin=5)
+        with pytest.raises(AttributeError) as exc:
+            sp.spin = 6
+
+        assert "can't set attribute" in str(exc.value) or "property 'spin' of 'Species' object has no setter" in str(
+            exc.value
+        )  # 'can't set attribute' on Linux, for some reason different message on Windows and Mac
+        sp.properties["spin"] = 7
+        assert sp.spin == 5
 
 
 class FuncTest(unittest.TestCase):

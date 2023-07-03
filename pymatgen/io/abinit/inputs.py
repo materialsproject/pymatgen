@@ -796,7 +796,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         dct = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
-                raise TypeError(f"type {type(obj)}: {obj!r} does not have `to_abivars` method")
+                raise TypeError(f"type {type(obj).__name__} does not have `to_abivars` method")
             dct.update(self.set_vars(obj.to_abivars()))
         return dct
 

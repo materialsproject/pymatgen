@@ -28,7 +28,7 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2023.06.23",
+    version="2023.6.28",
     python_requires=">=3.8",
     install_requires=[
         "frozendict",
@@ -41,6 +41,8 @@ setup(
         "pandas",
         "plotly>=4.5.0",
         "pybtex",
+        # TODO remove after https://github.com/materialsproject/emmet/issues/768 is fixed
+        "pydantic<2.0.0",
         "requests",
         "ruamel.yaml>=0.17.0",
         "scipy>=1.5.0",
@@ -87,6 +89,7 @@ setup(
             "seekpath>=1.9.4",
             "tblite[ase]>=0.3.0; platform_system=='Linux'",
             # "hiphive>=0.6",
+            # "openbabel>=3.1.1; platform_system=='Linux'",
         ],
         "numba": [
             "numba",
