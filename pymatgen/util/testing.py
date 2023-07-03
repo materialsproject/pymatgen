@@ -40,7 +40,7 @@ class TestStructures:
         Returns:
             Structure: Structure object.
         """
-        file_path = f"{SETTINGS.get('PMG_TEST_FILES_DIR',ROOT)}/pymatgen/util/structures/{name}.json"
+        file_path = f"{SETTINGS.get('PMG_TEST_FILES_DIR', ROOT)}/pymatgen/util/structures/{name}.json"
         if os.path.isfile(file_path):
             structure = Structure.from_file(file_path)
             setattr(self, name, structure)
@@ -58,6 +58,7 @@ class PymatgenTest(unittest.TestCase):
     """
 
     _multiprocess_shared_ = True
+    TEST_FILES_DIR = f"{ROOT}/test_files"
 
     @pytest.fixture(autouse=True)  # make all tests run a in a temporary directory accessible via self.tmp_path
     def _tmp_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
