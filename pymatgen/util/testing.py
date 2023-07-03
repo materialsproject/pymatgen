@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 from monty.json import MontyDecoder, MSONable
+from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 
 from pymatgen.core import ROOT, SETTINGS, Structure
@@ -24,11 +25,13 @@ from pymatgen.core import ROOT, SETTINGS, Structure
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from pymatgen.core.interface import Interface
+
 
 class TestStructures:
     """Lazy load test structures on request."""
 
-    def __getattr__(self, name: str) -> Structure:
+    def __getattr__(self, name: str) -> Structure | Interface:
         """Load a test structure from JSON.
 
         Args:
@@ -42,10 +45,10 @@ class TestStructures:
         """
         file_path = f"{ROOT}/pymatgen/util/structures/{name}.json"
         if os.path.isfile(file_path):
-            structure = Structure.from_file(file_path)
-            setattr(self, name, structure)
-            return structure
-        raise FileNotFoundError(f"Structure {name!r} not found at {file_path!r}")
+            obj = loadfn(file_path)
+            setattr(self, name, obj)
+            return obj
+        raise FileNotFoundError(f"{name!r} not found at {file_path!r}")
 
 
 test_structures = TestStructures()
