@@ -14,6 +14,7 @@ for tol > 0
 returns the x_value for which dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists
 for the best fit a gnuplot line is printed plotting the data, the function and the asymptotic value
 """
+# ruff: noqa: PERF
 
 from __future__ import annotations
 

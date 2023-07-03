@@ -4640,8 +4640,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
         del self[index]
-        for site in functional_group[1:]:
-            self._sites.append(site)
+        self._sites += list(functional_group[1:])
 
     def relax(
         self,
