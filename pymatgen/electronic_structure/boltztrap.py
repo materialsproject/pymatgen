@@ -150,7 +150,7 @@ class BoltztrapRunner(MSONable):
                 increments of factors of 10.
             energy_span_around_fermi:
                 usually the interpolation is not needed on the entire energy
-                range but on a specific range around the fermi level.
+                range but on a specific range around the Fermi level.
                 This energy gives this range in eV. by default it is 1.5 eV.
                 If DOS or BANDS type are selected, this range is automatically
                 set to cover the entire energy range.
@@ -759,18 +759,18 @@ class BoltztrapAnalyzer:
                 relaxation time (sigma/tau) at different temperature and
                 fermi levels.
                 The format is {temperature: [array of 3x3 tensors at each
-                fermi level in mu_steps]}. The units are 1/(Ohm*m*s).
+                Fermi level in mu_steps]}. The units are 1/(Ohm*m*s).
             seebeck: The Seebeck tensor at different temperatures and fermi
                 levels. The format is {temperature: [array of 3x3 tensors at
-                each fermi level in mu_steps]}. The units are V/K
+                each Fermi level in mu_steps]}. The units are V/K
             kappa: The electronic thermal conductivity tensor divided by a
                 constant relaxation time (kappa/tau) at different temperature
                 and fermi levels. The format is {temperature: [array of 3x3
-                tensors at each fermi level in mu_steps]}
+                tensors at each Fermi level in mu_steps]}
                 The units are W/(m*K*s)
             hall: The hall tensor at different temperature and fermi levels
                 The format is {temperature: [array of 27 coefficients list at
-                each fermi level in mu_steps]}
+                each Fermi level in mu_steps]}
                 The units are m^3/C
             doping: The different doping levels that have been given to
                 Boltztrap. The format is {'p':[],'n':[]} with an array of
@@ -779,7 +779,7 @@ class BoltztrapAnalyzer:
                 for a given set of doping.
                 Format is {'p':{temperature: [fermi levels],'n':{temperature:
                 [fermi levels]}}
-                the fermi level array is ordered according to the doping
+                the Fermi level array is ordered according to the doping
                 levels in doping units for doping are in cm^-3 and for Fermi
                 level in eV
             seebeck_doping: The Seebeck tensor at different temperatures and
@@ -905,7 +905,7 @@ class BoltztrapAnalyzer:
         Compare sbs_bz BandStructureSymmLine calculated with boltztrap with
         the sbs_ref BandStructureSymmLine as reference (from MP for
         instance), computing correlation and energy difference for eight bands
-        around the gap (semiconductors) or fermi level (metals).
+        around the gap (semiconductors) or Fermi level (metals).
         warn_thr is a threshold to get a warning in the accuracy of Boltztap
         interpolated bands.
         Return a dictionary with these keys:

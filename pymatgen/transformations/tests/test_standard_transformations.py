@@ -487,18 +487,18 @@ class PerturbStructureTransformationTest(unittest.TestCase):
             [0.00, -2.2171384943, 3.1355090603],
         ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
-        transformed_s = trafo.apply_transformation(struct)
-        for i, site in enumerate(transformed_s):
-            assert site.distance(struct[i]) == approx(0.05)
+        transformed_struct = trafo.apply_transformation(struct)
+        for idx, site in enumerate(transformed_struct):
+            assert site.distance(struct[idx]) == approx(0.05)
 
         d = trafo.as_dict()
         assert isinstance(PerturbStructureTransformation.from_dict(d), PerturbStructureTransformation)
 
         t2 = PerturbStructureTransformation(0.05, 0)
         transformed_s2 = t2.apply_transformation(struct)
-        for i, site in enumerate(transformed_s2):
-            assert site.distance(struct[i]) <= 0.05
-            assert site.distance(struct[i]) >= 0
+        for idx, site in enumerate(transformed_s2):
+            assert site.distance(struct[idx]) <= 0.05
+            assert site.distance(struct[idx]) >= 0
 
         d = t2.as_dict()
         assert isinstance(PerturbStructureTransformation.from_dict(d), PerturbStructureTransformation)

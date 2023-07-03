@@ -72,7 +72,7 @@ class TestFragmentMolecule(PymatgenTest):
     def test_babel_pc_old_defaults(self):
         pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.pc, open_rings=True)
-        assert fragmenter.open_rings is True
+        assert fragmenter.open_rings
         assert fragmenter.opt_steps == 10000
         default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
         assert fragmenter.mol_graph == default_mol_graph

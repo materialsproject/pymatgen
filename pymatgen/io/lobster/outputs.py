@@ -1061,7 +1061,7 @@ class Fatband:
         warnings.warn("Make sure all relevant FATBAND files were generated and read in!")
         warnings.warn("Use Lobster 3.2.0 or newer for fatband calculations!")
 
-        VASPRUN = Vasprun(
+        vasp_run = Vasprun(
             filename=vasprun,
             ionic_step_skip=None,
             ionic_step_offset=0,
@@ -1072,9 +1072,9 @@ class Fatband:
             occu_tol=1e-8,
             exception_on_bad_xml=True,
         )
-        self.structure = VASPRUN.final_structure
+        self.structure = vasp_run.final_structure
         self.lattice = self.structure.lattice.reciprocal_lattice
-        self.efermi = VASPRUN.efermi
+        self.efermi = vasp_run.efermi
         kpoints_object = Kpoints.from_file(Kpointsfile)
 
         atomtype = []

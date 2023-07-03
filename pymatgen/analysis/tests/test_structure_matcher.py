@@ -91,7 +91,7 @@ class StructureMatcherTest(PymatgenTest):
 
         with pytest.raises(ValueError, match=r"len\(s1\)=1 must be larger than len\(s2\)=2"):
             sm._cmp_fstruct(s2, s1, frac_tol, mask.T)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="mask has incorrect shape"):
             sm._cmp_fstruct(s1, s2, frac_tol, mask.T)
 
         assert sm._cmp_fstruct(s1, s2, frac_tol, mask)
@@ -258,7 +258,7 @@ class StructureMatcherTest(PymatgenTest):
         assert not sm.fit(lfp, nfp)
 
         # Test anonymous fit.
-        assert sm.fit_anonymous(lfp, nfp) is True
+        assert sm.fit_anonymous(lfp, nfp)
         assert sm.get_rms_anonymous(lfp, nfp)[0] == approx(0.060895871160262717)
 
         # Test partial occupancies.
@@ -279,7 +279,7 @@ class StructureMatcherTest(PymatgenTest):
             [{"Mn": 0.5}, {"Mn": 0.5}, {"Mn": 0.5}, {"Mn": 0.5}],
             [[0, 0, 0], [0.25, 0.25, 0.25], [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]],
         )
-        assert sm.fit_anonymous(s1, s2) is True
+        assert sm.fit_anonymous(s1, s2)
 
         assert sm.get_rms_anonymous(s1, s2)[0] == approx(0)
 
@@ -580,7 +580,7 @@ class StructureMatcherTest(PymatgenTest):
         # s2 is smaller than s1
         del s2[0]
         del s2[1]
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="subset is larger than superset"):
             sm.get_mapping(s2, s1)
 
     def test_get_supercell_matrix(self):

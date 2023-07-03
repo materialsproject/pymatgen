@@ -1046,7 +1046,7 @@ class Vasprun(MSONable):
             return np.max(all_eigs[all_eigs < fermi]), np.min(all_eigs[all_eigs > fermi])
 
         if not crosses_band(self.efermi):
-            # Fermi doesn't cross a band; safe to use VASP fermi level
+            # Fermi doesn't cross a band; safe to use VASP Fermi level
             return self.efermi
 
         # if the Fermi level crosses a band, check if we are very close to band gap;
@@ -4276,12 +4276,12 @@ class Xdatcar:
 
     def write_file(self, filename, **kwargs):
         """
-        Write  Xdatcar class into a file.
+        Write Xdatcar class into a file.
 
         Args:
             filename (str): Filename of output XDATCAR file.
-            The supported kwargs are the same as those for the
-            Xdatcar.get_string method and are passed through directly.
+            **kwargs: Supported kwargs are the same as those for the
+                Xdatcar.get_string method and are passed through directly.
         """
         with zopen(filename, "wt") as f:
             f.write(self.get_string(**kwargs))
@@ -4365,24 +4365,24 @@ class Dynmat:
 
 def get_adjusted_fermi_level(efermi, cbm, band_structure):
     """
-    When running a band structure computations the fermi level needs to be
+    When running a band structure computations the Fermi level needs to be
     take from the static run that gave the charge density used for the non-self
-    consistent band structure run. Sometimes this fermi level is however a
+    consistent band structure run. Sometimes this Fermi level is however a
     little too low because of the mismatch between the uniform grid used in
     the static run and the band structure k-points (e.g., the VBM is on Gamma
     and the Gamma point is not in the uniform mesh). Here we use a procedure
-    consisting in looking for energy levels higher than the static fermi level
+    consisting in looking for energy levels higher than the static Fermi level
     (but lower than the LUMO) if any of these levels make the band structure
     appears insulating and not metallic anymore, we keep this adjusted fermi
     level. This procedure has shown to detect correctly most insulators.
 
     Args:
-        efermi (float): Fermi energy of the static run
-        cbm (float): Conduction band minimum of the static run
-        run_bandstructure: a band_structure object
+        efermi (float): The Fermi energy of the static run.
+        cbm (float): The conduction band minimum of the static run.
+        band_structure (BandStructureSymmLine): A band structure object.
 
     Returns:
-        a new adjusted fermi level
+        float: A new adjusted Fermi level.
     """
     # make a working copy of band_structure
     bs_working = BandStructureSymmLine.from_dict(band_structure.as_dict())

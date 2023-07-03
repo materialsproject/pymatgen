@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import warnings
 
 from pytest import approx
 from sympy import Number, Symbol
@@ -25,9 +24,6 @@ def get_path(path_str):
 
 class SlabEntryTest(PymatgenTest):
     def setUp(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-
         with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
         self.ucell_entries = ucell_entries

@@ -169,9 +169,11 @@ class ElasticTensorTest(PymatgenTest):
         self.assert_all_close(self.elastic_tensor_1, ElasticTensor(self.ft))
         non_symm = self.ft
         non_symm[0, 1, 2, 2] += 1.0
-        with warnings.catch_warnings(record=True) as w:
+        with pytest.warns(
+            UserWarning, match="Input elastic tensor does not satisfy standard Voigt symmetries"
+        ) as warns:
             ElasticTensor(non_symm)
-            assert len(w) == 1
+        assert len(warns) == 1
         bad_tensor1 = np.zeros((3, 3, 3))
         bad_tensor2 = np.zeros((3, 3, 3, 2))
         with pytest.raises(ValueError, match="ElasticTensor input must be rank 4"):
@@ -185,7 +187,11 @@ class ElasticTensorTest(PymatgenTest):
     def test_from_pseudoinverse(self):
         strain_list = [Strain.from_deformation(def_matrix) for def_matrix in self.def_stress_dict["deformations"]]
         stress_list = list(self.def_stress_dict["stresses"])
-        with warnings.catch_warnings(record=True):
+        with pytest.warns(
+            UserWarning,
+            match="Pseudo-inverse fitting of Strain/Stress lists may yield questionable results from "
+            "vasp data, use with caution",
+        ):
             et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stress_list).voigt
             self.assert_all_close(
                 et_fl.round(2),
@@ -202,8 +208,9 @@ class ElasticTensorTest(PymatgenTest):
     def test_from_independent_strains(self):
         strains = self.toec_dict["strains"]
         stresses = self.toec_dict["stresses"]
-        with warnings.catch_warnings(record=True):
+        with pytest.warns(UserWarning, match="No eq state found, returning zero voigt stress") as warns:
             et = ElasticTensor.from_independent_strains(strains, stresses)
+        assert len(warns) == 2
         self.assert_all_close(et.voigt, self.toec_dict["C2_raw"], decimal=-1)
 
     def test_energy_density(self):
@@ -233,11 +240,7 @@ class ElasticTensorTest(PymatgenTest):
                 [
                     [0.99774738, 0.11520994, -0],
                     [-0.11520994, 0.99774738, 0],
-                    [
-                        -0,
-                        -0,
-                        1,
-                    ],
+                    [-0, -0, 1],
                 ]
             )
         )
@@ -268,9 +271,9 @@ class ElasticTensorExpansionTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_init(self):
-        cijkl = Tensor.from_voigt(self.c2)
-        cijklmn = Tensor.from_voigt(self.c3)
-        exp = ElasticTensorExpansion([cijkl, cijklmn])
+        c_ijkl = Tensor.from_voigt(self.c2)
+        c_ijklmn = Tensor.from_voigt(self.c3)
+        exp = ElasticTensorExpansion([c_ijkl, c_ijklmn])
         ElasticTensorExpansion.from_voigt([self.c2, self.c3])
         assert exp.order == 3
 
@@ -433,9 +436,8 @@ class DiffFitTest(PymatgenTest):
     def test_find_eq_stress(self):
         test_strains = deepcopy(self.strains)
         test_stresses = deepcopy(self.pk_stresses)
-        with warnings.catch_warnings(record=True):
-            no_eq = find_eq_stress(test_strains, test_stresses)
-            self.assert_all_close(no_eq, np.zeros((3, 3)))
+        no_eq = find_eq_stress(test_strains, test_stresses)
+        self.assert_all_close(no_eq, np.zeros((3, 3)))
         test_strains[3] = Strain.from_voigt(np.zeros(6))
         eq_stress = find_eq_stress(test_strains, test_stresses)
         self.assert_all_close(test_stresses[3], eq_stress)
@@ -449,15 +451,7 @@ class DiffFitTest(PymatgenTest):
         self.assert_all_close(forward_13, [-11 / 6, 3, -3 / 2, 1 / 3])
         self.assert_all_close(
             backward_26,
-            [
-                137 / 180,
-                -27 / 5,
-                33 / 2,
-                -254 / 9,
-                117 / 4,
-                -87 / 5,
-                203 / 45,
-            ],
+            [137 / 180, -27 / 5, 33 / 2, -254 / 9, 117 / 4, -87 / 5, 203 / 45],
         )
         self.assert_all_close(central_29, central_diff_weights(9, 2))
 
@@ -472,12 +466,11 @@ class DiffFitTest(PymatgenTest):
         reduced = [(e, pk) for e, pk in zip(self.strains, self.pk_stresses) if not (abs(abs(e) - 0.05) < 1e-10).any()]
         # Get reduced dataset
         r_strains, r_pk_stresses = zip(*reduced)
-        with warnings.catch_warnings(record=True):
-            c2 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=2)
-            c2, c3, c4 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4)
-            c2, c3 = diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"], order=3)
-            c2_red, c3_red = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=3)
-            self.assert_all_close(c2.voigt, self.data_dict["C2_raw"])
-            self.assert_all_close(c3.voigt, self.data_dict["C3_raw"], decimal=5)
-            self.assert_all_close(c2, c2_red, decimal=0)
-            self.assert_all_close(c3, c3_red, decimal=-1)
+        c2 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=2)
+        c2, c3, c4 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4)
+        c2, c3 = diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"], order=3)
+        c2_red, c3_red = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=3)
+        self.assert_all_close(c2.voigt, self.data_dict["C2_raw"])
+        self.assert_all_close(c3.voigt, self.data_dict["C3_raw"], decimal=5)
+        self.assert_all_close(c2, c2_red, decimal=0)
+        self.assert_all_close(c3, c3_red, decimal=-1)

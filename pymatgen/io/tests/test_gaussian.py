@@ -340,7 +340,7 @@ class GaussianOutputTest(unittest.TestCase):
         gau = GaussianOutput(os.path.join(test_dir, "H2O_gau.out"))
         assert gau.num_basis_func == 13
         assert gau.electrons == (5, 5)
-        assert gau.is_spin is True
+        assert gau.is_spin
         assert gau.eigenvalues[Spin.down] == [
             -20.55343,
             -1.35264,

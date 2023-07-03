@@ -1279,9 +1279,9 @@ class LobsteroutTest(PymatgenTest):
 
         assert self.lobsterout_onethread.number_of_threads == 1
         # Test lobsterout of lobster-4.1.0
-        assert self.lobsterout_cobi_madelung.has_cobicar is True
-        assert self.lobsterout_cobi_madelung.has_cohpcar is True
-        assert self.lobsterout_cobi_madelung.has_madelung is True
+        assert self.lobsterout_cobi_madelung.has_cobicar
+        assert self.lobsterout_cobi_madelung.has_cohpcar
+        assert self.lobsterout_cobi_madelung.has_madelung
         assert not self.lobsterout_cobi_madelung.has_doscar_lso
 
         assert self.lobsterout_doscar_lso.has_doscar_lso
@@ -1433,7 +1433,7 @@ class FatbandTest(PymatgenTest):
             assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
         assert self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi == -18.245
         assert self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi == -18.245
-        assert self.fatband_SiO2_spin.is_spinpolarized is True
+        assert self.fatband_SiO2_spin.is_spinpolarized
         assert self.fatband_SiO2_spin.kpoints_array[3] == approx([0.03409091, 0, 0])
         assert self.fatband_SiO2_spin.nbands == 36
 
@@ -1601,11 +1601,11 @@ class LobsterinTest(unittest.TestCase):
         assert self.Lobsterinfromfile["gaussiansmearingwidth"] == approx(0.1)
         assert self.Lobsterinfromfile["basisfunctions"][0] == "Fe 3d 4p 4s"
         assert self.Lobsterinfromfile["basisfunctions"][1] == "Co 3d 4p 4s"
-        assert self.Lobsterinfromfile["skipdos"] is True
-        assert self.Lobsterinfromfile["skipcohp"] is True
-        assert self.Lobsterinfromfile["skipcoop"] is True
-        assert self.Lobsterinfromfile["skippopulationanalysis"] is True
-        assert self.Lobsterinfromfile["skipgrosspopulation"] is True
+        assert self.Lobsterinfromfile["skipdos"]
+        assert self.Lobsterinfromfile["skipcohp"]
+        assert self.Lobsterinfromfile["skipcoop"]
+        assert self.Lobsterinfromfile["skippopulationanalysis"]
+        assert self.Lobsterinfromfile["skipgrosspopulation"]
 
         # test if comments are correctly removed
         assert self.Lobsterinfromfile == self.Lobsterinfromfile2
@@ -1641,11 +1641,11 @@ class LobsterinTest(unittest.TestCase):
         assert lobsterin1["gaussiansmearingwidth"] == approx(0.1)
         assert lobsterin1["basisfunctions"][0] == "Fe 3d 4p 4s"
         assert lobsterin1["basisfunctions"][1] == "Co 3d 4p 4s"
-        assert lobsterin1["skipdos"] is True
-        assert lobsterin1["skipcohp"] is True
-        assert lobsterin1["skipcoop"] is True
-        assert lobsterin1["skippopulationanalysis"] is True
-        assert lobsterin1["skipgrosspopulation"] is True
+        assert lobsterin1["skipdos"]
+        assert lobsterin1["skipcohp"]
+        assert lobsterin1["skipcoop"]
+        assert lobsterin1["skippopulationanalysis"]
+        assert lobsterin1["skipgrosspopulation"]
         with pytest.raises(IOError):
             lobsterin2 = Lobsterin({"cohpstartenergy": -15.0, "cohpstartEnergy": -20.0})
         lobsterin2 = Lobsterin({"cohpstartenergy": -15.0})
@@ -1688,7 +1688,7 @@ class LobsterinTest(unittest.TestCase):
                 "onlycoop",
                 "onlycohpcoop",
             ]:
-                assert lobsterin1["saveProjectiontoFile"] is True
+                assert lobsterin1["saveProjectiontoFile"]
             if option in [
                 "standard",
                 "standard_with_fatband",
@@ -1698,14 +1698,14 @@ class LobsterinTest(unittest.TestCase):
             ]:
                 assert lobsterin1["cohpGenerator"] == "from 0.1 to 6.0 orbitalwise"
             if option in ["standard"]:
-                assert ("skipdos" not in lobsterin1) is True
-                assert ("skipcohp" not in lobsterin1) is True
-                assert ("skipcoop" not in lobsterin1) is True
+                assert "skipdos" not in lobsterin1
+                assert "skipcohp" not in lobsterin1
+                assert "skipcoop" not in lobsterin1
             if option in ["standard_with_fatband"]:
                 assert lobsterin1["createFatband"] == ["Fe 3d 4p 4s ", "O 2p 2s "]
-                assert ("skipdos" not in lobsterin1) is True
-                assert ("skipcohp" not in lobsterin1) is True
-                assert ("skipcoop" not in lobsterin1) is True
+                assert "skipdos" not in lobsterin1
+                assert "skipcohp" not in lobsterin1
+                assert "skipcoop" not in lobsterin1
             if option in ["standard_from_projection"]:
                 assert lobsterin1["loadProjectionFromFile"], True
             if option in [

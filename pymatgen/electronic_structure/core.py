@@ -18,7 +18,7 @@ class Spin(Enum):
     Usage: Spin.up, Spin.down.
     """
 
-    up, down = (1, -1)
+    up, down = 1, -1
 
     def __int__(self):
         return self.value

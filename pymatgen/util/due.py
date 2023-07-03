@@ -18,13 +18,13 @@ __version__ = "0.0.9"
 
 
 class InactiveDueCreditCollector:
-    """Just a stub at the Collector which would not do anything"""
+    """Just a stub at the Collector which would not do anything."""
 
     def _donothing(self, *args, **kwargs):
-        """Perform no good and no bad"""
+        """Perform no good and no bad."""
 
     def dcite(self, *args, **kwargs):
-        """If I could cite I would"""
+        """If I could cite I would."""
 
         def nondecorating_decorator(func):
             return func
@@ -39,7 +39,7 @@ class InactiveDueCreditCollector:
 
 
 def _donothing_func(*args, **kwargs):
-    """Perform no good and no bad"""
+    """Perform no good and no bad."""
 
 
 try:

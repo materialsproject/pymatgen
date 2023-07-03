@@ -469,7 +469,7 @@ class FermiDos(Dos, MSONable):
     def get_doping(self, fermi_level: float, temperature: float) -> float:
         """
         Calculate the doping (majority carrier concentration) at a given
-        fermi level  and temperature. A simple Left Riemann sum is used for
+        Fermi level  and temperature. A simple Left Riemann sum is used for
         integrating the density of states over energy & equilibrium Fermi-Dirac
         distribution.
 
@@ -503,7 +503,7 @@ class FermiDos(Dos, MSONable):
         """
         Similar to get_fermi except that when get_fermi fails to converge,
         an interpolated or extrapolated fermi is returned with the assumption
-        that the fermi level changes linearly with log(abs(concentration)).
+        that the Fermi level changes linearly with log(abs(concentration)).
 
         Args:
             concentration: The doping concentration in 1/cm^3. Negative values
@@ -546,9 +546,9 @@ class FermiDos(Dos, MSONable):
             f_ref = self.get_fermi_interextrapolated(np.sign(concentration) * c_ref, temperature, warn=False, **kwargs)
             f_new = self.get_fermi_interextrapolated(concentration / 10.0, temperature, warn=False, **kwargs)
             clog = np.sign(concentration) * np.log(abs(concentration))
-            c_newlog = np.sign(concentration) * np.log(abs(self.get_doping(f_new, temperature)))
-            slope = (f_new - f_ref) / (c_newlog - np.sign(concentration) * 10.0)
-            return f_new + slope * (clog - c_newlog)
+            c_new_log = np.sign(concentration) * np.log(abs(self.get_doping(f_new, temperature)))
+            slope = (f_new - f_ref) / (c_new_log - np.sign(concentration) * 10.0)
+            return f_new + slope * (clog - c_new_log)
 
     def get_fermi(
         self,
@@ -560,7 +560,7 @@ class FermiDos(Dos, MSONable):
         precision: int = 8,
     ) -> float:
         """
-        Finds the fermi level at which the doping concentration at the given
+        Finds the Fermi level at which the doping concentration at the given
         temperature (T) is equal to concentration. A greedy algorithm is used
         where the relative error is minimized by calculating the doping at a
         grid which continually becomes finer.
@@ -571,7 +571,7 @@ class FermiDos(Dos, MSONable):
                 doping.
             temperature: The temperature in Kelvin.
             rtol: The maximum acceptable relative error.
-            nstep: THe number of steps checked around a given fermi level.
+            nstep: The number of steps checked around a given Fermi level.
             step: Initial step in energy when searching for the Fermi level.
             precision: Essentially the decimal places of calculated Fermi level.
 
@@ -579,16 +579,16 @@ class FermiDos(Dos, MSONable):
             ValueError: If the Fermi level cannot be found.
 
         Returns:
-            The fermi level in eV. Note that this is different from the default
+            The Fermi level in eV. Note that this is different from the default
             dos.efermi.
         """
         fermi = self.efermi  # initialize target fermi
         relative_error = [float("inf")]
         for _ in range(precision):
-            frange = np.arange(-nstep, nstep + 1) * step + fermi
-            calc_doping = np.array([self.get_doping(f, temperature) for f in frange])
+            f_range = np.arange(-nstep, nstep + 1) * step + fermi
+            calc_doping = np.array([self.get_doping(f, temperature) for f in f_range])
             relative_error = np.abs(calc_doping / concentration - 1.0)  # type: ignore
-            fermi = frange[np.argmin(relative_error)]
+            fermi = f_range[np.argmin(relative_error)]
             step /= 10.0
 
         if min(relative_error) > rtol:
@@ -1491,7 +1491,7 @@ def f0(E, fermi, T) -> float:
 
     Args:
         E (float): energy in eV
-        fermi (float): the fermi level in eV
+        fermi (float): the Fermi level in eV
         T (float): the temperature in kelvin
 
     Returns:
