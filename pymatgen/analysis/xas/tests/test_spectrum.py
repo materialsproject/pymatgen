@@ -126,5 +126,5 @@ class XASTest(PymatgenTest):
         assert weighted_spectrum.y[0] == approx((4 * self.site1_xanes.y[0] + 2 * self.site2_xanes.y[0]) / 6, abs=1e-2)
         assert min(weighted_spectrum.x) == max(min(self.site1_xanes.x), min(self.site2_xanes.x))
         self.site2_xanes.absorbing_index = self.site1_xanes.absorbing_index
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Need at least two site-wise spectra to perform site-weighting"):
             site_weighted_spectrum([self.site1_xanes, self.site2_xanes])

@@ -169,11 +169,15 @@ class MPResterOldTest(PymatgenTest):
         assert s1.formula == "Cs1"
 
         # requesting via task-id instead of mp-id
-        with pytest.warns(Warning):
+        with pytest.warns(
+            Warning,
+            match="calculation task mp-698856 is mapped to canonical mp-id mp-1394, so structure for mp-1394 returned",
+        ):
             self.rester.get_structure_by_material_id("mp-698856")
 
         # requesting unknown mp-id
-        with pytest.raises(MPRestError):
+        # TODO (janosh) this seems like the wrong error message for this case
+        with pytest.raises(MPRestError, match="'id' is not a valid Element"):
             self.rester.get_structure_by_material_id("id-does-not-exist")
 
     def test_get_entry_by_material_id(self):

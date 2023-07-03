@@ -11,6 +11,7 @@ from shutil import copyfile, copyfileobj
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Element
@@ -368,7 +369,7 @@ class VasprunTest(PymatgenTest):
 
     def test_indirect_vasprun(self):
         vasp_run = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.indirect.gz")
-        (gap, cbm, vbm, direct) = vasp_run.eigenvalue_band_properties
+        _gap, _cbm, _vbm, direct = vasp_run.eigenvalue_band_properties
         assert not direct
 
     def test_optical_vasprun(self):
@@ -392,16 +393,12 @@ class VasprunTest(PymatgenTest):
     def test_force_constants(self):
         vasprun_fc = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt.phonon", parse_potcar_file=False)
         assert vasprun_fc.force_constants.shape == (16, 16, 3, 3)
-        assert np.allclose(
+        assert_allclose(
             vasprun_fc.force_constants[8, 9],
-            [
-                [-0.00184451, -0.0, -0.0],
-                [-0.0, -0.00933824, -0.03021279],
-                [-0.0, -0.03021279, 0.01202547],
-            ],
+            [[-0.00184451, 0, 0], [0, -0.00933824, -0.03021279], [0, -0.03021279, 0.01202547]],
         )
         assert vasprun_fc.normalmode_eigenvals.size == 48
-        assert np.allclose(
+        assert_allclose(
             vasprun_fc.normalmode_eigenvals[17:29],
             [
                 -0.59067079,
@@ -419,7 +416,7 @@ class VasprunTest(PymatgenTest):
             ],
         )
         assert vasprun_fc.normalmode_eigenvecs.shape == (48, 16, 3)
-        assert np.allclose(
+        assert_allclose(
             vasprun_fc.normalmode_eigenvecs[33],
             [
                 [0.0884346, -0.08837289, -0.24995639],
@@ -1168,8 +1165,8 @@ class OutcarTest(PymatgenTest):
     def test_electrostatic_potential(self):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
         assert outcar.ngf == [54, 30, 54]
-        assert np.allclose(outcar.sampling_radii, [0.9748, 0.9791, 0.7215])
-        assert np.allclose(
+        assert_allclose(outcar.sampling_radii, [0.9748, 0.9791, 0.7215])
+        assert_allclose(
             outcar.electrostatic_potential,
             [-26.0704, -45.5046, -45.5046, -72.9539, -73.0621, -72.9539, -73.0621],
         )
@@ -1467,7 +1464,7 @@ class ChgcarTest(PymatgenTest):
 
         ans = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
         myans = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
-        assert np.allclose(myans[:, 1], ans)
+        assert_allclose(myans[:, 1], ans)
 
     def test_write(self):
         self.chgcar_spin.write_file("CHGCAR_pmg")
@@ -1657,11 +1654,11 @@ class DynmatTest(PymatgenTest):
         assert d.nspecs == 2
         assert d.natoms == 6
         assert d.ndisps == 3
-        assert np.allclose(d.masses, [63.546, 196.966])
+        assert_allclose(d.masses, [63.546, 196.966])
         assert 4 in d.data
         assert 2 in d.data[4]
-        assert np.allclose(d.data[4][2]["dispvec"], [0.0, 0.05, 0.0])
-        assert np.allclose(d.data[4][2]["dynmat"][3], [0.055046, -0.298080, 0.0])
+        assert_allclose(d.data[4][2]["dispvec"], [0.0, 0.05, 0.0])
+        assert_allclose(d.data[4][2]["dynmat"][3], [0.055046, -0.298080, 0.0])
         # TODO: test get_phonon_frequencies once cross-checked
 
 
@@ -1698,8 +1695,8 @@ class WavecarTest(PymatgenTest):
         assert w.encut == 25.0
         assert w.nb == 9
         assert w.nk == 1
-        assert np.allclose(w.a, a)
-        assert np.allclose(w.b, b)
+        assert_allclose(w.a, a)
+        assert_allclose(w.b, b)
         assert w.vol == approx(vol)
         assert len(w.kpoints) == w.nk
         assert len(w.coeffs) == w.nk
@@ -1746,8 +1743,8 @@ class WavecarTest(PymatgenTest):
         assert w.encut == 25.0
         assert w.nb == 9
         assert w.nk == 1
-        assert np.allclose(w.a, self.a)
-        assert np.allclose(w.b, self.b)
+        assert_allclose(w.a, self.a)
+        assert_allclose(w.b, self.b)
         assert w.vol == approx(self.vol)
         assert len(w.kpoints) == w.nk
         assert len(w.coeffs) == w.nk
@@ -1912,7 +1909,7 @@ class WavecarTest(PymatgenTest):
         assert "total" in c.data
         assert "diff" not in c.data
         assert np.prod(c.data["total"].shape) == np.prod(w.ng * 2)
-        assert np.allclose(c.data["total"], 0.0)
+        assert_allclose(c.data["total"], 0.0)
 
     def test_write_unks(self):
         unk_std = Unk.from_file(self.TEST_FILES_DIR / "UNK.N2.std")

@@ -545,8 +545,12 @@ class DummySpeciesTestCase(unittest.TestCase):
 
     def test_immutable(self):
         sp = Species("Fe", 2, spin=5)
-        with pytest.raises(AttributeError, match="property 'spin' of 'Species' object has no setter"):
+        with pytest.raises(AttributeError) as exc:
             sp.spin = 6
+
+        assert "can't set attribute" in str(exc.value) or "property 'spin' of 'Species' object has no setter" in str(
+            exc.value
+        )  # 'can't set attribute' on Linux, for some reason different message on Windows and Mac
         sp.properties["spin"] = 7
         assert sp.spin == 5
 

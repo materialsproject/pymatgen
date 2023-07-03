@@ -664,7 +664,7 @@ class SQSTransformationTest(PymatgenTest):
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         struct_out = trans.apply_transformation(struct)
         matches = [struct_out.matches(s) for s in pzt_structs]
-        assert True in matches
+        assert any(matches)
 
     def test_return_ranked_list(self):
         # list of structures
@@ -674,7 +674,7 @@ class SQSTransformationTest(PymatgenTest):
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
         matches = [ranked_list_out[0]["structure"].matches(s) for s in pzt_structs2]
-        assert True in matches
+        assert any(matches)
 
     def test_spin(self):
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)

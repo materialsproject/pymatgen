@@ -28,7 +28,7 @@ class OrbitalTest(unittest.TestCase):
     def test_init(self):
         for orb in Orbital:
             assert Orbital(orb.value) == orb
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="100 is not a valid Orbital"):
             Orbital(100)
 
     def test_cached(self):
