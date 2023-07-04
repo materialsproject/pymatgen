@@ -263,7 +263,7 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
 class AddSitePropertyTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("Li2O2")
-        sd = [[True, True, True] for site in struct.sites]
+        sd = [[True, True, True] for _ in struct]
         bader = np.random.random(struct.num_sites).tolist()
         site_props = {"selective_dynamics": sd, "bader": bader}
         trans = AddSitePropertyTransformation(site_props)

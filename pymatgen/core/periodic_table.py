@@ -554,7 +554,7 @@ class ElementBase(Enum):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Element) and self.Z == other.Z
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return self.Z
 
     def __repr__(self):
@@ -1078,7 +1078,7 @@ class Species(MSONable, Stringify):
             and (self.spin == other.spin)  # type: ignore
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """
         Equal Species should have the same str representation, hence
         should hash equally. Unequal Species will have different str

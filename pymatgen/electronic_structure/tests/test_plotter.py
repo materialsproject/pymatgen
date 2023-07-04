@@ -234,23 +234,23 @@ class BSDOSPlotterTest(unittest.TestCase):
     # it can actually execute.
     def test_methods(self):
         vasp_run = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun_Si_bands.xml"))
-        p = BSDOSPlotter()
-        plt = p.get_plot(
+        plotter = BSDOSPlotter()
+        plt = plotter.get_plot(
             vasp_run.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands"))
         )
         plt.close()
-        plt = p.get_plot(
+        plt = plotter.get_plot(
             vasp_run.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands")),
             vasp_run.complete_dos,
         )
         plt.close("all")
 
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "SrBa2Sn2O7.json")) as f:
-            bandstr_dict = json.load(f)
+            band_struct_dict = json.load(f)
         # generate random projections
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
-        bandstr_dict["projections"]["1"] = data_structure
-        d = bandstr_dict["projections"]["1"]
+        band_struct_dict["projections"]["1"] = data_structure
+        d = band_struct_dict["projections"]["1"]
         for i in range(len(d)):
             for j in range(len(d[i])):
                 for k in range(len(d[i][j])):
@@ -264,8 +264,8 @@ class BSDOSPlotterTest(unittest.TestCase):
                     d[i][j][k][a] = np.random.rand()
                     d[i][j][k][b] = np.random.rand()
                     # d[i][j][k][c] = np.random.rand()
-        bandstr = BandStructureSymmLine.from_dict(bandstr_dict)
-        plt = p.get_plot(bandstr)
+        band_struct = BandStructureSymmLine.from_dict(band_struct_dict)
+        plt = plotter.get_plot(band_struct)
         plt.show()
 
 

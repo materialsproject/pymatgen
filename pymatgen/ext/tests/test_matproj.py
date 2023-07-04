@@ -140,7 +140,7 @@ class MPResterOldTest(PymatgenTest):
 
     def test_find_structure(self):
         mpr = _MPResterLegacy()
-        cif_file = self.TEST_FILES_DIR / "Fe3O4.cif"
+        cif_file = f"{self.TEST_FILES_DIR}/Fe3O4.cif"
         data = mpr.find_structure(str(cif_file))
         assert len(data) > 1
         s = CifParser(cif_file).get_structures()[0]

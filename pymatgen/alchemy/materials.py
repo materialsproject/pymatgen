@@ -58,8 +58,8 @@ class TransformedStructure(MSONable):
         self._undone: list[tuple[AbstractTransformation | dict[str, Any], Structure]] = []
 
         transformations = transformations or []
-        for t in transformations:
-            self.append_transformation(t)
+        for trafo in transformations:
+            self.append_transformation(trafo)
 
     def undo_last_change(self) -> None:
         """

@@ -3098,7 +3098,7 @@ class IMolecule(SiteCollection, MSONable):
         all_dist = sorted(all_dist, key=lambda x: x[0])
         return [d[1] for d in all_dist]
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # For now, just use the composition hash code.
         return hash(self.composition)
 
@@ -4640,8 +4640,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
         del self[index]
-        for site in functional_group[1:]:
-            self._sites.append(site)
+        self._sites += list(functional_group[1:])
 
     def relax(
         self,

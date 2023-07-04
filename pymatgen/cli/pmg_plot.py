@@ -60,7 +60,7 @@ def get_chgint_plot(args):
     else:
         finder = SpacegroupAnalyzer(struct, symprec=0.1)
         sites = [sites[0] for sites in finder.get_symmetrized_structure().equivalent_sites]
-        atom_ind = [struct.sites.index(site) for site in sites]
+        atom_ind = [struct.index(site) for site in sites]
 
     from pymatgen.util.plotting import pretty_plot
 

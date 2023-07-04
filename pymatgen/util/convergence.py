@@ -14,6 +14,7 @@ for tol > 0
 returns the x_value for which dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists
 for the best fit a gnuplot line is printed plotting the data, the function and the asymptotic value
 """
+# ruff: noqa: PERF
 
 from __future__ import annotations
 
@@ -205,14 +206,8 @@ def p0_single_reciprocal(xs, ys):
 
 def simple_reciprocal(x, a, b):
     """Reciprocal function to fit convergence data."""
-    if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b / x_v)
-        y = np.array(y_l)
-    else:
-        y = a + b / x
-    return y
+    y_l = [a + b / x_v for x_v in x]
+    return np.array(y_l) if isinstance(x, list) else a + b / x
 
 
 def p0_simple_reciprocal(xs, ys):
@@ -264,14 +259,7 @@ def p0_simple_2reciprocal(xs, ys):
 def simple_4reciprocal(x, a, b):
     """Reciprocal function to fit convergence data."""
     c = 4
-    if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b / x_v**c)
-        y = np.array(y_l)
-    else:
-        y = a + b / x**c
-    return y
+    return [a + b / x_v**c for x_v in x] if isinstance(x, list) else a + b / x**c
 
 
 def p0_simple_4reciprocal(xs, ys):
@@ -294,14 +282,7 @@ def p0_simple_4reciprocal(xs, ys):
 def simple_5reciprocal(x, a, b):
     """Reciprocal function to fit convergence data."""
     c = 0.5
-    if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b / x_v**c)
-        y = np.array(y_l)
-    else:
-        y = a + b / x**c
-    return y
+    return [a + b / x_v**c for x_v in x] if isinstance(x, list) else a + b / x**c
 
 
 def p0_simple_5reciprocal(xs, ys):
@@ -392,14 +373,10 @@ def get_weights(xs, ys, mode=2):
         mind = np.inf
         for d in ds:
             mind = min(abs(d), mind)
-        weights = []
-        for d in ds:
-            weights.append(abs(mind / d))
-    if mode == 2:
+        weights = [abs(mind / d) for d in ds]
+    elif mode == 2:
         x_max = max(xs) ** 2
-        weights = []
-        for x in xs:
-            weights.append(x**2 / x_max)
+        weights = [x**2 / x_max for x in xs]
     else:
         weights = [1] * len(xs)
     return weights
