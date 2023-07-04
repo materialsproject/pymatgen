@@ -260,7 +260,7 @@ class ShiftModeTest(PymatgenTest):
         gamma = ShiftMode.GammaCentered
         assert ShiftMode.from_object("G") == gamma
         assert ShiftMode.from_object(gamma) == gamma
-        with pytest.raises(TypeError, match="The object provided is not handled: type dictcool, hope "):
+        with pytest.raises(TypeError, match="The object provided is not handled: type dict"):
             ShiftMode.from_object({})
 
 

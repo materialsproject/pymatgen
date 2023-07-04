@@ -118,7 +118,9 @@ def reciprocal(x, a, b, n):
         n = 1
     elif n > 5:
         n = 5
-    return np.array([a + b / x_v**n for x_v in x])
+    if isinstance(x, list):
+        return np.array([a + b / x_v**n for x_v in x])
+    return a + b / x**n
 
 
 def p0_reciprocal(xs, ys):
