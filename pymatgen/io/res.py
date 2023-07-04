@@ -458,7 +458,7 @@ class AirssProvider(ResProvider):
             if rem.strip().startswith("CASTEP"):
                 srem = rem.split()
                 return srem[1][:-1]
-        return self._raise_or_none(ParseError("Could not find CASTEP version."))  # type: ignore
+        return self._raise_or_none(ParseError("No CASTEP version found in REM"))  # type: ignore
 
     def get_func_rel_disp(self) -> tuple[str, str, str] | None:
         """

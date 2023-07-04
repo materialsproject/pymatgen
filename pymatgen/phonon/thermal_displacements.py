@@ -515,39 +515,37 @@ class ThermalDisplacementMatrices(MSONable):
 
             lattice = CifParser.get_lattice_no_exception(data)
 
-            allcoords = []
+            all_coords = []
             allspecies = []
-            for i in range(len(data["_atom_site_label"])):
+            for idx in range(len(data["_atom_site_label"])):
                 try:
                     # If site type symbol exists, use it. Otherwise, we use the
                     # label.
-                    symbol = CifParser(filename)._parse_symbol(data["_atom_site_type_symbol"][i])
+                    symbol = CifParser(filename)._parse_symbol(data["_atom_site_type_symbol"][idx])
                 except KeyError:
-                    symbol = CifParser(filename)._parse_symbol(data["_atom_site_label"][i])
+                    symbol = CifParser(filename)._parse_symbol(data["_atom_site_label"][idx])
                 if not symbol:
                     continue
 
                 allspecies.append(symbol)
-                x = str2float(data["_atom_site_fract_x"][i])
-                y = str2float(data["_atom_site_fract_y"][i])
-                z = str2float(data["_atom_site_fract_z"][i])
+                x = str2float(data["_atom_site_fract_x"][idx])
+                y = str2float(data["_atom_site_fract_y"][idx])
+                z = str2float(data["_atom_site_fract_z"][idx])
 
-                allcoords.append([x, y, z])
+                all_coords.append([x, y, z])
 
-            thermals_Ucif = []
-            # U11, U22, U33, U23, U13, U12
-            for i in range(len(data["_atom_site_aniso_label"])):
-                thermals_Ucif.append(
-                    [
-                        str2float(data["_atom_site_aniso_U_11"][i]),
-                        str2float(data["_atom_site_aniso_U_22"][i]),
-                        str2float(data["_atom_site_aniso_U_33"][i]),
-                        str2float(data["_atom_site_aniso_U_23"][i]),
-                        str2float(data["_atom_site_aniso_U_13"][i]),
-                        str2float(data["_atom_site_aniso_U_12"][i]),
-                    ]
-                )
-            struct = Structure(lattice, allspecies, allcoords)
+            thermals_Ucif = [
+                [
+                    str2float(data["_atom_site_aniso_U_11"][idx]),
+                    str2float(data["_atom_site_aniso_U_22"][idx]),
+                    str2float(data["_atom_site_aniso_U_33"][idx]),
+                    str2float(data["_atom_site_aniso_U_23"][idx]),
+                    str2float(data["_atom_site_aniso_U_13"][idx]),
+                    str2float(data["_atom_site_aniso_U_12"][idx]),
+                ]
+                for idx in range(len(data["_atom_site_aniso_label"]))
+            ]
+            struct = Structure(lattice, allspecies, all_coords)
 
             thermal = ThermalDisplacementMatrices.from_Ucif(
                 thermal_displacement_matrix_cif=thermals_Ucif, structure=struct, temperature=None

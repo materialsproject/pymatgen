@@ -38,7 +38,9 @@ class GaussianInputTest(unittest.TestCase):
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=-1)
         gau = GaussianInput(mol, route_parameters={"SP": "", "SCF": "Tight"})
         assert gau.spin_multiplicity == 2
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="Charge of -1 and spin multiplicity of 1 is not possible for this molecule"
+        ):
             GaussianInput(mol, spin_multiplicity=1)
 
     def test_str_and_from_string(self):

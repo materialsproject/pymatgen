@@ -143,7 +143,7 @@ class CompleteDosTest(unittest.TestCase):
 
         assert dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
         assert dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="x is out of range of provided x_values"):
             dos.get_interpolated_value(1000)
 
     def test_to_from_dict(self):

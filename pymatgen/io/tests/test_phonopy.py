@@ -217,7 +217,7 @@ class TestGruneisen(unittest.TestCase):
 
         assert self.bs_symm_line_1.gruneisen[0][0] != self.bs_symm_line_2.gruneisen[0][0]
         with pytest.raises(ValueError):
-            self.bs_symm_line_2 = get_gruneisen_ph_bs_symm_line(
+            get_gruneisen_ph_bs_symm_line(
                 gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus_InP.yaml")
             )
 

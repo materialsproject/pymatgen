@@ -197,5 +197,5 @@ class PseudoTableTest(PymatgenTest):
         assert len(selected) == len(table)
         assert selected.__class__ is table.__class__
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"Found multiple occurrences of symbol\(s\) Si"):
             table.pseudos_with_symbols("Si")

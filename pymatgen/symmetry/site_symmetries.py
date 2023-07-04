@@ -68,7 +68,7 @@ def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp
             for point_op1 in pointops[site1]:
                 for point_op2 in pointops[site2]:
                     if np.allclose(point_op1.rotation_matrix, point_op2.rotation_matrix):
-                        shared_ops[site1][site2].append(point_op1)  # noqa: PERF401
+                        shared_ops[site1][site2].append(point_op1)
 
     for site1, sops in enumerate(shared_ops):
         for site2, sop in enumerate(sops):
