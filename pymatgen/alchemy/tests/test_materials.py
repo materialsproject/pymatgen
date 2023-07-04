@@ -53,7 +53,7 @@ class TransformedStructureTest(PymatgenTest):
 
     def test_get_vasp_input(self):
         SETTINGS["PMG_VASP_PSP_DIR"] = PymatgenTest.TEST_FILES_DIR
-        potcar = self.trans.get_vasp_input(MPRelaxSet)["POTCAR"]
+        potcar = self.trans.get_vasp_input(MPRelaxSet)["POTCAR.gz"]
         assert "\n".join(p.symbol for p in potcar) == "Na_pv\nFe_pv\nP\nO"
         assert len(self.trans.structures) == 2
 
@@ -61,7 +61,7 @@ class TransformedStructureTest(PymatgenTest):
         assert self.trans.final_structure.composition.reduced_formula == "NaFePO4"
 
     def test_from_dict(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json")) as file:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json.gz")) as file:
             dct = json.load(file)
         dct["other_parameters"] = {"tags": ["test"]}
         ts = TransformedStructure.from_dict(dct)

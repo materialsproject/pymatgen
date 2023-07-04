@@ -33,7 +33,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class DosPlotterTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json.gz")) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
         warnings.simplefilter("ignore")
@@ -75,7 +75,7 @@ class DosPlotterTest(PymatgenTest):
         rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         # Contains energy and DOS limits and expected results
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos_limits.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos_limits.json.gz")) as f:
             limits_results = json.load(f)
 
         for item in limits_results:
@@ -98,18 +98,18 @@ class DosPlotterTest(PymatgenTest):
 
 class BSPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaO_2605_bandstructure.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaO_2605_bandstructure.json.gz")) as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotter(self.bs)
 
         assert len(self.plotter._bs) == 1, "wrong number of band objects"
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "N2_12103_bandstructure.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "N2_12103_bandstructure.json.gz")) as f:
             d = json.loads(f.read())
             self.sbs_sc = BandStructureSymmLine.from_dict(d)
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "C_48_bandstructure.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "C_48_bandstructure.json.gz")) as f:
             d = json.loads(f.read())
             self.sbs_met = BandStructureSymmLine.from_dict(d)
 
@@ -202,7 +202,7 @@ class BSPlotterTest(unittest.TestCase):
 
 class BSPlotterProjectedTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json.gz")) as f:
             d = json.load(f)
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotterProjected(self.bs)
@@ -233,19 +233,23 @@ class BSDOSPlotterTest(unittest.TestCase):
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
-        vasp_run = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun_Si_bands.xml"))
+        vasp_run = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun_Si_bands.xml.gz"))
         plotter = BSDOSPlotter()
         plt = plotter.get_plot(
-            vasp_run.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands"))
+            vasp_run.get_band_structure(
+                kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands.gz")
+            )
         )
         plt.close()
         plt = plotter.get_plot(
-            vasp_run.get_band_structure(kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands")),
+            vasp_run.get_band_structure(
+                kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands.gz")
+            ),
             vasp_run.complete_dos,
         )
         plt.close("all")
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "SrBa2Sn2O7.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "SrBa2Sn2O7.json.gz")) as f:
             band_struct_dict = json.load(f)
         # generate random projections
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
@@ -272,7 +276,7 @@ class BSDOSPlotterTest(unittest.TestCase):
 class PlotBZTest(unittest.TestCase):
     def setUp(self):
         self.rec_latt = Structure.from_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.cssr")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.cssr.gz")
         ).lattice.reciprocal_lattice
         self.kpath = [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
         self.labels = {

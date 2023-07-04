@@ -71,7 +71,7 @@ class FiestaInputTest(PymatgenTest):
 
 class FiestaOutputTest(PymatgenTest):
     def setUp(self):
-        self.logfiesta = FiestaOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "log_fiesta"))
+        self.logfiesta = FiestaOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "log_fiesta.gz"))
 
     def test_props(self):
         out = self.logfiesta

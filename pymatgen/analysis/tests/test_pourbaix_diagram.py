@@ -100,7 +100,7 @@ class PourbaixDiagramTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "pourbaix_test_data.json"))
+        cls.test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "pourbaix_test_data.json.gz"))
         cls.pbx = PourbaixDiagram(cls.test_data["Zn"], filter_solids=True)
         cls.pbx_nofilter = PourbaixDiagram(cls.test_data["Zn"], filter_solids=False)
 
@@ -185,7 +185,7 @@ class PourbaixDiagramTest(unittest.TestCase):
             PourbaixEntry(IonEntry(Ion.from_formula("Fe[2+]"), -0.7683100214319288), entry_id="ion-0"),
             PourbaixEntry(IonEntry(Ion.from_formula("Li[1+]"), -3.0697590542787156), entry_id="ion-12"),
         ]
-        comp_dict = Composition({"Fe": 1, "Ir": 1, "Li": 2, "Si": 1, "V": 2}).fractional_composition
+        comp_dict = Composition({"Fe": 1, "Ir": 1, "Li": 2, "Si.gz": 1, "V": 2}).fractional_composition
 
         multi_entry = PourbaixDiagram.process_multientry(entries, prod_comp=comp_dict)
         assert multi_entry is None
@@ -290,7 +290,7 @@ class PourbaixDiagramTest(unittest.TestCase):
 class PourbaixPlotterTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
-        self.test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "pourbaix_test_data.json"))
+        self.test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "pourbaix_test_data.json.gz"))
         self.pd = PourbaixDiagram(self.test_data["Zn"])
         self.plotter = PourbaixPlotter(self.pd)
 

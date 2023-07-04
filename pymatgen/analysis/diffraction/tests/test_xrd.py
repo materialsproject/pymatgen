@@ -72,7 +72,7 @@ class XRDCalculatorTest(PymatgenTest):
             [0.25, 0.25, 0.676],
             [0.75, 0.75, 0.324],
         ]
-        sp = ["Si", "Si", "Ru", "Ru", "Pr", "Pr"]
+        sp = ["Si.gz", "Si.gz", "Ru", "Ru", "Pr", "Pr"]
         struct = Structure(Lattice.tetragonal(4.192, 6.88), sp, coords)
         xrd = xrd_calc.get_pattern(struct)
         assert xrd.x[0] == approx(12.86727341476735)

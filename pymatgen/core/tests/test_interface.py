@@ -81,7 +81,7 @@ class InterfaceTest(PymatgenTest):
         assert len(self.interface.get_shifts_based_on_adsorbate_sites(tolerance=20.0)) == 1
 
     def test_from_slabs(self):
-        si_struct = self.get_structure("Si")
+        si_struct = self.get_structure("Si.gz")
         sio2_struct = self.get_structure("SiO2")
         si_conventional = SpacegroupAnalyzer(si_struct).get_conventional_standard_structure()
         sio2_conventional = SpacegroupAnalyzer(sio2_struct).get_conventional_standard_structure()

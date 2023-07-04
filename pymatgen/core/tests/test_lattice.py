@@ -87,7 +87,7 @@ class LatticeTestCase(PymatgenTest):
         # Random testing that get_cart and get_frac coords reverses each other.
         rand_coord = np.random.random_sample(3)
         coord = self.tetragonal.get_cartesian_coords(rand_coord)
-        fcoord = self.tetragonal.get_fractional_coords(coord)
+        fcoord = self.tetragonal.get_fractional_coords(coord.gz)
         self.assert_all_close(fcoord, rand_coord)
 
     def test_get_vector_along_lattice_directions(self):

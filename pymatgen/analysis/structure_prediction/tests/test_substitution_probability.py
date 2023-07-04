@@ -26,7 +26,7 @@ def get_table():
         "struct_predictor",
     )
 
-    json_file = os.path.join(data_dir, "test_lambda.json")
+    json_file = os.path.join(data_dir, "test_lambda.json.gz")
     with open(json_file) as f:
         return json.load(f)
 

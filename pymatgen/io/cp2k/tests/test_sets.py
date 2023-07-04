@@ -9,10 +9,10 @@ from pymatgen.util.testing import PymatgenTest
 
 Si_structure = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
-    species=["Si", "Si"],
+    species=["Si.gz", "Si.gz"],
     coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
 )
-molecule = Molecule(species=["Si"], coords=[[0, 0, 0]])
+molecule = Molecule(species=["Si.gz"], coords=[[0, 0, 0]])
 
 
 class SetTest(PymatgenTest):
@@ -32,11 +32,11 @@ class SetTest(PymatgenTest):
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
 
         # Basis sets / potentials by name
-        basis_and_potential = {"Si": {"basis": "SZV-GTH-q4", "potential": "GTH-PBE-q4"}}
+        basis_and_potential = {"Si.gz": {"basis": "SZV-GTH-q4", "potential": "GTH-PBE-q4"}}
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
 
         # Basis sets / potentials by name with ADMM
-        basis_and_potential = {"Si": {"basis": "SZV-GTH-q4", "potential": "GTH-PBE-q4", "aux_basis": "cFIT3"}}
+        basis_and_potential = {"Si.gz": {"basis": "SZV-GTH-q4", "potential": "GTH-PBE-q4", "aux_basis": "cFIT3"}}
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
         basis_sets = ss["force_eval"]["subsys"]["Si_1"].get("basis_set")
         assert any("AUX_FIT" in b.values for b in basis_sets)  # noqa: PD011
@@ -44,7 +44,7 @@ class SetTest(PymatgenTest):
 
         # Basis sets / potentials by hash value
         basis_and_potential = {
-            "Si": {"basis": "30767c18f6e7e46c1b56c1d34ff6007d", "potential": "21e2f468a18404ff6119fe801da81e43"}
+            "Si.gz": {"basis": "30767c18f6e7e46c1b56c1d34ff6007d", "potential": "21e2f468a18404ff6119fe801da81e43"}
         }
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
 
@@ -68,7 +68,7 @@ class SetTest(PymatgenTest):
                                                     3.01160535
                 0.50279207    1     2.33241791"""
         basis_and_potential = {
-            "Si": {"basis": GaussianTypeOrbitalBasisSet.from_string(gto), "potential": GthPotential.from_string(pot)}
+            "Si.gz": {"basis": GaussianTypeOrbitalBasisSet.from_string(gto), "potential": GthPotential.from_string(pot)}
         }
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE", **self.setkwargs)
         assert ss.cutoff == approx(150)

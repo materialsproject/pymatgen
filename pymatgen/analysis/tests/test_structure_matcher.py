@@ -27,17 +27,17 @@ class StructureMatcherTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json")) as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json.gz")) as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),
-            Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Li2O")),
+            Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Li2O.gz")),
         ]
 
     def test_ignore_species(self):
-        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
-        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif.gz"))
+        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         m = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
         assert m.fit(s1, s2)
         assert m.fit_anonymous(s1, s2)
@@ -329,7 +329,7 @@ class StructureMatcherTest(PymatgenTest):
             self.get_structure("Li2O2"),
             self.get_structure("LiFePO4"),
         ]
-        for fname in ["POSCAR.Li2O", "POSCAR.LiFePO4"]:
+        for fname in ["POSCAR.Li2O.gz", "POSCAR.LiFePO4.gz"]:
             structures.append(Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, fname)))
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
@@ -343,7 +343,7 @@ class StructureMatcherTest(PymatgenTest):
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted"""
         sm = StructureMatcher()
-        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li3GaPCO7.json"))
+        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li3GaPCO7.json.gz"))
         assert sm.fit(struct, struct)
 
     def test_as_dict_and_from_dict(self):
@@ -367,8 +367,8 @@ class StructureMatcherTest(PymatgenTest):
 
     def test_supercell_fit(self):
         sm = StructureMatcher(attempt_supercell=False)
-        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Al3F9.json"))
-        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Al3F9_distorted.json"))
+        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Al3F9.json.gz"))
+        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Al3F9_distorted.json.gz"))
 
         assert not sm.fit(s1, s2)
 
@@ -410,8 +410,8 @@ class StructureMatcherTest(PymatgenTest):
             attempt_supercell=False,
         )
         latt = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
-        s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [0.7, 0.5, 0.375]])
+        s1 = Structure(latt, ["Si.gz", "Si.gz", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s2 = Structure(latt, ["Si.gz", "Si.gz", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [0.7, 0.5, 0.375]])
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
         match = sm._strict_match(s1, s2, fu, s1_supercell=True, use_rms=True, break_on_match=False)
@@ -434,8 +434,8 @@ class StructureMatcherTest(PymatgenTest):
             attempt_supercell=False,
         )
         latt = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(latt, ["Si", "Si"], [[0, 0, 0.1], [0, 0, 0.2]])
-        s2 = Structure(latt, ["Si", "Si"], [[0, 0.1, 0], [0, 0.1, -0.95]])
+        s1 = Structure(latt, ["Si.gz", "Si.gz"], [[0, 0, 0.1], [0, 0, 0.2]])
+        s2 = Structure(latt, ["Si.gz", "Si.gz"], [[0, 0.1, 0], [0, 0.1, -0.95]])
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
 
@@ -469,9 +469,9 @@ class StructureMatcherTest(PymatgenTest):
             supercell_size="volume",
         )
         latt = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(latt, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
+        s1 = Structure(latt, ["Ag", "Si.gz", "Si.gz"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
         s1.make_supercell([2, 1, 1])
-        s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
+        s2 = Structure(latt, ["Si.gz", "Si.gz", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
 
         shuffle = [0, 2, 1, 3, 4, 5]
         s1 = Structure.from_sites([s1[i] for i in shuffle])
@@ -539,10 +539,10 @@ class StructureMatcherTest(PymatgenTest):
         )
 
         latt = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(latt, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
+        s1 = Structure(latt, ["Ag", "Si.gz", "Si.gz"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
 
         l2 = Lattice.orthorhombic(1.01, 2.01, 3.01)
-        s2 = Structure(l2, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
+        s2 = Structure(l2, ["Si.gz", "Si.gz", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
         s2.make_supercell([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
 
         result = sm.get_s2_like_s1(s1, s2)
@@ -561,9 +561,9 @@ class StructureMatcherTest(PymatgenTest):
             allow_subset=True,
         )
         latt = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(latt, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
+        s1 = Structure(latt, ["Ag", "Si.gz", "Si.gz"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
         s1.make_supercell([2, 1, 1])
-        s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
+        s2 = Structure(latt, ["Si.gz", "Si.gz", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
 
         shuffle = [2, 0, 1, 3, 5, 4]
         s1 = Structure.from_sites([s1[i] for i in shuffle])
@@ -595,16 +595,16 @@ class StructureMatcherTest(PymatgenTest):
 
         latt = Lattice.orthorhombic(1, 2, 3)
 
-        s1 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s1 = Structure(latt, ["Si.gz", "Si.gz", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s1.make_supercell([2, 1, 1])
-        s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
+        s2 = Structure(latt, ["Si.gz", "Si.gz", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
         result = sm.get_supercell_matrix(s1, s2)
         assert (result == [[-2, 0, 0], [0, 1, 0], [0, 0, 1]]).all()
 
-        s1 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s1 = Structure(latt, ["Si.gz", "Si.gz", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s1.make_supercell([[1, -1, 0], [0, 0, -1], [0, 1, 0]])
 
-        s2 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
+        s2 = Structure(latt, ["Si.gz", "Si.gz", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
         result = sm.get_supercell_matrix(s1, s2)
         assert (result == [[-1, -1, 0], [0, 0, -1], [0, 1, 0]]).all()
 
@@ -633,16 +633,16 @@ class StructureMatcherTest(PymatgenTest):
             allow_subset=True,
         )
         latt = Lattice.orthorhombic(10, 20, 30)
-        s1 = Structure(latt, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
-        s2 = Structure(latt, ["Si", "Ag"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
+        s1 = Structure(latt, ["Si.gz", "Si.gz", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s2 = Structure(latt, ["Si.gz", "Ag"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         result = sm.get_s2_like_s1(s1, s2)
 
         assert len(find_in_coord_list_pbc(result.frac_coords, [0, 0, 0.1])) == 1
         assert len(find_in_coord_list_pbc(result.frac_coords, [0.7, 0.4, 0.5])) == 1
 
         # test with fewer species in s2
-        s1 = Structure(latt, ["Si", "Ag", "Si"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
-        s2 = Structure(latt, ["Si", "Si"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
+        s1 = Structure(latt, ["Si.gz", "Ag", "Si.gz"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s2 = Structure(latt, ["Si.gz", "Si.gz"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         result = sm.get_s2_like_s1(s1, s2)
         mindists = np.min(s1.lattice.get_all_distances(s1.frac_coords, result.frac_coords), axis=0)
         assert np.max(mindists) < 1e-6
@@ -652,14 +652,14 @@ class StructureMatcherTest(PymatgenTest):
 
         # test with not enough sites in s1
         # test with fewer species in s2
-        s1 = Structure(latt, ["Si", "Ag", "Cl"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
-        s2 = Structure(latt, ["Si", "Si"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
+        s1 = Structure(latt, ["Si.gz", "Ag", "Cl"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s2 = Structure(latt, ["Si.gz", "Si.gz"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         assert sm.get_s2_like_s1(s1, s2) is None
 
     def test_out_of_cell_s2_like_s1(self):
         latt = Lattice.cubic(5)
-        s1 = Structure(latt, ["Si", "Ag", "Si"], [[0, 0, -0.02], [0, 0, 0.001], [0.7, 0.4, 0.5]])
-        s2 = Structure(latt, ["Si", "Ag", "Si"], [[0, 0, 0.98], [0, 0, 0.99], [0.7, 0.4, 0.5]])
+        s1 = Structure(latt, ["Si.gz", "Ag", "Si.gz"], [[0, 0, -0.02], [0, 0, 0.001], [0.7, 0.4, 0.5]])
+        s2 = Structure(latt, ["Si.gz", "Ag", "Si.gz"], [[0, 0, 0.98], [0, 0, 0.99], [0.7, 0.4, 0.5]])
         new_s2 = StructureMatcher(primitive_cell=False).get_s2_like_s1(s1, s2)
         dists = np.sum((s1.cart_coords - new_s2.cart_coords) ** 2, axis=-1) ** 0.5
         assert np.max(dists) < 0.1
@@ -778,8 +778,8 @@ class StructureMatcherTest(PymatgenTest):
     def test_electronegativity(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)
 
-        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Na2Fe2PAsO4S4.json"))
-        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Na2Fe2PNO4Se4.json"))
+        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Na2Fe2PAsO4S4.json.gz"))
+        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Na2Fe2PNO4Se4.json.gz"))
         assert sm.get_best_electronegativity_anonymous_mapping(s1, s2) == {
             Element("S"): Element("Se"),
             Element("As"): Element("N"),
@@ -802,7 +802,7 @@ class StructureMatcherTest(PymatgenTest):
         sm = StructureMatcher(ltol=0.2, stol=0.301, angle_tol=1, primitive_cell=False)
         latt = Lattice.orthorhombic(1, 2, 12)
 
-        sp = ["Si", "Si", "Al"]
+        sp = ["Si.gz", "Si.gz", "Al"]
         s1 = Structure(latt, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.5]])
         s2 = Structure(latt, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.6]])
         self.assert_all_close(sm.get_rms_dist(s1, s2), (0.32**0.5 / 2, 0.4))

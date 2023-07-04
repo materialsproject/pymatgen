@@ -65,10 +65,10 @@ class ElasticTensorTest(PymatgenTest):
         )
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "Sn_def_stress.json")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "Sn_def_stress.json.gz")
         with open(filepath) as f:
             self.def_stress_dict = json.load(f)
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json.gz")) as f:
             self.toec_dict = json.load(f)
         self.structure = self.get_structure("Sn")
 
@@ -248,7 +248,7 @@ class ElasticTensorTest(PymatgenTest):
 
 class ElasticTensorExpansionTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json.gz")) as f:
             self.data_dict = json.load(f)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -353,7 +353,7 @@ class ElasticTensorExpansionTest(PymatgenTest):
 
 class NthOrderElasticTensorTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json.gz")) as f:
             self.data_dict = json.load(f)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -394,7 +394,7 @@ class DiffFitTest(PymatgenTest):
     """
 
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json.gz")) as f:
             self.data_dict = json.load(f)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]

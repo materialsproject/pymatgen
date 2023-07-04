@@ -26,23 +26,23 @@ class ContainsSpecieFilterTest(PymatgenTest):
         lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
         struct = Structure(lattice, [{"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}] * 4, coords)
 
-        species1 = [Species("Si", 5), Species("Mg", 2)]
+        species1 = [Species("Si.gz", 5), Species("Mg", 2)]
         f1 = ContainsSpecieFilter(species1, strict_compare=True, AND=False)
         assert not f1.test(struct), "Incorrect filter"
         f2 = ContainsSpecieFilter(species1, strict_compare=False, AND=False)
         assert f2.test(struct), "Incorrect filter"
-        species2 = [Species("Si", 4), Species("Mg", 2)]
+        species2 = [Species("Si.gz", 4), Species("Mg", 2)]
         f3 = ContainsSpecieFilter(species2, strict_compare=True, AND=False)
         assert f3.test(struct), "Incorrect filter"
         f4 = ContainsSpecieFilter(species2, strict_compare=False, AND=False)
         assert f4.test(struct), "Incorrect filter"
 
-        species3 = [Species("Si", 5), Species("O", -2)]
+        species3 = [Species("Si.gz", 5), Species("O", -2)]
         f5 = ContainsSpecieFilter(species3, strict_compare=True, AND=True)
         assert not f5.test(struct), "Incorrect filter"
         f6 = ContainsSpecieFilter(species3, strict_compare=False, AND=True)
         assert f6.test(struct), "Incorrect filter"
-        species4 = [Species("Si", 4), Species("Mg", 2)]
+        species4 = [Species("Si.gz", 4), Species("Mg", 2)]
         f7 = ContainsSpecieFilter(species4, strict_compare=True, AND=True)
         assert not f7.test(struct), "Incorrect filter"
         f8 = ContainsSpecieFilter(species4, strict_compare=False, AND=True)
@@ -75,7 +75,7 @@ class SpecieProximityFilterTest(PymatgenTest):
 
 class RemoveDuplicatesFilterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json")) as file:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json.gz")) as file:
             entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()
@@ -94,7 +94,7 @@ class RemoveDuplicatesFilterTest(unittest.TestCase):
 
 class RemoveExistingFilterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json")) as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json.gz")) as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()

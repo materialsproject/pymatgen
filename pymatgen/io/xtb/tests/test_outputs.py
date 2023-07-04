@@ -40,8 +40,8 @@ class TestCRESTOutput(PymatgenTest):
                 m = Molecule.from_file(os.path.join(expected_dir, filepath))
                 expected_sorted_structures[n_conf].insert(n_rot, m)
 
-        crest_out = CRESTOutput(output_filename="crest_out.out", path=test_dir)
-        exp_best = Molecule.from_file(os.path.join(expected_dir, "expected_crest_best.xyz"))
+        crest_out = CRESTOutput(output_filename="crest_out.out.gz", path=test_dir)
+        exp_best = Molecule.from_file(os.path.join(expected_dir, "expected_crest_best.xyz.gz"))
         for i, c in enumerate(crest_out.sorted_structures_energies):
             for j, r in enumerate(c):
                 if openbabel:

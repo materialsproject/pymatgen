@@ -83,10 +83,10 @@ class JahnTellerTest(unittest.TestCase):
         assert m == "none"
 
     def test_jahn_teller_structure_analysis(self):
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif.gz"))
         LiFePO4 = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe3O4.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe3O4.cif.gz"))
         Fe3O4 = parser.get_structures()[0]
 
         assert self.jt.is_jahn_teller_active(LiFePO4)

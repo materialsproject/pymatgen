@@ -8,7 +8,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class FuncTest(PymatgenTest):
     def test_micro_pyawk(self):
-        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR")
+        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR.gz")
         data = []
 
         def f(x, y):

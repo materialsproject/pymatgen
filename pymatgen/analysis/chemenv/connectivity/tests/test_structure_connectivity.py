@@ -26,7 +26,7 @@ class StructureConnectivityTest(PymatgenTest):
             self.TEST_FILES_DIR,
             "chemenv",
             "structure_environments_files",
-            "se_mp-5020.json",
+            "se_mp-5020.json.gz",
         )
         with open(BaTiO3_se_fpath) as file:
             dd = json.load(file)

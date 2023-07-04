@@ -262,7 +262,7 @@ class AdfInputTest(unittest.TestCase):
         task = AdfTask("optimize", **rhb18)
         inp = AdfInput(task)
         inp.write_file(o, self.tempfile)
-        s = readfile(join(test_dir, "adf", "RhB18_adf.inp"))
+        s = readfile(join(test_dir, "adf", "RhB18_adf.inp.gz"))
         assert readfile(self.tempfile) == s
 
     def tearDown(self):
@@ -272,7 +272,7 @@ class AdfInputTest(unittest.TestCase):
 
 class AdfOutputTest(unittest.TestCase):
     def test_analytical_freq(self):
-        filename = join(test_dir, "adf", "analytical_freq", "adf.out")
+        filename = join(test_dir, "adf", "analytical_freq", "adf.out.gz")
         o = AdfOutput(filename)
         assert o.final_energy == approx(-0.54340325)
         assert len(o.energies) == 4
@@ -285,7 +285,7 @@ class AdfOutputTest(unittest.TestCase):
         assert o.normal_modes[0][8] == approx(-0.562)
 
     def test_numerical_freq(self):
-        filename = join(test_dir, "adf", "numerical_freq", "adf.out")
+        filename = join(test_dir, "adf", "numerical_freq", "adf.out.gz")
         o = AdfOutput(filename)
         assert o.freq_type == "Numerical"
         assert o.final_structure.num_sites == 4
@@ -301,7 +301,7 @@ class AdfOutputTest(unittest.TestCase):
         assert o.normal_modes[1][9] == approx(-0.536)
 
     def test_single_point(self):
-        filename = join(test_dir, "adf", "sp", "adf.out")
+        filename = join(test_dir, "adf", "sp", "adf.out.gz")
         o = AdfOutput(filename)
         assert o.final_energy == approx(-0.74399276)
         assert len(o.final_structure) == 4

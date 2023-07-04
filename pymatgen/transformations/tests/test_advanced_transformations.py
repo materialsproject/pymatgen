@@ -67,7 +67,7 @@ def get_table():
     default lambda table.
     """
     data_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "struct_predictor")
-    json_file = os.path.join(data_dir, "test_lambda.json")
+    json_file = os.path.join(data_dir, "test_lambda.json.gz")
     with open(json_file) as f:
         return json.load(f)
 
@@ -195,7 +195,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4.gz"), check_for_POTCAR=False)
         struct = p.structure
         expected = [1, 3, 1]
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
@@ -226,7 +226,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4.gz"), check_for_POTCAR=False)
         struct = p.structure
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
@@ -253,7 +253,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
             return relax_results["final_structure"], energy
 
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria=sort_criteria)
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4.gz"), check_for_POTCAR=False)
         struct = p.structure
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
         s = trans.apply_transformation(struct)
@@ -332,12 +332,12 @@ class MagOrderingTransformationTest(PymatgenTest):
         self.NiO_AFM_001 = Structure(latt, species, coords)
         self.NiO_AFM_001.add_spin_by_site([-5, 5, 0, 0])
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe3O4.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe3O4.cif.gz"))
         self.Fe3O4 = parser.get_structures()[0]
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li8Fe2NiCoO8.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li8Fe2NiCoO8.cif.gz"))
         self.Li8Fe2NiCoO8 = parser.get_structures()[0]
         self.Li8Fe2NiCoO8.remove_oxidation_states()
         warnings.simplefilter("ignore")
@@ -347,7 +347,7 @@ class MagOrderingTransformationTest(PymatgenTest):
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4.gz"), check_for_POTCAR=False)
         struct = p.structure
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
@@ -377,7 +377,7 @@ class MagOrderingTransformationTest(PymatgenTest):
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4.gz"), check_for_POTCAR=False)
         struct = p.structure
         a = SpacegroupAnalyzer(struct, 0.1)
         struct = a.get_refined_structure()
@@ -718,7 +718,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
         )
 
         # Test the diagonal transformation
-        structure2 = self.get_structure("Si")
+        structure2 = self.get_structure("Si.gz")
         sga = SpacegroupAnalyzer(structure2)
         structure2 = sga.get_primitive_standard_structure()
         diagonal_supercell_generator = CubicSupercellTransformation(
@@ -731,7 +731,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
         assert_array_equal(diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4)
 
         # test force_90_degrees
-        structure2 = self.get_structure("Si")
+        structure2 = self.get_structure("Si.gz")
         sga = SpacegroupAnalyzer(structure2)
         structure2 = sga.get_primitive_standard_structure()
         diagonal_supercell_generator = CubicSupercellTransformation(
@@ -779,7 +779,7 @@ class SubstituteSurfaceSiteTransformationTest(PymatgenTest):
 @unittest.skipIf(not hiphive, "hiphive not present. Skipping...")
 class MonteCarloRattleTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        struct = self.get_structure("Si")
+        struct = self.get_structure("Si.gz")
         mcrt = MonteCarloRattleTransformation(0.01, 2, seed=1)
         s_trans = mcrt.apply_transformation(struct)
 

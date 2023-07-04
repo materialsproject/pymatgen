@@ -23,7 +23,7 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
 class LammpsInputFileTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.filename = os.path.join(test_dir, "lgps.in")
+        cls.filename = os.path.join(test_dir, "lgps.in.gz")
 
     def test_from_file(self):
         lmp_input = LammpsInputFile().from_file(self.filename)
@@ -629,7 +629,7 @@ run             10000
 class FuncTest(unittest.TestCase):
     def test_write_lammps_inputs(self):
         # script template
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "kappa.txt")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "kappa.txt.gz")) as f:
             kappa_template = f.read()
         kappa_settings = {"method": "heat"}
         write_lammps_inputs(output_dir="heat", script_template=kappa_template, settings=kappa_settings)
@@ -646,18 +646,18 @@ class FuncTest(unittest.TestCase):
         pair_style = re.search(r"pair_style\slj/cut\s+(.*)\n", kappa_script)
         assert pair_style.group(1) == "${rc}"
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "in.peptide")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "in.peptide.gz")) as f:
             peptide_script = f.read()
         # copy data file
         src = f"{PymatgenTest.TEST_FILES_DIR}/lammps/data.quartz"
         write_lammps_inputs(output_dir="path", script_template=peptide_script, data=src)
-        dst = os.path.join("path", "data.peptide")
+        dst = os.path.join("path", "data.peptide.gz")
         assert filecmp.cmp(src, dst, shallow=False)
         # write data file from obj
         obj = LammpsData.from_file(src, atom_style="atomic")
         with pytest.warns(FutureWarning):
             write_lammps_inputs(output_dir="obj", script_template=peptide_script, data=obj)
-            obj_read = LammpsData.from_file(os.path.join("obj", "data.peptide"), atom_style="atomic")
+            obj_read = LammpsData.from_file(os.path.join("obj", "data.peptide.gz"), atom_style="atomic")
             pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
             pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 
@@ -677,7 +677,7 @@ class LammpsTemplateGenTest(PymatgenTest):
                 script_template=f"{PymatgenTest.TEST_FILES_DIR}/lammps/kappa.txt",
                 settings={"method": "heat"},
                 data=None,
-                data_filename="data.peptide",
+                data_filename="data.peptide.gz",
             )
             tmp_dir = Path(tmp_dir)
             assert len(lis) == 1
@@ -698,18 +698,18 @@ class LammpsTemplateGenTest(PymatgenTest):
 
             # script with data file
             obj = LammpsData.from_file(
-                os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "data.quartz"), atom_style="atomic"
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "data.quartz.gz"), atom_style="atomic"
             )
             lis = LammpsTemplateGen().get_input_set(
                 script_template=f"{PymatgenTest.TEST_FILES_DIR}/lammps/in.peptide",
                 settings=None,
                 data=obj,
-                data_filename="data.peptide",
+                data_filename="data.peptide.gz",
             )
             assert len(lis) == 2
-            assert isinstance(lis["data.peptide"], LammpsData)
+            assert isinstance(lis["data.peptide.gz"], LammpsData)
             lis.write_input(tmp_dir / "obj")
 
-            obj_read = LammpsData.from_file(str(tmp_dir / "obj" / "data.peptide"), atom_style="atomic")
+            obj_read = LammpsData.from_file(str(tmp_dir / "obj" / "data.peptide.gz"), atom_style="atomic")
             pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
             pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)

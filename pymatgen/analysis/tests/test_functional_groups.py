@@ -30,7 +30,7 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
 
-        self.file = os.path.join(test_dir, "func_group_test.mol")
+        self.file = os.path.join(test_dir, "func_group_test.mol.gz")
         self.mol = Molecule.from_file(self.file)
         self.strategy = OpenBabelNN()
         self.mg = MoleculeGraph.with_local_env_strategy(self.mol, self.strategy)
@@ -56,7 +56,7 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         assert extractor_str.species == extractor_mg.species
 
         # Test optimization
-        file_no_h = os.path.join(test_dir, "func_group_test_no_h.mol")
+        file_no_h = os.path.join(test_dir, "func_group_test_no_h.mol.gz")
         extractor_no_h = FunctionalGroupExtractor(file_no_h, optimize=True)
 
         assert len(extractor_no_h.molecule) == len(extractor_mol.molecule)

@@ -1113,32 +1113,32 @@ class VaspInputTest(PymatgenTest):
     def test_to_from_dict(self):
         d = self.vasp_input.as_dict()
         vasp_input = VaspInput.from_dict(d)
-        comp = vasp_input["POSCAR"].structure.composition
+        comp = vasp_input["POSCAR.gz"].structure.composition
         assert comp == Composition("Fe4P4O16")
 
     def test_write(self):
         tmp_dir = Path("VaspInput.testing")
         self.vasp_input.write_input(tmp_dir)
 
-        filepath = tmp_dir / "INCAR"
+        filepath = tmp_dir / "INCAR.gz"
         incar = Incar.from_file(filepath)
         assert incar["NSW"] == 99
 
-        for name in ("INCAR", "POSCAR", "POTCAR", "KPOINTS"):
+        for name in ("INCAR.gz", "POSCAR.gz", "POTCAR.gz", "KPOINTS.gz"):
             (tmp_dir / name).unlink()
 
         tmp_dir.rmdir()
 
     def test_run_vasp(self):
-        self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
+        self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR.gz"])
         with open("vasp.out") as f:
             output = f.read()
             assert output.split("\n")[0] == "ALGO = Damped"
 
     def test_from_directory(self):
-        vi = VaspInput.from_directory(PymatgenTest.TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar})
-        assert vi["INCAR"]["ALGO"] == "Damped"
-        assert "CONTCAR.Li2O" in vi
+        vi = VaspInput.from_directory(PymatgenTest.TEST_FILES_DIR, optional_files={"CONTCAR.Li2O.gz": Poscar})
+        assert vi["INCAR.gz"]["ALGO"] == "Damped"
+        assert "CONTCAR.Li2O.gz" in vi
         d = vi.as_dict()
         vasp_input = VaspInput.from_dict(d)
-        assert "CONTCAR.Li2O" in vasp_input
+        assert "CONTCAR.Li2O.gz" in vasp_input

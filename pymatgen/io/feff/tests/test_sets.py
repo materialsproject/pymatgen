@@ -30,14 +30,14 @@ TITLE sites: 4
 * 2 Co     0.666667     0.333333     0.003676
 * 3 O     0.333333     0.666667     0.121324
 * 4 O     0.666667     0.333333     0.621325"""
-        cif_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "CoO19128.cif")
+        cif_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "CoO19128.cif.gz")
         cls.structure = CifParser(cif_file).get_structures()[0]
         cls.absorbing_atom = "O"
         cls.mp_xanes = MPXANESSet(cls.absorbing_atom, cls.structure)
 
     def test_get_header(self):
         comment = "From cif file"
-        header = str(self.mp_xanes.header(source="CoO19128.cif", comment=comment))
+        header = str(self.mp_xanes.header(source="CoO19128.cif.gz", comment=comment))
         print(header)
 
         ref = self.header_string.splitlines()
@@ -121,7 +121,7 @@ TITLE sites: 4
     def test_charged_structure(self):
         # one Zn+2, 9 triflate, plus water
         # Molecule, net charge of -7
-        xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_radial_shell.xyz")
+        xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_radial_shell.xyz.gz")
         m = Molecule.from_file(xyz)
         m.set_charge_and_spin(-7)
         # Zn should not appear in the pot_dict
@@ -141,14 +141,14 @@ TITLE sites: 4
         assert elnes.tags["CIF"] == "Co2O2.cif"
         assert elnes.tags["COREHOLE"] == "RPA"
         all_input = elnes.all_input()
-        assert "ATOMS" not in all_input
-        assert "POTENTIALS" not in all_input
+        assert "ATOMS.gz" not in all_input
+        assert "POTENTIALS.gz" not in all_input
         elnes.write_input()
         structure = Structure.from_file("Co2O2.cif")
         assert self.structure.matches(structure)
-        os.remove("HEADER")
-        os.remove("PARAMETERS")
-        os.remove("feff.inp")
+        os.remove("HEADER.gz")
+        os.remove("PARAMETERS.gz")
+        os.remove("feff.inp.gz")
         os.remove("Co2O2.cif")
 
     def test_small_system_EXAFS(self):
@@ -177,7 +177,7 @@ TITLE sites: 4
         assert elnes.tags["KMESH"] == [12, 12, 7]
 
     def test_large_systems(self):
-        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "La4Fe4O12.cif"))
+        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "La4Fe4O12.cif.gz"))
         user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
         elnes = MPELNESSet("Fe", struct, user_tag_settings=user_tag_settings)
         assert "RECIPROCAL" not in elnes.tags
@@ -213,11 +213,11 @@ TITLE sites: 4
         assert "RECIPROCAL" in feff_reci_input.tags
 
         feff_reci_input.write_input("Dup_reci")
-        assert os.path.exists(os.path.join(".", "Dup_reci", "HEADER"))
-        assert os.path.exists(os.path.join(".", "Dup_reci", "feff.inp"))
-        assert os.path.exists(os.path.join(".", "Dup_reci", "PARAMETERS"))
-        assert not os.path.exists(os.path.join(".", "Dup_reci", "ATOMS"))
-        assert not os.path.exists(os.path.join(".", "Dup_reci", "POTENTIALS"))
+        assert os.path.exists(os.path.join(".", "Dup_reci", "HEADER.gz"))
+        assert os.path.exists(os.path.join(".", "Dup_reci", "feff.inp.gz"))
+        assert os.path.exists(os.path.join(".", "Dup_reci", "PARAMETERS.gz"))
+        assert not os.path.exists(os.path.join(".", "Dup_reci", "ATOMS.gz"))
+        assert not os.path.exists(os.path.join(".", "Dup_reci", "POTENTIALS.gz"))
 
         tags_original = Tags.from_file(os.path.join(".", "xanes_reci/feff.inp"))
         tags_output = Tags.from_file(os.path.join(".", "Dup_reci/feff.inp"))

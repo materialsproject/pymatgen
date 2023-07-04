@@ -123,7 +123,7 @@ C32-C2-1
         assert mol[3].z == approx(-0.13790)
 
     def test_from_file(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "multiple_frame_xyz.xyz")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "multiple_frame_xyz.xyz.gz")
         mxyz = XYZ.from_file(filepath)
         assert len(mxyz.all_molecules) == 302
         assert list(mxyz.all_molecules[0].cart_coords[0]) == [
@@ -135,7 +135,7 @@ C32-C2-1
         assert list(mxyz.molecule.cart_coords[-1]) == [5.5355550720000002, 0.0282305931, -0.30993102189999999]
 
     def test_init_from_structure(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz")
         poscar = Poscar.from_file(filepath)
         struct = poscar.structure
         xyz = XYZ(struct)

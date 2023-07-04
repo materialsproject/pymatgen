@@ -26,7 +26,7 @@ from pymatgen.util.testing import PymatgenTest
 
 Si_structure = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
-    species=["Si", "Si"],
+    species=["Si.gz", "Si.gz"],
     coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
 )
 
@@ -149,7 +149,7 @@ class BasisAndPotentialTest(PymatgenTest):
 class InputTest(PymatgenTest):
     def setUp(self):
         self.TEST_FILES_DIR = Path.joinpath(self.TEST_FILES_DIR, "cp2k")
-        self.ci = Cp2kInput.from_file(Path.joinpath(self.TEST_FILES_DIR, "cp2k.inp"))
+        self.ci = Cp2kInput.from_file(Path.joinpath(self.TEST_FILES_DIR, "cp2k.inp.gz"))
 
     def test_basic_sections(self):
         s = """

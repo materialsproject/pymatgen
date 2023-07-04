@@ -48,7 +48,7 @@ class KPathLatimerMunroTest(PymatgenTest):
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
             _ = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
-        struct_file_path = os.path.join(test_dir_structs, "AgO_kpath_test.cif")
+        struct_file_path = os.path.join(test_dir_structs, "AgO_kpath_test.cif.gz")
         struct = Structure.from_file(struct_file_path)
         _ = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
@@ -87,7 +87,7 @@ class KPathLatimerMunroTest(PymatgenTest):
         )
 
     def test_magnetic_kpath_generation(self):
-        struct_file_path = os.path.join(test_dir_structs, "LaMnO3_magnetic.mcif")
+        struct_file_path = os.path.join(test_dir_structs, "LaMnO3_magnetic.mcif.gz")
         struct = Structure.from_file(struct_file_path)
         mga = CollinearMagneticStructureAnalyzer(struct)
         col_spin_orig = mga.get_structure_with_spin()

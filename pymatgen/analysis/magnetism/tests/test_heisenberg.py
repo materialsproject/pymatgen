@@ -16,10 +16,10 @@ test_dir = f"{PymatgenTest.TEST_FILES_DIR}/magnetic_orderings"
 class HeisenbergMapperTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.df = pd.read_json(os.path.join(test_dir, "mag_orderings_test_cases.json"))
+        cls.df = pd.read_json(os.path.join(test_dir, "mag_orderings_test_cases.json.gz"))
 
         # Good tests
-        cls.Mn3Al = pd.read_json(os.path.join(test_dir, "Mn3Al.json"))
+        cls.Mn3Al = pd.read_json(os.path.join(test_dir, "Mn3Al.json.gz"))
 
         cls.compounds = [cls.Mn3Al]
 

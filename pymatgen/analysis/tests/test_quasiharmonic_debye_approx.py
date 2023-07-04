@@ -149,7 +149,7 @@ Al
 1
 direct
 0.000000 0.000000 0.000000 Al""",
-            fmt="POSCAR",
+            fmt="POSCAR.gz",
         )
 
         self.energies = [

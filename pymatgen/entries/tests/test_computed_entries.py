@@ -24,7 +24,7 @@ from pymatgen.entries.computed_entries import (
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.testing import PymatgenTest
 
-filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml")
+filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml.gz")
 vasp_run = Vasprun(filepath)
 
 
@@ -432,9 +432,9 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             for temp in self.temps
         }
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json.gz")) as f:
             data = json.load(f)
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json.gz")) as f:
             self.co2_struct = MontyDecoder().process_decoded(json.load(f))
 
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]

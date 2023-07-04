@@ -85,7 +85,7 @@ class ConnectedComponentTest(PymatgenTest):
     def test_serialization(self):
         lat = Lattice.hexagonal(a=2.0, c=2.5)
         en1 = EnvironmentNode(
-            central_site=PeriodicSite("Si", coords=np.array([0.0, 0.0, 0.0]), lattice=lat),
+            central_site=PeriodicSite("Si.gz", coords=np.array([0.0, 0.0, 0.0]), lattice=lat),
             i_central_site=3,
             ce_symbol="T:4",
         )
@@ -159,7 +159,7 @@ class ConnectedComponentTest(PymatgenTest):
             key = ConnectedComponent._edgekey_to_edgedictkey(0.2)
 
     def test_periodicity(self):
-        en1 = EnvironmentNode(central_site="Si", i_central_site=3, ce_symbol="T:4")
+        en1 = EnvironmentNode(central_site="Si.gz", i_central_site=3, ce_symbol="T:4")
         en2 = EnvironmentNode(central_site="Ag", i_central_site=5, ce_symbol="T:4")
         en3 = EnvironmentNode(central_site="Ag", i_central_site=8, ce_symbol="O:6")
         en4 = EnvironmentNode(central_site="Fe", i_central_site=23, ce_symbol="C:8")
@@ -772,7 +772,7 @@ Node #11 P (T:4), connected to :
             assert cc.periodicity == "2D"
 
         # Connectivity of Li4Fe3Mn1(PO4)4
-        struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "Li4Fe3Mn1(PO4)4.cif"))
+        struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "Li4Fe3Mn1(PO4)4.cif.gz"))
         lgf.setup_structure(structure=struct)
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
@@ -856,7 +856,7 @@ Node #3 Li (O:6), connected to :
             self.TEST_FILES_DIR,
             "chemenv",
             "structure_environments_files",
-            "se_mp-5020.json",
+            "se_mp-5020.json.gz",
         )
         with open(BaTiO3_se_fpath) as file:
             dct = json.load(file)

@@ -22,7 +22,7 @@ class DeformationTest(PymatgenTest):
                 [0.00, -2.2171384943, 3.1355090603],
             ]
         )
-        self.structure = Structure(lattice, ["Si", "Si"], [[0, 0, 0], [0.75, 0.5, 0.75]])
+        self.structure = Structure(lattice, ["Si.gz", "Si.gz"], [[0, 0, 0], [0.75, 0.5, 0.75]])
 
     def test_properties(self):
         # green_lagrange_strain
@@ -78,7 +78,7 @@ class DeformationTest(PymatgenTest):
             new_vec = np.dot(self.non_ind_defo, np.transpose(vec))
             self.assert_all_close(new_vec, defo_vec)
         for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords):
-            new_coord = np.dot(self.non_ind_defo, np.transpose(coord))
+            new_coord = np.dot(self.non_ind_defo, np.transpose(coord.gz))
             self.assert_all_close(new_coord, defo_coord)
 
 

@@ -22,10 +22,10 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs")
 @unittest.skipIf(not (which("mcsqs") and which("str2cif")), "mcsqs executable not present")
 class McsqsCallerTest(PymatgenTest):
     def setUp(self):
-        self.pzt_structs = loadfn(os.path.join(test_dir, "pztstructs.json"))
-        self.pzt_structs2 = loadfn(os.path.join(test_dir, "pztstructs2.json"))
+        self.pzt_structs = loadfn(os.path.join(test_dir, "pztstructs.json.gz"))
+        self.pzt_structs2 = loadfn(os.path.join(test_dir, "pztstructs2.json.gz"))
         self.struct = self.get_structure("Pb2TiZrO6")
-        self.perfect_match_zzn_rs = loadfn(os.path.join(test_dir, "perfect_match_zzn_rs.json"))
+        self.perfect_match_zzn_rs = loadfn(os.path.join(test_dir, "perfect_match_zzn_rs.json.gz"))
 
     def test_mcsqs_caller_supercell(self):
         struct = self.struct.copy()

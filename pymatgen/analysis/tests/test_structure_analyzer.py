@@ -28,7 +28,7 @@ class VoronoiAnalyzerTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        self.ss = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD")).structures
+        self.ss = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD.gz")).structures
         self.s = self.ss[1]
         self.va = VoronoiAnalyzer(cutoff=4)
 
@@ -44,9 +44,9 @@ class VoronoiAnalyzerTest(PymatgenTest):
 
 class RelaxationAnalyzerTest(unittest.TestCase):
     def setUp(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Li2O"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Li2O.gz"), check_for_POTCAR=False)
         s1 = p.structure
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "CONTCAR.Li2O"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "CONTCAR.Li2O.gz"), check_for_POTCAR=False)
         s2 = p.structure
         self.analyzer = RelaxationAnalyzer(s1, s2)
 
@@ -84,7 +84,7 @@ class VoronoiConnectivityTest(PymatgenTest):
 
 class MiscFunctionTest(PymatgenTest):
     def test_average_coordination_number(self):
-        xdatcar = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD"))
+        xdatcar = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD.gz"))
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
         assert coordination_numbers["Fe"] == approx(
             4.771903318390836, 5

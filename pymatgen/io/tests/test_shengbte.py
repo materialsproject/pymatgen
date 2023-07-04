@@ -20,7 +20,7 @@ except ImportError:
 
 class TestShengBTE(PymatgenTest):
     def setUp(self):
-        self.filename = os.path.join(test_dir, "CONTROL-CSLD_Si")
+        self.filename = os.path.join(test_dir, "CONTROL-CSLD_Si.gz")
         self.test_dict = {
             "nelements": 1,
             "natoms": 2,
@@ -32,7 +32,7 @@ class TestShengBTE(PymatgenTest):
                 [2.734363999, 0.0, 2.734363999],
                 [2.734363999, 2.734363999, 0.0],
             ],
-            "elements": "Si",
+            "elements": "Si.gz",
             "types": [1, 1],
             "positions": [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]],
             "scell": [5, 5, 5],
@@ -78,7 +78,7 @@ class TestShengBTE(PymatgenTest):
 
         with open(os.path.join(test_dir, "test_control")) as file:
             test_string = file.read()
-        with open(os.path.join(test_dir, "CONTROL-CSLD_Si")) as reference_file:
+        with open(os.path.join(test_dir, "CONTROL-CSLD_Si.gz")) as reference_file:
             reference_string = reference_file.read()
         assert test_string == reference_string
         os.remove(os.path.join(test_dir, "test_control"))
@@ -91,7 +91,7 @@ class TestShengBTE(PymatgenTest):
         io.to_file(filename=os.path.join(test_dir, "test_control"))
         with open(os.path.join(test_dir, "test_control")) as file:
             test_string = file.read()
-        with open(os.path.join(test_dir, "CONTROL-CSLD_Si")) as reference_file:
+        with open(os.path.join(test_dir, "CONTROL-CSLD_Si.gz")) as reference_file:
             reference_string = reference_file.read()
         assert test_string == reference_string
         os.remove(os.path.join(test_dir, "test_control"))

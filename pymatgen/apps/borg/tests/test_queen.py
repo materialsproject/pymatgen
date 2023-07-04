@@ -35,5 +35,5 @@ class BorgQueenTest(unittest.TestCase):
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()
         queen = BorgQueen(drone)
-        queen.load_data(os.path.join(PymatgenTest.TEST_FILES_DIR, "assimilated.json"))
+        queen.load_data(os.path.join(PymatgenTest.TEST_FILES_DIR, "assimilated.json.gz"))
         assert len(queen.get_data()) == 1

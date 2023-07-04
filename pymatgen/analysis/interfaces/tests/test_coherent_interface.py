@@ -13,7 +13,7 @@ from pymatgen.util.testing import PymatgenTest
 class InterfaceBuilderTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        si_struct = cls.get_structure("Si")
+        si_struct = cls.get_structure("Si.gz")
         sio2_struct = cls.get_structure("SiO2")
         cls.si_conventional = SpacegroupAnalyzer(si_struct).get_conventional_standard_structure()
         cls.sio2_conventional = SpacegroupAnalyzer(sio2_struct).get_conventional_standard_structure()

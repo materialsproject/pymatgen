@@ -24,7 +24,7 @@ def get_path(path_str):
 
 class SlabEntryTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
+        with open(os.path.join(get_path(""), "ucell_entries.txt.gz")) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
         self.ucell_entries = ucell_entries
 
@@ -32,14 +32,14 @@ class SlabEntryTest(PymatgenTest):
         self.metals_O_entry_dict = load_O_adsorption()
 
         # Load objects for Cu test
-        self.Cu_entry_dict = get_entry_dict(os.path.join(get_path(""), "Cu_entries.txt"))
+        self.Cu_entry_dict = get_entry_dict(os.path.join(get_path(""), "Cu_entries.txt.gz"))
         assert len(self.Cu_entry_dict) == 13
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Cu"])
 
         # Load dummy MgO slab entries
         self.MgO_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["MgO"])
         self.Mg_ucell_entry = ComputedStructureEntry.from_dict(self.ucell_entries["Mg"])
-        self.MgO_slab_entry_dict = get_entry_dict(os.path.join(get_path(""), "MgO_slab_entries.txt"))
+        self.MgO_slab_entry_dict = get_entry_dict(os.path.join(get_path(""), "MgO_slab_entries.txt.gz"))
 
     def test_properties(self):
         # Test cases for getting adsorption related quantities for a 1/4
@@ -58,7 +58,7 @@ class SlabEntryTest(PymatgenTest):
                         assert ads.Nsurfs_ads_in_slab == 1
 
                         # Determine the correct binding energy
-                        with open(os.path.join(get_path(""), "isolated_O_entry.txt")) as isolated_O_entry:
+                        with open(os.path.join(get_path(""), "isolated_O_entry.txt.gz")) as isolated_O_entry:
                             isolated_O_entry = json.loads(isolated_O_entry.read())
                         O_cse = ComputedStructureEntry.from_dict(isolated_O_entry)
                         g_bind = (ads.energy - ml * clean.energy) / Nads - O_cse.energy_per_atom
@@ -120,9 +120,9 @@ class SlabEntryTest(PymatgenTest):
 
 class SurfaceEnergyPlotterTest(PymatgenTest):
     def setUp(self):
-        entry_dict = get_entry_dict(os.path.join(get_path(""), "Cu_entries.txt"))
+        entry_dict = get_entry_dict(os.path.join(get_path(""), "Cu_entries.txt.gz"))
         self.Cu_entry_dict = entry_dict
-        with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
+        with open(os.path.join(get_path(""), "ucell_entries.txt.gz")) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
 
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
@@ -310,9 +310,9 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
 class NanoscaleStabilityTest(PymatgenTest):
     def setUp(self):
         # Load all entries
-        La_hcp_entry_dict = get_entry_dict(os.path.join(get_path(""), "La_hcp_entries.txt"))
-        La_fcc_entry_dict = get_entry_dict(os.path.join(get_path(""), "La_fcc_entries.txt"))
-        with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
+        La_hcp_entry_dict = get_entry_dict(os.path.join(get_path(""), "La_hcp_entries.txt.gz"))
+        La_fcc_entry_dict = get_entry_dict(os.path.join(get_path(""), "La_fcc_entries.txt.gz"))
+        with open(os.path.join(get_path(""), "ucell_entries.txt.gz")) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
         La_hcp_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_hcp"])
         La_fcc_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_fcc"])
@@ -390,7 +390,7 @@ def load_O_adsorption():
     # Loads the dictionary for clean and O adsorbed Rh, Pt, and Ni entries
 
     # Load the adsorbate as an entry
-    with open(os.path.join(get_path(""), "isolated_O_entry.txt")) as isolated_O_entry:
+    with open(os.path.join(get_path(""), "isolated_O_entry.txt.gz")) as isolated_O_entry:
         isolated_O_entry = json.loads(isolated_O_entry.read())
     O_entry = ComputedStructureEntry.from_dict(isolated_O_entry)
 
@@ -401,7 +401,7 @@ def load_O_adsorption():
         "Rh": {(1, 0, 0): {}},
     }
 
-    with open(os.path.join(get_path(""), "csentries_slabs.json")) as entries:
+    with open(os.path.join(get_path(""), "csentries_slabs.json.gz")) as entries:
         entries = json.loads(entries.read())
     for k in entries:
         entry = ComputedStructureEntry.from_dict(entries[k])
@@ -417,7 +417,7 @@ def load_O_adsorption():
                     clean = SlabEntry(entry.structure, entry.energy, (1, 0, 0), label=k + "_clean")
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = []
 
-    with open(os.path.join(get_path(""), "csentries_o_ads.json")) as entries:
+    with open(os.path.join(get_path(""), "csentries_o_ads.json.gz")) as entries:
         entries = json.loads(entries.read())
     for k in entries:
         entry = ComputedStructureEntry.from_dict(entries[k])

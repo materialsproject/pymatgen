@@ -25,14 +25,14 @@ class BatteryAnalyzerTest(PymatgenTest):
         self.li_fe_p_o4 = self.load_from_internal("LiFePO4", {"Li": 1, "Fe": 2, "P": 5, "O": -2})
         self.na_fe_p_o4 = self.load_from_internal("NaFePO4", {"Na": 1, "Fe": 2, "P": 5, "O": -2}, working_ion="Na")
         self.la2coo4f = self.load_from_internal("La2CoO4F", {"La": 3, "Co": 3, "O": -2, "F": -1}, working_ion="F")
-        self.fe_p_o4 = self.load_from_cif("FePO4a.cif", {"Fe": 3, "P": 5, "O": -2})
-        self.la2coo4 = self.load_from_cif("La2CoO4.cif", {"La": 3, "Co": 2, "O": -2}, working_ion="F")
-        self.lifemnpo4 = self.load_from_cif("Li4Fe3Mn1(PO4)4.cif", {"Li": 1, "Fe": 2, "Mn": 2, "P": 5, "O": -2})
+        self.fe_p_o4 = self.load_from_cif("FePO4a.cif.gz", {"Fe": 3, "P": 5, "O": -2})
+        self.la2coo4 = self.load_from_cif("La2CoO4.cif.gz", {"La": 3, "Co": 2, "O": -2}, working_ion="F")
+        self.lifemnpo4 = self.load_from_cif("Li4Fe3Mn1(PO4)4.cif.gz", {"Li": 1, "Fe": 2, "Mn": 2, "P": 5, "O": -2})
         self.li8nicofe208 = self.load_from_cif(
-            "Li8Fe2NiCoO8.cif", {"Li": 1, "Fe": 2, "Mn": 2, "Co": 2, "Ni": 2, "O": -2}
+            "Li8Fe2NiCoO8.cif.gz", {"Li": 1, "Fe": 2, "Mn": 2, "Co": 2, "Ni": 2, "O": -2}
         )
         self.li3v2p3o12 = self.load_from_internal("Li3V2(PO4)3", {"Li": 1, "V": 3, "O": -2, "P": 5})
-        self.mgnif6 = self.load_from_cif("MgNiF6.cif", {"Mg": 2, "Ni": 4, "F": -1}, working_ion="F")
+        self.mgnif6 = self.load_from_cif("MgNiF6.cif.gz", {"Mg": 2, "Ni": 4, "F": -1}, working_ion="F")
 
     def test_oxide_check(self):
         struct = self.get_structure("LiFePO4")

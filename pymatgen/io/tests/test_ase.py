@@ -16,7 +16,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class AseAtomsAdaptorTest(unittest.TestCase):
     def test_get_atoms_from_structure(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structure = p.structure
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         ase_composition = Composition(atoms.get_chemical_formula())
@@ -29,7 +29,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert not atoms.has("initial_magmoms")
         assert atoms.calc is None
 
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structure = p.structure
         prop = [3.14] * len(structure)
         structure.add_site_property("prop", prop)
@@ -37,7 +37,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.get_array("prop").tolist() == prop
 
     def test_get_atoms_from_structure_mags(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structure = p.structure
         mags = [1.0] * len(structure)
         structure.add_site_property("final_magmom", mags)
@@ -45,7 +45,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert not atoms.has("initial_magmoms")
         assert atoms.get_magnetic_moments().tolist() == mags
 
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structure = p.structure
         initial_mags = [0.5] * len(structure)
         structure.add_site_property("magmom", initial_mags)
@@ -53,7 +53,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.get_initial_magnetic_moments().tolist() == initial_mags
         assert atoms.calc is None
 
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structure = p.structure
         mags = [1.0] * len(structure)
         structure.add_site_property("final_magmom", mags)
@@ -64,7 +64,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.get_magnetic_moments().tolist(), mags
 
     def test_get_atoms_from_structure_charge(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structure = p.structure
         charges = [1.0] * len(structure)
         structure.add_site_property("final_charge", charges)
@@ -72,7 +72,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert not atoms.has("initial_charges")
         assert atoms.get_charges().tolist() == charges
 
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structure = p.structure
         charges = [0.5] * len(structure)
         structure.add_site_property("charge", charges)
@@ -80,7 +80,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.calc is None
         assert atoms.get_initial_charges().tolist() == charges
 
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structure = p.structure
         charges = [1.0] * len(structure)
         structure.add_site_property("final_charge", charges)
@@ -91,7 +91,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.get_charges().tolist(), charges
 
     def test_get_atoms_from_structure_oxistates(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structure = p.structure
         oxi_states = [1.0] * len(structure)
         structure.add_oxidation_state_by_site(oxi_states)
@@ -99,14 +99,14 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.get_array("oxi_states").tolist() == oxi_states
 
     def test_get_atoms_from_structure_dyn(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structure = p.structure
         structure.add_site_property("selective_dynamics", [[False] * 3] * len(structure))
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
 
     def test_get_atoms_from_molecule(self):
-        m = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        m = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz.gz"))
         atoms = aio.AseAtomsAdaptor.get_atoms(m)
         ase_composition = Composition(atoms.get_chemical_formula())
         assert ase_composition == m.composition
@@ -117,7 +117,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.calc is None
 
     def test_get_atoms_from_molecule_mags(self):
-        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz.gz"))
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         mags = [1.0] * len(molecule)
         molecule.add_site_property("final_magmom", mags)
@@ -125,7 +125,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert not atoms.has("initial_magmoms")
         assert atoms.get_magnetic_moments().tolist() == mags
 
-        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz.gz"))
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         initial_mags = [0.5] * len(molecule)
         molecule.add_site_property("magmom", initial_mags)
@@ -133,7 +133,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.calc is None
         assert atoms.get_initial_magnetic_moments().tolist() == initial_mags
 
-        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz.gz"))
         molecule.set_charge_and_spin(-2, spin_multiplicity=3)
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         assert atoms.calc is None
@@ -142,7 +142,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.spin_multiplicity == 3
 
     def test_get_atoms_from_molecule_dyn(self):
-        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz.gz"))
         molecule.add_site_property("selective_dynamics", [[False] * 3] * len(molecule))
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)
         assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
@@ -150,18 +150,18 @@ class AseAtomsAdaptorTest(unittest.TestCase):
     def test_get_structure(self):
         from ase.io import read
 
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         struct = aio.AseAtomsAdaptor.get_structure(atoms)
         assert struct.formula == "Fe4 P4 O16"
         assert [s.species_string for s in struct] == atoms.get_chemical_symbols()
 
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         prop = np.array([3.14] * len(atoms))
         atoms.set_array("prop", prop)
         struct = aio.AseAtomsAdaptor.get_structure(atoms)
         assert struct.site_properties["prop"] == prop.tolist()
 
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR_overlap"))
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR_overlap.gz"))
         struct = aio.AseAtomsAdaptor.get_structure(atoms)
         assert [s.species_string for s in struct] == atoms.get_chemical_symbols()
         with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
@@ -170,7 +170,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
     def test_get_structure_mag(self):
         from ase.io import read
 
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         mags = [1.0] * len(atoms)
         atoms.set_initial_magnetic_moments(mags)
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
@@ -178,7 +178,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert "final_magmom" not in structure.site_properties
         assert "initial_magmoms" not in structure.site_properties
 
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR"))
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR.gz"))
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
         assert structure.site_properties["final_magmom"] == atoms.get_magnetic_moments().tolist()
         assert "magmom" not in structure.site_properties
@@ -188,7 +188,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         from ase.constraints import FixAtoms
         from ase.io import read
 
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
         structure = aio.AseAtomsAdaptor.get_structure(atoms)
         assert structure.site_properties["selective_dynamics"][-1][0] is False
@@ -216,14 +216,14 @@ class AseAtomsAdaptorTest(unittest.TestCase):
     def test_get_molecule(self):
         from ase.io import read
 
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz.gz"))
         molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
         assert molecule.formula == "H2 C2"
         assert [s.species_string for s in molecule] == atoms.get_chemical_symbols()
         assert molecule.charge == 0
         assert molecule.spin_multiplicity == 1
 
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz.gz"))
         initial_charges = [2.0] * len(atoms)
         initial_mags = [1.0] * len(atoms)
         atoms.set_initial_charges(initial_charges)
@@ -234,7 +234,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert molecule.site_properties.get("charge") == initial_charges
         assert molecule.site_properties.get("magmom") == initial_mags
 
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz.gz"))
         atoms.spin_multiplicity = 3
         atoms.charge = 2
         molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
@@ -246,7 +246,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         from ase.io import read
 
         # Atoms --> Structure --> Atoms --> Structure
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR"))
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR.gz"))
         atoms.info = {"test": "hi"}
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
         atoms.set_initial_charges([1.0] * len(atoms))
@@ -260,7 +260,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
             assert str(atoms_back.todict()[k]) == str(v)
 
         # Structure --> Atoms --> Structure --> Atoms
-        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structure.add_site_property("final_magmom", [1.0] * len(structure))
         structure.add_site_property("magmom", [2.0] * len(structure))
         structure.add_site_property("final_charge", [3.0] * len(structure))
@@ -275,7 +275,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
             assert str(atoms_back.todict()[k]) == str(v)
 
         # Atoms --> Molecule --> Atoms --> Molecule
-        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz.gz"))
         atoms.info = {"test": "hi"}
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
         atoms.set_initial_charges([1.0] * len(atoms))
@@ -289,7 +289,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert molecule_back == molecule
 
         # Molecule --> Atoms --> Molecule --> Atoms
-        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
+        molecule = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz.gz"))
         molecule.set_charge_and_spin(-2, spin_multiplicity=3)
         molecule.info = {"test": "hi"}
         atoms = aio.AseAtomsAdaptor.get_atoms(molecule)

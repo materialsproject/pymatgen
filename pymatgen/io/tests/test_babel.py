@@ -52,7 +52,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
 
     def test_from_file_return_all_molecules(self):
         adaptors = BabelMolAdaptor.from_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "multiple_frame_xyz.xyz"),
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "multiple_frame_xyz.xyz.gz"),
             "xyz",
             return_all_molecules=True,
         )

@@ -16,11 +16,11 @@ from pymatgen.util.testing import PymatgenTest
 
 class TrajectoryTest(PymatgenTest):
     def setUp(self):
-        xdatcar = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_XDATCAR"))
-        self.traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_XDATCAR"))
+        xdatcar = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_XDATCAR.gz"))
+        self.traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_XDATCAR.gz"))
         self.structures = xdatcar.structures
 
-        out = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "ts.out"))
+        out = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "ts.out.gz"))
         last_mol = out.data["molecule_from_last_geometry"]
         species = last_mol.species
         coords = out.data["geometries"]
@@ -48,7 +48,7 @@ class TrajectoryTest(PymatgenTest):
 
     def _get_lattice_species_and_coords(self):
         lattice = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
-        species = ["Si", "Si"]
+        species = ["Si.gz", "Si.gz"]
         coords = np.asarray(
             [
                 [[0, 0, 0], [0.5, 0.5, 0.5]],
@@ -220,16 +220,18 @@ class TrajectoryTest(PymatgenTest):
         traj = copy.deepcopy(self.traj)
 
         # Case of compatible trajectories
-        compatible_traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_1"))
+        compatible_traj = Trajectory.from_file(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_1.gz")
+        )
         traj.extend(compatible_traj)
 
-        full_traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_Full"))
+        full_traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_Full.gz"))
         compatible_success = self._check_traj_equality(self.traj, full_traj)
 
         # Case of incompatible trajectories
         traj = copy.deepcopy(self.traj)
         incompatible_traj = Trajectory.from_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_2")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_2.gz")
         )
         incompatible_test_success = False
         try:
@@ -419,7 +421,7 @@ class TrajectoryTest(PymatgenTest):
         assert len(self.traj_mols) == len(self.molecules)
 
     def test_displacements(self):
-        poscar = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        poscar = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         structures = [poscar.structure]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 

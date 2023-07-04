@@ -20,20 +20,20 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "site_symmetries")
 
 class SiteSymmetriesTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(test_dir, "point_ops.pkl"), "rb") as f:
+        with open(os.path.join(test_dir, "point_ops.pkl.gz"), "rb") as f:
             self.point_ops = pickle.load(f)
-        with open(os.path.join(test_dir, "shared_ops.pkl"), "rb") as f:
+        with open(os.path.join(test_dir, "shared_ops.pkl.gz"), "rb") as f:
             self.shared_ops = pickle.load(f)
         self.piezo_struc = self.get_structure("Pb2TiZrO6")
 
     def test_get_site_symmetries(self):
         point_ops = ss.get_site_symmetries(self.piezo_struc)
-        # with open(os.path.join(test_dir, "point_ops.pkl"), "wb") as f:
+        # with open(os.path.join(test_dir, "point_ops.pkl.gz"), "wb") as f:
         #     pickle.dump(point_ops, f)  # update test file
         assert np.all(point_ops == self.point_ops)
 
     def test_get_shared_symmetries_operations(self):
         shared_ops = ss.get_shared_symmetry_operations(self.piezo_struc, ss.get_site_symmetries(self.piezo_struc))
-        # with open(os.path.join(test_dir, "shared_ops.pkl"), "wb") as f:
+        # with open(os.path.join(test_dir, "shared_ops.pkl.gz"), "wb") as f:
         #     pickle.dump(shared_ops, f)  # update test file
         assert np.all(shared_ops == self.shared_ops)

@@ -24,7 +24,7 @@ class ExcitingInputTest(PymatgenTest):
     def test_fromfile(self):
         # Test for the import of a structure directly from an exciting
         # input file
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "input_exciting1.xml")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "input_exciting1.xml.gz")
         excin = ExcitingInput.from_file(filepath)
         lattice = [[0.0, 2.81, 2.81], [2.81, 0.0, 2.81], [2.81, 2.81, 0.0]]
         atoms = ["Na", "Cl"]
@@ -76,7 +76,7 @@ class ExcitingInputTest(PymatgenTest):
                 assert l1.strip() == l2.strip()
 
     def test_writebandstr(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "CsI3Pb.cif")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "CsI3Pb.cif.gz")
         structure = Structure.from_file(filepath)
         excin = ExcitingInput(structure)
         string = excin.write_string("primitive", bandstr=True)
@@ -123,7 +123,7 @@ class ExcitingInputTest(PymatgenTest):
         root = ET.fromstring(bandstr)
         for plot1d in root.iter("plot1d"):
             for point in plot1d.iter("point"):
-                coord.append([float(i) for i in point.get("coord").split()])
+                coord.append([float(i) for i in point.get("coord.gz").split()])
                 label.append(point.get("label"))
         assert label == label_ref
         assert coord == coord_ref
@@ -131,7 +131,7 @@ class ExcitingInputTest(PymatgenTest):
     def test_paramdict(self):
         coords = [[0.0, 0.0, 0.0], [0.75, 0.5, 0.75]]
         lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
-        struct = Structure(lattice, ["Si", "Si"], coords)
+        struct = Structure(lattice, ["Si.gz", "Si.gz"], coords)
         paradir = {
             "grst": {
                 "do": "fromscratch",
@@ -157,7 +157,7 @@ class ExcitingInputTest(PymatgenTest):
         test_string = test_input.write_string("unchanged", **paradir)
 
         # read reference file
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "input_exciting2.xml")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "input_exciting2.xml.gz")
         tree = ET.parse(filepath)
         root = tree.getroot()
         ref_string = ET.tostring(root, encoding="unicode")

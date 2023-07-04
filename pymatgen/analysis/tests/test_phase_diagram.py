@@ -949,10 +949,10 @@ class UtilityFunctionTest(unittest.TestCase):
 
     def test_triangular_coord(self):
         coord = [0.5, 0.5]
-        coord = triangular_coord(coord)
+        coord = triangular_coord(coord.gz)
         assert np.allclose(coord, [0.75, 0.4330127])
 
     def test_tet_coord(self):
         coord = [0.5, 0.5, 0.5]
-        coord = tet_coord(coord)
+        coord = tet_coord(coord.gz)
         assert np.allclose(coord, [1.0, 0.57735027, 0.40824829])

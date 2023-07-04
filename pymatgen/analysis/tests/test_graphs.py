@@ -206,7 +206,7 @@ class StructureGraphTest(PymatgenTest):
         assert square_copy.graph.number_of_edges() == 3
 
     def test_substitute(self):
-        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif.gz"))
         molecule = FunctionalGroups["methyl"]
 
         structure_copy = copy.deepcopy(structure)
@@ -435,7 +435,7 @@ from    to  to_image
     def test_extract_molecules(self):
         structure_file = os.path.join(
             PymatgenTest.TEST_FILES_DIR,
-            "H6PbCI3N_mp-977013_symmetrized.cif",
+            "H6PbCI3N_mp-977013_symmetrized.cif.gz",
         )
 
         struct = Structure.from_file(structure_file)
@@ -538,7 +538,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.ethylene.add_edge(1, 4, weight=1.0)
         self.ethylene.add_edge(1, 5, weight=1.0)
 
-        self.pc = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "PC.xyz"))
+        self.pc = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "PC.xyz.gz"))
         self.pc_edges = [
             [5, 10],
             [5, 12],
@@ -554,9 +554,9 @@ class MoleculeGraphTest(unittest.TestCase):
             [6, 0],
             [6, 2],
         ]
-        self.pc_frag1 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "PC_frag1.xyz"))
+        self.pc_frag1 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "PC_frag1.xyz.gz"))
         self.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
-        self.tfsi = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "TFSI.xyz"))
+        self.tfsi = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "TFSI.xyz.gz"))
         self.tfsi_edges = (
             [14, 1],
             [1, 4],

@@ -81,8 +81,8 @@ class TestPackmolSet:
         with tempfile.TemporaryDirectory() as scratch_dir:
             pw = PackmolBoxGen().get_input_set(
                 molecules=[
-                    {"name": "EMC", "number": 10, "coords": os.path.join(test_dir, "subdir with spaces", "EMC.xyz")},
-                    {"name": "LiTFSi", "number": 20, "coords": os.path.join(test_dir, "LiTFSi.xyz")},
+                    {"name": "EMC", "number": 10, "coords": os.path.join(test_dir, "subdir with spaces", "EMC.xyz.gz")},
+                    {"name": "LiTFSi", "number": 20, "coords": os.path.join(test_dir, "LiTFSi.xyz.gz")},
                 ],
             )
             pw.write_input(scratch_dir)
@@ -95,8 +95,8 @@ class TestPackmolSet:
         """
         Test coords input as Path. Use a subdirectory with spaces.
         """
-        p1 = Path(os.path.join(test_dir, "subdir with spaces", "EMC.xyz"))
-        p2 = Path(os.path.join(test_dir, "LiTFSi.xyz"))
+        p1 = Path(os.path.join(test_dir, "subdir with spaces", "EMC.xyz.gz"))
+        p2 = Path(os.path.join(test_dir, "LiTFSi.xyz.gz"))
         with tempfile.TemporaryDirectory() as scratch_dir:
             pw = PackmolBoxGen().get_input_set(
                 molecules=[

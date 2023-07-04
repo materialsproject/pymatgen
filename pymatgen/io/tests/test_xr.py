@@ -18,7 +18,7 @@ __date__ = "June 23, 2016"
 
 class XrTest(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz")
         p = Poscar.from_file(filepath)
         self.xr = Xr(p.structure)
 
@@ -60,7 +60,7 @@ class XrTest(unittest.TestCase):
         assert str(self.xr) == expected_string
 
     def test_from_file(self):
-        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI.xr")
+        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI.xr.gz")
         xr = Xr.from_file(filename)
         assert isinstance(xr.structure, Structure)
         xr2 = Xr.from_file(filename, use_cores=False)

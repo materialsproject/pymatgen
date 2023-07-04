@@ -23,7 +23,7 @@ __date__ = "Jan 24, 2012"
 
 class CssrTest(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz")
         p = Poscar.from_file(filepath)
         self.cssr = Cssr(p.structure)
 
@@ -59,6 +59,6 @@ class CssrTest(unittest.TestCase):
         assert str(self.cssr) == expected_string
 
     def test_from_file(self):
-        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.cssr")
+        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.cssr.gz")
         cssr = Cssr.from_file(filename)
         assert isinstance(cssr.structure, Structure)

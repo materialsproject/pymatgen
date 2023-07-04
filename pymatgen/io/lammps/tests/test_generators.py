@@ -13,8 +13,8 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
 class LammpsMinimizationTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.filename = os.path.join(test_dir, "lgps.in")
-        cls.cif = os.path.join(test_dir, "lgps.cif")
+        cls.filename = os.path.join(test_dir, "lgps.in.gz")
+        cls.cif = os.path.join(test_dir, "lgps.cif.gz")
         cls.structure = Structure.from_file(cls.cif)
 
     def test_get_input_set(self):

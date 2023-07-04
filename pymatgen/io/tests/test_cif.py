@@ -421,8 +421,8 @@ loop_
             "O-H2": "O",
             "OD2": "O",
             "OW": "O",
-            "SiT": "Si",
-            "SiTet": "Si",
+            "SiT": "Si.gz",
+            "SiTet": "Si.gz",
             "Na-Int": "Na",
             "CaD1": "Ca",
             "KAm": "K",
@@ -536,7 +536,7 @@ loop_
         assert d["_symmetry_Int_Tables_number"] == 62
 
     def test_disordered(self):
-        si = Element("Si")
+        si = Element("Si.gz")
         n = Element("N")
         coords = []
         coords.append(np.array([0, 0, 0]))
@@ -593,8 +593,8 @@ loop_
         assert len(si2) == len(same_si2)
 
     def test_specie_cifwriter(self):
-        si4 = Species("Si", 4)
-        si3 = Species("Si", 3)
+        si4 = Species("Si.gz", 4)
+        si3 = Species("Si.gz", 3)
         n = DummySpecies("X", -3)
         coords = []
         coords.append(np.array([0.5, 0.5, 0.5]))

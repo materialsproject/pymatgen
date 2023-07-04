@@ -27,18 +27,20 @@ class TestCRESTInput(PymatgenTest):
             [-7.5827400000, 0.5127000000, -0.0000000000],
         ]
         mol = Molecule(species=species, coords=coords)
-        cin = CRESTInput(molecule=mol, coords_filename="crest_in.xyz")
+        cin = CRESTInput(molecule=mol, coords_filename="crest_in.xyz.gz")
 
         assert mol.as_dict() == cin.molecule.as_dict()
-        assert cin.coords_filename == "crest_in.xyz"
+        assert cin.coords_filename == "crest_in.xyz.gz"
 
     def test_constraints_file(self):
         constraints = {"atoms": [8, 1, 2], "force_constant": 0.5}
-        mol = Molecule.from_file(os.path.join(test_dir, "crest_in.xyz"))
+        mol = Molecule.from_file(os.path.join(test_dir, "crest_in.xyz.gz"))
         cin = CRESTInput(molecule=mol, constraints=constraints)
-        with open(os.path.join(expected_dir, "expected_constrains.txt")) as f:
+        with open(os.path.join(expected_dir, "expected_constrains.txt.gz")) as f:
             exp_con = f.read()
             assert (
                 exp_con.strip()
-                == cin.constrains_template(molecule=mol, reference_fnm="crest_in.xyz", constraints=constraints).strip()
+                == cin.constrains_template(
+                    molecule=mol, reference_fnm="crest_in.xyz.gz", constraints=constraints
+                ).strip()
             )

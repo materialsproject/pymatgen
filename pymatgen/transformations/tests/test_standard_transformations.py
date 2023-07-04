@@ -55,7 +55,7 @@ class RotationTransformationsTest(unittest.TestCase):
                 [0.00, -2.2171384943, 3.1355090603],
             ]
         )
-        self.struct = Structure(lattice, ["Si"] * 2, coords)
+        self.struct = Structure(lattice, ["Si.gz"] * 2, coords)
 
     def test_as_from_dict(self):
         trafo = RotationTransformation([0, 1, 0], 30, False)
@@ -185,7 +185,7 @@ class OxidationStateDecorationTransformationTest(unittest.TestCase):
 
 class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4.gz"), check_for_POTCAR=False)
         trafo = AutoOxiStateDecorationTransformation()
         struct = trafo.apply_transformation(p.structure)
         expected_oxi = {"Li": 1, "P": 5, "O": -2, "Fe": 2}
@@ -269,14 +269,14 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         assert fast_opt_s == slow_opt_s
 
     def test_apply_transformations_complete_ranking(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4.gz"), check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
         struct = t1.apply_transformation(p.structure)
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         assert len(trafo.apply_transformation(struct, 10)) == 6
 
     def test_apply_transformations_best_first(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4.gz"), check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
         struct = t1.apply_transformation(p.structure)
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
@@ -439,7 +439,7 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
         s = trafo.apply_transformation(struct)
         assert len(s) == 4
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_super.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_super.json.gz")) as f:
             s = json.load(f, cls=MontyDecoder)
             prim = trafo.apply_transformation(s)
             assert prim.formula == "Ti4 O8"
@@ -585,27 +585,27 @@ class ScaleToRelaxedTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         # Test on slab relaxation where volume is fixed
         f = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests")
-        Cu_fin = Structure.from_file(os.path.join(f, "Cu_slab_fin.cif"))
-        Cu_init = Structure.from_file(os.path.join(f, "Cu_slab_init.cif"))
+        Cu_fin = Structure.from_file(os.path.join(f, "Cu_slab_fin.cif.gz"))
+        Cu_init = Structure.from_file(os.path.join(f, "Cu_slab_init.cif.gz"))
         slab_scaling = ScaleToRelaxedTransformation(Cu_init, Cu_fin)
-        Au_init = Structure.from_file(os.path.join(f, "Au_slab_init.cif"))
+        Au_init = Structure.from_file(os.path.join(f, "Au_slab_init.cif.gz"))
         Au_fin = slab_scaling.apply_transformation(Au_init)
         assert Au_fin.volume == approx(Au_init.volume)
 
         # Test on gb relaxation
         f = os.path.join(PymatgenTest.TEST_FILES_DIR, "grain_boundary")
-        Be_fin = Structure.from_file(os.path.join(f, "Be_gb_fin.cif"))
-        Be_init = Structure.from_file(os.path.join(f, "Be_gb_init.cif"))
-        Zn_init = Structure.from_file(os.path.join(f, "Zn_gb_init.cif"))
+        Be_fin = Structure.from_file(os.path.join(f, "Be_gb_fin.cif.gz"))
+        Be_init = Structure.from_file(os.path.join(f, "Be_gb_init.cif.gz"))
+        Zn_init = Structure.from_file(os.path.join(f, "Zn_gb_init.cif.gz"))
         gb_scaling = ScaleToRelaxedTransformation(Be_init, Be_fin)
         Zn_fin = gb_scaling.apply_transformation(Zn_init)
         assert all(site.species_string == "Zn" for site in Zn_fin)
         assert (Be_init.lattice.a < Be_fin.lattice.a) == (Zn_init.lattice.a < Zn_fin.lattice.a)
         assert (Be_init.lattice.b < Be_fin.lattice.b) == (Zn_init.lattice.b < Zn_fin.lattice.b)
         assert (Be_init.lattice.c < Be_fin.lattice.c) == (Zn_init.lattice.c < Zn_fin.lattice.c)
-        Fe_fin = Structure.from_file(os.path.join(f, "Fe_gb_fin.cif"))
-        Fe_init = Structure.from_file(os.path.join(f, "Fe_gb_init.cif"))
-        Mo_init = Structure.from_file(os.path.join(f, "Mo_gb_init.cif"))
+        Fe_fin = Structure.from_file(os.path.join(f, "Fe_gb_fin.cif.gz"))
+        Fe_init = Structure.from_file(os.path.join(f, "Fe_gb_init.cif.gz"))
+        Mo_init = Structure.from_file(os.path.join(f, "Mo_gb_init.cif.gz"))
         gb_scaling = ScaleToRelaxedTransformation(Fe_init, Fe_fin)
         Mo_fin = gb_scaling.apply_transformation(Mo_init)
         assert all(site.species_string == "Mo" for site in Mo_fin)

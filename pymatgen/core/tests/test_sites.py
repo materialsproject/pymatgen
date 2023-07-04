@@ -83,10 +83,10 @@ class SiteTest(PymatgenTest):
 class PeriodicSiteTest(PymatgenTest):
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
-        self.si = Element("Si")
+        self.si = Element("Si.gz")
         self.site = PeriodicSite("Fe", [0.25, 0.35, 0.45], self.lattice)
-        self.site2 = PeriodicSite({"Si": 0.5}, [0, 0, 0], self.lattice)
-        assert self.site2.species == Composition({Element("Si"): 0.5}), "Inconsistent site created!"
+        self.site2 = PeriodicSite({"Si.gz": 0.5}, [0, 0, 0], self.lattice)
+        assert self.site2.species == Composition({Element("Si.gz"): 0.5}), "Inconsistent site created!"
         self.propertied_site = PeriodicSite(
             Species("Fe", 2),
             [0.25, 0.35, 0.45],
@@ -165,7 +165,7 @@ class PeriodicSiteTest(PymatgenTest):
         assert site == self.site2
         assert site != self.site
         d = self.propertied_site.as_dict()
-        site3 = PeriodicSite({"Si": 0.5, "Fe": 0.5}, [0, 0, 0], self.lattice)
+        site3 = PeriodicSite({"Si.gz": 0.5, "Fe": 0.5}, [0, 0, 0], self.lattice)
         d = site3.as_dict()
         site = PeriodicSite.from_dict(d)
         assert site.species == site3.species

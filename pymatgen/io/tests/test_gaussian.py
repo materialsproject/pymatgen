@@ -96,14 +96,14 @@ EPS=12
         assert gau.input_parameters["EPS"] == "12"
 
     def test_from_file(self):
-        filepath = os.path.join(test_dir, "MethylPyrrolidine_drawn.gjf")
+        filepath = os.path.join(test_dir, "MethylPyrrolidine_drawn.gjf.gz")
         gau = GaussianInput.from_file(filepath)
         assert gau.molecule.composition.formula == "H11 C5 N1"
         assert "opt" in gau.route_parameters
         assert gau.route_parameters["geom"] == "connectivity"
         assert gau.functional == "b3lyp"
         assert gau.basis_set == "6-311+g(d,p)"
-        filepath = os.path.join(test_dir, "g305_hb.txt")
+        filepath = os.path.join(test_dir, "g305_hb.txt.gz")
         with open(filepath) as f:
             txt = f.read()
         toks = txt.split("--link1--")
@@ -203,7 +203,7 @@ H 0
         This test makes sure that input files with multi-parameter keywords
         and route cards with multiple lines can be parsed accurately.
         """
-        filepath = os.path.join(test_dir, "l-cysteine.inp")
+        filepath = os.path.join(test_dir, "l-cysteine.inp.gz")
         route = {
             "test": None,
             "integral": {"grid": "UltraFine"},
@@ -256,7 +256,7 @@ class GaussianOutputTest(unittest.TestCase):
     # TODO: Add unittest for PCM type output.
 
     def setUp(self):
-        self.gauout = GaussianOutput(os.path.join(test_dir, "methane.log"))
+        self.gauout = GaussianOutput(os.path.join(test_dir, "methane.log.gz"))
 
     def test_resume(self):
         resume = self.gauout.resumes[0]
@@ -293,7 +293,7 @@ class GaussianOutputTest(unittest.TestCase):
         assert gau.num_basis_func == 17
         assert gau.is_spin is False
 
-        ch2o_co2 = GaussianOutput(os.path.join(test_dir, "CH2O_CO2.log"))
+        ch2o_co2 = GaussianOutput(os.path.join(test_dir, "CH2O_CO2.log.gz"))
         assert len(ch2o_co2.frequencies) == 2
         assert len(ch2o_co2.frequencies[0]) == 6
         assert len(ch2o_co2.frequencies[1]) == 4
@@ -320,7 +320,7 @@ class GaussianOutputTest(unittest.TestCase):
         assert ch2o_co2.frequencies[1][3]["symmetry"] == "SGU"
         assert ch2o_co2.eigenvalues[Spin.up][3] == -1.18394
 
-        h2o = GaussianOutput(os.path.join(test_dir, "H2O_gau_vib.out"))
+        h2o = GaussianOutput(os.path.join(test_dir, "H2O_gau_vib.out.gz"))
         assert len(h2o.frequencies[0]) == 3
         assert h2o.frequencies[0][0]["frequency"] == 1662.8033
         assert h2o.frequencies[0][1]["symmetry"] == "A'"
@@ -339,7 +339,7 @@ class GaussianOutputTest(unittest.TestCase):
         ]
 
     def test_pop(self):
-        gau = GaussianOutput(os.path.join(test_dir, "H2O_gau.out"))
+        gau = GaussianOutput(os.path.join(test_dir, "H2O_gau.out.gz"))
         assert gau.num_basis_func == 13
         assert gau.electrons == (5, 5)
         assert gau.is_spin
@@ -383,19 +383,19 @@ class GaussianOutputTest(unittest.TestCase):
         assert gau.atom_basis_labels[0] == ["1S", "2S", "2PX", "2PY", "2PZ", "3S", "3PX", "3PY", "3PZ"]
         assert gau.atom_basis_labels[2] == ["1S", "2S"]
 
-        gau = GaussianOutput(os.path.join(test_dir, "H2O_gau_vib.out"))
+        gau = GaussianOutput(os.path.join(test_dir, "H2O_gau_vib.out.gz"))
 
         assert gau.bond_orders[(0, 1)] == 0.7582
         assert gau.bond_orders[(1, 2)] == 0.0002
 
     def test_scan(self):
-        gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
+        gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log.gz"))
         d = gau.read_scan()
         assert approx(d["energies"][-1]) == -548.02102
         assert len(d["coords"]) == 1
         assert len(d["energies"]) == len(gau.energies)
         assert len(d["energies"]) == 21
-        gau = GaussianOutput(os.path.join(test_dir, "so2_scan_opt.log"))
+        gau = GaussianOutput(os.path.join(test_dir, "so2_scan_opt.log.gz"))
         assert len(gau.opt_structures) == 21
         d = gau.read_scan()
         assert approx(d["energies"][-1]) == -548.02336
@@ -403,7 +403,7 @@ class GaussianOutputTest(unittest.TestCase):
         assert len(d["energies"]) == 21
         assert approx(d["coords"]["DSO"][6]) == 1.60000
         assert approx(d["coords"]["ASO"][2]) == 124.01095
-        gau = GaussianOutput(os.path.join(test_dir, "H2O_scan_G16.out"))
+        gau = GaussianOutput(os.path.join(test_dir, "H2O_scan_G16.out.gz"))
         assert len(gau.opt_structures) == 21
         coords = [
             [0.000000, 0.000000, 0.094168],
@@ -422,7 +422,7 @@ class GaussianOutputTest(unittest.TestCase):
         """
         Test an optimization where no "input orientation" is outputted
         """
-        gau = GaussianOutput(os.path.join(test_dir, "acene-n_gaussian09_opt.out"))
+        gau = GaussianOutput(os.path.join(test_dir, "acene-n_gaussian09_opt.out.gz"))
         assert approx(gau.energies[-1]) == -1812.58399675
         assert len(gau.structures) == 6
         # Test the first 3 atom coordinates
@@ -434,7 +434,7 @@ class GaussianOutputTest(unittest.TestCase):
         assert gau.opt_structures[-1].cart_coords[:3].tolist() == coords
 
     def test_td(self):
-        gau = GaussianOutput(os.path.join(test_dir, "so2_td.log"))
+        gau = GaussianOutput(os.path.join(test_dir, "so2_td.log.gz"))
         transitions = gau.read_excitation_energies()
         assert len(transitions) == 4
         assert transitions[0] == approx((3.9281, 315.64, 0.0054))
@@ -444,7 +444,7 @@ class GaussianOutputTest(unittest.TestCase):
         This test makes sure that input files with multi-parameter keywords
         and route cards with multiple lines can be parsed accurately.
         """
-        filepath = os.path.join(test_dir, "l-cysteine.out")
+        filepath = os.path.join(test_dir, "l-cysteine.out.gz")
         route = {
             "test": None,
             "integral": {"grid": "UltraFine"},

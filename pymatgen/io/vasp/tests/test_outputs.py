@@ -478,15 +478,15 @@ class VasprunTest(PymatgenTest):
         assert cbm["kpoint"].label is None, "wrong cbm label"
 
         projected = bs.get_projection_on_elements()
-        assert projected[Spin.up][0][0]["Si"] == approx(0.4238)
-        projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
-        assert projected[Spin.up][0][0]["Si"]["s"] == approx(0.4238)
+        assert projected[Spin.up][0][0]["Si.gz"] == approx(0.4238)
+        projected = bs.get_projections_on_elements_and_orbitals({"Si.gz": ["s"]})
+        assert projected[Spin.up][0][0]["Si.gz"]["s"] == approx(0.4238)
 
         # Test compressed files case 1: compressed KPOINTS in current dir
-        copyfile(f"{self.TEST_FILES_DIR}/vasprun_Si_bands.xml", "vasprun.xml")
+        copyfile(f"{self.TEST_FILES_DIR}/vasprun_Si_bands.xml", "vasprun.xml.gz")
 
         # Check for error if no KPOINTS file
-        vasp_run = Vasprun("vasprun.xml", parse_projected_eigen=True, parse_potcar_file=False)
+        vasp_run = Vasprun("vasprun.xml.gz", parse_projected_eigen=True, parse_potcar_file=False)
         with pytest.raises(
             VaspParserError, match="KPOINTS not found but needed to obtain band structure along symmetry lines"
         ):
@@ -501,7 +501,7 @@ class VasprunTest(PymatgenTest):
 
         # Test compressed files case 2: compressed vasprun in another dir
         os.mkdir("deeper")
-        copyfile(f"{self.TEST_FILES_DIR}/KPOINTS_Si_bands", Path("deeper") / "KPOINTS")
+        copyfile(f"{self.TEST_FILES_DIR}/KPOINTS_Si_bands", Path("deeper") / "KPOINTS.gz")
         with open(f"{self.TEST_FILES_DIR}/vasprun_Si_bands.xml", "rb") as f_in, gzip.open(
             os.path.join("deeper", "vasprun.xml.gz"), "wb"
         ) as f_out:
@@ -716,7 +716,7 @@ class OutcarTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def test_init(self):
-        for f in ["OUTCAR", "OUTCAR.gz"]:
+        for f in ["OUTCAR.gz", "OUTCAR.gz"]:
             filepath = self.TEST_FILES_DIR / f
             outcar = Outcar(filepath)
             expected_mag = (
@@ -767,7 +767,7 @@ class OutcarTest(PymatgenTest):
         filepath = f"{self.TEST_FILES_DIR}/OUTCAR.stopped"
         outcar = Outcar(filepath)
         assert outcar.is_stopped
-        for f in ["OUTCAR.lepsilon_old_born", "OUTCAR.lepsilon_old_born.gz"]:
+        for f in ["OUTCAR.lepsilon_old_born.gz", "OUTCAR.lepsilon_old_born.gz"]:
             filepath = self.TEST_FILES_DIR / f
             outcar = Outcar(filepath)
 
@@ -797,7 +797,7 @@ class OutcarTest(PymatgenTest):
         filepath = f"{self.TEST_FILES_DIR}/OUTCAR.stopped"
         outcar = Outcar(filepath)
         assert outcar.is_stopped
-        for f in ["OUTCAR.lepsilon", "OUTCAR.lepsilon.gz"]:
+        for f in ["OUTCAR.lepsilon.gz", "OUTCAR.lepsilon.gz"]:
             filepath = self.TEST_FILES_DIR / f
             outcar = Outcar(filepath)
 
@@ -949,7 +949,7 @@ class OutcarTest(PymatgenTest):
     def test_read_lcalcpol(self):
         # outcar with electrons Angst units
         folder = "BTO_221_99_polarization/interpolation_6_polarization/"
-        filepath = self.TEST_FILES_DIR / folder / "OUTCAR"
+        filepath = self.TEST_FILES_DIR / folder / "OUTCAR.gz"
         outcar = Outcar(filepath)
 
         outcar.read_lcalcpol()

@@ -104,7 +104,7 @@ class TensorTest(PymatgenTest):
         )
 
         self.structure = self.get_structure("BaNiO3")
-        ieee_file_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "ieee_conversion_data.json")
+        ieee_file_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "ieee_conversion_data.json.gz")
         self.ones = Tensor(np.ones((3, 3)))
         self.ieee_data = loadfn(ieee_file_path)
 
@@ -303,7 +303,7 @@ class TensorTest(PymatgenTest):
         assert empty[tkey] == 1
 
     def test_populate(self):
-        test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json"))
+        test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json.gz"))
 
         sn = self.get_structure("Sn")
         vtens = np.zeros((6, 6))
@@ -388,8 +388,8 @@ class TensorCollectionTest(PymatgenTest):
         self.seq_tc = TensorCollection(self.seq_tc)
         self.rand_tc = TensorCollection(list(np.random.random((4, 3, 3))))
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
-        self.struct = self.get_structure("Si")
-        ieee_file_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "ieee_conversion_data.json")
+        self.struct = self.get_structure("Si.gz")
+        ieee_file_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "ieee_conversion_data.json.gz")
         self.ieee_data = loadfn(ieee_file_path)
 
     def list_based_function_check(self, attribute, coll, *args, **kwargs):

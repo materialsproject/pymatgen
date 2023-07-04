@@ -640,11 +640,11 @@ class GraphUtilsTest(PymatgenTest):
 
 class EnvironmentNodesGraphUtilsTest(PymatgenTest):
     def test_cycle(self):
-        e1 = EnvironmentNode(central_site="Si", i_central_site=0, ce_symbol="T:4")
-        e2 = EnvironmentNode(central_site="Si", i_central_site=3, ce_symbol="T:4")
-        e3 = EnvironmentNode(central_site="Si", i_central_site=2, ce_symbol="T:4")
-        e4 = EnvironmentNode(central_site="Si", i_central_site=5, ce_symbol="T:4")
-        e5 = EnvironmentNode(central_site="Si", i_central_site=1, ce_symbol="T:4")
+        e1 = EnvironmentNode(central_site="Si.gz", i_central_site=0, ce_symbol="T:4")
+        e2 = EnvironmentNode(central_site="Si.gz", i_central_site=3, ce_symbol="T:4")
+        e3 = EnvironmentNode(central_site="Si.gz", i_central_site=2, ce_symbol="T:4")
+        e4 = EnvironmentNode(central_site="Si.gz", i_central_site=5, ce_symbol="T:4")
+        e5 = EnvironmentNode(central_site="Si.gz", i_central_site=1, ce_symbol="T:4")
 
         # Tests of SimpleGraphCycle with EnvironmentNodes
         c1 = SimpleGraphCycle([e2])
