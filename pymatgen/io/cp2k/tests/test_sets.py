@@ -17,8 +17,7 @@ molecule = Molecule(species=["Si"], coords=[[0, 0, 0]])
 
 class SetTest(PymatgenTest):
     def setUp(self) -> None:
-        self.TEST_FILES_DIR = f"{self.TEST_FILES_DIR}/cp2k"
-        SETTINGS["PMG_CP2K_DATA_DIR"] = self.TEST_FILES_DIR
+        SETTINGS["PMG_CP2K_DATA_DIR"] = f"{self.TEST_FILES_DIR}/cp2k"
         self.setkwargs = {
             "print_pdos": False,
             "print_dos": False,
