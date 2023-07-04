@@ -9,49 +9,18 @@ right away.
 from __future__ import annotations
 
 import json
-import os
 import string
 import tempfile
 import unittest
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import ClassVar
 
 import pytest
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 
-from pymatgen.core import ROOT, SETTINGS, Structure
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from pymatgen.core.interface import Interface
-
-
-class TestStructures:
-    """Lazy load test structures on request."""
-
-    def __getattr__(self, name: str) -> Structure | Interface:
-        """Load a test structure from JSON.
-
-        Args:
-            name (str): Name of structure file.
-
-        Raises:
-            FileNotFoundError: If structure file not found.
-
-        Returns:
-            Structure: Structure object.
-        """
-        file_path = f"{ROOT}/pymatgen/util/structures/{name}.json"
-        if os.path.isfile(file_path):
-            obj = loadfn(file_path)
-            setattr(self, name, obj)
-            return obj
-        raise FileNotFoundError(f"{name!r} not found at {file_path!r}")
-
-
-test_structures = TestStructures()
+from pymatgen.core import SETTINGS, Structure
 
 
 class PymatgenTest(unittest.TestCase):
@@ -61,7 +30,22 @@ class PymatgenTest(unittest.TestCase):
     """
 
     _multiprocess_shared_ = True
-    TEST_FILES_DIR = SETTINGS.get("PMG_TEST_FILES_DIR") or f"{ROOT}/test_files"
+    MODULE_DIR = Path(__file__).absolute().parent
+    STRUCTURES_DIR = MODULE_DIR / "structures"
+    try:
+        TEST_FILES_DIR = Path(SETTINGS["PMG_TEST_FILES_DIR"])
+    except KeyError:
+        import warnings
+
+        warnings.warn(
+            "It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicitly. "
+            "Now using a fallback location based on relative path from this module."
+        )
+        TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
+
+    TEST_STRUCTURES: ClassVar[dict[str, Structure]] = {}  # Dict for test structures to aid testing.
+    for fn in STRUCTURES_DIR.iterdir():
+        TEST_STRUCTURES[fn.name.rsplit(".", 1)[0]] = loadfn(str(fn))
 
     @pytest.fixture(autouse=True)  # make all tests run a in a temporary directory accessible via self.tmp_path
     def _tmp_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -80,7 +64,7 @@ class PymatgenTest(unittest.TestCase):
         Returns:
             Structure
         """
-        return getattr(test_structures, name)
+        return cls.TEST_STRUCTURES[name].copy()
 
     @staticmethod
     def assert_all_close(actual, desired, decimal=7, err_msg="", verbose=True):

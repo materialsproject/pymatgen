@@ -3,15 +3,17 @@ from __future__ import annotations
 from pymatgen.analysis.elasticity.elastic import ElasticTensor
 from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import test_structures
+from pymatgen.util.testing import PymatgenTest
 
 
 def test_substrate_analyzer_init():
     # Film VO2
-    film = SpacegroupAnalyzer(test_structures.VO2, symprec=0.1).get_conventional_standard_structure()
+    film = SpacegroupAnalyzer(PymatgenTest.get_structure("VO2"), symprec=0.1).get_conventional_standard_structure()
 
     # Substrate TiO2
-    substrate = SpacegroupAnalyzer(test_structures.TiO2, symprec=0.1).get_conventional_standard_structure()
+    substrate = SpacegroupAnalyzer(
+        PymatgenTest.get_structure("TiO2"), symprec=0.1
+    ).get_conventional_standard_structure()
 
     film_elastic_tensor = ElasticTensor.from_voigt(
         [
