@@ -1329,22 +1329,20 @@ class CombinedData(LammpsData):
         Returns:
             [(LammpsBox, ForceField, [Topology]), ...]
         """
-        disassembles = []
-        for mol in self.mols:
-            disassembles.append(
-                mol.disassemble(atom_labels=atom_labels, guess_element=guess_element, ff_label=ff_label)
-            )
-        return disassembles
+        return [
+            mol.disassemble(atom_labels=atom_labels, guess_element=guess_element, ff_label=ff_label)
+            for mol in self.mols
+        ]
 
     @classmethod
     def from_ff_and_topologies(cls):
         """Unsupported constructor for CombinedData objects."""
-        raise AttributeError("Unsupported constructor for CombinedData objects.")
+        raise AttributeError("Unsupported constructor for CombinedData objects")
 
     @classmethod
     def from_structure(cls):
         """Unsupported constructor for CombinedData objects."""
-        raise AttributeError("Unsupported constructor for CombinedData objects.")
+        raise AttributeError("Unsupported constructor for CombinedData objects")
 
     @classmethod
     def parse_xyz(cls, filename):

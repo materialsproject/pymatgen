@@ -74,7 +74,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
 
         with pytest.raises(ValueError, match="angdeg and rprimd are mutually exclusive"):
             lattice_from_abivars(acell=[1, 1, 1], angdeg=(90, 90, 90), rprim=np.eye(3))
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"Angles must be > 0 but got \[-90  90  90\]"):
             lattice_from_abivars(acell=[1, 1, 1], angdeg=(-90, 90, 90))
 
     def test_znucl_typat(self):

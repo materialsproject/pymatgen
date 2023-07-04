@@ -219,7 +219,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         )
 
     def test_use_of_coop(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Algorithm only works correctly for ICOHPLIST.lobster"):
             _ = LobsterNeighbors(
                 are_coops=True,
                 filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353.gz"),
@@ -251,8 +251,10 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert str(exc.value) == "All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work"
 
     def test_wrong_additional_correction(self):
-        with pytest.raises(ValueError):
-            _ = LobsterNeighbors(
+        with pytest.raises(
+            ValueError, match=r"Unexpected additional_condition=10, must be one of \[0, 1, 2, 3, 4, 5, 6\]"
+        ):
+            LobsterNeighbors(
                 are_coops=False,
                 filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353.gz"),
                 structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),
@@ -552,21 +554,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert isinstance(sg, StructureGraph)
 
     def test_raises_extended_structure_graph(self):
-        with pytest.raises(ValueError):
-            self.chemenvlobsterNaCl = LobsterNeighbors(
-                are_coops=False,
-                filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.NaCl.gz"),
-                structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
-                valences_from_charges=True,
-                filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.NaCl.gz"),
-                filename_blist_sg1=os.path.join(test_dir_env, "ICOBILIST.lobster.NaCl.gz"),
-                filename_blist_sg2=os.path.join(test_dir_env, "ICOOPLIST.lobster.NaCl.gz"),
-                add_additional_data_sg=True,
-                id_blist_sg1="icopppp",
-                id_blist_sg2="icoop",
-                additional_condition=1,
-            )
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Algorithm can only work with ICOOPs, ICOBIs"):
             self.chemenvlobsterNaCl = LobsterNeighbors(
                 are_coops=False,
                 filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.NaCl.gz"),
@@ -583,8 +571,7 @@ class TestLobsterNeighbors(unittest.TestCase):
 
     def test_order_parameter(self):
         assert self.chemenvlobster1_second.get_local_order_parameters(
-            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),
-            n=0,
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")), n=0
         )["linear"] == approx(1.0)
 
     def test_get_structure_environments(self):
@@ -743,7 +730,8 @@ class TestLobsterNeighbors(unittest.TestCase):
             ylim=None,
         )
 
-        with pytest.raises(ValueError):
+        expected_msg = "COHPCAR and ICOHPLIST do not fit together"
+        with pytest.raises(ValueError, match=expected_msg):
             # icohplist and cohpcar do not fit together
             self.chemenvlobster1.get_info_cohps_to_neighbors(
                 path_to_COHPCAR=cohpcar_lobster_mp_190,
@@ -752,7 +740,7 @@ class TestLobsterNeighbors(unittest.TestCase):
                 per_bond=False,
             )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=expected_msg):
             # icohplist and cohpcar do not fit together
             self.chemenvlobster2.get_info_cohps_to_neighbors(
                 path_to_COHPCAR=cohpcar_lobster_mp_190,

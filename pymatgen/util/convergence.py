@@ -14,7 +14,6 @@ for tol > 0
 returns the x_value for which dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists
 for the best fit a gnuplot line is printed plotting the data, the function and the asymptotic value
 """
-# ruff: noqa
 
 from __future__ import annotations
 
@@ -119,14 +118,7 @@ def reciprocal(x, a, b, n):
         n = 1
     elif n > 5:
         n = 5
-    if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b / x_v**n)
-        y = np.array(y_l)
-    else:
-        y = a + b / x**n
-    return y
+    return np.array([a + b / x_v**n for x_v in x])
 
 
 def p0_reciprocal(xs, ys):

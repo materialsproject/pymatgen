@@ -700,7 +700,7 @@ loop_
       ? ? ? ? ? ? ?
     """
         parser = CifParser.from_string(string)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Invalid cif file with no structures"):
             parser.get_structures()
 
     def test_get_lattice_from_lattice_type(self):
@@ -877,7 +877,7 @@ _atom_site_U_iso_or_equiv
 Si1 Si 0 0 0 1 0.0
 """
         parser = CifParser.from_string(cif)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Invalid cif file with no structures"):
             parser.get_structures()
 
 

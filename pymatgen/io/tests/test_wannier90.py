@@ -34,12 +34,19 @@ class UnkTest(PymatgenTest):
 
         # too small data
         data_bad_shape = np.random.rand(2, 2, 2).astype(np.complex128)
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match=r"invalid data shape, must be \(nbnd, ngx, ngy, ngz\) or \(nbnd, 2, ngx, ngy, ngz\) "
+            r"for noncollinear data, given \(2, 2, 2\)",
+        ):
             Unk(1, data_bad_shape)
 
         # too big data
         data_bad_shape = np.random.rand(2, 2, 2, 2, 2, 2).astype(np.complex128)
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match=r"invalid data shape, must be \(nbnd, ngx, ngy, ngz\) or \(nbnd, 2, ngx, ngy, ngz\) for noncollinear",
+        ):
             Unk(1, data_bad_shape)
 
         # noncollinear unk file
@@ -54,7 +61,10 @@ class UnkTest(PymatgenTest):
 
         # too big data
         data_bad_ncl = np.random.rand(2, 3, 2, 2, 2).astype(np.complex128)
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match=r"invalid noncollinear data, shape should be \(nbnd, 2, ngx, ngy, ngz\), given \(2, 3, 2, 2, 2\)",
+        ):
             Unk(1, data_bad_ncl)
 
     def test_from_file(self):
