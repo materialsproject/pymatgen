@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -17,6 +16,8 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from numpy.typing import ArrayLike, NDArray
 
 __author__ = "Jimmy-Xuan Shen"
@@ -111,20 +112,19 @@ class DielectricFunctionCalculator(MSONable):
     @classmethod
     def from_directory(cls, directory: Path | str):
         """Construct a DielectricFunction from a directory containing vasprun.xml and WAVEDER files."""
-        d_ = Path(directory)
 
         def _try_reading(dtypes):
             """Return None if failed."""
             for dtype in dtypes:
                 try:
-                    return Waveder.from_binary(d_ / "WAVEDER", data_type=dtype)
+                    return Waveder.from_binary(f"{directory}/WAVEDER", data_type=dtype)
                 except ValueError as e:
                     if "reshape" in str(e):
                         continue
                     raise e
             return None
 
-        vrun = Vasprun(d_ / "vasprun.xml")
+        vrun = Vasprun(f"{directory}/vasprun.xml")
         if "gamma" in vrun.generator["subversion"].lower():
             waveder = _try_reading(["float64", "float32"])  # large one first should give value error
         else:
