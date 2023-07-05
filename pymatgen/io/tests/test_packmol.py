@@ -1,3 +1,4 @@
+# ruff: noqa: PT011
 from __future__ import annotations
 
 import os
@@ -13,7 +14,6 @@ from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "packmol")
-
 
 # Just skip this whole test for now since packmol is problematic.
 if True:  # if which("packmol") is None:
@@ -116,7 +116,7 @@ class TestPackmolSet:
         is raised when 'ERROR' appears in stdout (even if return code is 0)
         """
         with tempfile.TemporaryDirectory() as scratch_dir:
-            pw = PackmolBoxGen(
+            input_set = PackmolBoxGen(
                 control_params={"maxit": 0, "nloop": 0},
             ).get_input_set(
                 molecules=[
@@ -124,13 +124,13 @@ class TestPackmolSet:
                     {"name": "ethanol", "number": 2000, "coords": ethanol},
                 ],
             )
-            pw.write_input(scratch_dir)
+            input_set.write_input(scratch_dir)
             with open(os.path.join(scratch_dir, "packmol.inp")) as f:
                 input_string = f.read()
                 assert "maxit 0" in input_string
                 assert "nloop 0" in input_string
             with pytest.raises(ValueError):
-                pw.run(scratch_dir)
+                input_set.run(scratch_dir)
 
     def test_timeout(self, water, ethanol):
         """
