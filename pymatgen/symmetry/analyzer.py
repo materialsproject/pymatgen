@@ -77,7 +77,6 @@ class SpacegroupAnalyzer:
         unique_species: list[Element | Species] = []
         zs = []
         magmoms = []
-
         for species, group in itertools.groupby(structure, key=lambda s: s.species):
             if species in unique_species:
                 ind = unique_species.index(species)

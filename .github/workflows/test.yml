@@ -23,7 +23,7 @@ permissions:
 jobs:
   pytest:
     # prevent this action from running on forks
-    if: github.repository == 'materialsproject/pymatgen'
+    if: ${{ !github.event.pull_request.head.repo.fork }}
     strategy:
       fail-fast: false
       matrix:

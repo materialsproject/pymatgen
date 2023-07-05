@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import warnings
 
 import pytest
 
@@ -106,15 +105,15 @@ class TransformedStructureTest(PymatgenTest):
 
     def test_snl(self):
         self.trans.set_parameter("author", "will")
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
+        with pytest.warns(UserWarning) as warns:
             snl = self.trans.to_snl([("will", "will@test.com")])
-            assert len(w) == 1, "Warning not raised on type conversion with other_parameters"
+        assert len(warns) == 1, "Warning not raised on type conversion with other_parameters"
+
         ts = TransformedStructure.from_snl(snl)
         assert ts.history[-1]["@class"] == "SubstitutionTransformation"
 
-        h = ("testname", "testURL", {"test": "testing"})
-        snl = StructureNL(ts.final_structure, [("will", "will@test.com")], history=[h])
+        hist = ("testname", "testURL", {"test": "testing"})
+        snl = StructureNL(ts.final_structure, [("will", "will@test.com")], history=[hist])
         snl = TransformedStructure.from_snl(snl).to_snl([("notwill", "notwill@test.com")])
-        assert snl.history == [h]
+        assert snl.history == [hist]
         assert snl.authors == [("notwill", "notwill@test.com")]

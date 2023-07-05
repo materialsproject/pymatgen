@@ -50,9 +50,7 @@ if __name__ == "__main__":
             raise ValueError("WRONG ALGORITHM !")
 
     algo = Algo()
-    algo.permutations = []
-    for perm in itertools.permutations(range(cg.coordination)):
-        algo.permutations.append(perm)
+    algo.permutations = list(itertools.permutations(range(cg.coordination)))
 
     lgf = LocalGeometryFinder()
     lgf.setup_parameters(structure_refinement=lgf.STRUCTURE_REFINEMENT_NONE)

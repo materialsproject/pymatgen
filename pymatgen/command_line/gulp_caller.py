@@ -373,7 +373,7 @@ class GulpIO:
                     gin = "library " + file_name
         if gin:
             return gin + "\n"
-        raise GulpError("GULP Library not found")
+        raise GulpError("GULP library not found")
 
     def buckingham_input(self, structure: Structure, keywords, library=None, uc=True, valence_dict=None):
         """

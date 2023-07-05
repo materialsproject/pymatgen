@@ -25,10 +25,10 @@ from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.testing import PymatgenTest
 
 filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml")
-vasprun = Vasprun(filepath)
+vasp_run = Vasprun(filepath)
 
 
-def test_energyadjustment():
+def test_energy_adjustment():
     ea = EnergyAdjustment(10)
     assert ea.name == "Manual adjustment"
     assert not ea.cls
@@ -82,9 +82,9 @@ def test_temp_energy_adjustment():
 class ComputedEntryTest(unittest.TestCase):
     def setUp(self):
         self.entry = ComputedEntry(
-            vasprun.final_structure.composition,
-            vasprun.final_energy,
-            parameters=vasprun.incar,
+            vasp_run.final_structure.composition,
+            vasp_run.final_energy,
+            parameters=vasp_run.incar,
         )
         self.entry2 = ComputedEntry({"Fe": 2, "O": 3}, 2.3)
         self.entry3 = ComputedEntry("Fe2O3", 2.3)
@@ -224,7 +224,7 @@ class ComputedEntryTest(unittest.TestCase):
 
 class ComputedStructureEntryTest(unittest.TestCase):
     def setUp(self):
-        self.entry = ComputedStructureEntry(vasprun.final_structure, vasprun.final_energy, parameters=vasprun.incar)
+        self.entry = ComputedStructureEntry(vasp_run.final_structure, vasp_run.final_energy, parameters=vasp_run.incar)
 
     def test_energy(self):
         assert self.entry.energy == approx(-269.38319884)
@@ -418,7 +418,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
 class GibbsComputedStructureEntryTest(unittest.TestCase):
     def setUp(self):
         self.temps = [300, 600, 900, 1200, 1500, 1800]
-        self.struct = vasprun.final_structure
+        self.struct = vasp_run.final_structure
         self.num_atoms = self.struct.composition.num_atoms
         self.entries_with_temps = {
             temp: GibbsComputedStructureEntry(
@@ -426,7 +426,7 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
                 -2.436,
                 temp=temp,
                 gibbs_model="SISSO",
-                parameters=vasprun.incar,
+                parameters=vasp_run.incar,
                 entry_id="test",
             )
             for temp in self.temps

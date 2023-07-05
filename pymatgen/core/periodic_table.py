@@ -554,7 +554,7 @@ class ElementBase(Enum):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Element) and self.Z == other.Z
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return self.Z
 
     def __repr__(self):
@@ -1078,7 +1078,7 @@ class Species(MSONable, Stringify):
             and (self.spin == other.spin)  # type: ignore
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """
         Equal Species should have the same str representation, hence
         should hash equally. Unequal Species will have different str
@@ -1262,11 +1262,11 @@ class Species(MSONable, Stringify):
         radii = self._el.data["Shannon radii"]
         radii = radii[str(int(self._oxi_state))][cn]  # type: ignore
         if len(radii) == 1:
-            k, data = list(radii.items())[0]
-            if k != spin:
+            key, data = list(radii.items())[0]
+            if key != spin:
                 warnings.warn(
-                    f"Specified spin state of {spin} not consistent with database "
-                    f"spin of {k}. Only one spin data available, and that value is returned."
+                    f"Specified {spin=} not consistent with database spin of {key}. "
+                    "Only one spin data available, and that value is returned."
                 )
         else:
             data = radii[spin]

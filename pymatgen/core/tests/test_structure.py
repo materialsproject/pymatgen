@@ -481,11 +481,11 @@ class IStructureTest(PymatgenTest):
         struct = self.struct
         nn = struct.get_neighbors_in_shell(struct[0].frac_coords, 2, 4, include_index=True, include_image=True)
         assert len(nn) == 47
-        r = random.uniform(3, 6)
-        all_nn = struct.get_all_neighbors(r, True, True)
+        rand_radius = random.uniform(3, 6)
+        all_nn = struct.get_all_neighbors(rand_radius, True, True)
         for idx, site in enumerate(struct):
             assert len(all_nn[idx][0]) == 4
-            assert len(all_nn[idx]) == len(struct.get_neighbors(site, r))
+            assert len(all_nn[idx]) == len(struct.get_neighbors(site, rand_radius))
 
         for site, nns in zip(struct, all_nn):
             for nn in nns:
@@ -525,8 +525,8 @@ Direct
  -0.2705230397846415  1.4621722452479102  0.0625618775773844
 """
         struct = Structure.from_str(poscar, fmt="poscar")
-        site0 = struct.sites[1]
-        site1 = struct.sites[9]
+        site0 = struct[1]
+        site1 = struct[9]
         neigh_sites = struct.get_neighbors(site0, 2.0)
         assert len(neigh_sites) == 1
         neigh_sites = struct.get_neighbors(site1, 2.0)
@@ -1314,7 +1314,7 @@ class StructureTest(PymatgenTest):
         assert super_cell.charge == 25, "Set charge not properly modifying _charge"
 
     def test_vesta_lattice_matrix(self):
-        silica_zeolite = Molecule.from_file(self.TEST_FILES_DIR / "CON_vesta.xyz")
+        silica_zeolite = Molecule.from_file(f"{self.TEST_FILES_DIR}/CON_vesta.xyz")
 
         s_vesta = Structure(
             lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, True),

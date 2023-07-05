@@ -2021,10 +2021,7 @@ class SQSTransformation(AbstractTransformation):
         """
         disordered_substructure = struc_disordered.copy()
 
-        idx_to_remove = []
-        for idx, site in enumerate(disordered_substructure):
-            if site.is_ordered:
-                idx_to_remove.append(idx)
+        idx_to_remove = [idx for idx, site in enumerate(disordered_substructure) if site.is_ordered]
         disordered_substructure.remove_sites(idx_to_remove)
 
         return disordered_substructure

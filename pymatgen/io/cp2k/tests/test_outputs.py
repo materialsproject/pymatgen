@@ -25,8 +25,8 @@ class SetTest(PymatgenTest):
 
     def test_run_info(self):
         """Can extract run info from out file"""
-        assert self.out.spin_polarized is True
-        assert self.out.completed is True
+        assert self.out.spin_polarized
+        assert self.out.completed
         assert self.out.num_warnings == [[2]]
         assert self.out.charge == 0
         assert self.out.cp2k_version == "2022.1"

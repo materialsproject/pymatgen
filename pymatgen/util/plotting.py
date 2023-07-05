@@ -113,8 +113,8 @@ def pretty_plot_two_axis(
     if dpi:
         fig.set_dpi(dpi)
     if isinstance(y1, dict):
-        for i, (k, v) in enumerate(y1.items()):
-            ax1.plot(x, v, c=c1, marker="s", ls=styles[i % len(styles)], label=k, **plot_kwargs)
+        for idx, (key, val) in enumerate(y1.items()):
+            ax1.plot(x, val, c=c1, marker="s", ls=styles[idx % len(styles)], label=key, **plot_kwargs)
         ax1.legend(fontsize=labelsize)
     else:
         ax1.plot(x, y1, c=c1, marker="s", ls="-", **plot_kwargs)
@@ -131,8 +131,8 @@ def pretty_plot_two_axis(
 
     ax2 = ax1.twinx()
     if isinstance(y2, dict):
-        for i, (k, v) in enumerate(y2.items()):
-            ax2.plot(x, v, c=c2, marker="o", ls=styles[i % len(styles)], label=k)
+        for idx, (key, val) in enumerate(y2.items()):
+            ax2.plot(x, val, c=c2, marker="o", ls=styles[idx % len(styles)], label=key)
         ax2.legend(fontsize=labelsize)
     else:
         ax2.plot(x, y2, c=c2, marker="o", ls="-")
@@ -492,6 +492,7 @@ def get_ax_fig_plt(ax=None, **kwargs):
     we return the current active figure.
 
     Args:
+        ax (Axes, optional): Axes object. Defaults to None.
         kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
@@ -517,6 +518,7 @@ def get_ax3d_fig_plt(ax=None, **kwargs):
     Axes3D else we return the current active figure.
 
     Args:
+        ax (Axes3D, optional): Axes3D object. Defaults to None.
         kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:

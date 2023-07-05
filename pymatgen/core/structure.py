@@ -1013,8 +1013,8 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.symmetry.groups import SpaceGroup
 
         try:
-            i = int(sg)
-            spg = SpaceGroup.from_int_number(i)
+            num = int(sg)
+            spg = SpaceGroup.from_int_number(num)
         except ValueError:
             spg = SpaceGroup(sg)  # type: ignore
 
@@ -1038,12 +1038,12 @@ class IStructure(SiteCollection, MSONable):
         all_sp: list[str | Element | Species | DummySpecies | Composition] = []
         all_coords: list[list[float]] = []
         all_site_properties: dict[str, list] = collections.defaultdict(list)
-        for i, (sp, c) in enumerate(zip(species, frac_coords)):
+        for idx, (sp, c) in enumerate(zip(species, frac_coords)):
             cc = spg.get_orbit(c, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)  # type: ignore
             for k, v in props.items():
-                all_site_properties[k].extend([v[i]] * len(cc))
+                all_site_properties[k].extend([v[idx]] * len(cc))
 
         return cls(latt, all_sp, all_coords, site_properties=all_site_properties)
 
@@ -3098,7 +3098,7 @@ class IMolecule(SiteCollection, MSONable):
         all_dist = sorted(all_dist, key=lambda x: x[0])
         return [d[1] for d in all_dist]
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # For now, just use the composition hash code.
         return hash(self.composition)
 
@@ -4640,8 +4640,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
         del self[index]
-        for site in functional_group[1:]:
-            self._sites.append(site)
+        self._sites += list(functional_group[1:])
 
     def relax(
         self,

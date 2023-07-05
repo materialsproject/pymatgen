@@ -341,7 +341,7 @@ class StructureEnvironments(MSONable):
         def __len__(self):
             return len(self.site_voronoi_indices)
 
-        def __hash__(self):
+        def __hash__(self) -> int:
             return len(self.site_voronoi_indices)
 
         def __eq__(self, other: object) -> bool:

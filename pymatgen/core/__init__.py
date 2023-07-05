@@ -37,6 +37,9 @@ __version__ = "2023.6.28"
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")
 OLD_SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+PKG_DIR = os.path.dirname(MODULE_DIR)
+ROOT = os.path.dirname(PKG_DIR)
 
 
 def _load_pmg_settings() -> dict[str, Any]:

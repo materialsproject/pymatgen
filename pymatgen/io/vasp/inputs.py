@@ -2330,14 +2330,17 @@ class VaspInput(dict, MSONable):
 
     def __init__(self, incar, kpoints, poscar, potcar, optional_files=None, **kwargs):
         """
+        Initializes a VaspInput object with the given input files.
+
         Args:
-            incar: Incar object.
-            kpoints: Kpoints object.
-            poscar: Poscar object.
-            potcar: Potcar object.
-            optional_files: Other input files supplied as a dict of {
-                filename: object}. The object should follow standard pymatgen
-                conventions in implementing a as_dict() and from_dict method.
+            incar (Incar): The Incar object.
+            kpoints (Kpoints): The Kpoints object.
+            poscar (Poscar): The Poscar object.
+            potcar (Potcar): The Potcar object.
+            optional_files (dict): Other input files supplied as a dict of {filename: object}.
+                The object should follow standard pymatgen conventions in implementing a
+                as_dict() and from_dict method.
+            **kwargs: Additional keyword arguments to be stored in the VaspInput object.
         """
         super().__init__(**kwargs)
         self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, "POTCAR": potcar})

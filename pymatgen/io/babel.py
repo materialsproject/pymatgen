@@ -15,8 +15,7 @@ from monty.dev import requires
 from pymatgen.core.structure import IMolecule, Molecule
 
 try:
-    from openbabel import openbabel
-    from openbabel import pybel as pb
+    from openbabel import openbabel, pybel
 except Exception:
     openbabel = None
 
@@ -75,7 +74,7 @@ class BabelMolAdaptor:
             self._obmol = ob_mol
         elif isinstance(mol, openbabel.OBMol):
             self._obmol = mol
-        elif isinstance(mol, pb.Molecule):
+        elif isinstance(mol, pybel.Molecule):
             self._obmol = mol.OBMol
 
     @property
@@ -102,9 +101,9 @@ class BabelMolAdaptor:
                 'mmff94', 'mmff94s', and 'uff'.
             steps: Default is 500.
         """
-        pbmol = pb.Molecule(self._obmol)
-        pbmol.localopt(forcefield=forcefield, steps=steps)
-        self._obmol = pbmol.OBMol
+        pybelmol = pybel.Molecule(self._obmol)
+        pybelmol.localopt(forcefield=forcefield, steps=steps)
+        self._obmol = pybelmol.OBMol
 
     def make3d(self, forcefield="mmff94", steps=50):
         """
@@ -125,9 +124,9 @@ class BabelMolAdaptor:
                 'mmff94', 'mmff94s', and 'uff'.
             steps: Default is 50.
         """
-        pbmol = pb.Molecule(self._obmol)
-        pbmol.make3D(forcefield=forcefield, steps=steps)
-        self._obmol = pbmol.OBMol
+        pybelmol = pybel.Molecule(self._obmol)
+        pybelmol.make3D(forcefield=forcefield, steps=steps)
+        self._obmol = pybelmol.OBMol
 
     def add_hydrogen(self):
         """Add hydrogens (make all hydrogen explicit)."""
@@ -288,7 +287,7 @@ class BabelMolAdaptor:
     @property
     def pybel_mol(self):
         """Returns Pybel's Molecule object."""
-        return pb.Molecule(self._obmol)
+        return pybel.Molecule(self._obmol)
 
     def write_file(self, filename, file_format="xyz"):
         """
@@ -298,7 +297,7 @@ class BabelMolAdaptor:
             filename: Filename of file to output
             file_format: String specifying any OpenBabel supported formats.
         """
-        mol = pb.Molecule(self._obmol)
+        mol = pybel.Molecule(self._obmol)
         return mol.write(file_format, filename, overwrite=True)
 
     @staticmethod
@@ -316,7 +315,7 @@ class BabelMolAdaptor:
         Returns:
             BabelMolAdaptor object or list thereof
         """
-        mols = pb.readfile(str(file_format), str(filename))
+        mols = pybel.readfile(str(file_format), str(filename))
         if return_all_molecules:
             return [BabelMolAdaptor(mol.OBMol) for mol in mols]
 
@@ -348,5 +347,5 @@ class BabelMolAdaptor:
         Returns:
             BabelMolAdaptor object
         """
-        mols = pb.readstring(str(file_format), str(string_data))
+        mols = pybel.readstring(str(file_format), str(string_data))
         return BabelMolAdaptor(mols.OBMol)

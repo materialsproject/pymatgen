@@ -127,7 +127,7 @@ class MPResterOldTest(PymatgenTest):
         for d in data:
             assert set(Composition(d["unit_cell_formula"]).elements).issubset(elements)
 
-        with pytest.raises(MPRestError):
+        with pytest.raises(MPRestError, match="REST query returned with error status code 404"):
             self.rester.get_data("Fe2O3", "badmethod")
 
     def test_get_materials_id_from_task_id(self):
@@ -140,7 +140,7 @@ class MPResterOldTest(PymatgenTest):
 
     def test_find_structure(self):
         mpr = _MPResterLegacy()
-        cif_file = self.TEST_FILES_DIR / "Fe3O4.cif"
+        cif_file = f"{self.TEST_FILES_DIR}/Fe3O4.cif"
         data = mpr.find_structure(str(cif_file))
         assert len(data) > 1
         s = CifParser(cif_file).get_structures()[0]
@@ -169,21 +169,24 @@ class MPResterOldTest(PymatgenTest):
         assert s1.formula == "Cs1"
 
         # requesting via task-id instead of mp-id
-        with pytest.warns(Warning):
+        with pytest.warns(
+            Warning,
+            match="calculation task mp-698856 is mapped to canonical mp-id mp-1394, so structure for mp-1394 returned",
+        ):
             self.rester.get_structure_by_material_id("mp-698856")
 
         # requesting unknown mp-id
-        with pytest.raises(MPRestError):
+        # TODO (janosh) this seems like the wrong error message for this case
+        with pytest.raises(MPRestError, match="'id' is not a valid Element"):
             self.rester.get_structure_by_material_id("id-does-not-exist")
 
     def test_get_entry_by_material_id(self):
         entry = self.rester.get_entry_by_material_id("mp-19017")
         assert isinstance(entry, ComputedEntry)
-        assert entry.composition.reduced_formula, "LiFePO4"
+        assert entry.composition.reduced_formula == "LiFePO4"
 
-        # "mp-2022" does not exist
-        with pytest.raises(MPRestError):
-            self.rester.get_entry_by_material_id("mp-2022")
+        with pytest.raises(MPRestError, match="material_id = 'mp-2022' does not exist"):
+            self.rester.get_entry_by_material_id("mp-2022")  # "mp-2022" does not exist
 
     def test_query(self):
         criteria = {"elements": {"$in": ["Li", "Na", "K"], "$all": ["O"]}}
@@ -420,10 +423,12 @@ class MPResterOldTest(PymatgenTest):
         assert isinstance(kink["rxn"], Reaction)
         kinks_open_O = self.rester.get_interface_reactions("LiCoO2", "Li3PS4", open_el="O", relative_mu=-1)
         assert len(kinks_open_O) > 0
-        with warnings.catch_warnings(record=True) as w:
-            warnings.filterwarnings("always", message="The reactant.+")
+        with pytest.warns(
+            UserWarning,
+            match="The reactant MnO9 has no matching entry with negative formation energy, "
+            "instead convex hull energy for this composition will be used for reaction energy calculation.",
+        ):
             self.rester.get_interface_reactions("LiCoO2", "MnO9")
-            assert "The reactant" in str(w[-1].message)
 
     def test_download_info(self):
         material_ids = ["mvc-2970"]
@@ -463,9 +468,9 @@ class MPResterOldTest(PymatgenTest):
 
         # Let's test some invalid symbols
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="'li' is not a valid Element"):
             _MPResterLegacy.parse_criteria("li-fe")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="'L' is not a valid Element"):
             _MPResterLegacy.parse_criteria("LO2")
 
         crit = _MPResterLegacy.parse_criteria("POPO2")
