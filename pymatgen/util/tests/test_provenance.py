@@ -104,10 +104,8 @@ class StructureNLCase(unittest.TestCase):
             StructureNL(self.struct, self.hulk, references=[])
 
         # junk reference should not work
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(ValueError, match="Invalid format for SNL reference! Should be BibTeX string."):
             StructureNL(self.struct, self.hulk, references=self.junk)
-
-        assert "Invalid format for SNL reference! Should be BibTeX string." in str(exc.value)
 
         # good references should be ok
         StructureNL(self.struct, self.hulk, references=self.pmg)
@@ -119,10 +117,8 @@ class StructureNLCase(unittest.TestCase):
         StructureNL(self.struct, self.hulk, references=f"{self.matproj}\n{self.pmg}")
 
         # super long references are bad
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(ValueError, match="The BibTeX string must be fewer than 20000 chars, you have 60030"):
             StructureNL(self.struct, self.hulk, references=self.superlong)
-
-        assert "The BibTeX string must be fewer than 20000 chars, you have 60030" in str(exc.value)
 
     def test_history_nodes(self):
         a = StructureNL(self.struct, self.hulk, history=[self.valid_node])
@@ -141,10 +137,8 @@ class StructureNLCase(unittest.TestCase):
 
         # too many nodes should not work
         n_nodes = 1000
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(ValueError, match=f"A maximum of 100 History nodes are supported, you have {n_nodes}!"):
             StructureNL(self.struct, self.hulk, history=[self.valid_node] * n_nodes)
-
-        assert f"A maximum of 100 History nodes are supported, you have {n_nodes}!" in str(exc.value)
 
     def test_data(self):
         # Structure data is OK due to PMGEncoder/Decoder
@@ -156,10 +150,8 @@ class StructureNLCase(unittest.TestCase):
     def test_remarks(self):
         a = StructureNL(self.struct, self.hulk, remarks="string format")
         assert a.remarks[0] == "string format"
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(ValueError, match="The remark exceeds the maximum size of 140 characters: 150"):
             StructureNL(self.struct, self.hulk, remarks=self.remark_fail)
-
-        assert "The remark exceeds the maximum size of 140 characters: " in str(exc.value)
 
     def test_eq(self):
         # test basic Equal()

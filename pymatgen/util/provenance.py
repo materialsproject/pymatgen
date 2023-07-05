@@ -240,7 +240,7 @@ class StructureNL:
         # check remarks limit
         for remark in self.remarks:
             if len(remark) > 140:
-                raise ValueError(f"The remark exceeds the maximum size of 140 characters: {remark}")
+                raise ValueError(f"The remark exceeds the maximum size of 140 characters: {len(remark)}")
 
         # check data limit
         self.data = data or {}
