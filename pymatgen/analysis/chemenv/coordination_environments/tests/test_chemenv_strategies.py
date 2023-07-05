@@ -18,7 +18,7 @@ __author__ = "waroquiers"
 class StrategyOptionsTest(PymatgenTest):
     def test_options(self):
         # DistanceCutoffFloat
-        with pytest.raises(ValueError, match="Distance cutoff should be between 1 and +infinity"):
+        with pytest.raises(ValueError, match=r"Distance cutoff should be between 1 and \+infinity"):
             DistanceCutoffFloat(0.5)
         dc1 = DistanceCutoffFloat(1.2)
         dc1_dict = dc1.as_dict()
@@ -72,7 +72,7 @@ class StrategyOptionsTest(PymatgenTest):
         simplest_strategy.set_option("distance_cutoff", 1.5)
         assert simplest_strategy.distance_cutoff == approx(1.5)
 
-        with pytest.raises(ValueError, match="Distance cutoff should be between 1 and +infinity"):
+        with pytest.raises(ValueError, match=r"Distance cutoff should be between 1 and \+infinity"):
             simplest_strategy.set_option("distance_cutoff", 0.5)
 
         simplest_strategy.set_option("angle_cutoff", 0.2)
