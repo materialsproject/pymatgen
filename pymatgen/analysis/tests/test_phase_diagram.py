@@ -163,9 +163,8 @@ class PhaseDiagramTest(unittest.TestCase):
             lambda e: (not e.composition.is_element) or e.composition.elements[0] != Element("Li"),
             self.entries,
         )
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(ValueError, match=r"Missing terminal entries for elements \['Fe', 'Li', 'O'\]"):
             PhaseDiagram(entries)
-        assert "Missing terminal entries for elements ['Fe', 'Li', 'O']" in str(exc.value)
 
     def test_repr(self):
         assert (
