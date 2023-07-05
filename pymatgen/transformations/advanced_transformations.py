@@ -285,9 +285,10 @@ class EnumerateStructureTransformation(AbstractTransformation):
         refine_structure: bool = False,
         enum_precision_parameter: float = 0.001,
         check_ordered_symmetry: bool = True,
-        max_disordered_sites=None,
+        max_disordered_sites: int | None = None,
         sort_criteria: str | Callable = "ewald",
-        timeout=None,
+        timeout: float | None = None,
+        n_jobs: int = -1,
     ):
         """
         Args:
@@ -333,6 +334,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 speeds up the subsequent DFT calculations. Alternatively, a callable can be supplied that returns a
                 (Structure, energy) tuple.
             timeout (float): timeout in minutes to pass to EnumlibAdaptor.
+            n_jobs (int): Number of parallel jobs used to compute energy criteria. This is used only when the Ewald
+                or m3gnet or callable sort_criteria is used. Default is -1, which uses all available CPUs.
         """
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
@@ -343,6 +346,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self.max_disordered_sites = max_disordered_sites
         self.sort_criteria = sort_criteria
         self.timeout = timeout
+        self.n_jobs = n_jobs
 
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
@@ -479,7 +483,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
         from joblib import Parallel, delayed
 
-        all_structures = Parallel(n_jobs=-1)(delayed(_get_stats)(struct) for struct in structures)
+        all_structures = Parallel(n_jobs=self.n_jobs)(delayed(_get_stats)(struct) for struct in structures)
 
         def sort_func(s):
             return (
