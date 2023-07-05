@@ -426,7 +426,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
         original_latt = structure.lattice
         inv_latt = np.linalg.inv(original_latt.matrix)
         ewald_matrices = {}
-        all_structures = []
         if not callable(self.sort_criteria) and self.sort_criteria.startswith("m3gnet"):
             import matgl
             from matgl.ext.ase import M3GNetCalculator, Relaxer
