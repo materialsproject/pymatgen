@@ -279,18 +279,18 @@ class CompleteDosTest(unittest.TestCase):
         dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
         dos_fp2 = self.dos.get_dos_fp(type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
         # test exceptions
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(
+            ValueError,
+            match="Cannot compute similarity index. Please set either "
+            "normalize=True or tanimoto=True or both to False.",
+        ):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True, normalize=True)
-        assert (
-            str(exc.value) == "Cannot compute similarity index. Please set either "
-            "normalize=True or tanimoto=True or both to False."
-        )
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(
+            ValueError,
+            match="Please recheck type requested, either the orbital "
+            "projections unavailable in input DOS or there's a typo in type.",
+        ):
             self.dos.get_dos_fp(type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        assert (
-            str(exc.value) == "Please recheck type requested, either the orbital "
-            "projections unavailable in input DOS or there's a typo in type."
-        )
 
 
 class DOSTest(PymatgenTest):

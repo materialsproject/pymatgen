@@ -69,7 +69,6 @@ ignore = [
   "PERF401", # manual-list-comprehension (TODO fix these or wait for autofix)
   "PLR",     # pylint refactor
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
-  "PT011",   # pytest-raises-too-broad
   "PT013",   # pytest-incorrect-pytest-import
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
 ]
