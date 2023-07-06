@@ -51,7 +51,7 @@ setup(
         "tabulate",
         "tqdm",
         "uncertainties>=3.1.4",
-        "joblib"
+        "joblib",
     ],
     extras_require={
         "ase": ["ase>=3.3"],
