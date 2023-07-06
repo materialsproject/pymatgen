@@ -895,6 +895,7 @@ class CifParser:
 
         coord_to_species = {}
         coord_to_magmoms = {}
+        labels = {}
 
         def get_matching_coord(coord):
             keys = list(coord_to_species)
@@ -908,15 +909,15 @@ class CifParser:
                     return keys[inds[0]]
             return False
 
-        for i in range(len(data["_atom_site_label"])):
+        for i, label in enumerate(data["_atom_site_label"]):
             try:
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
                 symbol = self._parse_symbol(data["_atom_site_type_symbol"][i])
                 num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][i])
             except KeyError:
-                symbol = self._parse_symbol(data["_atom_site_label"][i])
-                num_h = get_num_implicit_hydrogens(data["_atom_site_label"][i])
+                symbol = self._parse_symbol(label)
+                num_h = get_num_implicit_hydrogens(label)
             if not symbol:
                 continue
 
@@ -936,7 +937,7 @@ class CifParser:
             x = str2float(data["_atom_site_fract_x"][i])
             y = str2float(data["_atom_site_fract_y"][i])
             z = str2float(data["_atom_site_fract_z"][i])
-            magmom = magmoms.get(data["_atom_site_label"][i], np.array([0, 0, 0]))
+            magmom = magmoms.get(label, np.array([0, 0, 0]))
 
             try:
                 occu = str2float(data["_atom_site_occupancy"][i])
@@ -955,13 +956,16 @@ class CifParser:
                         "in calculations unless hydrogens added."
                     )
                 comp = Composition(comp_d)
+
                 if not match:
                     coord_to_species[coord] = comp
                     coord_to_magmoms[coord] = magmom
+                    labels[coord] = label
                 else:
                     coord_to_species[match] += comp
                     # disordered magnetic not currently supported
                     coord_to_magmoms[match] = None
+                    labels[match] = label
 
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
@@ -980,6 +984,7 @@ class CifParser:
         all_magmoms = []
         all_hydrogens = []
         equivalent_indices = []
+        all_labels = []
 
         # check to see if magCIF file is disordered
         if self.feature_flags["magcif"]:
@@ -1030,6 +1035,7 @@ class CifParser:
                 all_coords.extend(coords)
                 all_species.extend(len(coords) * [species])
                 all_magmoms.extend(magmoms)
+                all_labels.extend(len(coords) * [labels[tmp_coords[0]]])
 
             # rescale occupancies if necessary
             for i, species in enumerate(all_species):
@@ -1045,6 +1051,10 @@ class CifParser:
 
             if self.feature_flags["magcif"]:
                 site_properties["magmom"] = all_magmoms
+
+            if any(all_labels):
+                assert len(all_labels) == len(all_species)
+                site_properties["labels"] = all_labels
 
             if len(site_properties) == 0:
                 site_properties = None
