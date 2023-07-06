@@ -316,6 +316,15 @@ loop_
             "in calculations unless hydrogens added." in parser.warnings
         )
 
+    def test_site_labels(self):
+        parser = CifParser(f"{self.TEST_FILES_DIR}/garnet.cif")
+        s = parser.get_structures()[0]
+
+        assert "labels" in s.site_properties
+
+        for label, specie in zip(s.site_properties["labels"], s.species):
+            assert label.startswith(specie.name)
+
     def test_CifParserSpringerPauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
 
