@@ -1072,7 +1072,6 @@ class CifParser:
                         allspecies_noedit[i], allcoords[i], lattice, properties=site_properties, skip_checks=True
                     )
 
-
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
                 # TODO: extract Wyckoff labels (or other CIF attributes) and include as site_properties
