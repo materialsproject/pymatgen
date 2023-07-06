@@ -35,9 +35,9 @@ __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # type: ignore
+space_groups = {sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]}  # type: ignore
 
-space_groups.update({sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]})  # type: ignore
+space_groups.update({sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]})  # type: ignore
 
 
 class CifBlock:
@@ -895,6 +895,7 @@ class CifParser:
 
         coord_to_species = {}
         coord_to_magmoms = {}
+        labels = {}
 
         def get_matching_coord(coord):
             keys = list(coord_to_species)
@@ -908,15 +909,15 @@ class CifParser:
                     return keys[inds[0]]
             return False
 
-        for i in range(len(data["_atom_site_label"])):
+        for i, label in enumerate(data["_atom_site_label"]):
             try:
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
                 symbol = self._parse_symbol(data["_atom_site_type_symbol"][i])
                 num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][i])
             except KeyError:
-                symbol = self._parse_symbol(data["_atom_site_label"][i])
-                num_h = get_num_implicit_hydrogens(data["_atom_site_label"][i])
+                symbol = self._parse_symbol(label)
+                num_h = get_num_implicit_hydrogens(label)
             if not symbol:
                 continue
 
@@ -936,7 +937,7 @@ class CifParser:
             x = str2float(data["_atom_site_fract_x"][i])
             y = str2float(data["_atom_site_fract_y"][i])
             z = str2float(data["_atom_site_fract_z"][i])
-            magmom = magmoms.get(data["_atom_site_label"][i], np.array([0, 0, 0]))
+            magmom = magmoms.get(label, np.array([0, 0, 0]))
 
             try:
                 occu = str2float(data["_atom_site_occupancy"][i])
@@ -955,18 +956,21 @@ class CifParser:
                         "in calculations unless hydrogens added."
                     )
                 comp = Composition(comp_d)
+
                 if not match:
                     coord_to_species[coord] = comp
                     coord_to_magmoms[coord] = magmom
+                    labels[coord] = label
                 else:
                     coord_to_species[match] += comp
                     # disordered magnetic not currently supported
                     coord_to_magmoms[match] = None
+                    labels[match] = label
 
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
         ]
-        if any(o > 1 for o in sum_occu):
+        if any(occu > 1 for occu in sum_occu):
             msg = (
                 f"Some occupancies ({sum_occu}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
@@ -975,11 +979,12 @@ class CifParser:
             warnings.warn(msg)
             self.warnings.append(msg)
 
-        allspecies = []
-        allcoords = []
-        allmagmoms = []
-        allhydrogens = []
+        all_species = []
+        all_coords = []
+        all_magmoms = []
+        all_hydrogens = []
         equivalent_indices = []
+        all_labels = []
 
         # check to see if magCIF file is disordered
         if self.feature_flags["magcif"]:
@@ -1026,30 +1031,35 @@ class CifParser:
                 # it is equivalent.
                 equivalent_indices += len(coords) * [idx]
 
-                allhydrogens.extend(len(coords) * [im_h])
-                allcoords.extend(coords)
-                allspecies.extend(len(coords) * [species])
-                allmagmoms.extend(magmoms)
+                all_hydrogens.extend(len(coords) * [im_h])
+                all_coords.extend(coords)
+                all_species.extend(len(coords) * [species])
+                all_magmoms.extend(magmoms)
+                all_labels.extend(len(coords) * [labels[tmp_coords[0]]])
 
             # rescale occupancies if necessary
-            for i, species in enumerate(allspecies):
+            for i, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
-                    allspecies[i] = species / total_occu
+                    all_species[i] = species / total_occu
 
-        if allspecies and len(allspecies) == len(allcoords) and len(allspecies) == len(allmagmoms):
+        if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
             site_properties = {}
-            if any(allhydrogens):
-                assert len(allhydrogens) == len(allcoords)
-                site_properties["implicit_hydrogens"] = allhydrogens
+            if any(all_hydrogens):
+                assert len(all_hydrogens) == len(all_coords)
+                site_properties["implicit_hydrogens"] = all_hydrogens
 
             if self.feature_flags["magcif"]:
-                site_properties["magmom"] = allmagmoms
+                site_properties["magmom"] = all_magmoms
+
+            if any(all_labels):
+                assert len(all_labels) == len(all_species)
+                site_properties["labels"] = all_labels
 
             if len(site_properties) == 0:
                 site_properties = None
 
-            struct = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
+            struct = Structure(lattice, all_species, all_coords, site_properties=site_properties)
 
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
