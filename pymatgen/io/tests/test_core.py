@@ -77,7 +77,7 @@ class TestInputSet(PymatgenTest):
         assert len(inp_set) == 3
         assert inp_set.kwarg1 == 1
         assert inp_set.kwarg2 == "hello"
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, match="has no attribute 'kwarg3'"):
             _ = inp_set.kwarg3
         expected = [("cif1", sif1), ("cif2", sif2), ("cif3", sif3)]
 
@@ -86,7 +86,7 @@ class TestInputSet(PymatgenTest):
             assert contents is exp_contents
 
         assert inp_set["cif1"] is sif1
-        with pytest.raises(KeyError):
+        with pytest.raises(KeyError, match="'kwarg1'"):
             inp_set["kwarg1"]
 
         sif4 = StructInputFile.from_file(os.path.join(test_dir, "CuCl.cif"))
@@ -167,12 +167,12 @@ class TestInputSet(PymatgenTest):
         assert os.path.exists(os.path.join("input_dir", "cif1"))
         assert os.path.exists(os.path.join("input_dir", "cif2"))
         assert len(os.listdir("input_dir")) == 2
-        with pytest.raises(FileExistsError):
+        with pytest.raises(FileExistsError, match="cif1"):
             inp_set.write_input(directory="input_dir", make_dir=True, overwrite=False, zip_inputs=False)
         inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=True)
         assert len(os.listdir("input_dir")) == 1
         assert os.path.exists(os.path.join("input_dir", f"{type(inp_set).__name__}.zip"))
-        with pytest.raises(FileNotFoundError):
+        with pytest.raises(FileNotFoundError, match="input_dir2"):
             inp_set.write_input(directory="input_dir2", make_dir=False, overwrite=True, zip_inputs=False)
 
     def test_write_from_str(self):

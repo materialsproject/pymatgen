@@ -122,13 +122,13 @@ class ZSLGenerator(MSONable):
         """
         transformation_indices = [
             (ii, jj)
-            for ii in range(1, int(self.max_area / film_area))
-            for jj in range(1, int(self.max_area / substrate_area))
+            for ii in range(1, int(np.ceil(self.max_area / film_area)))
+            for jj in range(1, int(np.ceil(self.max_area / substrate_area)))
             if np.absolute(film_area / substrate_area - float(jj) / ii) < self.max_area_ratio_tol
         ] + [
             (ii, jj)
-            for ii in range(1, int(self.max_area / film_area))
-            for jj in range(1, int(self.max_area / substrate_area))
+            for ii in range(1, int(np.ceil(self.max_area / film_area)))
+            for jj in range(1, int(np.ceil(self.max_area / substrate_area)))
             if np.absolute(substrate_area / film_area - float(ii) / jj) < self.max_area_ratio_tol
         ]
         transformation_indices = list(set(transformation_indices))

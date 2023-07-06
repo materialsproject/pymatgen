@@ -74,14 +74,14 @@ task dft optimize"""
         assert str(self.task) == answer
 
     def test_to_from_dict(self):
-        d = self.task.as_dict()
-        t = NwTask.from_dict(d)
-        assert isinstance(t, NwTask)
+        dct = self.task.as_dict()
+        task = NwTask.from_dict(dct)
+        assert isinstance(task, NwTask)
 
     def test_init(self):
-        with pytest.raises(NwInputError):
+        with pytest.raises(NwInputError, match="Invalid theory='bad'"):
             NwTask(0, 1, {"H": "6-31g"}, theory="bad")
-        with pytest.raises(NwInputError):
+        with pytest.raises(NwInputError, match="Invalid operation='bad'"):
             NwTask(0, 1, {"H": "6-31g"}, operation="bad")
 
     def test_dft_task(self):

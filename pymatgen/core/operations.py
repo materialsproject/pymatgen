@@ -530,7 +530,7 @@ class MagSymmOp(SymmOp):
         ]
         return "\n".join(output)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # useful for obtaining a set of unique MagSymmOps
         hashable_value = (*tuple(self.affine_matrix.flatten()), self.time_reversal)
         return hash(hashable_value)

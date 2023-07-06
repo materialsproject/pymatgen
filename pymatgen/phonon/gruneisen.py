@@ -276,30 +276,23 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         Returns:
             MSONable (dict).
         """
-        d = {
+        dct = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
-            "qpoints": [],
+            "qpoints": [q.as_dict()["fcoords"] for q in self.qpoints],
+            "bands": self.bands.tolist(),
+            "labels_dict": {k: v.as_dict()["fcoords"] for k, v in self.labels_dict.items()},
+            "eigendisplacements": {
+                "real": np.real(self.eigendisplacements).tolist(),
+                "imag": np.imag(self.eigendisplacements).tolist(),
+            },
+            "gruneisen": self.gruneisen.tolist(),
         }
-        # qpoints are not Kpoint objects dicts but are frac coords. This makes
-        # the dict smaller and avoids the repetition of the lattice
-        for q in self.qpoints:
-            d["qpoints"].append(q.as_dict()["fcoords"])
-        d["bands"] = self.bands.tolist()
-        d["labels_dict"] = {}
-        for kpoint_letter, kpoint_object in self.labels_dict.items():
-            d["labels_dict"][kpoint_letter] = kpoint_object.as_dict()["fcoords"]
-        # split the eigendisplacements to real and imaginary part for serialization
-        d["eigendisplacements"] = {
-            "real": np.real(self.eigendisplacements).tolist(),
-            "imag": np.imag(self.eigendisplacements).tolist(),
-        }
-        d["gruneisen"] = self.gruneisen.tolist()
         if self.structure:
-            d["structure"] = self.structure.as_dict()
+            dct["structure"] = self.structure.as_dict()
 
-        return d
+        return dct
 
     @classmethod
     def from_dict(cls, dct):

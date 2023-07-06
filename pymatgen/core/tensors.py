@@ -70,7 +70,7 @@ class Tensor(np.ndarray, MSONable):
             obj._vscale = vscale
         if obj._vscale.shape != vshape:
             raise ValueError("Voigt scaling matrix must be the shape of the Voigt notation matrix or vector.")
-        if not all(i == 3 for i in obj.shape):
+        if not all(dim == 3 for dim in obj.shape):
             raise ValueError(
                 "Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard "
                 f"notation. To construct from Voigt notation, use {type(obj).__name__}.from_voigt"
@@ -93,7 +93,7 @@ class Tensor(np.ndarray, MSONable):
             return obj[()]
         return np.ndarray.__array_wrap__(self, obj)
 
-    def __hash__(self):
+    def __hash__(self) -> int:  # type: ignore[override]
         """Define a hash function, since numpy arrays have their own __eq__ method."""
         return hash(self.tostring())
 

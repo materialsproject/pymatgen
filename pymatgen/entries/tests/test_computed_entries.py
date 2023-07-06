@@ -28,7 +28,7 @@ filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml")
 vasp_run = Vasprun(filepath)
 
 
-def test_energyadjustment():
+def test_energy_adjustment():
     ea = EnergyAdjustment(10)
     assert ea.name == "Manual adjustment"
     assert not ea.cls

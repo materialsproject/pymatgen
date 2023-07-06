@@ -83,7 +83,7 @@ class TestAirssProvider:
         string_strip = "\n".join(line for line in string.splitlines() if "REM" not in line)
         prov = AirssProvider.from_str(string_strip, "strict")
         assert entry.structure == prov.entry.structure
-        with pytest.raises(ParseError):
+        with pytest.raises(ParseError, match="No CASTEP version found in REM"):
             prov.get_castep_version()
 
     def test_as_dict(self, provider: AirssProvider):

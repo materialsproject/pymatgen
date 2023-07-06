@@ -65,9 +65,10 @@ ignore = [
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
   "PD901",   # pandas-df-variable-name
+  "PERF203", # try-except-in-loop
+  "PERF401", # manual-list-comprehension (TODO fix these or wait for autofix)
   "PLR",     # pylint refactor
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
-  "PT011",   # pytest-raises-too-broad
   "PT013",   # pytest-incorrect-pytest-import
   "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
 ]

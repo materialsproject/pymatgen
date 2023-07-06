@@ -1443,59 +1443,36 @@ class FatbandTest(PymatgenTest):
         assert self.fatband_SiO2_spin.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
     def test_raises(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="The are two FATBAND files for the same atom and orbital. The program will stop"
+        ):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
-                    os.path.join(
-                        PymatgenTest.TEST_FILES_DIR,
-                        "cohp",
-                        "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
-                    ),
-                    os.path.join(
-                        PymatgenTest.TEST_FILES_DIR,
-                        "cohp",
-                        "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
-                    ),
+                    f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
+                    f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
                 ],
                 Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
-                vasprun=os.path.join(
-                    PymatgenTest.TEST_FILES_DIR,
-                    "cohp",
-                    "Fatband_SiO2/Test_p_x/vasprun.xml",
-                ),
+                vasprun=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
             )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match=r"Make sure all relevant orbitals were generated and that no duplicates \(2p and 2p_x\) are present",
+        ):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
-                    os.path.join(
-                        PymatgenTest.TEST_FILES_DIR,
-                        "cohp",
-                        "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
-                    ),
-                    os.path.join(
-                        PymatgenTest.TEST_FILES_DIR,
-                        "cohp",
-                        "Fatband_SiO2/Test_p/FATBAND_si1_3p.lobster",
-                    ),
+                    f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
+                    f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/FATBAND_si1_3p.lobster",
                 ],
                 Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
-                vasprun=os.path.join(
-                    PymatgenTest.TEST_FILES_DIR,
-                    "cohp",
-                    "Fatband_SiO2/Test_p_x/vasprun.xml",
-                ),
+                vasprun=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
             )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="No FATBAND files in folder or given"):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=".",
                 Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
-                vasprun=os.path.join(
-                    PymatgenTest.TEST_FILES_DIR,
-                    "cohp",
-                    "Fatband_SiO2/Test_p_x/vasprun.xml",
-                ),
+                vasprun=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
             )
 
     def test_get_bandstructure(self):
@@ -1621,7 +1598,7 @@ class LobsterinTest(unittest.TestCase):
 
     def test_initialize_from_dict(self):
         # initialize from dict
-        lobsterin1 = Lobsterin(
+        lobsterin = Lobsterin(
             {
                 "cohpstartenergy": -15.0,
                 "cohpendenergy": 5.0,
@@ -1635,22 +1612,18 @@ class LobsterinTest(unittest.TestCase):
                 "skipgrosspopulation": True,
             }
         )
-        assert lobsterin1["cohpstartenergy"] == approx(-15.0)
-        assert lobsterin1["cohpendenergy"] == approx(5.0)
-        assert lobsterin1["basisset"] == "pbeVaspFit2015"
-        assert lobsterin1["gaussiansmearingwidth"] == approx(0.1)
-        assert lobsterin1["basisfunctions"][0] == "Fe 3d 4p 4s"
-        assert lobsterin1["basisfunctions"][1] == "Co 3d 4p 4s"
-        assert lobsterin1["skipdos"]
-        assert lobsterin1["skipcohp"]
-        assert lobsterin1["skipcoop"]
-        assert lobsterin1["skippopulationanalysis"]
-        assert lobsterin1["skipgrosspopulation"]
-        with pytest.raises(IOError):
+        assert lobsterin["cohpstartenergy"] == approx(-15.0)
+        assert lobsterin["cohpendenergy"] == approx(5.0)
+        assert lobsterin["basisset"] == "pbeVaspFit2015"
+        assert lobsterin["gaussiansmearingwidth"] == approx(0.1)
+        assert lobsterin["basisfunctions"][0] == "Fe 3d 4p 4s"
+        assert lobsterin["basisfunctions"][1] == "Co 3d 4p 4s"
+        assert {*lobsterin} >= {"skipdos", "skipcohp", "skipcoop", "skippopulationanalysis", "skipgrosspopulation"}
+        with pytest.raises(IOError, match="There are duplicates for the keywords! The program will stop here."):
             lobsterin2 = Lobsterin({"cohpstartenergy": -15.0, "cohpstartEnergy": -20.0})
         lobsterin2 = Lobsterin({"cohpstartenergy": -15.0})
         # can only calculate nbands if basis functions are provided
-        with pytest.raises(IOError):
+        with pytest.raises(IOError, match="No basis functions are provided. The program cannot calculate nbands"):
             lobsterin2._get_nbands(structure=Structure.from_file(os.path.join(test_dir_doscar, "POSCAR.Fe3O4")))
 
     def test_standard_settings(self):
@@ -1762,7 +1735,7 @@ class LobsterinTest(unittest.TestCase):
         assert "gaussiansmearingwidth" not in lobsterin_new
 
         # fatband and ISMEAR=-5 does not work together
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="ISMEAR has to be 0 for a fatband calculation with Lobster"):
             lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
                 os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
                 os.path.join(test_dir_doscar, "INCAR.lobster2"),

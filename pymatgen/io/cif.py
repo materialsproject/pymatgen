@@ -162,7 +162,7 @@ class CifBlock:
                 for s in p.findall(line):
                     # s is tuple. location of the data in the tuple
                     # depends on whether it was quoted in the input
-                    q.append(s)
+                    q.append(tuple(s))
         return q
 
     @classmethod
