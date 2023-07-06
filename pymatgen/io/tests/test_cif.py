@@ -318,11 +318,11 @@ loop_
 
     def test_site_labels(self):
         parser = CifParser(f"{self.TEST_FILES_DIR}/garnet.cif")
-        s = parser.get_structures()[0]
+        struct = parser.get_structures()[0]
 
-        assert "labels" in s.site_properties
+        assert "labels" in struct.site_properties
 
-        for label, specie in zip(s.site_properties["labels"], s.species):
+        for label, specie in zip(struct.site_properties["labels"], struct.species):
             assert label.startswith(specie.name)
 
     def test_CifParserSpringerPauling(self):
