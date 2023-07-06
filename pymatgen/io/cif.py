@@ -1042,8 +1042,8 @@ class CifParser:
                 all_labels.extend(len(coords) * [labels[tmp_coords[0]]])
 
             # rescale occupancies if necessary
-            allspecies_noedit = allspecies[:]
-            for i, species in enumerate(allspecies):
+            allspecies_noedit = all_species[:]
+            for i, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
                     all_species[i] = species / total_occu
@@ -1064,12 +1064,12 @@ class CifParser:
             if len(site_properties) == 0:
                 site_properties = None
 
-            struct = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
+            struct = Structure(lattice, all_species, all_coords, site_properties=site_properties)
             if skip_checks:
-                struct_2 = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
+                struct_2 = Structure(lattice, all_species, all_coords, site_properties=site_properties)
                 for i, _ in enumerate(struct_2):
                     struct_2[i] = PeriodicSite(
-                        allspecies_noedit[i], allcoords[i], lattice, properties=site_properties, skip_checks=True
+                        allspecies_noedit[i], all_coords[i], lattice, properties=site_properties, skip_checks=True
                     )
 
             if symmetrized:
@@ -1087,7 +1087,7 @@ class CifParser:
                     struct_2 = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
                     for i, _ in enumerate(struct_2):
                         struct_2[i] = PeriodicSite(
-                            allspecies_noedit[i], allcoords[i], lattice, properties=site_properties, skip_checks=True
+                            allspecies_noedit[i], all_coords[i], lattice, properties=site_properties, skip_checks=True
                         )
                     return struct_2
 
