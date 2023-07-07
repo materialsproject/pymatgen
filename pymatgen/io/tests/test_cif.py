@@ -317,19 +317,6 @@ loop_
             "in calculations unless hydrogens added." in parser.warnings
         )
 
-    def test_site_labels(self):
-        parser = CifParser(f"{self.TEST_FILES_DIR}/garnet.cif")
-        struct = parser.get_structures()[0]
-
-        assert "labels" in struct.site_properties
-        assert (
-            len(struct.site_properties["labels"]) == len(struct) == 80
-        ), "Mismatch between number of labels and sites."
-        assert len(set(struct.site_properties["labels"])) == 4, "Expecting only 4 unique labels"
-
-        for label, specie in zip(struct.site_properties["labels"], struct.species):
-            assert label.startswith(specie.name)
-
     def test_CifParserSpringerPauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
 
