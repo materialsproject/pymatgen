@@ -366,7 +366,7 @@ class Section(MSONable):
         Delete section with name matching key OR delete all keywords
         with names matching this key.
         """
-        lst = [ss for ss in self.subsections if ss.upper() == key.upper()]
+        lst = [sub_sec for sub_sec in self.subsections if sub_sec.upper() == key.upper()]
         if lst:
             del self.subsections[lst[0]]
             return
