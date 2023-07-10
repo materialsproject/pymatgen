@@ -25,6 +25,7 @@ from tabulate import tabulate
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
+from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
 if TYPE_CHECKING:
@@ -1011,7 +1012,7 @@ class PawAbinitHeader(AbinitHeader):
         return PawAbinitHeader(summary, **header)
 
 
-class PseudoParserError(Exception):
+class PseudoParseError(ParseError):
     """Base Error class for the exceptions raised by :class:`PseudoParser`."""
 
 
@@ -1024,7 +1025,7 @@ class PseudoParser:
         pseudo = PseudoParser().parse("filename")
     """
 
-    Error = PseudoParserError
+    Error = PseudoParseError
 
     # Supported values of pspcod
     ppdesc = namedtuple("ppdesc", "pspcod name psp_type format")
@@ -1101,13 +1102,13 @@ class PseudoParser:
 
     def read_ppdesc(self, filename):
         """
-        Read the pseudopotential descriptor from file filename.
+        Read the pseudopotential descriptor from filename.
 
         Returns:
             Pseudopotential descriptor. None if filename is not a valid pseudopotential file.
 
         Raises:
-            `PseudoParserError` if fileformat is not supported.
+            `PseudoParseError` if fileformat is not supported.
         """
         if filename.endswith(".xml"):
             raise self.Error("XML pseudo not supported yet")
