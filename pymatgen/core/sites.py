@@ -468,7 +468,7 @@ class PeriodicSite(Site, MSONable):
             return NotImplemented
 
         self_props = {k: v for k, v in self.properties.items() if k != "label"}
-        other_props = {k: v for k, v in self.properties.items() if k != "label"}
+        other_props = {k: v for k, v in other.properties.items() if k != "label"}
 
         return (
             self.species == other.species
