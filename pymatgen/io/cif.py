@@ -1054,7 +1054,7 @@ class CifParser:
 
             if any(all_labels):
                 assert len(all_labels) == len(all_species)
-                site_properties["labels"] = all_labels
+                site_properties["label"] = all_labels
 
             if len(site_properties) == 0:
                 site_properties = None
