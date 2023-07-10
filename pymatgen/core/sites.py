@@ -467,11 +467,14 @@ class PeriodicSite(Site, MSONable):
         if not isinstance(other, Site):
             return NotImplemented
 
+        self_props = {k: v for k, v in self.properties.items() if k != "label"}
+        other_props = {k: v for k, v in self.properties.items() if k != "label"}
+
         return (
             self.species == other.species
             and self.lattice == other.lattice
             and np.allclose(self.coords, other.coords, atol=Site.position_atol)
-            and self.properties == other.properties
+            and self_props == other_props
         )
 
     def distance_and_image_from_frac_coords(
