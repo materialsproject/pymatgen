@@ -1042,8 +1042,8 @@ class PotcarTest(PymatgenTest):
     def setUp(self):
         if "PMG_VASP_PSP_DIR" not in SETTINGS:
             SETTINGS["PMG_VASP_PSP_DIR"] = str(PymatgenTest.TEST_FILES_DIR)
-        filepath = f"{PymatgenTest.TEST_FILES_DIR}/POTCAR"
-        self.potcar = Potcar.from_file(filepath)
+        self.filepath = f"{PymatgenTest.TEST_FILES_DIR}/POTCAR"
+        self.potcar = Potcar.from_file(self.filepath)
 
     def test_init(self):
         assert self.potcar.symbols == ["Fe", "P", "O"], "Wrong symbols read in for POTCAR"
@@ -1071,6 +1071,19 @@ class PotcarTest(PymatgenTest):
         self.potcar.write_file(tempfname)
         p = Potcar.from_file(tempfname)
         assert p.symbols == self.potcar.symbols
+
+        # check line by line
+        with open(self.filepath) as f_ref, open(tempfname) as f_new:
+            ref_potcar = f_ref.readlines()
+            new_potcar = f_new.readlines()
+
+        if len(ref_potcar) != len(new_potcar):
+            raise AssertionError("POTCAR file lengths are not equal")
+
+        for line1, line2 in zip(ref_potcar, new_potcar):
+            if line1.strip() != line2.strip():
+                raise AssertionError("POTCAR contents are not")
+
         tempfname.unlink()
 
     def test_set_symbol(self):
