@@ -255,3 +255,7 @@ class InputGenerator(MSONable):
         Generate an InputSet object. Typically the first argument to this method
         will be a Structure or other form of atomic coordinates.
         """
+
+
+class ParseError(SyntaxError):
+    """This exception indicates a problem was encountered during parsing due to unexpected formatting."""

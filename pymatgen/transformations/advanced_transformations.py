@@ -2131,12 +2131,12 @@ class SQSTransformation(AbstractTransformation):
             return return_struc
 
         strucs = []
-        for d in sqs.allsqs:
+        for dct in sqs.allsqs:
             # filter for best structures only if enabled, else use full sqs.all_sqs list
-            if (not best_only) or (best_only and d["objective_function"] == sqs.objective_function):
-                struct = d["structure"]
+            if (not best_only) or (best_only and dct["objective_function"] == sqs.objective_function):
+                struct = dct["structure"]
                 # add temporary objective_function attribute to access objective_function after grouping
-                struct.objective_function = d["objective_function"]
+                struct.objective_function = dct["objective_function"]
                 strucs.append(struct)
 
         if remove_duplicate_structures:
@@ -2151,13 +2151,13 @@ class SQSTransformation(AbstractTransformation):
 
         to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in strucs]
 
-        for d in to_return:
+        for dct in to_return:
             # delete temporary objective_function attribute
-            del d["structure"].objective_function
+            del dct["structure"].objective_function
 
             # reduce structure
             if reduction_algo:
-                d["structure"] = d["structure"].get_reduced_structure(reduction_algo=reduction_algo)
+                dct["structure"] = dct["structure"].get_reduced_structure(reduction_algo=reduction_algo)
 
         if isinstance(return_ranked_list, int):
             return to_return[:return_ranked_list]

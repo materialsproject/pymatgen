@@ -37,6 +37,7 @@ from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spi
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.io.common import VolumetricData as BaseVolumetricData
+from pymatgen.io.core import ParseError
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
@@ -80,6 +81,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
     Returns:
         Parsed value.
     """
+    err = ValueError("Error in parsing vasprun.xml")
     if val_type == "logical":
         val = [i == "T" for i in val.split()]
     elif val_type == "int":
@@ -90,7 +92,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
             # LDAUL/J as 2****
             val = _parse_from_incar(filename, param_name)
             if val is None:
-                raise OSError("Error in parsing vasprun.xml")
+                raise err
     elif val_type == "string":
         val = val.split()
     else:
@@ -101,7 +103,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
             # MAGMOM as 2****
             val = _parse_from_incar(filename, param_name)
             if val is None:
-                raise OSError("Error in parsing vasprun.xml")
+                raise err
     return val
 
 
@@ -692,7 +694,7 @@ class Vasprun(MSONable):
             return {symbols[i]: us[i] - js[i] for i in range(len(symbols))}
         if sum(us) == 0 and sum(js) == 0:
             return {}
-        raise VaspParserError("Length of U value parameters and atomic symbols are mismatched")
+        raise VaspParseError("Length of U value parameters and atomic symbols are mismatched")
 
     @property
     def run_type(self):
@@ -875,7 +877,7 @@ class Vasprun(MSONable):
         if not kpoints_filename:
             kpoints_filename = zpath(os.path.join(os.path.dirname(self.filename), "KPOINTS"))
         if kpoints_filename and not os.path.exists(kpoints_filename) and line_mode is True:
-            raise VaspParserError("KPOINTS not found but needed to obtain band structure along symmetry lines.")
+            raise VaspParseError("KPOINTS not found but needed to obtain band structure along symmetry lines.")
 
         if efermi == "smart":
             e_fermi = self.calculate_efermi()
@@ -4014,7 +4016,7 @@ class Oszicar:
         }
 
 
-class VaspParserError(Exception):
+class VaspParseError(ParseError):
     """Exception class for VASP parsing."""
 
 
