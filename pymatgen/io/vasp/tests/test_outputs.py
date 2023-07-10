@@ -32,7 +32,7 @@ from pymatgen.io.vasp.outputs import (
     Outcar,
     Procar,
     UnconvergedVASPWarning,
-    VaspParserError,
+    VaspParseError,
     Vasprun,
     Wavecar,
     Waveder,
@@ -488,7 +488,7 @@ class VasprunTest(PymatgenTest):
         # Check for error if no KPOINTS file
         vasp_run = Vasprun("vasprun.xml.gz", parse_projected_eigen=True, parse_potcar_file=False)
         with pytest.raises(
-            VaspParserError, match="KPOINTS not found but needed to obtain band structure along symmetry lines"
+            VaspParseError, match="KPOINTS not found but needed to obtain band structure along symmetry lines"
         ):
             _ = vasp_run.get_band_structure(line_mode=True)
 
