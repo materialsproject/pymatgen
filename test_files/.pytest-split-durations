@@ -1849,7 +1849,7 @@
     "pymatgen/io/tests/test_cif.py::CifBlockTest::test_to_string": 0.0011997910041827708,
     "pymatgen/io/tests/test_cif.py::CifIOTest::test_CifParser": 0.09043779100466054,
     "pymatgen/io/tests/test_cif.py::CifIOTest::test_CifParserCod": 0.03813187601917889,
-    "pymatgen/io/tests/test_cif.py::CifIOTest::test_CifParserSpringerPauling": 0.14934741600882262,
+    "pymatgen/io/tests/test_cif.py::CifIOTest::test_cif_parser_springer_pauling": 0.14934741600882262,
     "pymatgen/io/tests/test_cif.py::CifIOTest::test_CifWriter": 0.034145625002565794,
     "pymatgen/io/tests/test_cif.py::CifIOTest::test_bad_cif": 0.22448795901436824,
     "pymatgen/io/tests/test_cif.py::CifIOTest::test_cifwrite_without_refinement": 0.024199000021326356,
