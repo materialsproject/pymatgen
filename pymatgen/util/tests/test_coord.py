@@ -262,7 +262,7 @@ class SimplexTest(PymatgenTest):
         assert not self.simplex.in_simplex([0.6, 0.6, 0.6])
         for _ in range(10):
             coord = np.random.random_sample(size=3) / 3
-            assert self.simplex.in_simplex(coord.gz)
+            assert self.simplex.in_simplex(coord)
 
     def test_2dtriangle(self):
         simplex = coord.Simplex([[0, 1], [1, 1], [1, 0]])

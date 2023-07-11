@@ -123,7 +123,7 @@ class ExcitingInputTest(PymatgenTest):
         root = ET.fromstring(bandstr)
         for plot1d in root.iter("plot1d"):
             for point in plot1d.iter("point"):
-                coord.append([float(i) for i in point.get("coord.gz").split()])
+                coord.append([float(i) for i in point.get("coord").split()])
                 label.append(point.get("label"))
         assert label == label_ref
         assert coord == coord_ref

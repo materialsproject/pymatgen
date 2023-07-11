@@ -78,7 +78,7 @@ class DeformationTest(PymatgenTest):
             new_vec = np.dot(self.non_ind_defo, np.transpose(vec))
             self.assert_all_close(new_vec, defo_vec)
         for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords):
-            new_coord = np.dot(self.non_ind_defo, np.transpose(coord.gz))
+            new_coord = np.dot(self.non_ind_defo, np.transpose(coord))
             self.assert_all_close(new_coord, defo_coord)
 
 
