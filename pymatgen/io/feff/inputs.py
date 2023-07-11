@@ -20,6 +20,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cif import CifParser
+from pymatgen.io.core import ParseError
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
@@ -1007,7 +1008,7 @@ class Paths(MSONable):
             f.write(str(self) + "\n")
 
 
-class FeffParserError(Exception):
+class FeffParseError(ParseError):
     """
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.

@@ -22,7 +22,6 @@ from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import numpy as np
 import scipy.constants as const
-from frozendict import frozendict
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os import cd
@@ -1631,7 +1630,7 @@ class PotcarSingle:
     are raised if a POTCAR hash fails validation.
     """
 
-    functional_dir = frozendict(
+    functional_dir = dict(
         PBE="POT_GGA_PAW_PBE",
         PBE_52="POT_GGA_PAW_PBE_52",
         PBE_54="POT_GGA_PAW_PBE_54",
@@ -1644,23 +1643,21 @@ class PotcarSingle:
         Perdew_Zunger81="POT_LDA_PAW",
     )
 
-    functional_tags = frozendict(
-        {
-            "pe": {"name": "PBE", "class": "GGA"},
-            "91": {"name": "PW91", "class": "GGA"},
-            "rp": {"name": "revPBE", "class": "GGA"},
-            "am": {"name": "AM05", "class": "GGA"},
-            "ps": {"name": "PBEsol", "class": "GGA"},
-            "pw": {"name": "PW86", "class": "GGA"},
-            "lm": {"name": "Langreth-Mehl-Hu", "class": "GGA"},
-            "pb": {"name": "Perdew-Becke", "class": "GGA"},
-            "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
-            "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
-            "wi": {"name": "Wigner Interpolation", "class": "LDA"},
-        }
-    )
+    functional_tags = {
+        "pe": {"name": "PBE", "class": "GGA"},
+        "91": {"name": "PW91", "class": "GGA"},
+        "rp": {"name": "revPBE", "class": "GGA"},
+        "am": {"name": "AM05", "class": "GGA"},
+        "ps": {"name": "PBEsol", "class": "GGA"},
+        "pw": {"name": "PW86", "class": "GGA"},
+        "lm": {"name": "Langreth-Mehl-Hu", "class": "GGA"},
+        "pb": {"name": "Perdew-Becke", "class": "GGA"},
+        "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
+        "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
+        "wi": {"name": "Wigner Interpolation", "class": "LDA"},
+    }
 
-    parse_functions = frozendict(
+    parse_functions = dict(
         LULTRA=_parse_bool,
         LUNSCR=_parse_bool,
         LCOR=_parse_bool,
