@@ -5,6 +5,7 @@ import os
 
 import numpy as np
 import pytest
+from monty.io import zopen
 from monty.json import MontyDecoder
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -15,17 +16,17 @@ from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "spectrum_test")
 
-with open(os.path.join(test_dir, "LiCoO2_k_xanes.json.gz")) as fp:
+with zopen(os.path.join(test_dir, "LiCoO2_k_xanes.json.gz")) as fp:
     k_xanes_dict = json.load(fp, cls=MontyDecoder)
-with open(os.path.join(test_dir, "LiCoO2_k_exafs.json.gz")) as fp:
+with zopen(os.path.join(test_dir, "LiCoO2_k_exafs.json.gz")) as fp:
     k_exafs_dict = json.load(fp, cls=MontyDecoder)
-with open(os.path.join(test_dir, "ZnO_l2_xanes.json.gz")) as fp:
+with zopen(os.path.join(test_dir, "ZnO_l2_xanes.json.gz")) as fp:
     l2_xanes_dict = json.load(fp, cls=MontyDecoder)
-with open(os.path.join(test_dir, "ZnO_l3_xanes.json.gz")) as fp:
+with zopen(os.path.join(test_dir, "ZnO_l3_xanes.json.gz")) as fp:
     l3_xanes_dict = json.load(fp, cls=MontyDecoder)
-with open(os.path.join(test_dir, "site1_k_xanes.json.gz")) as fp:
+with zopen(os.path.join(test_dir, "site1_k_xanes.json.gz")) as fp:
     site1_xanes_dict = json.load(fp, cls=MontyDecoder)
-with open(os.path.join(test_dir, "site2_k_xanes.json.gz")) as fp:
+with zopen(os.path.join(test_dir, "site2_k_xanes.json.gz")) as fp:
     site2_xanes_dict = json.load(fp, cls=MontyDecoder)
 
 

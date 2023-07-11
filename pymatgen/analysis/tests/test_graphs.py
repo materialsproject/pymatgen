@@ -9,6 +9,7 @@ from shutil import which
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import pytest
+from monty.io import zopen
 from monty.serialization import loadfn
 from pytest import approx
 
@@ -87,10 +88,10 @@ class StructureGraphTest(PymatgenTest):
 
         # MoS2 example, structure graph obtained from critic2
         # (not ground state, from mp-1023924, single layer)
-        stdout_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2_critic2_stdout.txt")
-        with open(stdout_file) as f:
+        stdout_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2_critic2_stdout.txt.gz")
+        with zopen(stdout_file, "rt") as f:
             reference_stdout = f.read()
-        self.structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2.cif"))
+        self.structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2.cif.gz"))
         c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(include_critical_points=False)
 
@@ -496,7 +497,7 @@ from    to  to_image
 
 class MoleculeGraphTest(unittest.TestCase):
     def setUp(self):
-        cyclohexene_xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/cyclohexene.xyz")
+        cyclohexene_xyz = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/cyclohexene.xyz.gz")
         cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.with_empty_graph(
             cyclohexene, edge_weight_name="strength", edge_weight_units=""
@@ -518,7 +519,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.cyclohexene.add_edge(5, 14, weight=1.0)
         self.cyclohexene.add_edge(5, 15, weight=1.0)
 
-        butadiene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/butadiene.xyz"))
+        butadiene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/butadiene.xyz.gz"))
         self.butadiene = MoleculeGraph.with_empty_graph(butadiene, edge_weight_name="strength", edge_weight_units="")
         self.butadiene.add_edge(0, 1, weight=2.0)
         self.butadiene.add_edge(1, 2, weight=1.0)
@@ -530,7 +531,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.butadiene.add_edge(3, 8, weight=1.0)
         self.butadiene.add_edge(3, 9, weight=1.0)
 
-        ethylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/ethylene.xyz"))
+        ethylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/ethylene.xyz.gz"))
         self.ethylene = MoleculeGraph.with_empty_graph(ethylene, edge_weight_name="strength", edge_weight_units="")
         self.ethylene.add_edge(0, 1, weight=2.0)
         self.ethylene.add_edge(0, 2, weight=1.0)
@@ -834,7 +835,7 @@ class MoleculeGraphTest(unittest.TestCase):
         assert no_rings == []
 
     def test_isomorphic(self):
-        ethyl_xyz_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/ethylene.xyz")
+        ethyl_xyz_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs/ethylene.xyz.gz")
         ethylene = Molecule.from_file(ethyl_xyz_path)
         # switch carbons
         ethylene[0], ethylene[1] = ethylene[1], ethylene[0]

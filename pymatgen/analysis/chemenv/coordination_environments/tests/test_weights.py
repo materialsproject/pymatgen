@@ -4,6 +4,7 @@ import json
 import os
 
 import pytest
+from monty.io import zopen
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
@@ -248,7 +249,7 @@ class StrategyWeightsTest(PymatgenTest):
 
     def test_self_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
-        with open(os.path.join(se_files_dir, "se_mp-743972.json.gz")) as f:
+        with zopen(os.path.join(se_files_dir, "se_mp-743972.json.gz")) as f:
             dct = json.load(f)
         struct_envs = StructureEnvironments.from_dict(dct)
 
@@ -324,7 +325,7 @@ class StrategyWeightsTest(PymatgenTest):
         assert abs(self_w - 0.14204073172729198) < 1e-8
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
-        with open(os.path.join(se_files_dir, "se_mp-7000.json.gz")) as f:
+        with zopen(os.path.join(se_files_dir, "se_mp-7000.json.gz")) as f:
             dct = json.load(f)
         struct_envs = StructureEnvironments.from_dict(dct)
 
@@ -368,7 +369,7 @@ class StrategyWeightsTest(PymatgenTest):
 
     def test_delta_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
-        with open(os.path.join(se_files_dir, "se_mp-743972.json.gz")) as f:
+        with zopen(os.path.join(se_files_dir, "se_mp-743972.json.gz")) as f:
             dd = json.load(f)
         struct_envs = StructureEnvironments.from_dict(dd)
 
@@ -500,7 +501,7 @@ class StrategyWeightsTest(PymatgenTest):
         assert abs(delta_w - 0.103515625) < 1e-8
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
-        with open(os.path.join(se_files_dir, "se_mp-7000.json.gz")) as f:
+        with zopen(os.path.join(se_files_dir, "se_mp-7000.json.gz")) as f:
             dd = json.load(f)
         struct_envs = StructureEnvironments.from_dict(dd)
 

@@ -4,6 +4,8 @@ import json
 import os
 import warnings
 
+from monty.io import zopen
+
 from pymatgen.analysis.transition_state import NEBAnalysis, combine_neb_plots
 from pymatgen.util.testing import PymatgenTest
 
@@ -53,7 +55,7 @@ class NEBAnalysisTest(PymatgenTest):
 
         neb_analysis1.setup_spline(spline_options={"saddle_point": "zero_slope"})
         self.assert_all_close(neb_analysis1.get_extrema()[1][0], (0.50023335723480078, 325.20003984140203))
-        with open(os.path.join(test_dir, "neb2", "neb_analysis2.json.gz")) as f:
+        with zopen(os.path.join(test_dir, "neb2", "neb_analysis2.json.gz")) as f:
             neb_analysis2_dict = json.load(f)
         neb_analysis2 = NEBAnalysis.from_dict(neb_analysis2_dict)
         self.assert_all_close(neb_analysis2.get_extrema()[1][0], (0.37255257367467326, 562.40825334519991))
