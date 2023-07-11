@@ -4,6 +4,7 @@ import os
 import pickle
 
 import numpy as np
+from monty.io import zopen
 
 from pymatgen.symmetry import site_symmetries as ss
 from pymatgen.util.testing import PymatgenTest
@@ -20,9 +21,9 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "site_symmetries")
 
 class SiteSymmetriesTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(test_dir, "point_ops.pkl.gz"), "rb") as f:
+        with zopen(os.path.join(test_dir, "point_ops.pkl.gz"), "rb") as f:
             self.point_ops = pickle.load(f)
-        with open(os.path.join(test_dir, "shared_ops.pkl.gz"), "rb") as f:
+        with zopen(os.path.join(test_dir, "shared_ops.pkl.gz"), "rb") as f:
             self.shared_ops = pickle.load(f)
         self.piezo_struc = self.get_structure("Pb2TiZrO6")
 
