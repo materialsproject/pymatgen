@@ -4,9 +4,8 @@ import json
 import os
 import unittest
 
-from monty.json import MontyDecoder
 from monty.io import zopen
-
+from monty.json import MontyDecoder
 from pytest import approx
 
 from pymatgen.entries.exp_entries import ExpEntry
@@ -15,8 +14,8 @@ from pymatgen.util.testing import PymatgenTest
 
 class ExpEntryTest(unittest.TestCase):
     def setUp(self):
-        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe2O3_exp.json.gz"), 'r') as f:
-            thermo_data = json.loads(f.read(), cls=MontyDecoder)
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe2O3_exp.json.gz"), "r") as f:
+            thermo_data = json.load(f, cls=MontyDecoder)
         self.entry = ExpEntry("Fe2O3", thermo_data)
 
     def test_energy(self):
