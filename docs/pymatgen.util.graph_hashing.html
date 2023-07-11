@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.util.graph_hashing module &mdash; pymatgen 2023.6.28 documentation</title>
+  <title>pymatgen.util.graph_hashing module &mdash; pymatgen 2023.7.11 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.6.28
+                2023.7.11
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -99,11 +99,11 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">pymatgen</a> &raquo;</li>
-          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
-          <li><a href="pymatgen.util.html">pymatgen.util package</a> &raquo;</li>
-      <li>pymatgen.util.graph_hashing module</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
+          <li class="breadcrumb-item"><a href="pymatgen.util.html">pymatgen.util package</a></li>
+      <li class="breadcrumb-item active">pymatgen.util.graph_hashing module</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.util.graph_hashing.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -153,7 +153,7 @@ Isomorphic graphs should be assigned identical hashes.
 For now, only Weisfeiler-Lehman hashing is implemented.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.graph_hashing.weisfeiler_lehman_graph_hash">
-<span class="sig-name descname"><span class="pre">weisfeiler_lehman_graph_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digest_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../util/graph_hashing.py#L73-L146"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.graph_hashing.weisfeiler_lehman_graph_hash" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">weisfeiler_lehman_graph_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digest_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.11/pymatgen/core/../util/graph_hashing.py#L73-L146"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.graph_hashing.weisfeiler_lehman_graph_hash" title="Permalink to this definition"></a></dt>
 <dd><p>Return Weisfeiler Lehman (WL) graph hash.</p>
 <p>The function iteratively aggregates and hashes neighborhoods of each node.
 After each node’s neighbors are hashed to obtain updated node labels,
@@ -199,7 +199,7 @@ Size (in bits) of blake2b hash digest to use for hashing node labels.</p></li>
 <p>Similarity between hashes does not imply similarity between graphs.</p>
 <p class="rubric">References</p>
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id2" role="note">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
 <p>Shervashidze, Nino, Pascal Schweitzer, Erik Jan Van Leeuwen,</p>
 </aside>
@@ -215,7 +215,7 @@ Graph Kernels. Journal of Machine Learning Research. 2011.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.graph_hashing.weisfeiler_lehman_subgraph_hashes">
-<span class="sig-name descname"><span class="pre">weisfeiler_lehman_subgraph_hashes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digest_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.6.28/pymatgen/core/../util/graph_hashing.py#L149-L250"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.graph_hashing.weisfeiler_lehman_subgraph_hashes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">weisfeiler_lehman_subgraph_hashes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digest_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.11/pymatgen/core/../util/graph_hashing.py#L149-L250"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.graph_hashing.weisfeiler_lehman_subgraph_hashes" title="Permalink to this definition"></a></dt>
 <dd><p>Return a dictionary of subgraph hashes by node.</p>
 <p>The dictionary is keyed by node to a list of hashes in increasingly
 sized induced subgraphs containing the nodes within 2*k edges
@@ -281,7 +281,7 @@ by the subgraph hashes in order of depth from the key node.</p>
 <p>Similarity between hashes does not imply similarity between graphs.</p>
 <p class="rubric">References</p>
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id6" role="note">
+<aside class="footnote brackets" id="id6" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
 <p>Shervashidze, Nino, Pascal Schweitzer, Erik Jan Van Leeuwen,</p>
 </aside>
