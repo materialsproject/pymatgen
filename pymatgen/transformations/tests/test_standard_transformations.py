@@ -545,7 +545,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
         assert dict(s[0].species) == {Element("Li"): 0.2, Element("Na"): 0.2, Element("K"): 0.6}
 
         dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.01)
-        with pytest.raises(RuntimeError):
+        with pytest.raises(RuntimeError, match="Cannot discretize structure within tolerance!"):
             dot.apply_transformation(s_orig)
 
         s_orig_2 = Structure(

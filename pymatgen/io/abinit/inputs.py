@@ -163,7 +163,7 @@ class ShiftMode(Enum):
             return obj
         if is_string(obj):
             return cls(obj[0].upper())
-        raise TypeError(f"The object provided is not handled: type {type(obj)}")
+        raise TypeError(f"The object provided is not handled: type {type(obj).__name__}")
 
 
 def _stopping_criterion(runlevel, accuracy):

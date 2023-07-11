@@ -1819,8 +1819,7 @@ class BSPlotterProjected(BSPlotter):
                 for orb in dictio[elt]:
                     if orb in individual_orbs:
                         duplicate.remove(orb)
-                        for o in individual_orbs[orb]:
-                            duplicate.append(o)
+                        duplicate += individual_orbs[orb]
                 dictio[elt] = copy.deepcopy(duplicate)
 
                 if sum_morbs is None:
@@ -1838,8 +1837,7 @@ class BSPlotterProjected(BSPlotter):
                             )
                         if orb in individual_orbs:
                             sum_morbs[elt].pop(0)
-                            for o in individual_orbs[orb]:
-                                sum_morbs[elt].append(o)
+                            sum_morbs[elt] += individual_orbs[orb]
                         else:
                             raise ValueError(f"You never sum projection over one orbital in sum_morbs[{elt}]")
                     else:
@@ -1847,8 +1845,7 @@ class BSPlotterProjected(BSPlotter):
                         for orb in sum_morbs[elt]:
                             if orb in individual_orbs:
                                 duplicate.remove(orb)
-                                for o in individual_orbs[orb]:
-                                    duplicate.append(o)
+                                duplicate += individual_orbs[orb]
                         sum_morbs[elt] = copy.deepcopy(duplicate)
 
                     for orb in sum_morbs[elt]:

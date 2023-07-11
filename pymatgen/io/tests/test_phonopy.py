@@ -199,7 +199,7 @@ class TestPhonopyFromForceConstants(unittest.TestCase):
         assert bs.bands[2][10] == approx(2.869229797603161)
 
 
-@unittest.skipIf(Phonopy is None, "Phonopy not present")
+# @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestGruneisen(unittest.TestCase):
     def test_ph_bs_symm_line(self):
         self.bs_symm_line_1 = get_gruneisen_ph_bs_symm_line(
@@ -216,8 +216,8 @@ class TestGruneisen(unittest.TestCase):
         # check if a bit of the gruneisen parameters happens
 
         assert self.bs_symm_line_1.gruneisen[0][0] != self.bs_symm_line_2.gruneisen[0][0]
-        with pytest.raises(ValueError):
-            self.bs_symm_line_2 = get_gruneisen_ph_bs_symm_line(
+        with pytest.raises(ValueError, match="Please provide a structure or structure path"):
+            get_gruneisen_ph_bs_symm_line(
                 gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus_InP.yaml")
             )
 
@@ -231,7 +231,7 @@ class TestGruneisen(unittest.TestCase):
         assert self.gruneisenobject_Si.gruneisen[0][0] == approx(-0.1190736091)
 
         # catch the exception when no structure is present
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Please provide a structure or structure path"):
             get_gruneisenparameter(
                 os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_InP_without_struct.yaml")
             )

@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import ClassVar
 
 import numpy as np
-from frozendict import frozendict
 
 from pymatgen.analysis.chemenv.utils.math_utils import (
     power2_decreasing_exp,
@@ -27,7 +26,7 @@ __date__ = "Feb 20, 2016"
 class AbstractRatioFunction:
     """Abstract class for all ratio functions."""
 
-    ALLOWED_FUNCTIONS: ClassVar[frozendict[str, list]] = {}  # type: ignore[assignment]
+    ALLOWED_FUNCTIONS: ClassVar[dict[str, list]] = {}  # type: ignore[assignment]
 
     def __init__(self, function, options_dict=None):
         """Constructor for AbstractRatioFunction.
@@ -108,7 +107,7 @@ class AbstractRatioFunction:
 class RatioFunction(AbstractRatioFunction):
     """Concrete implementation of a series of ratio functions."""
 
-    ALLOWED_FUNCTIONS = frozendict(
+    ALLOWED_FUNCTIONS = dict(
         power2_decreasing_exp=["max", "alpha"],
         smoothstep=["lower", "upper"],
         smootherstep=["lower", "upper"],
@@ -200,7 +199,7 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = frozendict(
+    ALLOWED_FUNCTIONS = dict(
         power2_decreasing_exp=["max_csm", "alpha"],
         smoothstep=["lower_csm", "upper_csm"],
         smootherstep=["lower_csm", "upper_csm"],
@@ -286,7 +285,7 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = frozendict(
+    ALLOWED_FUNCTIONS = dict(
         power2_inverse_decreasing=["max_csm"],
         power2_inverse_power2_decreasing=["max_csm"],
     )
@@ -365,7 +364,7 @@ class DeltaCSMRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = frozendict(smootherstep=["delta_csm_min", "delta_csm_max"])
+    ALLOWED_FUNCTIONS = dict(smootherstep=["delta_csm_min", "delta_csm_max"])
 
     def smootherstep(self, vals):
         """Get the evaluation of the smootherstep ratio function: f(x)=6*x^5-15*x^4+10*x^3.

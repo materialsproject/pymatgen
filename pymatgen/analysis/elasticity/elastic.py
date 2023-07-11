@@ -979,16 +979,14 @@ def generate_pseudo(strain_states, order=3):
         order (int): order of pseudo-inverse to calculate
 
     Returns:
-        mis: pseudo inverses for each order tensor, these can
-            be multiplied by the central difference derivative
-            of the stress with respect to the strain state
-        absent_syms: symbols of the tensor absent from the PI
-            expression
+        pseudo_inverses: for each order tensor, these can be multiplied by the central
+            difference derivative of the stress with respect to the strain state
+        absent_syms: symbols of the tensor absent from the PI expression
     """
     s = sp.Symbol("s")
     nstates = len(strain_states)
     ni = np.array(strain_states) * s
-    mis, absent_syms = [], []
+    pseudo_inverses, absent_symbols = [], []
     for degree in range(2, order + 1):
         cvec, carr = get_symbol_list(degree)
         sarr = np.zeros((nstates, 6), dtype=object)
@@ -1000,13 +998,13 @@ def generate_pseudo(strain_states, order=3):
             exps /= math.factorial(degree - 1)
             sarr[n] = [sp.diff(exp, s, degree - 1) for exp in exps]
         svec = sarr.ravel()
-        present_syms = set.union(*(exp.atoms(sp.Symbol) for exp in svec))
-        absent_syms += [set(cvec) - present_syms]
+        present_symbols = set.union(*(exp.atoms(sp.Symbol) for exp in svec))
+        absent_symbols += [set(cvec) - present_symbols]
         m = np.zeros((6 * nstates, len(cvec)))
         for n, c in enumerate(cvec):
             m[:, n] = v_diff(svec, c)
-        mis.append(np.linalg.pinv(m))
-    return mis, absent_syms
+        pseudo_inverses.append(np.linalg.pinv(m))
+    return pseudo_inverses, absent_symbols
 
 
 def get_symbol_list(rank, dim=6):

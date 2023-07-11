@@ -366,7 +366,7 @@ class Section(MSONable):
         Delete section with name matching key OR delete all keywords
         with names matching this key.
         """
-        lst = [ss for ss in self.subsections if ss.upper() == key.upper()]
+        lst = [sub_sec for sub_sec in self.subsections if sub_sec.upper() == key.upper()]
         if lst:
             del self.subsections[lst[0]]
             return
@@ -394,12 +394,12 @@ class Section(MSONable):
              d: the key to retrieve, if present
              default: what to return if d is not found
         """
-        r = self.get_keyword(d)
-        if r:
-            return r
-        r = self.get_section(d)
-        if r:
-            return r
+        kw = self.get_keyword(d)
+        if kw:
+            return kw
+        sec = self.get_section(d)
+        if sec:
+            return sec
         return default
 
     def get_section(self, d, default=None):

@@ -985,9 +985,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         unrelax_params = list(unrelaxed_structure.lattice.abc)
         unrelax_params.extend(unrelaxed_structure.lattice.angles)
 
-        self.params_percent_change = []
-        for idx, param in enumerate(relax_params):
-            self.params_percent_change.append(param / unrelax_params[idx])
+        self.params_percent_change = [relax_params[idx] / unrelax_params[idx] for idx in range(len(relax_params))]
 
         self.unrelaxed_structure = unrelaxed_structure
         self.relaxed_structure = relaxed_structure

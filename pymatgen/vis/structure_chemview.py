@@ -66,16 +66,16 @@ def quick_view(
 
     if bonds:
         mv.ball_and_sticks(stick_radius=stick_radius)
-    for idx in struct.sites:
-        el = idx.specie.symbol
-        coord = idx.coords
-        r = CovalentRadius.radius[el]
+    for site in struct:
+        el = site.specie.symbol
+        coord = site.coords
+        rad = CovalentRadius.radius[el]
         mv.add_representation(
             "spheres",
             {
                 "coordinates": coord.astype("float32"),
                 "colors": [get_atom_color(el)],
-                "radii": [r * 0.5],
+                "radii": [rad * 0.5],
                 "opacity": 1.0,
             },
         )

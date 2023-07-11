@@ -339,10 +339,7 @@ class BVAnalyzer:
                     elements.append(sp.symbol)
                     fractions.append(occu)
             fractions = np.array(fractions, np.float_)  # type: ignore[assignment]
-            new_valences = []
-            for vals in valences:
-                for val in vals:
-                    new_valences.append(val)
+            new_valences = [val for vals in valences for val in vals]
             valence_min = np.array([min(i) for i in new_valences], np.float_)
             valence_max = np.array([max(i) for i in new_valences], np.float_)
 

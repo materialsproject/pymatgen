@@ -303,7 +303,7 @@ class Ion(Composition, MSONable, Stringify):
         new_charge = self.charge * other
         return Ion(new_composition, new_charge)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.composition, self.charge))
 
     def __str__(self):
