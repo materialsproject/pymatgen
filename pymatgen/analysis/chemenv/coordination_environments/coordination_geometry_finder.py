@@ -20,7 +20,6 @@ import time
 from random import shuffle
 
 import numpy as np
-from frozendict import frozendict
 from numpy.linalg import norm, svd
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -343,27 +342,27 @@ class LocalGeometryFinder:
     """Main class used to find the local environments in a structure."""
 
     DEFAULT_BVA_DISTANCE_SCALE_FACTOR = 1.0
-    BVA_DISTANCE_SCALE_FACTORS = frozendict(
+    BVA_DISTANCE_SCALE_FACTORS = dict(
         experimental=1.0,
         GGA_relaxed=1.015,
         LDA_relaxed=0.995,
     )
-    DEFAULT_SPG_ANALYZER_OPTIONS = frozendict(symprec=1e-3, angle_tolerance=5)
+    DEFAULT_SPG_ANALYZER_OPTIONS = dict(symprec=1e-3, angle_tolerance=5)
     STRUCTURE_REFINEMENT_NONE = "none"
     STRUCTURE_REFINEMENT_REFINED = "refined"
     STRUCTURE_REFINEMENT_SYMMETRIZED = "symmetrized"
 
     DEFAULT_STRATEGY = MultiWeightsChemenvStrategy.stats_article_weights_parameters()
 
-    PRESETS = frozendict(
-        DEFAULT={
+    PRESETS = {
+        "DEFAULT": {
             "maximum_distance_factor": 2.0,
             "minimum_angle_factor": 0.05,
             "voronoi_normalized_distance_tolerance": 0.05,
             "voronoi_normalized_angle_tolerance": 0.03,
             "optimization": 2,
         }
-    )
+    }
 
     def __init__(
         self,

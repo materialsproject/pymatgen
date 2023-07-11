@@ -12,7 +12,6 @@ import os
 from typing import ClassVar
 
 import numpy as np
-from frozendict import frozendict
 from monty.json import MSONable
 from scipy.stats import gmean
 
@@ -191,7 +190,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS: ClassVar[frozendict[str, dict]] = frozendict()
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict()
     STRATEGY_DESCRIPTION: str | None = None
     STRATEGY_INFO_FIELDS: ClassVar[list] = []
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
@@ -471,23 +470,23 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(  # type: ignore
-        distance_cutoff=frozendict(
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict(  # type: ignore
+        distance_cutoff=dict(
             type=DistanceCutoffFloat,
             internal="_distance_cutoff",
             default=DEFAULT_DISTANCE_CUTOFF,
         ),
-        angle_cutoff=frozendict(
+        angle_cutoff=dict(
             type=AngleCutoffFloat,
             internal="_angle_cutoff",
             default=DEFAULT_ANGLE_CUTOFF,
         ),
-        additional_condition=frozendict(
+        additional_condition=dict(
             type=AdditionalConditionInt,
             internal="_additional_condition",
             default=DEFAULT_ADDITIONAL_CONDITION,
         ),
-        continuous_symmetry_measure_cutoff=frozendict(
+        continuous_symmetry_measure_cutoff=dict(
             type=CSMFloat,
             internal="_continuous_symmetry_measure_cutoff",
             default=DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
@@ -862,9 +861,9 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(  # type: ignore
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict(  # type: ignore
         surface_calculation_type={},
-        additional_condition=frozendict(
+        additional_condition=dict(
             type=AdditionalConditionInt,
             internal="_additional_condition",
             default=DEFAULT_ADDITIONAL_CONDITION,
@@ -1546,11 +1545,11 @@ class SelfCSMNbSetWeight(NbSetWeight):
 
     SHORT_NAME = "SelfCSMWeight"
 
-    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = frozendict(
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = dict(
         function="power2_inverse_decreasing",
         options={"max_csm": 8.0},
     )
-    DEFAULT_WEIGHT_ESTIMATOR = frozendict(
+    DEFAULT_WEIGHT_ESTIMATOR = dict(
         function="power2_decreasing_exp",
         options={"max_csm": 8.0, "alpha": 1},
     )
@@ -1642,12 +1641,12 @@ class DeltaCSMNbSetWeight(NbSetWeight):
 
     SHORT_NAME = "DeltaCSMWeight"
 
-    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = frozendict(
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = dict(
         function="power2_inverse_decreasing",
         options={"max_csm": 8.0},
     )
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
-    DEFAULT_WEIGHT_ESTIMATOR = frozendict(
+    DEFAULT_WEIGHT_ESTIMATOR = dict(
         function="smootherstep",
         options={"delta_csm_min": 0.5, "delta_csm_max": 3.0},
     )
@@ -1994,7 +1993,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
     SHORT_NAME = "DistAngleAreaWeight"
 
     AC = AdditionalConditions()
-    DEFAULT_SURFACE_DEFINITION = frozendict(
+    DEFAULT_SURFACE_DEFINITION = dict(
         type="standard_elliptic",
         distance_bounds={"lower": 1.2, "upper": 1.8},
         angle_bounds={"lower": 0.1, "upper": 0.8},
@@ -2522,7 +2521,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
     """WeightedNbSetChemenvStrategy."""
 
     STRATEGY_DESCRIPTION = "    WeightedNbSetChemenvStrategy"
-    DEFAULT_CE_ESTIMATOR = frozendict(
+    DEFAULT_CE_ESTIMATOR = dict(
         function="power2_inverse_power2_decreasing",
         options={"max_csm": 8.0},
     )
@@ -2825,7 +2824,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
     #                         'cn_map_delta_csm', 'cn_map_delta_csms_cn_map2', 'cn_map_delta_csm_weight',
     #                         'cn_map_cn_weight',
     #                         'cn_map_fraction', 'cn_map_ce_fraction', 'ce_fraction']
-    DEFAULT_CE_ESTIMATOR = frozendict(
+    DEFAULT_CE_ESTIMATOR = dict(
         function="power2_inverse_power2_decreasing",
         options={"max_csm": 8.0},
     )
