@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2023.7.11
+----------
+* Use joblib to speed up expensive enumeration energy computations.
+* Minor cleanups.
+
 v2023.6.28
 ----------
 * Use lru_cache to speed up get_el_sp by 400x (@v1kko).
