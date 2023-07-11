@@ -846,6 +846,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         self,
         compat_type: str = "Advanced",
         correct_peroxide: bool = True,
+        check_potcar: bool = True,
         check_potcar_hash: bool = False,
         config_file: str | None = None,
     ) -> None:
@@ -873,6 +874,9 @@ class MaterialsProject2020Compatibility(Compatibility):
             correct_peroxide: Specify whether peroxide/superoxide/ozonide
                 corrections are to be applied or not. If false, all oxygen-containing
                 compounds are assigned the 'oxide' correction. (Default: True)
+            check_potcar (bool): Check that the POTCARs used in the calculation
+                are consistent with the Materials Project parameters. False bypasses this
+                check altogether. (Default: True)
             check_potcar_hash (bool): Use potcar hash to verify POTCAR settings are
                 consistent with MPRelaxSet. If False, only the POTCAR symbols will
                 be used. (Default: False)
@@ -894,6 +898,7 @@ class MaterialsProject2020Compatibility(Compatibility):
 
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
+        self.check_potcar = check_potcar
         self.check_potcar_hash = check_potcar_hash
 
         # load corrections and uncertainties
@@ -946,7 +951,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         # check the POTCAR symbols
         # this should return ufloat(0, 0) or raise a CompatibilityError or ValueError
         if entry.parameters.get("software", "vasp") == "vasp":
-            pc = PotcarCorrection(MPRelaxSet, check_hash=self.check_potcar_hash)
+            pc = PotcarCorrection(MPRelaxSet, check_hash=self.check_potcar_hash, check_potcar=self.check_potcar)
             pc.get_correction(entry)
 
         # apply energy adjustments
