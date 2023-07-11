@@ -388,7 +388,7 @@ class TensorCollectionTest(PymatgenTest):
         self.seq_tc = TensorCollection(self.seq_tc)
         self.rand_tc = TensorCollection(list(np.random.random((4, 3, 3))))
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
-        self.struct = self.get_structure("Si.gz")
+        self.struct = self.get_structure("Si")
         ieee_file_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "ieee_conversion_data.json.gz")
         self.ieee_data = loadfn(ieee_file_path)
 

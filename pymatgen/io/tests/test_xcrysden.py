@@ -18,7 +18,7 @@ class XSFTest(PymatgenTest):
                 [0.00, -2.2171384943, 3.1355090603],
             ]
         )
-        structure = Structure(lattice, ["Si.gz", "Si.gz"], coords)
+        structure = Structure(lattice, ["Si", "Si"], coords)
         xsf = XSF(structure)
         assert structure, XSF.from_string(xsf.to_string())
 

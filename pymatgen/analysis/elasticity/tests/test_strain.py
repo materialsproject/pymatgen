@@ -22,7 +22,7 @@ class DeformationTest(PymatgenTest):
                 [0.00, -2.2171384943, 3.1355090603],
             ]
         )
-        self.structure = Structure(lattice, ["Si.gz", "Si.gz"], [[0, 0, 0], [0.75, 0.5, 0.75]])
+        self.structure = Structure(lattice, ["Si", "Si"], [[0, 0, 0], [0.75, 0.5, 0.75]])
 
     def test_properties(self):
         # green_lagrange_strain

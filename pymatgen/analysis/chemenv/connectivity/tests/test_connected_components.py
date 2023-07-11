@@ -85,7 +85,7 @@ class ConnectedComponentTest(PymatgenTest):
     def test_serialization(self):
         lat = Lattice.hexagonal(a=2.0, c=2.5)
         en1 = EnvironmentNode(
-            central_site=PeriodicSite("Si.gz", coords=np.array([0.0, 0.0, 0.0]), lattice=lat),
+            central_site=PeriodicSite("Si", coords=np.array([0.0, 0.0, 0.0]), lattice=lat),
             i_central_site=3,
             ce_symbol="T:4",
         )
@@ -159,7 +159,7 @@ class ConnectedComponentTest(PymatgenTest):
             key = ConnectedComponent._edgekey_to_edgedictkey(0.2)
 
     def test_periodicity(self):
-        en1 = EnvironmentNode(central_site="Si.gz", i_central_site=3, ce_symbol="T:4")
+        en1 = EnvironmentNode(central_site="Si", i_central_site=3, ce_symbol="T:4")
         en2 = EnvironmentNode(central_site="Ag", i_central_site=5, ce_symbol="T:4")
         en3 = EnvironmentNode(central_site="Ag", i_central_site=8, ce_symbol="O:6")
         en4 = EnvironmentNode(central_site="Fe", i_central_site=23, ce_symbol="C:8")

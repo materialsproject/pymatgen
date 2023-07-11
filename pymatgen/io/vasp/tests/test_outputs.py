@@ -478,9 +478,9 @@ class VasprunTest(PymatgenTest):
         assert cbm["kpoint"].label is None, "wrong cbm label"
 
         projected = bs.get_projection_on_elements()
-        assert projected[Spin.up][0][0]["Si.gz"] == approx(0.4238)
-        projected = bs.get_projections_on_elements_and_orbitals({"Si.gz": ["s"]})
-        assert projected[Spin.up][0][0]["Si.gz"]["s"] == approx(0.4238)
+        assert projected[Spin.up][0][0]["Si"] == approx(0.4238)
+        projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
+        assert projected[Spin.up][0][0]["Si"]["s"] == approx(0.4238)
 
         # Test compressed files case 1: compressed KPOINTS in current dir
         copyfile(f"{self.TEST_FILES_DIR}/vasprun_Si_bands.xml", "vasprun.xml.gz")

@@ -1407,7 +1407,7 @@ class FatbandTest(PymatgenTest):
         assert self.fatband_SiO2_p_x.nbands == 36
         assert self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"] == 0.002
         assert self.fatband_SiO2_p_x.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
-        assert self.fatband_SiO2_p_x.structure[0].species_string == "Si.gz"
+        assert self.fatband_SiO2_p_x.structure[0].species_string == "Si"
         assert self.fatband_SiO2_p_x.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
         assert list(self.fatband_SiO2_p.label_dict["M"]) == approx([0.5, 0.0, 0.0])
@@ -1422,7 +1422,7 @@ class FatbandTest(PymatgenTest):
         assert self.fatband_SiO2_p.nbands == 36
         assert self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
         assert self.fatband_SiO2_p.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
-        assert self.fatband_SiO2_p.structure[0].species_string == "Si.gz"
+        assert self.fatband_SiO2_p.structure[0].species_string == "Si"
         assert self.fatband_SiO2_p.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
         assert list(self.fatband_SiO2_spin.label_dict["M"]) == approx([0.5, 0.0, 0.0])
@@ -1439,7 +1439,7 @@ class FatbandTest(PymatgenTest):
 
         assert self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
         assert self.fatband_SiO2_spin.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
-        assert self.fatband_SiO2_spin.structure[0].species_string == "Si.gz"
+        assert self.fatband_SiO2_spin.structure[0].species_string == "Si"
         assert self.fatband_SiO2_spin.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
     def test_raises(self):
@@ -1513,53 +1513,51 @@ class FatbandTest(PymatgenTest):
         assert bs_p.kpoints[50].cart_coords[1] == approx(self.bs_symmline2.kpoints[50].cart_coords[1])
         assert bs_p.kpoints[50].cart_coords[2] == approx(self.bs_symmline2.kpoints[50].cart_coords[2])
         assert bs_p.get_band_gap()["energy"] == approx(self.bs_symmline2.get_band_gap()["energy"], abs=1e-2)
-        assert bs_p.get_projection_on_elements()[Spin.up][0][0]["Si.gz"] == approx(3 * (0.001 + 0.064))
-        assert bs_p.get_projections_on_elements_and_orbitals({"Si.gz": ["3p"]})[Spin.up][0][0]["Si.gz"]["3p"] == approx(
-            0.003
-        )
+        assert bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
+        assert bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"] == approx(0.003)
         assert bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == approx(
             0.002 * 3 + 0.003 * 3
         )
-        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si.gz": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][
+        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
             0
-        ][0]
-        assert dict_here["Si.gz"]["3s"] == approx(0.192)
-        assert dict_here["Si.gz"]["3p"] == approx(0.003)
+        ]
+        assert dict_here["Si"]["3s"] == approx(0.192)
+        assert dict_here["Si"]["3p"] == approx(0.003)
         assert dict_here["O"]["2s"] == approx(0.792)
         assert dict_here["O"]["2p"] == approx(0.015)
 
         bs_spin = self.fatband_SiO2_spin.get_bandstructure()
-        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si.gz"] == approx(3 * (0.001 + 0.064))
-        assert bs_spin.get_projections_on_elements_and_orbitals({"Si.gz": ["3p"]})[Spin.up][0][0]["Si.gz"][
-            "3p"
-        ] == approx(0.003)
+        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
+        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"] == approx(
+            0.003
+        )
         assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == approx(
             0.002 * 3 + 0.003 * 3
         )
-        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si.gz": ["3s", "3p"], "O": ["2s", "2p"]})[
-            Spin.up
-        ][0][0]
-        assert dict_here["Si.gz"]["3s"] == approx(0.192)
-        assert dict_here["Si.gz"]["3p"] == approx(0.003)
+        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][
+            0
+        ][0]
+        assert dict_here["Si"]["3s"] == approx(0.192)
+        assert dict_here["Si"]["3p"] == approx(0.003)
         assert dict_here["O"]["2s"] == approx(0.792)
         assert dict_here["O"]["2p"] == approx(0.015)
 
-        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si.gz"] == approx(3 * (0.001 + 0.064))
-        assert bs_spin.get_projections_on_elements_and_orbitals({"Si.gz": ["3p"]})[Spin.down][0][0]["Si.gz"][
-            "3p"
-        ] == approx(0.003)
+        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
+        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"]["3p"] == approx(
+            0.003
+        )
         assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"] == approx(
             0.002 * 3 + 0.003 * 3
         )
-        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si.gz": ["3s", "3p"], "O": ["2s", "2p"]})[
+        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[
             Spin.down
         ][0][0]
-        assert dict_here["Si.gz"]["3s"] == approx(0.192)
-        assert dict_here["Si.gz"]["3p"] == approx(0.003)
+        assert dict_here["Si"]["3s"] == approx(0.192)
+        assert dict_here["Si"]["3p"] == approx(0.003)
         assert dict_here["O"]["2s"] == approx(0.792)
         assert dict_here["O"]["2p"] == approx(0.015)
         bs_p_x = self.fatband_SiO2_p_x.get_bandstructure()
-        assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si.gz"] == approx(3 * (0.001 + 0.064), abs=1e-2)
+        assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), abs=1e-2)
 
 
 class LobsterinTest(unittest.TestCase):
@@ -2196,7 +2194,7 @@ class GrosspopTest(unittest.TestCase):
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_z"] == approx(0.37)
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_x"] == approx(0.37)
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["total"] == approx(1.64)
-        assert self.grosspop1.list_dict_grosspop[0]["element"] == "Si.gz"
+        assert self.grosspop1.list_dict_grosspop[0]["element"] == "Si"
         assert self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3s"] == approx(0.61)
         assert self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_y"] == approx(0.52)
         assert self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_z"] == approx(0.52)
@@ -2230,28 +2228,28 @@ class GrosspopTest(unittest.TestCase):
             },
             "sites": [
                 {
-                    "species": [{"element": "Si.gz", "occu": 1}],
+                    "species": [{"element": "Si", "occu": 1}],
                     "abc": [-3e-16, 0.4763431475490085, 0.6666669999999968],
                     "xyz": [-1.1960730853096477, 2.0716596881533986, 3.674621443020128],
-                    "label": "Si.gz",
+                    "label": "Si",
                     "properties": {"Total Mulliken GP": 1.64, "Total Loewdin GP": 2.16},
                 },
                 {
-                    "species": [{"element": "Si.gz", "occu": 1}],
+                    "species": [{"element": "Si", "occu": 1}],
                     "abc": [0.5236568524509936, 0.5236568524509926, 0.0],
                     "xyz": [1.3148758827683875, 2.277431295571896, 0.0],
-                    "label": "Si.gz",
+                    "label": "Si",
                     "properties": {"Total Mulliken GP": 1.64, "Total Loewdin GP": 2.16},
                 },
                 {
-                    "species": [{"element": "Si.gz", "occu": 1}],
+                    "species": [{"element": "Si", "occu": 1}],
                     "abc": [0.4763431475490066, -1.2e-15, 0.3333330000000032],
                     "xyz": [
                         2.392146647037334,
                         2.1611518932482004e-11,
                         1.8373079655453863,
                     ],
-                    "label": "Si.gz",
+                    "label": "Si",
                     "properties": {"Total Mulliken GP": 1.64, "Total Loewdin GP": 2.16},
                 },
                 {

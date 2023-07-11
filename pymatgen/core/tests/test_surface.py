@@ -619,7 +619,7 @@ class SlabGeneratorTest(PymatgenTest):
 
     def test_bonds_broken(self):
         # Querying the Materials Project database for Si
-        struct = self.get_structure("Si.gz")
+        struct = self.get_structure("Si")
         # Conventional unit cell is supplied to ensure miller indices
         # correspond to usual crystallographic definitions
         conv_bulk = SpacegroupAnalyzer(struct).get_conventional_standard_structure()
@@ -628,7 +628,7 @@ class SlabGeneratorTest(PymatgenTest):
         # so that all terminations are generated. These slabs
         # are ordered by ascending number of bonds broken
         # which is assigned to Slab.energy
-        slabs = slabgen.get_slabs(bonds={("Si.gz", "Si.gz"): 2.40}, max_broken_bonds=30)
+        slabs = slabgen.get_slabs(bonds={("Si", "Si"): 2.40}, max_broken_bonds=30)
         # Looking at the two slabs generated in VESTA, we
         # expect 2 and 6 bonds broken so we check for this.
         # Number of broken bonds are floats due to primitive
@@ -647,7 +647,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         species = ["Fe"]
         coords = [[0, 0, 0]]
         self.Fe = Structure.from_spacegroup("Im-3m", latt, species, coords)
-        self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si.gz"], [(0, 0, 0.5)])
+        self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)])
 
         with open(
             os.path.join(

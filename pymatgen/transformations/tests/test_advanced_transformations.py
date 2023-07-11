@@ -718,7 +718,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
         )
 
         # Test the diagonal transformation
-        structure2 = self.get_structure("Si.gz")
+        structure2 = self.get_structure("Si")
         sga = SpacegroupAnalyzer(structure2)
         structure2 = sga.get_primitive_standard_structure()
         diagonal_supercell_generator = CubicSupercellTransformation(
@@ -731,7 +731,7 @@ class CubicSupercellTransformationTest(PymatgenTest):
         assert_array_equal(diagonal_supercell_generator.transformation_matrix, np.eye(3) * 4)
 
         # test force_90_degrees
-        structure2 = self.get_structure("Si.gz")
+        structure2 = self.get_structure("Si")
         sga = SpacegroupAnalyzer(structure2)
         structure2 = sga.get_primitive_standard_structure()
         diagonal_supercell_generator = CubicSupercellTransformation(
@@ -779,7 +779,7 @@ class SubstituteSurfaceSiteTransformationTest(PymatgenTest):
 @unittest.skipIf(not hiphive, "hiphive not present. Skipping...")
 class MonteCarloRattleTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        struct = self.get_structure("Si.gz")
+        struct = self.get_structure("Si")
         mcrt = MonteCarloRattleTransformation(0.01, 2, seed=1)
         s_trans = mcrt.apply_transformation(struct)
 

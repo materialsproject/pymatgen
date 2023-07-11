@@ -190,7 +190,7 @@ class TEMCalculatorTest(PymatgenTest):
 
     def test_is_parallel(self):
         c = TEMCalculator()
-        structure = self.get_structure("Si.gz")
+        structure = self.get_structure("Si")
         assert c.is_parallel(structure, (1, 0, 0), (3, 0, 0))
         assert not c.is_parallel(structure, (1, 0, 0), (3, 0, 1))
 
@@ -227,7 +227,7 @@ class TEMCalculatorTest(PymatgenTest):
     def test_get_positions(self):
         c = TEMCalculator()
         points = c.generate_points(-2, 2)
-        structure = self.get_structure("Si.gz")
+        structure = self.get_structure("Si")
         positions = c.get_positions(structure, points)
         assert [0, 0] == positions[(0, 0, 0)].tolist()
         # Test silicon diffraction data spot rough positions:
@@ -239,7 +239,7 @@ class TEMCalculatorTest(PymatgenTest):
         # the class desired.
         c = TEMCalculator()
         points = c.generate_points(-2, 2)
-        structure = self.get_structure("Si.gz")
+        structure = self.get_structure("Si")
         dots = c.tem_dots(structure, points)
         assert all(isinstance(x, tuple) for x in dots)
 
@@ -247,17 +247,17 @@ class TEMCalculatorTest(PymatgenTest):
         # All dependencies in get_pattern method are tested.
         # Only make sure result is a pd dataframe.
         c = TEMCalculator()
-        structure = self.get_structure("Si.gz")
+        structure = self.get_structure("Si")
         assert isinstance(c.get_pattern(structure), pd.DataFrame)
 
     def test_get_plot_2d(self):
         c = TEMCalculator()
-        structure = self.get_structure("Si.gz")
+        structure = self.get_structure("Si")
         assert isinstance(c.get_plot_2d(structure), go.Figure)
 
     def test_get_plot_2d_concise(self):
         c = TEMCalculator()
-        structure = self.get_structure("Si.gz")
+        structure = self.get_structure("Si")
         fig = c.get_plot_2d_concise(structure)
         width = fig.layout.width
         assert width == 121

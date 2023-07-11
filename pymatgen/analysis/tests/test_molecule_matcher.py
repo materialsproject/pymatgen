@@ -77,7 +77,7 @@ def generate_Si_cluster():
     coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
     lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
 
-    struct = Structure(lattice, ["Si.gz", "Si.gz"], coords)
+    struct = Structure(lattice, ["Si", "Si"], coords)
     struct.make_supercell([2, 2, 2])
 
     # Creating molecule for testing
@@ -120,7 +120,7 @@ def generate_Si2O_cluster():
     ]
 
     lattice = Lattice.from_parameters(a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60)
-    struct = Structure(lattice, ["Si.gz", "Si.gz", "Si.gz", "Si.gz", "O", "O"], coords)
+    struct = Structure(lattice, ["Si", "Si", "Si", "Si", "O", "O"], coords)
     # struct.make_supercell([2, 2, 2])
 
     # Creating molecule for testing

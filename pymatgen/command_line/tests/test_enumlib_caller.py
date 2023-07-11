@@ -66,7 +66,7 @@ class EnumlibAdaptorTest(PymatgenTest):
 
         struct = Structure(
             [[3, 0, 0], [0, 3, 0], [0, 0, 3]],
-            [{"Si.gz": 0.5}] * 2,
+            [{"Si": 0.5}] * 2,
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
         adaptor = EnumlibAdaptor(struct, 1, 3, enum_precision_parameter=0.01)

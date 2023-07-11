@@ -55,7 +55,7 @@ class RotationTransformationsTest(unittest.TestCase):
                 [0.00, -2.2171384943, 3.1355090603],
             ]
         )
-        self.struct = Structure(lattice, ["Si.gz"] * 2, coords)
+        self.struct = Structure(lattice, ["Si"] * 2, coords)
 
     def test_as_from_dict(self):
         trafo = RotationTransformation([0, 1, 0], 30, False)

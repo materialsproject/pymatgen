@@ -709,7 +709,7 @@ class TestLobsterNeighbors(unittest.TestCase):
                 path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.NaSi.gz"),
                 isites=[8],
                 onlycation_isites=False,
-                only_bonds_to=["Si.gz"],
+                only_bonds_to=["Si"],
             )[0]
             == "3 x Si-Si (per bond)"
         )

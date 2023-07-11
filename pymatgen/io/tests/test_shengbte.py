@@ -32,7 +32,7 @@ class TestShengBTE(PymatgenTest):
                 [2.734363999, 0.0, 2.734363999],
                 [2.734363999, 2.734363999, 0.0],
             ],
-            "elements": "Si.gz",
+            "elements": "Si",
             "types": [1, 1],
             "positions": [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]],
             "scell": [5, 5, 5],

@@ -176,11 +176,11 @@ class StructureEnvironmentsTest(PymatgenTest):
         self.assert_all_close(equiv_site_index_and_transform[1], [0, 0, 0])
         self.assert_all_close(equiv_site_index_and_transform[2], [0, 0, 0])
 
-        assert stats["atom_coordination_environments_present"] == {"Si.gz": {"T:4": 3}}
-        assert stats["coordination_environments_atom_present"] == {"T:4": {"Si.gz": 3}}
-        assert stats["fraction_atom_coordination_environments_present"] == {"Si.gz": {"T:4": 1}}
+        assert stats["atom_coordination_environments_present"] == {"Si": {"T:4": 3}}
+        assert stats["coordination_environments_atom_present"] == {"T:4": {"Si": 3}}
+        assert stats["fraction_atom_coordination_environments_present"] == {"Si": {"T:4": 1}}
 
-        site_info_ce = lse.get_site_info_for_specie_ce(specie=Species("Si.gz", 4), ce_symbol="T:4")
+        site_info_ce = lse.get_site_info_for_specie_ce(specie=Species("Si", 4), ce_symbol="T:4")
         assert_array_almost_equal(site_info_ce["fractions"], [1, 1, 1])
         assert_array_almost_equal(
             site_info_ce["csms"],
@@ -188,7 +188,7 @@ class StructureEnvironmentsTest(PymatgenTest):
         )
         assert site_info_ce["isites"] == [6, 7, 8]
 
-        site_info_allces = lse.get_site_info_for_specie_allces(specie=Species("Si.gz", 4))
+        site_info_allces = lse.get_site_info_for_specie_allces(specie=Species("Si", 4))
 
         assert site_info_allces["T:4"] == site_info_ce
 
@@ -196,8 +196,8 @@ class StructureEnvironmentsTest(PymatgenTest):
         assert not lse.contains_only_one_anion_atom("I")
         assert lse.site_contains_environment(isite=isite, ce_symbol="T:4")
         assert not lse.site_contains_environment(isite=isite, ce_symbol="S:4")
-        assert not lse.structure_contains_atom_environment(atom_symbol="Si.gz", ce_symbol="S:4")
-        assert lse.structure_contains_atom_environment(atom_symbol="Si.gz", ce_symbol="T:4")
+        assert not lse.structure_contains_atom_environment(atom_symbol="Si", ce_symbol="S:4")
+        assert lse.structure_contains_atom_environment(atom_symbol="Si", ce_symbol="T:4")
         assert not lse.structure_contains_atom_environment(atom_symbol="O", ce_symbol="T:4")
         assert lse.uniquely_determines_coordination_environments
         assert lse == lse

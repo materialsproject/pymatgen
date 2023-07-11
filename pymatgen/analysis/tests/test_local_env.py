@@ -84,8 +84,8 @@ class VoronoiNNTest(PymatgenTest):
     def setUp(self):
         self.struct = self.get_structure("LiFePO4")
         self.nn = VoronoiNN(targets=[Element("O")])
-        self.s_sic = self.get_structure("Si.gz")
-        self.s_sic["Si.gz"] = {"Si.gz": 0.5, "C": 0.5}
+        self.s_sic = self.get_structure("Si")
+        self.s_sic["Si"] = {"Si": 0.5, "C": 0.5}
         self.nn_sic = VoronoiNN()
 
     def test_get_voronoi_polyhedra(self):
@@ -491,7 +491,7 @@ class MotifIdentificationTest(PymatgenTest):
     def setUp(self):
         self.silicon = Structure(
             Lattice.cubic(5.47),
-            ["Si.gz", "Si.gz", "Si.gz", "Si.gz", "Si.gz", "Si.gz", "Si.gz", "Si.gz"],
+            ["Si", "Si", "Si", "Si", "Si", "Si", "Si", "Si"],
             [
                 [0.000000, 0.000000, 0.500000],
                 [0.750000, 0.750000, 0.750000],

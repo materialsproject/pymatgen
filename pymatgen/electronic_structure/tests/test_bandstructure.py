@@ -299,7 +299,7 @@ class LobsterBandStructureSymmLineTest(PymatgenTest):
         bs_p = self.bs_p
         bs_spin = self.bs_spin
         assert bs_p.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
-        assert bs_p.structure[0].species_string == "Si.gz"
+        assert bs_p.structure[0].species_string == "Si"
         assert bs_p.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
         assert bs_p.efermi == approx(1.06470288)
 
@@ -314,55 +314,53 @@ class LobsterBandStructureSymmLineTest(PymatgenTest):
         assert bs_p.distance[30] == approx(0.49251552363382556)
         assert bs_p.branches[0]["name"], "\\Gamma-K"
         assert bs_p.get_band_gap()["energy"] == approx(5.6739999999999995)
-        assert bs_p.get_projection_on_elements()[Spin.up][0][0]["Si.gz"] == approx(3 * (0.001 + 0.064))
-        assert bs_p.get_projections_on_elements_and_orbitals({"Si.gz": ["3p"]})[Spin.up][0][0]["Si.gz"]["3p"] == approx(
-            0.003
-        )
+        assert bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
+        assert bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"] == approx(0.003)
         assert bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == approx(
             0.002 * 3 + 0.003 * 3
         )
-        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si.gz": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][
+        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
             0
-        ][0]
-        assert dict_here["Si.gz"]["3s"] == approx(0.192)
-        assert dict_here["Si.gz"]["3p"] == approx(0.003)
+        ]
+        assert dict_here["Si"]["3s"] == approx(0.192)
+        assert dict_here["Si"]["3p"] == approx(0.003)
         assert dict_here["O"]["2s"] == approx(0.792)
         assert dict_here["O"]["2p"] == approx(0.015)
 
-        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si.gz"] == approx(3 * (0.001 + 0.064))
-        assert bs_spin.get_projections_on_elements_and_orbitals({"Si.gz": ["3p"]})[Spin.up][0][0]["Si.gz"][
-            "3p"
-        ] == approx(0.003)
+        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
+        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"] == approx(
+            0.003
+        )
         assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == approx(
             0.002 * 3 + 0.003 * 3
         )
 
-        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si.gz": ["3s", "3p"], "O": ["2s", "2p"]})[
-            Spin.up
-        ][0][0]
-        assert dict_here["Si.gz"]["3s"] == approx(0.192)
-        assert dict_here["Si.gz"]["3p"] == approx(0.003)
+        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][
+            0
+        ][0]
+        assert dict_here["Si"]["3s"] == approx(0.192)
+        assert dict_here["Si"]["3p"] == approx(0.003)
         assert dict_here["O"]["2s"] == approx(0.792)
         assert dict_here["O"]["2p"] == approx(0.015)
-        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si.gz"] == approx(3 * (0.001 + 0.064))
-        assert bs_spin.get_projections_on_elements_and_orbitals({"Si.gz": ["3p"]})[Spin.down][0][0]["Si.gz"][
-            "3p"
-        ] == approx(0.003)
+        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
+        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"]["3p"] == approx(
+            0.003
+        )
         assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"] == approx(
             0.002 * 3 + 0.003 * 3
         )
-        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si.gz": ["3s", "3p"], "O": ["2s", "2p"]})[
+        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[
             Spin.down
         ][0][0]
-        assert dict_here["Si.gz"]["3s"] == approx(0.192)
-        assert dict_here["Si.gz"]["3p"] == approx(0.003)
+        assert dict_here["Si"]["3s"] == approx(0.192)
+        assert dict_here["Si"]["3p"] == approx(0.003)
         assert dict_here["O"]["2s"] == approx(0.792)
         assert dict_here["O"]["2p"] == approx(0.015)
 
     def test_proj_bandstructure_plot(self):
         # make sure that it can be plotted!
         BSPlotterProjected(self.bs_spin).get_elt_projected_plots()
-        BSPlotterProjected(self.bs_spin).get_projected_plots_dots({"Si.gz": ["3s"]})
+        BSPlotterProjected(self.bs_spin).get_projected_plots_dots({"Si": ["3s"]})
 
     def test_get_branch(self):
         branch = self.bs_p.get_branch(0)[0]

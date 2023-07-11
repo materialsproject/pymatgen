@@ -23,7 +23,7 @@ def ref_files(*filenames):
 class PseudoTestCase(PymatgenTest):
     def setUp(self):
         nc_pseudo_fnames = collections.defaultdict(list)
-        nc_pseudo_fnames["Si.gz"] = ref_files("14si.pspnc.gz", "14si.4.hgh.gz", "14-Si.LDA.fhi.gz")
+        nc_pseudo_fnames["Si"] = ref_files("14si.pspnc.gz", "14si.4.hgh.gz", "14-Si.LDA.fhi.gz")
 
         self.nc_pseudos = collections.defaultdict(list)
 
@@ -85,7 +85,7 @@ class PseudoTestCase(PymatgenTest):
         assert not pseudo.supports_soc
 
         # Test PseudoTable.
-        table = PseudoTable(self.nc_pseudos["Si.gz"])
+        table = PseudoTable(self.nc_pseudos["Si"])
         assert repr(table)
         assert str(table)
         assert table.allnc
@@ -93,7 +93,7 @@ class PseudoTestCase(PymatgenTest):
         assert table.is_complete
         assert len(table) == 3
         assert len(table[14]) == 3
-        assert len(table.select_symbols("Si.gz")) == 3
+        assert len(table.select_symbols("Si")) == 3
         assert table.zlist == [14]
 
         # Test pickle
@@ -193,9 +193,9 @@ class PseudoTableTest(PymatgenTest):
         PseudoTable.from_dict(d)
         self.assert_msonable(table)
 
-        selected = table.select_symbols("Si.gz")
+        selected = table.select_symbols("Si")
         assert len(selected) == len(table)
         assert selected.__class__ is table.__class__
 
         with pytest.raises(ValueError, match=r"Found multiple occurrences of symbol\(s\) Si"):
-            table.pseudos_with_symbols("Si.gz")
+            table.pseudos_with_symbols("Si")

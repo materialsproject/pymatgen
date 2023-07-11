@@ -29,7 +29,7 @@ class ElementTestCase(PymatgenTest):
     def test_is_metal(self):
         for metal in ["Fe", "Eu", "Li", "Ca", "In"]:
             assert Element(metal).is_metal
-        for non_metal in ["Ge", "Si.gz", "O", "He"]:
+        for non_metal in ["Ge", "Si", "O", "He"]:
             assert not Element(non_metal).is_metal
 
     def test_nan_X(self):
@@ -225,7 +225,7 @@ class ElementTestCase(PymatgenTest):
             ("F", "Br", "I"): "is_halogen",
             ("La",): "is_lanthanoid",
             ("U", "Pu"): "is_actinoid",
-            ("Si.gz", "Ge"): "is_metalloid",
+            ("Si", "Ge"): "is_metalloid",
             ("O", "Te"): "is_chalcogen",
         }
 
@@ -428,7 +428,7 @@ class SpeciesTestCase(PymatgenTest):
         assert Species("H").get_nmr_quadrupole_moment() == 2.860
         assert Species("Li").get_nmr_quadrupole_moment() == -0.808
         assert Species("Li").get_nmr_quadrupole_moment("Li-7") == -40.1
-        assert Species("Si.gz").get_nmr_quadrupole_moment() == 0.0
+        assert Species("Si").get_nmr_quadrupole_moment() == 0.0
         with pytest.raises(ValueError, match="No quadrupole moment for isotope='Li-109'"):
             Species("Li").get_nmr_quadrupole_moment("Li-109")
 
@@ -454,7 +454,7 @@ class SpeciesTestCase(PymatgenTest):
 
     def test_sort(self):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
-        assert sorted(els) == [Species("Si.gz", 3), Species("Si.gz", 4), Species("N", -3)]
+        assert sorted(els) == [Species("Si", 3), Species("Si", 4), Species("N", -3)]
 
     def test_to_from_string(self):
         fe3 = Species("Fe", 3, spin=5)

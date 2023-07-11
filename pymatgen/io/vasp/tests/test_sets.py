@@ -233,7 +233,7 @@ class MITMPRelaxSetTest(PymatgenTest):
     def test_nelect(self):
         coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
         lattice = Lattice.cubic(4)
-        struct = Structure(lattice, ["Si.gz", "Si.gz", "Fe"], coords)
+        struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
         assert MITRelaxSet(struct).nelect == approx(16)
 
         # Test estimate of number of bands (function of nelect) with nmag>0
@@ -241,7 +241,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         assert MPRelaxSet(struct).estimate_nbands() == approx(17)
 
         # Test estimate of number of bands (function of nelect) with nmag==0
-        struct = Structure(lattice, ["Si.gz", "Si.gz", "Si.gz"], coords)
+        struct = Structure(lattice, ["Si", "Si", "Si"], coords)
         assert MITRelaxSet(struct).estimate_nbands() == approx(11)
         assert MPRelaxSet(struct).estimate_nbands() == approx(11)
 
@@ -493,7 +493,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         # https://github.com/materialsproject/pymatgen/issues/3040
 
         # structure containing neither f- nor d-electrons
-        structure_f = self.get_structure("Si.gz")
+        structure_f = self.get_structure("Si")
         assert "LMAXMIX" not in MPRelaxSet(structure_f).incar
 
         # structure containing d-electrons but no f-electrons
@@ -663,7 +663,7 @@ class MPStaticSetTest(PymatgenTest):
 
     def test_user_incar_kspacing(self):
         # Make sure user KSPACING settings properly overrides KPOINTS.
-        si = self.get_structure("Si.gz")
+        si = self.get_structure("Si")
         vis = MPRelaxSet(si, user_incar_settings={"KSPACING": 0.22})
         assert vis.incar["KSPACING"] == 0.22
         assert vis.kpoints is None
@@ -671,7 +671,7 @@ class MPStaticSetTest(PymatgenTest):
     def test_kspacing_override(self):
         # If KSPACING is set and user_kpoints_settings are given,
         # make sure the user_kpoints_settings override KSPACING
-        si = self.get_structure("Si.gz")
+        si = self.get_structure("Si")
         vis = MPRelaxSet(
             si,
             user_incar_settings={"KSPACING": 0.22},
@@ -696,7 +696,7 @@ class MPStaticSetTest(PymatgenTest):
         assert lcalcpol_vis.incar["LCALCPOL"]
 
     def test_standardize_structure(self):
-        sga = SpacegroupAnalyzer(self.get_structure("Si.gz"))
+        sga = SpacegroupAnalyzer(self.get_structure("Si"))
         original_structure = sga.get_conventional_standard_structure()
         sm = StructureMatcher(primitive_cell=False, scale=False)
 
@@ -707,7 +707,7 @@ class MPStaticSetTest(PymatgenTest):
         assert not sm.fit(vis.structure, original_structure)
 
     def test_write_input_zipped(self):
-        vis = MPStaticSet(self.get_structure("Si.gz"))
+        vis = MPStaticSet(self.get_structure("Si"))
         vis.write_input(output_dir=".", potcar_spec=True, zip_output=True)
 
         assert os.path.isfile("MPStaticSet.zip")
@@ -715,7 +715,7 @@ class MPStaticSetTest(PymatgenTest):
             contents = zip.namelist()
             assert set(contents).issuperset({"INCAR.gz", "POSCAR.gz", "POTCAR.spec.gz", "KPOINTS.gz"})
             spec = zip.open("POTCAR.spec.gz", "r").read().decode()
-            assert spec == "Si.gz"
+            assert spec == "Si"
 
         os.remove("MPStaticSet.zip")
 
@@ -1012,8 +1012,8 @@ class MITNEBSetTest(PymatgenTest):
     def setUp(self):
         c1 = [[0.5] * 3, [0.9] * 3]
         c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
-        s1 = Structure(Lattice.cubic(5), ["Si.gz", "Si.gz"], c1)
-        s2 = Structure(Lattice.cubic(5), ["Si.gz", "Si.gz"], c2)
+        s1 = Structure(Lattice.cubic(5), ["Si", "Si"], c1)
+        s2 = Structure(Lattice.cubic(5), ["Si", "Si"], c2)
         structs = []
         for s in s1.interpolate(s2, 3, pbc=True):
             structs.append(Structure.from_sites(s.sites, to_unit_cell=True))
@@ -1026,7 +1026,7 @@ class MITNEBSetTest(PymatgenTest):
 
     def test_potcar_symbols(self):
         syms = self.vis.potcar_symbols
-        assert syms == ["Si.gz"]
+        assert syms == ["Si"]
 
     def test_incar(self):
         incar = self.vis.incar
@@ -1152,7 +1152,7 @@ class MVLSlabSetTest(PymatgenTest):
 
     def test_user_incar_settings(self):
         # Make sure user incar settings properly override AMIX.
-        si = self.get_structure("Si.gz")
+        si = self.get_structure("Si")
         vis = MVLSlabSet(si, user_incar_settings={"AMIX": 0.1})
         assert vis.incar["AMIX"] == 0.1
 

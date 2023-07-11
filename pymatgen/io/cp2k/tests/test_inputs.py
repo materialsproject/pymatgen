@@ -26,7 +26,7 @@ from pymatgen.util.testing import PymatgenTest
 
 Si_structure = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
-    species=["Si.gz", "Si.gz"],
+    species=["Si", "Si"],
     coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
 )
 

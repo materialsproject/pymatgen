@@ -48,7 +48,7 @@ class TrajectoryTest(PymatgenTest):
 
     def _get_lattice_species_and_coords(self):
         lattice = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
-        species = ["Si.gz", "Si.gz"]
+        species = ["Si", "Si"]
         coords = np.asarray(
             [
                 [[0, 0, 0], [0.5, 0.5, 0.5]],
