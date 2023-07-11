@@ -105,8 +105,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
-from monty.json import MontyDecoder
 from monty.io import zopen
+from monty.json import MontyDecoder
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher

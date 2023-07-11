@@ -7,8 +7,8 @@ import unittest
 from collections import defaultdict
 
 import pytest
-from monty.json import MontyDecoder
 from monty.io import zopen
+from monty.json import MontyDecoder
 from pytest import approx
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
@@ -433,9 +433,9 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             for temp in self.temps
         }
 
-        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json.gz"), 'r') as f:
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json.gz"), "r") as f:
             data = json.load(f)
-        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json.gz"), 'r') as f:
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json.gz"), "r") as f:
             self.co2_struct = MontyDecoder().process_decoded(json.load(f))
 
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]

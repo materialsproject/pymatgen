@@ -10,9 +10,8 @@ from math import sqrt
 from pathlib import Path
 
 import pytest
-from monty.json import MontyDecoder
 from monty.io import zopen
-
+from monty.json import MontyDecoder
 from pytest import approx
 
 from pymatgen.core.composition import Composition
