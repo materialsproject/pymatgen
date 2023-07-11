@@ -5,6 +5,7 @@ import os
 import unittest
 
 from monty.json import MontyDecoder
+from monty.serialization import zopen
 
 from pymatgen.alchemy.filters import (
     ContainsSpecieFilter,
@@ -75,7 +76,7 @@ class SpecieProximityFilterTest(PymatgenTest):
 
 class RemoveDuplicatesFilterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json.gz")) as file:
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json.gz")) as file:
             entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()
@@ -94,7 +95,7 @@ class RemoveDuplicatesFilterTest(unittest.TestCase):
 
 class RemoveExistingFilterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json.gz")) as fp:
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json.gz")) as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()
