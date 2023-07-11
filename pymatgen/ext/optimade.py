@@ -9,7 +9,6 @@ from os.path import join
 from urllib.parse import urlparse
 
 import requests
-from frozendict import frozendict
 from tqdm import tqdm
 
 from pymatgen.core.periodic_table import DummySpecies
@@ -46,32 +45,30 @@ class OptimadeRester:
 
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
-    aliases = frozendict(
-        {
-            "aflow": "http://aflow.org/API/optimade/",
-            "cod": "https://www.crystallography.net/cod/optimade",
-            "mcloud.mc3d": "https://aiida.materialscloud.org/mc3d/optimade",
-            "mcloud.mc2d": "https://aiida.materialscloud.org/mc2d/optimade",
-            "mcloud.2dtopo": "https://aiida.materialscloud.org/2dtopo/optimade",
-            "mcloud.tc-applicability": "https://aiida.materialscloud.org/tc-applicability/optimade",
-            "mcloud.pyrene-mofs": "https://aiida.materialscloud.org/pyrene-mofs/optimade",
-            "mcloud.curated-cofs": "https://aiida.materialscloud.org/curated-cofs/optimade",
-            "mcloud.stoceriaitf": "https://aiida.materialscloud.org/stoceriaitf/optimade",
-            "mcloud.scdm": "https://aiida.materialscloud.org/autowannier/optimade",
-            "mcloud.tin-antimony-sulfoiodide": "https://aiida.materialscloud.org/tin-antimony-sulfoiodide/optimade",
-            "mcloud.optimade-sample": "https://aiida.materialscloud.org/optimade-sample/optimade",
-            "mp": "https://optimade.materialsproject.org",
-            "mpds": "https://api.mpds.io",
-            "nmd": "https://nomad-lab.eu/prod/rae/optimade/",
-            "odbx": "https://optimade.odbx.science",
-            "odbx.odbx_misc": "https://optimade-misc.odbx.science",
-            "omdb.omdb_production": "http://optimade.openmaterialsdb.se",
-            "oqmd": "http://oqmd.org/optimade/",
-            "jarvis": "https://jarvis.nist.gov/optimade/jarvisdft",
-            "tcod": "https://www.crystallography.net/tcod/optimade",
-            "twodmatpedia": "http://optimade.2dmatpedia.org",
-        }
-    )
+    aliases = {
+        "aflow": "http://aflow.org/API/optimade/",
+        "cod": "https://www.crystallography.net/cod/optimade",
+        "mcloud.mc3d": "https://aiida.materialscloud.org/mc3d/optimade",
+        "mcloud.mc2d": "https://aiida.materialscloud.org/mc2d/optimade",
+        "mcloud.2dtopo": "https://aiida.materialscloud.org/2dtopo/optimade",
+        "mcloud.tc-applicability": "https://aiida.materialscloud.org/tc-applicability/optimade",
+        "mcloud.pyrene-mofs": "https://aiida.materialscloud.org/pyrene-mofs/optimade",
+        "mcloud.curated-cofs": "https://aiida.materialscloud.org/curated-cofs/optimade",
+        "mcloud.stoceriaitf": "https://aiida.materialscloud.org/stoceriaitf/optimade",
+        "mcloud.scdm": "https://aiida.materialscloud.org/autowannier/optimade",
+        "mcloud.tin-antimony-sulfoiodide": "https://aiida.materialscloud.org/tin-antimony-sulfoiodide/optimade",
+        "mcloud.optimade-sample": "https://aiida.materialscloud.org/optimade-sample/optimade",
+        "mp": "https://optimade.materialsproject.org",
+        "mpds": "https://api.mpds.io",
+        "nmd": "https://nomad-lab.eu/prod/rae/optimade/",
+        "odbx": "https://optimade.odbx.science",
+        "odbx.odbx_misc": "https://optimade-misc.odbx.science",
+        "omdb.omdb_production": "http://optimade.openmaterialsdb.se",
+        "oqmd": "http://oqmd.org/optimade/",
+        "jarvis": "https://jarvis.nist.gov/optimade/jarvisdft",
+        "tcod": "https://www.crystallography.net/tcod/optimade",
+        "twodmatpedia": "http://optimade.2dmatpedia.org",
+    }
 
     # The set of OPTIMADE fields that are required to define a `pymatgen.core.Structure`
     mandatory_response_fields = ("lattice_vectors", "cartesian_site_positions", "species", "species_at_sites")

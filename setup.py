@@ -31,7 +31,6 @@ setup(
     version="2023.7.11",
     python_requires=">=3.8",
     install_requires=[
-        "frozendict",
         "matplotlib>=1.5",
         "monty>=3.0.2",
         "mp-api>=0.27.3,<0.34.0",
