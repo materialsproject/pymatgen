@@ -3925,7 +3925,8 @@ class Oszicar:
             r"E0=\s*([\d\-\.E\+]+)\s+"
             r"EK=\s*([\d\-\.E\+]+)\s+"
             r"SP=\s*([\d\-\.E\+]+)\s+"
-            r"SK=\s*([\d\-\.E\+]+)"
+            r"SK=\s*([\d\-\.E\+]+)\s+"
+            r"mag=\s*([\d\-\.E\+]+)"
         )
         electronic_pattern = re.compile(r"\s*\w+\s*:(.*)")
 
@@ -3979,6 +3980,7 @@ class Oszicar:
                             "EK": float(m.group(6)),
                             "SP": float(m.group(7)),
                             "SK": float(m.group(8)),
+                            "mag": float(m.group(9)),
                         }
                     )
                 elif re.match(r"^\s*N\s+E\s*", line):
