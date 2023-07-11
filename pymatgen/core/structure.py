@@ -3455,8 +3455,8 @@ class IMolecule(SiteCollection, MSONable):
         filename = str(filename)
         from pymatgen.io.gaussian import GaussianOutput
 
-        with zopen(filename) as f:
-            contents = f.read()
+        with zopen(filename, "rt") as file:
+            contents = file.read()
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")

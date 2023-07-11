@@ -368,7 +368,7 @@ CELL_PARAMETERS angstrom
 
 class PWOuputTest(PymatgenTest):
     def setUp(self):
-        self.pwout = PWOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.pwscf.out"))
+        self.pwout = PWOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.pwscf.out.gz"))
 
     def test_properties(self):
         assert self.pwout.final_energy == approx(-93.45259708)

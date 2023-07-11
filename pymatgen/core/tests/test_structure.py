@@ -743,7 +743,7 @@ Direct
 
         # test CIF file with unicode error
         # https://github.com/materialsproject/pymatgen/issues/2947
-        struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "bad-unicode-gh-2947.mcif"))
+        struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "bad-unicode-gh-2947.mcif.gz"))
         assert struct.formula == "Ni32 O32"
 
     def test_pbc(self):
@@ -1312,7 +1312,7 @@ class StructureTest(PymatgenTest):
         assert super_cell.charge == 25, "Set charge not properly modifying _charge"
 
     def test_vesta_lattice_matrix(self):
-        silica_zeolite = Molecule.from_file(f"{self.TEST_FILES_DIR}/CON_vesta.xyz")
+        silica_zeolite = Molecule.from_file(f"{self.TEST_FILES_DIR}/CON_vesta.xyz.gz")
 
         s_vesta = Structure(
             lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, True),

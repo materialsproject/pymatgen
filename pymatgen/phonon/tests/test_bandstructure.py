@@ -13,14 +13,14 @@ from pymatgen.util.testing import PymatgenTest
 class PhononBandStructureSymmLineTest(PymatgenTest):
     def setUp(self):
         with open(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json"),
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json.gz"),
             encoding="utf-8",
         ) as file:
             dct = json.load(file)
             self.bs = PhononBandStructureSymmLine.from_dict(dct)
 
         with open(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "Si_phonon_bandstructure.json"),
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Si_phonon_bandstructure.json.gz"),
             encoding="utf-8",
         ) as file:
             dct = json.load(file)

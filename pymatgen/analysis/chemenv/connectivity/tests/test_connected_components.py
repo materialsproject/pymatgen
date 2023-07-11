@@ -7,6 +7,7 @@ import os
 import networkx as nx
 import numpy as np
 import pytest
+from monty.io import zopen
 
 from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
 from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
@@ -772,7 +773,7 @@ Node #11 P (T:4), connected to :
             assert cc.periodicity == "2D"
 
         # Connectivity of Li4Fe3Mn1(PO4)4
-        struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "Li4Fe3Mn1(PO4)4.cif"))
+        struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "Li4Fe3Mn1(PO4)4.cif.gz"))
         lgf.setup_structure(structure=struct)
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
@@ -856,9 +857,9 @@ Node #3 Li (O:6), connected to :
             self.TEST_FILES_DIR,
             "chemenv",
             "structure_environments_files",
-            "se_mp-5020.json",
+            "se_mp-5020.json.gz",
         )
-        with open(BaTiO3_se_fpath) as file:
+        with zopen(BaTiO3_se_fpath) as file:
             dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)
         lse = LightStructureEnvironments.from_structure_environments(

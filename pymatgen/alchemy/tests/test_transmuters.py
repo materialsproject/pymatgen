@@ -24,7 +24,7 @@ class CifTransmuterTest(PymatgenTest):
     def test_init(self):
         trans = []
         trans.append(SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"}))
-        tsc = CifTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "MultiStructure.cif")], trans)
+        tsc = CifTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "MultiStructure.cif.gz")], trans)
         assert len(tsc) == 2
         expected = {"Mn", "O", "Li", "P"}
         for s in tsc:
@@ -37,7 +37,7 @@ class PoscarTransmuterTest(PymatgenTest):
         trans = []
         trans.append(SubstitutionTransformation({"Fe": "Mn"}))
         tsc = PoscarTransmuter.from_filenames(
-            [os.path.join(self.TEST_FILES_DIR, "POSCAR"), os.path.join(self.TEST_FILES_DIR, "POSCAR")], trans
+            [os.path.join(self.TEST_FILES_DIR, "POSCAR.gz"), os.path.join(self.TEST_FILES_DIR, "POSCAR.gz")], trans
         )
         assert len(tsc) == 2
         expected = {"Mn", "O", "P"}
@@ -46,7 +46,7 @@ class PoscarTransmuterTest(PymatgenTest):
             assert expected == els
 
     def test_transmuter(self):
-        tsc = PoscarTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "POSCAR")])
+        tsc = PoscarTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "POSCAR.gz")])
         tsc.append_transformation(RemoveSpeciesTransformation("O"))
         assert len(tsc[0].final_structure) == 8
 

@@ -444,7 +444,7 @@ class IcohplistTest(unittest.TestCase):
             filename=os.path.join(
                 PymatgenTest.TEST_FILES_DIR,
                 "cohp",
-                "ICOBILIST.lobster.spinpolarized.additional_case",
+                "ICOBILIST.lobster.spinpolarized.additional_case.gz",
             ),
             are_cobis=True,
         )
@@ -674,11 +674,11 @@ class IcohplistTest(unittest.TestCase):
 class DoscarTest(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
-        doscar = os.path.join(test_dir_doscar, "DOSCAR.lobster.spin")
-        poscar = os.path.join(test_dir_doscar, "POSCAR.lobster.spin_DOS")
+        doscar = os.path.join(test_dir_doscar, "DOSCAR.lobster.spin.gz")
+        poscar = os.path.join(test_dir_doscar, "POSCAR.lobster.spin_DOS.gz")
         # not spin polarized
-        doscar2 = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin")
-        poscar2 = os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS")
+        doscar2 = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin.gz")
+        poscar2 = os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS.gz")
         os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin_zip.gz")
         os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS_zip.gz")
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
@@ -687,7 +687,7 @@ class DoscarTest(unittest.TestCase):
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
-        with open(os.path.join(test_dir_doscar, "structure_KF.json")) as f:
+        with open(os.path.join(test_dir_doscar, "structure_KF.json.gz")) as f:
             data = json.load(f)
 
         self.structure = Structure.from_dict(data)
@@ -908,7 +908,7 @@ class LobsteroutTest(PymatgenTest):
             filename=os.path.join(
                 PymatgenTest.TEST_FILES_DIR,
                 "cohp",
-                "lobsterout.fatband_grosspop_densityofenergy",
+                "lobsterout.fatband_grosspop_densityofenergy.gz",
             )
         )
         self.lobsterout_saveprojection = Lobsterout(
@@ -1563,9 +1563,15 @@ class FatbandTest(PymatgenTest):
 class LobsterinTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
-        self.Lobsterinfromfile = Lobsterin.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterin.1"))
-        self.Lobsterinfromfile2 = Lobsterin.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterin.2"))
-        self.Lobsterinfromfile3 = Lobsterin.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterin.3"))
+        self.Lobsterinfromfile = Lobsterin.from_file(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterin.1.gz")
+        )
+        self.Lobsterinfromfile2 = Lobsterin.from_file(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterin.2.gz")
+        )
+        self.Lobsterinfromfile3 = Lobsterin.from_file(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterin.3.gz")
+        )
         self.Lobsterinfromfile4 = Lobsterin.from_file(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterin.4.gz")
         )
@@ -1624,7 +1630,7 @@ class LobsterinTest(unittest.TestCase):
         lobsterin2 = Lobsterin({"cohpstartenergy": -15.0})
         # can only calculate nbands if basis functions are provided
         with pytest.raises(IOError, match="No basis functions are provided. The program cannot calculate nbands"):
-            lobsterin2._get_nbands(structure=Structure.from_file(os.path.join(test_dir_doscar, "POSCAR.Fe3O4")))
+            lobsterin2._get_nbands(structure=Structure.from_file(os.path.join(test_dir_doscar, "POSCAR.Fe3O4.gz")))
 
     def test_standard_settings(self):
         # test standard settings
@@ -1641,9 +1647,9 @@ class LobsterinTest(unittest.TestCase):
             "onlycohpcoopcobi",
         ]:
             lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
-                os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
-                os.path.join(test_dir_doscar, "INCAR.lobster"),
-                os.path.join(test_dir_doscar, "POTCAR.Fe3O4"),
+                os.path.join(test_dir_doscar, "POSCAR.Fe3O4.gz"),
+                os.path.join(test_dir_doscar, "INCAR.lobster.gz"),
+                os.path.join(test_dir_doscar, "POTCAR.Fe3O4.gz"),
                 option=option,
             )
             assert lobsterin1["cohpstartenergy"] == approx(-35.0)
@@ -1718,8 +1724,8 @@ class LobsterinTest(unittest.TestCase):
                 assert lobsterin1["skipdos"], True
         # test basis functions by dict
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
-            os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
-            os.path.join(test_dir_doscar, "INCAR.lobster"),
+            os.path.join(test_dir_doscar, "POSCAR.Fe3O4.gz"),
+            os.path.join(test_dir_doscar, "INCAR.lobster.gz"),
             dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
             option="standard",
         )
@@ -1727,8 +1733,8 @@ class LobsterinTest(unittest.TestCase):
 
         # test gaussian smearing
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
-            os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
-            os.path.join(test_dir_doscar, "INCAR.lobster2"),
+            os.path.join(test_dir_doscar, "POSCAR.Fe3O4.gz"),
+            os.path.join(test_dir_doscar, "INCAR.lobster2.gz"),
             dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
             option="standard",
         )
@@ -1737,8 +1743,8 @@ class LobsterinTest(unittest.TestCase):
         # fatband and ISMEAR=-5 does not work together
         with pytest.raises(ValueError, match="ISMEAR has to be 0 for a fatband calculation with Lobster"):
             lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
-                os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
-                os.path.join(test_dir_doscar, "INCAR.lobster2"),
+                os.path.join(test_dir_doscar, "POSCAR.Fe3O4.gz"),
+                os.path.join(test_dir_doscar, "INCAR.lobster2.gz"),
                 dict_for_basis={"Fe": "3d 4p 4s", "O": "2s 2p"},
                 option="standard_with_fatband",
             )
@@ -1779,25 +1785,25 @@ class LobsterinTest(unittest.TestCase):
     def test_get_basis(self):
         # get basis functions
         lobsterin1 = Lobsterin({})
-        potcar = Potcar.from_file(os.path.join(test_dir_doscar, "POTCAR.Fe3O4"))
+        potcar = Potcar.from_file(os.path.join(test_dir_doscar, "POTCAR.Fe3O4.gz"))
         Potcar_names = [name["symbol"] for name in potcar.spec]
 
         assert lobsterin1.get_basis(
-            Structure.from_file(os.path.join(test_dir_doscar, "Fe3O4.cif")),
+            Structure.from_file(os.path.join(test_dir_doscar, "Fe3O4.cif.gz")),
             potcar_symbols=Potcar_names,
         ) == ["Fe 3d 4p 4s ", "O 2p 2s "]
-        potcar = Potcar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POTCAR.GaAs"))
+        potcar = Potcar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POTCAR.GaAs.gz"))
         Potcar_names = [name["symbol"] for name in potcar.spec]
         assert lobsterin1.get_basis(
-            Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.GaAs")),
+            Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.GaAs.gz")),
             potcar_symbols=Potcar_names,
         ) == ["Ga 3d 4p 4s ", "As 4p 4s "]
 
     def test_get_all_possible_basis_functions(self):
-        potcar = Potcar.from_file(os.path.join(test_dir_doscar, "POTCAR.Fe3O4"))
+        potcar = Potcar.from_file(os.path.join(test_dir_doscar, "POTCAR.Fe3O4.gz"))
         Potcar_names = [name["symbol"] for name in potcar.spec]
         result = Lobsterin.get_all_possible_basis_functions(
-            Structure.from_file(os.path.join(test_dir_doscar, "Fe3O4.cif")),
+            Structure.from_file(os.path.join(test_dir_doscar, "Fe3O4.cif.gz")),
             potcar_symbols=Potcar_names,
         )
         assert result[0] == {"Fe": "3d 4s", "O": "2p 2s"}
@@ -1806,15 +1812,15 @@ class LobsterinTest(unittest.TestCase):
         potcar2 = Potcar.from_file(os.path.join(test_dir_doscar, "POT_GGA_PAW_PBE_54/POTCAR.Fe_pv.gz"))
         Potcar_names2 = [name["symbol"] for name in potcar2.spec]
         result2 = Lobsterin.get_all_possible_basis_functions(
-            Structure.from_file(os.path.join(test_dir_doscar, "Fe.cif")),
+            Structure.from_file(os.path.join(test_dir_doscar, "Fe.cif.gz")),
             potcar_symbols=Potcar_names2,
         )
         assert result2[0] == {"Fe": "3d 3p 4s"}
 
     def test_get_potcar_symbols(self):
         lobsterin1 = Lobsterin({})
-        assert lobsterin1._get_potcar_symbols(os.path.join(test_dir_doscar, "POTCAR.Fe3O4")) == ["Fe", "O"]
-        assert lobsterin1._get_potcar_symbols(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POTCAR.GaAs")) == [
+        assert lobsterin1._get_potcar_symbols(os.path.join(test_dir_doscar, "POTCAR.Fe3O4.gz")) == ["Fe", "O"]
+        assert lobsterin1._get_potcar_symbols(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POTCAR.GaAs.gz")) == [
             "Ga_d",
             "As",
         ]
@@ -1823,9 +1829,9 @@ class LobsterinTest(unittest.TestCase):
         # write lobsterin, read it and compare it
         outfile_path = tempfile.mkstemp()[1]
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
-            os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
-            os.path.join(test_dir_doscar, "INCAR.lobster"),
-            os.path.join(test_dir_doscar, "POTCAR.Fe3O4"),
+            os.path.join(test_dir_doscar, "POSCAR.Fe3O4.gz"),
+            os.path.join(test_dir_doscar, "INCAR.lobster.gz"),
+            os.path.join(test_dir_doscar, "POTCAR.Fe3O4.gz"),
             option="standard",
         )
         lobsterin1.write_lobsterin(outfile_path)
@@ -1836,18 +1842,18 @@ class LobsterinTest(unittest.TestCase):
         # write INCAR and compare
         outfile_path = tempfile.mkstemp()[1]
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
-            os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
-            os.path.join(test_dir_doscar, "INCAR.lobster"),
-            os.path.join(test_dir_doscar, "POTCAR.Fe3O4"),
+            os.path.join(test_dir_doscar, "POSCAR.Fe3O4.gz"),
+            os.path.join(test_dir_doscar, "INCAR.lobster.gz"),
+            os.path.join(test_dir_doscar, "POTCAR.Fe3O4.gz"),
             option="standard",
         )
         lobsterin1.write_INCAR(
-            os.path.join(test_dir_doscar, "INCAR.lobster3"),
+            os.path.join(test_dir_doscar, "INCAR.lobster3.gz"),
             outfile_path,
-            os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
+            os.path.join(test_dir_doscar, "POSCAR.Fe3O4.gz"),
         )
 
-        incar1 = Incar.from_file(os.path.join(test_dir_doscar, "INCAR.lobster3"))
+        incar1 = Incar.from_file(os.path.join(test_dir_doscar, "INCAR.lobster3.gz"))
         incar2 = Incar.from_file(outfile_path)
 
         assert incar1.diff(incar2)["Different"] == {
@@ -1860,11 +1866,11 @@ class LobsterinTest(unittest.TestCase):
     def test_write_KPOINTS(self):
         # line mode
         outfile_path = tempfile.mkstemp()[1]
-        outfile_path2 = tempfile.mkstemp(prefix="POSCAR")[1]
+        outfile_path2 = tempfile.mkstemp(prefix="POSCAR.gz")[1]
         lobsterin1 = Lobsterin({})
         # test writing primitive cell
         lobsterin1.write_POSCAR_with_standard_primitive(
-            POSCAR_input=os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
+            POSCAR_input=os.path.join(test_dir_doscar, "POSCAR.Fe3O4.gz"),
             POSCAR_output=outfile_path2,
         )
 
@@ -1879,7 +1885,7 @@ class LobsterinTest(unittest.TestCase):
         assert kpoint.kpts[-1][1] == approx(0.5)
         assert kpoint.kpts[-1][2] == approx(0.5)
         assert kpoint.labels[-1] == "T"
-        kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "KPOINTS_band.lobster"))
+        kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "KPOINTS_band.lobster.gz"))
 
         labels = []
         number = 0
@@ -1909,7 +1915,7 @@ class LobsterinTest(unittest.TestCase):
         # without line mode
         lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False)
         kpoint = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "IBZKPT.lobster"))
+        kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "IBZKPT.lobster.gz"))
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
             assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
@@ -1927,7 +1933,7 @@ class LobsterinTest(unittest.TestCase):
             input_grid=[6, 6, 3],
         )
         kpoint = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "IBZKPT.lobster"))
+        kpoint2 = Kpoints.from_file(os.path.join(test_dir_doscar, "IBZKPT.lobster.gz"))
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
             assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
@@ -1948,7 +1954,7 @@ class LobsterinTest(unittest.TestCase):
         )
 
         kpoint1 = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "IBZKPT_3_3_3_Li"))
+        kpoint2 = Kpoints.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "IBZKPT_3_3_3_Li.gz"))
         for ikpoint, kpoint in enumerate(kpoint1.kpts):
             assert self.is_kpoint_in_list(
                 kpoint,
@@ -1974,7 +1980,7 @@ class LobsterinTest(unittest.TestCase):
         )
 
         kpoint1 = Kpoints.from_file(outfile_path)
-        kpoint2 = Kpoints.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "IBZKPT_2_2_2_Li"))
+        kpoint2 = Kpoints.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "IBZKPT_2_2_2_Li.gz"))
         for ikpoint, kpoint in enumerate(kpoint1.kpts):
             assert self.is_kpoint_in_list(
                 kpoint,
@@ -2023,14 +2029,18 @@ class BandoverlapsTest(unittest.TestCase):
         warnings.simplefilter("ignore")
         # test spin polarlized calc and non spinpolarized calc
 
-        self.bandoverlaps1 = Bandoverlaps(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.1"))
-        self.bandoverlaps2 = Bandoverlaps(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.2"))
+        self.bandoverlaps1 = Bandoverlaps(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.1.gz")
+        )
+        self.bandoverlaps2 = Bandoverlaps(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.2.gz")
+        )
 
         self.bandoverlaps1_new = Bandoverlaps(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.new.1")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.new.1.gz")
         )
         self.bandoverlaps2_new = Bandoverlaps(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.new.2")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "bandOverlaps.lobster.new.2.gz")
         )
 
     def test_attributes(self):
@@ -2176,7 +2186,7 @@ class BandoverlapsTest(unittest.TestCase):
 
 class GrosspopTest(unittest.TestCase):
     def setUp(self):
-        self.grosspop1 = Grosspop(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "GROSSPOP.lobster"))
+        self.grosspop1 = Grosspop(os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "GROSSPOP.lobster.gz"))
 
     def testattributes(self):
         assert self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3s"] == approx(0.52)
@@ -2288,7 +2298,7 @@ class GrosspopTest(unittest.TestCase):
         }
 
         new_structure = self.grosspop1.get_structure_with_total_grosspop(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.SiO2")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.SiO2.gz")
         )
         assert np.allclose(new_structure.frac_coords, Structure.from_dict(struct_dict).frac_coords)
 
@@ -2453,7 +2463,7 @@ class SitePotentialsTest(PymatgenTest):
 
     def test_get_structure(self):
         structure = self.sitepotential.get_structure_with_site_potentials(
-            os.path.join(test_dir_doscar, "cohp", "POSCAR.perovskite")
+            os.path.join(test_dir_doscar, "cohp", "POSCAR.perovskite.gz")
         )
         assert structure.site_properties["Loewdin Site Potentials (eV)"] == [-8.77, -17.08, 9.57, 9.57, 8.45]
         assert structure.site_properties["Mulliken Site Potentials (eV)"] == [-11.38, -19.62, 11.18, 11.18, 10.09]

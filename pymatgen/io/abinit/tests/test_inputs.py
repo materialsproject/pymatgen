@@ -49,7 +49,7 @@ class AbinitInputTestCase(PymatgenTest):
             "xred": [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]],
         }
 
-        inp = BasicAbinitInput(structure=unit_cell, pseudos=abiref_file("14si.pspnc"))
+        inp = BasicAbinitInput(structure=unit_cell, pseudos=abiref_file("14si.pspnc.gz"))
 
         shiftk = [[0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]]
         assert_array_equal(calc_shiftk(inp.structure), shiftk)
@@ -126,15 +126,15 @@ class AbinitInputTestCase(PymatgenTest):
 
     def test_input_errors(self):
         """Testing typical BasicAbinitInput Error"""
-        si_structure = Structure.from_file(abiref_file("si.cif"))
+        si_structure = Structure.from_file(abiref_file("si.cif.gz"))
 
         # Ambiguous list of pseudos.
         with pytest.raises(BasicAbinitInput.Error):
-            BasicAbinitInput(si_structure, pseudos=abiref_files("14si.pspnc", "14si.4.hgh"))
+            BasicAbinitInput(si_structure, pseudos=abiref_files("14si.pspnc.gz", "14si.4.hgh.gz"))
 
         # Pseudos do not match structure.
         with pytest.raises(BasicAbinitInput.Error):
-            BasicAbinitInput(si_structure, pseudos=abiref_file("H-wdr.oncvpsp"))
+            BasicAbinitInput(si_structure, pseudos=abiref_file("H-wdr.oncvpsp.gz"))
 
         si1_negative_volume = {
             "ntypat": 1,
@@ -148,11 +148,11 @@ class AbinitInputTestCase(PymatgenTest):
 
         # Negative triple product.
         with pytest.raises(BasicAbinitInput.Error):
-            BasicAbinitInput(si1_negative_volume, pseudos=abiref_files("14si.pspnc"))
+            BasicAbinitInput(si1_negative_volume, pseudos=abiref_files("14si.pspnc.gz"))
 
     def test_helper_functions(self):
         """Testing BasicAbinitInput helper functions."""
-        inp = BasicAbinitInput(structure=abiref_file("si.cif"), pseudos="14si.pspnc", pseudo_dir=_test_dir)
+        inp = BasicAbinitInput(structure=abiref_file("si.cif.gz"), pseudos="14si.pspnc.gz", pseudo_dir=_test_dir)
 
         inp.set_kmesh(ngkpt=(1, 2, 3), shiftk=(1, 2, 3, 4, 5, 6))
         assert inp["kptopt"] == 1
@@ -174,8 +174,8 @@ class TestMultiDataset(PymatgenTest):
 
     def test_api(self):
         """Testing BasicMultiDataset API."""
-        structure = Structure.from_file(abiref_file("si.cif"))
-        pseudo = abiref_file("14si.pspnc")
+        structure = Structure.from_file(abiref_file("si.cif.gz"))
+        pseudo = abiref_file("14si.pspnc.gz")
         pseudo_dir = os.path.dirname(pseudo)
         multi = BasicMultiDataset(structure=structure, pseudos=pseudo)
         with pytest.raises(ValueError, match="ndtset=-1 cannot be <=0"):
@@ -267,8 +267,8 @@ class ShiftModeTest(PymatgenTest):
 class FactoryTest(PymatgenTest):
     def setUp(self):
         # Si ebands
-        self.si_structure = Structure.from_file(abiref_file("si.cif"))
-        self.si_pseudo = abiref_file("14si.pspnc")
+        self.si_structure = Structure.from_file(abiref_file("si.cif.gz"))
+        self.si_pseudo = abiref_file("14si.pspnc.gz")
 
     def test_gs_input(self):
         """Testing gs_input factory."""

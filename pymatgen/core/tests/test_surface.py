@@ -33,7 +33,7 @@ def get_path(path_str):
 
 class SlabTest(PymatgenTest):
     def setUp(self):
-        zno1 = Structure.from_file(get_path("ZnO-wz.cif"), primitive=False)
+        zno1 = Structure.from_file(get_path("ZnO-wz.cif.gz"), primitive=False)
         zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False).get_slab()
 
         Ti = Structure(
@@ -494,7 +494,7 @@ class SlabGeneratorTest(PymatgenTest):
         # slabs is of sites in LiFePO4 unit cell - 2 + 1.
         assert len(gen.get_slabs(tol=1e-4, ftol=1e-4)) == 15
 
-        LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"), primitive=False)
+        LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif.gz"), primitive=False)
         gen = SlabGenerator(LiCoO2, [0, 0, 1], 10, 10)
         lco = gen.get_slabs(bonds={("Co", "O"): 3})
         assert len(lco) == 1
@@ -528,14 +528,14 @@ class SlabGeneratorTest(PymatgenTest):
         # in other Miller indices can cause some ambiguity when choosing a
         # higher tolerance.
         numb_slabs = {(0, 0, 1): 5, (0, 1, 0): 3, (1, 0, 0): 7}
-        TeI = Structure.from_file(get_path("icsd_TeI.cif"), primitive=False)
+        TeI = Structure.from_file(get_path("icsd_TeI.cif.gz"), primitive=False)
         for k, v in numb_slabs.items():
             trclnc_TeI = SlabGenerator(TeI, k, 10, 10)
             TeI_slabs = trclnc_TeI.get_slabs()
             assert v == len(TeI_slabs)
 
     def test_get_orthogonal_c_slab(self):
-        TeI = Structure.from_file(get_path("icsd_TeI.cif"), primitive=False)
+        TeI = Structure.from_file(get_path("icsd_TeI.cif.gz"), primitive=False)
         trclnc_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
         TeI_slabs = trclnc_TeI.get_slabs()
         slab = TeI_slabs[0]
@@ -544,7 +544,7 @@ class SlabGeneratorTest(PymatgenTest):
         assert norm_slab.lattice.angles[1] == approx(90)
 
     def test_get_orthogonal_c_slab_site_props(self):
-        TeI = Structure.from_file(get_path("icsd_TeI.cif"), primitive=False)
+        TeI = Structure.from_file(get_path("icsd_TeI.cif.gz"), primitive=False)
         trclnc_TeI = SlabGenerator(TeI, (0, 0, 1), 10, 10)
         TeI_slabs = trclnc_TeI.get_slabs()
         slab = TeI_slabs[0]
@@ -741,8 +741,8 @@ class MillerIndexFinderTests(PymatgenTest):
         mglatt = Lattice.from_parameters(3.2, 3.2, 5.13, 90, 90, 120)
         self.Mg = Structure(mglatt, ["Mg", "Mg"], [[1 / 3, 2 / 3, 1 / 4], [2 / 3, 1 / 3, 3 / 4]])
         self.lifepo4 = self.get_structure("LiFePO4")
-        self.tei = Structure.from_file(get_path("icsd_TeI.cif"), primitive=False)
-        self.LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"), primitive=False)
+        self.tei = Structure.from_file(get_path("icsd_TeI.cif.gz"), primitive=False)
+        self.LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif.gz"), primitive=False)
 
         self.p1 = Structure(
             Lattice.from_parameters(3, 4, 5, 31, 43, 50),

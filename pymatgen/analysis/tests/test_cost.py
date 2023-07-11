@@ -11,8 +11,8 @@ from pymatgen.util.testing import PymatgenTest
 
 class CostAnalyzerTest(unittest.TestCase):
     def setUp(self):
-        self.ca1 = CostAnalyzer(CostDBCSV(os.path.join(PymatgenTest.TEST_FILES_DIR, "costdb_1.csv")))
-        self.ca2 = CostAnalyzer(CostDBCSV(os.path.join(PymatgenTest.TEST_FILES_DIR, "costdb_2.csv")))
+        self.ca1 = CostAnalyzer(CostDBCSV(os.path.join(PymatgenTest.TEST_FILES_DIR, "costdb_1.csv.gz")))
+        self.ca2 = CostAnalyzer(CostDBCSV(os.path.join(PymatgenTest.TEST_FILES_DIR, "costdb_2.csv.gz")))
 
     def test_cost_per_kg(self):
         assert self.ca1.get_cost_per_kg("Ag") == approx(3, rel=1e-3)

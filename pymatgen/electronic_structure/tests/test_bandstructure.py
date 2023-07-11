@@ -226,7 +226,7 @@ class BandStructureSymmLineTest(PymatgenTest):
         assert set(d3) >= expected_keys, f"{expected_keys - set(d3)=}"
 
     def test_old_format_load(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "bs_ZnS_old.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "bs_ZnS_old.json.gz")) as f:
             d = json.load(f)
             bs_old = BandStructureSymmLine.from_dict(d)
             assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == 0.0971
@@ -267,12 +267,12 @@ class ReconstructBandStructureTest(PymatgenTest):
 
     def test_vasprun_bs(self):
         bsv = BSVasprun(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml"),
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml.gz"),
             parse_projected_eigen=True,
             parse_potcar_file=True,
         )
         bs = bsv.get_band_structure(
-            kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS.band"), line_mode=True
+            kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS.band.gz"), line_mode=True
         )
         bs.get_projection_on_elements()
 

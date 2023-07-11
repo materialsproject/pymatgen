@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import os
 
+from monty.io import zopen
+
 from pymatgen.analysis.structure_prediction.substitutor import Substitutor
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Species
@@ -19,8 +21,8 @@ def get_table():
         PymatgenTest.TEST_FILES_DIR,
         "struct_predictor",
     )
-    json_file = os.path.join(data_dir, "test_lambda.json")
-    with open(json_file) as f:
+    json_file = os.path.join(data_dir, "test_lambda.json.gz")
+    with zopen(json_file) as f:
         return json.load(f)
 
 

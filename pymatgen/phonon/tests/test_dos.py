@@ -12,9 +12,9 @@ from pymatgen.util.testing import PymatgenTest
 
 class DosTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_ph_dos.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_ph_dos.json.gz")) as f:
             self.dos = PhononDos.from_dict(json.load(f))
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json.gz")) as f:
             self.structure = CompletePhononDos.from_dict(json.load(f)).structure
 
     def test_properties(self):
@@ -45,7 +45,7 @@ class DosTest(PymatgenTest):
 
 class CompleteDosTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json.gz")) as f:
             self.cdos = CompletePhononDos.from_dict(json.load(f))
 
     def test_properties(self):

@@ -41,7 +41,7 @@ class ThermalDisplacementTest(PymatgenTest):
                 [4.88e-03, 4.97e-03, 3.97e-03, -7.00e-04, -7.00e-04, 1.44e-03],
             ],
             structure=Structure.from_file(
-                os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR")
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR.gz")
             ),
             temperature=0.0,
         )
@@ -72,7 +72,7 @@ class ThermalDisplacementTest(PymatgenTest):
                 [4.88e-03, 4.97e-03, 3.97e-03, -7.00e-04, -7.00e-04, 1.44e-03],
             ],
             structure=Structure.from_file(
-                os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR")
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR.gz")
             ),
             temperature=0.0,
             thermal_displacement_matrix_cif=[
@@ -203,7 +203,7 @@ class ThermalDisplacementTest(PymatgenTest):
                 [0.00461, 0.00497, 0.00397, -0.00070, 0.00002, 0.00129],
             ],
             structure=Structure.from_file(
-                os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR")
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR.gz")
             ),
             temperature=0.0,
         )
@@ -273,7 +273,7 @@ class ThermalDisplacementTest(PymatgenTest):
                 [4.88e-03, 4.97e-03, 3.97e-03, -7.00e-04, -7.00e-04, 1.44e-03],
             ],
             structure=Structure.from_file(
-                os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR")
+                os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR.gz")
             ),
             temperature=0.0,
         )

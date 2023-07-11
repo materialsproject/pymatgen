@@ -4,6 +4,7 @@ import json
 import os
 
 import numpy as np
+from monty.io import zopen
 from numpy.testing import assert_array_almost_equal
 from pytest import approx
 
@@ -27,7 +28,7 @@ struct_env_files_dir = f"{PymatgenTest.TEST_FILES_DIR}/chemenv/structure_environ
 
 class StructureEnvironmentsTest(PymatgenTest):
     def test_structure_environments(self):
-        with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
+        with zopen(f"{struct_env_files_dir}/se_mp-7000.json.gz") as f:
             dd = json.load(f)
 
         struct_envs = StructureEnvironments.from_dict(dd)
@@ -118,7 +119,7 @@ class StructureEnvironmentsTest(PymatgenTest):
         assert ce != ce2
 
     def test_light_structure_environments(self):
-        with open(f"{struct_env_files_dir}/se_mp-7000.json") as f:
+        with zopen(f"{struct_env_files_dir}/se_mp-7000.json.gz") as f:
             dd = json.load(f)
 
         struct_envs = StructureEnvironments.from_dict(dd)

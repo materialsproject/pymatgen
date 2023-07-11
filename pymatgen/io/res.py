@@ -15,7 +15,7 @@ import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Literal
 
-import dateutil.parser  # type: ignore[import]
+import dateutil.parser  # type: ignore
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -24,13 +24,12 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen.io.core import ParseError
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from datetime import date
 
-__all__ = ["ResProvider", "AirssProvider", "ResIO", "ResWriter", "ResParseError", "ResError"]
+__all__ = ["ResProvider", "AirssProvider", "ResIO", "ResWriter", "ParseError", "ResError"]
 
 
 @dataclass(frozen=True)
@@ -118,8 +117,10 @@ class Res:
         )
 
 
-class ResParseError(ParseError):
+class ParseError(RuntimeError):
     """This exception indicates a problem was encountered during parsing due to unexpected formatting."""
+
+    ...
 
 
 class ResError(ValueError):
@@ -127,6 +128,8 @@ class ResError(ValueError):
     This exception indicates a problem was encountered while trying to retrieve a value or
     perform an action that a provider for the res file does not support.
     """
+
+    ...
 
 
 class ResParser:
@@ -163,7 +166,7 @@ class ResParser:
         """Parses the CELL entry."""
         fields = line.split()
         if len(fields) != 7:
-            raise ResParseError(f"Failed to parse CELL {line=}, expected 7 fields.")
+            raise ParseError(f"Failed to parse CELL {line=}, expected 7 fields.")
         field_1, a, b, c, alpha, beta, gamma = map(float, fields)
         return ResCELL(field_1, a, b, c, alpha, beta, gamma)
 
@@ -175,7 +178,7 @@ class ResParser:
         elif len(fields) == 7:
             spin = float(fields[-1])
         else:
-            raise ResParseError(f"Failed to parse ion entry {line}, expected 6 or 7 fields.")
+            raise ParseError(f"Failed to parse ion entry {line}, expected 6 or 7 fields.")
         specie = fields[0]
         specie_num = int(fields[1])
         x, y, z, occ = map(float, fields[2:6])
@@ -192,7 +195,7 @@ class ResParser:
                     break
                 ions.append(self._parse_ion(line))
         except StopIteration:
-            raise ResParseError("Encountered end of file before END tag at end of SFAC block.")
+            raise ParseError("Encountered end of file before END tag at end of SFAC block.")
         return ResSFAC(species, ions)
 
     def _parse_txt(self) -> Res:
@@ -227,11 +230,11 @@ class ResParser:
                 elif first == "SFAC":
                     _SFAC = self._parse_sfac(rest, it)
                 else:
-                    raise Warning(f"Skipping {line=}, tag {first} not recognized.")
+                    raise ParseError(f"Unrecognized tag {first} in {line=}")
         except StopIteration:
             pass
         if _CELL is None or _SFAC is None:
-            raise ResParseError("Did not encounter CELL or SFAC entry when parsing.")
+            raise ParseError("Did not encounter CELL or SFAC entry when parsing.")
         return Res(_TITL, _REMS, _CELL, _SFAC)
 
     @classmethod
@@ -246,7 +249,7 @@ class ResParser:
         """Parses the res file as a file."""
         self = cls()
         self.filename = filename
-        with zopen(filename, "r") as file:
+        with zopen(filename, "rt") as file:
             self.source = file.read()
             return self._parse_txt()
 
@@ -421,11 +424,11 @@ class AirssProvider(ResProvider):
         """Parses a date from a string where the date is in the format typically used by CASTEP."""
         match = cls._date_fmt.search(string)
         if match is None:
-            raise ResParseError(f"Could not parse the date from {string=}.")
+            raise ParseError(f"Could not parse the date from {string=}.")
         date_string = match.group(0)
-        return dateutil.parser.parse(date_string)
+        return dateutil.parser.parse(date_string)  # type: ignore
 
-    def _raise_or_none(self, err: ResParseError) -> None:
+    def _raise_or_none(self, err: ParseError) -> None:
         if self.parse_rems != "strict":
             return
         raise err
@@ -442,8 +445,7 @@ class AirssProvider(ResProvider):
                 date = self._parse_date(rem)
                 path = rem.split()[-1]
                 return date, path
-        self._raise_or_none(ResParseError("Could not find run started information."))
-        return None
+        return self._raise_or_none(ParseError("Could not find run started information."))  # type: ignore
 
     def get_castep_version(self) -> str | None:
         """
@@ -456,8 +458,7 @@ class AirssProvider(ResProvider):
             if rem.strip().startswith("CASTEP"):
                 srem = rem.split()
                 return srem[1][:-1]
-        self._raise_or_none(ResParseError("No CASTEP version found in REM"))
-        return None
+        return self._raise_or_none(ParseError("No CASTEP version found in REM"))  # type: ignore
 
     def get_func_rel_disp(self) -> tuple[str, str, str] | None:
         """
@@ -470,8 +471,7 @@ class AirssProvider(ResProvider):
             if rem.strip().startswith("Functional"):
                 srem = rem.split()
                 return " ".join(srem[1:4]), srem[5], srem[7]
-        self._raise_or_none(ResParseError("Could not find functional, relativity, and dispersion."))
-        return None
+        return self._raise_or_none(ParseError("Could not find functional, relativity, and dispersion."))  # type: ignore
 
     def get_cut_grid_gmax_fsbc(self) -> tuple[float, float, float, str] | None:
         """
@@ -485,8 +485,7 @@ class AirssProvider(ResProvider):
             if rem.strip().startswith("Cut-off"):
                 srem = rem.split()
                 return float(srem[1]), float(srem[5]), float(srem[7]), srem[10]
-        self._raise_or_none(ResParseError("Could not find line with cut-off energy."))
-        return None
+        return self._raise_or_none(ParseError("Could not find line with cut-off energy."))  # type: ignore
 
     def get_mpgrid_offset_nkpts_spacing(
         self,
@@ -503,8 +502,7 @@ class AirssProvider(ResProvider):
                 p, q, r = map(int, srem[2:5])
                 po, qo, ro = map(float, srem[6:9])
                 return (p, q, r), (po, qo, ro), int(srem[11]), float(srem[13])
-        self._raise_or_none(ResParseError("Could not find line with MP grid."))
-        return None
+        return self._raise_or_none(ParseError("Could not find line with MP grid."))  # type: ignore
 
     def get_airss_version(self) -> tuple[str, date] | None:
         """
@@ -518,8 +516,7 @@ class AirssProvider(ResProvider):
                 date = self._parse_date(rem)
                 v = rem.split()[2]
                 return v, date
-        self._raise_or_none(ResParseError("Could not find line with AIRSS version."))
-        return None
+        return self._raise_or_none(ParseError("Could not find line with AIRSS version."))  # type: ignore
 
     def _get_compiler(self):
         raise NotImplementedError

@@ -100,7 +100,7 @@ class PourbaixDiagramTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "pourbaix_test_data.json"))
+        cls.test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "pourbaix_test_data.json.gz"))
         cls.pbx = PourbaixDiagram(cls.test_data["Zn"], filter_solids=True)
         cls.pbx_nofilter = PourbaixDiagram(cls.test_data["Zn"], filter_solids=False)
 
@@ -290,7 +290,7 @@ class PourbaixDiagramTest(unittest.TestCase):
 class PourbaixPlotterTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
-        self.test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "pourbaix_test_data.json"))
+        self.test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "pourbaix_test_data.json.gz"))
         self.pd = PourbaixDiagram(self.test_data["Zn"])
         self.plotter = PourbaixPlotter(self.pd)
 

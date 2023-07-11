@@ -741,7 +741,7 @@ $end
 
     def test_from_multi_jobs_file(self):
         job_list_test = QCInput.from_multi_jobs_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "qchem", "pt_n2_wb97mv_0.0.in")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "qchem", "pt_n2_wb97mv_0.0.in.gz")
         )
         species = [
             "S",
@@ -1211,7 +1211,9 @@ $end"""
     def test_read_write_nbo7(self):
         test_path = os.path.join(module_dir, "test_nbo7.qin")
         ref_path = f"{PymatgenTest.TEST_FILES_DIR}/molecules/new_qchem_files/nbo7.qin"
-        qcinp = QCInput.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin"))
+        qcinp = QCInput.from_file(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo7.qin.gz")
+        )
         qcinp.write_file(test_path)
 
         with open(test_path) as ref_file, open(ref_path) as test_file:

@@ -10,11 +10,11 @@ test_dir_reci = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_reci_dos")
 
 
 class FeffLdosTest(unittest.TestCase):
-    filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff.inp")
+    filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff.inp.gz")
     filepath2 = os.path.join(PymatgenTest.TEST_FILES_DIR, "ldos")
     ldos = LDos.from_file(filepath1, filepath2)
 
-    reci_feffinp = os.path.join(test_dir_reci, "feff.inp")
+    reci_feffinp = os.path.join(test_dir_reci, "feff.inp.gz")
     reci_ldos = os.path.join(test_dir_reci, "ldos")
     reci_dos = LDos.from_file(reci_feffinp, reci_ldos)
 
@@ -52,14 +52,14 @@ class FeffLdosTest(unittest.TestCase):
 
 class XmuTest(unittest.TestCase):
     def test_init(self):
-        filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "xmu.dat")
-        filepath2 = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff.inp")
+        filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "xmu.dat.gz")
+        filepath2 = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff.inp.gz")
         x = Xmu.from_file(filepath1, filepath2)
         assert x.absorbing_atom == "O", "failed to read xmu.dat file properly"
 
     def test_as_dict_and_from_dict(self):
-        filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "xmu.dat")
-        filepath2 = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff.inp")
+        filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "xmu.dat.gz")
+        filepath2 = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff.inp.gz")
         x = Xmu.from_file(filepath1, filepath2)
         data = x.data.tolist()
         d = x.as_dict()

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 
+from monty.io import zopen
 from mpl_toolkits.mplot3d import Axes3D
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -25,7 +26,7 @@ __date__ = "May 05 2016"
 class WulffShapeTest(PymatgenTest):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "surface_samples.json")) as data_file:
+        with zopen(os.path.join(module_dir, "surface_samples.json.gz")) as data_file:
             surface_properties = json.load(data_file)
 
         surface_energies, miller_indices = {}, {}

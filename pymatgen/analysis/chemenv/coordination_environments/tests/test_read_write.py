@@ -6,6 +6,7 @@ import shutil
 import unittest
 
 import numpy as np
+from monty.io import zopen
 from numpy.testing import assert_array_almost_equal
 from pytest import approx
 
@@ -42,7 +43,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         os.makedirs("tmp_dir", exist_ok=True)
 
     def test_read_write_structure_environments(self):
-        with open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json") as file:
+        with zopen(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json.gz") as file:
             dd = json.load(file)
 
         atom_indices = dd["atom_indices"]
@@ -85,7 +86,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         # assert lse == lse2
 
     def test_structure_environments_neighbors_sets(self):
-        with open(f"{se_files_dir}/se_mp-7000.json") as f:
+        with zopen(f"{se_files_dir}/se_mp-7000.json.gz") as f:
             dd = json.load(f)
 
         struct_envs = StructureEnvironments.from_dict(dd)
@@ -230,7 +231,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         assert multi_weights_strategy_2 != multi_weights_strategy_3
 
     def test_read_write_voronoi(self):
-        with open(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json") as f:
+        with zopen(f"{json_files_dir}/test_T--4_FePO4_icsd_4266.json.gz") as f:
             dd = json.load(f)
 
         struct = Structure.from_dict(dd["structure"])

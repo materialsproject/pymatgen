@@ -29,13 +29,13 @@ except Exception:
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap2")
 
 
-vrunfile = os.path.join(test_dir, "vasprun.xml")
+vrunfile = os.path.join(test_dir, "vasprun.xml.gz")
 vrun = Vasprun(vrunfile, parse_projected_eigen=True)
 
-vrunfile_sp = os.path.join(test_dir, "vasprun_spin.xml")
+vrunfile_sp = os.path.join(test_dir, "vasprun_spin.xml.gz")
 vrun_sp = Vasprun(vrunfile_sp, parse_projected_eigen=True)
-bs = loadfn(os.path.join(test_dir, "PbTe_bandstructure.json"))
-bs_sp = loadfn(os.path.join(test_dir, "N2_bandstructure.json"))
+bs = loadfn(os.path.join(test_dir, "PbTe_bandstructure.json.gz"))
+bs_sp = loadfn(os.path.join(test_dir, "N2_bandstructure.json.gz"))
 
 bztinterp_fn = os.path.join(test_dir, "bztInterp.json.gz")
 bzttransp_fn = os.path.join(test_dir, "bztTranspProps.json.gz")

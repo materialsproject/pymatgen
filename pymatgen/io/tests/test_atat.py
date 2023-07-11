@@ -88,10 +88,10 @@ class AtatTest(PymatgenTest):
 
     def test_mcsqs_cif_nacl(self):
         # cif file from str2cif (utility distributed with atat)
-        struc_from_cif = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.cif"))
+        struc_from_cif = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.cif.gz"))
 
         # output file directly from mcsqs
-        struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.out"))
+        struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.out.gz"))
 
         assert struc_from_cif.matches(struc_from_out)
         self.assert_all_close(
@@ -102,10 +102,10 @@ class AtatTest(PymatgenTest):
 
     def test_mcsqs_cif_pzt(self):
         # cif file from str2cif (utility distributed with atat)
-        struc_from_cif = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.cif"))
+        struc_from_cif = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.cif.gz"))
 
         # output file directly from mcsqs
-        struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.out"))
+        struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.out.gz"))
 
         assert struc_from_cif.matches(struc_from_out)
         self.assert_all_close(

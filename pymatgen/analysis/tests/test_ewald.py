@@ -16,7 +16,7 @@ from pymatgen.util.testing import PymatgenTest
 class EwaldSummationTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz")
         p = Poscar.from_file(filepath, check_for_POTCAR=False)
         self.original_s = p.structure
         self.s = self.original_s.copy()
@@ -120,7 +120,7 @@ class EwaldMinimizerTest(unittest.TestCase):
 
     def test_site(self):
         """Test that uses an uncharged structure"""
-        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz")
         p = Poscar.from_file(filepath, check_for_POTCAR=False)
         original_s = p.structure
         s = original_s.copy()

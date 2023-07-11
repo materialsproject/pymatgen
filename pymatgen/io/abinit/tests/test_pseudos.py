@@ -23,7 +23,7 @@ def ref_files(*filenames):
 class PseudoTestCase(PymatgenTest):
     def setUp(self):
         nc_pseudo_fnames = collections.defaultdict(list)
-        nc_pseudo_fnames["Si"] = ref_files("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")
+        nc_pseudo_fnames["Si"] = ref_files("14si.pspnc.gz", "14si.4.hgh.gz", "14-Si.LDA.fhi.gz")
 
         self.nc_pseudos = collections.defaultdict(list)
 
@@ -101,7 +101,7 @@ class PseudoTestCase(PymatgenTest):
 
     def test_pawxml_pseudos(self):
         """Test O.GGA_PBE-JTH-paw.xml."""
-        oxygen = Pseudo.from_file(ref_file("O.GGA_PBE-JTH-paw.xml"))
+        oxygen = Pseudo.from_file(ref_file("O.GGA_PBE-JTH-paw.xml.gz"))
         assert repr(oxygen)
         assert str(oxygen)
         assert isinstance(oxygen.as_dict(), dict)
@@ -132,7 +132,7 @@ class PseudoTestCase(PymatgenTest):
         """
         Test the ONCVPSP Ge pseudo (scalar relativistic version).
         """
-        ger = Pseudo.from_file(ref_file("ge.oncvpsp"))
+        ger = Pseudo.from_file(ref_file("ge.oncvpsp.gz"))
         assert repr(ger)
         assert str(ger)
         assert isinstance(ger.as_dict(), dict)
@@ -156,7 +156,7 @@ class PseudoTestCase(PymatgenTest):
         """
         Test the ONCVPSP Pb pseudo (relativistic version with SO).
         """
-        pb = Pseudo.from_file(ref_file("Pb-d-3_r.psp8"))
+        pb = Pseudo.from_file(ref_file("Pb-d-3_r.psp8.gz"))
         repr(pb)
         str(pb)
 
@@ -177,7 +177,7 @@ class PseudoTestCase(PymatgenTest):
 class PseudoTableTest(PymatgenTest):
     def test_methods(self):
         """Test PseudoTable methods"""
-        table = PseudoTable(ref_files("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi"))
+        table = PseudoTable(ref_files("14si.pspnc.gz", "14si.4.hgh.gz", "14-Si.LDA.fhi.gz"))
         assert str(table)
         assert len(table) == 3
         for pseudo in table:

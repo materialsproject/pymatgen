@@ -105,6 +105,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from monty.io import zopen
 from monty.json import MontyDecoder
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
@@ -1260,8 +1261,8 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
     def test_processing_entries_inplace(self):
         # load two entries in GGA_GGA_U_R2SCAN thermo type
-        entriesJson = Path(f"{PymatgenTest.TEST_FILES_DIR}/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
-        with open(entriesJson) as file:
+        entriesJson = Path(f"{PymatgenTest.TEST_FILES_DIR}/entries_thermo_type_GGA_GGA_U_R2SCAN.json.gz")
+        with zopen(entriesJson) as file:
             entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged
         entries_copy = copy.deepcopy(entries)

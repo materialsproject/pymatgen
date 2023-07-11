@@ -15,6 +15,8 @@ import re
 from multiprocessing import Pool
 from typing import Callable, Sequence
 
+from monty.serialization import zopen
+
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.io.vasp.sets import MPRelaxSet, VaspInputSet
 
@@ -284,12 +286,12 @@ class CifTransmuter(StandardTransmuter):
             primitive: Same meaning as in __init__.
             extend_collection: Same meaning as in __init__.
         """
-        allcifs = []
+        all_cifs = []
         for fname in filenames:
-            with open(fname) as f:
-                allcifs.append(f.read())
+            with zopen(fname, "rt") as f:
+                all_cifs.append(f.read())
         return CifTransmuter(
-            "\n".join(allcifs),
+            "\n".join(all_cifs),
             transformations,
             primitive=primitive,
             extend_collection=extend_collection,
@@ -326,7 +328,7 @@ class PoscarTransmuter(StandardTransmuter):
         """
         tstructs = []
         for filename in poscar_filenames:
-            with open(filename) as f:
+            with zopen(filename, "rt") as f:
                 tstructs.append(TransformedStructure.from_poscar_string(f.read(), []))
         return StandardTransmuter(tstructs, transformations, extend_collection=extend_collection)
 

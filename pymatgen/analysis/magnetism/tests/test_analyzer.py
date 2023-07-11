@@ -27,19 +27,19 @@ enumlib_present = enum_cmd and makestr_cmd
 
 class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
     def setUp(self):
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe.cif.gz"))
         self.Fe = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif.gz"))
         self.LiFePO4 = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe3O4.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe3O4.cif.gz"))
         self.Fe3O4 = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic.ncl.example.GdB4.mcif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic.ncl.example.GdB4.mcif.gz"))
         self.GdB4 = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic.example.NiO.mcif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic.example.NiO.mcif.gz"))
         self.NiO_expt = parser.get_structures()[0]
 
         latt = Lattice.cubic(4.17)
@@ -259,7 +259,7 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
         # afm requiring large cell size
         # (enable for further development of workflow, too slow for CI)
 
-        # structure = Structure.from_file(os.path.join(ref_dir, "CuO.json"))
+        # structure = Structure.from_file(os.path.join(ref_dir, "CuO.json.gz"))
         # enumerator = MagneticOrderingsenumerator(
         #     structure, default_magmoms={"Cu": 1.73}, transformation_kwargs={"max_cell_size": 4}
         # )
@@ -279,7 +279,7 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
 
 class MagneticDeformationTest(unittest.TestCase):
     def test_magnetic_deformation(self):
-        test_structs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_deformation.json"))
+        test_structs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_deformation.json.gz"))
         mag_def = magnetic_deformation(test_structs[0], test_structs[1])
 
         assert mag_def.type == "NM-FM"

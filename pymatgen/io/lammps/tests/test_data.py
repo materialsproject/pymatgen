@@ -80,12 +80,12 @@ class LammpsBoxTest(PymatgenTest):
 class LammpsDataTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.peptide = LammpsData.from_file(filename=os.path.join(test_dir, "data.peptide"))
-        cls.ethane = LammpsData.from_file(filename=os.path.join(test_dir, "ethane.data"))
-        cls.quartz = LammpsData.from_file(filename=os.path.join(test_dir, "data.quartz"), atom_style="atomic")
-        cls.virus = LammpsData.from_file(filename=os.path.join(test_dir, "virus.data"), atom_style="angle")
+        cls.peptide = LammpsData.from_file(filename=os.path.join(test_dir, "data.peptide.gz"))
+        cls.ethane = LammpsData.from_file(filename=os.path.join(test_dir, "ethane.data.gz"))
+        cls.quartz = LammpsData.from_file(filename=os.path.join(test_dir, "data.quartz.gz"), atom_style="atomic")
+        cls.virus = LammpsData.from_file(filename=os.path.join(test_dir, "virus.data.gz"), atom_style="angle")
         cls.tatb = LammpsData.from_file(
-            filename=os.path.join(test_dir, "tatb.data"),
+            filename=os.path.join(test_dir, "tatb.data.gz"),
             atom_style="charge",
             sort_id=True,
         )
@@ -286,7 +286,7 @@ class LammpsDataTest(unittest.TestCase):
 
     def test_disassemble(self):
         # general tests
-        c = LammpsData.from_file(os.path.join(test_dir, "crambin.data"))
+        c = LammpsData.from_file(os.path.join(test_dir, "crambin.data.gz"))
         _, c_ff, topos = c.disassemble()
         mass_info = [
             ("N1", 14.0067),
@@ -691,7 +691,7 @@ class ForceFieldTest(unittest.TestCase):
             ]
         }
         cls.virus = ForceField(mass_info=mass_info, nonbond_coeffs=nonbond_coeffs, topo_coeffs=topo_coeffs)
-        cls.ethane = ForceField.from_file(os.path.join(test_dir, "ff_ethane.yaml"))
+        cls.ethane = ForceField.from_file(os.path.join(test_dir, "ff_ethane.yaml.gz"))
 
     def test_init(self):
         v = self.virus
@@ -819,12 +819,12 @@ class CombinedDataTest(unittest.TestCase):
     def setUpClass(cls):
         cls.ec = LammpsData.from_file(filename=os.path.join(test_dir, "ec.data.gz"))
         cls.fec = LammpsData.from_file(filename=os.path.join(test_dir, "fec.data.gz"))
-        cls.li = LammpsData.from_file(filename=os.path.join(test_dir, "li.data"))
-        cls.li_minimal = LammpsData.from_file(filename=os.path.join(test_dir, "li_minimal.data"))
+        cls.li = LammpsData.from_file(filename=os.path.join(test_dir, "li.data.gz"))
+        cls.li_minimal = LammpsData.from_file(filename=os.path.join(test_dir, "li_minimal.data.gz"))
         cls.coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz.gz"))
-        cls.small_coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec.xyz"))
-        cls.small_coord_2 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec_2.xyz"))
-        cls.small_coord_3 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_2.xyz"))
+        cls.small_coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec.xyz.gz"))
+        cls.small_coord_2 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec_2.xyz.gz"))
+        cls.small_coord_3 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_2.xyz.gz"))
         cls.ec_fec1 = CombinedData.from_files(
             os.path.join(test_dir, "ec_fec.xyz.gz"),
             [1200, 300],

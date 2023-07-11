@@ -17,10 +17,10 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
 class LammpsDumpTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        with open(os.path.join(test_dir, "dump.rdx_wc.100")) as f:
+        with open(os.path.join(test_dir, "dump.rdx_wc.100.gz")) as f:
             rdx_str = f.read()
         cls.rdx = LammpsDump.from_string(string=rdx_str)
-        with open(os.path.join(test_dir, "dump.tatb")) as f:
+        with open(os.path.join(test_dir, "dump.tatb.gz")) as f:
             tatb_str = f.read()
         cls.tatb = LammpsDump.from_string(string=tatb_str)
 

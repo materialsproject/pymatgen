@@ -42,7 +42,7 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "phonopy")
 
 class PhonopyParserTest(PymatgenTest):
     def test_get_ph_bs(self):
-        ph_bs = get_ph_bs_symm_line(os.path.join(test_dir, "NaCl_band.yaml"), has_nac=True)
+        ph_bs = get_ph_bs_symm_line(os.path.join(test_dir, "NaCl_band.yaml.gz"), has_nac=True)
 
         assert ph_bs.bands[1][10] == approx(0.7753555184)
         assert ph_bs.bands[5][100] == approx(5.2548379776)
@@ -71,7 +71,7 @@ class PhonopyParserTest(PymatgenTest):
         assert ph_bs.get_nac_eigendisplacements_along_dir([1, 0, 1]) is None
 
     def test_get_ph_dos(self):
-        dos = get_ph_dos(os.path.join(test_dir, "NaCl_total_dos.dat"))
+        dos = get_ph_dos(os.path.join(test_dir, "NaCl_total_dos.dat.gz"))
 
         assert dos.densities[15] == approx(0.0001665998)
         assert dos.frequencies[20] == approx(0.0894965119)
@@ -81,8 +81,8 @@ class PhonopyParserTest(PymatgenTest):
 
     def test_get_complete_dos(self):
         cdos = get_complete_ph_dos(
-            os.path.join(test_dir, "NaCl_partial_dos.dat"),
-            os.path.join(test_dir, "NaCl_phonopy.yaml"),
+            os.path.join(test_dir, "NaCl_partial_dos.dat.gz"),
+            os.path.join(test_dir, "NaCl_phonopy.yaml.gz"),
         )
         site_Na = cdos.structure[0]
         site_Cl = cdos.structure[1]
@@ -119,7 +119,7 @@ class StructureConversionTest(PymatgenTest):
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class GetDisplacedStructuresTest(PymatgenTest):
     def test_get_displaced_structures(self):
-        pmg_s = Structure.from_file(os.path.join(test_dir, "POSCAR-unitcell"), False)
+        pmg_s = Structure.from_file(os.path.join(test_dir, "POSCAR-unitcell.gz"), False)
         supercell_matrix = [[2, 0, 0], [0, 1, 0], [0, 0, 2]]
         structures = get_displaced_structures(pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix)
 
@@ -152,8 +152,8 @@ class GetDisplacedStructuresTest(PymatgenTest):
 class TestPhonopyFromForceConstants(unittest.TestCase):
     def setUp(self) -> None:
         test_path = Path(test_dir)
-        structure_file = test_path / "POSCAR-NaCl"
-        fc_file = test_path / "FORCE_CONSTANTS"
+        structure_file = test_path / "POSCAR-NaCl.gz"
+        fc_file = test_path / "FORCE_CONSTANTS.gz"
 
         self.structure = Structure.from_file(structure_file)
         self.supercell_matrix = np.eye(3) * 2
@@ -242,9 +242,9 @@ class TestThermalDisplacementMatrices(PymatgenTest):
     def test_get_thermal_displacement_matrix(self):
         list_matrices = get_thermal_displacement_matrices(
             os.path.join(
-                PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "thermal_displacement_matrices.yaml"
+                PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "thermal_displacement_matrices.yaml.gz"
             ),
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR"),
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR.gz"),
         )
 
         self.assert_all_close(

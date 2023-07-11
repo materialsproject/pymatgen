@@ -20,7 +20,7 @@ test_dir_mol = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 class SpacegroupAnalyzerTest(PymatgenTest):
     def setUp(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         self.structure = p.structure
         self.sg = SpacegroupAnalyzer(self.structure, 0.001)
         self.disordered_structure = self.get_structure("Li10GeP2S12")
@@ -124,7 +124,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
     def test_get_symmetry(self):
         # see discussion in https://github.com/materialsproject/pymatgen/pull/2724
-        Co8 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Co8.cif"))
+        Co8 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Co8.cif.gz"))
         symprec = 1e-1
 
         sga = SpacegroupAnalyzer(Co8, symprec=symprec)
@@ -194,7 +194,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
     def test_find_primitive(self):
         """F m -3 m Li2O testing of converting to primitive cell."""
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive()
@@ -237,14 +237,14 @@ class SpacegroupAnalyzerTest(PymatgenTest):
             assert full_grid[i][2] == approx(grid[_][0][2])
 
     def test_get_conventional_standard_structure(self):
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
         assert conv.lattice.lengths == approx([9.1980270633769461] * 3)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "btet_1915.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "btet_1915.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
@@ -253,7 +253,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert conv.lattice.b == approx(5.0615106678044235)
         assert conv.lattice.c == approx(4.2327080177761687)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orci_1010.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orci_1010.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
@@ -262,7 +262,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert conv.lattice.b == approx(4.6330325651443296)
         assert conv.lattice.c == approx(5.373703587040775)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orcc_1003.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orcc_1003.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
@@ -271,27 +271,27 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert conv.lattice.b == approx(31.437979757624728)
         assert conv.lattice.c == approx(3.99648651)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orac_632475.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orac_632475.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
         assert conv.lattice.lengths == approx([3.1790663399999999, 9.9032878699999998, 3.5372412099999999])
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "monoc_1028.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "monoc_1028.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == approx([90, 117.53832420192903, 90])
         assert conv.lattice.lengths == approx([14.033435583000625, 3.96052850731, 6.8743926325200002])
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "hex_1170.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "hex_1170.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == approx([90, 90, 120])
         assert conv.lattice.lengths == approx([3.699919902005897, 3.699919902005897, 6.9779585500000003])
 
-        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "tric_684654.json"))
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "tric_684654.json.gz"))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.alpha == approx(74.09581916308757)
@@ -301,20 +301,20 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert conv.lattice.b == approx(3.9883228679270686)
         assert conv.lattice.c == approx(7.288495840048958)
 
-        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "tric_684654.json"))
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "tric_684654.json.gz"))
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure(keep_site_properties=True)
         assert conv.site_properties["magmom"] == [1.0] * len(conv)
 
-        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "tric_684654.json"))
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "tric_684654.json.gz"))
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure(keep_site_properties=False)
         assert conv.site_properties.get("magmom") is None
 
     def test_get_primitive_standard_structure(self):
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure()
@@ -325,7 +325,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert prim.lattice.b == approx(7.9657251015812145)
         assert prim.lattice.c == approx(7.9657251015812145)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "btet_1915.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "btet_1915.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure()
@@ -336,7 +336,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert prim.lattice.b == approx(4.1579321075608791)
         assert prim.lattice.c == approx(4.1579321075608791)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orci_1010.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orci_1010.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure()
@@ -347,7 +347,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert prim.lattice.b == approx(3.8428217771014852)
         assert prim.lattice.c == approx(3.8428217771014852)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orcc_1003.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orcc_1003.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure()
@@ -358,7 +358,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert prim.lattice.b == approx(15.854897098324196)
         assert prim.lattice.c == approx(3.99648651)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orac_632475.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "orac_632475.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure()
@@ -369,7 +369,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert prim.lattice.b == approx(5.2005185662155391)
         assert prim.lattice.c == approx(3.5372412099999999)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "monoc_1028.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "monoc_1028.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure()
@@ -380,7 +380,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert prim.lattice.b == approx(7.2908007159612325)
         assert prim.lattice.c == approx(6.8743926325200002)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "hex_1170.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "hex_1170.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure()
@@ -391,7 +391,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert prim.lattice.b == approx(3.699919902005897)
         assert prim.lattice.c == approx(6.9779585500000003)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "rhomb_3478_conv.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "rhomb_3478_conv.cif.gz"))
         structure = parser.get_structures(False)[0]
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure()
@@ -402,14 +402,14 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert prim.lattice.b == approx(5.9352627428399982)
         assert prim.lattice.c == approx(5.9352627428399982)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "rhomb_3478_conv.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "rhomb_3478_conv.cif.gz"))
         structure = parser.get_structures(False)[0]
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure(keep_site_properties=True)
         assert prim.site_properties["magmom"] == [1.0] * len(prim)
 
-        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "rhomb_3478_conv.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "rhomb_3478_conv.cif.gz"))
         structure = parser.get_structures(False)[0]
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
@@ -419,7 +419,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9
         # 1.7 can't find symmetry either, but at least doesn't kill python
-        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.tricky_symmetry"))
+        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.tricky_symmetry.gz"))
         sa = SpacegroupAnalyzer(struct, 0.1)
         assert sa.get_space_group_symbol() == "I4/mmm"
         assert sa.get_space_group_number() == 139
@@ -430,7 +430,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
 class SpacegroupTest(unittest.TestCase):
     def setUp(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.gz"))
         self.structure = p.structure
         self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
 
@@ -533,7 +533,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(PF6)
         assert a.sch_symbol == "Oh"
         assert len(a.get_pointgroup()) == 48
-        m = Molecule.from_file(os.path.join(test_dir_mol, "c60.xyz"))
+        m = Molecule.from_file(os.path.join(test_dir_mol, "c60.xyz.gz"))
         a = PointGroupAnalyzer(m)
         assert a.sch_symbol == "Ih"
 
@@ -554,7 +554,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
         assert a.sch_symbol == "Oh"
 
     def test_tricky(self):
-        m = Molecule.from_file(os.path.join(test_dir_mol, "dh.xyz"))
+        m = Molecule.from_file(os.path.join(test_dir_mol, "dh.xyz.gz"))
         a = PointGroupAnalyzer(m, 0.1)
         assert a.sch_symbol == "D*h"
 
@@ -608,7 +608,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(NH3)
         assert a.sch_symbol == "C3v"
         assert len(a.get_pointgroup()) == 6
-        cs2 = Molecule.from_file(os.path.join(test_dir_mol, "Carbon_Disulfide.xyz"))
+        cs2 = Molecule.from_file(os.path.join(test_dir_mol, "Carbon_Disulfide.xyz.gz"))
         a = PointGroupAnalyzer(cs2, eigen_tolerance=0.001)
         assert a.sch_symbol == "C2v"
 
@@ -619,7 +619,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
         a = PointGroupAnalyzer(BF3)
         assert a.sch_symbol == "D3h"
         assert len(a.get_pointgroup()) == 12
-        m = Molecule.from_file(os.path.join(test_dir_mol, "b12h12.xyz"))
+        m = Molecule.from_file(os.path.join(test_dir_mol, "b12h12.xyz.gz"))
         a = PointGroupAnalyzer(m)
         assert a.sch_symbol == "Ih"
 
@@ -671,7 +671,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
             for i, w in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
                 assert i == approx(w)
 
-        vasp_run = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml"))
+        vasp_run = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml.gz"))
         spga = SpacegroupAnalyzer(vasp_run.final_structure)
         wts = spga.get_kpoint_weights(vasp_run.actual_kpoints)
 

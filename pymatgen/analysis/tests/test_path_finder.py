@@ -24,8 +24,8 @@ class PathFinderTest(unittest.TestCase):
     def test_image_num(self):
         os.path.dirname(os.path.abspath(__file__))
         test_file_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "path_finder")
-        start_s = Poscar.from_file(os.path.join(test_file_dir, "LFP_POSCAR_s")).structure
-        end_s = Poscar.from_file(os.path.join(test_file_dir, "LFP_POSCAR_e")).structure
+        start_s = Poscar.from_file(os.path.join(test_file_dir, "LFP_POSCAR_s.gz")).structure
+        end_s = Poscar.from_file(os.path.join(test_file_dir, "LFP_POSCAR_e.gz")).structure
         chg = Chgcar.from_file(os.path.join(test_file_dir, "LFP_CHGCAR.gz"))
         moving_cation_specie = Element("Li")
         relax_sites = []

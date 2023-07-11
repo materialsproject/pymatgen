@@ -4,6 +4,7 @@ import json
 import os
 import unittest
 
+from monty.io import zopen
 from pytest import approx
 
 from pymatgen.analysis.structure_prediction.substitution_probability import (
@@ -26,8 +27,8 @@ def get_table():
         "struct_predictor",
     )
 
-    json_file = os.path.join(data_dir, "test_lambda.json")
-    with open(json_file) as f:
+    json_file = os.path.join(data_dir, "test_lambda.json.gz")
+    with zopen(json_file) as f:
         return json.load(f)
 
 

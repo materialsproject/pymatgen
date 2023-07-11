@@ -102,7 +102,7 @@ class GulpIOTest(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18.gz"), check_for_POTCAR=False)
         self.structure = p.structure
         self.gio = GulpIO()
 
@@ -249,7 +249,7 @@ class GulpIOTest(unittest.TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "example21.gout")) as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "example21.gout.gz")) as fp:
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
@@ -284,7 +284,7 @@ class GlobalFunctionsTest(unittest.TestCase):
         self.val_dict = dict(zip(el, val))
 
     def test_get_energy_tersoff(self):
-        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18.gz"), check_for_POTCAR=False)
         structure = p.structure
         energy = get_energy_tersoff(structure)
         assert isinstance(energy, float)

@@ -25,9 +25,9 @@ class BaderAnalysisTest(unittest.TestCase):
     def test_init(self):
         # test with reference file
         analysis = BaderAnalysis(
-            chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"),
-            potcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "POTCAR.Fe3O4"),
-            chgref_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4_ref"),
+            chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4.gz"),
+            potcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "POTCAR.Fe3O4.gz"),
+            chgref_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4_ref.gz"),
         )
         assert len(analysis.data) == 14
         assert analysis.data[0]["charge"] == approx(6.6136782, abs=1e-3)
@@ -57,7 +57,7 @@ class BaderAnalysisTest(unittest.TestCase):
         assert struct[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
 
         # make sure bader still runs without reference file
-        analysis = BaderAnalysis(chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"))
+        analysis = BaderAnalysis(chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4.gz"))
         assert len(analysis.data) == 14
 
         # Test Cube file format parsing
@@ -113,9 +113,9 @@ class BaderAnalysisTest(unittest.TestCase):
     def test_atom_parsing(self):
         # test with reference file
         analysis = BaderAnalysis(
-            chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"),
-            potcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "POTCAR.Fe3O4"),
-            chgref_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4_ref"),
+            chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4.gz"),
+            potcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "POTCAR.Fe3O4.gz"),
+            chgref_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4_ref.gz"),
             parse_atomic_densities=True,
         )
 

@@ -27,7 +27,7 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 class CtrlTest(unittest.TestCase):
     def setUp(self):
         os.chdir(test_dir)
-        self.ctrl_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
+        self.ctrl_bise = LMTOCtrl.from_file(filename="CTRL.BiSe.gz")
         self.ctrl_fe = LMTOCtrl.from_file()
 
     def tearDown(self):
@@ -37,7 +37,7 @@ class CtrlTest(unittest.TestCase):
         assert self.ctrl_bise == LMTOCtrl.from_dict(self.ctrl_bise.as_dict())
 
     def test_structure(self):
-        bise_poscar = Structure.from_file("POSCAR.BiSe")
+        bise_poscar = Structure.from_file("POSCAR.BiSe.gz")
         assert bise_poscar.matches(self.ctrl_bise.structure)
         assert self.ctrl_bise == LMTOCtrl(self.ctrl_bise.structure, header="Bi6Se6, hexagonal")
 
@@ -51,8 +51,8 @@ class CtrlTest(unittest.TestCase):
 class CoplTest(PymatgenTest):
     def setUp(self):
         os.chdir(test_dir)
-        self.copl_bise = LMTOCopl("COPL.BiSe")
-        self.copl_bise_eV = LMTOCopl(filename="COPL.BiSe", to_eV=True)
+        self.copl_bise = LMTOCopl("COPL.BiSe.gz")
+        self.copl_bise_eV = LMTOCopl(filename="COPL.BiSe.gz", to_eV=True)
         self.copl_fe = LMTOCopl()
 
     def tearDown(self):

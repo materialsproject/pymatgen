@@ -4,6 +4,7 @@ import json
 import os
 
 import pytest
+from monty.serialization import zopen
 
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
@@ -61,7 +62,7 @@ class TransformedStructureTest(PymatgenTest):
         assert self.trans.final_structure.composition.reduced_formula == "NaFePO4"
 
     def test_from_dict(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json")) as file:
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json.gz")) as file:
             dct = json.load(file)
         dct["other_parameters"] = {"tags": ["test"]}
         ts = TransformedStructure.from_dict(dct)
