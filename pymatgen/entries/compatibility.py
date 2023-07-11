@@ -29,7 +29,7 @@ from pymatgen.entries.computed_entries import (
     EnergyAdjustment,
     TemperatureEnergyAdjustment,
 )
-from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
+from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet, VaspInputSet
 from pymatgen.util.due import Doi, due
 
 __author__ = "Amanda Wang, Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
@@ -118,26 +118,23 @@ class PotcarCorrection(Correction):
     'PAW_PBE O 08Apr2002'].
     """
 
-    def __init__(self, input_set, check_hash=False):
+    def __init__(self, input_set: type[VaspInputSet], check_potcar: bool = True, check_hash: bool = False) -> None:
         """
         Args:
-            input_set: InputSet object used to generate the runs (used to check
+            input_set (InputSet): object used to generate the runs (used to check
                 for correct potcar symbols).
-
-            check_hash (bool): If true, uses the potcar hash to check for valid
-                potcars. If false, uses the potcar symbol (Less reliable).
-                Defaults to True
+            check_potcar (bool): If False, bypass the POTCAR check altogether. Defaults to True
+            check_hash (bool): If True, uses the potcar hash to check for valid
+                potcars. If false, uses the potcar symbol (less reliable). Defaults to False.
 
         Raises:
-            ValueError if entry do not contain "potcar_symbols" key.
-            CompatibilityError if wrong potcar symbols
+            ValueError: if check_potcar=True and entry does not contain "potcar_symbols" key.
         """
         potcar_settings = input_set.CONFIG["POTCAR"]
         if isinstance(list(potcar_settings.values())[-1], dict):
-            if check_hash:
-                self.valid_potcars = {k: d["hash"] for k, d in potcar_settings.items()}
-            else:
-                self.valid_potcars = {k: d["symbol"] for k, d in potcar_settings.items()}
+            self.valid_potcars = {
+                key: dct.get("hash" if check_hash else "symbol") for key, dct in potcar_settings.items()
+            }
         else:
             if check_hash:
                 raise ValueError("Cannot check hashes of potcars, since hashes are not included in the entry.")
@@ -145,19 +142,31 @@ class PotcarCorrection(Correction):
 
         self.input_set = input_set
         self.check_hash = check_hash
+        self.check_potcar = check_potcar
 
     def get_correction(self, entry: AnyComputedEntry) -> ufloat:
         """
-        :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction, Uncertainty.
+        Args:
+            entry (AnyComputedEntry): ComputedEntry or ComputedStructureEntry.
+
+        Raises:
+            ValueError: If entry does not contain "potcar_symbols" key.
+            CompatibilityError: If entry has wrong potcar hash/symbols.
+
+        Returns:
+            ufloat: 0.0 +/- 0.0 (from uncertainties package)
         """
+        if not self.check_potcar:
+            return ufloat(0.0, 0.0)
+
+        potcar_spec = entry.parameters.get("potcar_spec")
         if self.check_hash:
-            if entry.parameters.get("potcar_spec"):
-                psp_settings = {d.get("hash") for d in entry.parameters["potcar_spec"] if d}
+            if potcar_spec:
+                psp_settings = {dct.get("hash") for dct in potcar_spec if dct}
             else:
                 raise ValueError("Cannot check hash without potcar_spec field")
-        elif entry.parameters.get("potcar_spec"):
-            psp_settings = {d.get("titel").split()[1] for d in entry.parameters["potcar_spec"] if d}
+        elif potcar_spec:
+            psp_settings = {dct.get("titel").split()[1] for dct in potcar_spec if dct}
         else:
             psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
 
