@@ -301,16 +301,16 @@ loop_
 
     def test_implicit_hydrogen(self):
         parser = CifParser(f"{self.TEST_FILES_DIR}/Senegalite_implicit_hydrogen.cif.gz")
-        for s in parser.get_structures():
-            assert s.formula == "Al8 P4 O32"
-            assert sum(s.site_properties["implicit_hydrogens"]) == 20
+        for struct in parser.get_structures():
+            assert struct.formula == "Al8 P4 O32"
+            assert sum(struct.site_properties["implicit_hydrogens"]) == 20
         assert (
             "Structure has implicit hydrogens defined, "
             "parsed structure unlikely to be suitable for use "
             "in calculations unless hydrogens added." in parser.warnings
         )
         parser = CifParser(f"{self.TEST_FILES_DIR}/cif_implicit_hydrogens_cod_1011130.cif.gz")
-        s = parser.get_structures()[0]
+        struct = parser.get_structures()[0]
         assert (
             "Structure has implicit hydrogens defined, "
             "parsed structure unlikely to be suitable for use "
@@ -780,23 +780,23 @@ loop_
         with pytest.raises(ValueError, match="Invalid cif file with no structures"):
             parser.get_structures()
         parser = CifParser(f"{self.TEST_FILES_DIR}/bad_occu.cif.gz", occupancy_tolerance=2)
-        s = parser.get_structures()[0]
-        assert s[0].species["Al3+"] == approx(0.5)
+        struct = parser.get_structures()[0]
+        assert struct[0].species["Al3+"] == approx(0.5)
 
     def test_one_line_symm(self):
         parser = CifParser(f"{self.TEST_FILES_DIR}/OneLineSymmP1.cif.gz")
-        s = parser.get_structures()[0]
-        assert s.formula == "Ga4 Pb2 O8"
+        struct = parser.get_structures()[0]
+        assert struct.formula == "Ga4 Pb2 O8"
 
     def test_no_symmops(self):
         parser = CifParser(f"{self.TEST_FILES_DIR}/nosymm.cif.gz")
-        s = parser.get_structures()[0]
-        assert s.formula == "H96 C60 O8"
+        struct = parser.get_structures()[0]
+        assert struct.formula == "H96 C60 O8"
 
     def test_dot_positions(self):
         parser = CifParser(f"{self.TEST_FILES_DIR}/ICSD59959.cif.gz")
-        s = parser.get_structures()[0]
-        assert s.formula == "K1 Mn1 F3"
+        struct = parser.get_structures()[0]
+        assert struct.formula == "K1 Mn1 F3"
 
     def test_replacing_finite_precision_frac_coords(self):
         parser = CifParser(f"{self.TEST_FILES_DIR}/cif_finite_precision_frac_coord_error.cif.gz")
