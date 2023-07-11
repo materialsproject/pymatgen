@@ -94,7 +94,7 @@ class CostDBCSV(CostDB):
         # read in data from file
         self._chemsys_entries = defaultdict(list)
         filename = os.path.join(os.path.dirname(__file__), filename)
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             reader = csv.reader(f, quotechar=unicode2str("|"))
             for row in reader:
                 comp = Composition(row[0])

@@ -4,6 +4,7 @@ Test for the piezo tensor class
 
 from __future__ import annotations
 
+import gzip
 import os
 import pickle
 
@@ -36,15 +37,20 @@ __date__ = "4/23/19"
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "piezo_sensitivity")
 
 
+def open_numpy_gzip(gzpath):
+    with gzip.GzipFile(gzpath, "r") as f:
+        return np.load(f, allow_pickle=True)
+
+
 class PiezoSensitivityTest(PymatgenTest):
     def setUp(self):
         self.piezo_struc = self.get_structure("Pb2TiZrO6")
-        self.IST = np.load(os.path.join(test_dir, "pztist.npy.gz"), allow_pickle=True)
-        self.BEC = np.load(os.path.join(test_dir, "pztborn.npy.gz"), allow_pickle=True)
-        self.FCM = np.load(os.path.join(test_dir, "pztfcm.npy.gz"), allow_pickle=True)
-        self.pointops = np.load(os.path.join(test_dir, "pointops.npy.gz"), allow_pickle=True)
-        self.sharedops = np.load(os.path.join(test_dir, "sharedops.npy.gz"), allow_pickle=True)
-        self.IST_operations = np.load(os.path.join(test_dir, "istops.npy.gz"), allow_pickle=True)
+        self.IST = open_numpy_gzip(os.path.join(test_dir, "pztist.npy.gz"))
+        self.BEC = open_numpy_gzip(os.path.join(test_dir, "pztborn.npy.gz"))
+        self.FCM = open_numpy_gzip(os.path.join(test_dir, "pztfcm.npy.gz"))
+        self.pointops = open_numpy_gzip(os.path.join(test_dir, "pointops.npy.gz"))
+        self.sharedops = open_numpy_gzip(os.path.join(test_dir, "sharedops.npy.gz"))
+        self.IST_operations = open_numpy_gzip(os.path.join(test_dir, "istops.npy.gz"))
         with zopen(os.path.join(test_dir, "becops.pkl.gz"), "rb") as file:
             self.BEC_operations = pickle.load(file)
         with zopen(os.path.join(test_dir, "fcmops.pkl.gz"), "rb") as file:
