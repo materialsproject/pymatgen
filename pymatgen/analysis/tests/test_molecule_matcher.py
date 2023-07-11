@@ -5,6 +5,7 @@ import unittest
 
 import numpy as np
 import pytest
+from monty.io import zopen
 from pytest import approx
 
 from pymatgen.analysis.molecule_matcher import (
@@ -164,12 +165,12 @@ class MoleculeMatcherTest(unittest.TestCase):
 
     def test_group_molecules(self):
         mm = MoleculeMatcher(tolerance=0.001)
-        with open(os.path.join(test_dir, "mol_list.txt.gz")) as f:
+        with zopen(os.path.join(test_dir, "mol_list.txt.gz")) as f:
             filename_list = [line.strip() for line in f.readlines()]
         mol_list = [Molecule.from_file(os.path.join(test_dir, f)) for f in filename_list]
         mol_groups = mm.group_molecules(mol_list)
         filename_groups = [[filename_list[mol_list.index(m)] for m in g] for g in mol_groups]
-        with open(os.path.join(test_dir, "grouped_mol_list.txt.gz")) as f:
+        with zopen(os.path.join(test_dir, "grouped_mol_list.txt.gz")) as f:
             grouped_text = f.read().strip()
         assert str(filename_groups) == grouped_text
 

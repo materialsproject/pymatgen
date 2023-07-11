@@ -5,6 +5,7 @@ import os
 
 import numpy as np
 import pytest
+from monty.io import zopen
 from monty.json import MontyDecoder
 from pytest import approx
 
@@ -27,7 +28,7 @@ class StructureMatcherTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json.gz")) as fp:
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json.gz")) as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [

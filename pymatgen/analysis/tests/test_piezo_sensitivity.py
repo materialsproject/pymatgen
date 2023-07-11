@@ -9,6 +9,7 @@ import pickle
 
 import numpy as np
 import pytest
+from monty.io import zopen
 
 import pymatgen
 from pymatgen.analysis.piezo_sensitivity import (
@@ -44,9 +45,9 @@ class PiezoSensitivityTest(PymatgenTest):
         self.pointops = np.load(os.path.join(test_dir, "pointops.npy.gz"), allow_pickle=True)
         self.sharedops = np.load(os.path.join(test_dir, "sharedops.npy.gz"), allow_pickle=True)
         self.IST_operations = np.load(os.path.join(test_dir, "istops.npy.gz"), allow_pickle=True)
-        with open(os.path.join(test_dir, "becops.pkl.gz"), "rb") as file:
+        with zopen(os.path.join(test_dir, "becops.pkl.gz"), "rb") as file:
             self.BEC_operations = pickle.load(file)
-        with open(os.path.join(test_dir, "fcmops.pkl.gz"), "rb") as file:
+        with zopen(os.path.join(test_dir, "fcmops.pkl.gz"), "rb") as file:
             self.FCM_operations = pickle.load(file)
         self.piezo = np.array(
             [

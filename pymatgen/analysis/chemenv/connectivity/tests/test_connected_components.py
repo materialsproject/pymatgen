@@ -7,6 +7,7 @@ import os
 import networkx as nx
 import numpy as np
 import pytest
+from monty.io import zopen
 
 from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
 from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
@@ -858,7 +859,7 @@ Node #3 Li (O:6), connected to :
             "structure_environments_files",
             "se_mp-5020.json.gz",
         )
-        with open(BaTiO3_se_fpath) as file:
+        with zopen(BaTiO3_se_fpath) as file:
             dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)
         lse = LightStructureEnvironments.from_structure_environments(

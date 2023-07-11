@@ -9,6 +9,7 @@ from shutil import which
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import pytest
+from monty.io import zopen
 from monty.serialization import loadfn
 from pytest import approx
 
@@ -88,7 +89,7 @@ class StructureGraphTest(PymatgenTest):
         # MoS2 example, structure graph obtained from critic2
         # (not ground state, from mp-1023924, single layer)
         stdout_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2_critic2_stdout.txt")
-        with open(stdout_file) as f:
+        with zopen(stdout_file) as f:
             reference_stdout = f.read()
         self.structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2.cif"))
         c2o = Critic2Analysis(self.structure, reference_stdout)

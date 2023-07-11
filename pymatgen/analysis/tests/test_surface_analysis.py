@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 
+from monty.io import zopen
 from pytest import approx
 from sympy import Number, Symbol
 
@@ -24,7 +25,7 @@ def get_path(path_str):
 
 class SlabEntryTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(get_path(""), "ucell_entries.txt.gz")) as ucell_entries:
+        with zopen(os.path.join(get_path(""), "ucell_entries.txt.gz")) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
         self.ucell_entries = ucell_entries
 
@@ -58,7 +59,7 @@ class SlabEntryTest(PymatgenTest):
                         assert ads.Nsurfs_ads_in_slab == 1
 
                         # Determine the correct binding energy
-                        with open(os.path.join(get_path(""), "isolated_O_entry.txt.gz")) as isolated_O_entry:
+                        with zopen(os.path.join(get_path(""), "isolated_O_entry.txt.gz")) as isolated_O_entry:
                             isolated_O_entry = json.loads(isolated_O_entry.read())
                         O_cse = ComputedStructureEntry.from_dict(isolated_O_entry)
                         g_bind = (ads.energy - ml * clean.energy) / Nads - O_cse.energy_per_atom
@@ -122,7 +123,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
     def setUp(self):
         entry_dict = get_entry_dict(os.path.join(get_path(""), "Cu_entries.txt.gz"))
         self.Cu_entry_dict = entry_dict
-        with open(os.path.join(get_path(""), "ucell_entries.txt.gz")) as ucell_entries:
+        with zopen(os.path.join(get_path(""), "ucell_entries.txt.gz")) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
 
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
@@ -312,7 +313,7 @@ class NanoscaleStabilityTest(PymatgenTest):
         # Load all entries
         La_hcp_entry_dict = get_entry_dict(os.path.join(get_path(""), "La_hcp_entries.txt.gz"))
         La_fcc_entry_dict = get_entry_dict(os.path.join(get_path(""), "La_fcc_entries.txt.gz"))
-        with open(os.path.join(get_path(""), "ucell_entries.txt.gz")) as ucell_entries:
+        with zopen(os.path.join(get_path(""), "ucell_entries.txt.gz")) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
         La_hcp_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_hcp"])
         La_fcc_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_fcc"])
@@ -363,7 +364,7 @@ def get_entry_dict(filename):
     # helper to generate an entry_dict
 
     entry_dict = {}
-    with open(filename) as entries:
+    with zopen(filename) as entries:
         entries = json.loads(entries.read())
     for k in entries:
         n = k[25:]
@@ -390,7 +391,7 @@ def load_O_adsorption():
     # Loads the dictionary for clean and O adsorbed Rh, Pt, and Ni entries
 
     # Load the adsorbate as an entry
-    with open(os.path.join(get_path(""), "isolated_O_entry.txt.gz")) as isolated_O_entry:
+    with zopen(os.path.join(get_path(""), "isolated_O_entry.txt.gz")) as isolated_O_entry:
         isolated_O_entry = json.loads(isolated_O_entry.read())
     O_entry = ComputedStructureEntry.from_dict(isolated_O_entry)
 
@@ -401,7 +402,7 @@ def load_O_adsorption():
         "Rh": {(1, 0, 0): {}},
     }
 
-    with open(os.path.join(get_path(""), "csentries_slabs.json.gz")) as entries:
+    with zopen(os.path.join(get_path(""), "csentries_slabs.json.gz")) as entries:
         entries = json.loads(entries.read())
     for k in entries:
         entry = ComputedStructureEntry.from_dict(entries[k])
@@ -417,7 +418,7 @@ def load_O_adsorption():
                     clean = SlabEntry(entry.structure, entry.energy, (1, 0, 0), label=k + "_clean")
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = []
 
-    with open(os.path.join(get_path(""), "csentries_o_ads.json.gz")) as entries:
+    with zopen(os.path.join(get_path(""), "csentries_o_ads.json.gz")) as entries:
         entries = json.loads(entries.read())
     for k in entries:
         entry = ComputedStructureEntry.from_dict(entries[k])
