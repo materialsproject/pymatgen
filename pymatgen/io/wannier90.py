@@ -32,7 +32,7 @@ class Unk:
 
     .. attribute:: is_noncollinear
 
-        bool that specifies if data is from a noncollinear calculation
+        bool that specifies if data is from a non-collinear calculation
 
     .. attribute:: nbnd
 
@@ -57,7 +57,7 @@ class Unk:
         Args:
             ik (int): index of the kpoint UNK file is for
             data (np.ndarray): data from the UNK file that has shape (nbnd,
-                ngx, ngy, ngz) or (nbnd, 2, ngx, ngy, ngz) if noncollinear
+                ngx, ngy, ngz) or (nbnd, 2, ngx, ngy, ngz) if non-collinear
         """
         self.ik = ik
         self.data = data
@@ -67,7 +67,7 @@ class Unk:
         """
         np.ndarray: contains the wavefunction data for in the UNK file.
         The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and
-        (nbnd, 2, ngx, ngy, ngz) for noncollinear calculations.
+        (nbnd, 2, ngx, ngy, ngz) for non-collinear calculations.
         """
         return self._data
 
@@ -77,7 +77,7 @@ class Unk:
         Sets the value of data.
 
         Args:
-            value (np.ndarray): data to replace stored data, must haveshape
+            value (np.ndarray): data to replace stored data, must have shape
                 (nbnd, ngx, ngy, ngz) or (nbnd, 2, ngx, ngy, ngz) if
                 noncollinear calculation
         """
@@ -90,7 +90,7 @@ class Unk:
             )
         if len(temp_val.shape) == 5 and temp_val.shape[1] != 2:
             raise ValueError(
-                f"invalid noncollinear data, shape should be (nbnd, 2, ngx, ngy, ngz), given {temp_val.shape}"
+                f"invalid non-collinear data, shape should be (nbnd, 2, ngx, ngy, ngz), given {temp_val.shape}"
             )
         self._data = temp_val
 
@@ -111,7 +111,7 @@ class Unk:
             Unk object
         """
         input_data = []
-        with FortranFile(filename, "r") as f:
+        with FortranFile(filename, "rt") as f:
             *ng, ik, nbnd = f.read_ints()
             for _ in range(nbnd):
                 input_data.append(
