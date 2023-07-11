@@ -6,7 +6,6 @@ import os
 import re
 from typing import Generator
 
-from frozendict import frozendict
 from monty.io import reverse_readline
 from monty.itertools import chunks
 from monty.json import MSONable
@@ -428,7 +427,7 @@ class AdfTask(MSONable):
     not support calculating force/gradient.
     """
 
-    operations = frozendict(
+    operations = dict(
         energy="Evaluate the single point energy.",
         optimize="Minimize the energy by varying the molecular structure.",
         frequencies="Compute second derivatives and print out an analysis of molecular vibrations.",

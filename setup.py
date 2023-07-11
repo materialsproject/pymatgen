@@ -31,7 +31,6 @@ setup(
     version="2023.6.28",
     python_requires=">=3.8",
     install_requires=[
-        "frozendict",
         "matplotlib>=1.5",
         "monty>=3.0.2",
         "mp-api>=0.27.3,<0.34.0",
@@ -51,7 +50,7 @@ setup(
         "tabulate",
         "tqdm",
         "uncertainties>=3.1.4",
-        "joblib"
+        "joblib",
     ],
     extras_require={
         "ase": ["ase>=3.3"],

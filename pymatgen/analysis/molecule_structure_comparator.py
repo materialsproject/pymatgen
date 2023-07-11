@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import itertools
 
-from frozendict import frozendict
 from monty.json import MSONable
 
 from pymatgen.util.due import Doi, due
@@ -34,7 +33,7 @@ class CovalentRadius:
     Beatriz C. et al. Dalton Trans. 2008, 2832-2838. https://doi.org/10.1039/b801115j
     """
 
-    radius = frozendict(
+    radius = dict(
         H=0.31,
         He=0.28,
         Li=1.28,

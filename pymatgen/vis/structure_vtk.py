@@ -10,7 +10,6 @@ import time
 from typing import Sequence
 
 import numpy as np
-from frozendict import frozendict
 
 try:
     import vtk
@@ -895,7 +894,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
 class MultiStructuresVis(StructureVis):
     """Visualization for multiple structures."""
 
-    DEFAULT_ANIMATED_MOVIE_OPTIONS = frozendict(
+    DEFAULT_ANIMATED_MOVIE_OPTIONS = dict(
         time_between_frames=0.1,
         looping_type="restart",
         number_of_loops=1,
