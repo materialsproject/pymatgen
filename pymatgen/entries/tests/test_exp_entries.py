@@ -15,7 +15,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class ExpEntryTest(unittest.TestCase):
     def setUp(self):
-        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe2O3_exp.json.gz"), 'rt') as f:
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe2O3_exp.json.gz"), 'r') as f:
             thermo_data = json.loads(f.read(), cls=MontyDecoder)
         self.entry = ExpEntry("Fe2O3", thermo_data)
 
