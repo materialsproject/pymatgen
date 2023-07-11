@@ -12,7 +12,7 @@ from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
+test_dir = join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 geometry_string = """GEOMETRY
 smooth conservepoints

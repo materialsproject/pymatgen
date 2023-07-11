@@ -4,6 +4,8 @@ import json
 import os
 import unittest
 
+from monty.serialization import zopen
+
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.phonon.plotter import PhononBSPlotter, PhononDosPlotter, ThermoPlotter
@@ -12,7 +14,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class PhononDosPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json.gz")) as f:
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json.gz"), "rt") as f:
             self.dos = CompletePhononDos.from_dict(json.load(f))
             self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
             self.plotter_nostack = PhononDosPlotter(sigma=0.2, stack=False)
@@ -48,11 +50,11 @@ class PhononDosPlotterTest(unittest.TestCase):
 
 class PhononBSPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json.gz")) as f:
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json.gz"), "rt") as f:
             d = json.loads(f.read())
             self.bs = PhononBandStructureSymmLine.from_dict(d)
             self.plotter = PhononBSPlotter(self.bs)
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "SrTiO3_phonon_bandstructure.json.gz")) as f:
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "SrTiO3_phonon_bandstructure.json.gz"), "rt") as f:
             d = json.loads(f.read())
             self.bs_sto = PhononBandStructureSymmLine.from_dict(d)
             self.plotter_sto = PhononBSPlotter(self.bs_sto)
@@ -96,7 +98,7 @@ class PhononBSPlotterTest(unittest.TestCase):
 
 class ThermoPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json.gz")) as f:
+        with zopen(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json.gz"), "rt") as f:
             self.dos = CompletePhononDos.from_dict(json.load(f))
             self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
