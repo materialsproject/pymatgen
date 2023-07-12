@@ -745,7 +745,8 @@ class DoscarTest(unittest.TestCase):
         assert tdos_nonspin == self.DOSCAR_nonspin_pol.completedos.densities[Spin.up].tolist()
 
         assert fermi == approx(self.DOSCAR_nonspin_pol.completedos.efermi)
-        assert self.DOSCAR_nonspin_pol.completedos.structure.as_dict() == self.structure.as_dict()
+
+        assert self.DOSCAR_nonspin_pol.completedos.structure == self.structure
 
         assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == PDOS_F_2s
         assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == PDOS_F_2py
