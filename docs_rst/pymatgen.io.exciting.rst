@@ -11,10 +11,13 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.io.exciting.inputs module
+----------------------------------
 
-   pymatgen.io.exciting.inputs
+.. automodule:: pymatgen.io.exciting.inputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

@@ -11,10 +11,13 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.analysis.solar.slme module
+-----------------------------------
 
-   pymatgen.analysis.solar.slme
+.. automodule:: pymatgen.analysis.solar.slme
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

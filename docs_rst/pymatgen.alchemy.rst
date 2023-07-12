@@ -11,12 +11,29 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.alchemy.filters module
+-------------------------------
 
-   pymatgen.alchemy.filters
-   pymatgen.alchemy.materials
-   pymatgen.alchemy.transmuters
+.. automodule:: pymatgen.alchemy.filters
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.alchemy.materials module
+---------------------------------
+
+.. automodule:: pymatgen.alchemy.materials
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.alchemy.transmuters module
+-----------------------------------
+
+.. automodule:: pymatgen.alchemy.transmuters
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

@@ -152,7 +152,7 @@ class PotcarCorrection(Correction):
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Uncertainty.
         """
-        if SETTINGS.get("DISABLE_POTCAR_CHECKS", False):
+        if SETTINGS.get("PMG_DISABLE_POTCAR_CHECKS", False):
             return ufloat(0.0, 0.0)
         if self.check_hash:
             if entry.parameters.get("potcar_spec"):
