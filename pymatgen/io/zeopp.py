@@ -200,10 +200,10 @@ class ZeoVoronoiXYZ(XYZ):
 
     def __str__(self):
         output = [str(len(self._mols[0])), self._mols[0].composition.formula]
-        fmtstr = f"{{}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}}"
+        fmt = f"{{}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}}"
         for site in self._mols[0]:
             output.append(
-                fmtstr.format(
+                fmt.format(
                     site.specie.symbol,
                     site.z,
                     site.x,
