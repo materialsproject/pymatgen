@@ -994,6 +994,18 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         self.compat.process_entries(entries, inplace=False)
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
+    def test_check_potcar(self):
+        MaterialsProject2020Compatibility(check_potcar=False).process_entries(self.entry1)
+        entry = self.entry1.copy()
+        del entry.parameters["potcar_spec"]
+
+        # default behavior of checking POTCAR symbols should fail if entry params are missing
+        with pytest.raises(KeyError, match="potcar_symbols"):
+            MaterialsProject2020Compatibility(check_potcar=True).process_entries(entry)
+
+        # but should work fine if we disable POTCAR checking
+        MaterialsProject2020Compatibility(check_potcar=False).process_entries(entry)
+
 
 class MITCompatibilityTest(unittest.TestCase):
     def tearDown(self):
