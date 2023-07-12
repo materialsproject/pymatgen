@@ -198,18 +198,18 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         struct = p.structure
         expected = [1, 3, 1]
-        for i, frac in enumerate([0.25, 0.5, 0.75]):
+        for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
             s = trans.apply_transformation(struct)
             oxitrans = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
             s = oxitrans.apply_transformation(s)
             alls = enum_trans.apply_transformation(s, 100)
-            assert len(alls) == expected[i]
+            assert len(alls) == expected[idx]
             assert isinstance(trans.apply_transformation(s), Structure)
             for ss in alls:
                 assert "energy" in ss
             alls = enum_trans2.apply_transformation(s, 100)
-            assert len(alls) == expected[i]
+            assert len(alls) == expected[idx]
             assert isinstance(trans.apply_transformation(s), Structure)
             for ss in alls:
                 assert "num_sites" in ss
@@ -402,7 +402,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(struct)
         Li_site = alls.indices_from_symbol("Li")[0]
         # Ensure s does not have a spin property
-        assert struct.sites[Li_site].specie.spin is None
+        assert struct[Li_site].specie.spin is None
         # ensure sites are assigned a spin property in alls
         # assert "spin" in alls.sites[Li_site].specie.properties
         assert alls.sites[Li_site].specie.spin == 0
@@ -624,24 +624,22 @@ class SlabTransformationTest(PymatgenTest):
 
 class GrainBoundaryTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            Al_bulk = Structure.from_spacegroup("Fm-3m", Lattice.cubic(2.8575585), ["Al"], [[0, 0, 0]])
-            gb_gen_params_s5 = {
-                "rotation_axis": [1, 0, 0],
-                "rotation_angle": 53.13010235415599,
-                "expand_times": 3,
-                "vacuum_thickness": 0.0,
-                "normal": True,
-                "plane": [0, -1, -3],
-                "rm_ratio": 0.6,
-            }
-            gbg = GrainBoundaryGenerator(Al_bulk)
-            gb_from_generator = gbg.gb_from_parameters(**gb_gen_params_s5)
-            gbt_s5 = GrainBoundaryTransformation(**gb_gen_params_s5)
-            gb_from_trans = gbt_s5.apply_transformation(Al_bulk)
-            self.assert_all_close(gb_from_generator.lattice.matrix, gb_from_trans.lattice.matrix)
-            self.assert_all_close(gb_from_generator.cart_coords, gb_from_trans.cart_coords)
+        Al_bulk = Structure.from_spacegroup("Fm-3m", Lattice.cubic(2.8575585), ["Al"], [[0, 0, 0]])
+        gb_gen_params_s5 = {
+            "rotation_axis": [1, 0, 0],
+            "rotation_angle": 53.13010235415599,
+            "expand_times": 3,
+            "vacuum_thickness": 0.0,
+            "normal": True,
+            "plane": [0, -1, -3],
+            "rm_ratio": 0.6,
+        }
+        gbg = GrainBoundaryGenerator(Al_bulk)
+        gb_from_generator = gbg.gb_from_parameters(**gb_gen_params_s5)
+        gbt_s5 = GrainBoundaryTransformation(**gb_gen_params_s5)
+        gb_from_trans = gbt_s5.apply_transformation(Al_bulk)
+        self.assert_all_close(gb_from_generator.lattice.matrix, gb_from_trans.lattice.matrix)
+        self.assert_all_close(gb_from_generator.cart_coords, gb_from_trans.cart_coords)
 
 
 class DisorderedOrderedTransformationTest(PymatgenTest):
@@ -666,7 +664,7 @@ class SQSTransformationTest(PymatgenTest):
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         struct_out = trans.apply_transformation(struct)
         matches = [struct_out.matches(s) for s in pzt_structs]
-        assert True in matches
+        assert any(matches)
 
     def test_return_ranked_list(self):
         # list of structures
@@ -676,7 +674,7 @@ class SQSTransformationTest(PymatgenTest):
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         ranked_list_out = trans.apply_transformation(struct, return_ranked_list=True)
         matches = [ranked_list_out[0]["structure"].matches(s) for s in pzt_structs2]
-        assert True in matches
+        assert any(matches)
 
     def test_spin(self):
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)

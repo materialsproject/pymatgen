@@ -88,11 +88,12 @@ class AbinitInputTestCase(PymatgenTest):
         with pytest.raises(inp.Error):
             inp.set_vars(unit_cell)
 
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="type dict does not have `to_abivars` method"):
             inp.add_abiobjects({})
 
-        with pytest.raises(KeyError):
+        with pytest.raises(KeyError) as exc:
             inp.remove_vars("foo", strict=True)
+        assert "key='foo' not in self:" in str(exc.value)
         assert not inp.remove_vars("foo", strict=False)
 
         # Test deepcopy and remove_vars.
@@ -177,7 +178,7 @@ class TestMultiDataset(PymatgenTest):
         pseudo = abiref_file("14si.pspnc")
         pseudo_dir = os.path.dirname(pseudo)
         multi = BasicMultiDataset(structure=structure, pseudos=pseudo)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="ndtset=-1 cannot be <=0"):
             BasicMultiDataset(structure=structure, pseudos=pseudo, ndtset=-1)
 
         multi = BasicMultiDataset(structure=structure, pseudos=pseudo, pseudo_dir=pseudo_dir)
@@ -259,7 +260,7 @@ class ShiftModeTest(PymatgenTest):
         gamma = ShiftMode.GammaCentered
         assert ShiftMode.from_object("G") == gamma
         assert ShiftMode.from_object(gamma) == gamma
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="The object provided is not handled: type dict"):
             ShiftMode.from_object({})
 
 

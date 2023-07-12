@@ -82,7 +82,7 @@ class XAS(Spectrum):
         self.absorbing_index = absorbing_index
         # check for empty spectra and negative intensities
         if sum(1 for i in self.y if i <= 0) / len(self.y) > 0.05:
-            raise ValueError("Please double check the intensities. Most of them are non-positive values. ")
+            raise ValueError("Double check the intensities. Most of them are non-positive.")
 
     def __str__(self):
         return (

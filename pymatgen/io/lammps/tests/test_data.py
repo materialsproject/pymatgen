@@ -1040,11 +1040,11 @@ class CombinedDataTest(unittest.TestCase):
         assert_array_almost_equal(real_frac_coords, [0.01292047, 0.01292047, 0.01292047])
 
     def test_from_ff_and_topologies(self):
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, match="Unsupported constructor for CombinedData objects"):
             CombinedData.from_ff_and_topologies()
 
     def test_from_structure(self):
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, match="Unsupported constructor for CombinedData objects"):
             CombinedData.from_structure()
 
     def test_disassemble(self):

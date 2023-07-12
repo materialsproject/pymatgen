@@ -28,10 +28,9 @@ setup(
         include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*", "cmd_line"],
         exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
     ),
-    version="2023.6.28",
+    version="2023.7.11",
     python_requires=">=3.8",
     install_requires=[
-        "frozendict",
         "matplotlib>=1.5",
         "monty>=3.0.2",
         "mp-api>=0.27.3,<0.34.0",
@@ -41,6 +40,8 @@ setup(
         "pandas",
         "plotly>=4.5.0",
         "pybtex",
+        # TODO remove after https://github.com/materialsproject/emmet/issues/768 is fixed
+        "pydantic<2.0.0",
         "requests",
         "ruamel.yaml>=0.17.0",
         "scipy>=1.5.0",
@@ -49,6 +50,7 @@ setup(
         "tabulate",
         "tqdm",
         "uncertainties>=3.1.4",
+        "joblib",
     ],
     extras_require={
         "ase": ["ase>=3.3"],

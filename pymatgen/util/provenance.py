@@ -84,15 +84,15 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
         return {"name": self.name, "url": self.url, "description": self.description}
 
     @staticmethod
-    def from_dict(h_node: dict[str, str]) -> HistoryNode:
+    def from_dict(dct: dict[str, str]) -> HistoryNode:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             HistoryNode
         """
-        return HistoryNode(h_node["name"], h_node["url"], h_node["description"])
+        return HistoryNode(dct["name"], dct["url"], dct["description"])
 
     @staticmethod
     def parse_history_node(h_node):
@@ -116,15 +116,8 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
 
 class Author(namedtuple("Author", ["name", "email"])):
     """
-    An Author contains two fields:
-
-    .. attribute:: name
-
-        Name of author (String)
-
-    .. attribute:: email
-
-        Email of author (String)
+    An Author contains two fields: name and email. It is meant to represent
+    the author of a Structure or the author of a code that was applied to a Structure.
     """
 
     __slots__ = ()
@@ -176,21 +169,20 @@ class Author(namedtuple("Author", ["name", "email"])):
 
 class StructureNL:
     """
-    The Structure Notation Language (SNL, pronounced 'snail') is a container
-    for a pymatgen Structure/Molecule object with some additional fields for
-    enhanced provenance. It is meant to be imported/exported in a JSON file
-    format with the following structure:
+    The Structure Notation Language (SNL, pronounced 'snail') is a container for a pymatgen
+    Structure/Molecule object with some additional fields for enhanced provenance.
 
-    - about
-        - created_at
-        - authors
-        - projects
-        - references
-        - remarks
-        - data
-        - history
-    - lattice (optional)
-    - sites
+    It is meant to be imported/exported in a JSON file format with the following structure:
+        - sites
+        - lattice (optional)
+        - about
+            - created_at
+            - authors
+            - projects
+            - references
+            - remarks
+            - data
+            - history
     """
 
     def __init__(
@@ -248,7 +240,7 @@ class StructureNL:
         # check remarks limit
         for remark in self.remarks:
             if len(remark) > 140:
-                raise ValueError(f"The remark exceeds the maximum size of 140 characters: {remark}")
+                raise ValueError(f"The remark exceeds the maximum size of 140 characters: {len(remark)}")
 
         # check data limit
         self.data = data or {}
@@ -359,15 +351,15 @@ class StructureNL:
         histories = [[]] * len(structures) if histories is None else histories
 
         snl_list = []
-        for i, struct in enumerate(structures):
+        for idx, struct in enumerate(structures):
             snl = StructureNL(
                 struct,
                 authors,
                 projects=projects,
                 references=references,
                 remarks=remarks,
-                data=data[i],
-                history=histories[i],
+                data=data[idx],
+                history=histories[idx],
                 created_at=created_at,
             )
             snl_list.append(snl)

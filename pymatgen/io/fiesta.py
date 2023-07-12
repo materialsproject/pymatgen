@@ -439,9 +439,7 @@ class FiestaInput(MSONable):
             o.append(" Dumping data for TD-DFT treatment")
         o.append("")
         o.append(" Atoms in cell cartesian A:")
-        symbols = []
-        for syb in self._mol.symbol_set:
-            symbols.append(syb)
+        symbols = list(self._mol.symbol_set)
 
         for site in self._mol:
             o.append(f" {site.x} {site.y} {site.z} {int(symbols.index(site.specie.symbol)) + 1}")
@@ -456,9 +454,7 @@ class FiestaInput(MSONable):
         return self._mol
 
     def __str__(self):
-        symbols = []
-        for syb in self._mol.symbol_set:
-            symbols.append(syb)
+        symbols = list(self._mol.symbol_set)
 
         geometry = []
         for site in self._mol:

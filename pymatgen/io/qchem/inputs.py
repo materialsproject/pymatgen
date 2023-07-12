@@ -578,7 +578,7 @@ class QCInput(InputFile):
         elif mode == "sequential":
             vdw_list.append("2")
         else:
-            raise ValueError(f"Invalid value {mode} given for 'mode' kwarg.")
+            raise ValueError(f"Invalid {mode=}, must be 'atomic' or 'sequential'")
 
         for num, radius in radii.items():
             vdw_list.append(f"   {num} {radius}")

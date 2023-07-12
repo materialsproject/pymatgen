@@ -23,7 +23,7 @@ class TestTemplateInputGen:
             with open(os.path.join(scratch_dir, "hello_world.in")) as f:
                 assert "298" in f.read()
 
-            with pytest.raises(FileNotFoundError):
+            with pytest.raises(FileNotFoundError, match="No such file or directory:"):
                 tis.write_input(os.path.join(scratch_dir, "temp"), make_dir=False)
 
             tis.write_input(os.path.join(scratch_dir, "temp"), make_dir=True)
@@ -39,7 +39,7 @@ class TestTemplateInputGen:
             assert len(list(tis.inputs)) == 1
             assert isinstance(tis.inputs["hello_world.in"], str)
 
-            with pytest.raises(FileExistsError):
+            with pytest.raises(FileExistsError, match="hello_world.in"):
                 tis.write_input(scratch_dir, overwrite=False)
 
             tis.write_input(scratch_dir, overwrite=True)

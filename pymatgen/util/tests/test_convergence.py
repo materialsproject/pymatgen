@@ -6,7 +6,7 @@ from pytest import approx
 from pymatgen.util.convergence import determine_convergence
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "setten"
+__author__ = "Michiel van Setten"
 
 
 class ConvergenceTest(PymatgenTest):

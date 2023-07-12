@@ -11,10 +11,13 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.analysis.xas.spectrum module
+-------------------------------------
 
-   pymatgen.analysis.xas.spectrum
+.. automodule:: pymatgen.analysis.xas.spectrum
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

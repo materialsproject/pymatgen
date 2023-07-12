@@ -417,8 +417,8 @@ class BztInterpolator:
                 default 10 gives 10 time more points in the real space than
                 the number of kpoints given in reciprocal space.
             energy_range: usually the interpolation is not needed on the entire energy
-                range but on a specific range around the fermi level.
-                This energy in eV fix the range around the fermi level
+                range but on a specific range around the Fermi level.
+                This energy in eV fix the range around the Fermi level
                 (E_fermi-energy_range,E_fermi+energy_range) of
                 bands that will be interpolated
                 and taken into account to calculate the transport properties.

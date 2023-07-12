@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 from pytest import approx
 
@@ -19,8 +17,7 @@ molecule = Molecule(species=["Si"], coords=[[0, 0, 0]])
 
 class SetTest(PymatgenTest):
     def setUp(self) -> None:
-        self.TEST_FILES_DIR = Path.joinpath(self.TEST_FILES_DIR, "cp2k")
-        SETTINGS["PMG_CP2K_DATA_DIR"] = self.TEST_FILES_DIR
+        SETTINGS["PMG_CP2K_DATA_DIR"] = f"{self.TEST_FILES_DIR}/cp2k"
         self.setkwargs = {
             "print_pdos": False,
             "print_dos": False,
@@ -112,7 +109,7 @@ class SetTest(PymatgenTest):
 
         # Validator will trip for kpoints + hfx
         ss.update({"force_eval": {"dft": {"kpoints": {}}}})
-        with pytest.raises(Cp2kValidationError):
+        with pytest.raises(Cp2kValidationError, match="CP2K v2022.1: Does not support hartree fock with kpoints"):
             ss.validate()
 
         ss = DftSet(molecule, basis_and_potential=basis_and_potential, xc_functionals="PBE")

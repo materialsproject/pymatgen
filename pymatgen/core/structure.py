@@ -1013,8 +1013,8 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.symmetry.groups import SpaceGroup
 
         try:
-            i = int(sg)
-            spg = SpaceGroup.from_int_number(i)
+            num = int(sg)
+            spg = SpaceGroup.from_int_number(num)
         except ValueError:
             spg = SpaceGroup(sg)  # type: ignore
 
@@ -1038,12 +1038,12 @@ class IStructure(SiteCollection, MSONable):
         all_sp: list[str | Element | Species | DummySpecies | Composition] = []
         all_coords: list[list[float]] = []
         all_site_properties: dict[str, list] = collections.defaultdict(list)
-        for i, (sp, c) in enumerate(zip(species, frac_coords)):
+        for idx, (sp, c) in enumerate(zip(species, frac_coords)):
             cc = spg.get_orbit(c, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)  # type: ignore
             for k, v in props.items():
-                all_site_properties[k].extend([v[i]] * len(cc))
+                all_site_properties[k].extend([v[idx]] * len(cc))
 
         return cls(latt, all_sp, all_coords, site_properties=all_site_properties)
 
@@ -3098,7 +3098,7 @@ class IMolecule(SiteCollection, MSONable):
         all_dist = sorted(all_dist, key=lambda x: x[0])
         return [d[1] for d in all_dist]
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # For now, just use the composition hash code.
         return hash(self.composition)
 
@@ -3998,8 +3998,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         theta %= 2 * np.pi
 
         rm = expm(cross(eye(3), axis / norm(axis)) * theta)
-        for i in indices:
-            site = self._sites[i]
+        for idx in indices:
+            site = self._sites[idx]
             coords = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
             new_site = PeriodicSite(
                 site.species,
@@ -4010,7 +4010,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 properties=site.properties,
                 skip_checks=True,
             )
-            self._sites[i] = new_site
+            self._sites[idx] = new_site
 
     def perturb(self, distance: float, min_distance: float | None = None) -> None:
         """
@@ -4035,8 +4035,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 dist = np.random.uniform(min_distance, dist)
             return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
-        for i in range(len(self._sites)):
-            self.translate_sites([i], get_rand_vec(), frac_coords=False)
+        for idx in range(len(self._sites)):
+            self.translate_sites([idx], get_rand_vec(), frac_coords=False)
 
     def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True) -> None:
         """
@@ -4090,9 +4090,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         from scipy.cluster.hierarchy import fcluster, linkage
         from scipy.spatial.distance import squareform
 
-        d = self.distance_matrix
-        np.fill_diagonal(d, 0)
-        clusters = fcluster(linkage(squareform((d + d.T) / 2)), tol, "distance")
+        dist_mat = self.distance_matrix
+        np.fill_diagonal(dist_mat, 0)
+        clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")
         sites = []
         for c in np.unique(clusters):
             inds = np.where(clusters == c)[0]
@@ -4318,7 +4318,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             return
         elif isinstance(idx, slice):
             to_mod = self[idx]
-            indices = [ii for ii, s in enumerate(self._sites) if s in to_mod]
+            indices = [idx for idx, site in enumerate(self._sites) if site in to_mod]
         else:
             indices = list(idx)
 
@@ -4378,22 +4378,22 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 if there are unpaired electrons.
         """
         self._charge = charge
-        nelectrons = 0.0
+        n_electrons = 0.0
         for site in self._sites:
             for sp, amt in site.species.items():
                 if not isinstance(sp, DummySpecies):
-                    nelectrons += sp.Z * amt
-        nelectrons -= charge
-        self._nelectrons = nelectrons
+                    n_electrons += sp.Z * amt
+        n_electrons -= charge
+        self._nelectrons = n_electrons
         if spin_multiplicity:
-            if self._charge_spin_check and (nelectrons + spin_multiplicity) % 2 != 1:
+            if self._charge_spin_check and (n_electrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
                     f"Charge of {self._charge} and spin multiplicity of {spin_multiplicity} is"
                     " not possible for this molecule"
                 )
             self._spin_multiplicity = spin_multiplicity
         else:
-            self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+            self._spin_multiplicity = 1 if n_electrons % 2 == 0 else 2
 
     def insert(  # type: ignore
         self,
@@ -4506,11 +4506,11 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         rm = expm(cross(eye(3), axis / norm(axis)) * theta)
 
-        for i in indices:
-            site = self._sites[i]
+        for idx in indices:
+            site = self._sites[idx]
             s = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
             new_site = Site(site.species, s, properties=site.properties)
-            self._sites[i] = new_site
+            self._sites[idx] = new_site
 
     def perturb(self, distance: float):
         """
@@ -4528,8 +4528,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             vnorm = np.linalg.norm(vector)
             return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
 
-        for i in range(len(self._sites)):
-            self.translate_sites([i], get_rand_vec())
+        for idx in range(len(self._sites)):
+            self.translate_sites([idx], get_rand_vec())
 
     def apply_operation(self, symmop: SymmOp):
         """
@@ -4543,7 +4543,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             new_cart = symmop.operate(site.coords)
             return Site(site.species, new_cart, properties=site.properties)
 
-        self._sites = [operate_site(s) for s in self._sites]
+        self._sites = [operate_site(site) for site in self._sites]
 
     def copy(self):
         """
@@ -4640,8 +4640,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
         del self[index]
-        for site in functional_group[1:]:
-            self._sites.append(site)
+        self._sites += list(functional_group[1:])
 
     def relax(
         self,

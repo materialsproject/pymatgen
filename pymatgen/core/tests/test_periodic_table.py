@@ -4,7 +4,6 @@ import math
 import os
 import pickle
 import unittest
-import warnings
 from copy import deepcopy
 
 import numpy as np
@@ -439,14 +438,14 @@ class SpeciesTestCase(PymatgenTest):
         assert mn2.get_shannon_radius("IV", "High Spin") == 0.66
         assert mn2.get_shannon_radius("V", "High Spin") == 0.75
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            # Trigger a warning.
-            r = mn2.get_shannon_radius("V")
-            # Verify some things
-            assert len(w) == 1
-            assert w[-1].category is UserWarning
-            assert r == 0.75
+        with pytest.warns(
+            UserWarning,
+            match="Specified spin='' not consistent with database spin of High Spin. Only one "
+            "spin data available, and that value is returned.",
+        ) as warns:
+            radius = mn2.get_shannon_radius("V")
+            assert len(warns) == 1
+            assert radius == 0.75
 
         assert mn2.get_shannon_radius("VI", "Low Spin") == 0.67
         assert mn2.get_shannon_radius("VI", "High Spin") == 0.83
@@ -546,8 +545,12 @@ class DummySpeciesTestCase(unittest.TestCase):
 
     def test_immutable(self):
         sp = Species("Fe", 2, spin=5)
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError) as exc:
             sp.spin = 6
+
+        assert "can't set attribute" in str(exc.value) or "property 'spin' of 'Species' object has no setter" in str(
+            exc.value
+        )  # 'can't set attribute' on Linux, for some reason different message on Windows and Mac
         sp.properties["spin"] = 7
         assert sp.spin == 5
 

@@ -11,12 +11,29 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.vis.plotters module
+----------------------------
 
-   pymatgen.vis.plotters
-   pymatgen.vis.structure_chemview
-   pymatgen.vis.structure_vtk
+.. automodule:: pymatgen.vis.plotters
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.vis.structure\_chemview module
+---------------------------------------
+
+.. automodule:: pymatgen.vis.structure_chemview
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.vis.structure\_vtk module
+----------------------------------
+
+.. automodule:: pymatgen.vis.structure_vtk
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

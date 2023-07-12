@@ -261,7 +261,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         x = self.bz.get_extreme("seebeck")
         assert x["best"]["carrier_type"] == "n"
         assert x["p"]["value"] == approx(1255.365, abs=1e-2)
-        assert x["n"]["isotropic"] is True
+        assert x["n"]["isotropic"]
         assert x["n"]["temperature"] == 600
 
         x = self.bz.get_extreme("kappa", maximize=False, min_temp=400, min_doping=1e20)

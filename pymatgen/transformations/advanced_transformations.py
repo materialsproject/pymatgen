@@ -12,7 +12,6 @@ from string import ascii_lowercase
 from typing import Callable, Iterable
 
 import numpy as np
-import tqdm
 from monty.dev import requires
 from monty.fractions import lcm
 from monty.json import MSONable
@@ -286,9 +285,10 @@ class EnumerateStructureTransformation(AbstractTransformation):
         refine_structure: bool = False,
         enum_precision_parameter: float = 0.001,
         check_ordered_symmetry: bool = True,
-        max_disordered_sites=None,
+        max_disordered_sites: int | None = None,
         sort_criteria: str | Callable = "ewald",
-        timeout=None,
+        timeout: float | None = None,
+        n_jobs: int = -1,
     ):
         """
         Args:
@@ -334,6 +334,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 speeds up the subsequent DFT calculations. Alternatively, a callable can be supplied that returns a
                 (Structure, energy) tuple.
             timeout (float): timeout in minutes to pass to EnumlibAdaptor.
+            n_jobs (int): Number of parallel jobs used to compute energy criteria. This is used only when the Ewald
+                or m3gnet or callable sort_criteria is used. Default is -1, which uses all available CPUs.
         """
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
@@ -344,6 +346,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self.max_disordered_sites = max_disordered_sites
         self.sort_criteria = sort_criteria
         self.timeout = timeout
+        self.n_jobs = n_jobs
 
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
@@ -427,22 +430,29 @@ class EnumerateStructureTransformation(AbstractTransformation):
         original_latt = structure.lattice
         inv_latt = np.linalg.inv(original_latt.matrix)
         ewald_matrices = {}
-        all_structures = []
-        m3gnet_model = None
-        for struct in tqdm.tqdm(structures):
-            new_latt = struct.lattice
-            transformation = np.dot(new_latt.matrix, inv_latt)
-            transformation = tuple(tuple(int(round(cell)) for cell in row) for row in transformation)
+        if not callable(self.sort_criteria) and self.sort_criteria.startswith("m3gnet"):
+            import matgl
+            from matgl.ext.ase import M3GNetCalculator, Relaxer
+
+            if self.sort_criteria == "m3gnet_relax":
+                potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
+                m3gnet_model = Relaxer(potential=potential)
+            elif self.sort_criteria == "m3gnet":
+                potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
+                m3gnet_model = M3GNetCalculator(potential=potential, stress_weight=0.01)
+
+        def _get_stats(struct):
             if callable(self.sort_criteria):
                 struct, energy = self.sort_criteria(struct)
-                all_structures.append(
-                    {
-                        "num_sites": len(struct),
-                        "energy": energy,
-                        "structure": struct,
-                    }
-                )
-            elif contains_oxidation_state and self.sort_criteria == "ewald":
+                return {
+                    "num_sites": len(struct),
+                    "energy": energy,
+                    "structure": struct,
+                }
+            if contains_oxidation_state and self.sort_criteria == "ewald":
+                new_latt = struct.lattice
+                transformation = np.dot(new_latt.matrix, inv_latt)
+                transformation = tuple(tuple(int(round(cell)) for cell in row) for row in transformation)
                 if transformation not in ewald_matrices:
                     s_supercell = structure * transformation
                     ewald = EwaldSummation(s_supercell)
@@ -450,40 +460,30 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 else:
                     ewald = ewald_matrices[transformation]
                 energy = ewald.compute_sub_structure(struct)
-                all_structures.append({"num_sites": len(struct), "energy": energy, "structure": struct})
-            elif self.sort_criteria.startswith("m3gnet"):
+                return {"num_sites": len(struct), "energy": energy, "structure": struct}
+            if self.sort_criteria.startswith("m3gnet"):
                 if self.sort_criteria == "m3gnet_relax":
-                    if m3gnet_model is None:
-                        import matgl
-                        from matgl.ext.ase import M3GNetCalculator, Relaxer
-
-                        potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
-                        m3gnet_model = Relaxer(potential=potential)
                     relax_results = m3gnet_model.relax(struct)
                     energy = float(relax_results["trajectory"].energies[-1])
                     struct = relax_results["final_structure"]
                 else:
-                    if m3gnet_model is None:
-                        import matgl
-                        from matgl.ext.ase import M3GNetCalculator
-
-                        potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
-                        m3gnet_model = M3GNetCalculator(potential=potential, stress_weight=0.01)
                     from pymatgen.io.ase import AseAtomsAdaptor
 
                     atoms = AseAtomsAdaptor().get_atoms(struct)
                     m3gnet_model.calculate(atoms)
                     energy = float(m3gnet_model.results["energy"])
 
-                all_structures.append(
-                    {
-                        "num_sites": len(struct),
-                        "energy": energy,
-                        "structure": struct,
-                    }
-                )
-            else:
-                all_structures.append({"num_sites": len(struct), "structure": struct})
+                return {
+                    "num_sites": len(struct),
+                    "energy": energy,
+                    "structure": struct,
+                }
+
+            return {"num_sites": len(struct), "structure": struct}
+
+        from joblib import Parallel, delayed
+
+        all_structures = Parallel(n_jobs=self.n_jobs)(delayed(_get_stats)(struct) for struct in structures)
 
         def sort_func(s):
             return (
@@ -2024,10 +2024,7 @@ class SQSTransformation(AbstractTransformation):
         """
         disordered_substructure = struc_disordered.copy()
 
-        idx_to_remove = []
-        for idx, site in enumerate(disordered_substructure):
-            if site.is_ordered:
-                idx_to_remove.append(idx)
+        idx_to_remove = [idx for idx, site in enumerate(disordered_substructure) if site.is_ordered]
         disordered_substructure.remove_sites(idx_to_remove)
 
         return disordered_substructure
@@ -2134,12 +2131,12 @@ class SQSTransformation(AbstractTransformation):
             return return_struc
 
         strucs = []
-        for d in sqs.allsqs:
+        for dct in sqs.allsqs:
             # filter for best structures only if enabled, else use full sqs.all_sqs list
-            if (not best_only) or (best_only and d["objective_function"] == sqs.objective_function):
-                struct = d["structure"]
+            if (not best_only) or (best_only and dct["objective_function"] == sqs.objective_function):
+                struct = dct["structure"]
                 # add temporary objective_function attribute to access objective_function after grouping
-                struct.objective_function = d["objective_function"]
+                struct.objective_function = dct["objective_function"]
                 strucs.append(struct)
 
         if remove_duplicate_structures:
@@ -2154,13 +2151,13 @@ class SQSTransformation(AbstractTransformation):
 
         to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in strucs]
 
-        for d in to_return:
+        for dct in to_return:
             # delete temporary objective_function attribute
-            del d["structure"].objective_function
+            del dct["structure"].objective_function
 
             # reduce structure
             if reduction_algo:
-                d["structure"] = d["structure"].get_reduced_structure(reduction_algo=reduction_algo)
+                dct["structure"] = dct["structure"].get_reduced_structure(reduction_algo=reduction_algo)
 
         if isinstance(return_ranked_list, int):
             return to_return[:return_ranked_list]

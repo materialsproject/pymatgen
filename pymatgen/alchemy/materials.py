@@ -58,8 +58,8 @@ class TransformedStructure(MSONable):
         self._undone: list[tuple[AbstractTransformation | dict[str, Any], Structure]] = []
 
         transformations = transformations or []
-        for t in transformations:
-            self.append_transformation(t)
+        for trafo in transformations:
+            self.append_transformation(trafo)
 
     def undo_last_change(self) -> None:
         """
@@ -290,7 +290,7 @@ class TransformedStructure(MSONable):
         raw_string = re.sub(r"'", '"', cif_string)
         cif_dict = parser.as_dict()
         cif_keys = list(cif_dict)
-        s = parser.get_structures(primitive)[0]
+        struct = parser.get_structures(primitive)[0]
         partial_cif = cif_dict[cif_keys[0]]
         if "_database_code_ICSD" in partial_cif:
             source = partial_cif["_database_code_ICSD"] + "-ICSD"
@@ -302,7 +302,7 @@ class TransformedStructure(MSONable):
             "original_file": raw_string,
             "cif_data": cif_dict[cif_keys[0]],
         }
-        return TransformedStructure(s, transformations, history=[source_info])
+        return TransformedStructure(struct, transformations, history=[source_info])
 
     @staticmethod
     def from_poscar_string(

@@ -163,7 +163,7 @@ class ShiftMode(Enum):
             return obj
         if is_string(obj):
             return cls(obj[0].upper())
-        raise TypeError(f"The object provided is not handled: type {type(obj)}")
+        raise TypeError(f"The object provided is not handled: type {type(obj).__name__}")
 
 
 def _stopping_criterion(runlevel, accuracy):
@@ -796,7 +796,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         dct = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
-                raise TypeError(f"type {type(obj)}: {obj!r} does not have `to_abivars` method")
+                raise TypeError(f"type {type(obj).__name__} does not have `to_abivars` method")
             dct.update(self.set_vars(obj.to_abivars()))
         return dct
 

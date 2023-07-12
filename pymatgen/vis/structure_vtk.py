@@ -10,7 +10,6 @@ import time
 from typing import Sequence
 
 import numpy as np
-from frozendict import frozendict
 
 try:
     import vtk
@@ -463,10 +462,10 @@ class StructureVis:
         """
         points = vtk.vtkPoints()
         conv = vtk.vtkConvexPointSet()
-        for i, n in enumerate(neighbors):
-            x, y, z = n.coords
-            points.InsertPoint(i, x, y, z)
-            conv.GetPointIds().InsertId(i, i)
+        for idx, neighbor in enumerate(neighbors):
+            x, y, z = neighbor.coords
+            points.InsertPoint(idx, x, y, z)
+            conv.GetPointIds().InsertId(idx, idx)
         grid = vtk.vtkUnstructuredGrid()
         grid.Allocate(1, 1)
         grid.InsertNextCell(conv.GetCellType(), conv.GetPointIds())
@@ -895,7 +894,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
 class MultiStructuresVis(StructureVis):
     """Visualization for multiple structures."""
 
-    DEFAULT_ANIMATED_MOVIE_OPTIONS = frozendict(
+    DEFAULT_ANIMATED_MOVIE_OPTIONS = dict(
         time_between_frames=0.1,
         looping_type="restart",
         number_of_loops=1,

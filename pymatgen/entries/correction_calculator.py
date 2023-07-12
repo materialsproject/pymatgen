@@ -228,9 +228,8 @@ class CorrectionCalculator:
         sigma[sigma == 0] = np.nan
 
         with warnings.catch_warnings():
-            warnings.simplefilter(
-                "ignore", category=RuntimeWarning
-            )  # numpy raises warning if the entire array is nan values
+            # numpy raises warning if the entire array is nan values
+            warnings.simplefilter("ignore", category=RuntimeWarning)
             mean_uncer = np.nanmean(sigma)
 
         sigma = np.where(np.isnan(sigma), mean_uncer, sigma)
@@ -327,17 +326,17 @@ class CorrectionCalculator:
                 compounds = self.superoxides
             else:
                 compounds = self.sulfides
-            for i in range(num):
-                if labels_species[num - i - 1] not in compounds:
-                    del labels_species[num - i - 1]
-                    del abs_errors[num - i - 1]
-                    del diffs_cpy[num - i - 1]
+            for idx in range(num):
+                if labels_species[num - idx - 1] not in compounds:
+                    del labels_species[num - idx - 1]
+                    del abs_errors[num - idx - 1]
+                    del diffs_cpy[num - idx - 1]
         else:
-            for i in range(num):
-                if not Composition(labels_species[num - i - 1])[specie]:
-                    del labels_species[num - i - 1]
-                    del abs_errors[num - i - 1]
-                    del diffs_cpy[num - i - 1]
+            for idx in range(num):
+                if not Composition(labels_species[num - idx - 1])[specie]:
+                    del labels_species[num - idx - 1]
+                    del abs_errors[num - idx - 1]
+                    del diffs_cpy[num - idx - 1]
         abs_errors, labels_species = (list(t) for t in zip(*sorted(zip(abs_errors, labels_species))))  # sort by error
 
         num = len(abs_errors)

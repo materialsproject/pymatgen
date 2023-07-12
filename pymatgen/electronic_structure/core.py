@@ -18,7 +18,7 @@ class Spin(Enum):
     Usage: Spin.up, Spin.down.
     """
 
-    up, down = (1, -1)
+    up, down = 1, -1
 
     def __int__(self):
         return self.value
@@ -434,7 +434,7 @@ class Magmom(MSONable):
     def __neg__(self):
         return Magmom(-self.moment, saxis=self.saxis)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return (tuple(self.moment) + tuple(self.saxis)).__hash__()
 
     def __float__(self):

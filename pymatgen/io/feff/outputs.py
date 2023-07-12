@@ -317,7 +317,7 @@ class Xmu(MSONable):
     @property
     def relative_energies(self):
         """
-        Returns energy with respect to the fermi level.
+        Returns energy with respect to the Fermi level.
         E - E_f.
         """
         return self.data[:, 1]
@@ -348,7 +348,7 @@ class Xmu(MSONable):
 
     @property
     def e_fermi(self):
-        """Returns the fermi level in eV."""
+        """Returns the Fermi level in eV."""
         return self.energies[0] - self.relative_energies[0]
 
     @property

@@ -20,6 +20,7 @@ from tqdm import tqdm
 from uncertainties import ufloat
 
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
+from pymatgen.core import SETTINGS
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.computed_entries import (
     CompositionEnergyAdjustment,
@@ -151,6 +152,8 @@ class PotcarCorrection(Correction):
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Uncertainty.
         """
+        if SETTINGS.get("PMG_DISABLE_POTCAR_CHECKS", False):
+            return ufloat(0.0, 0.0)
         if self.check_hash:
             if entry.parameters.get("potcar_spec"):
                 psp_settings = {d.get("hash") for d in entry.parameters["potcar_spec"] if d}

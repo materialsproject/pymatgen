@@ -1169,7 +1169,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         assert len(entries) == 2
 
     def test_config_file(self):
-        config_file = Path(PymatgenTest.TEST_FILES_DIR / "MP2020Compatibility_alternate.yaml")
+        config_file = Path(f"{PymatgenTest.TEST_FILES_DIR}/MP2020Compatibility_alternate.yaml")
         compat = MaterialsProject2020Compatibility(config_file=config_file)
         entry = compat.process_entry(self.entry1)
         for ea in entry.energy_adjustments:
@@ -1184,7 +1184,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
 
     def test_processing_entries_inplace(self):
         # load two entries in GGA_GGA_U_R2SCAN thermo type
-        entriesJson = Path(PymatgenTest.TEST_FILES_DIR / "entries_thermo_type_GGA_GGA_U_R2SCAN.json")
+        entriesJson = Path(f"{PymatgenTest.TEST_FILES_DIR}/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
         with open(entriesJson) as file:
             entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged

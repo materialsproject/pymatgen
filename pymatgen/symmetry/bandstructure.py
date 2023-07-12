@@ -247,10 +247,7 @@ class HighSymmKpath(KPathBase):
             sc_count = np.zeros(n_op)
 
             for o_num in range(0, n_op):
-                a_tr_coord = []
-
-                for coord_a in a_path["kpoints"].values():
-                    a_tr_coord.append(np.dot(rpg[o_num], coord_a))
+                a_tr_coord = [np.dot(rpg[o_num], coord_a) for coord_a in a_path["kpoints"].values()]
 
                 for coord_a in a_tr_coord:
                     for value in b_path["kpoints"].values():

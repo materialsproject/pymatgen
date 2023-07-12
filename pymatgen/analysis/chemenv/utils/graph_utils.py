@@ -236,7 +236,7 @@ class SimpleGraphCycle(MSONable):
             self.nodes = self.nodes[min_index:] + self.nodes[:min_index]
         self.ordered = True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return len(self.nodes)
 
     def __len__(self):
@@ -438,7 +438,7 @@ class MultiGraphCycle(MSONable):
             self.edge_indices = self.edge_indices[min_index:] + self.edge_indices[:min_index]
         self.ordered = True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return len(self.nodes)
 
     def __len__(self):
