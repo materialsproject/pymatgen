@@ -134,6 +134,14 @@ class TestLobsterNeighbors(unittest.TestCase):
             noise_cutoff=None,
         )
 
+        self.chemenvlobster1_cobi_NaCl = LobsterNeighbors(
+            are_coops=True,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOBILIST.lobster.NaCl.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+            additional_condition=1,
+            noise_cutoff=None,
+        )
+
         self.chemenvlobster1_cobi_mp470 = LobsterNeighbors(
             are_coops=True,
             filename_ICOHP=os.path.join(test_dir_env, "ICOBILIST.lobster.mp_470.gz"),
@@ -252,17 +260,6 @@ class TestLobsterNeighbors(unittest.TestCase):
             additional_condition=0,
             adapt_extremum_to_add_cond=True,
         )
-
-    def test_use_of_coop(self):
-        with pytest.raises(ValueError, match="Algorithm only works correctly for ICOHPLIST.lobster"):
-            _ = LobsterNeighbors(
-                are_coops=True,
-                filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353.gz"),
-                structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),
-                valences_from_charges=True,
-                filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
-                additional_condition=1,
-            )
 
     def test_cation_anion_mode_without_ions(self):
         with pytest.raises(
@@ -514,6 +511,16 @@ class TestLobsterNeighbors(unittest.TestCase):
                 )
             )
             == 6
+        )
+
+        assert (
+                len(
+                    self.chemenvlobster1_cobi_NaCl.get_nn(
+                        structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+                        n=0,
+                    )
+                )
+                == 6
         )
 
         assert (

@@ -1131,6 +1131,22 @@ class LobsterNeighbors(NearNeighbors):
 
         return unitcell
 
+    def _adapt_extremum_to_add_cond(self, list_icohps, percentage):
+        """
+        Convinicence method for returning the extremum of the given icohps or icoops or icobis list
+
+        Args:
+            list_icohps: can be a list of icohps or icobis or icobis
+
+        Returns: min value of input list of icohps / max value of input list of icobis or icobis
+        """
+
+        which_extr = min if not self.are_coops and not self.are_cobis else max
+        extremum_based = which_extr(list_icohps) * percentage
+
+        return extremum_based
+
+
     def _get_limit_from_extremum(
         self,
         icohpcollection,
@@ -1151,7 +1167,7 @@ class LobsterNeighbors(NearNeighbors):
 
         Returns: [-inf, min(strongest_icohp*0.15,-noise_cutoff)] / [max(strongest_icohp*0.15, noise_cutoff),inf]
         """
-        # TODO: make it work for COOPs/COBIs
+
         if not adapt_extremum_to_add_cond or additional_condition == 0:
             extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
         elif additional_condition == 1:
@@ -1166,10 +1182,7 @@ class LobsterNeighbors(NearNeighbors):
                 if (val1 < 0.0 < val2) or (val2 < 0.0 < val1):
                     list_icohps.append(value.summed_icohp)
 
-            if not self.are_coops and not self.are_cobis:
-                extremum_based = min(list_icohps) * percentage
-            else:
-                extremum_based = max(list_icohps) * percentage
+            extremum_based = self._adapt_extremum_to_add_cond(list_icohps, percentage)
 
         elif additional_condition == 2:
             # NO_ELEMENT_TO_SAME_ELEMENT_BONDS
@@ -1178,10 +1191,7 @@ class LobsterNeighbors(NearNeighbors):
                 if value._atom1.rstrip("0123456789") != value._atom2.rstrip("0123456789"):
                     list_icohps.append(value.summed_icohp)
 
-            if not self.are_coops and not self.are_cobis:
-                extremum_based = min(list_icohps) * percentage
-            else:
-                extremum_based = max(list_icohps) * percentage
+            extremum_based = self._adapt_extremum_to_add_cond(list_icohps, percentage)
 
         elif additional_condition == 3:
             # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
@@ -1199,10 +1209,7 @@ class LobsterNeighbors(NearNeighbors):
                 ):
                     list_icohps.append(value.summed_icohp)
 
-            if not self.are_coops and not self.are_cobis:
-                extremum_based = min(list_icohps) * percentage
-            else:
-                extremum_based = max(list_icohps) * percentage
+            extremum_based = self._adapt_extremum_to_add_cond(list_icohps, percentage)
 
         elif additional_condition == 4:
             list_icohps = []
@@ -1210,10 +1217,7 @@ class LobsterNeighbors(NearNeighbors):
                 if value._atom1.rstrip("0123456789") == "O" or value._atom2.rstrip("0123456789") == "O":
                     list_icohps.append(value.summed_icohp)
 
-            if not self.are_coops and not self.are_cobis:
-                extremum_based = min(list_icohps) * percentage
-            else:
-                extremum_based = max(list_icohps) * percentage
+            extremum_based = self._adapt_extremum_to_add_cond(list_icohps, percentage)
 
         elif additional_condition == 5:
             # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
@@ -1227,10 +1231,7 @@ class LobsterNeighbors(NearNeighbors):
                 if (val1 > 0.0 and val2 > 0.0) or (val1 < 0.0 and val2 < 0.0):
                     list_icohps.append(value.summed_icohp)
 
-            if not self.are_coops and not self.are_cobis:
-                extremum_based = min(list_icohps) * percentage
-            else:
-                extremum_based = max(list_icohps) * percentage
+            extremum_based = self._adapt_extremum_to_add_cond(list_icohps, percentage)
 
         elif additional_condition == 6:
             # ONLY_CATION_CATION_BONDS=6
@@ -1244,10 +1245,7 @@ class LobsterNeighbors(NearNeighbors):
                 if val1 > 0.0 and val2 > 0.0:
                     list_icohps.append(value.summed_icohp)
 
-            if not self.are_coops and not self.are_cobis:
-                extremum_based = min(list_icohps) * percentage
-            else:
-                extremum_based = max(list_icohps) * percentage
+            extremum_based = self._adapt_extremum_to_add_cond(list_icohps, percentage)
 
         if not self.are_coops and not self.are_cobis:
             max_here = min(extremum_based, -self.noise_cutoff) if self.noise_cutoff is not None else extremum_based
