@@ -60,7 +60,7 @@ class XRDCalculatorTest(PymatgenTest):
         xrd = xrd_calc.get_pattern(struct, two_theta_range=(0, 90))
         assert xrd.x[0] == approx(26.21057350859598)
         assert xrd.y[0] == approx(100)
-        assert len(xrd.hkls[0][0]["hkl"]) == approx(4)
+        assert len(xrd.hkls[0][0]["hkl"]) == 4
 
         # Add test case with different lengths of coefficients.
         # Also test d_hkl.
