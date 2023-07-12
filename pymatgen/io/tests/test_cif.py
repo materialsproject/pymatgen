@@ -327,7 +327,7 @@ loop_
         for site in struct.sites:
             assert site.label.startswith(site.specie.name)
 
-    def test_CifParserSpringerPauling(self):
+    def test_cif_parser_springer_pauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
 
         # Partial occupancy on sites, incorrect label, previously unparsable
