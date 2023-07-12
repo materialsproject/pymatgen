@@ -249,7 +249,7 @@ class Poscar(MSONable):
         """
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
-        if check_for_POTCAR and (not SETTINGS.get("PMG_DISABLE_POTCAR_CHECKS", False)):
+        if check_for_POTCAR and (not SETTINGS.get("PMG_POTCAR_CHECKS", False)):
             potcars = glob(os.path.join(dirname, "*POTCAR*"))
             if potcars:
                 try:
