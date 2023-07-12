@@ -312,6 +312,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             props[key] = [site.properties.get(key) for site in self]
         return props
 
+    @property
+    def labels(self) -> list[str | None]:
+        """Return site labels as a list."""
+        return [site.label for site in self.sites]
+
     def __contains__(self, site: object) -> bool:
         return site in self.sites
 
@@ -850,6 +855,7 @@ class IStructure(SiteCollection, MSONable):
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
         site_properties: dict | None = None,
+        labels: list | None = None,
     ) -> None:
         """
         Create a periodic structure.
@@ -885,6 +891,10 @@ class IStructure(SiteCollection, MSONable):
                 dict of sequences, e.g. {"magmom":[5, 5, 5, 5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
         """
         if len(species) != len(coords):
             raise StructureError("atomic species and fractional coordinates must have same length")
@@ -897,6 +907,10 @@ class IStructure(SiteCollection, MSONable):
             if site_properties:
                 prop = {key: val[idx] for key, val in site_properties.items()}
 
+            label = None
+            if labels:
+                label = labels[idx]
+
             site = PeriodicSite(
                 specie,
                 coords[idx],
@@ -904,6 +918,7 @@ class IStructure(SiteCollection, MSONable):
                 to_unit_cell,
                 coords_are_cartesian=coords_are_cartesian,
                 properties=prop,  # type: ignore
+                label=label,
             )
             sites.append(site)
         self._sites: tuple[PeriodicSite, ...] = tuple(sites)
@@ -938,6 +953,7 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(f"You need at least one site to construct a {cls}")
         prop_keys: list[str] = []
         props = {}
+        labels = [site.label for site in sites]
         lattice = sites[0].lattice
         for idx, site in enumerate(sites):
             if site.lattice != lattice:
@@ -958,6 +974,7 @@ class IStructure(SiteCollection, MSONable):
             site_properties=props,
             validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
+            labels=labels,
         )
 
     @classmethod
@@ -2002,6 +2019,7 @@ class IStructure(SiteCollection, MSONable):
                 coords_are_cartesian=True,
                 to_unit_cell=True,
                 site_properties=self.site_properties,
+                labels=self.labels,
                 charge=self._charge,
             )
         return self.copy()
@@ -2038,6 +2056,7 @@ class IStructure(SiteCollection, MSONable):
                 self.frac_coords,
                 charge=self._charge,
                 site_properties=props,
+                labels=self.labels,
             )
         reduced_latt = self._lattice.get_lll_reduced_lattice()
         new_sites = []
@@ -2053,6 +2072,7 @@ class IStructure(SiteCollection, MSONable):
                     reduced_latt,
                     to_unit_cell=True,
                     properties=site_props,
+                    label=site.label,
                     skip_checks=True,
                 )
             )
@@ -2327,6 +2347,7 @@ class IStructure(SiteCollection, MSONable):
                 new_coords = []
                 new_sp = []
                 new_props = collections.defaultdict(list)
+                new_labels = []
                 for gsites, gfcoords, non_nbrs in zip(grouped_sites, grouped_fcoords, grouped_non_nbrs):
                     all_frac = np.dot(gfcoords, m)
 
@@ -2364,6 +2385,7 @@ class IStructure(SiteCollection, MSONable):
                             new_sp.append(gsites[inds[0]].species)
                             for k in gsites[inds[0]].properties:
                                 new_props[k].append(gsites[inds[0]].properties[k])
+                            new_labels.append(gsites[inds[0]].label)
                             new_coords.append(coords)
 
                 if valid:
@@ -2374,6 +2396,7 @@ class IStructure(SiteCollection, MSONable):
                         new_sp,
                         new_coords,
                         site_properties=new_props,
+                        labels=new_labels,
                         coords_are_cartesian=False,
                     )
 
@@ -2856,6 +2879,7 @@ class IMolecule(SiteCollection, MSONable):
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
         site_properties: dict | None = None,
+        labels: list[str | None] | None = None,
         charge_spin_check: bool = True,
     ) -> None:
         """
@@ -2878,6 +2902,10 @@ class IMolecule(SiteCollection, MSONable):
                 a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
             charge_spin_check (bool): Whether to check that the charge and
                 spin multiplicity are compatible with each other. Defaults
                 to True.
@@ -2977,6 +3005,7 @@ class IMolecule(SiteCollection, MSONable):
         for site in sites:
             for k, v in site.properties.items():
                 props[k].append(v)
+        labels = [site.label for site in sites]
         return cls(
             [site.species for site in sites],
             [site.coords for site in sites],
@@ -2984,6 +3013,7 @@ class IMolecule(SiteCollection, MSONable):
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
             site_properties=props,
+            labels=labels,
             charge_spin_check=charge_spin_check,
         )
 
@@ -3493,6 +3523,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
         site_properties: dict | None = None,
+        labels: list | None = None,
     ):
         """
         Create a periodic structure.
@@ -3527,6 +3558,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
         """
         super().__init__(
             lattice,
@@ -3537,6 +3572,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
+            labels=labels,
         )
 
         self._sites: list[PeriodicSite] = list(self._sites)  # type: ignore
@@ -4259,6 +4295,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
         site_properties: dict | None = None,
+        labels: list[str | None] | None = None,
         charge_spin_check: bool = True,
     ) -> None:
         """
@@ -4281,6 +4318,10 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
             charge_spin_check (bool): Whether to check that the charge and
                 spin multiplicity are compatible with each other. Defaults
                 to True.
@@ -4292,6 +4333,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
             site_properties=site_properties,
+            labels=labels,
             charge_spin_check=charge_spin_check,
         )
         self._sites: list[Site] = list(self._sites)  # type: ignore

@@ -36,6 +36,7 @@ class Site(collections.abc.Hashable, MSONable):
         species: SpeciesLike | CompositionLike,
         coords: ArrayLike,
         properties: dict | None = None,
+        label: str | None = None,
         skip_checks: bool = False,
     ) -> None:
         """
@@ -52,6 +53,7 @@ class Site(collections.abc.Hashable, MSONable):
         :param coords: Cartesian coordinates of site.
         :param properties: Properties associated with the site as a dict, e.g.
             {"magmom": 5}. Defaults to None.
+        :param label: Label for the site. Defaults to None.
         :param skip_checks: Whether to ignore all the usual checks and just
             create the site. Use this if the Site is created in a controlled
             manner and speed is desired.
@@ -69,6 +71,7 @@ class Site(collections.abc.Hashable, MSONable):
         self._species: Composition = species  # type: ignore
         self.coords: np.ndarray = coords  # type: ignore
         self.properties: dict = properties or {}
+        self.label = label
 
     def __getattr__(self, attr):
         # overriding getattr doesn't play nicely with pickle, so we can't use self._properties
@@ -208,7 +211,12 @@ class Site(collections.abc.Hashable, MSONable):
         return el in self.species
 
     def __repr__(self):
-        return f"Site: {self.species_string} ({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f})"
+        name = self.species_string
+
+        if self.label:
+            name = f"{self.label} ({name})"
+
+        return f"Site: {name} ({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f})"
 
     def __lt__(self, other):
         """
@@ -283,6 +291,7 @@ class PeriodicSite(Site, MSONable):
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
         properties: dict | None = None,
+        label: str | None = None,
         skip_checks: bool = False,
     ):
         """
@@ -305,6 +314,7 @@ class PeriodicSite(Site, MSONable):
             Cartesian coordinates. Defaults to False.
         :param properties: Properties associated with the site as a dict, e.g.
             {"magmom": 5}. Defaults to None.
+        :param label: Label for the site. Defaults to None.
         :param skip_checks: Whether to ignore all the usual checks and just
             create the site. Use this if the PeriodicSite is created in a
             controlled manner and speed is desired.
@@ -331,6 +341,7 @@ class PeriodicSite(Site, MSONable):
         self._species: Composition = species  # type: ignore
         self._coords: np.ndarray | None = None
         self.properties: dict = properties or {}
+        self.label = label
 
     def __hash__(self) -> int:
         """
@@ -467,14 +478,11 @@ class PeriodicSite(Site, MSONable):
         if not isinstance(other, Site):
             return NotImplemented
 
-        self_props = {k: v for k, v in self.properties.items() if k != "label"}
-        other_props = {k: v for k, v in other.properties.items() if k != "label"}
-
         return (
             self.species == other.species
             and self.lattice == other.lattice
             and np.allclose(self.coords, other.coords, atol=Site.position_atol)
-            and self_props == other_props
+            and self.properties == other.properties
         )
 
     def distance_and_image_from_frac_coords(
@@ -541,8 +549,13 @@ class PeriodicSite(Site, MSONable):
         return self.distance_and_image(other, jimage)[0]
 
     def __repr__(self):
+        name = self.species_string
+
+        if self.label:
+            name = f"{self.label} ({name})"
+
         return (
-            f"PeriodicSite: {self.species_string} "
+            f"PeriodicSite: {name} "
             f"({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f}) "
             f"[{self._frac_coords[0]:.4f}, {self._frac_coords[1]:.4f}, {self._frac_coords[2]:.4f}]"
         )
@@ -577,6 +590,7 @@ class PeriodicSite(Site, MSONable):
             dct["label"] = self.species_string
 
         dct["properties"] = self.properties
+        dct["label"] = self.label
 
         return dct
 
@@ -607,5 +621,6 @@ class PeriodicSite(Site, MSONable):
         if props is not None:
             for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
+        label = d.get("label")
         lattice = lattice or Lattice.from_dict(d["lattice"])
-        return cls(species, d["abc"], lattice, properties=props)
+        return cls(species, d["abc"], lattice, properties=props, label=label)
