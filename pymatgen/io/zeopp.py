@@ -198,19 +198,13 @@ class ZeoVoronoiXYZ(XYZ):
         with zopen(filename) as f:
             return ZeoVoronoiXYZ.from_string(f.read())
 
-    def __str__(self):
+    def __str__(self) -> str:
         output = [str(len(self._mols[0])), self._mols[0].composition.formula]
-        fmt = f"{{}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}}"
+        prec = self.precision
         for site in self._mols[0]:
-            output.append(
-                fmt.format(
-                    site.specie.symbol,
-                    site.z,
-                    site.x,
-                    site.y,
-                    site.properties["voronoi_radius"],
-                )
-            )
+            x, y, z = site.coords
+            symbol, voronoi_radius = site.specie.symbol, site.properties["voronoi_radius"]
+            output.append(f"{symbol} {z:.{prec}f} {x:.{prec}f} {y:.{prec}f} {voronoi_radius:.{prec}f}")
         return "\n".join(output)
 
 
