@@ -11,15 +11,53 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.io.abinit.abiobjects module
+------------------------------------
 
-   pymatgen.io.abinit.abiobjects
-   pymatgen.io.abinit.abitimer
-   pymatgen.io.abinit.inputs
-   pymatgen.io.abinit.netcdf
-   pymatgen.io.abinit.pseudos
-   pymatgen.io.abinit.variable
+.. automodule:: pymatgen.io.abinit.abiobjects
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.abinit.abitimer module
+----------------------------------
+
+.. automodule:: pymatgen.io.abinit.abitimer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.abinit.inputs module
+--------------------------------
+
+.. automodule:: pymatgen.io.abinit.inputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.abinit.netcdf module
+--------------------------------
+
+.. automodule:: pymatgen.io.abinit.netcdf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.abinit.pseudos module
+---------------------------------
+
+.. automodule:: pymatgen.io.abinit.pseudos
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.abinit.variable module
+----------------------------------
+
+.. automodule:: pymatgen.io.abinit.variable
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

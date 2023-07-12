@@ -81,9 +81,10 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pymatgen-transformations">pymatgen.transformations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pymatgen-alchemy-high-throughput-transformations">pymatgen.alchemy - High-throughput transformations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pymatgen-matproj-rest-integration-with-the-materials-project-rest-api">pymatgen.matproj.rest - Integration with the Materials Project REST API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pymatgen-ext-matproj-integration-with-the-materials-project-rest-api">pymatgen.ext.matproj - Integration with the Materials Project REST API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#the-query-method">The query method</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#setting-the-pmg-mapi-key-in-the-config-file">Setting the PMG_MAPI_KEY in the config file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#global-configuration-variables">Global configuration variables</a></li>
 </ul>
 </li>
 </ul>
@@ -132,23 +133,23 @@ boundary conditions, though flexibility has been built in for molecules.</p>
 importance of this package for the overall functioning of the code, we have
 provided a quick summary of the various modules here:</p>
 <ol class="arabic simple">
-<li><p><a class="reference internal" href="pymatgen.core.periodic_table.html#module-pymatgen.core.periodic_table" title="pymatgen.core.periodic_table"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.periodic_table</span></code></a>: Everything begins here, where the
+<li><p><a class="reference internal" href="pymatgen.core.html#module-pymatgen.core.periodic_table" title="pymatgen.core.periodic_table"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.periodic_table</span></code></a>: Everything begins here, where the
 Element and Specie (Element with an oxidation state) objects are defined.
 Unlike typical implementations, pymatgen’s Element object is rich,
 which means that each Element contains many useful properties associated
 with it, including atomic numbers, atomic masses, melting points,
 boiling points, just to name a few.</p></li>
-<li><p><a class="reference internal" href="pymatgen.core.lattice.html#module-pymatgen.core.lattice" title="pymatgen.core.lattice"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.lattice</span></code></a>: This module defines a Lattice object, which
+<li><p><a class="reference internal" href="pymatgen.core.html#module-pymatgen.core.lattice" title="pymatgen.core.lattice"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.lattice</span></code></a>: This module defines a Lattice object, which
 essentially defines the lattice vectors in three dimensions. The Lattice
 object provides convenience methods for performing fractional to cartesian
 coordinates and vice versa, lattice parameter and angles computations, etc.</p></li>
-<li><p><a class="reference internal" href="pymatgen.core.sites.html#module-pymatgen.core.sites" title="pymatgen.core.sites"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.sites</span></code></a>: Defines the Site and PeriodicSite objects. A
+<li><p><a class="reference internal" href="pymatgen.core.html#module-pymatgen.core.sites" title="pymatgen.core.sites"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.sites</span></code></a>: Defines the Site and PeriodicSite objects. A
 Site is essentially a coordinate point containing an Element or Specie. A
 PeriodicSite contains a Lattice as well.</p></li>
-<li><p><a class="reference internal" href="pymatgen.core.structure.html#module-pymatgen.core.structure" title="pymatgen.core.structure"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.structure</span></code></a>: Defines the Structure and Molecule objects.
+<li><p><a class="reference internal" href="pymatgen.core.html#module-pymatgen.core.structure" title="pymatgen.core.structure"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.structure</span></code></a>: Defines the Structure and Molecule objects.
 A Structure and Molecule are simply a list of PeriodicSites and Site
 respectively.</p></li>
-<li><p><a class="reference internal" href="pymatgen.core.composition.html#module-pymatgen.core.composition" title="pymatgen.core.composition"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.composition</span></code></a>: A Composition is simply a mapping of
+<li><p><a class="reference internal" href="pymatgen.core.html#module-pymatgen.core.composition" title="pymatgen.core.composition"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.composition</span></code></a>: A Composition is simply a mapping of
 Element/Specie to amounts.</p></li>
 </ol>
 <p>All units in pymatgen are typically assumed to be in atomic units, i.e.,
@@ -276,8 +277,8 @@ specific io packages. For example, to create a Structure from a cif:</p>
 </pre></div>
 </div>
 <p>Many of these io packages also provide the means to write a Structure to
-various output formats, e.g. the CifWriter in <a class="reference internal" href="pymatgen.io.cif.html#module-pymatgen.io.cif" title="pymatgen.io.cif"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.cif</span></code></a>. In
-particular, the <a class="reference internal" href="pymatgen.io.vasp.sets.html#module-pymatgen.io.vasp.sets" title="pymatgen.io.vasp.sets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets</span></code></a> provides a powerful way to
+various output formats, e.g. the CifWriter in <a class="reference internal" href="pymatgen.io.html#module-pymatgen.io.cif" title="pymatgen.io.cif"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.cif</span></code></a>. In
+particular, the <a class="reference internal" href="pymatgen.io.vasp.html#module-pymatgen.io.vasp.sets" title="pymatgen.io.vasp.sets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets</span></code></a> provides a powerful way to
 generate complete sets of VASP input files from a Structure. In general,
 most file format conversions can be done with a few quick lines of code. For
 example, to read a POSCAR and write a cif:</p>
@@ -290,8 +291,8 @@ example, to read a POSCAR and write a cif:</p>
 </pre></div>
 </div>
 <p>For molecules, pymatgen has in-built support for XYZ and Gaussian input and
-output files via the <a class="reference internal" href="pymatgen.io.xyz.html#module-pymatgen.io.xyz" title="pymatgen.io.xyz"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.xyz</span></code></a> and
-<a class="reference internal" href="pymatgen.io.gaussian.html#module-pymatgen.io.gaussian" title="pymatgen.io.gaussian"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.gaussian</span></code></a> respectively:</p>
+output files via the <a class="reference internal" href="pymatgen.io.html#module-pymatgen.io.xyz" title="pymatgen.io.xyz"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.xyz</span></code></a> and
+<a class="reference internal" href="pymatgen.io.html#module-pymatgen.io.gaussian" title="pymatgen.io.gaussian"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.gaussian</span></code></a> respectively:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.xyz</span> <span class="kn">import</span> <span class="n">XYZ</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.gaussian</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
 
@@ -313,8 +314,8 @@ analysis you can do:</p>
 <li><p>Modify Structures directly or even better, using the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen</span>
 <span class="pre">.transformations</span></code> and <a class="reference internal" href="pymatgen.alchemy.html#module-pymatgen.alchemy" title="pymatgen.alchemy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.alchemy</span></code></a> packages.</p></li>
 <li><p>Analyse Structures. E.g., compute the Ewald sum using the
-<a class="reference internal" href="pymatgen.analysis.ewald.html#module-pymatgen.analysis.ewald" title="pymatgen.analysis.ewald"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.analysis.ewald</span></code></a> package, compare two structures for
-similarity using <a class="reference internal" href="pymatgen.analysis.structure_matcher.html#module-pymatgen.analysis.structure_matcher" title="pymatgen.analysis.structure_matcher"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_matcher</span></code></a>.</p></li>
+<a class="reference internal" href="pymatgen.analysis.html#module-pymatgen.analysis.ewald" title="pymatgen.analysis.ewald"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.analysis.ewald</span></code></a> package, compare two structures for
+similarity using <a class="reference internal" href="pymatgen.analysis.html#module-pymatgen.analysis.structure_matcher" title="pymatgen.analysis.structure_matcher"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_matcher</span></code></a>.</p></li>
 </ol>
 <p>It should be noted that Structure and Molecule are designed to be mutable. In
 fact, they are the most basic mutable units (everything below in the class
@@ -368,7 +369,7 @@ pymatgen (e.g., creating a PhaseDiagram) are performed using Entry objects. An
 Entry in its most basic form contains a calculated energy and a composition,
 and may optionally contain other input or calculated data. In most instances,
 you will use the ComputedEntry or ComputedStructureEntry objects defined in
-<a class="reference internal" href="pymatgen.entries.computed_entries.html#module-pymatgen.entries.computed_entries" title="pymatgen.entries.computed_entries"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries</span></code></a>. ComputedEntry objects can be created
+<a class="reference internal" href="pymatgen.entries.html#module-pymatgen.entries.computed_entries" title="pymatgen.entries.computed_entries"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries</span></code></a>. ComputedEntry objects can be created
 by either manually parsing calculated data calculations, or by using the
 <a class="reference internal" href="pymatgen.apps.borg.html#module-pymatgen.apps.borg" title="pymatgen.apps.borg"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.apps.borg</span></code></a> package.</p>
 <section id="compatibility-mixing-gga-and-gga-u-runs">
@@ -379,7 +380,7 @@ most appropriate for each entry. For instance, to generate a Fe-P-O phase
 diagram, metallic phases such as Fe and FexPy are most appropriately modelled
 using standard GGA, while a hubbard U should be applied for the oxides such
 as FexOy and FexPyOz.</p>
-<p>In the <a class="reference internal" href="pymatgen.io.vasp.sets.html#module-pymatgen.io.vasp.sets" title="pymatgen.io.vasp.sets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets</span></code></a> module, pre-defined parameter sets have
+<p>In the <a class="reference internal" href="pymatgen.io.vasp.html#module-pymatgen.io.vasp.sets" title="pymatgen.io.vasp.sets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets</span></code></a> module, pre-defined parameter sets have
 been coded to allow users to generate VASP input files that are consistent
 with input parameters that are compatible with the Materials Project data.
 Users who wish to perform analysis using runs calculated using these
@@ -447,12 +448,12 @@ application is the assimilation of entire directory structures of VASP
 calculations into usable pymatgen entries, which can then be used for phase
 diagram and other analyses. The outline of how it works is as follows:</p>
 <ol class="arabic simple">
-<li><p>Drones are defined in the <a class="reference internal" href="pymatgen.apps.borg.hive.html#module-pymatgen.apps.borg.hive" title="pymatgen.apps.borg.hive"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.apps.borg.hive</span></code></a> module. A Drone
+<li><p>Drones are defined in the <a class="reference internal" href="pymatgen.apps.borg.html#module-pymatgen.apps.borg.hive" title="pymatgen.apps.borg.hive"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.apps.borg.hive</span></code></a> module. A Drone
 is essentially an object which defines how a directory is parsed into a
 pymatgen object. For example, the VaspToComputedEntryDrone defines how a
 directory containing a vasp run (with a vasprun.xml file) is converted
 into ComputedEntry.</p></li>
-<li><p>The BorgQueen object in <a class="reference internal" href="pymatgen.apps.borg.queen.html#module-pymatgen.apps.borg.queen" title="pymatgen.apps.borg.queen"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.apps.borg.queen</span></code></a> module uses Drones
+<li><p>The BorgQueen object in <a class="reference internal" href="pymatgen.apps.borg.html#module-pymatgen.apps.borg.queen" title="pymatgen.apps.borg.queen"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.apps.borg.queen</span></code></a> module uses Drones
 to assimilate an entire subdirectory structure. Parallel processing is
 used where possible to speed up the process.</p></li>
 </ol>
@@ -544,10 +545,10 @@ generating new structures in the process. The framework is also designed to
 provide proper logging of all changes performed on structures,
 with infinite undo. The main classes are:</p>
 <ol class="arabic simple">
-<li><p><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure" title="pymatgen.alchemy.materials.TransformedStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.alchemy.materials.TransformedStructure</span></code></a> - Standard object
+<li><p><a class="reference internal" href="pymatgen.alchemy.html#pymatgen.alchemy.materials.TransformedStructure" title="pymatgen.alchemy.materials.TransformedStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.alchemy.materials.TransformedStructure</span></code></a> - Standard object
 representing a TransformedStructure. Takes in an input structure and a list
 of transformations as an input. Can also be generated from cifs and POSCARs.</p></li>
-<li><p><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter" title="pymatgen.alchemy.transmuters.StandardTransmuter"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.alchemy.transmuters.StandardTransmuter</span></code></a> - An example of
+<li><p><a class="reference internal" href="pymatgen.alchemy.html#pymatgen.alchemy.transmuters.StandardTransmuter" title="pymatgen.alchemy.transmuters.StandardTransmuter"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.alchemy.transmuters.StandardTransmuter</span></code></a> - An example of
 a Transmuter class, which takes a list of structures, and apply a sequence
 of transformations on all of them.</p></li>
 </ol>
@@ -563,15 +564,15 @@ of transformations on all of them.</p></li>
 </pre></div>
 </div>
 </section>
-<section id="pymatgen-matproj-rest-integration-with-the-materials-project-rest-api">
-<h2>pymatgen.matproj.rest - Integration with the Materials Project REST API<a class="headerlink" href="#pymatgen-matproj-rest-integration-with-the-materials-project-rest-api" title="Permalink to this heading"></a></h2>
+<section id="pymatgen-ext-matproj-integration-with-the-materials-project-rest-api">
+<h2>pymatgen.ext.matproj - Integration with the Materials Project REST API<a class="headerlink" href="#pymatgen-ext-matproj-integration-with-the-materials-project-rest-api" title="Permalink to this heading"></a></h2>
 <p>In version 2.0.0 of pymatgen, we introduced one of the most powerful and useful
 tools yet - an adaptor to the Materials Project REST API. The Materials Project
 REST API (simply Materials API) was introduced to provide a means for
 users to programmatically query for materials data. This allows users to
 efficiently perform structure manipulation and analyses without going through
 the web interface.</p>
-<p>In parallel, we have coded in the <a class="reference internal" href="pymatgen.ext.matproj.html#module-pymatgen.ext.matproj" title="pymatgen.ext.matproj"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.ext.matproj</span></code></a> module a
+<p>In parallel, we have coded in the <a class="reference internal" href="pymatgen.ext.html#module-pymatgen.ext.matproj" title="pymatgen.ext.matproj"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.ext.matproj</span></code></a> module a
 MPRester, a user-friendly high-level interface to the Materials API to obtain
 useful pymatgen objects for further analyses. To use the Materials API,
 your need to first register with the Materials Project and generate your API
@@ -672,6 +673,47 @@ relevant information you need.</p>
 <p>to add this to the <cite>.pmgrc.yaml</cite>, and you can now call MPRester without any
 arguments. This makes it much easier for heavy users of the Materials API to
 use MPRester without having to constantly insert their API key in the scripts.</p>
+</section>
+<section id="global-configuration-variables">
+<h3>Global configuration variables<a class="headerlink" href="#global-configuration-variables" title="Permalink to this heading"></a></h3>
+<p>The following is a list of global configuration variables and their purpose. These can be set in the <cite>.pmgrc.yaml</cite>
+file (recommended) as well as in environmental variables. You can use the <cite>pmg config –add VARIABLE_NAME VALUE</cite> command
+to add your desired values to the <cite>.pmgrc.yaml</cite> file.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 66.7%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable name</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>PMG_MAPI_KEY</p></td>
+<td><p>Specifies the API Key to be used for MPRester.</p></td>
+</tr>
+<tr class="row-odd"><td><p>PMG_VASP_PSP_DIR</p></td>
+<td><p>Specifies the path in which to look for VASP pseudopotential files.</p></td>
+</tr>
+<tr class="row-even"><td><p>PMG_DISABLE_POTCAR_CHECKS</p></td>
+<td><p>A system-wide setting to disable all POTCAR checks. This includes the compatibility checks as well as checking
+for the existence of POTCARS when performing VASP io.</p></td>
+</tr>
+<tr class="row-odd"><td><p>PMG_DEFAULT_FUNCTIONAL</p></td>
+<td><p>Sets the default functional to be used for VASP input files. Defaults to PBE.</p></td>
+</tr>
+<tr class="row-even"><td><p>PMG_CP2K_DATA_DIR</p></td>
+<td><p>Data directory for CP2K.</p></td>
+</tr>
+<tr class="row-odd"><td><p>PMG_DEFAULT_CP2K_FUNCTIONAL</p></td>
+<td><p>Sets the default functional for CP2K.</p></td>
+</tr>
+<tr class="row-even"><td><p>PMG_DEFAULT_CP2K_BASIS_TYPE</p></td>
+<td><p>Sets the default basis type for CP2K.</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 </section>

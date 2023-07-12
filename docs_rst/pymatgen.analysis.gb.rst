@@ -11,10 +11,13 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.analysis.gb.grain module
+---------------------------------
 
-   pymatgen.analysis.gb.grain
+.. automodule:: pymatgen.analysis.gb.grain
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

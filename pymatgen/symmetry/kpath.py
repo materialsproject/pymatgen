@@ -1486,7 +1486,7 @@ class KPathLatimerMunro(KPathBase):
         i = 0
         while len(key_points_copy) > 0:
             key_points_inds_orbits.append([])
-            k0ind = list(key_points_copy)[0]
+            k0ind = next(iter(key_points_copy))
             k0 = key_points_copy[k0ind]
             key_points_inds_orbits[i].append(k0ind)
             key_points_copy.pop(k0ind)
@@ -1554,7 +1554,7 @@ class KPathLatimerMunro(KPathBase):
         i = 0
         while len(key_lines_copy) > 0:
             key_lines_inds_orbits.append([])
-            l0ind = list(key_lines_copy)[0]
+            l0ind = next(iter(key_lines_copy))
             l0 = key_lines_copy[l0ind]
             key_lines_inds_orbits[i].append(l0)
             key_lines_copy.pop(l0ind)

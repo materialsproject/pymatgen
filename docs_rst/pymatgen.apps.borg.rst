@@ -11,11 +11,21 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.apps.borg.hive module
+------------------------------
 
-   pymatgen.apps.borg.hive
-   pymatgen.apps.borg.queen
+.. automodule:: pymatgen.apps.borg.hive
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.apps.borg.queen module
+-------------------------------
+
+.. automodule:: pymatgen.apps.borg.queen
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

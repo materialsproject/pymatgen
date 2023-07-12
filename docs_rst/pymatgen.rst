@@ -29,7 +29,10 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.dao module
+-------------------
 
-   pymatgen.dao
+.. automodule:: pymatgen.dao
+   :members:
+   :undoc-members:
+   :show-inheritance:
