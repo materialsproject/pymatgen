@@ -56,7 +56,7 @@ class StrategyOptionsTest(PymatgenTest):
     def test_strategies(self):
         simplest_strategy = SimplestChemenvStrategy()
         assert simplest_strategy.uniquely_determines_coordination_environments
-        assert simplest_strategy.continuous_symmetry_measure_cutoff == approx(10)
+        assert simplest_strategy.continuous_symmetry_measure_cutoff == 10
         assert simplest_strategy.distance_cutoff == approx(1.4)
         assert simplest_strategy.angle_cutoff == approx(0.3)
 

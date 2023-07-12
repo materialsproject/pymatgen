@@ -32,7 +32,7 @@ class ReactionTest(unittest.TestCase):
         rxn = Reaction.from_dict(d)
         repr, factor = rxn.normalized_repr_and_factor()
         assert repr == "4 Fe + 3 O2 -> 2 Fe2O3"
-        assert factor == approx(2)
+        assert factor == 2
 
         reactants = [Composition("FePO4"), Composition("Mn")]
         products = [Composition("FePO4"), Composition("Xe")]
@@ -458,7 +458,7 @@ class ComputedReactionTest(unittest.TestCase):
     def test_calculated_reaction_energy_uncertainty_for_no_uncertainty(self):
         # test that reaction_energy_uncertainty property doesn't cause errors
         # when products/reactants have no uncertainties
-        assert self.rxn.calculated_reaction_energy_uncertainty == approx(0)
+        assert self.rxn.calculated_reaction_energy_uncertainty == 0
 
     def test_calculated_reaction_energy_uncertainty_for_nan(self):
         # test that reaction_energy_uncertainty property is nan when the uncertainty
