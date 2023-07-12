@@ -514,13 +514,13 @@ class TestLobsterNeighbors(unittest.TestCase):
         )
 
         assert (
-                len(
-                    self.chemenvlobster1_cobi_NaCl.get_nn(
-                        structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
-                        n=0,
-                    )
+            len(
+                self.chemenvlobster1_cobi_NaCl.get_nn(
+                    structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+                    n=0,
                 )
-                == 6
+            )
+            == 6
         )
 
         assert (

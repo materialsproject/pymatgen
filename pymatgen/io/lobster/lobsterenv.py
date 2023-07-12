@@ -1142,10 +1142,7 @@ class LobsterNeighbors(NearNeighbors):
         """
 
         which_extr = min if not self.are_coops and not self.are_cobis else max
-        extremum_based = which_extr(list_icohps) * percentage
-
-        return extremum_based
-
+        return which_extr(list_icohps) * percentage
 
     def _get_limit_from_extremum(
         self,
