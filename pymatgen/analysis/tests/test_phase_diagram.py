@@ -163,9 +163,8 @@ class PhaseDiagramTest(unittest.TestCase):
             lambda e: (not e.composition.is_element) or e.composition.elements[0] != Element("Li"),
             self.entries,
         )
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(ValueError, match=r"Missing terminal entries for elements \['Fe', 'Li', 'O'\]"):
             PhaseDiagram(entries)
-        assert "Missing terminal entries for elements ['Fe', 'Li', 'O']" in str(exc.value)
 
     def test_repr(self):
         assert (
@@ -517,20 +516,14 @@ class PhaseDiagramTest(unittest.TestCase):
 
         # Don't fail silently if input compositions aren't in phase diagram
         # Can be very confusing if you're working with a GrandPotentialPD
-        with pytest.raises(ValueError):
-            self.pd.get_critical_compositions(
-                Composition("Xe"),
-                Composition("Mn"),
-            )
+        with pytest.raises(ValueError, match="Xe1 has elements not in the phase diagram Li, Fe, O"):
+            self.pd.get_critical_compositions(Composition("Xe"), Composition("Mn"))
 
         # For the moment, should also fail even if compositions are in the gppd
         # because it isn't handled properly
         gppd = GrandPotentialPhaseDiagram(self.pd.all_entries, {"Xe": 1}, [*self.pd.elements, Element("Xe")])
         with pytest.raises(ValueError, match="Li3 Fe1 O4 Xe1 has elements not in the phase diagram O, Fe, Li"):
-            gppd.get_critical_compositions(
-                Composition("Fe2O3"),
-                Composition("Li3FeO4Xe"),
-            )
+            gppd.get_critical_compositions(Composition("Fe2O3"), Composition("Li3FeO4Xe"))
 
         # check that the function still works though
         comps = gppd.get_critical_compositions(c1, c2)
@@ -788,7 +781,7 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
         assert chem_space in pd._qhull_spaces
         assert str(pd) == "V-C phase diagram\n4 stable phases: \nC, V, V6C5, V2C"
 
-        with pytest.raises(KeyError):
+        with pytest.raises(KeyError, match="frozenset"):
             self.ppd[frozenset(map(Element, "HBCNOFPS"))]
 
     def test_iter(self):

@@ -9,7 +9,7 @@ import numpy as np
 from monty.dev import requires
 
 from pymatgen.core.tensors import Tensor
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 try:
     from phonopy import Phonopy
@@ -71,10 +71,8 @@ class BornEffectiveCharge:
         """
         bec = self.bec
         struct = self.structure
-        ops = sga(struct).get_symmetry_operations(cartesian=True)
-        uniq_point_ops = []
-        for op in ops:
-            uniq_point_ops.append(op)
+        ops = SpacegroupAnalyzer(struct).get_symmetry_operations(cartesian=True)
+        uniq_point_ops = list(ops)
 
         for ops in self.pointops:
             for op in ops:
@@ -206,21 +204,19 @@ class InternalStrainTensor:
             the indexes of those sites.
         """
         struct = self.structure
-        ops = sga(struct).get_symmetry_operations(cartesian=True)
-        uniquepointops = []
-        for op in ops:
-            uniquepointops.append(op)
+        ops = SpacegroupAnalyzer(struct).get_symmetry_operations(cartesian=True)
+        uniq_point_ops = list(ops)
 
         for ops in self.pointops:
             for op in ops:
-                if op not in uniquepointops:
-                    uniquepointops.append(op)
+                if op not in uniq_point_ops:
+                    uniq_point_ops.append(op)
 
         IST_operations = []
         for atom in range(len(self.ist)):  # pylint: disable=C0200
             IST_operations.append([])
             for j in range(0, atom):
-                for op in uniquepointops:
+                for op in uniq_point_ops:
                     new = op.transform_tensor(self.ist[j])
 
                     # Check the matrix it references
@@ -301,40 +297,38 @@ class ForceConstantMatrix:
             the indexes of those sites.
         """
         struct = self.structure
-        ops = sga(struct).get_symmetry_operations(cartesian=True)
-        uniquepointops = []
-        for op in ops:
-            uniquepointops.append(op)
+        ops = SpacegroupAnalyzer(struct).get_symmetry_operations(cartesian=True)
+        uniq_point_ops = list(ops)
 
         for ops in self.pointops:
             for op in ops:
-                if op not in uniquepointops:
-                    uniquepointops.append(op)
+                if op not in uniq_point_ops:
+                    uniq_point_ops.append(op)
 
         passed = []
         relations = []
         for atom1 in range(len(self.fcm)):  # pylint: disable=C0200
             for atom2 in range(atom1, len(self.fcm)):
                 unique = 1
-                eig1, vecs1 = np.linalg.eig(self.fcm[atom1][atom2])
+                eig1, _vecs1 = np.linalg.eig(self.fcm[atom1][atom2])
                 index = np.argsort(eig1)
-                neweig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
+                new_eig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
 
                 for p in passed:
-                    if np.allclose(neweig, p[2], atol=eigtol):
+                    if np.allclose(new_eig, p[2], atol=eigtol):
                         relations.append([atom1, atom2, p[0], p[1]])
                         unique = 0
                         break
                 if unique == 1:
                     relations.append([atom1, atom2, atom2, atom1])
-                    passed.append([atom1, atom2, np.real(neweig)])
+                    passed.append([atom1, atom2, np.real(new_eig)])
         FCM_operations = []
         for entry, r in enumerate(relations):
             FCM_operations.append(r)
             FCM_operations[entry].append([])
 
             good = 0
-            for op in uniquepointops:
+            for op in uniq_point_ops:
                 new = op.transform_tensor(self.fcm[r[2]][r[3]])
 
                 if np.allclose(new, self.fcm[r[0]][r[1]], atol=opstol):
@@ -347,7 +341,7 @@ class ForceConstantMatrix:
             if good == 0:
                 FCM_operations[entry] = [r[0], r[1], r[3], r[2]]
                 FCM_operations[entry].append([])
-                for op in uniquepointops:
+                for op in uniq_point_ops:
                     new = op.transform_tensor(self.fcm[r[2]][r[3]])
                     if np.allclose(
                         new.T,

@@ -50,6 +50,7 @@ from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.vasp.outputs import Locpot, Outcar, Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:
@@ -680,7 +681,7 @@ class SurfaceEnergyPlotter:
         if not soln:
             warnings.warn("No solution")
             return soln
-        return {p: list(soln)[0][i] for i, p in enumerate(all_parameters)}
+        return {p: next(iter(soln))[i] for i, p in enumerate(all_parameters)}
 
     def stable_u_range_dict(
         self,
@@ -1665,6 +1666,10 @@ class WorkFunctionAnalyzer:
         )
 
 
+@due.dcite(
+    Doi("10.1021/nl404557w"),
+    description="Nanoscale stabilization of sodium oxides: Implications for Na-O2 batteries",
+)
 class NanoscaleStability:
     """
     A class for analyzing the stability of nanoparticles of different

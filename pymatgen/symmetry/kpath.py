@@ -16,7 +16,7 @@ from scipy.linalg import sqrtm
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, cite_conventional_cell_algo
 
 try:
     from seekpath import get_path
@@ -130,6 +130,7 @@ class KPathBase(metaclass=abc.ABCMeta):
         return frac_k_points, sym_point_labels
 
 
+@cite_conventional_cell_algo
 class KPathSetyawanCurtarolo(KPathBase):
     """
     This class looks for a path along high-symmetry lines in
@@ -1247,24 +1248,29 @@ class KPathLatimerMunro(KPathBase):
         points_in_path_inds_unique = list(set(points_in_path_inds))
 
         orbit_cosines = []
+
         for orbit in key_points_inds_orbits[:-1]:
-            orbit_cosines.append(
-                sorted(
-                    (
-                        (
-                            j,
-                            np.round(
-                                np.dot(key_points[k], self.LabelPoints(j))
-                                / (np.linalg.norm(key_points[k]) * np.linalg.norm(self.LabelPoints(j))),
-                                decimals=3,
-                            ),
-                        )
-                        for k in orbit
-                        for j in range(26)
-                    ),
-                    key=lambda x: (-x[1], x[0]),
-                )
-            )
+            current_orbit_cosines = []
+
+            for orbit_index in orbit:
+                key_point = key_points[orbit_index]
+
+                # Calculate cosine values for all 26 neighbor points
+                for point_index in range(26):
+                    label_point = self.LabelPoints(point_index)
+
+                    # Calculate cosine of angle between key_point and label_point
+                    cosine_value = np.dot(key_point, label_point)
+                    cosine_value /= np.linalg.norm(key_point) * np.linalg.norm(label_point)
+                    cosine_value = np.round(cosine_value, decimals=3)
+
+                    current_orbit_cosines.append((point_index, cosine_value))
+
+            # Sort cosine values in descending order, break ties using point index
+            sorted_cosines = sorted(current_orbit_cosines, key=lambda x: (-x[1], x[0]))
+
+            # Append sorted cosine values output
+            orbit_cosines.append(sorted_cosines)
 
         orbit_labels = self._get_orbit_labels(orbit_cosines, key_points_inds_orbits, atol)
         key_points_labels = ["" for i in range(len(key_points))]
@@ -1480,7 +1486,7 @@ class KPathLatimerMunro(KPathBase):
         i = 0
         while len(key_points_copy) > 0:
             key_points_inds_orbits.append([])
-            k0ind = list(key_points_copy)[0]
+            k0ind = next(iter(key_points_copy))
             k0 = key_points_copy[k0ind]
             key_points_inds_orbits[i].append(k0ind)
             key_points_copy.pop(k0ind)
@@ -1548,7 +1554,7 @@ class KPathLatimerMunro(KPathBase):
         i = 0
         while len(key_lines_copy) > 0:
             key_lines_inds_orbits.append([])
-            l0ind = list(key_lines_copy)[0]
+            l0ind = next(iter(key_lines_copy))
             l0 = key_lines_copy[l0ind]
             key_lines_inds_orbits[i].append(l0)
             key_lines_copy.pop(l0ind)

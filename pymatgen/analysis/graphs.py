@@ -139,10 +139,8 @@ class StructureGraph(MSONable):
         # tidy up edge attr dicts, reading to/from json duplicates
         # information
         for _, _, _, d in self.graph.edges(keys=True, data=True):
-            if "id" in d:
-                del d["id"]
-            if "key" in d:
-                del d["key"]
+            for key in ("id", "key"):
+                d.pop(key, None)
             # ensure images are tuples (conversion to lists happens
             # when serializing back from json), it's important images
             # are hashable/immutable
@@ -220,11 +218,7 @@ class StructureGraph(MSONable):
                 raise ValueError("Edges must be given as (from_index, to_index, from_image, to_image) tuples")
 
             if props is not None:
-                if "weight" in props:
-                    weight = props["weight"]
-                    del props["weight"]
-                else:
-                    weight = None
+                weight = props.pop("weight", None)
 
                 if len(props.items()) == 0:
                     props = None
@@ -712,16 +706,9 @@ class StructureGraph(MSONable):
         if graph_dict is not None:
             for u, v in graph_dict:
                 edge_props = graph_dict[(u, v)]
-                if "to_jimage" in edge_props:
-                    to_jimage = edge_props["to_jimage"]
-                    del edge_props["to_jimage"]
-                else:
-                    # By default, assume that all edges should stay remain
-                    # inside the initial image
-                    to_jimage = (0, 0, 0)
-                if "weight" in edge_props:
-                    weight = edge_props["weight"]
-                    del edge_props["weight"]
+                # default of (0, 0, 0) says that all edges should stay inside the initial image
+                to_jimage = edge_props.get("to_jimage", (0, 0, 0))
+                weight = edge_props.pop("weight", None)
                 self.add_edge(
                     mapping[u],
                     mapping[v],
@@ -1589,10 +1576,8 @@ class MoleculeGraph(MSONable):
         # tidy up edge attr dicts, reading to/from json duplicates
         # information
         for _, _, _, d in self.graph.edges(keys=True, data=True):
-            if "id" in d:
-                del d["id"]
-            if "key" in d:
-                del d["key"]
+            for key in ("id", "key"):
+                d.pop(key, None)
             # ensure images are tuples (conversion to lists happens
             # when serializing back from json), it's important images
             # are hashable/immutable
@@ -1663,12 +1648,7 @@ class MoleculeGraph(MSONable):
                 raise ValueError("Edges must be given as (from_index, to_index) tuples")
 
             if props is not None:
-                if "weight" in props:
-                    weight = props["weight"]
-                    del props["weight"]
-                else:
-                    weight = None
-
+                weight = props.pop("weight", None)
                 if len(props.items()) == 0:
                     props = None
             else:
@@ -2008,8 +1988,8 @@ class MoleculeGraph(MSONable):
             # Molecule indices are essentially list-based, so node indices
             # must be remapped, incrementing from 0
             mapping = {}
-            for i, n in enumerate(nodes):
-                mapping[n] = i
+            for idx, node in enumerate(nodes):
+                mapping[node] = idx
 
             # just give charge to whatever subgraph has node with index 0
             # TODO: actually figure out how to distribute charge
@@ -2088,8 +2068,7 @@ class MoleculeGraph(MSONable):
         if alterations is not None:
             for u, v in alterations:
                 if "weight" in alterations[(u, v)]:
-                    weight = alterations[(u, v)]["weight"]
-                    del alterations[(u, v)]["weight"]
+                    weight = alterations[(u, v)].pop("weight")
                     edge_properties = alterations[(u, v)] if len(alterations[(u, v)]) != 0 else None
                     original.alter_edge(u, v, new_weight=weight, new_edge_properties=edge_properties)
                 else:
@@ -2238,10 +2217,7 @@ class MoleculeGraph(MSONable):
 
             for u, v in list(func_grp.graph.edges()):
                 edge_props = func_grp.graph.get_edge_data(u, v)[0]
-                weight = None
-                if "weight" in edge_props:
-                    weight = edge_props["weight"]
-                    del edge_props["weight"]
+                weight = edge_props.pop("weight", None)
                 self.add_edge(mapping[u], mapping[v], weight=weight, edge_properties=edge_props)
 
         else:
@@ -2263,9 +2239,7 @@ class MoleculeGraph(MSONable):
             if graph_dict is not None:
                 for u, v in graph_dict:
                     edge_props = graph_dict[(u, v)]
-                    if "weight" in edge_props:
-                        weight = edge_props["weight"]
-                        del edge_props["weight"]
+                    weight = edge_props.pop("weight", None)
                     self.add_edge(
                         mapping[u],
                         mapping[v],
@@ -2274,17 +2248,11 @@ class MoleculeGraph(MSONable):
                     )
 
             else:
-                if strategy_params is None:
-                    strategy_params = {}
-                strat = strategy(**strategy_params)
-                graph = self.with_local_env_strategy(func_grp, strat)
+                graph = self.with_local_env_strategy(func_grp, strategy(**(strategy_params or {})))
 
                 for u, v in list(graph.graph.edges()):
                     edge_props = graph.graph.get_edge_data(u, v)[0]
-                    weight = None
-                    if "weight" in edge_props:
-                        weight = edge_props["weight"]
-                        del edge_props["weight"]
+                    weight = edge_props.pop("weight", None)
 
                     if 0 not in list(graph.graph.nodes()):
                         # If graph indices have different indexing
@@ -2599,8 +2567,8 @@ class MoleculeGraph(MSONable):
                 d["arrowhead"] = "normal" if d["headlabel"] else "none"
 
             # optionally color edges using node colors
-            color_u = g.node[u]["fillcolor"]
-            color_v = g.node[v]["fillcolor"]
+            color_u = g.nodes[u]["fillcolor"]
+            color_v = g.nodes[v]["fillcolor"]
             d["color_uv"] = f"{color_u};0.5:{color_v};0.5" if edge_colors else "#000000"
 
             # optionally add weights to graph

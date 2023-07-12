@@ -207,7 +207,7 @@ class ConversionElectrode(AbstractElectrode):
                 return False
         return True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return 7
 
     def __repr__(self):

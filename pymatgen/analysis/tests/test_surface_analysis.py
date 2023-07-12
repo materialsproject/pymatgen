@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import warnings
 
 from pytest import approx
 from sympy import Number, Symbol
@@ -25,9 +24,6 @@ def get_path(path_str):
 
 class SlabEntryTest(PymatgenTest):
     def setUp(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-
         with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
         self.ucell_entries = ucell_entries
@@ -100,7 +96,7 @@ class SlabEntryTest(PymatgenTest):
         all_se = []
         ECu = self.Cu_ucell_entry.energy_per_atom
         for val in self.Cu_entry_dict.values():
-            slab_entry = list(val)[0]
+            slab_entry = next(iter(val))
             se = slab_entry.surface_energy(self.Cu_ucell_entry)
             all_se.append(se)
             # Manually calculate surface energy

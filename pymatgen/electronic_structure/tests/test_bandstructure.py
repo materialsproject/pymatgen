@@ -120,7 +120,7 @@ class BandStructureSymmLineTest(PymatgenTest):
                 vb, cb = dg_dict[spin]["band_indices"]
                 gap = v[cb][kpt] - v[vb][kpt]
                 assert gap == dg_dict[spin]["value"]
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="get_direct_band_gap_dict should only be used with non-metals"):
             self.bs_cu.get_direct_band_gap_dict()
 
     def test_get_direct_band_gap(self):

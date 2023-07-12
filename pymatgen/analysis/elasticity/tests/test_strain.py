@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import warnings
-
 import numpy as np
 import pytest
 
@@ -91,9 +89,7 @@ class StrainTest(PymatgenTest):
 
         self.non_ind_str = Strain.from_deformation([[1, 0.02, 0.02], [0, 1, 0], [0, 0, 1]])
 
-        with warnings.catch_warnings(record=True):
-            warnings.simplefilter("always")
-            self.no_dfm = Strain([[0, 0.01, 0], [0.01, 0.0002, 0], [0, 0, 0]])
+        self.no_dfm = Strain([[0, 0.01, 0], [0.01, 0.0002, 0], [0, 0, 0]])
 
     def test_new(self):
         test_strain = Strain([[0, 0.01, 0], [0.01, 0.0002, 0], [0, 0, 0]])

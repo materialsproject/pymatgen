@@ -13,6 +13,7 @@ import numpy as np
 from monty.json import MSONable
 
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.util.due import Doi, due
 from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
@@ -529,11 +530,15 @@ class MagSymmOp(SymmOp):
         ]
         return "\n".join(output)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # useful for obtaining a set of unique MagSymmOps
         hashable_value = (*tuple(self.affine_matrix.flatten()), self.time_reversal)
         return hash(hashable_value)
 
+    @due.dcite(
+        Doi("10.1051/epjconf/20122200010"),
+        description="Symmetry and magnetic structures",
+    )
     def operate_magmom(self, magmom):
         """
         Apply time reversal operator on the magnetic moment. Note that

@@ -6,7 +6,7 @@ This module depends on a compiled vampire executable available in the path.
 Please download at https://vampire.york.ac.uk/download/ and
 follow the instructions to compile the executable.
 
-If you use this module, please cite the following:
+If you use this module, please cite:
 
 "Atomistic spin model simulations of magnetic nanomaterials."
 R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis

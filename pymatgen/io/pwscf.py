@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 
-from frozendict import frozendict
 from monty.io import zopen
 from monty.re import regrep
 
@@ -501,7 +500,7 @@ class PWInputError(BaseException):
 class PWOutput:
     """Parser for PWSCF output file."""
 
-    patterns = frozendict(
+    patterns = dict(
         energies=r"total energy\s+=\s+([\d\.\-]+)\sRy",
         ecut=r"kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
         lattice_type=r"bravais\-lattice index\s+=\s+(\d+)",

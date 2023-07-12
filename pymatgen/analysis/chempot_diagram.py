@@ -38,15 +38,21 @@ from scipy.spatial import ConvexHull, HalfspaceIntersection
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core.composition import Composition, Element
 from pymatgen.util.coord import Simplex
+from pymatgen.util.due import Doi, due
 from pymatgen.util.string import htmlify
 
 if TYPE_CHECKING:
     from pymatgen.entries.computed_entries import ComputedEntry
 
-with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_chempot_layouts.json")) as f:
-    plotly_layouts = json.load(f)
+with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_chempot_layouts.json")) as file:
+    plotly_layouts = json.load(file)
 
 
+@due.dcite(
+    Doi("10.1021/jacs.1c06229"),
+    description="Chemical potential diagram",
+    path="pymatgen.analysis.chempot_diagram.ChemicalPotentialDiagram",
+)
 class ChemicalPotentialDiagram(MSONable):
     """
     The chemical potential diagram is the mathematical dual to the compositional

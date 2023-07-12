@@ -35,9 +35,9 @@ __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # type: ignore
+space_groups = {sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]}  # type: ignore
 
-space_groups.update({sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]})  # type: ignore
+space_groups.update({sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]})  # type: ignore
 
 
 class CifBlock:
@@ -161,7 +161,7 @@ class CifBlock:
                 for s in p.findall(line):
                     # s is tuple. location of the data in the tuple
                     # depends on whether it was quoted in the input
-                    q.append(s)
+                    q.append(tuple(s))
         return q
 
     @classmethod
@@ -243,7 +243,7 @@ class CifFile:
             # Springer materials/Pauling file DBs.
             # This block anyway does not contain any structure information, and
             # CifParser was also not parsing it.
-            if "powder_pattern" in re.split(r"\n", x, 1)[0]:
+            if "powder_pattern" in re.split(r"\n", x, maxsplit=1)[0]:
                 continue
             c = CifBlock.from_string("data_" + x)
             dct[c.header] = c
@@ -966,7 +966,7 @@ class CifParser:
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
         ]
-        if any(o > 1 for o in sum_occu):
+        if any(occu > 1 for occu in sum_occu):
             msg = (
                 f"Some occupancies ({sum_occu}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
@@ -975,10 +975,10 @@ class CifParser:
             warnings.warn(msg)
             self.warnings.append(msg)
 
-        allspecies = []
-        allcoords = []
-        allmagmoms = []
-        allhydrogens = []
+        all_species = []
+        all_coords = []
+        all_magmoms = []
+        all_hydrogens = []
         equivalent_indices = []
 
         # check to see if magCIF file is disordered
@@ -1026,30 +1026,30 @@ class CifParser:
                 # it is equivalent.
                 equivalent_indices += len(coords) * [idx]
 
-                allhydrogens.extend(len(coords) * [im_h])
-                allcoords.extend(coords)
-                allspecies.extend(len(coords) * [species])
-                allmagmoms.extend(magmoms)
+                all_hydrogens.extend(len(coords) * [im_h])
+                all_coords.extend(coords)
+                all_species.extend(len(coords) * [species])
+                all_magmoms.extend(magmoms)
 
             # rescale occupancies if necessary
-            for i, species in enumerate(allspecies):
+            for i, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
-                    allspecies[i] = species / total_occu
+                    all_species[i] = species / total_occu
 
-        if allspecies and len(allspecies) == len(allcoords) and len(allspecies) == len(allmagmoms):
+        if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
             site_properties = {}
-            if any(allhydrogens):
-                assert len(allhydrogens) == len(allcoords)
-                site_properties["implicit_hydrogens"] = allhydrogens
+            if any(all_hydrogens):
+                assert len(all_hydrogens) == len(all_coords)
+                site_properties["implicit_hydrogens"] = all_hydrogens
 
             if self.feature_flags["magcif"]:
-                site_properties["magmom"] = allmagmoms
+                site_properties["magmom"] = all_magmoms
 
             if len(site_properties) == 0:
                 site_properties = None
 
-            struct = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
+            struct = Structure(lattice, all_species, all_coords, site_properties=site_properties)
 
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
@@ -1314,7 +1314,14 @@ class CifWriter:
                     atom_site_label.append(f"{sp.symbol}{count}")
                     atom_site_occupancy.append(str(occu))
 
-                    magmom = Magmom(site.properties.get("magmom", getattr(sp, "spin", 0)))
+                    if "magmom" in site.properties:
+                        mag = site.properties["magmom"]
+                    elif getattr(sp, "spin", None) is not None:
+                        mag = sp.spin
+                    else:
+                        mag = 0
+
+                    magmom = Magmom(mag)
                     if write_magmoms and abs(magmom) > 0:
                         moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
                         atom_site_moment_label.append(f"{sp.symbol}{count}")

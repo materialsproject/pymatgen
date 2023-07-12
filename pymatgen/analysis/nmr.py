@@ -10,6 +10,7 @@ from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Site
 from pymatgen.core.tensors import SquareTensor
 from pymatgen.core.units import FloatWithUnit
+from pymatgen.util.due import Doi, due
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -20,6 +21,7 @@ __email__ = "shyamd@lbl.gov"
 __date__ = "Mar 1, 2018"
 
 
+@due.dcite(Doi("10.1039/b801115j"), description="Covalent radii revisited")
 class ChemicalShielding(SquareTensor):
     """
     This class extends the SquareTensor to perform extra analysis unique to

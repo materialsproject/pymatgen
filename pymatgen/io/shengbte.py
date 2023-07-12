@@ -1,5 +1,3 @@
-# Distributed under the terms of the MIT License
-
 """This module implements reading and writing of ShengBTE CONTROL files."""
 
 from __future__ import annotations

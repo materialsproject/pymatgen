@@ -17,6 +17,7 @@ from numpy import dot, pi, transpose
 from numpy.linalg import inv
 
 from pymatgen.util.coord import pbc_shortest_vectors
+from pymatgen.util.due import Doi, due
 from pymatgen.util.num import abs_cap
 
 if TYPE_CHECKING:
@@ -924,7 +925,7 @@ class Lattice(MSONable):
             return True
         return np.allclose(self.matrix, other.matrix) and self.pbc == other.pbc  # type: ignore
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return 7
 
     def __str__(self):
@@ -1164,6 +1165,10 @@ class Lattice(MSONable):
         """
         return dot(lll_frac_coords, self.lll_mapping)
 
+    @due.dcite(
+        Doi("10.1107/S010876730302186X"),
+        description="Numerically stable algorithms for the computation of reduced unit cells",
+    )
     def get_niggli_reduced_lattice(self, tol: float = 1e-5) -> Lattice:
         """
         Get the Niggli reduced lattice using the numerically stable algo

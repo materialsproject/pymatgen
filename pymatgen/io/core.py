@@ -42,15 +42,15 @@ __date__ = "October 2021"
 
 class InputFile(MSONable):
     """
-    Abstract base class to represent a single input file. Note that use
-    of this class is optional; it is possible create an InputSet that
-    does not rely on underlying Inputfile objects.
+    Abstract base class to represent a single input file. Note that use of this class
+    is optional; it is possible create an InputSet that does not rely on underlying
+    InputFile objects.
 
-    All InputFile classes must implement a get_string method, which
-    is called by write_file.
+    All InputFile classes must implement a get_string method, which is called by
+    write_file.
 
-    If InputFile classes implement an __init__ method, they must assign all
-    arguments to __init__ as attributes.
+    If InputFile classes implement an __init__ method, they must assign all arguments
+    to __init__ as attributes.
     """
 
     @abc.abstractmethod
@@ -255,3 +255,7 @@ class InputGenerator(MSONable):
         Generate an InputSet object. Typically the first argument to this method
         will be a Structure or other form of atomic coordinates.
         """
+
+
+class ParseError(SyntaxError):
+    """This exception indicates a problem was encountered during parsing due to unexpected formatting."""

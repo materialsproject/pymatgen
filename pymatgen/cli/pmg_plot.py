@@ -19,13 +19,13 @@ def get_dos_plot(args):
     Args:
         args (dict): Args from argparse.
     """
-    v = Vasprun(args.dos_file)
-    dos = v.complete_dos
+    vasp_run = Vasprun(args.dos_file)
+    dos = vasp_run.complete_dos
 
     all_dos = {}
     all_dos["Total"] = dos
 
-    structure = v.final_structure
+    structure = vasp_run.final_structure
 
     if args.site:
         for i, site in enumerate(structure):
@@ -60,7 +60,7 @@ def get_chgint_plot(args):
     else:
         finder = SpacegroupAnalyzer(struct, symprec=0.1)
         sites = [sites[0] for sites in finder.get_symmetrized_structure().equivalent_sites]
-        atom_ind = [struct.sites.index(site) for site in sites]
+        atom_ind = [struct.index(site) for site in sites]
 
     from pymatgen.util.plotting import pretty_plot
 

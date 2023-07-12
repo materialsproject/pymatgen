@@ -9,6 +9,7 @@ from typing import Iterator
 import numpy as np
 from monty.json import MSONable
 
+from pymatgen.util.due import Doi, due
 from pymatgen.util.numba import njit
 
 
@@ -55,6 +56,10 @@ class ZSLMatch(MSONable):
         return np.transpose(np.linalg.solve(film_matrix, substrate_matrix))
 
 
+@due.dcite(
+    Doi("10.1063/1.333084"),
+    description="Lattice match: An application to heteroepitaxy",
+)
 class ZSLGenerator(MSONable):
     """
     This class generate matching interface super lattices based on the methodology
@@ -117,13 +122,13 @@ class ZSLGenerator(MSONable):
         """
         transformation_indices = [
             (ii, jj)
-            for ii in range(1, int(self.max_area / film_area))
-            for jj in range(1, int(self.max_area / substrate_area))
+            for ii in range(1, int(np.ceil(self.max_area / film_area)))
+            for jj in range(1, int(np.ceil(self.max_area / substrate_area)))
             if np.absolute(film_area / substrate_area - float(jj) / ii) < self.max_area_ratio_tol
         ] + [
             (ii, jj)
-            for ii in range(1, int(self.max_area / film_area))
-            for jj in range(1, int(self.max_area / substrate_area))
+            for ii in range(1, int(np.ceil(self.max_area / film_area)))
+            for jj in range(1, int(np.ceil(self.max_area / substrate_area)))
             if np.absolute(substrate_area / film_area - float(ii) / jj) < self.max_area_ratio_tol
         ]
         transformation_indices = list(set(transformation_indices))

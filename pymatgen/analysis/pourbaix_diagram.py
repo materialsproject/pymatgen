@@ -1,14 +1,6 @@
 """
-This module is intended to be used to compute Pourbaix diagrams
-of arbitrary compositions and formation energies. If you use
-this module in your work, please consider citing the following:
-
-General formalism for solid-aqueous equilibria from DFT:
-    Persson et al., DOI: 10.1103/PhysRevB.85.235438
-Decomposition maps, or Pourbaix hull diagrams
-    Singh et al., DOI: 10.1021/acs.chemmater.7b03980
-Fast computation of many-element Pourbaix diagrams:
-    Patel et al., https://arxiv.org/abs/1909.00035 (submitted)
+This module is intended to be used to compute Pourbaix diagrams of arbitrary compositions
+and formation energies.
 """
 
 from __future__ import annotations
@@ -38,6 +30,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.entries.compatibility import MU_H2O
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
+from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import Stringify
 
@@ -49,6 +42,21 @@ __credits__ = "Arunima Singh, Joseph Montoya, Anjli Patel"
 __email__ = "joseph.montoya@tri.global"
 __status__ = "Production"
 __date__ = "Nov 1, 2012"
+
+# If you use this module in your work, consider citing:
+due.cite(
+    Doi("10.1103/PhysRevB.85.235438"),
+    description="Prediction of solid-aqueous equilibria: Scheme to combine first-principles "
+    "calculations of solids with experimental aqueous states",
+)
+due.cite(
+    Doi("10.1021/acs.chemmater.7b03980"),
+    description="Electrochemical Stability of Metastable Materials",
+)
+due.cite(
+    Doi("10.1021/acs.chemmater.7b03980"),
+    description="Fast computation of many-element Pourbaix diagrams",
+)
 
 logger = logging.getLogger(__name__)
 
@@ -546,7 +554,7 @@ class PourbaixDiagram(MSONable):
             key=lambda x: (x.composition.reduced_composition, x.entry.energy_per_atom),
         )
         grouped_by_composition = itertools.groupby(sorted_entries, key=lambda x: x.composition.reduced_composition)
-        min_entries = [list(grouped_entries)[0] for comp, grouped_entries in grouped_by_composition]
+        min_entries = [next(iter(grouped_entries)) for comp, grouped_entries in grouped_by_composition]
         min_entries += ion_entries
 
         logger.debug("Constructing nph-nphi-composition points for qhull")

@@ -28,7 +28,7 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
     point_ops: list[list[SymmOp]] = []
 
     # Point symmetries of each atom
-    for idx1, _site1 in enumerate(struct):
+    for idx1 in range(len(struct)):
         temp_struct = struct.copy()
 
         # Place the origin of the cell at each atomic site
@@ -43,9 +43,7 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
 
         sga_struct = SpacegroupAnalyzer(temp_struct, symprec=precision)
         ops = sga_struct.get_symmetry_operations(cartesian=True)
-        for op in ops:
-            if list(op.translation_vector) == [0, 0, 0]:
-                point_ops[idx1].append(op)
+        point_ops[idx1] = [op for op in ops if list(op.translation_vector) == [0, 0, 0]]
     return point_ops
 
 

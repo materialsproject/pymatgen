@@ -692,7 +692,10 @@ class DoscarTest(unittest.TestCase):
 
         self.structure = Structure.from_dict(data)
 
-    def test_completedos(self):
+        # test structure argument
+        self.DOSCAR_spin_pol2 = Doscar(doscar=doscar, structure_file=None, structure=Structure.from_file(poscar))
+
+    def test_complete_dos(self):
         # first for spin polarized version
         energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_up = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02577]
@@ -712,12 +715,15 @@ class DoscarTest(unittest.TestCase):
         assert tdos_up == self.DOSCAR_spin_pol.completedos.densities[Spin.up].tolist()
         assert tdos_down == self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist()
         assert fermi == approx(self.DOSCAR_spin_pol.completedos.efermi)
-        for coords, coords2 in zip(
+
+        assert np.allclose(
             self.DOSCAR_spin_pol.completedos.structure.frac_coords,
             self.structure.frac_coords,
-        ):
-            for xyz, xyz2 in zip(coords, coords2):
-                assert xyz == approx(xyz2)
+        )
+        assert np.allclose(
+            self.DOSCAR_spin_pol2.completedos.structure.frac_coords,
+            self.structure.frac_coords,
+        )
         assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == PDOS_F_2s_up
         assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down].tolist() == PDOS_F_2s_down
         assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == PDOS_F_2py_up
@@ -1273,9 +1279,9 @@ class LobsteroutTest(PymatgenTest):
 
         assert self.lobsterout_onethread.number_of_threads == 1
         # Test lobsterout of lobster-4.1.0
-        assert self.lobsterout_cobi_madelung.has_cobicar is True
-        assert self.lobsterout_cobi_madelung.has_cohpcar is True
-        assert self.lobsterout_cobi_madelung.has_madelung is True
+        assert self.lobsterout_cobi_madelung.has_cobicar
+        assert self.lobsterout_cobi_madelung.has_cohpcar
+        assert self.lobsterout_cobi_madelung.has_madelung
         assert not self.lobsterout_cobi_madelung.has_doscar_lso
 
         assert self.lobsterout_doscar_lso.has_doscar_lso
@@ -1427,7 +1433,7 @@ class FatbandTest(PymatgenTest):
             assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
         assert self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi == -18.245
         assert self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi == -18.245
-        assert self.fatband_SiO2_spin.is_spinpolarized is True
+        assert self.fatband_SiO2_spin.is_spinpolarized
         assert self.fatband_SiO2_spin.kpoints_array[3] == approx([0.03409091, 0, 0])
         assert self.fatband_SiO2_spin.nbands == 36
 
@@ -1437,59 +1443,36 @@ class FatbandTest(PymatgenTest):
         assert self.fatband_SiO2_spin.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
 
     def test_raises(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="The are two FATBAND files for the same atom and orbital. The program will stop"
+        ):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
-                    os.path.join(
-                        PymatgenTest.TEST_FILES_DIR,
-                        "cohp",
-                        "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
-                    ),
-                    os.path.join(
-                        PymatgenTest.TEST_FILES_DIR,
-                        "cohp",
-                        "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
-                    ),
+                    f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
+                    f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
                 ],
                 Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
-                vasprun=os.path.join(
-                    PymatgenTest.TEST_FILES_DIR,
-                    "cohp",
-                    "Fatband_SiO2/Test_p_x/vasprun.xml",
-                ),
+                vasprun=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
             )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match=r"Make sure all relevant orbitals were generated and that no duplicates \(2p and 2p_x\) are present",
+        ):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
-                    os.path.join(
-                        PymatgenTest.TEST_FILES_DIR,
-                        "cohp",
-                        "Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
-                    ),
-                    os.path.join(
-                        PymatgenTest.TEST_FILES_DIR,
-                        "cohp",
-                        "Fatband_SiO2/Test_p/FATBAND_si1_3p.lobster",
-                    ),
+                    f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/FATBAND_si1_3p_x.lobster",
+                    f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/FATBAND_si1_3p.lobster",
                 ],
                 Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
-                vasprun=os.path.join(
-                    PymatgenTest.TEST_FILES_DIR,
-                    "cohp",
-                    "Fatband_SiO2/Test_p_x/vasprun.xml",
-                ),
+                vasprun=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
             )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="No FATBAND files in folder or given"):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=".",
                 Kpointsfile=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/KPOINTS",
-                vasprun=os.path.join(
-                    PymatgenTest.TEST_FILES_DIR,
-                    "cohp",
-                    "Fatband_SiO2/Test_p_x/vasprun.xml",
-                ),
+                vasprun=f"{PymatgenTest.TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p_x/vasprun.xml",
             )
 
     def test_get_bandstructure(self):
@@ -1595,11 +1578,11 @@ class LobsterinTest(unittest.TestCase):
         assert self.Lobsterinfromfile["gaussiansmearingwidth"] == approx(0.1)
         assert self.Lobsterinfromfile["basisfunctions"][0] == "Fe 3d 4p 4s"
         assert self.Lobsterinfromfile["basisfunctions"][1] == "Co 3d 4p 4s"
-        assert self.Lobsterinfromfile["skipdos"] is True
-        assert self.Lobsterinfromfile["skipcohp"] is True
-        assert self.Lobsterinfromfile["skipcoop"] is True
-        assert self.Lobsterinfromfile["skippopulationanalysis"] is True
-        assert self.Lobsterinfromfile["skipgrosspopulation"] is True
+        assert self.Lobsterinfromfile["skipdos"]
+        assert self.Lobsterinfromfile["skipcohp"]
+        assert self.Lobsterinfromfile["skipcoop"]
+        assert self.Lobsterinfromfile["skippopulationanalysis"]
+        assert self.Lobsterinfromfile["skipgrosspopulation"]
 
         # test if comments are correctly removed
         assert self.Lobsterinfromfile == self.Lobsterinfromfile2
@@ -1615,7 +1598,7 @@ class LobsterinTest(unittest.TestCase):
 
     def test_initialize_from_dict(self):
         # initialize from dict
-        lobsterin1 = Lobsterin(
+        lobsterin = Lobsterin(
             {
                 "cohpstartenergy": -15.0,
                 "cohpendenergy": 5.0,
@@ -1629,22 +1612,18 @@ class LobsterinTest(unittest.TestCase):
                 "skipgrosspopulation": True,
             }
         )
-        assert lobsterin1["cohpstartenergy"] == approx(-15.0)
-        assert lobsterin1["cohpendenergy"] == approx(5.0)
-        assert lobsterin1["basisset"] == "pbeVaspFit2015"
-        assert lobsterin1["gaussiansmearingwidth"] == approx(0.1)
-        assert lobsterin1["basisfunctions"][0] == "Fe 3d 4p 4s"
-        assert lobsterin1["basisfunctions"][1] == "Co 3d 4p 4s"
-        assert lobsterin1["skipdos"] is True
-        assert lobsterin1["skipcohp"] is True
-        assert lobsterin1["skipcoop"] is True
-        assert lobsterin1["skippopulationanalysis"] is True
-        assert lobsterin1["skipgrosspopulation"] is True
-        with pytest.raises(IOError):
+        assert lobsterin["cohpstartenergy"] == approx(-15.0)
+        assert lobsterin["cohpendenergy"] == approx(5.0)
+        assert lobsterin["basisset"] == "pbeVaspFit2015"
+        assert lobsterin["gaussiansmearingwidth"] == approx(0.1)
+        assert lobsterin["basisfunctions"][0] == "Fe 3d 4p 4s"
+        assert lobsterin["basisfunctions"][1] == "Co 3d 4p 4s"
+        assert {*lobsterin} >= {"skipdos", "skipcohp", "skipcoop", "skippopulationanalysis", "skipgrosspopulation"}
+        with pytest.raises(IOError, match="There are duplicates for the keywords! The program will stop here."):
             lobsterin2 = Lobsterin({"cohpstartenergy": -15.0, "cohpstartEnergy": -20.0})
         lobsterin2 = Lobsterin({"cohpstartenergy": -15.0})
         # can only calculate nbands if basis functions are provided
-        with pytest.raises(IOError):
+        with pytest.raises(IOError, match="No basis functions are provided. The program cannot calculate nbands"):
             lobsterin2._get_nbands(structure=Structure.from_file(os.path.join(test_dir_doscar, "POSCAR.Fe3O4")))
 
     def test_standard_settings(self):
@@ -1682,7 +1661,7 @@ class LobsterinTest(unittest.TestCase):
                 "onlycoop",
                 "onlycohpcoop",
             ]:
-                assert lobsterin1["saveProjectiontoFile"] is True
+                assert lobsterin1["saveProjectiontoFile"]
             if option in [
                 "standard",
                 "standard_with_fatband",
@@ -1692,14 +1671,14 @@ class LobsterinTest(unittest.TestCase):
             ]:
                 assert lobsterin1["cohpGenerator"] == "from 0.1 to 6.0 orbitalwise"
             if option in ["standard"]:
-                assert ("skipdos" not in lobsterin1) is True
-                assert ("skipcohp" not in lobsterin1) is True
-                assert ("skipcoop" not in lobsterin1) is True
+                assert "skipdos" not in lobsterin1
+                assert "skipcohp" not in lobsterin1
+                assert "skipcoop" not in lobsterin1
             if option in ["standard_with_fatband"]:
                 assert lobsterin1["createFatband"] == ["Fe 3d 4p 4s ", "O 2p 2s "]
-                assert ("skipdos" not in lobsterin1) is True
-                assert ("skipcohp" not in lobsterin1) is True
-                assert ("skipcoop" not in lobsterin1) is True
+                assert "skipdos" not in lobsterin1
+                assert "skipcohp" not in lobsterin1
+                assert "skipcoop" not in lobsterin1
             if option in ["standard_from_projection"]:
                 assert lobsterin1["loadProjectionFromFile"], True
             if option in [
@@ -1756,7 +1735,7 @@ class LobsterinTest(unittest.TestCase):
         assert "gaussiansmearingwidth" not in lobsterin_new
 
         # fatband and ISMEAR=-5 does not work together
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="ISMEAR has to be 0 for a fatband calculation with Lobster"):
             lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
                 os.path.join(test_dir_doscar, "POSCAR.Fe3O4"),
                 os.path.join(test_dir_doscar, "INCAR.lobster2"),
@@ -2308,12 +2287,10 @@ class GrosspopTest(unittest.TestCase):
             ],
         }
 
-        newstructure = self.grosspop1.get_structure_with_total_grosspop(
+        new_structure = self.grosspop1.get_structure_with_total_grosspop(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.SiO2")
         )
-        for coords, coords2 in zip(newstructure.frac_coords, Structure.from_dict(struct_dict).frac_coords):
-            for xyz, xyz2 in zip(coords, coords2):
-                assert xyz == approx(xyz2)
+        assert np.allclose(new_structure.frac_coords, Structure.from_dict(struct_dict).frac_coords)
 
 
 class TestUtils(PymatgenTest):

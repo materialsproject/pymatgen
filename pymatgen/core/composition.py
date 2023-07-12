@@ -14,7 +14,6 @@ from functools import total_ordering
 from itertools import combinations_with_replacement, product
 from typing import Generator, Iterator, Union, cast
 
-from frozendict import frozendict
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
 from monty.serialization import loadfn
@@ -73,7 +72,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     # Special formula handling for peroxides and certain elements. This is so
     # that formula output does not write LiO instead of Li2O2 for example.
-    special_formulas = frozendict(
+    special_formulas = dict(
         LiO="Li2O2",
         NaO="Na2O2",
         KO="K2O2",

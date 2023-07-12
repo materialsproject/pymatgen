@@ -762,7 +762,7 @@ class KabschMatcher(MSONable):
             RMSD : Root mean squared deviation between P and Q
         """
         if self.target.atomic_numbers != p.atomic_numbers:
-            raise ValueError("The order of the species aren't matching! Please try using `PermInvMatcher`.")
+            raise ValueError("The order of the species aren't matching! Please try using PermInvMatcher.")
 
         p_coord, q_coord = p.cart_coords, self.target.cart_coords
 
@@ -867,7 +867,7 @@ class BruteForceOrderMatcher(KabschMatcher):
         _, count = np.unique(mol.atomic_numbers, return_counts=True)
         total_permutations = 1
         for c in count:
-            total_permutations *= np.math.factorial(c)  # type: ignore
+            total_permutations *= math.factorial(c)
 
         if not ignore_warning and total_permutations > 1_000_000:
             raise ValueError(

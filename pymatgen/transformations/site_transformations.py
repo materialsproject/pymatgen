@@ -354,29 +354,27 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         tested_sites: list[list[PeriodicSite]] = []
         start_time = time.perf_counter()
         self.logger.debug("Performing initial Ewald sum...")
-        ewaldsum = EwaldSummation(structure)
+        ewald_sum = EwaldSummation(structure)
         self.logger.debug(f"Ewald sum took {time.perf_counter() - start_time} seconds.")
         start_time = time.perf_counter()
 
-        allcombis = []
-        for ind, num in num_remove_dict.items():
-            allcombis.append(itertools.combinations(ind, num))
+        all_combis = [list(itertools.combinations(ind, num)) for ind, num in num_remove_dict.items()]
 
         count = 0
-        for allindices in itertools.product(*allcombis):
+        for all_indices in itertools.product(*all_combis):
             sites_to_remove = []
             indices_list = []
-            for indices in allindices:
+            for indices in all_indices:
                 sites_to_remove.extend([structure[i] for i in indices])
                 indices_list.extend(indices)
             s_new = structure.copy()
             s_new.remove_sites(indices_list)
-            energy = ewaldsum.compute_partial_energy(indices_list)
+            energy = ewald_sum.compute_partial_energy(indices_list)
             already_tested = False
-            for i, tsites in enumerate(tested_sites):
-                tenergy = all_structures[i]["energy"]
-                if abs((energy - tenergy) / len(s_new)) < 1e-5 and sg.are_symmetrically_equivalent(
-                    sites_to_remove, tsites, symm_prec=symprec
+            for idx, t_sites in enumerate(tested_sites):
+                t_energy = all_structures[idx]["energy"]
+                if abs((energy - t_energy) / len(s_new)) < 1e-5 and sg.are_symmetrically_equivalent(
+                    sites_to_remove, t_sites, symm_prec=symprec
                 ):
                     already_tested = True
 
@@ -410,9 +408,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         ewaldmatrix = EwaldSummation(structure).total_energy_matrix
         self.logger.debug(f"Ewald sum took {time.perf_counter() - start_time} seconds.")
         start_time = time.perf_counter()
-        m_list = []
-        for indices, num in num_remove_dict.items():
-            m_list.append([0, num, list(indices), None])
+        m_list = [[0, num, list(indices), None] for indices, num in num_remove_dict.items()]
 
         self.logger.debug("Calling EwaldMinimizer...")
         minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)

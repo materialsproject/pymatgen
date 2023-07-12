@@ -152,7 +152,7 @@ class ReactionTest(unittest.TestCase):
         assert str(rxn) == "Li + 2 S -> LiS2"
 
     def test_overdetermined(self):
-        with pytest.raises(ReactionError):
+        with pytest.raises(ReactionError, match="Reaction cannot be balanced"):
             Reaction([Composition("Li")], [Composition("LiO2")])
 
     def test_scientific_notation(self):
@@ -310,7 +310,7 @@ class BalancedReactionTest(unittest.TestCase):
         # Test unbalanced exception
         rct = {Composition("K2SO4"): 1, Composition("Na2S"): 1, Composition("Li"): 24}
         prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
-        with pytest.raises(ReactionError):
+        with pytest.raises(ReactionError, match="Reaction is unbalanced"):
             BalancedReaction(rct, prod)
 
     def test_to_from_dict(self):
@@ -458,7 +458,7 @@ class ComputedReactionTest(unittest.TestCase):
     def test_calculated_reaction_energy_uncertainty_for_no_uncertainty(self):
         # test that reaction_energy_uncertainty property doesn't cause errors
         # when products/reactants have no uncertainties
-        assert self.rxn.calculated_reaction_energy_uncertainty == approx(0)
+        assert self.rxn.calculated_reaction_energy_uncertainty == 0
 
     def test_calculated_reaction_energy_uncertainty_for_nan(self):
         # test that reaction_energy_uncertainty property is nan when the uncertainty

@@ -59,7 +59,7 @@ class Site(collections.abc.Hashable, MSONable):
         if not skip_checks:
             if not isinstance(species, Composition):
                 try:
-                    species = Composition({get_el_sp(species): 1})
+                    species = Composition({get_el_sp(species): 1})  # type: ignore
                 except TypeError:
                     species = Composition(species)
             total_occu = species.num_atoms
@@ -86,7 +86,7 @@ class Site(collections.abc.Hashable, MSONable):
     def species(self, species: SpeciesLike | CompositionLike):
         if not isinstance(species, Composition):
             try:
-                species = Composition({get_el_sp(species): 1})
+                species = Composition({get_el_sp(species): 1})  # type: ignore
             except TypeError:
                 species = Composition(species)
         total_occu = species.num_atoms
@@ -197,7 +197,7 @@ class Site(collections.abc.Hashable, MSONable):
             and self.properties == other.properties
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
@@ -318,7 +318,7 @@ class PeriodicSite(Site, MSONable):
             frac_coords = np.array(frac_coords)
             if not isinstance(species, Composition):
                 try:
-                    species = Composition({get_el_sp(species): 1})
+                    species = Composition({get_el_sp(species): 1})  # type: ignore
                 except TypeError:
                     species = Composition(species)
 
@@ -332,7 +332,7 @@ class PeriodicSite(Site, MSONable):
         self._coords: np.ndarray | None = None
         self.properties: dict = properties or {}
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """
         Minimally effective hash function that just distinguishes between Sites
         with different elements.

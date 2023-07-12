@@ -12,7 +12,6 @@ import os
 from typing import ClassVar
 
 import numpy as np
-from frozendict import frozendict
 from monty.json import MSONable
 from scipy.stats import gmean
 
@@ -58,16 +57,16 @@ class StrategyOption(MSONable, metaclass=abc.ABCMeta):
 class DistanceCutoffFloat(float, StrategyOption):
     """Distance cutoff in a strategy."""
 
-    allowed_values = "Real number between 1.0 and +infinity"
+    allowed_values = "Real number between 1 and +infinity"
 
     def __new__(cls, myfloat):
-        """Special float that should be between 1.0 and infinity.
+        """Special float that should be between 1 and infinity.
 
         :param myfloat: Distance cutoff.
         """
         flt = float.__new__(cls, myfloat)
-        if flt < 1.0:
-            raise ValueError("Distance cutoff should be between 1.0 and +infinity")
+        if flt < 1:
+            raise ValueError("Distance cutoff should be between 1 and +infinity")
         return flt
 
     def as_dict(self):
@@ -90,16 +89,16 @@ class DistanceCutoffFloat(float, StrategyOption):
 class AngleCutoffFloat(float, StrategyOption):
     """Angle cutoff in a strategy."""
 
-    allowed_values = "Real number between 0.0 and 1.0"
+    allowed_values = "Real number between 0 and 1"
 
     def __new__(cls, myfloat):
-        """Special float that should be between 0.0 and 1.0.
+        """Special float that should be between 0 and 1.
 
         :param myfloat: Angle cutoff.
         """
         flt = float.__new__(cls, myfloat)
-        if flt < 0.0 or flt > 1.0:
-            raise ValueError("Angle cutoff should be between 0.0 and 1.0")
+        if not 0 <= flt <= 1:
+            raise ValueError(f"Angle cutoff should be between 0 and 1, got {flt}")
         return flt
 
     def as_dict(self):
@@ -122,16 +121,16 @@ class AngleCutoffFloat(float, StrategyOption):
 class CSMFloat(float, StrategyOption):
     """Real number representing a Continuous Symmetry Measure."""
 
-    allowed_values = "Real number between 0.0 and 100.0"
+    allowed_values = "Real number between 0 and 100"
 
     def __new__(cls, myfloat):
-        """Special float that should be between 0.0 and 100.0.
+        """Special float that should be between 0 and 100.
 
         :param myfloat: CSM.
         """
         flt = float.__new__(cls, myfloat)
-        if flt < 0.0 or flt > 100.0:
-            raise ValueError("Continuous symmetry measure limits should be between 0.0 and 100.0")
+        if not 0 <= flt <= 100:
+            raise ValueError(f"Continuous symmetry measure limits should be between 0 and 100, got {flt}")
         return flt
 
     def as_dict(self):
@@ -191,7 +190,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS: ClassVar[frozendict[str, dict]] = frozendict()
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict()
     STRATEGY_DESCRIPTION: str | None = None
     STRATEGY_INFO_FIELDS: ClassVar[list] = []
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
@@ -352,7 +351,7 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
         dthissite=None,
         mysym=None,
         ordered=True,
-        min_fraction=0.0,
+        min_fraction=0,
         return_maps=True,
         return_strategy_dict_info=False,
     ):
@@ -469,25 +468,25 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     # Default values for the distance and angle cutoffs
     DEFAULT_DISTANCE_CUTOFF = 1.4
     DEFAULT_ANGLE_CUTOFF = 0.3
-    DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
+    DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(  # type: ignore
-        distance_cutoff=frozendict(
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict(  # type: ignore
+        distance_cutoff=dict(
             type=DistanceCutoffFloat,
             internal="_distance_cutoff",
             default=DEFAULT_DISTANCE_CUTOFF,
         ),
-        angle_cutoff=frozendict(
+        angle_cutoff=dict(
             type=AngleCutoffFloat,
             internal="_angle_cutoff",
             default=DEFAULT_ANGLE_CUTOFF,
         ),
-        additional_condition=frozendict(
+        additional_condition=dict(
             type=AdditionalConditionInt,
             internal="_additional_condition",
             default=DEFAULT_ADDITIONAL_CONDITION,
         ),
-        continuous_symmetry_measure_cutoff=frozendict(
+        continuous_symmetry_measure_cutoff=dict(
             type=CSMFloat,
             internal="_continuous_symmetry_measure_cutoff",
             default=DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
@@ -709,7 +708,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         dthissite=None,
         mysym=None,
         ordered=True,
-        min_fraction=0.0,
+        min_fraction=0,
         return_maps=True,
         return_strategy_dict_info=False,
     ):
@@ -751,10 +750,10 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             ce_dict = {
                 "ce_symbol": f"UNKNOWN:{ce_map[0]:d}",
                 "ce_dict": None,
-                "ce_fraction": 1.0,
+                "ce_fraction": 1,
             }
         else:
-            ce_dict = {"ce_symbol": ce[0], "ce_dict": ce[1], "ce_fraction": 1.0}
+            ce_dict = {"ce_symbol": ce[0], "ce_dict": ce[1], "ce_fraction": 1}
         if return_maps:
             ce_dict["ce_map"] = ce_map
         if return_strategy_dict_info:
@@ -862,9 +861,9 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[frozendict[str, frozendict]] = frozendict(  # type: ignore
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict(  # type: ignore
         surface_calculation_type={},
-        additional_condition=frozendict(
+        additional_condition=dict(
             type=AdditionalConditionInt,
             internal="_additional_condition",
             default=DEFAULT_ADDITIONAL_CONDITION,
@@ -996,7 +995,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         maps_and_surfaces = self._get_maps_surfaces(isite)
         if maps_and_surfaces is None:
             return None
-        surface_max = 0.0
+        surface_max = 0
         imax = -1
         for ii, map_and_surface in enumerate(maps_and_surfaces):
             all_additional_conditions = [ac[2] for ac in map_and_surface["parameters_indices"]]
@@ -1139,7 +1138,7 @@ class TargettedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy)
         if maps_and_surfaces is None:
             return SimpleAbundanceChemenvStrategy._get_map(self, isite)
         current_map = None
-        current_target_env_csm = 100.0
+        current_target_env_csm = 100
         surfaces = [map_and_surface["surface"] for map_and_surface in maps_and_surfaces]
         order = np.argsort(surfaces)[::-1]
         target_cgs = [
@@ -1242,13 +1241,13 @@ class AngleNbSetWeight(NbSetWeight):
 
     SHORT_NAME = "AngleWeight"
 
-    def __init__(self, aa=1.0):
+    def __init__(self, aa=1):
         """Initialize AngleNbSetWeight estimator.
 
         :param aa: Exponent of the angle for the estimator.
         """
         self.aa = aa
-        if self.aa == 1.0:
+        if self.aa == 1:
             self.aw = self.angle_sum
         else:
             self.aw = self.angle_sumn
@@ -1377,7 +1376,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :param nb_set: Neighbors set.
         :return: List of inverse distances.
         """
-        return [1.0 / dist for dist in nb_set.normalized_distances]
+        return [1 / dist for dist in nb_set.normalized_distances]
 
     def invndist(self, nb_set):
         """Inverse power distance weight.
@@ -1385,7 +1384,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
         :param nb_set: Neighbors set.
         :return: List of inverse power distances.
         """
-        return [1.0 / dist**self.bb for dist in nb_set.normalized_distances]
+        return [1 / dist**self.bb for dist in nb_set.normalized_distances]
 
     @staticmethod
     def ang(nb_set):
@@ -1498,13 +1497,13 @@ def get_effective_csm(
         site_ce_list = structure_environments.ce_list[nb_set.isite]
         site_chemenv = site_ce_list[cn_map[0]][cn_map[1]]
         if site_chemenv is None:
-            effective_csm = 100.0
+            effective_csm = 100
         else:
             mingeoms = site_chemenv.minimum_geometries(
                 symmetry_measure_type=symmetry_measure_type, max_csm=max_effective_csm
             )
             if len(mingeoms) == 0:
-                effective_csm = 100.0
+                effective_csm = 100
             else:
                 csms = [
                     ce_dict["other_symmetry_measures"][symmetry_measure_type]
@@ -1546,13 +1545,13 @@ class SelfCSMNbSetWeight(NbSetWeight):
 
     SHORT_NAME = "SelfCSMWeight"
 
-    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = frozendict(
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = dict(
         function="power2_inverse_decreasing",
         options={"max_csm": 8.0},
     )
-    DEFAULT_WEIGHT_ESTIMATOR = frozendict(
+    DEFAULT_WEIGHT_ESTIMATOR = dict(
         function="power2_decreasing_exp",
-        options={"max_csm": 8.0, "alpha": 1.0},
+        options={"max_csm": 8.0, "alpha": 1},
     )
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
 
@@ -1642,12 +1641,12 @@ class DeltaCSMNbSetWeight(NbSetWeight):
 
     SHORT_NAME = "DeltaCSMWeight"
 
-    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = frozendict(
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = dict(
         function="power2_inverse_decreasing",
         options={"max_csm": 8.0},
     )
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
-    DEFAULT_WEIGHT_ESTIMATOR = frozendict(
+    DEFAULT_WEIGHT_ESTIMATOR = dict(
         function="smootherstep",
         options={"delta_csm_min": 0.5, "delta_csm_max": 3.0},
     )
@@ -1700,7 +1699,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         cn = cn_map[0]
         isite = nb_set.isite
         delta_csm = delta_csm_cn_map2 = None
-        nb_set_weight = 1.0
+        nb_set_weight = 1
         for cn2, nb_sets in structure_environments.neighbors_sets[isite].items():
             if cn2 < cn:
                 continue
@@ -1718,7 +1717,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
                 )
                 this_delta_csm = effcsm2 - effcsm
                 if cn2 == cn:
-                    if this_delta_csm < 0.0:
+                    if this_delta_csm < 0:
                         set_info(
                             additional_info=additional_info,
                             field="delta_csms",
@@ -1731,7 +1730,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
                             field="delta_csms_weights",
                             isite=isite,
                             cn_map=cn_map,
-                            value=0.0,
+                            value=0,
                         )
                         set_info(
                             additional_info=additional_info,
@@ -1740,7 +1739,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
                             cn_map=cn_map,
                             value=(cn2, inb_set2),
                         )
-                        return 0.0
+                        return 0
                 else:
                     dcn = cn2 - cn
                     if dcn in self.delta_cn_weight_estimators_rfs:
@@ -1956,7 +1955,7 @@ class CNBiasNbSetWeight(NbSetWeight):
             "weight_cn1": weight_cn1,
             "weight_cn13": weight_cn13,
         }
-        factor = np.power(float(weight_cn13) / weight_cn1, 1.0 / 12.0)
+        factor = np.power(float(weight_cn13) / weight_cn1, 1 / 12.0)
         cn_weights = {cn: weight_cn1 * np.power(factor, cn - 1) for cn in range(1, 14)}
         return cls(cn_weights=cn_weights, initialization_options=initialization_options)
 
@@ -1994,7 +1993,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
     SHORT_NAME = "DistAngleAreaWeight"
 
     AC = AdditionalConditions()
-    DEFAULT_SURFACE_DEFINITION = frozendict(
+    DEFAULT_SURFACE_DEFINITION = dict(
         type="standard_elliptic",
         distance_bounds={"lower": 1.2, "upper": 1.8},
         angle_bounds={"lower": 0.1, "upper": 0.8},
@@ -2080,7 +2079,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        if w_area > 0.0:
+        if w_area > 0:
             if self.smoothstep_distance is not None:
                 w_area = w_area
             if self.smoothstep_angle is not None:
@@ -2124,12 +2123,12 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
                 a1 = src["ap_dict"]["next"]
                 a2 = src["ap_dict"]["max"]
                 if self.rectangle_crosses_area(d1=d1, d2=d2, a1=a1, a2=a2):
-                    return 1.0
-            return 0.0
+                    return 1
+            return 0
 
         from_hints_sources = [src for src in nb_set.sources if src["origin"] == "nb_set_hints"]
         if len(from_hints_sources) == 0:
-            return 0.0
+            return 0
         if len(from_hints_sources) != 1:
             raise ValueError("Found multiple hints sources for nb_set")
         cn_map_src = from_hints_sources[0]["cn_map_source"]
@@ -2140,15 +2139,15 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
             if src["origin"] == "dist_ang_ac_voronoi" and src["ac"] == self.additional_condition
         ]
         if len(dist_ang_sources) == 0:
-            return 0.0
+            return 0
         for src in dist_ang_sources:
             d1 = src["dp_dict"]["min"]
             d2 = src["dp_dict"]["next"]
             a1 = src["ap_dict"]["next"]
             a2 = src["ap_dict"]["max"]
             if self.rectangle_crosses_area(d1=d1, d2=d2, a1=a1, a2=a2):
-                return 1.0
-        return 0.0
+                return 1
+        return 0
 
     def rectangle_crosses_area(self, d1, d2, a1, a2):
         """Whether a given rectangle crosses the area defined by the upper and lower curves.
@@ -2410,7 +2409,7 @@ class DistanceNbSetWeight(NbSetWeight):
         all_nbs_indices_except_nb_set = all_nbs_voro_indices - nb_set.site_voronoi_indices
         normalized_distances = [voronoi[inb]["normalized_distance"] for inb in all_nbs_indices_except_nb_set]
         if len(normalized_distances) == 0:
-            return 1.0
+            return 1
         return self.weight_rf.eval(min(normalized_distances))
 
     def __eq__(self, other: object) -> bool:
@@ -2487,9 +2486,9 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
         all_nbs_indices_except_nb_set = all_nbs_voro_indices - nb_set.site_voronoi_indices
         normalized_distances = [voronoi[inb]["normalized_distance"] for inb in all_nbs_indices_except_nb_set]
         if len(normalized_distances) == 0:
-            return 1.0
+            return 1
         if len(nb_set) == 0:
-            return 0.0
+            return 0
         nb_set_max_normalized_distance = max(nb_set.normalized_distances)
         return self.weight_rf.eval(min(normalized_distances) - nb_set_max_normalized_distance)
 
@@ -2522,7 +2521,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
     """WeightedNbSetChemenvStrategy."""
 
     STRATEGY_DESCRIPTION = "    WeightedNbSetChemenvStrategy"
-    DEFAULT_CE_ESTIMATOR = frozendict(
+    DEFAULT_CE_ESTIMATOR = dict(
         function="power2_inverse_power2_decreasing",
         options={"max_csm": 8.0},
     )
@@ -2565,7 +2564,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
         dthissite=None,
         mysym=None,
         ordered=True,
-        min_fraction=0.0,
+        min_fraction=0,
         return_maps=True,
         return_strategy_dict_info=False,
         return_all=False,
@@ -2614,7 +2613,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                 if cn_map not in weights_additional_info["weights"][isite]:
                     weights_additional_info["weights"][isite][cn_map] = {}
                 weights_additional_info["weights"][isite][cn_map][weight_name] = w_nb_set
-                if return_all or w_nb_set > 0.0:
+                if return_all or w_nb_set > 0:
                     cn_maps_new.append(cn_map)
             cn_maps = cn_maps_new
         for cn_map, weights in weights_additional_info["weights"][isite].items():
@@ -2680,7 +2679,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                     ce_maps.append(cn_map)
         else:
             for cn_map, nb_set_fraction in nb_sets_fractions.items():
-                if nb_set_fraction > 0.0:
+                if nb_set_fraction > 0:
                     cn = cn_map[0]
                     inb_set = cn_map[1]
                     site_ce_nb_set = site_ce_list[cn][inb_set]
@@ -2691,7 +2690,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                     ]
                     fractions = self.ce_estimator_fractions(csms)
                     for ifraction, fraction in enumerate(fractions):
-                        if fraction > 0.0:
+                        if fraction > 0:
                             ce_symbols.append(mingeoms[ifraction][0])
                             ce_dicts.append(mingeoms[ifraction][1])
                             ce_fractions.append(nb_set_fraction * fraction)
@@ -2825,7 +2824,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
     #                         'cn_map_delta_csm', 'cn_map_delta_csms_cn_map2', 'cn_map_delta_csm_weight',
     #                         'cn_map_cn_weight',
     #                         'cn_map_fraction', 'cn_map_ce_fraction', 'ce_fraction']
-    DEFAULT_CE_ESTIMATOR = frozendict(
+    DEFAULT_CE_ESTIMATOR = dict(
         function="power2_inverse_power2_decreasing",
         options={"max_csm": 8.0},
     )
@@ -2899,7 +2898,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         self_csm_weight = SelfCSMNbSetWeight(
             weight_estimator={
                 "function": "power2_decreasing_exp",
-                "options": {"max_csm": 8.0, "alpha": 1.0},
+                "options": {"max_csm": 8.0, "alpha": 1},
             }
         )
         surface_definition = {

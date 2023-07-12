@@ -13,6 +13,7 @@ import numpy as np
 
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
+from pymatgen.symmetry.analyzer import cite_conventional_cell_algo
 from pymatgen.symmetry.kpath import KPathBase, KPathLatimerMunro, KPathSeek, KPathSetyawanCurtarolo
 
 __author__ = "Jason Munro"
@@ -24,6 +25,7 @@ __status__ = "Development"
 __date__ = "March 2020"
 
 
+@cite_conventional_cell_algo
 class HighSymmKpath(KPathBase):
     """
     This class generates path along high symmetry lines in the
@@ -245,10 +247,7 @@ class HighSymmKpath(KPathBase):
             sc_count = np.zeros(n_op)
 
             for o_num in range(0, n_op):
-                a_tr_coord = []
-
-                for coord_a in a_path["kpoints"].values():
-                    a_tr_coord.append(np.dot(rpg[o_num], coord_a))
+                a_tr_coord = [np.dot(rpg[o_num], coord_a) for coord_a in a_path["kpoints"].values()]
 
                 for coord_a in a_tr_coord:
                     for value in b_path["kpoints"].values():

@@ -802,10 +802,7 @@ class MoleculeGraphTest(unittest.TestCase):
         edges = {(e[0], e[1]): None for e in self.pc_edges}
         mol_graph = MoleculeGraph.with_edges(self.pc, edges)
         unique_fragment_dict = mol_graph.build_unique_fragments()
-        unique_fragments = []
-        for key in unique_fragment_dict:
-            for fragment in unique_fragment_dict[key]:
-                unique_fragments.append(fragment)
+        unique_fragments = [fragment for key in unique_fragment_dict for fragment in unique_fragment_dict[key]]
         assert len(unique_fragments) == 295
         nm = iso.categorical_node_match("specie", "ERROR")
         for ii in range(295):
@@ -823,11 +820,9 @@ class MoleculeGraphTest(unittest.TestCase):
             coords = nx.get_node_attributes(unique_fragments[ii].graph, "coords")
 
             mol = unique_fragments[ii].molecule
-            for ss, site in enumerate(mol):
-                assert str(species[ss]) == str(site.specie)
-                assert coords[ss][0] == site.coords[0]
-                assert coords[ss][1] == site.coords[1]
-                assert coords[ss][2] == site.coords[2]
+            for idx, site in enumerate(mol):
+                assert str(species[idx]) == str(site.specie)
+                assert all(coords[idx] == site.coords)
 
             # Test that each fragment is connected
             assert nx.is_connected(unique_fragments[ii].graph.to_undirected())

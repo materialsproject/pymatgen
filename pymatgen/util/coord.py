@@ -64,8 +64,9 @@ def is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8) 
     Doesn't use periodic boundary conditions.
 
     Args:
-        subset: List of coords
-        superset: List of coords
+        subset (ArrayLike): List of coords
+        superset (ArrayLike): List of coords
+        atol (float): Absolute tolerance for comparing coordinates. Defaults to 1e-8.
 
     Returns:
         True if all of subset is in superset.
@@ -107,8 +108,10 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
     Superset cannot contain duplicate matching rows.
 
     Args:
-        subset, superset: List of frac_coords
-        pbc: a tuple defining the periodic boundary conditions along the three
+        subset (ArrayLike): List of frac_coords
+        superset (ArrayLike): List of frac_coords
+        atol (float): Absolute tolerance. Defaults to 1e-8.
+        pbc (tuple): A tuple defining the periodic boundary conditions along the three
             axis of the lattice.
 
     Returns:
@@ -258,12 +261,13 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None, pbc=(True, True,
     Tests if all fractional coords in subset are contained in superset.
 
     Args:
-        subset, superset: List of fractional coords
+        subset (list): List of fractional coords to test
+        superset (list): List of fractional coords to test against
         atol (float or size 3 array): Tolerance for matching
         mask (boolean array): Mask of matches that are not allowed.
             i.e. if mask[1,2] is True, then subset[1] cannot be matched
             to superset[2]
-        pbc: a tuple defining the periodic boundary conditions along the three
+        pbc (tuple): a tuple defining the periodic boundary conditions along the three
             axis of the lattice.
 
     Returns:
@@ -467,13 +471,12 @@ class Simplex(MSONable):
             return NotImplemented
         return any(np.allclose(p, other.coords) for p in itertools.permutations(self._coords))
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return len(self._coords)
 
     def __repr__(self):
         output = [f"{self.simplex_dim}-simplex in {self.space_dim}D space\nVertices:"]
-        for coord in self._coords:
-            output.append(f"\t({', '.join(map(str, coord))})")
+        output += [f"\t({', '.join(map(str, coord))})" for coord in self._coords]
         return "\n".join(output)
 
     @property

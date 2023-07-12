@@ -218,7 +218,7 @@ class StructureEnvironmentsTest(PymatgenTest):
     def test_from_structure_environments(self):
         # https://github.com/materialsproject/pymatgen/issues/2756
         mp_id = "mp-554015"
-        struct = Structure.from_file(PymatgenTest.TEST_FILES_DIR / f"{mp_id}.json.gz")
+        struct = Structure.from_file(f"{PymatgenTest.TEST_FILES_DIR}/{mp_id}.json.gz")
         strategy = SimplestChemenvStrategy(distance_cutoff=1.4, angle_cutoff=0.3)
         local_geom_finder = LocalGeometryFinder()
         local_geom_finder.setup_structure(structure=struct)

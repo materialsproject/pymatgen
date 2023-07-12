@@ -20,6 +20,7 @@ from tqdm import tqdm
 from uncertainties import ufloat
 
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
+from pymatgen.core import SETTINGS
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.computed_entries import (
     CompositionEnergyAdjustment,
@@ -30,6 +31,7 @@ from pymatgen.entries.computed_entries import (
     TemperatureEnergyAdjustment,
 )
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
+from pymatgen.util.due import Doi, due
 
 __author__ = "Amanda Wang, Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012-2020, The Materials Project"
@@ -150,6 +152,8 @@ class PotcarCorrection(Correction):
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Uncertainty.
         """
+        if SETTINGS.get("PMG_DISABLE_POTCAR_CHECKS", False):
+            return ufloat(0.0, 0.0)
         if self.check_hash:
             if entry.parameters.get("potcar_spec"):
                 psp_settings = {d.get("hash") for d in entry.parameters["potcar_spec"] if d}
@@ -1175,6 +1179,7 @@ class MITAqueousCompatibility(CorrectionsList):
 
 
 @cached_class
+@due.dcite(Doi("10.1103/PhysRevB.85.235438", "Pourbaix scheme to combine calculated and experimental data"))
 class MaterialsProjectAqueousCompatibility(Compatibility):
     """
     This class implements the Aqueous energy referencing scheme for constructing

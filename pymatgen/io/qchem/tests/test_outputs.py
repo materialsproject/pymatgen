@@ -459,7 +459,7 @@ class TestQCOutput(PymatgenTest):
         ).data
         assert data["solvent_method"] == "ISOSVP"
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 2.28
-        assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is True
+        assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
         assert data["solvent_data"]["cmirs"]["dispersion_e"] == 0.6955542829
         assert data["solvent_data"]["cmirs"]["exchange_e"] == 0.2654553686
         assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == 0.0006019665
@@ -471,7 +471,7 @@ class TestQCOutput(PymatgenTest):
         ).data
         assert data["solvent_method"] == "ISOSVP"
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 10
-        assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is True
+        assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
         assert data["solvent_data"]["cmirs"]["dispersion_e"] == 0.6955550107
         assert data["solvent_data"]["cmirs"]["exchange_e"] == 0.2652679507
         assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == 0.0005235850
@@ -492,7 +492,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == 0.0037602703
 
         # CMIRS parameters
-        assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is True
+        assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
         assert data["solvent_data"]["cmirs"]["dispersion_e"] == 0.6722278965
         assert data["solvent_data"]["cmirs"]["exchange_e"] == 0.2652032616
         assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == 0.0004967767

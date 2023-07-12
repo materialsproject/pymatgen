@@ -45,7 +45,7 @@ def make_doc(ctx):
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("rm pymatgen.*.rst", warn=True)
-        ctx.run("sphinx-apidoc --implicit-namespaces --separate -d 7 -o . -f ../pymatgen")
+        ctx.run("sphinx-apidoc --implicit-namespaces -d 7 -o . -f ../pymatgen")
         ctx.run("rm *.tests.*rst")
         for file in glob("*.rst"):
             if file.startswith("pymatgen") and file.endswith("rst"):
@@ -221,8 +221,8 @@ def post_discourse(version):
 
     :param ctx:
     """
-    with open("CHANGES.rst") as f:
-        contents = f.read()
+    with open("CHANGES.rst") as file:
+        contents = file.read()
     toks = re.split(r"\-+", contents)
     desc = toks[1].strip()
     toks = desc.split("\n")

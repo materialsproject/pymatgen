@@ -449,7 +449,7 @@ class CompositionTest(PymatgenTest):
         c1 = Composition("LiCl", allow_negative=True)
         c2 = Composition("Li")
         assert c1 - 2 * c2 == Composition({"Li": -1, "Cl": 1}, allow_negative=True)
-        assert (c1 + c2).allow_negative is True
+        assert (c1 + c2).allow_negative
         assert c1 / -1 == Composition("Li-1Cl-1", allow_negative=True)
 
         # test num_atoms

@@ -7,7 +7,7 @@ makestr.x available in the path. Please download the library at
 https://github.com/msg-byu/enumlib and follow the instructions in the README to
 compile these two executables accordingly.
 
-If you use this module, please cite the following:
+If you use this module, please cite:
 
 Gus L. W. Hart and Rodney W. Forcade, "Algorithm for generating derivative
 structures," Phys. Rev. B 77 224115 (26 June 2008)
@@ -203,22 +203,22 @@ class EnumlibAdaptor:
             finder = SpacegroupAnalyzer(Structure.from_sites(ss), self.symm_prec)
             return finder.get_space_group_number()
 
-        target_sgnum = get_sg_info(list(symmetrized_structure))
+        target_sg_num = get_sg_info(list(symmetrized_structure))
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
-        sgnum = get_sg_info(curr_sites)
+        sg_num = get_sg_info(curr_sites)
         ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
-        logger.debug(f"Disordered sites has sg # {sgnum}")
+        logger.debug(f"Disordered sites has sg # {sg_num}")
         self.ordered_sites = []
 
         # progressively add ordered sites to our disordered sites
         # until we match the symmetry of our input structure
         if self.check_ordered_symmetry:
-            while sgnum != target_sgnum and len(ordered_sites) > 0:
+            while sg_num != target_sg_num and len(ordered_sites) > 0:
                 sites = ordered_sites.pop(0)
                 temp_sites = list(curr_sites) + sites
-                new_sgnum = get_sg_info(temp_sites)
-                if sgnum != new_sgnum:
-                    logger.debug(f"Adding {sites[0].specie} in enum. New sg # {new_sgnum}")
+                new_sg_num = get_sg_info(temp_sites)
+                if sg_num != new_sg_num:
+                    logger.debug(f"Adding {sites[0].specie} in enum. New sg # {new_sg_num}")
                     index_species.append(sites[0].specie)
                     index_amounts.append(len(sites))
                     sp_label = len(index_species) - 1
@@ -226,7 +226,7 @@ class EnumlibAdaptor:
                         coord_str.append(f"{coord_format.format(*site.coords)} {sp_label}")
                     disordered_sites.append(sites)
                     curr_sites = temp_sites
-                    sgnum = new_sgnum
+                    sg_num = new_sg_num
                 else:
                     self.ordered_sites.extend(sites)
 
@@ -266,7 +266,7 @@ class EnumlibAdaptor:
         # enumeration. See Cu7Te5.cif test file.
         base *= 10
 
-        # base = ndisordered # 10 ** int(math.ceil(math.log10(ndisordered)))
+        # base = n_disordered # 10 ** int(math.ceil(math.log10(n_disordered)))
         # To get a reasonable number of structures, we fix concentrations to the
         # range expected in the original structure.
         total_amounts = sum(index_amounts)
@@ -298,7 +298,7 @@ class EnumlibAdaptor:
                     timer.cancel()
 
                 if timed_out:
-                    raise TimeoutError("Enumeration took too long.")
+                    raise TimeoutError("Enumeration took too long")
 
             else:
                 output = p.communicate()[0].decode("utf-8")
