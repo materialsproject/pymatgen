@@ -263,7 +263,7 @@ class TestLobsterNeighbors(unittest.TestCase):
                 filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
                 additional_condition=1,
             )
-            
+
     def test_cation_anion_mode_without_ions(self):
         with pytest.raises(
             ValueError, match="Valences cannot be assigned, additional_conditions 1, 3, 5 and 6 will not work"
