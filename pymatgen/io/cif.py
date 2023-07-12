@@ -243,7 +243,7 @@ class CifFile:
             # Springer materials/Pauling file DBs.
             # This block anyway does not contain any structure information, and
             # CifParser was also not parsing it.
-            if "powder_pattern" in re.split(r"\n", x, 1)[0]:
+            if "powder_pattern" in re.split(r"\n", x, maxsplit=1)[0]:
                 continue
             c = CifBlock.from_string("data_" + x)
             dct[c.header] = c
