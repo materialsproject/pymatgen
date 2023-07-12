@@ -1262,6 +1262,24 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         MaterialsProjectDFTMixingScheme().process_entries(entries, inplace=False)
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
+    def test_check_potcar(self, ms_complete):
+        """
+        Entries with invalid or missing POTCAR raise error by default but should be ignored if
+        check_potcar=False in MaterialsProjectDFTMixingScheme.
+        """
+        # remove the POTCAR spec from one of the entries (changing in-place is fine since
+        # ms_complete fixture is test-scoped, i.e. will be re-generated for each test)
+        ms_complete.all_entries[0].parameters.pop("potcar_spec", None)
+
+        try:  # should not raise
+            MaterialsProjectDFTMixingScheme(check_potcar=False).process_entries(ms_complete.all_entries)
+        except CompatibilityError:
+            pytest.fail("CompatibilityError raised even though check_potcar=False")
+
+        # process_entries should raise a CompatibilityError
+        with pytest.raises(KeyError, match="potcar_symbols"):
+            MaterialsProjectDFTMixingScheme(check_potcar=True).process_entries(ms_complete.all_entries)
+
 
 class TestMaterialsProjectDFTMixingSchemeStates:
     """
