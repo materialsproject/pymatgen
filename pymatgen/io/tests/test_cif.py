@@ -318,14 +318,14 @@ loop_
 
     def test_site_labels(self):
         parser = CifParser(f"{self.TEST_FILES_DIR}/garnet.cif")
-        struct = parser.get_structures()[0]
+        struct = parser.get_structures(primitive=True)[0]
 
-        assert "label" in struct.site_properties
-        assert len(struct.site_properties["label"]) == len(struct) == 80, "Mismatch between number of labels and sites."
-        assert len(set(struct.site_properties["label"])) == 4, "Expecting only 4 unique labels"
+        assert struct.labels
+        assert len(struct.labels) == len(struct) == 80, "Mismatch between number of labels and sites."
+        assert len(set(struct.labels)) == 4, "Expecting only 4 unique labels"
 
-        for label, specie in zip(struct.site_properties["label"], struct.species):
-            assert label.startswith(specie.name)
+        for site in struct.sites:
+            assert site.label.startswith(site.specie.name)
 
     def test_CifParserSpringerPauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.

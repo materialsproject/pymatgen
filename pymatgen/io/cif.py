@@ -1052,14 +1052,15 @@ class CifParser:
             if self.feature_flags["magcif"]:
                 site_properties["magmom"] = all_magmoms
 
-            if any(all_labels):
-                assert len(all_labels) == len(all_species)
-                site_properties["label"] = all_labels
-
             if len(site_properties) == 0:
                 site_properties = None
 
-            struct = Structure(lattice, all_species, all_coords, site_properties=site_properties)
+            if any(all_labels):
+                assert len(all_labels) == len(all_species)
+            else:
+                all_labels = None
+
+            struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
 
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
