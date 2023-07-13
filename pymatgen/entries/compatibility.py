@@ -558,6 +558,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         clean: bool = True,
         verbose: bool = False,
         inplace: bool = True,
+        on_error: Literal["ignore", "warn", "raise"] = "ignore",
     ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme.
@@ -574,6 +575,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             verbose (bool): Whether to display progress bar for processing multiple entries.
                 Defaults to False.
             inplace (bool): Whether to adjust input entries in place. Defaults to True.
+            on_error ('ignore' | 'warn' | 'raise'): What to do when get_adjustments(entry)
+                raises CompatibilityError. Defaults to 'ignore'.
 
         Returns:
             list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
@@ -597,7 +600,11 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
             try:  # get the energy adjustments
                 adjustments = self.get_adjustments(entry)
-            except CompatibilityError:
+            except CompatibilityError as exc:
+                if on_error == "raise":
+                    raise exc
+                if on_error == "warn":
+                    warnings.warn(str(exc))
                 continue
 
             for ea in adjustments:
@@ -1411,7 +1418,12 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         return adjustments
 
     def process_entries(
-        self, entries: list[AnyComputedEntry], clean: bool = False, verbose: bool = False, inplace: bool = True
+        self,
+        entries: list[AnyComputedEntry],
+        clean: bool = False,
+        verbose: bool = False,
+        inplace: bool = True,
+        on_error: Literal["ignore", "warn", "raise"] = "ignore",
     ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme.
@@ -1425,6 +1437,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 Default is False.
             inplace (bool): Whether to modify the entries in place. If False, a copy of the
                 entries is made and processed. Default is True.
+            on_error ('ignore' | 'warn' | 'raise'): What to do when get_adjustments(entry)
+                raises CompatibilityError. Defaults to 'ignore'.
 
         Returns:
             list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
@@ -1474,4 +1488,4 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             h2_entries = sorted(h2_entries, key=lambda e: e.energy_per_atom)
             self.h2_energy = h2_entries[0].energy_per_atom  # type: ignore[assignment]
 
-        return super().process_entries(entries, clean=clean, verbose=verbose, inplace=inplace)
+        return super().process_entries(entries, clean=clean, verbose=verbose, inplace=inplace, on_error=on_error)
