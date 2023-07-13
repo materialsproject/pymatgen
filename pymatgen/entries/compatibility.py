@@ -172,8 +172,9 @@ class PotcarCorrection(Correction):
         else:
             psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
 
-        if {self.valid_potcars.get(str(el)) for el in entry.composition.elements} != psp_settings:
-            raise CompatibilityError("Incompatible potcar")
+        expected_psp = {self.valid_potcars.get(el.symbol) for el in entry.composition.elements}
+        if expected_psp != psp_settings:
+            raise CompatibilityError(f"Incompatible POTCAR {psp_settings}, expected {expected_psp}")
         return ufloat(0.0, 0.0)
 
     def __str__(self) -> str:
@@ -557,6 +558,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         clean: bool = True,
         verbose: bool = False,
         inplace: bool = True,
+        on_error: Literal["ignore", "warn", "raise"] = "ignore",
     ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme.
@@ -573,6 +575,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             verbose (bool): Whether to display progress bar for processing multiple entries.
                 Defaults to False.
             inplace (bool): Whether to adjust input entries in place. Defaults to True.
+            on_error ('ignore' | 'warn' | 'raise'): What to do when get_adjustments(entry)
+                raises CompatibilityError. Defaults to 'ignore'.
 
         Returns:
             list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
@@ -596,7 +600,11 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
             try:  # get the energy adjustments
                 adjustments = self.get_adjustments(entry)
-            except CompatibilityError:
+            except CompatibilityError as exc:
+                if on_error == "raise":
+                    raise exc
+                if on_error == "warn":
+                    warnings.warn(str(exc))
                 continue
 
             for ea in adjustments:
@@ -1088,17 +1096,19 @@ class MaterialsProject2020Compatibility(Compatibility):
         u_errors = self.u_errors.get(most_electroneg, defaultdict(float))
 
         for el in comp.elements:
-            sym = el.symbol
+            symbol = el.symbol
             # Check for bad U values
-            if calc_u.get(sym, 0) != u_settings.get(sym, 0):
-                raise CompatibilityError(f"Invalid U value of {calc_u.get(sym, 0):.1f} on {sym}")
-            if sym in u_corrections:
+            expected_u = u_settings.get(symbol, 0)
+            actual_u = calc_u.get(symbol, 0)
+            if actual_u != expected_u:
+                raise CompatibilityError(f"Invalid U value of {actual_u:.1f} on {symbol}, expected {expected_u:.1f}")
+            if symbol in u_corrections:
                 adjustments.append(
                     CompositionEnergyAdjustment(
-                        u_corrections[sym],
+                        u_corrections[symbol],
                         comp[el],
-                        uncertainty_per_atom=u_errors[sym],
-                        name=f"MP2020 GGA/GGA+U mixing correction ({sym})",
+                        uncertainty_per_atom=u_errors[symbol],
+                        name=f"MP2020 GGA/GGA+U mixing correction ({symbol})",
                         cls=self.as_dict(),
                     )
                 )
@@ -1408,7 +1418,12 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         return adjustments
 
     def process_entries(
-        self, entries: list[AnyComputedEntry], clean: bool = False, verbose: bool = False, inplace: bool = True
+        self,
+        entries: list[AnyComputedEntry],
+        clean: bool = False,
+        verbose: bool = False,
+        inplace: bool = True,
+        on_error: Literal["ignore", "warn", "raise"] = "ignore",
     ) -> list[AnyComputedEntry]:
         """
         Process a sequence of entries with the chosen Compatibility scheme.
@@ -1422,6 +1437,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 Default is False.
             inplace (bool): Whether to modify the entries in place. If False, a copy of the
                 entries is made and processed. Default is True.
+            on_error ('ignore' | 'warn' | 'raise'): What to do when get_adjustments(entry)
+                raises CompatibilityError. Defaults to 'ignore'.
 
         Returns:
             list[AnyComputedEntry]: Adjusted entries. Entries in the original list incompatible with
@@ -1471,4 +1488,4 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             h2_entries = sorted(h2_entries, key=lambda e: e.energy_per_atom)
             self.h2_energy = h2_entries[0].energy_per_atom  # type: ignore[assignment]
 
-        return super().process_entries(entries, clean=clean, verbose=verbose, inplace=inplace)
+        return super().process_entries(entries, clean=clean, verbose=verbose, inplace=inplace, on_error=on_error)
