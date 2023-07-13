@@ -172,7 +172,7 @@ class PotcarCorrection(Correction):
         else:
             psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
 
-        expected_psp = {self.valid_potcars.get(str(el)) for el in entry.composition.elements}
+        expected_psp = {self.valid_potcars.get(el.symbol) for el in entry.composition.elements}
         if expected_psp != psp_settings:
             raise CompatibilityError(f"Incompatible POTCAR {psp_settings}, expected {expected_psp}")
         return ufloat(0.0, 0.0)
