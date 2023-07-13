@@ -907,9 +907,7 @@ class IStructure(SiteCollection, MSONable):
             if site_properties:
                 prop = {key: val[idx] for key, val in site_properties.items()}
 
-            label = None
-            if labels:
-                label = labels[idx]
+            label = labels[idx] if labels else None
 
             site = PeriodicSite(
                 specie,
