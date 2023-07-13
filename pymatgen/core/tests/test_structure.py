@@ -66,6 +66,7 @@ class IStructureTest(PymatgenTest):
         with pytest.raises(StructureError, match="Structure contains sites that are less than 0.01 Angstrom apart"):
             IStructure(self.lattice, ["Si"] * 2, coords, validate_proximity=True)
         self.propertied_structure = IStructure(self.lattice, ["Si"] * 2, coords, site_properties={"magmom": [5, -5]})
+        self.labeled_structure = IStructure(self.lattice, ["Si"] * 2, coords, labels=["Si1", "Si2"])
 
         self.lattice_pbc = Lattice(
             [
@@ -167,6 +168,10 @@ class IStructureTest(PymatgenTest):
         struct = IStructure(self.lattice, [{"O": 1.0}, {"Mg": 0.8}], coords)
         assert struct.composition.formula == "Mg0.8 O1"
         assert not struct.is_ordered
+
+    def test_labeled_structure(self):
+        assert self.labeled_structure.labels == ["Si1", "Si2"]
+        assert self.struct.labels == [None, None]
 
     def test_get_distance(self):
         assert self.struct.get_distance(0, 1) == approx(2.35, abs=1e-2), "Distance calculated wrongly!"

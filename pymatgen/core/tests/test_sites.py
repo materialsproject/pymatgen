@@ -93,6 +93,7 @@ class PeriodicSiteTest(PymatgenTest):
             self.lattice,
             properties={"magmom": 5.1, "charge": 4.2},
         )
+        self.labeled_site = PeriodicSite("Fe", [0.25, 0.35, 0.45], self.lattice, label="Fe2")
         self.dummy_site = PeriodicSite("X", [0, 0, 0], self.lattice)
 
     def test_properties(self):
@@ -104,9 +105,11 @@ class PeriodicSiteTest(PymatgenTest):
         assert self.site.y == 3.5
         assert self.site.z == 4.5
         assert self.site.is_ordered
+        assert self.site.label is None
         assert not self.site2.is_ordered
         assert self.propertied_site.properties["magmom"] == 5.1
         assert self.propertied_site.properties["charge"] == 4.2
+        assert self.labeled_site.label == "Fe2"
 
     def test_distance(self):
         other_site = PeriodicSite("Fe", np.array([0, 0, 0]), self.lattice)
@@ -159,11 +162,19 @@ class PeriodicSiteTest(PymatgenTest):
         other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
         assert other_site != self.site
 
+    def test_equality_with_label(self):
+        site = PeriodicSite("Fe", [0.25, 0.35, 0.45], self.lattice, label="Fe3")
+        assert site == self.site
+
+        assert self.labeled_site.label != site.label
+        assert self.labeled_site == site
+
     def test_as_from_dict(self):
         d = self.site2.as_dict()
         site = PeriodicSite.from_dict(d)
         assert site == self.site2
         assert site != self.site
+        assert site.label == self.site.label
         d = self.propertied_site.as_dict()
         site3 = PeriodicSite({"Si": 0.5, "Fe": 0.5}, [0, 0, 0], self.lattice)
         d = site3.as_dict()
@@ -209,6 +220,7 @@ class PeriodicSiteTest(PymatgenTest):
 
     def test_repr(self):
         assert repr(self.propertied_site) == "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]"
+        assert repr(self.labeled_site) == "PeriodicSite: Fe2 (Fe) (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]"
 
 
 def get_distance_and_image_old(site1, site2, jimage=None):

@@ -895,6 +895,7 @@ class CifParser:
 
         coord_to_species = {}
         coord_to_magmoms = {}
+        labels = {}
 
         def get_matching_coord(coord):
             keys = list(coord_to_species)
@@ -908,15 +909,15 @@ class CifParser:
                     return keys[inds[0]]
             return False
 
-        for i in range(len(data["_atom_site_label"])):
+        for idx, label in enumerate(data["_atom_site_label"]):
             try:
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
-                symbol = self._parse_symbol(data["_atom_site_type_symbol"][i])
-                num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][i])
+                symbol = self._parse_symbol(data["_atom_site_type_symbol"][idx])
+                num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][idx])
             except KeyError:
-                symbol = self._parse_symbol(data["_atom_site_label"][i])
-                num_h = get_num_implicit_hydrogens(data["_atom_site_label"][i])
+                symbol = self._parse_symbol(label)
+                num_h = get_num_implicit_hydrogens(label)
             if not symbol:
                 continue
 
@@ -924,7 +925,7 @@ class CifParser:
                 o_s = oxi_states.get(symbol, 0)
                 # use _atom_site_type_symbol if possible for oxidation state
                 if "_atom_site_type_symbol" in data.data:
-                    oxi_symbol = data["_atom_site_type_symbol"][i]
+                    oxi_symbol = data["_atom_site_type_symbol"][idx]
                     o_s = oxi_states.get(oxi_symbol, o_s)
                 try:
                     el = Species(symbol, o_s)
@@ -933,13 +934,13 @@ class CifParser:
             else:
                 el = get_el_sp(symbol)
 
-            x = str2float(data["_atom_site_fract_x"][i])
-            y = str2float(data["_atom_site_fract_y"][i])
-            z = str2float(data["_atom_site_fract_z"][i])
-            magmom = magmoms.get(data["_atom_site_label"][i], np.array([0, 0, 0]))
+            x = str2float(data["_atom_site_fract_x"][idx])
+            y = str2float(data["_atom_site_fract_y"][idx])
+            z = str2float(data["_atom_site_fract_z"][idx])
+            magmom = magmoms.get(label, np.array([0, 0, 0]))
 
             try:
-                occu = str2float(data["_atom_site_occupancy"][i])
+                occu = str2float(data["_atom_site_occupancy"][idx])
             except (KeyError, ValueError):
                 occu = 1
 
@@ -955,13 +956,16 @@ class CifParser:
                         "in calculations unless hydrogens added."
                     )
                 comp = Composition(comp_d)
+
                 if not match:
                     coord_to_species[coord] = comp
                     coord_to_magmoms[coord] = magmom
+                    labels[coord] = label
                 else:
                     coord_to_species[match] += comp
                     # disordered magnetic not currently supported
                     coord_to_magmoms[match] = None
+                    labels[match] = label
 
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
@@ -980,6 +984,7 @@ class CifParser:
         all_magmoms = []
         all_hydrogens = []
         equivalent_indices = []
+        all_labels = []
 
         # check to see if magCIF file is disordered
         if self.feature_flags["magcif"]:
@@ -1030,12 +1035,13 @@ class CifParser:
                 all_coords.extend(coords)
                 all_species.extend(len(coords) * [species])
                 all_magmoms.extend(magmoms)
+                all_labels.extend(len(coords) * [labels[tmp_coords[0]]])
 
             # rescale occupancies if necessary
-            for i, species in enumerate(all_species):
+            for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
-                    all_species[i] = species / total_occu
+                    all_species[idx] = species / total_occu
 
         if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
             site_properties = {}
@@ -1049,7 +1055,12 @@ class CifParser:
             if len(site_properties) == 0:
                 site_properties = None
 
-            struct = Structure(lattice, all_species, all_coords, site_properties=site_properties)
+            if any(all_labels):
+                assert len(all_labels) == len(all_species)
+            else:
+                all_labels = None
+
+            struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
 
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
