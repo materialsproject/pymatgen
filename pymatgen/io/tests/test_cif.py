@@ -324,7 +324,7 @@ loop_
         assert len(struct.labels) == len(struct) == 80, "Mismatch between number of labels and sites."
         assert len(set(struct.labels)) == 4, "Expecting only 4 unique labels"
 
-        for site in struct.sites:
+        for site in struct:
             assert site.label.startswith(site.specie.name)
 
     def test_cif_parser_springer_pauling(self):
