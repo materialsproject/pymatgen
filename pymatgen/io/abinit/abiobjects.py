@@ -11,7 +11,6 @@ from pprint import pformat
 from typing import Iterable, cast
 
 import numpy as np
-from frozendict import frozendict
 from monty.collections import AttrDict
 from monty.design_patterns import singleton
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -412,7 +411,7 @@ class Smearing(AbivarAble, MSONable):
     """
 
     #: Mapping string_mode --> occopt
-    _mode2occopt = frozendict(
+    _mode2occopt = dict(
         nosmearing=1,
         fermi_dirac=3,
         marzari4=4,
@@ -514,7 +513,7 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
     """Variables controlling the SCF/NSCF algorithm."""
 
     # None indicates that we use abinit defaults.
-    _DEFAULT = frozendict(
+    _DEFAULT = dict(
         iprcell=None,
         iscf=None,
         diemac=None,
@@ -1030,7 +1029,7 @@ class RelaxationMethod(AbivarAble, MSONable):
     The set of variables are constructed in to_abivars depending on ionmov and optcell.
     """
 
-    _default_vars = frozendict(
+    _default_vars = dict(
         ionmov=MANDATORY,
         optcell=MANDATORY,
         ntime=80,
@@ -1322,10 +1321,10 @@ class Screening(AbivarAble):
     """
 
     # Approximations used for W
-    _WTYPES = frozendict(RPA=0)
+    _WTYPES = dict(RPA=0)
 
     # Self-consistecy modes
-    _SC_MODES = frozendict(one_shot=0, energy_only=1, wavefunctions=2)
+    _SC_MODES = dict(one_shot=0, energy_only=1, wavefunctions=2)
 
     def __init__(
         self,
@@ -1409,7 +1408,7 @@ class Screening(AbivarAble):
 class SelfEnergy(AbivarAble):
     """This object defines the parameters used for the computation of the self-energy."""
 
-    _SIGMA_TYPES = frozendict(
+    _SIGMA_TYPES = dict(
         gw=0,
         hartree_fock=5,
         sex=6,
@@ -1418,7 +1417,7 @@ class SelfEnergy(AbivarAble):
         model_gw_cd=9,
     )
 
-    _SC_MODES = frozendict(
+    _SC_MODES = dict(
         one_shot=0,
         energy_only=1,
         wavefunctions=2,
@@ -1543,14 +1542,14 @@ class ExcHamiltonian(AbivarAble):
     """This object contains the parameters for the solution of the Bethe-Salpeter equation."""
 
     # Types of excitonic Hamiltonian.
-    _EXC_TYPES = frozendict(
+    _EXC_TYPES = dict(
         TDA=0,  # Tamm-Dancoff approximation.
         coupling=1,  # Calculation with coupling.
     )
 
     # Algorithms used to compute the macroscopic dielectric function
     # and/or the exciton wavefunctions.
-    _ALGO2VAR = frozendict(direct_diago=1, haydock=2, cg=3)
+    _ALGO2VAR = dict(direct_diago=1, haydock=2, cg=3)
 
     # Options specifying the treatment of the Coulomb term.
     _COULOMB_MODES = ("diago", "full", "model_df")

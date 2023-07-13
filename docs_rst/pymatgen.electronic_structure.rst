@@ -11,16 +11,61 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.electronic\_structure.bandstructure module
+---------------------------------------------------
 
-   pymatgen.electronic_structure.bandstructure
-   pymatgen.electronic_structure.boltztrap
-   pymatgen.electronic_structure.boltztrap2
-   pymatgen.electronic_structure.cohp
-   pymatgen.electronic_structure.core
-   pymatgen.electronic_structure.dos
-   pymatgen.electronic_structure.plotter
+.. automodule:: pymatgen.electronic_structure.bandstructure
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.electronic\_structure.boltztrap module
+-----------------------------------------------
+
+.. automodule:: pymatgen.electronic_structure.boltztrap
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.electronic\_structure.boltztrap2 module
+------------------------------------------------
+
+.. automodule:: pymatgen.electronic_structure.boltztrap2
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.electronic\_structure.cohp module
+------------------------------------------
+
+.. automodule:: pymatgen.electronic_structure.cohp
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.electronic\_structure.core module
+------------------------------------------
+
+.. automodule:: pymatgen.electronic_structure.core
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.electronic\_structure.dos module
+-----------------------------------------
+
+.. automodule:: pymatgen.electronic_structure.dos
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.electronic\_structure.plotter module
+---------------------------------------------
+
+.. automodule:: pymatgen.electronic_structure.plotter
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

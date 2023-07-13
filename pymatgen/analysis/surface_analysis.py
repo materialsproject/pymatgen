@@ -681,7 +681,7 @@ class SurfaceEnergyPlotter:
         if not soln:
             warnings.warn("No solution")
             return soln
-        return {p: list(soln)[0][i] for i, p in enumerate(all_parameters)}
+        return {p: next(iter(soln))[i] for i, p in enumerate(all_parameters)}
 
     def stable_u_range_dict(
         self,

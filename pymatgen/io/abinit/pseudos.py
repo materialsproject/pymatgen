@@ -14,7 +14,6 @@ from collections import defaultdict, namedtuple
 from typing import TYPE_CHECKING
 
 import numpy as np
-from frozendict import frozendict
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
@@ -687,7 +686,7 @@ class NcAbinitHeader(AbinitHeader):
 
     _attr_desc = namedtuple("_attr_desc", "default astype")
 
-    _VARS = frozendict(
+    _VARS = dict(
         zatom=_attr_desc(None, _int_from_str),
         zion=_attr_desc(None, float),
         pspdat=_attr_desc(None, float),
@@ -883,7 +882,7 @@ class PawAbinitHeader(AbinitHeader):
 
     _attr_desc = namedtuple("_attr_desc", "default astype")
 
-    _VARS = frozendict(
+    _VARS = dict(
         zatom=_attr_desc(None, _int_from_str),
         zion=_attr_desc(None, float),
         pspdat=_attr_desc(None, float),
@@ -1031,19 +1030,18 @@ class PseudoParser:
     ppdesc = namedtuple("ppdesc", "pspcod name psp_type format")
 
     # TODO Recheck
-    _PSPCODES = frozendict(
-        {
-            1: ppdesc(1, "TM", "NC", None),
-            2: ppdesc(2, "GTH", "NC", None),
-            3: ppdesc(3, "HGH", "NC", None),
-            4: ppdesc(4, "Teter", "NC", None),
-            # 5: ppdesc(5, "NC",     , None),
-            6: ppdesc(6, "FHI", "NC", None),
-            7: ppdesc(6, "PAW_abinit_text", "PAW", None),
-            8: ppdesc(8, "ONCVPSP", "NC", None),
-            10: ppdesc(10, "HGHK", "NC", None),
-        }
-    )
+    _PSPCODES = {
+        1: ppdesc(1, "TM", "NC", None),
+        2: ppdesc(2, "GTH", "NC", None),
+        3: ppdesc(3, "HGH", "NC", None),
+        4: ppdesc(4, "Teter", "NC", None),
+        # 5: ppdesc(5, "NC",     , None),
+        6: ppdesc(6, "FHI", "NC", None),
+        7: ppdesc(6, "PAW_abinit_text", "PAW", None),
+        8: ppdesc(8, "ONCVPSP", "NC", None),
+        10: ppdesc(10, "HGHK", "NC", None),
+    }
+
     del ppdesc
 
     # renumber functionals from oncvpsp todo confirm that 3 is 2

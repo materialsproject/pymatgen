@@ -261,7 +261,7 @@ class QuasiharmonicDebyeApprox:
         factor = 3.0 / y**3
         if y < 155:
             integral = quadrature(lambda x: x**3 / (np.exp(x) - 1.0), 0, y)
-            return list(integral)[0] * factor
+            return next(iter(integral)) * factor
         return 6.493939 * factor
 
     @cite_gibbs

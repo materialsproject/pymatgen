@@ -19,7 +19,7 @@ class SiteTest(PymatgenTest):
         self.ordered_site = Site("Fe", [0.25, 0.35, 0.45])
         self.disordered_site = Site({"Fe": 0.5, "Mn": 0.5}, [0.25, 0.35, 0.45])
         self.propertied_site = Site("Fe2+", [0.25, 0.35, 0.45], {"magmom": 5.1, "charge": 4.2})
-        self.propertied_magmomvector_site = Site(
+        self.propertied_magmom_vec_site = Site(
             "Fe2+",
             [0.25, 0.35, 0.45],
             {"magmom": Magmom([2.6, 2.6, 3.5]), "charge": 4.2},
@@ -44,7 +44,7 @@ class SiteTest(PymatgenTest):
         site = Site.from_dict(d)
         assert site.properties["magmom"] == 5.1
         assert site.properties["charge"] == 4.2
-        d = self.propertied_magmomvector_site.as_dict()
+        d = self.propertied_magmom_vec_site.as_dict()
         site = Site.from_dict(d)
         assert site.properties["magmom"] == Magmom([2.6, 2.6, 3.5])
         assert site.properties["charge"] == 4.2
