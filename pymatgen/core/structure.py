@@ -299,10 +299,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def site_properties(self) -> dict[str, Sequence]:
-        """
-        Returns the site properties as a dict of sequences. E.g.,
-        {"magmom": (5,-5), "charge": (-4,4)}.
-        """
+        """Returns the site properties as a dict of sequences. E.g. {"magmom": (5,-5), "charge": (-4,4)}."""
         props: dict[str, Sequence] = {}
         prop_keys: set[str] = set()
         for site in self:
@@ -315,7 +312,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     @property
     def labels(self) -> list[str | None]:
         """Return site labels as a list."""
-        return [site.label for site in self.sites]
+        return [site.label for site in self]
 
     def __contains__(self, site: object) -> bool:
         return site in self.sites
