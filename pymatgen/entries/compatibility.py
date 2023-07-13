@@ -172,8 +172,9 @@ class PotcarCorrection(Correction):
         else:
             psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
 
-        if {self.valid_potcars.get(str(el)) for el in entry.composition.elements} != psp_settings:
-            raise CompatibilityError("Incompatible potcar")
+        expected_psp = {self.valid_potcars.get(str(el)) for el in entry.composition.elements}
+        if expected_psp != psp_settings:
+            raise CompatibilityError(f"Incompatible POTCAR {psp_settings}, expected {expected_psp}")
         return ufloat(0.0, 0.0)
 
     def __str__(self) -> str:
@@ -1088,17 +1089,19 @@ class MaterialsProject2020Compatibility(Compatibility):
         u_errors = self.u_errors.get(most_electroneg, defaultdict(float))
 
         for el in comp.elements:
-            sym = el.symbol
+            symbol = el.symbol
             # Check for bad U values
-            if calc_u.get(sym, 0) != u_settings.get(sym, 0):
-                raise CompatibilityError(f"Invalid U value of {calc_u.get(sym, 0):.1f} on {sym}")
-            if sym in u_corrections:
+            expected_u = u_settings.get(symbol, 0)
+            actual_u = calc_u.get(symbol, 0)
+            if actual_u != expected_u:
+                raise CompatibilityError(f"Invalid U value of {actual_u:.1f} on {symbol}, expected {expected_u:.1f}")
+            if symbol in u_corrections:
                 adjustments.append(
                     CompositionEnergyAdjustment(
-                        u_corrections[sym],
+                        u_corrections[symbol],
                         comp[el],
-                        uncertainty_per_atom=u_errors[sym],
-                        name=f"MP2020 GGA/GGA+U mixing correction ({sym})",
+                        uncertainty_per_atom=u_errors[symbol],
+                        name=f"MP2020 GGA/GGA+U mixing correction ({symbol})",
                         cls=self.as_dict(),
                     )
                 )
