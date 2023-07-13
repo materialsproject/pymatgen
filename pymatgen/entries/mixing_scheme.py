@@ -94,11 +94,11 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 space group are all identical. If there are multiple materials of run_type_2
                 that satisfy these criteria, the one with lowest energy is considered to
                 match.
-            check_potcar: Whether to perform additional checks to ensure that the POTCARs
-                used for the run_type_1 and run_type_2 calculations are the same. This is
-                useful for ensuring that the mixing scheme is not used on calculations that
-                used different POTCARs, which can lead to unphysical results. Defaults to True.
+            check_potcar: Whether to ensure the POTCARs used for the run_type_1 and run_type_2 calculations
+                are the same. This is useful for ensuring that the mixing scheme is not used on calculations
+                that used different POTCARs, which can lead to unphysical results. Defaults to True.
                 Has no effect if neither compat_1 nor compat_2 have a check_potcar attribute.
+                Can also be disabled globally by running `pmg config --add PMG_POTCAR_CHECKS false`.
         """
         self.name = "MP DFT mixing scheme"
         self.structure_matcher = structure_matcher or StructureMatcher()

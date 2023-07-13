@@ -124,7 +124,8 @@ class PotcarCorrection(Correction):
         Args:
             input_set (InputSet): object used to generate the runs (used to check
                 for correct potcar symbols).
-            check_potcar (bool): If False, bypass the POTCAR check altogether. Defaults to True
+            check_potcar (bool): If False, bypass the POTCAR check altogether. Defaults to True.
+                Can also be disabled globally by running `pmg config --add PMG_POTCAR_CHECKS false`.
             check_hash (bool): If True, uses the potcar hash to check for valid
                 potcars. If false, uses the potcar symbol (less reliable). Defaults to False.
 
@@ -157,7 +158,7 @@ class PotcarCorrection(Correction):
         Returns:
             ufloat: 0.0 +/- 0.0 (from uncertainties package)
         """
-        if SETTINGS.get("PMG_DISABLE_POTCAR_CHECKS", False) or not self.check_potcar:
+        if SETTINGS.get("PMG_POTCAR_CHECKS") is False or not self.check_potcar:
             return ufloat(0.0, 0.0)
 
         potcar_spec = entry.parameters.get("potcar_spec")
@@ -869,18 +870,16 @@ class MaterialsProject2020Compatibility(Compatibility):
                 entry.parameters["hubbards"] = {"Fe": 5.3}. If the "hubbards" key
                 is missing, a GGA run is assumed. Entries obtained from the
                 MaterialsProject database will automatically have these fields
-                populated.
-
-                (Default: "Advanced")
+                populated. Default: "Advanced"
             correct_peroxide: Specify whether peroxide/superoxide/ozonide
                 corrections are to be applied or not. If false, all oxygen-containing
-                compounds are assigned the 'oxide' correction. (Default: True)
-            check_potcar (bool): Check that the POTCARs used in the calculation
-                are consistent with the Materials Project parameters. False bypasses this
-                check altogether. (Default: True)
+                compounds are assigned the 'oxide' correction. Default: True
+            check_potcar (bool): Check that the POTCARs used in the calculation are consistent
+                with the Materials Project parameters. False bypasses this check altogether. Default: True
+                Can also be disabled globally by running `pmg config --add PMG_POTCAR_CHECKS false`.
             check_potcar_hash (bool): Use potcar hash to verify POTCAR settings are
                 consistent with MPRelaxSet. If False, only the POTCAR symbols will
-                be used. (Default: False)
+                be used. Default: False
             config_file (Path): Path to the selected compatibility.yaml config file.
                 If None, defaults to `MP2020Compatibility.yaml` distributed with
                 pymatgen.

@@ -609,8 +609,8 @@ to add your desired values to the `.pmgrc.yaml` file.
      - Specifies the API Key to be used for MPRester.
    * - PMG_VASP_PSP_DIR
      - Specifies the path in which to look for VASP pseudopotential files.
-   * - PMG_DISABLE_POTCAR_CHECKS
-     - A system-wide setting to disable all POTCAR checks. This includes the compatibility checks as well as checking
+   * - PMG_POTCAR_CHECKS
+     - A system-wide setting that if false, disables all POTCAR checks. This includes the compatibility checks as well as checking
        for the existence of POTCARS when performing VASP io.
    * - PMG_DEFAULT_FUNCTIONAL
      - Sets the default functional to be used for VASP input files. Defaults to PBE.
