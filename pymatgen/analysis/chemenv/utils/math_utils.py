@@ -1,6 +1,4 @@
-"""
-This module contains some math utils that are used in the chemenv package.
-"""
+"""This module contains some math utils that are used in the chemenv package."""
 
 from __future__ import annotations
 
@@ -38,7 +36,7 @@ def _cartesian_product(lists):
     """
     given a list of lists,
     returns all the possible combinations taking one element from each list
-    The list does not have to be of equal length
+    The list does not have to be of equal length.
     """
     return reduce(_append_es2sequences, lists, [])
 
@@ -46,7 +44,7 @@ def _cartesian_product(lists):
 def prime_factors(n: int) -> list[int]:
     """Lists prime factors of a given natural integer, from greatest to smallest
     :param n: Natural integer
-    :rtype : list of all prime factors of the given natural n
+    :rtype : list of all prime factors of the given natural n.
     """
     idx = 2
     while idx <= sqrt(n):
@@ -78,7 +76,7 @@ def divisors(n):
     """
     From a given natural integer, returns the list of divisors in ascending order
     :param n: Natural integer
-    :return: List of divisors of n in ascending order
+    :return: List of divisors of n in ascending order.
     """
     factors = _factor_generator(n)
     _divisors = []

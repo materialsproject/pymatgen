@@ -72,9 +72,9 @@ class LatticeFromAbivarsTest(PymatgenTest):
         )
         self.assert_all_close(l3.matrix, abi_rprimd)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="angdeg and rprimd are mutually exclusive"):
             lattice_from_abivars(acell=[1, 1, 1], angdeg=(90, 90, 90), rprim=np.eye(3))
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"Angles must be > 0 but got \[-90  90  90\]"):
             lattice_from_abivars(acell=[1, 1, 1], angdeg=(-90, 90, 90))
 
     def test_znucl_typat(self):
@@ -105,7 +105,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
         for itype1, itype2 in zip(def_typat, enforce_typat):
             assert def_znucl[itype1 - 1] == enforce_znucl[itype2 - 1]
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Both enforce_znucl and enforce_typat are required"):
             structure_to_abivars(gan, enforce_znucl=enforce_znucl, enforce_typat=None)
 
 
@@ -213,7 +213,8 @@ class RelaxationTest(PymatgenTest):
         atoms_and_cell = RelaxationMethod.atoms_and_cell()
         atoms_only = RelaxationMethod.atoms_only()
 
-        atoms_and_cell.to_abivars()
+        out_vars = atoms_and_cell.to_abivars()
+        assert {*out_vars} >= {"dilatmx", "ecutsm", "ionmov", "ntime", "optcell", "strfact"}
 
         # Test dict methods
         self.assert_msonable(atoms_and_cell)

@@ -152,7 +152,7 @@ class ReactionTest(unittest.TestCase):
         assert str(rxn) == "Li + 2 S -> LiS2"
 
     def test_overdetermined(self):
-        with pytest.raises(ReactionError):
+        with pytest.raises(ReactionError, match="Reaction cannot be balanced"):
             Reaction([Composition("Li")], [Composition("LiO2")])
 
     def test_scientific_notation(self):
@@ -216,7 +216,7 @@ class ReactionTest(unittest.TestCase):
             Composition("Fe2O3"): 0.5,
         }
         entry = rxn.as_entry(energies)
-        assert entry.composition == Composition("Fe1.0 O1.5")
+        assert entry.composition == Composition("Fe1 O1.5")
         assert entry.energy == approx(-0.25, abs=1e-5)
 
     def test_products_reactants(self):
@@ -310,7 +310,7 @@ class BalancedReactionTest(unittest.TestCase):
         # Test unbalanced exception
         rct = {Composition("K2SO4"): 1, Composition("Na2S"): 1, Composition("Li"): 24}
         prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
-        with pytest.raises(ReactionError):
+        with pytest.raises(ReactionError, match="Reaction is unbalanced"):
             BalancedReaction(rct, prod)
 
     def test_to_from_dict(self):
@@ -350,28 +350,28 @@ class ComputedReactionTest(unittest.TestCase):
     def setUp(self):
         d = [
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -108.56492362,
                 "parameters": {},
                 "composition": {"Li": 54},
             },
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -577.94689128,
                 "parameters": {},
                 "composition": {"O": 32, "Li": 64},
             },
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -17.02844794,
                 "parameters": {},
                 "composition": {"O": 2},
             },
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -959.64693323,
                 "parameters": {},
@@ -392,14 +392,14 @@ class ComputedReactionTest(unittest.TestCase):
     def test_calculated_reaction_energy_uncertainty(self):
         d = [
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -108.56492362,
                 "parameters": {},
                 "composition": {"Li": 54},
             },
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -17.02844794,
                 "parameters": {},
@@ -409,7 +409,7 @@ class ComputedReactionTest(unittest.TestCase):
                 "@module": "pymatgen.entries.computed_entries",
                 "@class": "ComputedEntry",
                 "energy": -38.76889738,
-                "composition": defaultdict(float, {"Li": 4.0, "O": 4.0}),
+                "composition": defaultdict(float, {"Li": 4, "O": 4}),
                 "energy_adjustments": [
                     {
                         "@module": "pymatgen.entries.computed_entries",
@@ -458,21 +458,21 @@ class ComputedReactionTest(unittest.TestCase):
     def test_calculated_reaction_energy_uncertainty_for_no_uncertainty(self):
         # test that reaction_energy_uncertainty property doesn't cause errors
         # when products/reactants have no uncertainties
-        assert self.rxn.calculated_reaction_energy_uncertainty == approx(0)
+        assert self.rxn.calculated_reaction_energy_uncertainty == 0
 
     def test_calculated_reaction_energy_uncertainty_for_nan(self):
         # test that reaction_energy_uncertainty property is nan when the uncertainty
         # for any product/reactant is nan
         d = [
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -108.56492362,
                 "parameters": {},
                 "composition": {"Li": 54},
             },
             {
-                "correction": 0.0,
+                "correction": 0,
                 "data": {},
                 "energy": -17.02844794,
                 "parameters": {},
@@ -482,7 +482,7 @@ class ComputedReactionTest(unittest.TestCase):
                 "@module": "pymatgen.entries.computed_entries",
                 "@class": "ComputedEntry",
                 "energy": -38.76889738,
-                "composition": defaultdict(float, {"Li": 4.0, "O": 4.0}),
+                "composition": defaultdict(float, {"Li": 4, "O": 4}),
                 "energy_adjustments": [
                     {
                         "@module": "pymatgen.entries.computed_entries",

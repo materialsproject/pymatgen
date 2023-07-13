@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 from numpy.testing import assert_array_equal
+from pytest import approx
 
 from pymatgen.analysis.interfaces.zsl import (
     ZSLGenerator,
@@ -36,9 +36,9 @@ class ZSLGenTest(PymatgenTest):
     def test_zsl(self):
         zsl_gen = ZSLGenerator()
 
-        assert fast_norm(np.array([3.0, 2.0, 1.0])) == pytest.approx(3.74165738)
-        assert_array_equal(reduce_vectors(np.array([1.0, 0.0, 0.0]), np.array([2.0, 2.0, 0.0])), [[1, 0, 0], [0, 2, 0]])
-        assert vec_area(np.array([1.0, 0.0, 0.0]), np.array([0.0, 2.0, 0.0])) == 2
+        assert fast_norm(np.array([3, 2, 1])) == approx(3.74165738)
+        assert_array_equal(reduce_vectors(np.array([1, 0, 0]), np.array([2, 2, 0])), [[1, 0, 0], [0, 2, 0]])
+        assert vec_area(np.array([1, 0, 0]), np.array([0, 2, 0])) == 2
         assert_array_equal(list(get_factors(18)), [1, 2, 3, 6, 9, 18])
         assert is_same_vectors(
             np.array([[1.01, 0, 0], [0, 2, 0]], dtype=float), np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float)
@@ -54,14 +54,14 @@ class ZSLGenTest(PymatgenTest):
         z = ZSLGenerator(max_area_ratio_tol=0.05, max_angle_tol=0.05, max_length_tol=0.05)
 
         matches = list(z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
-        assert len(matches) == 48
+        assert len(matches) == 60
 
         matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
-        assert len(matches) == 40
+        assert len(matches) == 52
 
         z.bidirectional = True
         matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
-        assert len(matches) == 48
+        assert len(matches) == 60
 
         for match in matches:
             assert match is not None

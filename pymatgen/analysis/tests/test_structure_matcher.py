@@ -77,7 +77,7 @@ class StructureMatcherTest(PymatgenTest):
         assert sm._get_supercell_size(s2, s1) == (1, True)
 
         sm = StructureMatcher(supercell_size="wfieoh")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Can't parse Element or String from str: wfieoh"):
             sm._get_supercell_size(s1, s2)
 
     def test_cmp_fstruct(self):
@@ -89,9 +89,9 @@ class StructureMatcherTest(PymatgenTest):
         mask = np.array([[False, False]])
         mask2 = np.array([[True, False]])
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"len\(s1\)=1 must be larger than len\(s2\)=2"):
             sm._cmp_fstruct(s2, s1, frac_tol, mask.T)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="mask has incorrect shape"):
             sm._cmp_fstruct(s1, s2, frac_tol, mask.T)
 
         assert sm._cmp_fstruct(s1, s2, frac_tol, mask)
@@ -114,9 +114,9 @@ class StructureMatcherTest(PymatgenTest):
         n1 = (len(s1) / latt.volume) ** (1 / 3)
         n2 = (len(s2) / latt.volume) ** (1 / 3)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"len\(s1\)=1 must be larger than len\(s2\)=2"):
             sm._cart_dists(s2, s1, latt, mask.T, n2)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="mask has incorrect shape"):
             sm._cart_dists(s1, s2, latt, mask.T, n1)
 
         d, ft, s = sm._cart_dists(s1, s2, latt, mask, n1)
@@ -258,7 +258,7 @@ class StructureMatcherTest(PymatgenTest):
         assert not sm.fit(lfp, nfp)
 
         # Test anonymous fit.
-        assert sm.fit_anonymous(lfp, nfp) is True
+        assert sm.fit_anonymous(lfp, nfp)
         assert sm.get_rms_anonymous(lfp, nfp)[0] == approx(0.060895871160262717)
 
         # Test partial occupancies.
@@ -279,7 +279,7 @@ class StructureMatcherTest(PymatgenTest):
             [{"Mn": 0.5}, {"Mn": 0.5}, {"Mn": 0.5}, {"Mn": 0.5}],
             [[0, 0, 0], [0.25, 0.25, 0.25], [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]],
         )
-        assert sm.fit_anonymous(s1, s2) is True
+        assert sm.fit_anonymous(s1, s2)
 
         assert sm.get_rms_anonymous(s1, s2)[0] == approx(0)
 
@@ -291,8 +291,8 @@ class StructureMatcherTest(PymatgenTest):
             angle_tol=6,
         )
 
-        s1 = Structure.from_file(PymatgenTest.TEST_FILES_DIR / "fit_symm_s1.vasp")
-        s2 = Structure.from_file(PymatgenTest.TEST_FILES_DIR / "fit_symm_s2.vasp")
+        s1 = Structure.from_file(f"{PymatgenTest.TEST_FILES_DIR}/fit_symm_s1.vasp")
+        s2 = Structure.from_file(f"{PymatgenTest.TEST_FILES_DIR}/fit_symm_s2.vasp")
         assert sm_coarse.fit(s1, s2)
         assert sm_coarse.fit(s2, s1) is False
         assert sm_coarse.fit(s1, s2, symmetric=True) is False
@@ -580,7 +580,7 @@ class StructureMatcherTest(PymatgenTest):
         # s2 is smaller than s1
         del s2[0]
         del s2[1]
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="subset is larger than superset"):
             sm.get_mapping(s2, s1)
 
     def test_get_supercell_matrix(self):
@@ -698,7 +698,7 @@ class StructureMatcherTest(PymatgenTest):
         assert not sm_sites.fit(prim, supercell)
         assert sm_atoms.fit(prim, supercell)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Struct1 must be the supercell, not the other way around"):
             sm_atoms.get_s2_like_s1(prim, supercell)
         assert len(sm_atoms.get_s2_like_s1(supercell, prim)) == 4
 
@@ -747,7 +747,7 @@ class StructureMatcherTest(PymatgenTest):
             comparator=OrderDisorderElementComparator(),
         )
         lp = Lattice.orthorhombic(10, 20, 30)
-        coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         s1 = Structure(lp, [{"Na": 0.5, "Cl": 0.5}, {"Na": 0.5, "Cl": 0.5}], coords)
         s2 = Structure(lp, [{"Na": 0.5, "Cl": 0.5}, {"Na": 0.5, "Br": 0.5}], coords)
 

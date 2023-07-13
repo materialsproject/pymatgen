@@ -11,13 +11,37 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.analysis.diffraction.core module
+-----------------------------------------
 
-   pymatgen.analysis.diffraction.core
-   pymatgen.analysis.diffraction.neutron
-   pymatgen.analysis.diffraction.tem
-   pymatgen.analysis.diffraction.xrd
+.. automodule:: pymatgen.analysis.diffraction.core
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.analysis.diffraction.neutron module
+--------------------------------------------
+
+.. automodule:: pymatgen.analysis.diffraction.neutron
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.analysis.diffraction.tem module
+----------------------------------------
+
+.. automodule:: pymatgen.analysis.diffraction.tem
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.analysis.diffraction.xrd module
+----------------------------------------
+
+.. automodule:: pymatgen.analysis.diffraction.xrd
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

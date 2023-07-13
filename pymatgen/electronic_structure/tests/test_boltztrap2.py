@@ -77,7 +77,7 @@ class VasprunBSLoaderTest(unittest.TestCase):
         assert len(self.loader.proj_all) == 1
         assert self.loader.proj_all[Spin.up].shape == (120, 20, 2, 9)
 
-        assert self.loader_sp.is_spin_polarized is True
+        assert self.loader_sp.is_spin_polarized
         assert self.loader_sp.ebands_all.shape == (24, 198)
         assert self.loader_sp.ebands_all[10, 100] == approx(0.2543788, abs=1e-4)
         assert self.loader_sp.ebands_all[22, 100] == approx(0.2494617, abs=1e-4)
@@ -243,7 +243,7 @@ class BztTransportPropertiesTest(unittest.TestCase):
             bztInterp, doping=10.0 ** np.arange(20, 22), temp_r=np.arange(300, 600, 100)
         )
         assert self.bztTransp is not None
-        assert self.bztTransp.contain_props_doping is True
+        assert self.bztTransp.contain_props_doping
 
         warnings.simplefilter("ignore")
 
@@ -327,7 +327,7 @@ class BztTransportPropertiesTest(unittest.TestCase):
             self.bztTransp.Power_Factor_doping,
         ]:
             assert p["n"].shape == (3, 2, 3, 3)
-            assert self.bztTransp.contain_props_doping is True
+            assert self.bztTransp.contain_props_doping
 
         self.bztTransp_sp.compute_properties_doping(doping=10.0 ** np.arange(20, 22))
         for p in [
@@ -338,7 +338,7 @@ class BztTransportPropertiesTest(unittest.TestCase):
             self.bztTransp_sp.Power_Factor_doping,
         ]:
             assert p["n"].shape == (3, 2, 3, 3)
-            assert self.bztTransp_sp.contain_props_doping is True
+            assert self.bztTransp_sp.contain_props_doping
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")

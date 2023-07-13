@@ -1,6 +1,4 @@
-"""
-This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.
-"""
+"""This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis."""
 
 from __future__ import annotations
 
@@ -61,9 +59,7 @@ def from_bson_voronoi_list2(bson_nb_voro_list2, structure):
 
 
 class DetailedVoronoiContainer(MSONable):
-    """
-    Class used to store the full Voronoi of a given structure.
-    """
+    """Class used to store the full Voronoi of a given structure."""
 
     AC = AdditionalConditions()
     default_voronoi_cutoff = 10.0
@@ -625,16 +621,14 @@ class DetailedVoronoiContainer(MSONable):
         Returns:
             List of neighbors of the given site for the given distance and angle factors.
         """
-        idist = None
-        dfact = None
+        idist = dfact = None
         for iwd, wd in enumerate(self.neighbors_normalized_distances[isite]):
             if distfactor >= wd["min"]:
                 idist = iwd
                 dfact = wd["max"]
             else:
                 break
-        iang = None
-        afact = None
+        iang = afact = None
         for iwa, wa in enumerate(self.neighbors_normalized_angles[isite]):
             if angfactor <= wa["max"]:
                 iang = iwa

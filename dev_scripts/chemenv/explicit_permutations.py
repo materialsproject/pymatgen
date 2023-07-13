@@ -1,6 +1,6 @@
 """
 Development script of the ChemEnv utility to get the explicit permutations for coordination environments identified
-with the explicit permutations algorithms (typically with coordination numbers <= 6)
+with the explicit permutations algorithms (typically with coordination numbers <= 6).
 """
 
 from __future__ import annotations
@@ -50,9 +50,7 @@ if __name__ == "__main__":
             raise ValueError("WRONG ALGORITHM !")
 
     algo = Algo()
-    algo.permutations = []
-    for perm in itertools.permutations(range(cg.coordination)):
-        algo.permutations.append(perm)
+    algo.permutations = list(itertools.permutations(range(cg.coordination)))
 
     lgf = LocalGeometryFinder()
     lgf.setup_parameters(structure_refinement=lgf.STRUCTURE_REFINEMENT_NONE)

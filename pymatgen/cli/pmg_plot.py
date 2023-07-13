@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-"""
-Implementation for `pmg plot` CLI.
-"""
+"""Implementation for `pmg plot` CLI."""
 
 
 from __future__ import annotations
@@ -21,13 +19,13 @@ def get_dos_plot(args):
     Args:
         args (dict): Args from argparse.
     """
-    v = Vasprun(args.dos_file)
-    dos = v.complete_dos
+    vasp_run = Vasprun(args.dos_file)
+    dos = vasp_run.complete_dos
 
     all_dos = {}
     all_dos["Total"] = dos
 
-    structure = v.final_structure
+    structure = vasp_run.final_structure
 
     if args.site:
         for i, site in enumerate(structure):
@@ -55,21 +53,21 @@ def get_chgint_plot(args):
         args (dict): args from argparse.
     """
     chgcar = Chgcar.from_file(args.chgcar_file)
-    s = chgcar.structure
+    struct = chgcar.structure
 
     if args.inds:
         atom_ind = [int(i) for i in args.inds[0].split(",")]
     else:
-        finder = SpacegroupAnalyzer(s, symprec=0.1)
+        finder = SpacegroupAnalyzer(struct, symprec=0.1)
         sites = [sites[0] for sites in finder.get_symmetrized_structure().equivalent_sites]
-        atom_ind = [s.sites.index(site) for site in sites]
+        atom_ind = [struct.index(site) for site in sites]
 
     from pymatgen.util.plotting import pretty_plot
 
     plt = pretty_plot(12, 8)
     for i in atom_ind:
         d = chgcar.get_integrated_diff(i, args.radius, 30)
-        plt.plot(d[:, 0], d[:, 1], label=f"Atom {i} - {s[i].species_string}")
+        plt.plot(d[:, 0], d[:, 1], label=f"Atom {i} - {struct[i].species_string}")
     plt.legend(loc="upper left")
     plt.xlabel("Radius (A)")
     plt.ylabel("Integrated charge (e)")
@@ -79,7 +77,7 @@ def get_chgint_plot(args):
 
 def get_xrd_plot(args):
     """
-    Plot XRD
+    Plot XRD.
 
     Args:
         args (dict): Args from argparse

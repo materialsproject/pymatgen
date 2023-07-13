@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 import numpy as np
-import pytest
+from pytest import approx
 
 from pymatgen.analysis.ferroelectricity.polarization import (
     EnergyTrend,
@@ -42,7 +42,7 @@ ions = np.array(
 class UtilsTest(PymatgenTest):
     def setUp(self):
         self.potcar = Potcar.from_file(test_dir + "/POTCAR")
-        self.zval_dict = {"Ba": 10.0, "Ti": 10.0, "O": 6.0}
+        self.zval_dict = {"Ba": 10, "Ti": 10, "O": 6}
         self.ions = ions
         self.structures = structures
 
@@ -60,16 +60,16 @@ class PolarizationTest(PymatgenTest):
         self.p_ions = ions
         self.p_ions_outcar = np.array(
             [
-                [0.0, 0.0, 43.93437],
-                [0.0, 0.0, 19.81697],
-                [0.0, 0.0, 19.76076],
-                [0.0, 0.0, 19.70306],
-                [0.0, 0.0, 19.64372],
-                [0.0, 0.0, -5.06619],
-                [0.0, 0.0, -5.18997],
-                [0.0, 0.0, -5.31457],
-                [0.0, 0.0, -5.44026],
-                [0.0, 0.0, -5.56684],
+                [0, 0, 43.93437],
+                [0, 0, 19.81697],
+                [0, 0, 19.76076],
+                [0, 0, 19.70306],
+                [0, 0, 19.64372],
+                [0, 0, -5.06619],
+                [0, 0, -5.18997],
+                [0, 0, -5.31457],
+                [0, 0, -5.44026],
+                [0, 0, -5.56684],
             ]
         )
         self.p_elecs = np.array(
@@ -222,7 +222,7 @@ class PolarizationTest(PymatgenTest):
 
     def test_get_polarization_change_norm(self):
         change_norm = self.polarization.get_polarization_change_norm(convert_to_muC_per_cm2=True, all_in_polar=False)
-        assert change_norm == pytest.approx(self.change_norm)
+        assert change_norm == approx(self.change_norm)
         # Because nonpolar polarization is (0, 0, 0), all_in_polar should have no effect on polarization change norm
         change = self.polarization.get_polarization_change(convert_to_muC_per_cm2=True, all_in_polar=True)
         # No change up to 5 decimal
@@ -263,11 +263,11 @@ class EnergyTrendTest(PymatgenTest):
 
     def test_max_spline_jump(self):
         max_jump = self.energy_trend.max_spline_jump()
-        assert max_jump == pytest.approx(self.max_jump)
+        assert max_jump == approx(self.max_jump)
 
     def test_smoothness(self):
         smoothness = self.energy_trend.smoothness()
-        assert smoothness == pytest.approx(self.smoothness)
+        assert smoothness == approx(self.smoothness)
 
     def test_endpoints_minima(self):
         endpoints = self.energy_trend.endpoints_minima(slope_cutoff=1e-2)

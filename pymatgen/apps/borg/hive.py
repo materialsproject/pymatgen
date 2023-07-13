@@ -1,6 +1,4 @@
-"""
-This module define the various drones used to assimilate data.
-"""
+"""This module define the various drones used to assimilate data."""
 
 from __future__ import annotations
 
@@ -71,8 +69,9 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
 class VaspToComputedEntryDrone(AbstractDrone):
     """
     VaspToEntryDrone assimilates directories containing VASP output to
-    ComputedEntry/ComputedStructureEntry objects. There are some restrictions
-    on the valid directory structures:
+    ComputedEntry/ComputedStructureEntry objects.
+
+    There are some restrictions on the valid directory structures:
 
     1. There can be only one vasp run in each directory.
     2. Directories designated "relax1", "relax2" are considered to be 2 parts
@@ -131,19 +130,18 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {filepath} is being parsed.")
 
         try:
-            vasprun = Vasprun(filepath)
-        except Exception as ex:
-            logger.debug(f"error in {filepath}: {ex}")
+            vasp_run = Vasprun(filepath)
+        except Exception as exc:
+            logger.debug(f"error in {filepath}: {exc}")
             return None
 
-        entry = vasprun.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
+        return vasp_run.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
 
         # entry.parameters["history"] = _get_transformation_history(path)
-        return entry
 
     def get_valid_paths(self, path):
         """
-        Checks if paths contains vasprun.xml or (POSCAR+OSZICAR)
+        Checks if paths contains vasprun.xml or (POSCAR+OSZICAR).
 
         Args:
             path: input path as a tuple generated from os.walk, i.e.,
@@ -170,9 +168,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         return " VaspToComputedEntryDrone"
 
     def as_dict(self):
-        """
-        Returns: MSONABle dict
-        """
+        """Returns: MSONABle dict."""
         return {
             "init_args": {
                 "inc_structure": self._inc_structure,
@@ -187,7 +183,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             VaspToComputedEntryDrone
@@ -279,17 +275,15 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 return ComputedStructureEntry(structure, energy, parameters=param, data=data)
             return ComputedEntry(structure.composition, energy, parameters=param, data=data)
 
-        except Exception as ex:
-            logger.debug(f"error in {path}: {ex}")
+        except Exception as exc:
+            logger.debug(f"error in {path}: {exc}")
             return None
 
     def __str__(self):
         return "SimpleVaspToComputedEntryDrone"
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "init_args": {"inc_structure": self._inc_structure},
             "@module": type(self).__module__,
@@ -300,7 +294,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             SimpleVaspToComputedEntryDrone
@@ -369,8 +363,8 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         """
         try:
             gaurun = GaussianOutput(path)
-        except Exception as ex:
-            logger.debug(f"error in {path}: {ex}")
+        except Exception as exc:
+            logger.debug(f"error in {path}: {exc}")
             return None
         param = {}
         for p in self._parameters:
@@ -407,9 +401,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         return " GaussianToComputedEntryDrone"
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "init_args": {
                 "inc_structure": self._inc_structure,
@@ -425,7 +417,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             GaussianToComputedEntryDrone
@@ -434,9 +426,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
 
 def _get_transformation_history(path):
-    """
-    Checks for a transformations.json* file and returns the history.
-    """
+    """Checks for a transformations.json* file and returns the history."""
     trans_json = glob(os.path.join(path, "transformations.json*"))
     if trans_json:
         try:

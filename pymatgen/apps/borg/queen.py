@@ -50,9 +50,7 @@ class BorgQueen:
                 self.serial_assimilate(rootpath)
 
     def parallel_assimilate(self, rootpath):
-        """
-        Assimilate the entire subdirectory structure in rootpath.
-        """
+        """Assimilate the entire subdirectory structure in rootpath."""
         logger.info("Scanning for valid paths...")
         valid_paths = []
         for parent, subdirs, files in os.walk(rootpath):
@@ -72,9 +70,7 @@ class BorgQueen:
                 self._data.append(json.loads(d, cls=MontyDecoder))
 
     def serial_assimilate(self, rootpath):
-        """
-        Assimilate the entire subdirectory structure in rootpath serially.
-        """
+        """Assimilate the entire subdirectory structure in rootpath serially."""
         valid_paths = []
         for parent, subdirs, files in os.walk(rootpath):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
@@ -90,9 +86,7 @@ class BorgQueen:
             self._data.append(json.loads(d, cls=MontyDecoder))
 
     def get_data(self):
-        """
-        Returns an list of assimilated objects
-        """
+        """Returns an list of assimilated objects."""
         return self._data
 
     def save_data(self, filename):
@@ -108,17 +102,13 @@ class BorgQueen:
             json.dump(list(self._data), f, cls=MontyEncoder)
 
     def load_data(self, filename):
-        """
-        Load assimilated data from a file
-        """
+        """Load assimilated data from a file."""
         with zopen(filename, "rt") as f:
             self._data = json.load(f, cls=MontyDecoder)
 
 
 def order_assimilation(args):
-    """
-    Internal helper method for BorgQueen to process assimilation
-    """
+    """Internal helper method for BorgQueen to process assimilation."""
     (path, drone, data, status) = args
     newdata = drone.assimilate(path)
     if newdata:

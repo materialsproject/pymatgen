@@ -1,6 +1,4 @@
-"""
-Module containing class to create an ion
-"""
+"""Module containing class to create an ion."""
 
 from __future__ import annotations
 
@@ -25,7 +23,7 @@ class Ion(Composition, MSONable, Stringify):
     def __init__(self, composition, charge=0.0, _properties=None):
         """
         Flexible Ion construction, similar to Composition.
-        For more information, please see pymatgen.core.Composition
+        For more information, please see pymatgen.core.Composition.
         """
         super().__init__(composition)
         self._charge = charge
@@ -90,7 +88,7 @@ class Ion(Composition, MSONable, Stringify):
     def anonymized_formula(self) -> str:
         """
         An anonymized formula. Appends charge to the end
-        of anonymized composition
+        of anonymized composition.
         """
         anon_formula = super().anonymized_formula
         chg_str = charge_string(self._charge, brackets=False)
@@ -192,22 +190,20 @@ class Ion(Composition, MSONable, Stringify):
     def alphabetical_formula(self) -> str:
         """
         Returns a formula string, with elements sorted by alphabetically and
-        appended charge
+        appended charge.
         """
         alph_formula = self.composition.alphabetical_formula
         return alph_formula + " " + charge_string(self.charge, brackets=False)
 
     @property
     def charge(self) -> float:
-        """
-        Charge of the ion
-        """
+        """Charge of the ion."""
         return self._charge
 
     def as_dict(self) -> dict[str, float]:
         """
         Returns:
-            dict with composition, as well as charge
+            dict with composition, as well as charge.
         """
         d = super().as_dict()
         d["charge"] = self.charge
@@ -290,30 +286,24 @@ class Ion(Composition, MSONable, Stringify):
         return True
 
     def __add__(self, other):
-        """
-        Addition of two ions.
-        """
+        """Addition of two ions."""
         new_composition = self.composition + other.composition
         new_charge = self.charge + other.charge
         return Ion(new_composition, new_charge)
 
     def __sub__(self, other):
-        """
-        Subtraction of two ions
-        """
+        """Subtraction of two ions."""
         new_composition = self.composition - other.composition
         new_charge = self.charge - other.charge
         return Ion(new_composition, new_charge)
 
     def __mul__(self, other):
-        """
-        Multiplication of an Ion with a factor
-        """
+        """Multiplication of an Ion with a factor."""
         new_composition = self.composition * other
         new_charge = self.charge * other
         return Ion(new_composition, new_charge)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.composition, self.charge))
 
     def __str__(self):
@@ -323,9 +313,7 @@ class Ion(Composition, MSONable, Stringify):
         return "Ion: " + self.formula
 
     def to_pretty_string(self) -> str:
-        """
-        :return: Pretty string with proper superscripts.
-        """
+        """:return: Pretty string with proper superscripts."""
         str_ = super().reduced_formula
         if val := formula_double_format(self.charge, False):
             str_ += f"^{val:+}"

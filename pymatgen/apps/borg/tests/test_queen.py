@@ -1,6 +1,4 @@
-"""
-Created on Mar 18, 2012
-"""
+"""Created on Mar 18, 2012."""
 
 
 from __future__ import annotations

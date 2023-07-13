@@ -1,6 +1,4 @@
-"""
-Optimade support.
-"""
+"""Optimade support."""
 
 from __future__ import annotations
 
@@ -15,6 +13,7 @@ from tqdm import tqdm
 
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
+from pymatgen.util.due import Doi, due
 from pymatgen.util.provenance import StructureNL
 
 # from retrying import retry
@@ -29,6 +28,10 @@ _logger.addHandler(_handler)
 _logger.setLevel(logging.WARNING)
 
 
+@due.dcite(
+    Doi("10.1038/s41597-021-00974-z"),
+    description="OPTIMADE, an API for exchanging materials data",
+)
 class OptimadeRester:
     """
     Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
@@ -38,12 +41,11 @@ class OptimadeRester:
     [1] Andersen, C.W., *et al*.
         OPTIMADE, an API for exchanging materials data.
         Sci Data 8, 217 (2021). https://doi.org/10.1038/s41597-021-00974-z
-
     """
 
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
-    aliases: dict[str, str] = {
+    aliases = {
         "aflow": "http://aflow.org/API/optimade/",
         "cod": "https://www.crystallography.net/cod/optimade",
         "mcloud.mc3d": "https://aiida.materialscloud.org/mc3d/optimade",
@@ -69,7 +71,7 @@ class OptimadeRester:
     }
 
     # The set of OPTIMADE fields that are required to define a `pymatgen.core.Structure`
-    mandatory_response_fields: set[str] = {"lattice_vectors", "cartesian_site_positions", "species", "species_at_sites"}
+    mandatory_response_fields = ("lattice_vectors", "cartesian_site_positions", "species", "species_at_sites")
 
     def __init__(
         self, aliases_or_resource_urls: str | list[str] | None = None, refresh_aliases: bool = False, timeout: int = 5
@@ -150,12 +152,9 @@ class OptimadeRester:
         return self.describe()
 
     def describe(self):
-        """
-        Provides human-readable information about the resources being searched by the OptimadeRester.
-        """
+        """Provides human-readable information about the resources being searched by the OptimadeRester."""
         provider_text = "\n".join(map(str, (provider for provider in self._providers.values() if provider)))
-        description = f"OptimadeRester connected to:\n{provider_text}"
-        return description
+        return f"OptimadeRester connected to:\n{provider_text}"
 
     # @retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=2000)
     def _get_json(self, url):
@@ -173,9 +172,7 @@ class OptimadeRester:
         chemical_formula_anonymous: str | None = None,
         chemical_formula_hill: str | None = None,
     ):
-        """
-        Convenience method to build an OPTIMADE filter.
-        """
+        """Convenience method to build an OPTIMADE filter."""
         filters = []
 
         if elements:
@@ -197,10 +194,10 @@ class OptimadeRester:
                 filters.append(f"({nelements=})")
 
         if chemical_formula_anonymous:
-            filters.append(f'(chemical_formula_anonymous="{chemical_formula_anonymous}")')
+            filters.append(f"({chemical_formula_anonymous=})")
 
         if chemical_formula_hill:
-            filters.append(f'(chemical_formula_hill="{chemical_formula_hill}")')
+            filters.append(f"({chemical_formula_hill=})")
 
         return " AND ".join(filters)
 
@@ -438,9 +435,7 @@ class OptimadeRester:
         """
 
         def is_url(url) -> bool:
-            """
-            Basic URL validation thanks to https://stackoverflow.com/a/52455972
-            """
+            """Basic URL validation thanks to https://stackoverflow.com/a/52455972."""
             try:
                 result = urlparse(url)
                 return all([result.scheme, result.netloc])
@@ -533,7 +528,7 @@ class OptimadeRester:
             additional_response_fields = {additional_response_fields}
         if not additional_response_fields:
             additional_response_fields = set()
-        return ",".join({*additional_response_fields} | self.mandatory_response_fields)
+        return ",".join({*additional_response_fields, *self.mandatory_response_fields})
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
         """
@@ -553,13 +548,9 @@ class OptimadeRester:
 
     # TODO: revisit context manager logic here and in MPRester
     def __enter__(self):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        Support for "with" context.
-        """
+        """Support for "with" context."""
         self.session.close()

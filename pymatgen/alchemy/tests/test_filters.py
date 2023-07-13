@@ -23,7 +23,7 @@ from pymatgen.util.testing import PymatgenTest
 class ContainsSpecieFilterTest(PymatgenTest):
     def test_filtering(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
-        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0.00], [0.00, -2.0, 3.0]])
+        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
         struct = Structure(lattice, [{"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}] * 4, coords)
 
         species1 = [Species("Si", 5), Species("Mg", 2)]
@@ -57,15 +57,15 @@ class ContainsSpecieFilterTest(PymatgenTest):
 
 class SpecieProximityFilterTest(PymatgenTest):
     def test_filter(self):
-        s = self.get_structure("Li10GeP2S12")
+        struct = self.get_structure("Li10GeP2S12")
         sf = SpecieProximityFilter({"Li": 1})
-        assert sf.test(s)
+        assert sf.test(struct)
         sf = SpecieProximityFilter({"Li": 2})
-        assert not sf.test(s)
+        assert not sf.test(struct)
         sf = SpecieProximityFilter({"P": 1})
-        assert sf.test(s)
+        assert sf.test(struct)
         sf = SpecieProximityFilter({"P": 5})
-        assert not sf.test(s)
+        assert not sf.test(struct)
 
     def test_to_from_dict(self):
         sf = SpecieProximityFilter({"Li": 1})

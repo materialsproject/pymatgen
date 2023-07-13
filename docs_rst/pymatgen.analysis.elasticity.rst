@@ -11,12 +11,29 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.analysis.elasticity.elastic module
+-------------------------------------------
 
-   pymatgen.analysis.elasticity.elastic
-   pymatgen.analysis.elasticity.strain
-   pymatgen.analysis.elasticity.stress
+.. automodule:: pymatgen.analysis.elasticity.elastic
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.analysis.elasticity.strain module
+------------------------------------------
+
+.. automodule:: pymatgen.analysis.elasticity.strain
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.analysis.elasticity.stress module
+------------------------------------------
+
+.. automodule:: pymatgen.analysis.elasticity.stress
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

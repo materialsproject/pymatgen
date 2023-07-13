@@ -14,9 +14,7 @@ except ImportError:
 
 
 class JarvisAtomsAdaptor:
-    """
-    Adaptor serves as a bridge between JARVIS Atoms and pymatgen objects.
-    """
+    """Adaptor serves as a bridge between JARVIS Atoms and pymatgen objects."""
 
     @staticmethod
     def get_atoms(structure):

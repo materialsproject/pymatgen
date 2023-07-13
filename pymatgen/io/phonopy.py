@@ -1,6 +1,4 @@
-"""
-Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/
-"""
+"""Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/."""
 
 from __future__ import annotations
 
@@ -21,9 +19,7 @@ try:
     from phonopy.file_IO import write_disp_yaml
     from phonopy.structure.atoms import PhonopyAtoms
 except ImportError:
-    Phonopy = None
-    write_disp_yaml = None
-    PhonopyAtoms = None
+    Phonopy = write_disp_yaml = PhonopyAtoms = None
 
 
 @requires(Phonopy, "phonopy not installed!")
@@ -175,7 +171,7 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
 
     labels_dict = labels_dict or phonopy_labels_dict
 
-    ph_bs = PhononBandStructureSymmLine(
+    return PhononBandStructureSymmLine(
         qpts,
         frequencies,
         rec_latt,
@@ -184,8 +180,6 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
         structure=structure,
         eigendisplacements=eigendisplacements,
     )
-
-    return ph_bs
 
 
 def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):
@@ -445,8 +439,8 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
     else:
         try:
             structure = get_structure_from_dict(gruneisen_dict)
-        except ValueError:
-            raise ValueError("\nPlease provide a structure.\n")
+        except ValueError as exc:
+            raise ValueError("Please provide a structure or structure path") from exc
 
     qpts, multiplicities, frequencies, gruneisen = ([] for _ in range(4))
     phonopy_labels_dict = {}
@@ -514,8 +508,8 @@ def get_gs_ph_bs_symm_line_from_dict(
     else:
         try:
             structure = get_structure_from_dict(gruneisen_dict)
-        except ValueError:
-            raise ValueError("\nPlease provide a structure.\n")
+        except ValueError as exc:
+            raise ValueError("Please provide a structure or structure path") from exc
 
     q_points, frequencies, gruneisen_params = [], [], []
     phonopy_labels_dict: dict[str, dict[str, str]] = {}
@@ -666,16 +660,15 @@ def get_thermal_displacement_matrices(
     ThermalDisplacementMatrices objects
     Args:
         thermal_displacements_yaml: path to thermal_displacement_matrices.yaml
-        structure_path: path to POSCAR
+        structure_path: path to POSCAR.
 
     Returns:
     """
     thermal_displacements_dict = loadfn(thermal_displacements_yaml)
 
-    if structure_path:
-        structure = Structure.from_file(structure_path)
-    else:
-        raise ValueError("\nPlease provide a structure.\n")
+    if not structure_path:
+        raise ValueError("Please provide a structure_path")
+    structure = Structure.from_file(structure_path)
 
     thermal_displacement_objects_list = []
     for matrix in thermal_displacements_dict["thermal_displacement_matrices"]:

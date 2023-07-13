@@ -548,7 +548,7 @@ class DftSet(Cp2kInput):
 
     @staticmethod
     def get_cutoff_from_basis(basis_sets, rel_cutoff) -> int | float:
-        """Given a basis and a relative cutoff. Determine the ideal cutoff variable"""
+        """Given a basis and a relative cutoff. Determine the ideal cutoff variable."""
         for basis in basis_sets:
             if not basis.exponents:
                 raise ValueError(f"Basis set {basis} contains missing exponent info. Please specify cutoff manually")
@@ -564,8 +564,7 @@ class DftSet(Cp2kInput):
 
         exponents = [get_soft_exponents(b) for b in basis_sets if b.exponents]
         exponents = list(itertools.chain.from_iterable(exponents))
-        cutoff = np.ceil(max(itertools.chain.from_iterable(exponents))) * rel_cutoff
-        return cutoff
+        return np.ceil(max(itertools.chain.from_iterable(exponents))) * rel_cutoff
 
     @staticmethod
     def get_xc_functionals(xc_functionals: list | str | None = None) -> list:
@@ -600,17 +599,15 @@ class DftSet(Cp2kInput):
         return cp2k_names
 
     def write_basis_set_file(self, basis_sets, fn="BASIS") -> None:
-        """Write the basis sets to a file"""
+        """Write the basis sets to a file."""
         BasisFile(objects=basis_sets).write_file(fn)
 
     def write_potential_file(self, potentials, fn="POTENTIAL") -> None:
-        """Write the potentials to a file"""
+        """Write the potentials to a file."""
         PotentialFile(objects=potentials).write_file(fn)
 
     def print_forces(self) -> None:
-        """
-        Print out the forces and stress during calculation
-        """
+        """Print out the forces and stress during calculation."""
         self["FORCE_EVAL"].insert(Section("PRINT", subsections={}))
         self["FORCE_EVAL"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["FORCE_EVAL"]["PRINT"].insert(Section("STRESS_TENSOR", subsections={}))
@@ -639,7 +636,7 @@ class DftSet(Cp2kInput):
 
     def print_ldos(self, nlumo: int = -1) -> None:
         """
-        Activate the printing of LDOS files, printing one for each atom kind by default
+        Activate the printing of LDOS files, printing one for each atom kind by default.
 
         Args:
             nlumo (int): Number of virtual orbitals to be added to the MO set (-1=all).
@@ -664,9 +661,7 @@ class DftSet(Cp2kInput):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo))
 
     def print_mo(self) -> None:
-        """
-        Print molecular orbitals when running non-OT diagonalization
-        """
+        """Print molecular orbitals when running non-OT diagonalization."""
         raise NotImplementedError
 
     def print_v_hartree(self, stride=(2, 2, 2)) -> None:
@@ -679,9 +674,7 @@ class DftSet(Cp2kInput):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(V_Hartree_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
 
     def print_e_density(self, stride=(2, 2, 2)) -> None:
-        """
-        Controls the printing of cube files with electronic density and, for UKS, the spin density
-        """
+        """Controls the printing of cube files with electronic density and, for UKS, the spin density."""
         if not self.check("FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(E_Density_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
 
@@ -704,17 +697,17 @@ class DftSet(Cp2kInput):
         self["force_eval"]["dft"]["print"].insert(bs)
 
     def print_hirshfeld(self, on=True) -> None:
-        """Activate or deactivate printing of Hirshfeld charges"""
+        """Activate or deactivate printing of Hirshfeld charges."""
         section = Section("HIRSHFELD", section_parameters=["ON" if on else "OFF"])
         self["force_eval"]["dft"]["print"].insert(section)
 
     def print_mulliken(self, on=False) -> None:
-        """Activate or deactivate printing of Mulliken charges"""
+        """Activate or deactivate printing of Mulliken charges."""
         section = Section("MULLIKEN", section_parameters=["ON" if on else "OFF"])
         self["force_eval"]["dft"]["print"].insert(section)
 
     def set_charge(self, charge: int) -> None:
-        """Set the overall charge of the simulation cell"""
+        """Set the overall charge of the simulation cell."""
         self["FORCE_EVAL"]["DFT"]["CHARGE"] = Keyword("CHARGE", int(charge))
 
     def activate_hybrid(
@@ -1109,14 +1102,14 @@ class DftSet(Cp2kInput):
         self["FORCE_EVAL"]["PROPERTIES"].insert(Section("TDDFPT", **kwargs))
 
     def activate_epr(self, **kwargs) -> None:
-        """Calculate g-tensor. Requires localize. Suggested with GAPW"""
+        """Calculate g-tensor. Requires localize. Suggested with GAPW."""
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("EPR", **kwargs))
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["EPR"].update({"PRINT": {"G_TENSOR": {}}})
 
     def activate_nmr(self, **kwargs) -> None:
-        """Calculate nmr shifts. Requires localize. Suggested with GAPW"""
+        """Calculate nmr shifts. Requires localize. Suggested with GAPW."""
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("NMR", **kwargs))
@@ -1193,9 +1186,7 @@ class DftSet(Cp2kInput):
         self["FORCE_EVAL"]["DFT"]["XC"].insert(vdw)
 
     def activate_fast_minimization(self, on) -> None:
-        """
-        Method to modify the set to use fast SCF minimization.
-        """
+        """Method to modify the set to use fast SCF minimization."""
         if on:
             ot = OrbitalTransformation(
                 minimizer="DIIS",
@@ -1206,9 +1197,7 @@ class DftSet(Cp2kInput):
             self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
     def activate_robust_minimization(self) -> None:
-        """
-        Method to modify the set to use more robust SCF minimization technique
-        """
+        """Method to modify the set to use more robust SCF minimization technique."""
         ot = OrbitalTransformation(
             minimizer="CG",
             preconditioner="FULL_ALL",
@@ -1233,7 +1222,7 @@ class DftSet(Cp2kInput):
     def activate_nonperiodic(self, solver="ANALYTIC") -> None:
         """
         Activates a calculation with non-periodic calculations by turning of PBC and
-        changing the poisson solver. Still requires a CELL to put the atoms
+        changing the poisson solver. Still requires a CELL to put the atoms.
         """
         kwds = {
             "POISSON_SOLVER": Keyword("POISSON_SOLVER", solver),
@@ -1242,9 +1231,7 @@ class DftSet(Cp2kInput):
         self["FORCE_EVAL"]["DFT"].insert(Section("POISSON", subsections={}, keywords=kwds))
 
     def create_subsys(self, structure: Structure | Molecule) -> None:
-        """
-        Create the structure for the input
-        """
+        """Create the structure for the input."""
         subsys = Subsys()
         if isinstance(structure, Structure):
             subsys.insert(Cell(structure.lattice))
@@ -1348,28 +1335,28 @@ class DftSet(Cp2kInput):
                 v.keywords["ADD_LAST"] = Keyword("ADD_LAST", add_last)
 
     def validate(self):
-        """Implements a few checks for a valid input set"""
+        """Implements a few checks for a valid input set."""
         if self.check("force_eval/dft/kpoints") and self.check("force_eval/dft/xc/hf"):
             raise Cp2kValidationError("Does not support hartree fock with kpoints")
 
-        for _, v in self["force_eval"]["subsys"].subsections.items():
+        for val in self["force_eval"]["subsys"].subsections.values():
             if (
-                v.name.upper() == "KIND"
-                and v["POTENTIAL"].values[0].upper() == "ALL"  # noqa: PD011
+                val.name.upper() == "KIND"
+                and val["POTENTIAL"].values[0].upper() == "ALL"  # noqa: PD011
                 and self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW"  # noqa: PD011
             ):
                 raise Cp2kValidationError("All electron basis sets require GAPW method")
 
 
 class StaticSet(DftSet):
-    """Quick Constructor for static calculations"""
+    """Quick Constructor for static calculations."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="ENERGY_FORCE", **kwargs)
 
 
 class RelaxSet(DftSet):
-    """Quick Constructor for geometry relaxation"""
+    """Quick Constructor for geometry relaxation."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="GEO_OPT", **kwargs)
@@ -1377,7 +1364,7 @@ class RelaxSet(DftSet):
 
 
 class CellOptSet(DftSet):
-    """Quick Constructor for cell optimization relaxation"""
+    """Quick Constructor for cell optimization relaxation."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="CELL_OPT", **kwargs)
@@ -1385,7 +1372,7 @@ class CellOptSet(DftSet):
 
 
 class HybridStaticSet(DftSet):
-    """Quick Constructor for static calculations"""
+    """Quick Constructor for static calculations."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="ENERGY_FORCE", **kwargs)
@@ -1393,7 +1380,7 @@ class HybridStaticSet(DftSet):
 
 
 class HybridRelaxSet(DftSet):
-    """Quick Constructor for hybrid geometry relaxation"""
+    """Quick Constructor for hybrid geometry relaxation."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="GEO_OPT", **kwargs)
@@ -1401,7 +1388,7 @@ class HybridRelaxSet(DftSet):
 
 
 class HybridCellOptSet(DftSet):
-    """Quick Constructor for hybrid cell optimization relaxation"""
+    """Quick Constructor for hybrid cell optimization relaxation."""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(run_type="CELL_OPT", **kwargs)
@@ -1412,7 +1399,7 @@ class Cp2kValidationError(Exception):
     """
     Cp2k Validation Exception. Not exhausted. May raise validation
     errors for features which actually do work if using a newer version
-    of cp2k
+    of cp2k.
     """
 
     CP2K_VERSION = "v2022.1"

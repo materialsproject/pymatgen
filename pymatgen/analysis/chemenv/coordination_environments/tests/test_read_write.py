@@ -6,8 +6,8 @@ import shutil
 import unittest
 
 import numpy as np
-import pytest
 from numpy.testing import assert_array_almost_equal
+from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AngleNbSetWeight,
@@ -95,8 +95,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         nb_set_surface_points = [
             [1.0017922780870239, 0.99301365328679292],
-            [1.0017922780870239, 0.0],
-            [2.2237615554448569, 0.0],
+            [1.0017922780870239, 0],
+            [2.2237615554448569, 0],
             [2.2237615554448569, 0.0060837],
             [2.25, 0.0060837],
             [2.25, 0.99301365328679292],
@@ -112,7 +112,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
             [0.826167, 3.658339, 0.704672],
         ]
         for idx, coord in enumerate(coords):
-            assert coord == pytest.approx(neighb_sites[idx].coords, abs=6)
+            assert coord == approx(neighb_sites[idx].coords, abs=6)
 
         neighb_coords = nb_set.coords
 
@@ -120,21 +120,21 @@ class ReadWriteChemenvTest(unittest.TestCase):
         assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
 
         norm_dist = nb_set.normalized_distances
-        assert sorted(norm_dist) == pytest.approx(sorted([1.001792, 1.001792, 1, 1.0]))
+        assert sorted(norm_dist) == approx(sorted([1.001792, 1.001792, 1, 1]))
         norm_ang = nb_set.normalized_angles
-        assert sorted(norm_ang) == pytest.approx(sorted([0.999999, 1, 0.993013, 0.993013]))
+        assert sorted(norm_ang) == approx(sorted([0.999999, 1, 0.993013, 0.993013]))
         dist = nb_set.distances
-        assert sorted(dist) == pytest.approx(sorted([1.628439, 1.628439, 1.625526, 1.625526]))
+        assert sorted(dist) == approx(sorted([1.628439, 1.628439, 1.625526, 1.625526]))
         ang = nb_set.angles
-        assert sorted(ang) == pytest.approx(sorted([3.117389, 3.117389, 3.095610, 3.095610]))
+        assert sorted(ang) == approx(sorted([3.117389, 3.117389, 3.095610, 3.095610]))
 
         nb_set_info = nb_set.info
 
-        assert nb_set_info["normalized_angles_mean"] == pytest.approx(0.996506826547)
-        assert nb_set_info["normalized_distances_std"] == pytest.approx(0.000896138995037)
-        assert nb_set_info["angles_std"] == pytest.approx(0.0108895833142)
-        assert nb_set_info["distances_std"] == pytest.approx(0.00145669776056)
-        assert nb_set_info["distances_mean"] == pytest.approx(1.62698328347)
+        assert nb_set_info["normalized_angles_mean"] == approx(0.996506826547)
+        assert nb_set_info["normalized_distances_std"] == approx(0.000896138995037)
+        assert nb_set_info["angles_std"] == approx(0.0108895833142)
+        assert nb_set_info["distances_std"] == approx(0.00145669776056)
+        assert nb_set_info["distances_mean"] == approx(1.62698328347)
 
         assert (
             str(nb_set) == "Neighbors Set for site #6 :\n - Coordination number : 4\n - Voronoi indices : 1, 4, 5, 6\n"
@@ -153,7 +153,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
         effective_csm_estimator = {
             "function": "power2_inverse_decreasing",
-            "options": {"max_csm": 8.0},
+            "options": {"max_csm": 8},
         }
         self_csm_weight = SelfCSMNbSetWeight()
         surface_definition = {
@@ -182,7 +182,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
         )
         weight_estimator = {
             "function": "smootherstep",
-            "options": {"delta_csm_min": 0.5, "delta_csm_max": 3.0},
+            "options": {"delta_csm_min": 0.5, "delta_csm_max": 3},
         }
         symmetry_measure_type = "csm_wcs_ctwcc"
         delta_weight = DeltaCSMNbSetWeight(
@@ -190,8 +190,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
             weight_estimator=weight_estimator,
             symmetry_measure_type=symmetry_measure_type,
         )
-        bias_weight = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1.0, weight_cn13=4.0)
-        bias_weight_2 = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1.0, weight_cn13=5.0)
+        bias_weight = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1, weight_cn13=4)
+        bias_weight_2 = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1, weight_cn13=5)
         angle_weight = AngleNbSetWeight()
         nad_weight = NormalizedAngleDistanceNbSetWeight(average_type="geometric", aa=1, bb=1)
         multi_weights_strategy_1 = MultiWeightsChemenvStrategy(

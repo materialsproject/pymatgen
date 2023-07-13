@@ -95,7 +95,11 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
             Species("Fe", oxidation_state=0, properties={"spin": 5}): 0.5,
             "Ni": 0.5,
         }
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(
+            NotImplementedError,
+            match="CollinearMagneticStructureAnalyzer not implemented for disordered structures,"
+            " make ordered approximation first.",
+        ):
             CollinearMagneticStructureAnalyzer(self.Fe)
 
     def test_matches(self):

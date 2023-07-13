@@ -26,8 +26,8 @@ class StructInputFile(InputFile):
 
     @classmethod
     def from_string(cls, contents: str):
-        cp = CifParser.from_string(contents)
-        struct = cp.get_structures()[0]
+        parser = CifParser.from_string(contents)
+        struct = parser.get_structures()[0]
         return cls(structure=struct)
 
 
@@ -45,7 +45,7 @@ class FakeClass:
 
 class TestInputFile(PymatgenTest):
     def test_file_io(self):
-        with pytest.raises(FileNotFoundError):
+        with pytest.raises(FileNotFoundError, match="No such file or directory: 'fakepath.cif'"):
             StructInputFile.from_file("fakepath.cif")
 
         sif = StructInputFile.from_file(os.path.join(test_dir, "Li.cif"))
@@ -77,8 +77,8 @@ class TestInputSet(PymatgenTest):
         assert len(inp_set) == 3
         assert inp_set.kwarg1 == 1
         assert inp_set.kwarg2 == "hello"
-        with pytest.raises(AttributeError):
-            inp_set.kwarg3
+        with pytest.raises(AttributeError, match="has no attribute 'kwarg3'"):
+            _ = inp_set.kwarg3
         expected = [("cif1", sif1), ("cif2", sif2), ("cif3", sif3)]
 
         for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected):
@@ -86,7 +86,7 @@ class TestInputSet(PymatgenTest):
             assert contents is exp_contents
 
         assert inp_set["cif1"] is sif1
-        with pytest.raises(KeyError):
+        with pytest.raises(KeyError, match="'kwarg1'"):
             inp_set["kwarg1"]
 
         sif4 = StructInputFile.from_file(os.path.join(test_dir, "CuCl.cif"))
@@ -167,12 +167,12 @@ class TestInputSet(PymatgenTest):
         assert os.path.exists(os.path.join("input_dir", "cif1"))
         assert os.path.exists(os.path.join("input_dir", "cif2"))
         assert len(os.listdir("input_dir")) == 2
-        with pytest.raises(FileExistsError):
+        with pytest.raises(FileExistsError, match="cif1"):
             inp_set.write_input(directory="input_dir", make_dir=True, overwrite=False, zip_inputs=False)
         inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=True)
         assert len(os.listdir("input_dir")) == 1
         assert os.path.exists(os.path.join("input_dir", f"{type(inp_set).__name__}.zip"))
-        with pytest.raises(FileNotFoundError):
+        with pytest.raises(FileNotFoundError, match="input_dir2"):
             inp_set.write_input(directory="input_dir2", make_dir=False, overwrite=True, zip_inputs=False)
 
     def test_write_from_str(self):
@@ -184,8 +184,8 @@ class TestInputSet(PymatgenTest):
         assert os.path.exists(os.path.join("input_dir", "file_from_str"))
         assert os.path.exists(os.path.join("input_dir", "file_from_strcast"))
         assert len(os.listdir("input_dir")) == 3
-        cp = CifParser(filename=os.path.join("input_dir", "cif1"))
-        assert cp.get_structures()[0] == self.sif1.structure
+        parser = CifParser(filename=os.path.join("input_dir", "cif1"))
+        assert parser.get_structures()[0] == self.sif1.structure
         with open(os.path.join("input_dir", "file_from_str")) as file:
             file_from_str = file.read()
             assert file_from_str == "hello you"

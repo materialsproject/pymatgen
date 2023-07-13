@@ -64,9 +64,8 @@ class FuncTest(unittest.TestCase):
 
     def test_unicodeify(self):
         assert unicodeify("Li3Fe2(PO4)3") == "Li₃Fe₂(PO₄)₃"
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(ValueError, match="unicode character exists for subscript period"):
             unicodeify("Li0.2Na0.8Cl")
-        assert "unicode character exists for subscript period." in str(exc_info.value)
         assert unicodeify_species("O2+") == "O²⁺"
         assert unicodeify_spacegroup("F-3m") == "F3̅m"
 

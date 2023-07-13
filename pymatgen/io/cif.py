@@ -1,6 +1,4 @@
-"""
-Wrapper classes for Cif input and output from Structures.
-"""
+"""Wrapper classes for Cif input and output from Structures."""
 
 from __future__ import annotations
 
@@ -37,9 +35,9 @@ __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # type: ignore
+space_groups = {sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]}  # type: ignore
 
-space_groups.update({sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]})  # type: ignore
+space_groups.update({sub_spgrp(key): key for key in SYMM_DATA["space_group_encoding"]})  # type: ignore
 
 
 class CifBlock:
@@ -58,7 +56,7 @@ class CifBlock:
             data: dict of data to go into the cif. Values should be convertible to string,
                 or lists of these if the key is in a loop
             loops: list of lists of keys, grouped by which loop they should appear in
-            header: name of the block (appears after the data_ on the first line)
+            header: name of the block (appears after the data_ on the first line).
         """
         self.loops = loops
         self.data = data
@@ -75,9 +73,7 @@ class CifBlock:
         return self.data[key]
 
     def __str__(self):
-        """
-        Returns the cif string for the data block
-        """
+        """Returns the cif string for the data block."""
         out = [f"data_{self.header}"]
         keys = list(self.data)
         written = []
@@ -165,7 +161,7 @@ class CifBlock:
                 for s in p.findall(line):
                     # s is tuple. location of the data in the tuple
                     # depends on whether it was quoted in the input
-                    q.append(s)
+                    q.append(tuple(s))
         return q
 
     @classmethod
@@ -210,14 +206,12 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
             elif issue := "".join(s).strip():
-                warnings.warn(f"Possible issue in cif file at line: {issue}")
+                warnings.warn(f"Possible issue in CIF file at line: {issue}")
         return cls(data, loops, header)
 
 
 class CifFile:
-    """
-    Reads and parses CifBlocks from a .cif file or string
-    """
+    """Reads and parses CifBlocks from a .cif file or string."""
 
     def __init__(self, data, orig_string=None, comment=None):
         """
@@ -249,7 +243,7 @@ class CifFile:
             # Springer materials/Pauling file DBs.
             # This block anyway does not contain any structure information, and
             # CifParser was also not parsing it.
-            if "powder_pattern" in re.split(r"\n", x, 1)[0]:
+            if "powder_pattern" in re.split(r"\n", x, maxsplit=1)[0]:
                 continue
             c = CifBlock.from_string("data_" + x)
             dct[c.header] = c
@@ -300,9 +294,7 @@ class CifParser:
         self.warnings = []
 
         def is_magcif() -> bool:
-            """
-            Checks to see if file appears to be a magCIF file (heuristic).
-            """
+            """Checks to see if file appears to be a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
             prefixes = [
@@ -589,7 +581,7 @@ class CifParser:
         """
         Generate the lattice from the provided lattice parameters. In
         the absence of all six lattice parameters, the crystal system
-        and necessary parameters are parsed
+        and necessary parameters are parsed.
         """
         try:
             return self.get_lattice_no_exception(
@@ -620,7 +612,7 @@ class CifParser:
         data, length_strings=("a", "b", "c"), angle_strings=("alpha", "beta", "gamma"), lattice_type=None
     ):
         """
-        Take a dictionary of CIF data and returns a pymatgen Lattice object
+        Take a dictionary of CIF data and returns a pymatgen Lattice object.
 
         Args:
             data: a dictionary of the CIF file
@@ -799,9 +791,7 @@ class CifParser:
 
     @staticmethod
     def parse_oxi_states(data):
-        """
-        Parse oxidation states from data dictionary
-        """
+        """Parse oxidation states from data dictionary."""
         try:
             oxi_states = {
                 data["_atom_type_symbol"][i]: str2float(data["_atom_type_oxidation_number"][i])
@@ -818,9 +808,7 @@ class CifParser:
 
     @staticmethod
     def parse_magmoms(data, lattice=None):
-        """
-        Parse atomic magnetic moments from data dictionary
-        """
+        """Parse atomic magnetic moments from data dictionary."""
         if lattice is None:
             raise Exception("Magmoms given in terms of crystal axes in magCIF spec.")
         try:
@@ -884,9 +872,7 @@ class CifParser:
         return parsed_sym
 
     def _get_structure(self, data, primitive, symmetrized):
-        """
-        Generate structure from part of the cif.
-        """
+        """Generate structure from part of the cif."""
 
         def get_num_implicit_hydrogens(sym):
             num_h = {"Wat": 2, "wat": 2, "O-H": 1}
@@ -980,7 +966,7 @@ class CifParser:
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
         ]
-        if any(o > 1 for o in sum_occu):
+        if any(occu > 1 for occu in sum_occu):
             msg = (
                 f"Some occupancies ({sum_occu}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
@@ -989,10 +975,10 @@ class CifParser:
             warnings.warn(msg)
             self.warnings.append(msg)
 
-        allspecies = []
-        allcoords = []
-        allmagmoms = []
-        allhydrogens = []
+        all_species = []
+        all_coords = []
+        all_magmoms = []
+        all_hydrogens = []
         equivalent_indices = []
 
         # check to see if magCIF file is disordered
@@ -1040,30 +1026,30 @@ class CifParser:
                 # it is equivalent.
                 equivalent_indices += len(coords) * [idx]
 
-                allhydrogens.extend(len(coords) * [im_h])
-                allcoords.extend(coords)
-                allspecies.extend(len(coords) * [species])
-                allmagmoms.extend(magmoms)
+                all_hydrogens.extend(len(coords) * [im_h])
+                all_coords.extend(coords)
+                all_species.extend(len(coords) * [species])
+                all_magmoms.extend(magmoms)
 
             # rescale occupancies if necessary
-            for i, species in enumerate(allspecies):
+            for i, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
-                    allspecies[i] = species / total_occu
+                    all_species[i] = species / total_occu
 
-        if allspecies and len(allspecies) == len(allcoords) and len(allspecies) == len(allmagmoms):
+        if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
             site_properties = {}
-            if any(allhydrogens):
-                assert len(allhydrogens) == len(allcoords)
-                site_properties["implicit_hydrogens"] = allhydrogens
+            if any(all_hydrogens):
+                assert len(all_hydrogens) == len(all_coords)
+                site_properties["implicit_hydrogens"] = all_hydrogens
 
             if self.feature_flags["magcif"]:
-                site_properties["magmom"] = allmagmoms
+                site_properties["magmom"] = all_magmoms
 
             if len(site_properties) == 0:
                 site_properties = None
 
-            struct = Structure(lattice, allspecies, allcoords, site_properties=site_properties)
+            struct = Structure(lattice, all_species, all_coords, site_properties=site_properties)
 
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
@@ -1118,9 +1104,9 @@ class CifParser:
         structures = []
         for i, d in enumerate(self._cif.data.values()):
             try:
-                s = self._get_structure(d, primitive, symmetrized)
-                if s:
-                    structures.append(s)
+                struct = self._get_structure(d, primitive, symmetrized)
+                if struct:
+                    structures.append(struct)
             except (KeyError, ValueError) as exc:
                 # Warn the user (Errors should never pass silently)
                 # A user reported a problem with cif files produced by Avogadro
@@ -1128,7 +1114,7 @@ class CifParser:
                 self.warnings.append(str(exc))
                 warnings.warn(f"No structure parsed for {i + 1} structure in CIF. Section of CIF file below.")
                 warnings.warn(str(d))
-                warnings.warn(f"Error is {exc!s}.")
+                warnings.warn(f"Error is {exc}.")
 
         if self.warnings:
             warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
@@ -1140,7 +1126,7 @@ class CifParser:
         """
         Get BibTeX reference from CIF file.
         :param data:
-        :return: BibTeX string
+        :return: BibTeX string.
         """
         try:
             from pybtex.database import BibliographyData, Entry
@@ -1204,9 +1190,7 @@ class CifParser:
         return BibliographyData(entries).to_string(bib_format="bibtex")
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         dct = {}
         for k, v in self._cif.data.items():
             dct[k] = {}
@@ -1216,16 +1200,12 @@ class CifParser:
 
     @property
     def has_errors(self):
-        """
-        :return: Whether there are errors/warnings detected in CIF parsing.
-        """
+        """:return: Whether there are errors/warnings detected in CIF parsing."""
         return len(self.warnings) > 0
 
 
 class CifWriter:
-    """
-    A wrapper around CifFile to write CIF files from pymatgen structures.
-    """
+    """A wrapper around CifFile to write CIF files from pymatgen structures."""
 
     def __init__(
         self,
@@ -1334,7 +1314,14 @@ class CifWriter:
                     atom_site_label.append(f"{sp.symbol}{count}")
                     atom_site_occupancy.append(str(occu))
 
-                    magmom = Magmom(site.properties.get("magmom", getattr(sp, "spin", 0)))
+                    if "magmom" in site.properties:
+                        mag = site.properties["magmom"]
+                    elif getattr(sp, "spin", None) is not None:
+                        mag = sp.spin
+                    else:
+                        mag = 0
+
+                    magmom = Magmom(mag)
                     if write_magmoms and abs(magmom) > 0:
                         moment = Magmom.get_moment_relative_to_crystal_axes(magmom, latt)
                         atom_site_moment_label.append(f"{sp.symbol}{count}")
@@ -1409,29 +1396,21 @@ class CifWriter:
 
     @property
     def ciffile(self):
-        """
-        Returns: CifFile associated with the CifWriter.
-        """
+        """Returns: CifFile associated with the CifWriter."""
         return self._cf
 
     def __str__(self):
-        """
-        Returns the cif as a string.
-        """
+        """Returns the cif as a string."""
         return str(self._cf)
 
     def write_file(self, filename):
-        """
-        Write the cif file.
-        """
+        """Write the cif file."""
         with zopen(filename, "wt") as f:
             f.write(str(self))
 
 
 def str2float(text):
-    """
-    Remove uncertainty brackets from strings and return the float.
-    """
+    """Remove uncertainty brackets from strings and return the float."""
     try:
         # Note that the ending ) is sometimes missing. That is why the code has
         # been modified to treat it as optional. Same logic applies to lists.
@@ -1439,8 +1418,8 @@ def str2float(text):
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
             return float(re.sub(r"\(.+\)*", "", text[0]))
-    except ValueError as ex:
+    except ValueError as exc:
         if text.strip() == ".":
             return 0
-        raise ex
+        raise exc
     raise ValueError(f"{text} cannot be converted to float")

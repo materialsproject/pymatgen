@@ -21,6 +21,7 @@ from scipy.optimize import minimize
 
 from pymatgen.analysis.eos import EOS, PolynomialEOS
 from pymatgen.core.units import FloatWithUnit
+from pymatgen.util.due import Doi, due
 
 __author__ = "Kiran Mathew, Brandon Bocklund"
 __credits__ = "Cormac Toher"
@@ -29,10 +30,23 @@ __credits__ = "Cormac Toher"
 logger = logging.getLogger(__name__)
 
 
+cite_gibbs = due.dcite(
+    Doi("10.1016/j.comphy.2003.12.001"),
+    description="GIBBS: isothermal-isobaric thermodynamics of solids from energy curves using a "
+    "quasi-harmonic Debye model",
+    path="pymatgen.analysis.quasiharmonic",
+)
+
+
+@cite_gibbs
+@due.dcite(
+    Doi("10.1103/PhysRevB.90.174107"),
+    description="High-throughput computational screening of thermal conductivity, Debye "
+    "temperature, and Grüneisen parameter using a quasiharmonic Debye model",
+    path="pymatgen.analysis.quasiharmonic",
+)
 class QuasiharmonicDebyeApprox:
-    """
-    Quasiharmonic approximation.
-    """
+    """Quasiharmonic approximation."""
 
     def __init__(
         self,
@@ -165,10 +179,11 @@ class QuasiharmonicDebyeApprox:
         # G_opt=G(V_opt, T, P), V_opt
         return min_wrt_vol.fun, min_wrt_vol.x[0]
 
+    @cite_gibbs
     def vibrational_free_energy(self, temperature, volume):
         """
         Vibrational Helmholtz free energy, A_vib(V, T).
-        Eq(4) in doi.org/10.1016/j.comphy.2003.12.001
+        Eq(4) in doi.org/10.1016/j.comphy.2003.12.001.
 
         Args:
             temperature (float): temperature in K
@@ -182,10 +197,11 @@ class QuasiharmonicDebyeApprox:
             self.kb * self.natoms * temperature * (9.0 / 8.0 * y + 3 * np.log(1 - np.exp(-y)) - self.debye_integral(y))
         )
 
+    @cite_gibbs
     def vibrational_internal_energy(self, temperature, volume):
         """
         Vibrational internal energy, U_vib(V, T).
-        Eq(4) in doi.org/10.1016/j.comphy.2003.12.001
+        Eq(4) in doi.org/10.1016/j.comphy.2003.12.001.
 
         Args:
             temperature (float): temperature in K
@@ -197,6 +213,7 @@ class QuasiharmonicDebyeApprox:
         y = self.debye_temperature(volume) / temperature
         return self.kb * self.natoms * temperature * (9.0 / 8.0 * y + 3 * self.debye_integral(y))
 
+    @cite_gibbs
     def debye_temperature(self, volume):
         """
         Calculates the debye temperature.
@@ -226,10 +243,11 @@ class QuasiharmonicDebyeApprox:
             return debye * (self.ev_eos_fit.v0 / volume) ** (gamma)
         return debye
 
+    @cite_gibbs
     @staticmethod
     def debye_integral(y):
         """
-        Debye integral. Eq(5) in  doi.org/10.1016/j.comphy.2003.12.001
+        Debye integral. Eq(5) in  doi.org/10.1016/j.comphy.2003.12.001.
 
         Args:
             y (float): debye temperature/T, upper limit
@@ -243,14 +261,15 @@ class QuasiharmonicDebyeApprox:
         factor = 3.0 / y**3
         if y < 155:
             integral = quadrature(lambda x: x**3 / (np.exp(x) - 1.0), 0, y)
-            return list(integral)[0] * factor
+            return next(iter(integral)) * factor
         return 6.493939 * factor
 
+    @cite_gibbs
     def gruneisen_parameter(self, temperature, volume):
         """
         Slater-gamma formulation(the default):
             gruneisen parameter = - d log(theta)/ d log(V) = - (1/6 + 0.5 d log(B)/ d log(V))
-                                = - (1/6 + 0.5 V/B dB/dV), where dB/dV = d^2E/dV^2 + V * d^3E/dV^3
+                                = - (1/6 + 0.5 V/B dB/dV), where dB/dV = d^2E/dV^2 + V * d^3E/dV^3.
 
         Mie-gruneisen formulation:
             Eq(31) in doi.org/10.1016/j.comphy.2003.12.001
@@ -301,7 +320,7 @@ class QuasiharmonicDebyeApprox:
 
     def thermal_conductivity(self, temperature, volume):
         """
-        Eq(17) in 10.1103/PhysRevB.90.174107
+        Eq(17) in 10.1103/PhysRevB.90.174107.
 
         Args:
             temperature (float): temperature in K
@@ -319,13 +338,10 @@ class QuasiharmonicDebyeApprox:
         kappa = prefactor / (gamma**2 - 0.514 * gamma + 0.228)
         # kg/K/s^3 * Ang = (kg m/s^2)/(Ks)*1e-10
         # = N/(Ks)*1e-10 = Nm/(Kms)*1e-10 = W/K/m*1e-10
-        kappa = kappa * theta_a**2 * volume ** (1 / 3) * 1e-10
-        return kappa
+        return kappa * theta_a**2 * volume ** (1 / 3) * 1e-10
 
     def get_summary_dict(self):
-        """
-        Returns a dict with a summary of the computed properties.
-        """
+        """Returns a dict with a summary of the computed properties."""
         d = defaultdict(list)
         d["pressure"] = self.pressure
         d["poisson"] = self.poisson

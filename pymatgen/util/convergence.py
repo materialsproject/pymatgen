@@ -1,8 +1,7 @@
-# Distributed under the terms of the MIT License.import string
-
 """
-function for calculating the convergence of an x, y data set
-main api:
+Functions for calculating the convergence of an x, y data set.
+
+Main API:
 
 test_conv(xs, ys, name, tol)
 
@@ -22,6 +21,9 @@ import random
 import string
 
 import numpy as np
+from monty.dev import deprecated
+
+deprecated(message="pymatgen.util.convergence is deprecated and will be removed in a late 2023 release.")
 
 __author__ = "Michiel van Setten"
 __version__ = "0.9"
@@ -30,26 +32,27 @@ __email__ = "mjvansetten@gmail.com"
 __date__ = "June 2014"
 
 
-def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
+def id_generator(size: int = 8, chars: str = string.ascii_uppercase + string.digits) -> str:
     """
+    Generate a random string of specified size and characters.
+
     Args:
-        size ():
-        chars ():
+        size (int): The length of the generated string.
+        chars (str): The characters to use for generating the string.
 
     Returns:
+        str: The generated random string.
     """
     return "".join(random.choice(chars) for _ in range(size))
 
 
 class SplineInputError(Exception):
-    """
-    Error for Spline input
-    """
+    """Error for Spline input."""
 
     def __init__(self, msg):
         """
         Args:
-            msg (str): Message
+            msg (str): Message.
         """
         self.msg = msg
 
@@ -59,7 +62,7 @@ def get_derivatives(xs, ys, fd=False):
     return the derivatives of y(x) at the points x
     if scipy is available a spline is generated to calculate the derivatives
     if scipy is not available the left and right slopes are calculated, if both exist the average is returned
-    putting fd to zero always returns the finite difference slopes
+    putting fd to zero always returns the finite difference slopes.
     """
     try:
         if fd:
@@ -96,12 +99,12 @@ functions used in the fitting procedure, with initial guesses
 
 def print_and_raise_error(xs, ys, name):
     """
-    Args:
-        xs ():
-        ys ():
-        name ():
+    Print error message and raise a RuntimeError.
 
-    Returns:
+    Args:
+        xs (list): List of x values.
+        ys (list): List of y values.
+        name (str): Name of the function where the error occurred.
     """
     print("Index error in", name)
     print("ys: ", ys)
@@ -110,36 +113,25 @@ def print_and_raise_error(xs, ys, name):
 
 
 def reciprocal(x, a, b, n):
-    """
-    reciprocal function to the power n to fit convergence data
-    """
+    """Reciprocal function to the power n to fit convergence data."""
     if n < 1:
         n = 1
     elif n > 5:
         n = 5
     if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b / x_v**n)
-        y = np.array(y_l)
-    else:
-        y = a + b / x**n
-    return y
+        return np.array([a + b / x_v**n for x_v in x])
+    return a + b / x**n
 
 
 def p0_reciprocal(xs, ys):
-    """
-    predictor for first guess for reciprocal
-    """
+    """Predictor for first guess for reciprocal."""
     a0 = ys[len(ys) - 1]
     b0 = ys[0] * xs[0] - a0 * xs[0]
     return [a0, b0, 1]
 
 
 def exponential(x, a, b, n):
-    """
-    exponential function base n to fit convergence data
-    """
+    """Exponential function base n to fit convergence data."""
     if n < 1.000001:
         n = 1.000001
     elif n > 1.2:
@@ -160,12 +152,14 @@ def exponential(x, a, b, n):
 
 def p0_exponential(xs, ys):
     """
+    Calculate the initial guess parameters for the exponential function.
 
     Args:
-        xs ():
-        ys ():
+        xs (list): List of x values.
+        ys (list): List of y values.
 
     Returns:
+        list: List of initial guess parameters [a, b, n].
     """
     n0 = 1.005
     b0 = (n0 ** -xs[-1] - n0 ** -xs[1]) / (ys[-1] - ys[1])
@@ -176,9 +170,7 @@ def p0_exponential(xs, ys):
 
 
 def single_reciprocal(x, a, b, c):
-    """
-    reciprocal function to fit convergence data
-    """
+    """Reciprocal function to fit convergence data."""
     if isinstance(x, list):
         y_l = []
         for x_v in x:
@@ -191,12 +183,14 @@ def single_reciprocal(x, a, b, c):
 
 def p0_single_reciprocal(xs, ys):
     """
+    Calculate the initial guess parameters for the single reciprocal function.
 
     Args:
-        xs ():
-        ys ():
+        xs (list): List of x values.
+        ys (list): List of y values.
 
     Returns:
+        list: List of initial guess parameters [a, b, c].
     """
     c = 1
     b = (1 / (xs[-1] - c) - 1 / (xs[1] - c)) / (ys[-1] - ys[1])
@@ -205,27 +199,21 @@ def p0_single_reciprocal(xs, ys):
 
 
 def simple_reciprocal(x, a, b):
-    """
-    reciprocal function to fit convergence data
-    """
-    if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b / x_v)
-        y = np.array(y_l)
-    else:
-        y = a + b / x
-    return y
+    """Reciprocal function to fit convergence data."""
+    y_l = [a + b / x_v for x_v in x]
+    return np.array(y_l) if isinstance(x, list) else a + b / x
 
 
 def p0_simple_reciprocal(xs, ys):
     """
+    Calculate the initial guess parameters for the simple reciprocal function.
 
     Args:
-        xs ():
-        ys ():
+        xs (list): List of x values.
+        ys (list): List of y values.
 
     Returns:
+        list: List of initial guess parameters [a, b].
     """
     b = (ys[-1] - ys[-2]) / (1 / (xs[-1]) - 1 / (xs[-2]))
     a = ys[-2] - b / (xs[-2])
@@ -233,9 +221,7 @@ def p0_simple_reciprocal(xs, ys):
 
 
 def simple_2reciprocal(x, a, b):
-    """
-    reciprocal function to fit convergence data
-    """
+    """Reciprocal function to fit convergence data."""
     c = 2
     if isinstance(x, list):
         y_l = []
@@ -249,12 +235,14 @@ def simple_2reciprocal(x, a, b):
 
 def p0_simple_2reciprocal(xs, ys):
     """
+    Calculate the initial guess parameters for the simple reciprocal function with a power of 2.
 
     Args:
-        xs ():
-        ys ():
+        xs (list): List of x values.
+        ys (list): List of y values.
 
     Returns:
+        list: List of initial guess parameters [a, b].
     """
     c = 2
     b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
@@ -263,28 +251,21 @@ def p0_simple_2reciprocal(xs, ys):
 
 
 def simple_4reciprocal(x, a, b):
-    """
-    reciprocal function to fit convergence data
-    """
+    """Reciprocal function to fit convergence data."""
     c = 4
-    if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b / x_v**c)
-        y = np.array(y_l)
-    else:
-        y = a + b / x**c
-    return y
+    return [a + b / x_v**c for x_v in x] if isinstance(x, list) else a + b / x**c
 
 
 def p0_simple_4reciprocal(xs, ys):
     """
+    Calculate the initial guess parameters for the simple reciprocal function with a power of 4.
 
     Args:
-        xs ():
-        ys ():
+        xs (list): List of x values.
+        ys (list): List of y values.
 
     Returns:
+        list: The initial guess parameters [a, b].
     """
     c = 4
     b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
@@ -293,27 +274,21 @@ def p0_simple_4reciprocal(xs, ys):
 
 
 def simple_5reciprocal(x, a, b):
-    """
-    reciprocal function to fit convergence data
-    """
+    """Reciprocal function to fit convergence data."""
     c = 0.5
-    if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b / x_v**c)
-        y = np.array(y_l)
-    else:
-        y = a + b / x**c
-    return y
+    return [a + b / x_v**c for x_v in x] if isinstance(x, list) else a + b / x**c
 
 
 def p0_simple_5reciprocal(xs, ys):
     """
+    Calculate the initial guess parameters for the simple reciprocal function with a power of 0.5.
+
     Args:
-        xs ():
-        ys ():
+        xs (list): List of x values.
+        ys (list): List of y values.
 
     Returns:
+        list: List of parameters [a, b].
     """
     c = 0.5
     b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
@@ -323,12 +298,14 @@ def p0_simple_5reciprocal(xs, ys):
 
 def extrapolate_simple_reciprocal(xs, ys):
     """
+    Extrapolate simple reciprocal function to fit convergence data.
 
     Args:
-        xs ():
-        ys ():
+        xs: List of x values.
+        ys: List of y values.
 
     Returns:
+        List of parameters [a, b].
     """
     b = (ys[-2] - ys[-1]) / (1 / (xs[-2]) - 1 / (xs[-1]))
     a = ys[-1] - b / (xs[-1])
@@ -336,9 +313,7 @@ def extrapolate_simple_reciprocal(xs, ys):
 
 
 def extrapolate_reciprocal(xs, ys, n, noise):
-    """
-    return the parameters such that a + b / x^n hits the last two data points
-    """
+    """Return the parameters such that a + b / x^n hits the last two data points."""
     if len(xs) > 4 and noise:
         y1 = (ys[-3] + ys[-4]) / 2
         y2 = (ys[-1] + ys[-2]) / 2
@@ -359,9 +334,7 @@ def extrapolate_reciprocal(xs, ys, n, noise):
 
 
 def measure(function, xs, ys, popt, weights):
-    """
-    measure the quality of a fit
-    """
+    """Measure the quality of a fit."""
     m = 0
     n = 0
     for x in xs:
@@ -373,8 +346,8 @@ def measure(function, xs, ys, popt, weights):
             else:
                 raise NotImplementedError
             n += 1
-        except IndexError:
-            raise RuntimeError(f"y does not exist for {x = }, this should not happen")
+        except IndexError as exc:
+            raise IndexError(f"y does not exist for {x = }, this should not happen") from exc
 
     return m
 
@@ -382,34 +355,29 @@ def measure(function, xs, ys, popt, weights):
 def get_weights(xs, ys, mode=2):
     """
     Args:
-        xs ():
-        ys ():
-        mode ():
+        xs (list): List of x values.
+        ys (list): List of y values.
+        mode (int): Mode for calculating weights.
 
     Returns:
+        list: List of weights.
     """
     ds = get_derivatives(xs, ys, fd=True)
     if mode == 1:
         mind = np.inf
         for d in ds:
             mind = min(abs(d), mind)
-        weights = []
-        for d in ds:
-            weights.append(abs(mind / d))
-    if mode == 2:
+        weights = [abs(mind / d) for d in ds]
+    elif mode == 2:
         x_max = max(xs) ** 2
-        weights = []
-        for x in xs:
-            weights.append(x**2 / x_max)
+        weights = [x**2 / x_max for x in xs]
     else:
         weights = [1] * len(xs)
     return weights
 
 
 def multi_curve_fit(xs, ys, verbose):
-    """
-    fit multiple functions to the x, y data, return the best fit
-    """
+    """Fit multiple functions to the x, y data, return the best fit."""
     # functions = {exponential: p0_exponential, reciprocal: p0_reciprocal, single_reciprocal: p0_single_reciprocal}
     functions = {
         exponential: p0_exponential,
@@ -471,9 +439,7 @@ def multi_reciprocal_extra(xs, ys, noise=False):
 
 
 def print_plot_line(function, popt, xs, ys, name, tol: float = 0.05, extra=""):
-    """
-    print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters
-    """
+    """Print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters."""
     idp = id_generator()
     with open("convdat." + str(idp), mode="w") as f:
         for n in range(0, len(ys), 1):
@@ -507,15 +473,12 @@ def print_plot_line(function, popt, xs, ys, name, tol: float = 0.05, extra=""):
 
 
 def determine_convergence(xs, ys, name, tol: float = 0.0001, extra="", verbose=False, mode="extra", plots=True):
-    """
-    test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
-    """
+    """Test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists."""
     if len(xs) != len(ys):
         raise RuntimeError("the range of x and y are not equal")
     conv = False
     x_value = float("inf")
-    y_value = None
-    n_value = None
+    y_value = n_value = None
     popt = [None, None, None]
     if len(xs) > 2:
         ds = get_derivatives(xs[0 : len(ys)], ys)

@@ -94,10 +94,10 @@ class StructureGraphTest(PymatgenTest):
         c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(include_critical_points=False)
 
-        latt = Lattice.cubic(4.17)
+        lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        self.NiO = Structure.from_spacegroup(225, latt, species, coords).get_primitive_structure()
+        self.NiO = Structure.from_spacegroup(225, lattice, species, coords).get_primitive_structure()
 
         # BCC example.
         self.bcc = Structure(Lattice.cubic(5.0), ["He", "He"], [[0, 0, 0], [0.5, 0.5, 0.5]])
@@ -109,7 +109,7 @@ class StructureGraphTest(PymatgenTest):
 
     def test_inappropriate_construction(self):
         # Check inappropriate strategy
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Chosen strategy is not designed for use with structures"):
             StructureGraph.with_local_env_strategy(self.NiO, CovalentBondNN())
 
     def test_properties(self):
@@ -285,7 +285,6 @@ from    to  to_image      bond_length (A)
    0     2  (0, 0, 0)     2.417e+00
 """
 
-        # don't care about testing Py 2.7 unicode support,
         # change Å to A
         self.mos2_sg.graph.graph["edge_weight_units"] = "A"
         self.assert_str_content_equal(str(self.square_sg), square_sg_str_ref)
@@ -613,8 +612,12 @@ class MoleculeGraphTest(unittest.TestCase):
         assert mol_graph_edges.isomorphic_to(mol_graph_strat)
 
         # Check inappropriate strategy
-        with pytest.raises(ValueError):
-            MoleculeGraph.with_local_env_strategy(self.pc, VoronoiNN())
+        non_mol_strategy = VoronoiNN()
+        with pytest.raises(
+            ValueError,
+            match=f"strategy='{non_mol_strategy}' is not designed for use with molecules! Choose another strategy",
+        ):
+            MoleculeGraph.with_local_env_strategy(self.pc, non_mol_strategy)
 
     def test_properties(self):
         assert self.cyclohexene.name == "bonds"
@@ -750,7 +753,7 @@ class MoleculeGraphTest(unittest.TestCase):
         assert reactants[0] == self.ethylene
         assert reactants[1] == self.butadiene
 
-        with pytest.raises(MolGraphSplitError):
+        with pytest.raises(MolGraphSplitError, match="Cannot split molecule; MoleculeGraph is still connected."):
             self.cyclohexene.split_molecule_subgraphs([(0, 1)])
 
         # Test naive charge redistribution
@@ -799,10 +802,7 @@ class MoleculeGraphTest(unittest.TestCase):
         edges = {(e[0], e[1]): None for e in self.pc_edges}
         mol_graph = MoleculeGraph.with_edges(self.pc, edges)
         unique_fragment_dict = mol_graph.build_unique_fragments()
-        unique_fragments = []
-        for key in unique_fragment_dict:
-            for fragment in unique_fragment_dict[key]:
-                unique_fragments.append(fragment)
+        unique_fragments = [fragment for key in unique_fragment_dict for fragment in unique_fragment_dict[key]]
         assert len(unique_fragments) == 295
         nm = iso.categorical_node_match("specie", "ERROR")
         for ii in range(295):
@@ -820,11 +820,9 @@ class MoleculeGraphTest(unittest.TestCase):
             coords = nx.get_node_attributes(unique_fragments[ii].graph, "coords")
 
             mol = unique_fragments[ii].molecule
-            for ss, site in enumerate(mol):
-                assert str(species[ss]) == str(site.specie)
-                assert coords[ss][0] == site.coords[0]
-                assert coords[ss][1] == site.coords[1]
-                assert coords[ss][2] == site.coords[2]
+            for idx, site in enumerate(mol):
+                assert str(species[idx]) == str(site.specie)
+                assert all(coords[idx] == site.coords)
 
             # Test that each fragment is connected
             assert nx.is_connected(unique_fragments[ii].graph.to_undirected())

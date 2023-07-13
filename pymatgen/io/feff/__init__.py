@@ -9,7 +9,7 @@ from __future__ import annotations
 from .inputs import (
     VALID_FEFF_TAGS,
     Atoms,
-    FeffParserError,
+    FeffParseError,
     Header,
     Paths,
     Potential,

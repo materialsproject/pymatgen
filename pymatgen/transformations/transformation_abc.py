@@ -1,6 +1,4 @@
-"""
-Defines an abstract base class contract for Transformation object.
-"""
+"""Defines an abstract base class contract for Transformation object."""
 
 from __future__ import annotations
 
@@ -21,9 +19,7 @@ __date__ = "Sep 23, 2011"
 
 
 class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
-    """
-    Abstract transformation class.
-    """
+    """Abstract transformation class."""
 
     @abc.abstractmethod
     def apply_transformation(self, structure: Structure):

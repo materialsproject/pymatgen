@@ -30,7 +30,7 @@ class VoronoiAnalyzerTest(PymatgenTest):
     def setUp(self):
         self.ss = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD")).structures
         self.s = self.ss[1]
-        self.va = VoronoiAnalyzer(cutoff=4.0)
+        self.va = VoronoiAnalyzer(cutoff=4)
 
     def test_analyze(self):
         # Check for the Voronoi index of site i in Structure
@@ -111,11 +111,11 @@ class MiscFunctionTest(PymatgenTest):
     def test_oxide_type(self):
         el_li = Element("Li")
         el_o = Element("O")
-        latt = Lattice([[3.985034, 0.0, 0.0], [0.0, 4.881506, 0.0], [0.0, 0.0, 2.959824]])
+        latt = Lattice([[3.985034, 0, 0], [0, 4.881506, 0], [0, 0, 2.959824]])
         elts = [el_li, el_li, el_o, el_o, el_o, el_o]
         coords = []
         coords.append([0.500000, 0.500000, 0.500000])
-        coords.append([0.0, 0.0, 0.0])
+        coords.append([0, 0, 0])
         coords.append([0.632568, 0.085090, 0.500000])
         coords.append([0.367432, 0.914910, 0.500000])
         coords.append([0.132568, 0.414910, 0.000000])

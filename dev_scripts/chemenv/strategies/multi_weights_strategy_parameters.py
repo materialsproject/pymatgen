@@ -1,6 +1,4 @@
-"""
-Script to visualize the model coordination environments
-"""
+"""Script to visualize the model coordination environments."""
 
 from __future__ import annotations
 
@@ -40,9 +38,7 @@ allcg = AllCoordinationGeometries()
 
 
 class CoordinationEnvironmentMorphing:
-    """
-    Class to morph a coordination environment into another one.
-    """
+    """Class to morph a coordination environment into another one."""
 
     def __init__(self, initial_environment_symbol, expected_final_environment_symbol, morphing_description):
         self.initial_environment_symbol = initial_environment_symbol
@@ -74,7 +70,7 @@ class CoordinationEnvironmentMorphing:
             morphing_description=morphing_description,
         )
 
-    def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] = None) -> None:
+    def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] | None = None) -> None:
         """
         Plot the fractions of the initial and final coordination environments as a function of the morphing factor.
 
@@ -163,8 +159,7 @@ class CoordinationEnvironmentMorphing:
             else:
                 raise ValueError(f"Key \"site_type\" is {morphing['site_type']} while it can only be neighbor")
 
-        structure = Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
-        return structure
+        return Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
 
     def estimate_parameters(self, dist_factor_min, dist_factor_max, symmetry_measure_type="csm_wcs_ctwcc"):
         only_symbols = [self.initial_environment_symbol, self.expected_final_environment_symbol]
@@ -253,7 +248,7 @@ class CoordinationEnvironmentMorphing:
 
         nad_weight = NormalizedAngleDistanceNbSetWeight(average_type="geometric", aa=1, bb=1)
 
-        weights = {
+        return {
             "DistAngArea": da_area_weight,
             "SelfCSM": self_csm_weight,
             "DeltaCSM": delta_csm_weight,
@@ -261,8 +256,6 @@ class CoordinationEnvironmentMorphing:
             "Angle": angle_weight,
             "NormalizedAngDist": nad_weight,
         }
-
-        return weights
 
 
 if __name__ == "__main__":

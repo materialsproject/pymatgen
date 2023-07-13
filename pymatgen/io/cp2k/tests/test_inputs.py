@@ -68,11 +68,11 @@ class BasisAndPotentialTest(PymatgenTest):
         # Ensure basis metadata can be read from string
         b = BasisInfo.from_string("cc-pc-DZVP-MOLOPT-q1-SCAN")
         assert b.valence == 2
-        assert b.molopt is True
+        assert b.molopt
         assert b.electrons == 1
         assert b.polarization == 1
-        assert b.cc is True
-        assert b.pc is True
+        assert b.cc
+        assert b.pc
         assert b.xc == "SCAN"
 
         # Ensure one-way softmatching works
@@ -90,7 +90,7 @@ class BasisAndPotentialTest(PymatgenTest):
         p = PotentialInfo.from_string("GTH-PBE-q1-NLCC")
         assert p.potential_type == "GTH"
         assert p.xc == "PBE"
-        assert p.nlcc is True
+        assert p.nlcc
 
         # Ensure one-way softmatching works
         p2 = PotentialInfo.from_string("GTH-q1-NLCC")

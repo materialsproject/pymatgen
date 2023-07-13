@@ -2,7 +2,7 @@
 
 """
 Developer script to convert yaml periodic table to json format.
-Created on Nov 15, 2011
+Created on Nov 15, 2011.
 """
 
 from __future__ import annotations
@@ -105,11 +105,10 @@ def parse_radii():
     with open("periodic_table.yaml") as f:
         data = yaml.load(f)
     with open("radii.csv") as f:
-        radiidata = f.read()
-    radiidata = radiidata.split("\r")
+        radii_data = f.read()
+    radii_data = radii_data.split("\r")
 
-    for i in range(1, len(radiidata)):
-        line = radiidata[i]
+    for line in radii_data:
         toks = line.strip().split(",")
         el = toks[1]
         try:
@@ -251,9 +250,7 @@ def gen_iupac_ordering():
 
 
 def add_electron_affinities():
-    """
-    Update the periodic table data file with electron affinities.
-    """
+    """Update the periodic table data file with electron affinities."""
     import requests
     from bs4 import BeautifulSoup
 
@@ -279,9 +276,7 @@ def add_electron_affinities():
 
 
 def add_ionization_energies():
-    """
-    Update the periodic table data file with ground level and ionization energies from NIST.
-    """
+    """Update the periodic table data file with ground level and ionization energies from NIST."""
     import collections
 
     from bs4 import BeautifulSoup

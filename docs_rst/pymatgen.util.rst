@@ -11,21 +11,109 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.util.convergence module
+--------------------------------
 
-   pymatgen.util.convergence
-   pymatgen.util.coord
-   pymatgen.util.coord_cython
-   pymatgen.util.graph_hashing
-   pymatgen.util.io_utils
-   pymatgen.util.num
-   pymatgen.util.numba
-   pymatgen.util.plotting
-   pymatgen.util.provenance
-   pymatgen.util.string
-   pymatgen.util.testing
-   pymatgen.util.typing
+.. automodule:: pymatgen.util.convergence
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.coord module
+--------------------------
+
+.. automodule:: pymatgen.util.coord
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.coord\_cython module
+----------------------------------
+
+.. automodule:: pymatgen.util.coord_cython
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.due module
+------------------------
+
+.. automodule:: pymatgen.util.due
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.graph\_hashing module
+-----------------------------------
+
+.. automodule:: pymatgen.util.graph_hashing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.io\_utils module
+------------------------------
+
+.. automodule:: pymatgen.util.io_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.num module
+------------------------
+
+.. automodule:: pymatgen.util.num
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.numba module
+--------------------------
+
+.. automodule:: pymatgen.util.numba
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.plotting module
+-----------------------------
+
+.. automodule:: pymatgen.util.plotting
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.provenance module
+-------------------------------
+
+.. automodule:: pymatgen.util.provenance
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.string module
+---------------------------
+
+.. automodule:: pymatgen.util.string
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.testing module
+----------------------------
+
+.. automodule:: pymatgen.util.testing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.typing module
+---------------------------
+
+.. automodule:: pymatgen.util.typing
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

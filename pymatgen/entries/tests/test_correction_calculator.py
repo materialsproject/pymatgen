@@ -11,16 +11,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class CorrectionCalculatorTest(unittest.TestCase):
     def setUp(self):
-        self.exclude_polyanions = [
-            "SO4",
-            "CO3",
-            "NO3",
-            "OCl3",
-            "SiO4",
-            "SeO3",
-            "TiO3",
-            "TiO4",
-        ]
+        self.exclude_polyanions = ["SO4", "CO3", "NO3", "OCl3", "SiO4", "SeO3", "TiO3", "TiO4"]
 
         self.normal_corrections = {
             "oxide": (-0.74, 0.0017),
@@ -102,52 +93,41 @@ class CorrectionCalculatorTest(unittest.TestCase):
 
         self.test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "correction_calculator")
 
-    def tearDown(self):
-        pass
-
     def test_normal_corrections(self):
-        """
-        Test that the values in MPCompatiblity.yaml are reproduced correctly.
-        """
+        """Test that the values in MPCompatibility.yaml are reproduced correctly."""
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
         calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
-        corrs = calculator.compute_from_files(exp_path, calc_path)
+        corrections = calculator.compute_from_files(exp_path, calc_path)
 
-        assert corrs == self.normal_corrections
+        assert corrections == self.normal_corrections
 
     def test_warnings_options(self):
-        """
-        Test that compounds can be included/excluded using the allow_{warning} optional parameters.
-        """
+        """Test that compounds can be included/excluded using the allow_{warning} optional parameters."""
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
         calculator = CorrectionCalculator(max_error=1, exclude_polyanions=[], allow_unstable=True)
-        corrs = calculator.compute_from_files(exp_path, calc_path)
+        corrections = calculator.compute_from_files(exp_path, calc_path)
 
-        assert corrs == self.warnings_allowed_corrections
+        assert corrections == self.warnings_allowed_corrections
 
     def test_no_uncertainties(self):
-        """
-        Test that corrections can be calculated with no uncertainties.
-        """
+        """Test that corrections can be calculated with no uncertainties."""
         exp_path = os.path.join(self.test_dir, "exp_no_error_compounds.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
         calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
-        corrs = calculator.compute_from_files(exp_path, calc_path)
+        corrections = calculator.compute_from_files(exp_path, calc_path)
 
-        assert corrs == self.no_uncertainties_corrections
+        assert corrections == self.no_uncertainties_corrections
 
     def test_missing_entry_response(self):
-        """
-        Test that correct error is raised (ValueError) if the input is missing a computed entry.
-        """
+        """Test that correct error is raised (ValueError) if the input is missing a computed entry."""
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_missing_compounds.json.gz")
 
         calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Computed entries missing O"):
             calculator.compute_from_files(exp_path, calc_path)

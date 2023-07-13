@@ -10,7 +10,7 @@ from pymatgen.analysis.structure_prediction.volume_predictor import DLSVolumePre
 from pymatgen.core import Structure
 from pymatgen.util.testing import PymatgenTest
 
-dir_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 
 class RLSVolumePredictorTest(PymatgenTest):
@@ -21,14 +21,14 @@ class RLSVolumePredictorTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_predict(self):
-        s = PymatgenTest.get_structure("CsCl")
+        struct = PymatgenTest.get_structure("CsCl")
         nacl = PymatgenTest.get_structure("CsCl")
         nacl.replace_species({"Cs": "Na"})
         nacl.scale_lattice(184.384551033)
         p = RLSVolumePredictor(radii_type="ionic")
-        assert p.predict(s, nacl) == approx(342.84905395082535)
+        assert p.predict(struct, nacl) == approx(342.84905395082535)
         p = RLSVolumePredictor(radii_type="atomic")
-        assert p.predict(s, nacl) == approx(391.884366481)
+        assert p.predict(struct, nacl) == approx(391.884366481)
         lif = PymatgenTest.get_structure("CsCl")
         lif.replace_species({"Cs": "Li", "Cl": "F"})
         p = RLSVolumePredictor(radii_type="ionic")
@@ -55,8 +55,8 @@ class RLSVolumePredictorTest(PymatgenTest):
         # Use Ag7P3S11 as a test case:
 
         # (i) no oxidation states are assigned and CVP-atomic scheme is selected.
-        aps = Structure.from_file(os.path.join(dir_path, "Ag7P3S11_mp-683910_primitive.cif"))
-        apo = Structure.from_file(os.path.join(dir_path, "Ag7P3S11_mp-683910_primitive.cif"))
+        aps = Structure.from_file(os.path.join(module_dir, "Ag7P3S11_mp-683910_primitive.cif"))
+        apo = Structure.from_file(os.path.join(module_dir, "Ag7P3S11_mp-683910_primitive.cif"))
         apo.replace_species({"S": "O"})
         p = RLSVolumePredictor(radii_type="atomic", check_isostructural=False)
         assert p.predict(apo, aps) == approx(1196.31384276)
@@ -70,46 +70,46 @@ class RLSVolumePredictorTest(PymatgenTest):
         assert p.predict(apo, aps) == approx(1196.31384276)
 
     def test_modes(self):
-        s = PymatgenTest.get_structure("CsCl")
-        nacl = PymatgenTest.get_structure("CsCl")
-        nacl.replace_species({"Cs": "Na"})
-        nacl.scale_lattice(184.384551033)
-        p = RLSVolumePredictor(radii_type="ionic", use_bv=False)
-        with pytest.raises(ValueError):
-            p.predict(s, nacl)
-        p = RLSVolumePredictor(radii_type="ionic-atomic", use_bv=False)
-        assert p.predict(s, nacl) == approx(391.884366481)
-        p = RLSVolumePredictor(radii_type="ionic-atomic", use_bv=True)
-        assert p.predict(s, nacl) == approx(342.84905395082535)
+        cs_cl = PymatgenTest.get_structure("CsCl")
+        na_cl = PymatgenTest.get_structure("CsCl")
+        na_cl.replace_species({"Cs": "Na"})
+        na_cl.scale_lattice(184.384551033)
+        vol_pred = RLSVolumePredictor(radii_type="ionic", use_bv=False)
+        with pytest.raises(ValueError, match="Cannot find volume scaling based on radii choices specified"):
+            vol_pred.predict(cs_cl, na_cl)
+        vol_pred = RLSVolumePredictor(radii_type="ionic-atomic", use_bv=False)
+        assert vol_pred.predict(cs_cl, na_cl) == approx(391.884366481)
+        vol_pred = RLSVolumePredictor(radii_type="ionic-atomic", use_bv=True)
+        assert vol_pred.predict(cs_cl, na_cl) == approx(342.84905395082535)
 
 
 class DLSVolumePredictorTest(PymatgenTest):
     def test_predict(self):
-        p = DLSVolumePredictor()
+        vol_pred = DLSVolumePredictor()
         p_fast = DLSVolumePredictor(cutoff=0.0)  # for speed on compressed cells
         p_nolimit = DLSVolumePredictor(min_scaling=None, max_scaling=None)  # no limits on scaling
 
-        fen = Structure.from_file(os.path.join(dir_path, "FeN_mp-6988.cif"))
+        fen = Structure.from_file(os.path.join(module_dir, "FeN_mp-6988.cif"))
 
-        assert p.predict(fen) == approx(18.2252568873)
+        assert vol_pred.predict(fen) == approx(18.2252568873)
         fen.scale_lattice(fen.volume * 3.0)
         assert p_nolimit.predict(fen) == approx(18.2252568873)
-        assert p.predict(fen) == approx(fen.volume * 0.5)
+        assert vol_pred.predict(fen) == approx(fen.volume * 0.5)
         fen.scale_lattice(fen.volume * 0.1)
         assert p_nolimit.predict(fen) == approx(18.2252568873)
-        assert p.predict(fen) == approx(fen.volume * 1.5)
+        assert vol_pred.predict(fen) == approx(fen.volume * 1.5)
         assert p_fast.predict(fen) == approx(fen.volume * 1.5)
 
         lfpo = PymatgenTest.get_structure("LiFePO4")
 
         lfpo.scale_lattice(lfpo.volume * 3.0)
         assert p_nolimit.predict(lfpo) == approx(291.62094410192924)
-        assert p.predict(lfpo) == approx(lfpo.volume * 0.5)
+        assert vol_pred.predict(lfpo) == approx(lfpo.volume * 0.5)
         lfpo.scale_lattice(lfpo.volume * 0.1)
         assert p_nolimit.predict(lfpo) == approx(291.62094410192924)
-        assert p.predict(lfpo) == approx(lfpo.volume * 1.5)
+        assert vol_pred.predict(lfpo) == approx(lfpo.volume * 1.5)
         assert p_fast.predict(lfpo) == approx(lfpo.volume * 1.5)
 
         lmpo = PymatgenTest.get_structure("LiFePO4")
         lmpo.replace_species({"Fe": "Mn"})
-        assert p.predict(lmpo) == approx(290.795329052)
+        assert vol_pred.predict(lmpo) == approx(290.795329052)

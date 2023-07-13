@@ -1,6 +1,4 @@
-"""
-This module provides classes that operate on points or vectors in 3D space.
-"""
+"""This module provides classes that operate on points or vectors in 3D space."""
 
 from __future__ import annotations
 
@@ -15,6 +13,7 @@ import numpy as np
 from monty.json import MSONable
 
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.util.due import Doi, due
 from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
@@ -230,16 +229,12 @@ class SymmOp(MSONable):
 
     @property
     def rotation_matrix(self) -> np.ndarray:
-        """
-        A 3x3 numpy.array representing the rotation matrix.
-        """
+        """A 3x3 numpy.array representing the rotation matrix."""
         return self.affine_matrix[0:3][:, 0:3]
 
     @property
     def translation_vector(self) -> np.ndarray:
-        """
-        A rank 1 numpy.array of dim 3 representing the translation vector.
-        """
+        """A rank 1 numpy.array of dim 3 representing the translation vector."""
         return self.affine_matrix[0:3][:, 3]
 
     def __mul__(self, other):
@@ -252,9 +247,7 @@ class SymmOp(MSONable):
 
     @property
     def inverse(self) -> SymmOp:
-        """
-        Returns inverse of transformation.
-        """
+        """Returns inverse of transformation."""
         invr = np.linalg.inv(self.affine_matrix)
         return SymmOp(invr)
 
@@ -415,7 +408,7 @@ class SymmOp(MSONable):
     @staticmethod
     def rotoreflection(axis: ArrayLike, angle: float, origin: ArrayLike = (0, 0, 0)) -> SymmOp:
         """
-        Returns a roto-reflection symmetry operation
+        Returns a roto-reflection symmetry operation.
 
         Args:
             axis (3x1 array): Axis of rotation / mirror normal
@@ -432,9 +425,7 @@ class SymmOp(MSONable):
         return SymmOp(m)
 
     def as_dict(self) -> dict[str, Any]:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -445,7 +436,7 @@ class SymmOp(MSONable):
     def as_xyz_string(self) -> str:
         """
         Returns a string of the form 'x, y, z', '-x, -y, z',
-        '-y+1/2, x+1/2, z+1/2', etc. Only works for integer rotation matrices
+        '-y+1/2, x+1/2, z+1/2', etc. Only works for integer rotation matrices.
         """
         # test for invalid rotation matrix
         if not np.all(np.isclose(self.rotation_matrix, np.round(self.rotation_matrix))):
@@ -539,11 +530,15 @@ class MagSymmOp(SymmOp):
         ]
         return "\n".join(output)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # useful for obtaining a set of unique MagSymmOps
         hashable_value = (*tuple(self.affine_matrix.flatten()), self.time_reversal)
         return hash(hashable_value)
 
+    @due.dcite(
+        Doi("10.1051/epjconf/20122200010"),
+        description="Symmetry and magnetic structures",
+    )
     def operate_magmom(self, magmom):
         """
         Apply time reversal operator on the magnetic moment. Note that
@@ -580,8 +575,7 @@ class MagSymmOp(SymmOp):
         Returns:
             MagSymmOp object
         """
-        mag_symmop = cls(symmop.affine_matrix, time_reversal, symmop.tol)
-        return mag_symmop
+        return cls(symmop.affine_matrix, time_reversal, symmop.tol)
 
     @staticmethod
     def from_rotation_and_translation_and_time_reversal(
@@ -628,15 +622,13 @@ class MagSymmOp(SymmOp):
     def as_xyzt_string(self) -> str:
         """
         Returns a string of the form 'x, y, z, +1', '-x, -y, z, -1',
-        '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices
+        '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices.
         """
         xyzt_string = SymmOp.as_xyz_string(self)
         return f"{xyzt_string}, {self.time_reversal:+}"
 
     def as_dict(self) -> dict[str, Any]:
-        """
-        :return: MSONABle dict
-        """
+        """:return: MSONABle dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

@@ -61,12 +61,14 @@ class KpointTest(unittest.TestCase):
 
 class BandStructureSymmLineTest(PymatgenTest):
     def setUp(self):
-        self.bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"))
-        self.bs2 = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaO_2605_bandstructure.json"))
-        self.bs_spin = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "NiO_19009_bandstructure.json"))
-        self.bs_cbm0 = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "InN_22205_bandstructure.json"))
-        self.bs_cu = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu_30_bandstructure.json"))
-        self.bs_diff_spins = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "VBr2_971787_bandstructure.json"))
+        self.bs: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/Cu2O_361_bandstructure.json")
+        self.bs2: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/CaO_2605_bandstructure.json")
+        self.bs_spin: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/NiO_19009_bandstructure.json")
+        self.bs_cbm0: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/InN_22205_bandstructure.json")
+        self.bs_cu: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/Cu_30_bandstructure.json")
+        self.bs_diff_spins: BandStructureSymmLine = loadfn(
+            f"{PymatgenTest.TEST_FILES_DIR}/VBr2_971787_bandstructure.json"
+        )
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -118,7 +120,7 @@ class BandStructureSymmLineTest(PymatgenTest):
                 vb, cb = dg_dict[spin]["band_indices"]
                 gap = v[cb][kpt] - v[vb][kpt]
                 assert gap == dg_dict[spin]["value"]
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="get_direct_band_gap_dict should only be used with non-metals"):
             self.bs_cu.get_direct_band_gap_dict()
 
     def test_get_direct_band_gap(self):
@@ -188,7 +190,7 @@ class BandStructureSymmLineTest(PymatgenTest):
         cbm_k = bs.get_cbm()["kpoint"].frac_coords
         vbm_k = bs.get_vbm()["kpoint"].frac_coords
         assert bs.get_kpoint_degeneracy(cbm_k) is None
-        bs.structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaO_2605_structure.json"))
+        bs.structure: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/CaO_2605_structure.json")
         assert bs.get_kpoint_degeneracy(cbm_k) == 3
         assert bs.get_kpoint_degeneracy(vbm_k) == 1
         cbm_eqs = bs.get_sym_eq_kpoints(cbm_k)
@@ -229,11 +231,31 @@ class BandStructureSymmLineTest(PymatgenTest):
             bs_old = BandStructureSymmLine.from_dict(d)
             assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == 0.0971
 
+    def test_apply_scissor_insulator(self):
+        # test applying a scissor operator to a metal
+        for scissor in (1, 3):
+            bs_scissored = self.bs.apply_scissor(scissor)
+            assert not bs_scissored.is_metal()
+            assert bs_scissored.nb_bands == 48
+            assert bs_scissored.efermi == approx(3.75640309 + scissor)
+            orig_efermi = self.bs_spin.efermi
+            assert bs_scissored.efermi != approx(orig_efermi)
+
+    def test_apply_scissor_spin_polarized(self):
+        # test applying a scissor operator to a spin-polarized system
+        bs_scissored = self.bs_spin.apply_scissor(1.0)
+        assert bs_scissored.is_metal()
+        assert bs_scissored.nb_bands == 27
+        assert {*bs_scissored.bands} == {Spin.up, Spin.down}
+        assert bs_scissored.efermi == approx(4.64005999)
+        orig_efermi = self.bs_spin.efermi
+        assert bs_scissored.efermi != approx(orig_efermi)
+
 
 class ReconstructBandStructureTest(PymatgenTest):
     def setUp(self):
-        self.bs_cu = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu_30_bandstructure.json"))
-        self.bs_cu2 = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu_30_bandstructure.json"))
+        self.bs_cu: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/Cu_30_bandstructure.json")
+        self.bs_cu2: BandStructureSymmLine = loadfn(f"{PymatgenTest.TEST_FILES_DIR}/Cu_30_bandstructure.json")
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -427,10 +449,10 @@ class LobsterBandStructureSymmLineTest(PymatgenTest):
         assert bs.get_kpoint_degeneracy(vbm_k) == 3
 
     def test_as_dict(self):
-        s = json.dumps(self.bs_p.as_dict())
-        assert s is not None
-        s = json.dumps(self.bs_spin.as_dict())
-        assert s is not None
+        dict_str = json.dumps(self.bs_p.as_dict())
+        assert dict_str is not None
+        dict_str = json.dumps(self.bs_spin.as_dict())
+        assert dict_str is not None
 
     def test_old_format_load(self):
         # this method will use the loading from the old dict

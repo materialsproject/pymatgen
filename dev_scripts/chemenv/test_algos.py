@@ -1,6 +1,4 @@
-"""
-Development script to test the algorithms of a given model coordination environments
-"""
+"""Development script to test the algorithms of a given model coordination environments."""
 
 from __future__ import annotations
 

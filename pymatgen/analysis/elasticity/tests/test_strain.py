@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import warnings
-
 import numpy as np
 import pytest
 
@@ -16,7 +14,7 @@ class DeformationTest(PymatgenTest):
     def setUp(self):
         self.norm_defo = Deformation.from_index_amount((0, 0), 0.02)
         self.ind_defo = Deformation.from_index_amount((0, 1), 0.02)
-        self.non_ind_defo = Deformation([[1.0, 0.02, 0.02], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
+        self.non_ind_defo = Deformation([[1, 0.02, 0.02], [0, 1, 0], [0, 0, 1]])
         lattice = Lattice(
             [
                 [3.8401979337, 0.00, 0.00],
@@ -30,11 +28,11 @@ class DeformationTest(PymatgenTest):
         # green_lagrange_strain
         self.assert_all_close(
             self.ind_defo.green_lagrange_strain,
-            [[0.0, 0.01, 0.0], [0.01, 0.0002, 0.0], [0.0, 0.0, 0.0]],
+            [[0, 0.01, 0], [0.01, 0.0002, 0], [0, 0, 0]],
         )
         self.assert_all_close(
             self.non_ind_defo.green_lagrange_strain,
-            [[0.0, 0.01, 0.01], [0.01, 0.0002, 0.0002], [0.01, 0.0002, 0.0002]],
+            [[0, 0.01, 0.01], [0.01, 0.0002, 0.0002], [0.01, 0.0002, 0.0002]],
         )
 
     def test_independence(self):
@@ -91,22 +89,23 @@ class StrainTest(PymatgenTest):
 
         self.non_ind_str = Strain.from_deformation([[1, 0.02, 0.02], [0, 1, 0], [0, 0, 1]])
 
-        with warnings.catch_warnings(record=True):
-            warnings.simplefilter("always")
-            self.no_dfm = Strain([[0.0, 0.01, 0.0], [0.01, 0.0002, 0.0], [0.0, 0.0, 0.0]])
+        self.no_dfm = Strain([[0, 0.01, 0], [0.01, 0.0002, 0], [0, 0, 0]])
 
     def test_new(self):
-        test_strain = Strain([[0.0, 0.01, 0.0], [0.01, 0.0002, 0.0], [0.0, 0.0, 0.0]])
+        test_strain = Strain([[0, 0.01, 0], [0.01, 0.0002, 0], [0, 0, 0]])
         self.assert_all_close(test_strain, test_strain.get_deformation_matrix().green_lagrange_strain)
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="Strain must be initialized with a symmetric array or a Voigt-notation vector",
+        ):
             Strain([[0.1, 0.1, 0], [0, 0, 0], [0, 0, 0]])
 
     def test_from_deformation(self):
         self.assert_all_close(self.norm_str, [[0.0202, 0, 0], [0, 0, 0], [0, 0, 0]])
-        self.assert_all_close(self.ind_str, [[0.0, 0.01, 0.0], [0.01, 0.0002, 0.0], [0.0, 0.0, 0.0]])
+        self.assert_all_close(self.ind_str, [[0, 0.01, 0], [0.01, 0.0002, 0], [0, 0, 0]])
         self.assert_all_close(
             self.non_ind_str,
-            [[0.0, 0.01, 0.01], [0.01, 0.0002, 0.0002], [0.01, 0.0002, 0.0002]],
+            [[0, 0.01, 0.01], [0.01, 0.0002, 0.0002], [0.01, 0.0002, 0.0002]],
         )
 
     def test_from_index_amount(self):

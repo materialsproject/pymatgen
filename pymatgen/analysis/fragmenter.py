@@ -1,6 +1,4 @@
-"""
-Perform fragmentation of molecules.
-"""
+"""Perform fragmentation of molecules."""
 
 from __future__ import annotations
 
@@ -25,9 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class Fragmenter(MSONable):
-    """
-    Molecule fragmenter class.
-    """
+    """Molecule fragmenter class."""
 
     def __init__(
         self,
@@ -41,7 +37,7 @@ class Fragmenter(MSONable):
         assume_previous_thoroughness=True,
     ):
         """
-        Standard constructor for molecule fragmentation
+        Standard constructor for molecule fragmentation.
 
         Args:
             molecule (Molecule): The molecule to fragment.
@@ -158,8 +154,7 @@ class Fragmenter(MSONable):
             self.unique_frag_dict = copy.deepcopy(self.prev_unique_frag_dict)
             for frag_key in self.new_unique_frag_dict:
                 if frag_key in self.unique_frag_dict:
-                    for new_frag in self.new_unique_frag_dict[frag_key]:
-                        self.unique_frag_dict[frag_key].append(new_frag)
+                    self.unique_frag_dict[frag_key] += [*self.new_unique_frag_dict[frag_key]]
                 else:
                     self.unique_frag_dict[frag_key] = copy.deepcopy(self.new_unique_frag_dict[frag_key])
 

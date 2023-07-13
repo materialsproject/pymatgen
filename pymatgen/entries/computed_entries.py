@@ -23,6 +23,7 @@ from uncertainties import ufloat
 
 from pymatgen.core.composition import Composition
 from pymatgen.entries import Entry
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -32,10 +33,10 @@ __copyright__ = "Copyright 2011-2020, The Materials Project"
 __version__ = "1.1"
 __date__ = "April 2020"
 
-with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as f:
-    G_ELEMS = json.load(f)
-with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as f:
-    G_GASES = json.load(f)
+with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as file:
+    G_ELEMS = json.load(file)
+with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as file:
+    G_GASES = json.load(file)
 
 
 class EnergyAdjustment(MSONable):
@@ -69,16 +70,12 @@ class EnergyAdjustment(MSONable):
 
     @property
     def value(self):
-        """
-        Return the value of the energy correction in eV.
-        """
+        """Return the value of the energy correction in eV."""
         return self._value
 
     @property
     def uncertainty(self):
-        """
-        Return the uncertainty in the value of the energy adjustment in eV
-        """
+        """Return the uncertainty in the value of the energy adjustment in eV."""
         return self._uncertainty
 
     @abc.abstractmethod
@@ -93,9 +90,7 @@ class EnergyAdjustment(MSONable):
     @property
     @abc.abstractmethod
     def explain(self):
-        """
-        Return an explanation of how the energy adjustment is calculated.
-        """
+        """Return an explanation of how the energy adjustment is calculated."""
 
     def __repr__(self):
         output = [
@@ -139,30 +134,26 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
 
     @property
     def explain(self):
-        """
-        Return an explanation of how the energy adjustment is calculated.
-        """
+        """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self.value:.3f} eV)"
 
     def normalize(self, factor):
         """
         Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by
+        :param factor: factor to divide by.
         """
         self._value /= factor
         self._uncertainty /= factor
 
 
 class ManualEnergyAdjustment(ConstantEnergyAdjustment):
-    """
-    A manual energy adjustment applied to a ComputedEntry.
-    """
+    """A manual energy adjustment applied to a ComputedEntry."""
 
     def __init__(self, value):
         """
         Args:
-            value: float, value of the energy adjustment in eV
+            value: float, value of the energy adjustment in eV.
         """
         name = "Manual energy adjustment"
         description = "Manual energy adjustment"
@@ -205,30 +196,24 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
 
     @property
     def value(self):
-        """
-        Return the value of the energy adjustment in eV.
-        """
+        """Return the value of the energy adjustment in eV."""
         return self._adj_per_atom * self.n_atoms
 
     @property
     def uncertainty(self):
-        """
-        Return the value of the energy adjustment in eV.
-        """
+        """Return the value of the energy adjustment in eV."""
         return self.uncertainty_per_atom * self.n_atoms
 
     @property
     def explain(self):
-        """
-        Return an explanation of how the energy adjustment is calculated.
-        """
+        """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
         """
         Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by
+        :param factor: factor to divide by.
         """
         self.n_atoms /= factor
 
@@ -272,30 +257,24 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
 
     @property
     def value(self):
-        """
-        Return the value of the energy correction in eV.
-        """
+        """Return the value of the energy correction in eV."""
         return self._adj_per_deg * self.temp * self.n_atoms
 
     @property
     def uncertainty(self):
-        """
-        Return the value of the energy adjustment in eV.
-        """
+        """Return the value of the energy adjustment in eV."""
         return self.uncertainty_per_deg * self.temp * self.n_atoms
 
     @property
     def explain(self):
-        """
-        Return an explanation of how the energy adjustment is calculated.
-        """
+        """Return an explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
     def normalize(self, factor):
         """
         Normalize energy adjustment (in place), dividing value/uncertainty by a
         factor.
-        :param factor: factor to divide by
+        :param factor: factor to divide by.
         """
         self.n_atoms /= factor
 
@@ -360,15 +339,13 @@ class ComputedEntry(Entry):
     def uncorrected_energy(self) -> float:
         """
         Returns:
-            float: the *uncorrected* energy of the entry
+            float: the *uncorrected* energy of the entry.
         """
         return self._energy
 
     @property
     def energy(self) -> float:
-        """
-        :return: the *corrected* energy of the entry.
-        """
+        """:return: the *corrected* energy of the entry."""
         return self.uncorrected_energy + self.correction
 
     @property
@@ -376,7 +353,7 @@ class ComputedEntry(Entry):
         """
         Returns:
             float: the *uncorrected* energy of the entry, normalized by atoms
-                (units of eV/atom)
+                (units of eV/atom).
         """
         return self.uncorrected_energy / self.composition.num_atoms
 
@@ -401,7 +378,7 @@ class ComputedEntry(Entry):
         """
         Returns:
             float: the total energy correction / adjustment applied to the entry,
-                normalized by atoms (units of eV/atom)
+                normalized by atoms (units of eV/atom).
         """
         return self.correction / self.composition.num_atoms
 
@@ -409,7 +386,7 @@ class ComputedEntry(Entry):
     def correction_uncertainty(self) -> float:
         """
         Returns:
-            float: the uncertainty of the energy adjustments applied to the entry, in eV
+            float: the uncertainty of the energy adjustments applied to the entry, in eV.
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         unc = ufloat(0.0, 0.0) + sum(
@@ -427,7 +404,7 @@ class ComputedEntry(Entry):
         """
         Returns:
             float: the uncertainty of the energy adjustments applied to the entry,
-                normalized by atoms (units of eV/atom)
+                normalized by atoms (units of eV/atom).
         """
         return self.correction_uncertainty / self.composition.num_atoms
 
@@ -541,9 +518,7 @@ class ComputedEntry(Entry):
         )
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         return_dict = super().as_dict()
         return_dict.update(
             {
@@ -565,9 +540,7 @@ class ComputedEntry(Entry):
         return super().__hash__()
 
     def copy(self) -> ComputedEntry:
-        """
-        Returns a copy of the ComputedEntry.
-        """
+        """Returns a copy of the ComputedEntry."""
         return ComputedEntry(
             composition=self.composition,
             energy=self.uncorrected_energy,
@@ -640,15 +613,11 @@ class ComputedStructureEntry(ComputedEntry):
 
     @property
     def structure(self) -> Structure:
-        """
-        :return: the structure of the entry.
-        """
+        """:return: the structure of the entry."""
         return self._structure
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         d = super().as_dict()
         d["structure"] = self.structure.as_dict()
         return d
@@ -710,9 +679,7 @@ class ComputedStructureEntry(ComputedEntry):
         return entry
 
     def copy(self) -> ComputedStructureEntry:
-        """
-        Returns a copy of the ComputedStructureEntry.
-        """
+        """Returns a copy of the ComputedStructureEntry."""
         return ComputedStructureEntry(
             structure=self.structure.copy(),
             energy=self.uncorrected_energy,
@@ -754,7 +721,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
                 be interpolated. Defaults to 300 K.
             gibbs_model ('SISSO'): Model for Gibbs Free energy. "SISSO", the descriptor
                 created by Bartel et al. (2018) -- see reference in documentation, is
-                currently the only supported) option.
+                currently the only supported option.
             composition (Composition): The composition of the entry. Defaults to None.
             correction (float): A correction to be applied to the energy. Defaults to 0.
             energy_adjustments (list): A list of energy adjustments to be applied to
@@ -802,10 +769,11 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
         self._energy = self.gibbs_fn()
 
+    @due.dcite(Doi("10.1038/s41467-018-06682-4", "Gibbs free energy SISSO descriptor"))
     def gf_sisso(self) -> float:
         """
         Gibbs Free Energy of formation as calculated by SISSO descriptor from Bartel
-        et al. (2018). Units: eV (not normalized)
+        et al. (2018). Units: eV (not normalized).
 
         WARNING: This descriptor only applies to solids. The implementation here
         attempts to detect and use downloaded NIST-JANAF data for common
@@ -878,7 +846,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
     @staticmethod
     def _reduced_mass(structure) -> float:
         """
-        Reduced mass as calculated via Eq. 6 in Bartel et al. (2018)
+        Reduced mass as calculated via Eq. 6 in Bartel et al. (2018).
 
         Args:
             structure (Structure): The pymatgen Structure object of the entry.
@@ -903,9 +871,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
             mass_sum += (alpha_i + alpha_j) * (m_i * m_j) / (m_i + m_j)
 
-        reduced_mass = (1 / denominator) * mass_sum
-
-        return reduced_mass
+        return (1 / denominator) * mass_sum
 
     @staticmethod
     def _g_delta_sisso(vol_per_atom, reduced_mass, temp) -> float:
@@ -934,7 +900,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Constructor method for initializing a list of GibbsComputedStructureEntry
         objects from an existing T = 0 K phase diagram composed of
         ComputedStructureEntry objects, as acquired from a thermochemical database;
-        (e.g.. The Materials Project)
+        (e.g.. The Materials Project).
 
         Args:
             pd (PhaseDiagram): T = 0 K phase diagram as created in pymatgen. Must
@@ -987,9 +953,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return cls.from_pd(pd, temp, gibbs_model)
 
     def as_dict(self) -> dict:
-        """
-        :return: MSONable dict.
-        """
+        """:return: MSONable dict."""
         d = super().as_dict()
         d["formation_enthalpy_per_atom"] = self.formation_enthalpy_per_atom
         d["temp"] = self.temp

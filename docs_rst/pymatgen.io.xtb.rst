@@ -11,11 +11,21 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.io.xtb.inputs module
+-----------------------------
 
-   pymatgen.io.xtb.inputs
-   pymatgen.io.xtb.outputs
+.. automodule:: pymatgen.io.xtb.inputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.xtb.outputs module
+------------------------------
+
+.. automodule:: pymatgen.io.xtb.outputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

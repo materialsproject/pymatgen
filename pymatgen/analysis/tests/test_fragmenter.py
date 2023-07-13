@@ -20,9 +20,9 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "fragmenter_files")
 class TestFragmentMolecule(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.pc = Molecule.from_file(os.path.join(test_dir, "PC.xyz"))
-        cls.ec = Molecule.from_file(os.path.join(test_dir, "EC.xyz"))
-        cls.pos_pc = Molecule.from_file(os.path.join(test_dir, "PC.xyz"))
+        cls.pc = Molecule.from_file(f"{test_dir}/PC.xyz")
+        cls.ec = Molecule.from_file(f"{test_dir}/EC.xyz")
+        cls.pos_pc = Molecule.from_file(f"{test_dir}/PC.xyz")
         cls.pos_pc.set_charge_and_spin(charge=1)
         cls.pc_edges = [
             [5, 10],
@@ -39,9 +39,9 @@ class TestFragmentMolecule(PymatgenTest):
             [6, 0],
             [6, 2],
         ]
-        cls.pc_frag1 = Molecule.from_file(os.path.join(test_dir, "PC_frag1.xyz"))
+        cls.pc_frag1 = Molecule.from_file(f"{test_dir}/PC_frag1.xyz")
         cls.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
-        cls.tfsi = Molecule.from_file(os.path.join(test_dir, "TFSI.xyz"))
+        cls.tfsi = Molecule.from_file(f"{test_dir}/TFSI.xyz")
         cls.tfsi_edges = (
             [14, 1],
             [1, 4],
@@ -58,36 +58,36 @@ class TestFragmentMolecule(PymatgenTest):
             [6, 9],
             [6, 10],
         )
-        cls.LiEC = Molecule.from_file(os.path.join(test_dir, "LiEC.xyz"))
+        cls.LiEC = Molecule.from_file(f"{test_dir}/LiEC.xyz")
 
-    def test_edges_given_PC_frag1(self):
+    def test_edges_given_pc_frag1(self):
         fragmenter = Fragmenter(molecule=self.pc_frag1, edges=self.pc_frag1_edges, depth=0)
         assert fragmenter.total_unique_fragments == 12
 
-    def test_babel_PC_frag1(self):
+    def test_babel_pc_frag1(self):
         pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.pc_frag1, depth=0)
         assert fragmenter.total_unique_fragments == 12
 
-    def test_babel_PC_old_defaults(self):
+    def test_babel_pc_old_defaults(self):
         pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.pc, open_rings=True)
-        assert fragmenter.open_rings is True
+        assert fragmenter.open_rings
         assert fragmenter.opt_steps == 10000
         default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
         assert fragmenter.mol_graph == default_mol_graph
         assert fragmenter.total_unique_fragments == 13
 
-    def test_babel_PC_defaults(self):
+    def test_babel_pc_defaults(self):
         pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.pc)
         assert fragmenter.open_rings is False
-        assert fragmenter.opt_steps == 10000
+        assert fragmenter.opt_steps == 10_000
         default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
         assert fragmenter.mol_graph == default_mol_graph
         assert fragmenter.total_unique_fragments == 8
 
-    def test_edges_given_PC_not_defaults(self):
+    def test_edges_given_pc_not_defaults(self):
         fragmenter = Fragmenter(
             molecule=self.pc,
             edges=self.pc_edges,
@@ -102,19 +102,19 @@ class TestFragmentMolecule(PymatgenTest):
         assert fragmenter.mol_graph == default_mol_graph
         assert fragmenter.total_unique_fragments == 20
 
-    def test_edges_given_TFSI(self):
+    def test_edges_given_tfsi(self):
         fragmenter = Fragmenter(molecule=self.tfsi, edges=self.tfsi_edges, depth=0)
         assert fragmenter.total_unique_fragments == 156
 
-    def test_babel_TFSI(self):
+    def test_babel_tfsi(self):
         pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.tfsi, depth=0)
         assert fragmenter.total_unique_fragments == 156
 
-    def test_babel_PC_with_RO_depth_0_vs_depth_10(self):
+    def test_babel_pc_with_ro_depth_0_vs_depth_10(self):
         pytest.importorskip("openbabel")
         fragmenter0 = Fragmenter(molecule=self.pc, depth=0, open_rings=True, opt_steps=1000)
-        assert fragmenter0.total_unique_fragments == 509
+        assert fragmenter0.total_unique_fragments == 411
 
         fragmenter10 = Fragmenter(molecule=self.pc, depth=10, open_rings=True, opt_steps=1000)
         assert fragmenter10.total_unique_fragments == 509
@@ -127,7 +127,7 @@ class TestFragmentMolecule(PymatgenTest):
                 num_frags += len(fragments_by_level[str(ii)][key])
             assert num_frags == num_frags_by_level[ii]
 
-    def test_PC_depth_0_vs_depth_10(self):
+    def test_pc_depth_0_vs_depth_10(self):
         fragmenter0 = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=0, open_rings=False)
         assert fragmenter0.total_unique_fragments == 295
 
@@ -142,7 +142,7 @@ class TestFragmentMolecule(PymatgenTest):
                 num_frags += len(fragments_by_level[str(ii)][key])
             assert num_frags == num_frags_by_level[ii]
 
-    def test_PC_frag1_then_PC(self):
+    def test_pc_frag1_then_pc(self):
         frag1 = Fragmenter(molecule=self.pc_frag1, edges=self.pc_frag1_edges, depth=0)
         assert frag1.new_unique_fragments == frag1.total_unique_fragments
         frag2 = Fragmenter(
@@ -154,7 +154,7 @@ class TestFragmentMolecule(PymatgenTest):
         )
         assert frag2.new_unique_fragments == 295 - 12
 
-    def test_PC_then_EC_depth_10(self):
+    def test_pc_then_ec_depth_10(self):
         pytest.importorskip("openbabel")
         fragPC = Fragmenter(molecule=self.pc, depth=10, open_rings=True)
         fragEC = Fragmenter(

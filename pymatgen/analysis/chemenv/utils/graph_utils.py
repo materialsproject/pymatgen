@@ -1,6 +1,4 @@
-"""
-This module contains some graph utils that are used in the chemenv package.
-"""
+"""This module contains some graph utils that are used in the chemenv package."""
 
 from __future__ import annotations
 
@@ -238,7 +236,7 @@ class SimpleGraphCycle(MSONable):
             self.nodes = self.nodes[min_index:] + self.nodes[:min_index]
         self.ordered = True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return len(self.nodes)
 
     def __len__(self):
@@ -291,9 +289,7 @@ class SimpleGraphCycle(MSONable):
         return cls(nodes)
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         d = MSONable.as_dict(self)
         # Transforming tuple object to a list to allow BSON and MongoDB
         d["nodes"] = list(d["nodes"])
@@ -338,8 +334,7 @@ class MultiGraphCycle(MSONable):
             self.ordered = ordered
         else:
             self.order()
-        self.edge_deltas = None
-        self.per = None
+        self.edge_deltas = self.per = None
 
     def _is_valid(self, check_strict_ordering=False):
         """Check if a MultiGraphCycle is valid.
@@ -443,7 +438,7 @@ class MultiGraphCycle(MSONable):
             self.edge_indices = self.edge_indices[min_index:] + self.edge_indices[:min_index]
         self.ordered = True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return len(self.nodes)
 
     def __len__(self):

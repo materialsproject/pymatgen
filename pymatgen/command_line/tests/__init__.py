@@ -1,3 +1,1 @@
-"""
-Command line tests
-"""
+"""Command line tests."""

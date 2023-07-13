@@ -8,6 +8,7 @@ from collections import defaultdict
 
 import pytest
 from monty.json import MontyDecoder
+from pytest import approx
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.entries.computed_entries import (
@@ -24,10 +25,10 @@ from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.testing import PymatgenTest
 
 filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml")
-vasprun = Vasprun(filepath)
+vasp_run = Vasprun(filepath)
 
 
-def test_energyadjustment():
+def test_energy_adjustment():
     ea = EnergyAdjustment(10)
     assert ea.name == "Manual adjustment"
     assert not ea.cls
@@ -81,9 +82,9 @@ def test_temp_energy_adjustment():
 class ComputedEntryTest(unittest.TestCase):
     def setUp(self):
         self.entry = ComputedEntry(
-            vasprun.final_structure.composition,
-            vasprun.final_energy,
-            parameters=vasprun.incar,
+            vasp_run.final_structure.composition,
+            vasp_run.final_energy,
+            parameters=vasp_run.incar,
         )
         self.entry2 = ComputedEntry({"Fe": 2, "O": 3}, 2.3)
         self.entry3 = ComputedEntry("Fe2O3", 2.3)
@@ -94,10 +95,10 @@ class ComputedEntryTest(unittest.TestCase):
         self.entry7 = ComputedEntry("Fe6O9", 6.9, energy_adjustments=[ea])
 
     def test_energy(self):
-        assert self.entry.energy == pytest.approx(-269.38319884)
+        assert self.entry.energy == approx(-269.38319884)
         self.entry.correction = 1.0
-        assert self.entry.energy == pytest.approx(-268.38319884)
-        assert self.entry3.energy_per_atom == pytest.approx(2.3 / 5)
+        assert self.entry.energy == approx(-268.38319884)
+        assert self.entry3.energy_per_atom == approx(2.3 / 5)
 
     def test_composition(self):
         assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
@@ -108,29 +109,29 @@ class ComputedEntryTest(unittest.TestCase):
     def test_per_atom_props(self):
         entry = ComputedEntry("Fe6O9", 6.9)
         entry.energy_adjustments.append(CompositionEnergyAdjustment(-0.5, 9, uncertainty_per_atom=0.1, name="O"))
-        assert entry.energy == pytest.approx(2.4)
-        assert entry.energy_per_atom == pytest.approx(2.4 / 15)
-        assert entry.uncorrected_energy == pytest.approx(6.9)
-        assert entry.uncorrected_energy_per_atom == pytest.approx(6.9 / 15)
-        assert entry.correction == pytest.approx(-4.5)
-        assert entry.correction_per_atom == pytest.approx(-4.5 / 15)
-        assert entry.correction_uncertainty == pytest.approx(0.9)
-        assert entry.correction_uncertainty_per_atom == pytest.approx(0.9 / 15)
+        assert entry.energy == approx(2.4)
+        assert entry.energy_per_atom == approx(2.4 / 15)
+        assert entry.uncorrected_energy == approx(6.9)
+        assert entry.uncorrected_energy_per_atom == approx(6.9 / 15)
+        assert entry.correction == approx(-4.5)
+        assert entry.correction_per_atom == approx(-4.5 / 15)
+        assert entry.correction_uncertainty == approx(0.9)
+        assert entry.correction_uncertainty_per_atom == approx(0.9 / 15)
 
     def test_normalize(self):
         entry = ComputedEntry("Fe6O9", 6.9, correction=1)
         entry_formula = entry.normalize()
         assert entry_formula.composition.formula == "Fe2 O3"
-        assert entry_formula.uncorrected_energy == pytest.approx(6.9 / 3)
-        assert entry_formula.correction == pytest.approx(1 / 3)
-        assert entry_formula.energy * 3 == pytest.approx(6.9 + 1)
-        assert entry_formula.energy_adjustments[0].value == pytest.approx(1 / 3)
+        assert entry_formula.uncorrected_energy == approx(6.9 / 3)
+        assert entry_formula.correction == approx(1 / 3)
+        assert entry_formula.energy * 3 == approx(6.9 + 1)
+        assert entry_formula.energy_adjustments[0].value == approx(1 / 3)
         entry_atom = entry.normalize("atom")
         assert entry_atom.composition.formula == "Fe0.4 O0.6"
-        assert entry_atom.uncorrected_energy == pytest.approx(6.9 / 15)
-        assert entry_atom.correction == pytest.approx(1 / 15)
-        assert entry_atom.energy * 15 == pytest.approx(6.9 + 1)
-        assert entry_atom.energy_adjustments[0].value == pytest.approx(1 / 15)
+        assert entry_atom.uncorrected_energy == approx(6.9 / 15)
+        assert entry_atom.correction == approx(1 / 15)
+        assert entry_atom.energy * 15 == approx(6.9 + 1)
+        assert entry_atom.energy_adjustments[0].value == approx(1 / 15)
 
     def test_normalize_energy_adjustments(self):
         ealist = [
@@ -150,30 +151,26 @@ class ComputedEntryTest(unittest.TestCase):
         d = self.entry.as_dict()
         e = ComputedEntry.from_dict(d)
         assert self.entry == e
-        assert e.energy == pytest.approx(-269.38319884)
+        assert e.energy == approx(-269.38319884)
 
     def test_to_from_dict_with_adjustment(self):
-        """
-        Legacy case where adjustment was provided manually
-        """
+        """Legacy case where adjustment was provided manually."""
         d = self.entry6.as_dict()
         e = ComputedEntry.from_dict(d)
-        assert e.uncorrected_energy == pytest.approx(6.9)
+        assert e.uncorrected_energy == approx(6.9)
         assert e.energy_adjustments[0].value == self.entry6.energy_adjustments[0].value
 
     def test_to_from_dict_with_adjustment_2(self):
-        """
-        Modern case where correction was provided manually
-        """
+        """Modern case where correction was provided manually."""
         d = self.entry7.as_dict()
         e = ComputedEntry.from_dict(d)
-        assert e.uncorrected_energy == pytest.approx(6.9)
+        assert e.uncorrected_energy == approx(6.9)
         assert e.energy_adjustments[0].value == self.entry7.energy_adjustments[0].value
 
     def test_to_from_dict_with_adjustment_3(self):
         """
         Legacy case where the entry was serialized before the energy_adjustment
-        attribute was part of ComputedEntry
+        attribute was part of ComputedEntry.
         """
         # same as entry6
         d = {
@@ -187,8 +184,8 @@ class ComputedEntryTest(unittest.TestCase):
             "correction": -10,
         }
         e = ComputedEntry.from_dict(d)
-        assert e.uncorrected_energy == pytest.approx(6.9)
-        assert e.correction == pytest.approx(-10)
+        assert e.uncorrected_energy == approx(6.9)
+        assert e.correction == approx(-10)
         assert len(e.energy_adjustments) == 1
 
     def test_conflicting_correction_adjustment(self):
@@ -209,10 +206,10 @@ class ComputedEntryTest(unittest.TestCase):
 
     def test_sulfide_energy(self):
         self.entry = ComputedEntry("BaS", -10.21249155)
-        assert self.entry.energy == pytest.approx(-10.21249155)
-        assert self.entry.energy_per_atom == pytest.approx(-10.21249155 / 2)
+        assert self.entry.energy == approx(-10.21249155)
+        assert self.entry.energy_per_atom == approx(-10.21249155 / 2)
         self.entry.correction = 1.0
-        assert self.entry.energy == pytest.approx(-9.21249155)
+        assert self.entry.energy == approx(-9.21249155)
 
     def test_is_element(self):
         entry = ComputedEntry("Fe3", 2.3)
@@ -227,12 +224,12 @@ class ComputedEntryTest(unittest.TestCase):
 
 class ComputedStructureEntryTest(unittest.TestCase):
     def setUp(self):
-        self.entry = ComputedStructureEntry(vasprun.final_structure, vasprun.final_energy, parameters=vasprun.incar)
+        self.entry = ComputedStructureEntry(vasp_run.final_structure, vasp_run.final_energy, parameters=vasp_run.incar)
 
     def test_energy(self):
-        assert self.entry.energy == pytest.approx(-269.38319884)
+        assert self.entry.energy == approx(-269.38319884)
         self.entry.correction = 1.0
-        assert self.entry.energy == pytest.approx(-268.38319884)
+        assert self.entry.energy == approx(-268.38319884)
 
     def test_composition(self):
         assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
@@ -241,7 +238,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
         d = self.entry.as_dict()
         e = ComputedStructureEntry.from_dict(d)
         assert self.entry == e
-        assert e.energy == pytest.approx(-269.38319884)
+        assert e.energy == approx(-269.38319884)
 
     def test_str(self):
         assert str(self.entry) is not None
@@ -249,7 +246,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
     def test_to_from_dict_structure_with_adjustment_3(self):
         """
         Legacy case where the structure entry was serialized before the energy_adjustment
-        attribute was part of ComputedEntry
+        attribute was part of ComputedEntry.
         """
         # ComputedStructureEntry for Oxygen, mp-12957, as of April 2020
         # with an arbitrary 1 eV correction added
@@ -384,9 +381,9 @@ class ComputedStructureEntryTest(unittest.TestCase):
             },
         }
         e = ComputedEntry.from_dict(d)
-        assert e.uncorrected_energy == pytest.approx(-39.42116819)
-        assert e.energy == pytest.approx(-38.42116819)
-        assert e.correction == pytest.approx(1)
+        assert e.uncorrected_energy == approx(-39.42116819)
+        assert e.energy == approx(-38.42116819)
+        assert e.correction == approx(1)
         assert len(e.energy_adjustments) == 1
 
     def test_copy(self):
@@ -421,7 +418,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
 class GibbsComputedStructureEntryTest(unittest.TestCase):
     def setUp(self):
         self.temps = [300, 600, 900, 1200, 1500, 1800]
-        self.struct = vasprun.final_structure
+        self.struct = vasp_run.final_structure
         self.num_atoms = self.struct.composition.num_atoms
         self.entries_with_temps = {
             temp: GibbsComputedStructureEntry(
@@ -429,7 +426,7 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
                 -2.436,
                 temp=temp,
                 gibbs_model="SISSO",
-                parameters=vasprun.incar,
+                parameters=vasp_run.incar,
                 entry_id="test",
             )
             for temp in self.temps
@@ -452,17 +449,17 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             1800: -32.32513382051749,
         }
         for t in self.temps:
-            assert self.entries_with_temps[t].energy == pytest.approx(energies[t])
+            assert self.entries_with_temps[t].energy == approx(energies[t])
 
     def test_interpolation(self):
         temp = 450
         e = GibbsComputedStructureEntry(self.struct, -2.436, temp=temp)
-        assert e.energy == pytest.approx(-53.7243542548528)
+        assert e.energy == approx(-53.7243542548528)
 
     def test_expt_gas_entry(self):
         co2_entry = GibbsComputedStructureEntry(self.co2_struct, 0, temp=900)
-        assert co2_entry.energy == pytest.approx(-16.406560223724014)
-        assert co2_entry.energy_per_atom == pytest.approx(-1.3672133519770011)
+        assert co2_entry.energy == approx(-16.406560223724014)
+        assert co2_entry.energy_per_atom == approx(-1.3672133519770011)
 
     def test_from_entries(self):
         gibbs_entries = GibbsComputedStructureEntry.from_entries(self.mp_entries)
@@ -478,7 +475,7 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
         d = test_entry.as_dict()
         e = GibbsComputedStructureEntry.from_dict(d)
         assert test_entry == e
-        assert e.energy == pytest.approx(test_entry.energy)
+        assert e.energy == approx(test_entry.energy)
 
     def test_str(self):
         assert str(self.entries_with_temps[300]) is not None
@@ -487,4 +484,4 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
         for e in self.entries_with_temps.values():
             entry = copy.deepcopy(e)
             normed_entry = entry.normalize(mode="atom")
-            assert entry.uncorrected_energy == pytest.approx(normed_entry.uncorrected_energy * self.num_atoms)
+            assert entry.uncorrected_energy == approx(normed_entry.uncorrected_energy * self.num_atoms)

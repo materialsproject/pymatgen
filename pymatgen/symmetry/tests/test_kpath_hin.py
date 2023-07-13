@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-import pytest
+from pytest import approx
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -64,62 +64,32 @@ class KPathSeekTest(PymatgenTest):
             ["B_0", "B_2", "DELTA_0", "F_0", "GAMMA", "G_0", "G_2", "R", "R_2", "S", "T", "T_2", "Y", "Z", "Z_2"]
         )
 
-        assert kpoints["GAMMA"][0] == pytest.approx(0.0)
-        assert kpoints["GAMMA"][1] == pytest.approx(0.0)
-        assert kpoints["GAMMA"][2] == pytest.approx(0.0)
+        assert kpoints["GAMMA"] == approx([0.0, 0.0, 0.0])
 
-        assert kpoints["Y"][0] == pytest.approx(0.5)
-        assert kpoints["Y"][1] == pytest.approx(0.5)
-        assert kpoints["Y"][2] == pytest.approx(0.0)
+        assert kpoints["Y"] == approx([0.5, 0.5, 0.0])
 
-        assert kpoints["T"][0] == pytest.approx(0.5)
-        assert kpoints["T"][1] == pytest.approx(0.5)
-        assert kpoints["T"][2] == pytest.approx(0.5)
+        assert kpoints["T"] == approx([0.5, 0.5, 0.5])
 
-        assert kpoints["T_2"][0] == pytest.approx(0.5)
-        assert kpoints["T_2"][1] == pytest.approx(0.5)
-        assert kpoints["T_2"][2] == pytest.approx(-0.5)
+        assert kpoints["T_2"] == approx([0.5, 0.5, -0.5])
 
-        assert kpoints["Z"][0] == pytest.approx(0.0)
-        assert kpoints["Z"][1] == pytest.approx(0.0)
-        assert kpoints["Z"][2] == pytest.approx(0.5)
+        assert kpoints["Z"] == approx([0.0, 0.0, 0.5])
 
-        assert kpoints["Z_2"][0] == pytest.approx(0.0)
-        assert kpoints["Z_2"][1] == pytest.approx(0.0)
-        assert kpoints["Z_2"][2] == pytest.approx(-0.5)
+        assert kpoints["Z_2"] == approx([0.0, 0.0, -0.5])
 
-        assert kpoints["S"][0] == pytest.approx(0.0)
-        assert kpoints["S"][1] == pytest.approx(0.5)
-        assert kpoints["S"][2] == pytest.approx(0.0)
+        assert kpoints["S"] == approx([0.0, 0.5, 0.0])
 
-        assert kpoints["R"][0] == pytest.approx(0.0)
-        assert kpoints["R"][1] == pytest.approx(0.5)
-        assert kpoints["R"][2] == pytest.approx(0.5)
+        assert kpoints["R"] == approx([0.0, 0.5, 0.5])
 
-        assert kpoints["R_2"][0] == pytest.approx(0.0)
-        assert kpoints["R_2"][1] == pytest.approx(0.5)
-        assert kpoints["R_2"][2] == pytest.approx(-0.5)
+        assert kpoints["R_2"] == approx([0.0, 0.5, -0.5])
 
-        assert kpoints["DELTA_0"][0] == pytest.approx(-0.25308641975308643)
-        assert kpoints["DELTA_0"][1] == pytest.approx(0.25308641975308643)
-        assert kpoints["DELTA_0"][2] == pytest.approx(0.0)
+        assert kpoints["DELTA_0"] == approx([-0.25308641975308643, 0.25308641975308643, 0.0])
 
-        assert kpoints["F_0"][0] == pytest.approx(0.25308641975308643)
-        assert kpoints["F_0"][1] == pytest.approx(0.7469135802469136)
-        assert kpoints["F_0"][2] == pytest.approx(0.0)
+        assert kpoints["F_0"] == approx([0.25308641975308643, 0.7469135802469136, 0.0])
 
-        assert kpoints["B_0"][0] == pytest.approx(-0.25308641975308643)
-        assert kpoints["B_0"][1] == pytest.approx(0.25308641975308643)
-        assert kpoints["B_0"][2] == pytest.approx(0.5)
+        assert kpoints["B_0"] == approx([-0.25308641975308643, 0.25308641975308643, 0.5])
 
-        assert kpoints["B_2"][0] == pytest.approx(-0.25308641975308643)
-        assert kpoints["B_2"][1] == pytest.approx(0.25308641975308643)
-        assert kpoints["B_2"][2] == pytest.approx(-0.5)
+        assert kpoints["B_2"] == approx([-0.25308641975308643, 0.25308641975308643, -0.5])
 
-        assert kpoints["G_0"][0] == pytest.approx(0.25308641975308643)
-        assert kpoints["G_0"][1] == pytest.approx(0.7469135802469136)
-        assert kpoints["G_0"][2] == pytest.approx(0.5)
+        assert kpoints["G_0"] == approx([0.25308641975308643, 0.7469135802469136, 0.5])
 
-        assert kpoints["G_2"][0] == pytest.approx(0.25308641975308643)
-        assert kpoints["G_2"][1] == pytest.approx(0.7469135802469136)
-        assert kpoints["G_2"][2] == pytest.approx(-0.5)
+        assert kpoints["G_2"] == approx([0.25308641975308643, 0.7469135802469136, -0.5])

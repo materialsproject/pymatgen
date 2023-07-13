@@ -1,6 +1,4 @@
-"""
-This module defines filters for Transmuter object.
-"""
+"""This module defines filters for Transmuter object."""
 
 from __future__ import annotations
 
@@ -54,7 +52,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             strict_compare: if true, compares objects by specie or element
                 object if false, compares atomic number
             exclude: If true, returns false for any structures with the specie
-                (excludes them from the Transmuter)
+                (excludes them from the Transmuter).
         """
         self._species = list(map(get_el_sp, species))
         self._strict = strict_compare
@@ -98,9 +96,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         )
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -116,7 +112,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict representation
+            dct (dict): Dict representation.
 
         Returns:
             Filter
@@ -166,9 +162,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         return True
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -179,7 +173,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
     def from_dict(cls, dct):
         """
         Args:
-            dct (dict): Dict representation
+            dct (dict): Dict representation.
 
         Returns:
             Filter
@@ -188,11 +182,9 @@ class SpecieProximityFilter(AbstractStructureFilter):
 
 
 class RemoveDuplicatesFilter(AbstractStructureFilter):
-    """
-    This filter removes exact duplicate structures from the transmuter.
-    """
+    """This filter removes exact duplicate structures from the transmuter."""
 
-    def __init__(self, structure_matcher: dict | StructureMatcher | None = None, symprec: float = None) -> None:
+    def __init__(self, structure_matcher: dict | StructureMatcher | None = None, symprec: float | None = None) -> None:
         """
         Remove duplicate structures based on the structure matcher
         and symmetry (if symprec is given).
@@ -207,7 +199,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         self.symprec = symprec
         self.structure_list: dict[str, list[Structure]] = defaultdict(list)
         if not isinstance(structure_matcher, (dict, StructureMatcher, type(None))):
-            raise ValueError(f"structure_matcher must be a dict, StructureMatcher or None, got {structure_matcher}")
+            raise ValueError(f"{structure_matcher=} must be a dict, StructureMatcher or None")
         if isinstance(structure_matcher, dict):
             self.structure_matcher = StructureMatcher.from_dict(structure_matcher)
         else:
@@ -216,7 +208,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     def test(self, structure: Structure):
         """
         Args:
-            structure (Structure): Input structure to test
+            structure (Structure): Input structure to test.
 
         Returns: True if structure is not in list.
         """
@@ -240,9 +232,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
 
 
 class RemoveExistingFilter(AbstractStructureFilter):
-    """
-    This filter removes structures existing in a given list from the transmuter.
-    """
+    """This filter removes structures existing in a given list from the transmuter."""
 
     def __init__(self, existing_structures, structure_matcher=None, symprec=None):
         """
@@ -292,9 +282,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
         return True
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -311,9 +299,7 @@ class ChargeBalanceFilter(AbstractStructureFilter):
     """
 
     def __init__(self):
-        """
-        No args required.
-        """
+        """No args required."""
 
     def test(self, structure: Structure):
         """
@@ -359,8 +345,8 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
         Returns: True if structure does not contain the two species are distances
             greater than max_dist.
         """
-        sp1_indices = [i for i, site in enumerate(structure) if site.specie == self.sp1]
-        sp2_indices = [i for i, site in enumerate(structure) if site.specie == self.sp2]
+        sp1_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp1]
+        sp2_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp2]
         fcoords = structure.frac_coords
         fcoords1 = fcoords[sp1_indices, :]
         fcoords2 = fcoords[sp2_indices, :]

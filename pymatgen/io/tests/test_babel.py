@@ -15,7 +15,7 @@ from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import PymatgenTest
 
-pytest.importorskip("openbabel")
+pybel = pytest.importorskip("openbabel.pybel")
 
 
 class BabelMolAdaptorTest(unittest.TestCase):
@@ -81,18 +81,14 @@ class BabelMolAdaptorTest(unittest.TestCase):
             assert site.distance(optmol[0]) == approx(1.09216, abs=1e-1)
 
     def test_make3d(self):
-        from openbabel import pybel as pb
-
-        mol_0d = pb.readstring("smi", "CCCC").OBMol
+        mol_0d = pybel.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol_0d)
         adaptor.make3d()
         assert mol_0d.GetDimension() == 3
 
     def add_hydrogen(self):
-        from openbabel import pybel as pb
-
-        mol_0d = pb.readstring("smi", "CCCC").OBMol
-        assert len(pb.Molecule(mol_0d).atoms) == 2
+        mol_0d = pybel.readstring("smi", "CCCC").OBMol
+        assert len(pybel.Molecule(mol_0d).atoms) == 2
         adaptor = BabelMolAdaptor(mol_0d)
         adaptor.add_hydrogen()
         assert len(adaptor.pymatgen_mol) == 14
@@ -126,9 +122,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
             assert site.distance(optmol[0]) == approx(1.09216, abs=1e-1)
 
     def test_confab_conformers(self):
-        from openbabel import pybel as pb
-
-        mol = pb.readstring("smi", "CCCC").OBMol
+        mol = pybel.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol)
         adaptor.make3d()
         conformers = adaptor.confab_conformers()

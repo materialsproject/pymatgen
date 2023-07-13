@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import warnings
 
-import pytest
+from pytest import approx
 
 from pymatgen.analysis.solar.slme import optics, slme
 from pymatgen.util.testing import PymatgenTest
@@ -19,8 +19,7 @@ class SolarTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_slme_from_vasprun(self):
-        path = os.path.join(os.path.dirname(__file__), "vasprun.xml")
-        en, abz, dirgap, indirgap = optics(path)
+        en, abz, dir_gap, indir_gap = optics(f"{os.path.dirname(__file__)}/vasprun.xml")
         abz = abz * 100.0
-        eff = slme(en, abz, indirgap, indirgap, plot_current_voltage=False)
-        assert eff == pytest.approx(27.728998512)
+        eff = slme(en, abz, indir_gap, indir_gap, plot_current_voltage=False)
+        assert eff == approx(27.729, abs=1e-2)

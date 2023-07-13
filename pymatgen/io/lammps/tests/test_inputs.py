@@ -571,8 +571,8 @@ class LammpsRunTest(unittest.TestCase):
     maxDiff = None
 
     def test_md(self):
-        s = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
-        ld = LammpsData.from_structure(s, atom_style="atomic")
+        struct = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
+        ld = LammpsData.from_structure(struct, atom_style="atomic")
         ff = "pair_style eam\npair_coeff * * Cu_u3.eam"
         md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0, nsteps=10000)
         md.write_inputs(output_dir="md")
@@ -671,7 +671,7 @@ class FuncTest(unittest.TestCase):
 
 class LammpsTemplateGenTest(PymatgenTest):
     def test_write_inputs(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory() as tmp_dir:
             # simple script without data file
             lis = LammpsTemplateGen().get_input_set(
                 script_template=f"{PymatgenTest.TEST_FILES_DIR}/lammps/kappa.txt",
@@ -679,11 +679,11 @@ class LammpsTemplateGenTest(PymatgenTest):
                 data=None,
                 data_filename="data.peptide",
             )
-            tmpdir = Path(tmpdir)
+            tmp_dir = Path(tmp_dir)
             assert len(lis) == 1
-            lis.write_input(tmpdir / "heat")
+            lis.write_input(tmp_dir / "heat")
 
-            with open(tmpdir / "heat" / "in.lammps") as f:
+            with open(tmp_dir / "heat" / "in.lammps") as f:
                 kappa_script = f.read()
             fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
             # placeholders supposed to be filled
@@ -708,8 +708,8 @@ class LammpsTemplateGenTest(PymatgenTest):
             )
             assert len(lis) == 2
             assert isinstance(lis["data.peptide"], LammpsData)
-            lis.write_input(tmpdir / "obj")
+            lis.write_input(tmp_dir / "obj")
 
-            obj_read = LammpsData.from_file(str(tmpdir / "obj" / "data.peptide"), atom_style="atomic")
+            obj_read = LammpsData.from_file(str(tmp_dir / "obj" / "data.peptide"), atom_style="atomic")
             pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
             pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)

@@ -25,7 +25,7 @@ __date__ = "2/14/13"
 class StructureNLCase(unittest.TestCase):
     def setUp(self):
         # set up a Structure
-        self.s = Structure(np.eye(3, 3) * 3, ["Fe"], [[0, 0, 0]])
+        self.struct = Structure(np.eye(3, 3) * 3, ["Fe"], [[0, 0, 0]])
         self.s2 = Structure(np.eye(3, 3) * 3, ["Al"], [[0, 0, 0]])
         self.mol = Molecule(["He"], [[0, 0, 0]])
         # set up BibTeX strings
@@ -73,87 +73,91 @@ class StructureNLCase(unittest.TestCase):
         self.invalid_node = {"name": "DB 3", "url": "http://www.db3isnotavalidnode.com"}
 
     def test_authors(self):
-        a = StructureNL(self.s, self.hulk, references=self.pmg)
+        a = StructureNL(self.struct, self.hulk, references=self.pmg)
         assert a.authors[0].name == "Hulk"
         assert a.authors[0].email == "hulk@avengers.com"
 
-        a = StructureNL(self.s, self.america, references=self.pmg)
+        a = StructureNL(self.struct, self.america, references=self.pmg)
         assert a.authors[0].name == "Captain America"
         assert a.authors[0].email == "captainamerica@avengers.com"
 
-        a = StructureNL(self.s, self.thor, references=self.pmg)
+        a = StructureNL(self.struct, self.thor, references=self.pmg)
         assert a.authors[0].name == "Thor"
         assert a.authors[0].email == "thor@avengers.com"
 
-        a = StructureNL(self.s, self.duo, references=self.pmg)
+        a = StructureNL(self.struct, self.duo, references=self.pmg)
         assert a.authors[0].name == "Iron Man"
         assert a.authors[0].email == "ironman@avengers.com"
         assert a.authors[1].name == "Black Widow"
         assert a.authors[1].email == "blackwidow@avengers.com"
-        StructureNL(self.s, self.hulk, references=self.pmg)
+        StructureNL(self.struct, self.hulk, references=self.pmg)
 
     def test_references(self):
         # An empty string should be OK
-        StructureNL(self.s, self.hulk, references="")
+        StructureNL(self.struct, self.hulk, references="")
 
         # An empty list should not work
-        with pytest.raises(ValueError):
-            StructureNL(self.s, self.hulk, references=[])
+        with pytest.raises(
+            ValueError,
+            match="Invalid format for SNL reference! Should be empty string or BibTeX string.",
+        ):
+            StructureNL(self.struct, self.hulk, references=[])
 
         # junk reference should not work
-        with pytest.raises(ValueError):
-            StructureNL(self.s, self.hulk, references=self.junk)
+        with pytest.raises(ValueError, match="Invalid format for SNL reference! Should be BibTeX string."):
+            StructureNL(self.struct, self.hulk, references=self.junk)
 
         # good references should be ok
-        StructureNL(self.s, self.hulk, references=self.pmg)
+        StructureNL(self.struct, self.hulk, references=self.pmg)
 
         # unicode references should work
-        StructureNL(self.s, self.hulk, references=self.unicode_title)
+        StructureNL(self.struct, self.hulk, references=self.unicode_title)
 
         # multi-line references should be OK
-        StructureNL(self.s, self.hulk, references=f"{self.matproj}\n{self.pmg}")
+        StructureNL(self.struct, self.hulk, references=f"{self.matproj}\n{self.pmg}")
 
         # super long references are bad
-        with pytest.raises(ValueError):
-            StructureNL(self.s, self.hulk, references=self.superlong)
+        with pytest.raises(ValueError, match="The BibTeX string must be fewer than 20000 chars, you have 60030"):
+            StructureNL(self.struct, self.hulk, references=self.superlong)
 
     def test_history_nodes(self):
-        a = StructureNL(self.s, self.hulk, history=[self.valid_node])
+        a = StructureNL(self.struct, self.hulk, history=[self.valid_node])
         assert a.history[0].name == "DB 1"
         assert a.history[0].url == "www.db1URLgoeshere.com"
         assert a.history[0].description == {"db1_id": 12424}
 
-        a = StructureNL(self.s, self.hulk, history=[self.valid_node, self.valid_node2])
+        a = StructureNL(self.struct, self.hulk, history=[self.valid_node, self.valid_node2])
         assert a.history[1].name == "DB 2"
         assert a.history[1].url == "www.db2URLgoeshere.com"
         assert a.history[1].description == {"db2_id": 12424}
 
         # invalid nodes should not work
-        with pytest.raises(KeyError):
-            StructureNL(self.s, self.hulk, history=[self.invalid_node])
+        with pytest.raises(KeyError, match="description"):
+            StructureNL(self.struct, self.hulk, history=[self.invalid_node])
 
         # too many nodes should not work
-        with pytest.raises(ValueError):
-            StructureNL(self.s, self.hulk, history=[self.valid_node] * 1000)
+        n_nodes = 1000
+        with pytest.raises(ValueError, match=f"A maximum of 100 History nodes are supported, you have {n_nodes}!"):
+            StructureNL(self.struct, self.hulk, history=[self.valid_node] * n_nodes)
 
     def test_data(self):
         # Structure data is OK due to PMGEncoder/Decoder
-        a = StructureNL(self.s, self.hulk, data={"_structure": self.s2})
+        a = StructureNL(self.struct, self.hulk, data={"_structure": self.s2})
         assert a.data["_structure"] == self.s2, "Data storage is broken"
         with pytest.raises(ValueError, match="data must contain properly namespaced data with keys starting "):
-            StructureNL(self.s, self.hulk, data={"bad_key": 1})
+            StructureNL(self.struct, self.hulk, data={"bad_key": 1})
 
     def test_remarks(self):
-        a = StructureNL(self.s, self.hulk, remarks="string format")
+        a = StructureNL(self.struct, self.hulk, remarks="string format")
         assert a.remarks[0] == "string format"
-        with pytest.raises(ValueError):
-            StructureNL(self.s, self.hulk, remarks=self.remark_fail)
+        with pytest.raises(ValueError, match="The remark exceeds the maximum size of 140 characters: 150"):
+            StructureNL(self.struct, self.hulk, remarks=self.remark_fail)
 
     def test_eq(self):
         # test basic Equal()
         created_at = datetime.datetime.now()
         a = StructureNL(
-            self.s,
+            self.struct,
             self.hulk,
             ["test_project"],
             self.pmg,
@@ -163,7 +167,7 @@ class StructureNLCase(unittest.TestCase):
             created_at,
         )
         b = StructureNL(
-            self.s,
+            self.struct,
             self.hulk,
             ["test_project"],
             self.pmg,
@@ -177,7 +181,7 @@ class StructureNLCase(unittest.TestCase):
         # change the created at date, now they are no longer equal
         created_at = datetime.datetime.now() + datetime.timedelta(days=-1)
         c = StructureNL(
-            self.s,
+            self.struct,
             self.hulk,
             ["test_project"],
             self.pmg,
@@ -204,7 +208,7 @@ class StructureNLCase(unittest.TestCase):
     def test_to_from_dict(self):
         # no complicated objects in the 'data' or 'nodes' field
         a = StructureNL(
-            self.s,
+            self.struct,
             self.hulk,
             ["test_project"],
             self.pmg,
@@ -221,7 +225,7 @@ class StructureNLCase(unittest.TestCase):
             "description": {"structure": self.s2},
         }
         a = StructureNL(
-            self.s,
+            self.struct,
             self.hulk,
             ["test_project"],
             self.pmg,

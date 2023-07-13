@@ -1,6 +1,4 @@
-"""
-This module contains the classes to build a ConversionElectrode.
-"""
+"""This module contains the classes to build a ConversionElectrode."""
 
 from __future__ import annotations
 
@@ -41,9 +39,7 @@ class ConversionElectrode(AbstractElectrode):
 
     @property
     def initial_comp(self) -> Composition:
-        """
-        The pymatgen Composition representation of the initial composition
-        """
+        """The pymatgen Composition representation of the initial composition."""
         return Composition(self.initial_comp_formula)
 
     @classmethod
@@ -60,8 +56,7 @@ class ConversionElectrode(AbstractElectrode):
             allow_unstable: Allow compositions that are unstable
         """
         working_ion = Element(working_ion_symbol)
-        entry = None
-        working_ion_entry = None
+        entry = working_ion_entry = None
         for e in pd.stable_entries:
             if e.composition.reduced_formula == comp.reduced_formula:
                 entry = e
@@ -131,7 +126,7 @@ class ConversionElectrode(AbstractElectrode):
         For example, an LiTiO2 electrode might contain three subelectrodes:
         [LiTiO2 --> TiO2, LiTiO2 --> Li0.5TiO2, Li0.5TiO2 --> TiO2]
         This method can be used to return all the subelectrodes with some
-        options
+        options.
 
         Args:
             adjacent_only: Only return electrodes from compounds that are
@@ -192,9 +187,7 @@ class ConversionElectrode(AbstractElectrode):
         return True
 
     def __eq__(self, conversion_electrode):
-        """
-        Check if two electrodes are exactly the same:
-        """
+        """Check if two electrodes are exactly the same."""
         if len(self) != len(conversion_electrode):
             return False
 
@@ -214,7 +207,7 @@ class ConversionElectrode(AbstractElectrode):
                 return False
         return True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return 7
 
     def __repr__(self):

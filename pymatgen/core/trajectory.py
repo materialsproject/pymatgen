@@ -105,10 +105,7 @@ class Trajectory(MSONable):
                 `coords_are_displacement=True`. Defaults to the first index of
                 `coords` when `coords_are_displacement=False`.
         """
-        self.charge = None
-        self.spin_multiplicity = None
-        self.lattice = None
-        self.constant_lattice = None
+        self.charge = self.spin_multiplicity = self.lattice = self.constant_lattice = None
 
         # First, sanity check that the necessary inputs have been provided
         if lattice is None:
@@ -296,16 +293,12 @@ class Trajectory(MSONable):
         self.coords = np.concatenate((self.coords, trajectory.coords))
 
     def __iter__(self) -> Iterator[Structure | Molecule]:
-        """
-        Iterator of the trajectory, yielding a pymatgen Structure or Molecule for each frame.
-        """
+        """Iterator of the trajectory, yielding a pymatgen Structure or Molecule for each frame."""
         for idx in range(len(self)):
             yield self[idx]
 
     def __len__(self) -> int:
-        """
-        Number of frames in the trajectory.
-        """
+        """Number of frames in the trajectory."""
         return len(self.coords)
 
     def __getitem__(self, frames: int | slice | list[int]) -> Molecule | Structure | Trajectory:
@@ -574,9 +567,7 @@ class Trajectory(MSONable):
 
     @staticmethod
     def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
-        """
-        Helper function to combine trajectory lattice.
-        """
+        """Helper function to combine trajectory lattice."""
         if lat1.ndim == lat2.ndim == 2:
             constant_lat = True
             lat = lat1
@@ -630,9 +621,7 @@ class Trajectory(MSONable):
 
     @staticmethod
     def _combine_frame_props(prop1: list[dict] | None, prop2: list[dict] | None, len1: int, len2: int) -> list | None:
-        """
-        Combine frame properties.
-        """
+        """Combine frame properties."""
         if prop1 is None and prop2 is None:
             return None
         if prop1 is None:
@@ -671,9 +660,7 @@ class Trajectory(MSONable):
                 )
 
     def _check_frame_props(self, frame_props: list[dict] | None) -> None:
-        """
-        Check data shape of site properties.
-        """
+        """Check data shape of site properties."""
         if frame_props is None:
             return
 
@@ -682,9 +669,7 @@ class Trajectory(MSONable):
         ), f"Size of the frame properties {len(frame_props)} does not equal to the number of frames {len(self)}."
 
     def _get_site_props(self, frames: int | list[int]) -> SitePropsType | None:
-        """
-        Slice site properties.
-        """
+        """Slice site properties."""
         if self.site_properties is None:
             return None
         if isinstance(self.site_properties, dict):

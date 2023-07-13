@@ -1,6 +1,4 @@
-"""
-This module contains some script utils that are used in the chemenv package.
-"""
+"""This module contains some script utils that are used in the chemenv package."""
 
 
 from __future__ import annotations
@@ -241,8 +239,8 @@ def compute_environments(chemenv_configuration):
         if source_type == "cif":
             if not found:
                 input_source = input("Enter path to cif file : ")
-            cp = CifParser(input_source)
-            structure = cp.get_structures()[0]
+            parser = CifParser(input_source)
+            structure = parser.get_structures()[0]
         elif source_type == "mp":
             if not found:
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')

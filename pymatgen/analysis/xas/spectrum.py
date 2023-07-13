@@ -1,6 +1,4 @@
-"""
-This module defines classes to represent all xas and stitching methods
-"""
+"""This module defines classes to represent all xas and stitching methods."""
 
 from __future__ import annotations
 
@@ -71,9 +69,7 @@ class XAS(Spectrum):
         spectrum_type="XANES",
         absorbing_index=None,
     ):
-        """
-        Initializes a spectrum object.
-        """
+        """Initializes a spectrum object."""
         super().__init__(x, y, structure, absorbing_element, edge)
         self.structure = structure
         self.absorbing_element = absorbing_element
@@ -86,12 +82,12 @@ class XAS(Spectrum):
         self.absorbing_index = absorbing_index
         # check for empty spectra and negative intensities
         if sum(1 for i in self.y if i <= 0) / len(self.y) > 0.05:
-            raise ValueError("Please double check the intensities. Most of them are non-positive values. ")
+            raise ValueError("Double check the intensities. Most of them are non-positive.")
 
     def __str__(self):
         return (
             f"{self.absorbing_element} {self.edge} Edge {self.spectrum_type} "
-            f"for {self.structure.composition.reduced_formula}: {super()!s}"
+            f"for {self.structure.composition.reduced_formula}: {super()}"
         )
 
     def stitch(self, other: XAS, num_samples: int = 500, mode: Literal["XAFS", "L23"] = "XAFS") -> XAS:

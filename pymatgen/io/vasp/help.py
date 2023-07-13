@@ -1,6 +1,4 @@
-"""
-Get help with VASP parameters from VASP wiki.
-"""
+"""Get help with VASP parameters from VASP wiki."""
 
 from __future__ import annotations
 
@@ -11,14 +9,10 @@ from bs4 import BeautifulSoup
 
 
 class VaspDoc:
-    """
-    A VASP documentation helper.
-    """
+    """A VASP documentation helper."""
 
     def __init__(self):
-        """
-        Init for VaspDoc.
-        """
+        """Init for VaspDoc."""
         self.url_template = "http://www.vasp.at/wiki/index.php/%s"
 
     def print_help(self, tag):
@@ -67,9 +61,7 @@ class VaspDoc:
 
     @classmethod
     def get_incar_tags(cls):
-        """
-        Returns: All incar tags
-        """
+        """Returns: All incar tags."""
         tags = []
         for page in [
             "https://www.vasp.at/wiki/index.php/Category:INCAR",

@@ -11,14 +11,45 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.io.vasp.help module
+----------------------------
 
-   pymatgen.io.vasp.help
-   pymatgen.io.vasp.inputs
-   pymatgen.io.vasp.optics
-   pymatgen.io.vasp.outputs
-   pymatgen.io.vasp.sets
+.. automodule:: pymatgen.io.vasp.help
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.vasp.inputs module
+------------------------------
+
+.. automodule:: pymatgen.io.vasp.inputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.vasp.optics module
+------------------------------
+
+.. automodule:: pymatgen.io.vasp.optics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.vasp.outputs module
+-------------------------------
+
+.. automodule:: pymatgen.io.vasp.outputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.vasp.sets module
+----------------------------
+
+.. automodule:: pymatgen.io.vasp.sets
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

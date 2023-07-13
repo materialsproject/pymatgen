@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-import pytest
+from pytest import approx
 
 from pymatgen.analysis.bond_valence import BVAnalyzer, calculate_bv_sum, calculate_bv_sum_unordered
 from pymatgen.core.composition import Composition
@@ -43,11 +43,11 @@ class BondValenceSumTest(PymatgenTest):
         struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiMn2O4.json"))
         neighbors = struct.get_neighbors(struct[0], 3.0)
         bv_sum = calculate_bv_sum(struct[0], neighbors)
-        assert bv_sum == pytest.approx(0.7723402182087497)
+        assert bv_sum == approx(0.7723402182087497)
 
     def test_calculate_bv_sum_unordered(self):
         struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiMn2O4.json"))
         struct[0].species = Composition("Li0.5Na0.5")
         neighbors = struct.get_neighbors(struct[0], 3.0)
         bv_sum = calculate_bv_sum_unordered(struct[0], neighbors)
-        assert bv_sum == pytest.approx(1.5494662306918852)
+        assert bv_sum == approx(1.5494662306918852)

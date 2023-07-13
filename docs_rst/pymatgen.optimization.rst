@@ -11,12 +11,29 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.optimization.linear\_assignment module
+-----------------------------------------------
 
-   pymatgen.optimization.linear_assignment
-   pymatgen.optimization.linear_assignment_numpy
-   pymatgen.optimization.neighbors
+.. automodule:: pymatgen.optimization.linear_assignment
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.optimization.linear\_assignment\_numpy module
+------------------------------------------------------
+
+.. automodule:: pymatgen.optimization.linear_assignment_numpy
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.optimization.neighbors module
+--------------------------------------
+
+.. automodule:: pymatgen.optimization.neighbors
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

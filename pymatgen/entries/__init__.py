@@ -54,9 +54,7 @@ class Entry(MSONable, metaclass=ABCMeta):
 
     @property
     def is_element(self) -> bool:
-        """
-        :return: Whether composition of entry is an element.
-        """
+        """:return: Whether composition of entry is an element."""
         # NOTE _composition rather than composition as GrandPDEntry
         # edge case exists if we have a compound where chempots are
         # given for all bar one element type
@@ -64,24 +62,18 @@ class Entry(MSONable, metaclass=ABCMeta):
 
     @property
     def composition(self) -> Composition:
-        """
-        :return: the composition of the entry.
-        """
+        """:return: the composition of the entry."""
         return self._composition
 
     @property
     @abstractmethod
     def energy(self) -> float:
-        """
-        :return: the energy of the entry.
-        """
+        """:return: the energy of the entry."""
         raise NotImplementedError
 
     @property
     def energy_per_atom(self) -> float:
-        """
-        :return: the energy per atom of the entry.
-        """
+        """:return: the energy per atom of the entry."""
         return self.energy / self.composition.num_atoms
 
     def __repr__(self):
@@ -144,7 +136,7 @@ class Entry(MSONable, metaclass=ABCMeta):
 
         return self.composition == other.composition
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # NOTE truncate _energy to 8 dp to ensure same robustness
         # as np.allclose
         return hash(f"{type(self).__name__}{self._composition.formula}{self._energy:.8f}")

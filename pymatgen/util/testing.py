@@ -9,9 +9,11 @@ right away.
 from __future__ import annotations
 
 import json
+import string
 import tempfile
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 from monty.json import MontyDecoder, MSONable
@@ -41,7 +43,7 @@ class PymatgenTest(unittest.TestCase):
         )
         TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
 
-    TEST_STRUCTURES = {}  # Dict for test structures to aid testing.
+    TEST_STRUCTURES: ClassVar[dict[str, Structure]] = {}  # Dict for test structures to aid testing.
     for fn in STRUCTURES_DIR.iterdir():
         TEST_STRUCTURES[fn.name.rsplit(".", 1)[0]] = loadfn(str(fn))
 
@@ -66,26 +68,15 @@ class PymatgenTest(unittest.TestCase):
 
     @staticmethod
     def assert_all_close(actual, desired, decimal=7, err_msg="", verbose=True):
-        """
-        Tests if two arrays are almost equal up to some relative or absolute tolerance.
-        """
+        """Tests if two arrays are almost equal up to some relative or absolute tolerance."""
         # TODO (janosh): replace the decimal kwarg with assert_allclose() atol and rtol kwargs
         return assert_allclose(actual, desired, atol=10**-decimal, err_msg=err_msg, verbose=verbose)
 
     @staticmethod
-    def assert_str_content_equal(actual, desired, err_msg="", verbose=True):
-        """
-        Tests if two strings are equal, ignoring things like trailing spaces, etc.
-        """
-        lines1 = actual.split("\n")
-        lines2 = desired.split("\n")
-        if len(lines1) != len(lines2):
-            return False
-        failed = []
-        for l1, l2 in zip(lines1, lines2):
-            if l1.strip() != l2.strip():
-                failed.append(f"{l1} != {l2}")
-        return len(failed) == 0
+    def assert_str_content_equal(actual, expected):
+        """Tests if two strings are equal, ignoring things like trailing spaces, etc."""
+        strip_whitespace = {ord(c): None for c in string.whitespace}
+        return actual.translate(strip_whitespace) == expected.translate(strip_whitespace)
 
     def serialize_with_pickle(self, objects, protocols=None, test_eq=True):
         """
@@ -157,14 +148,14 @@ class PymatgenTest(unittest.TestCase):
             return [o[0] for o in objects_by_protocol]
         return objects_by_protocol
 
-    def assert_msonable(self, obj, test_if_subclass=True):
+    def assert_msonable(self, obj, test_is_subclass=True):
         """
         Test if obj is MSONable and verify the contract is fulfilled.
 
         By default, the method tests whether obj is an instance of MSONable.
-        This check can be deactivated by setting test_if_subclass=False.
+        This check can be deactivated by setting test_is_subclass=False.
         """
-        if test_if_subclass:
+        if test_is_subclass:
             assert isinstance(obj, MSONable)
         assert obj.as_dict() == obj.__class__.from_dict(obj.as_dict()).as_dict()
         json.loads(obj.to_json(), cls=MontyDecoder)

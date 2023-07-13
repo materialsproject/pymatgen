@@ -42,22 +42,20 @@ __date__ = "October 2021"
 
 class InputFile(MSONable):
     """
-    Abstract base class to represent a single input file. Note that use
-    of this class is optional; it is possible create an InputSet that
-    does not rely on underlying Inputfile objects.
+    Abstract base class to represent a single input file. Note that use of this class
+    is optional; it is possible create an InputSet that does not rely on underlying
+    InputFile objects.
 
-    All InputFile classes must implement a get_string method, which
-    is called by write_file.
+    All InputFile classes must implement a get_string method, which is called by
+    write_file.
 
-    If InputFile classes implement an __init__ method, they must assign all
-    arguments to __init__ as attributes.
+    If InputFile classes implement an __init__ method, they must assign all arguments
+    to __init__ as attributes.
     """
 
     @abc.abstractmethod
     def get_string(self) -> str:
-        """
-        Return a string representation of an entire input file.
-        """
+        """Return a string representation of an entire input file."""
 
     def write_file(self, filename: str | Path) -> None:
         """
@@ -74,7 +72,7 @@ class InputFile(MSONable):
     @abc.abstractmethod
     def from_string(cls, contents: str):
         """
-        Create an InputFile object from a string
+        Create an InputFile object from a string.
 
         Args:
             contents: The contents of the file as a single string
@@ -184,7 +182,7 @@ class InputSet(MSONable, MutableMapping):
         zip_inputs: bool = False,
     ):
         """
-        Write Inputs to one or more files
+        Write Inputs to one or more files.
 
         Args:
             directory: Directory to write input files to
@@ -203,7 +201,7 @@ class InputSet(MSONable, MutableMapping):
                 path.mkdir(parents=True, exist_ok=True)
 
             if file_path.exists() and not overwrite:
-                raise FileExistsError(f"File {fname!s} already exists!")
+                raise FileExistsError(fname)
             file_path.touch()
 
             # write the file
@@ -257,3 +255,7 @@ class InputGenerator(MSONable):
         Generate an InputSet object. Typically the first argument to this method
         will be a Structure or other form of atomic coordinates.
         """
+
+
+class ParseError(SyntaxError):
+    """This exception indicates a problem was encountered during parsing due to unexpected formatting."""

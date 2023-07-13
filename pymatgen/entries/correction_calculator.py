@@ -93,7 +93,7 @@ class CorrectionCalculator:
                     {"formula": chemical formula, "exp energy": formation energy in eV/formula unit,
                     "uncertainty": uncertainty in formation energy}
             comp_gz: name of .json.gz file that contains computed entries
-                    data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry}
+                    data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry}.
         """
         exp_entries = loadfn(exp_gz)
         calc_entries = loadfn(comp_gz)
@@ -216,7 +216,7 @@ class CorrectionCalculator:
                         try:
                             coeff.append(comp[specie])
                         except ValueError:
-                            raise ValueError(f"We can't detect this specie: {specie}")
+                            raise ValueError(f"We can't detect this {specie=} in {name=}")
 
                 self.names.append(name)
                 self.diffs.append((cmpd_info["exp energy"] - energy) / comp.num_atoms)
@@ -228,9 +228,8 @@ class CorrectionCalculator:
         sigma[sigma == 0] = np.nan
 
         with warnings.catch_warnings():
-            warnings.simplefilter(
-                "ignore", category=RuntimeWarning
-            )  # numpy raises warning if the entire array is nan values
+            # numpy raises warning if the entire array is nan values
+            warnings.simplefilter("ignore", category=RuntimeWarning)
             mean_uncer = np.nanmean(sigma)
 
         sigma = np.where(np.isnan(sigma), mean_uncer, sigma)
@@ -264,9 +263,7 @@ class CorrectionCalculator:
         return self.corrections_dict
 
     def graph_residual_error(self) -> go.Figure:
-        """
-        Graphs the residual errors for all compounds after applying computed corrections.
-        """
+        """Graphs the residual errors for all compounds after applying computed corrections."""
         if len(self.corrections) == 0:
             raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 
@@ -329,17 +326,17 @@ class CorrectionCalculator:
                 compounds = self.superoxides
             else:
                 compounds = self.sulfides
-            for i in range(num):
-                if labels_species[num - i - 1] not in compounds:
-                    del labels_species[num - i - 1]
-                    del abs_errors[num - i - 1]
-                    del diffs_cpy[num - i - 1]
+            for idx in range(num):
+                if labels_species[num - idx - 1] not in compounds:
+                    del labels_species[num - idx - 1]
+                    del abs_errors[num - idx - 1]
+                    del diffs_cpy[num - idx - 1]
         else:
-            for i in range(num):
-                if not Composition(labels_species[num - i - 1])[specie]:
-                    del labels_species[num - i - 1]
-                    del abs_errors[num - i - 1]
-                    del diffs_cpy[num - i - 1]
+            for idx in range(num):
+                if not Composition(labels_species[num - idx - 1])[specie]:
+                    del labels_species[num - idx - 1]
+                    del abs_errors[num - idx - 1]
+                    del diffs_cpy[num - idx - 1]
         abs_errors, labels_species = (list(t) for t in zip(*sorted(zip(abs_errors, labels_species))))  # sort by error
 
         num = len(abs_errors)

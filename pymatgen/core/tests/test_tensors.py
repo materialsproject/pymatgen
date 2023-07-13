@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 import os
-import warnings
 
 import numpy as np
 import pytest
@@ -112,9 +111,12 @@ class TensorTest(PymatgenTest):
     def test_new(self):
         bad_2 = np.zeros((4, 4))
         bad_3 = np.zeros((4, 4, 4))
-        with pytest.raises(ValueError):
+        expected_msg = (
+            "Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard notation"
+        )
+        with pytest.raises(ValueError, match=expected_msg):
             Tensor(bad_2)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=expected_msg):
             Tensor(bad_3)
         assert self.rand_rank2.rank == 2
         assert self.rand_rank3.rank == 3
@@ -164,7 +166,7 @@ class TensorTest(PymatgenTest):
             SquareTensor([[0.531, 0.485, 0.271], [0.700, 0.5, 0.172], [0.171, 0.233, 0.068]]),
             decimal=3,
         )
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Rotation matrix is not valid"):
             self.non_symm.rotate(self.symm_rank2)
 
     def test_einsum_sequence(self):
@@ -172,7 +174,7 @@ class TensorTest(PymatgenTest):
         test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
         self.assert_all_close([0, 27, 54], test.einsum_sequence([x] * 3))
         assert test.einsum_sequence([np.eye(3)] * 2) == 360
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="other tensors must be list of tensors or tensor input"):
             test.einsum_sequence(Tensor(np.zeros(3)))
 
     def test_symmetrized(self):
@@ -239,7 +241,10 @@ class TensorTest(PymatgenTest):
         self.assert_all_close(rotated, transformed)
 
     def test_from_voigt(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions",
+        ):
             Tensor.from_voigt(
                 [
                     [59.33, 28.08, 28.08, 0],
@@ -341,12 +346,12 @@ class TensorTest(PymatgenTest):
         indices = [(0, 0), (0, 1), (3, 3)]
         values = [259.31, 160.71, 73.48]
         et = Tensor.from_values_indices(values, indices, structure=sn, populate=True).voigt.round(4)
-        assert round(abs(et[1, 1] - 259.31), 7) == 0
-        assert round(abs(et[2, 2] - 259.31), 7) == 0
-        assert round(abs(et[0, 2] - 160.71), 7) == 0
-        assert round(abs(et[1, 2] - 160.71), 7) == 0
-        assert round(abs(et[4, 4] - 73.48), 7) == 0
-        assert round(abs(et[5, 5] - 73.48), 7) == 0
+        assert et[1, 1] == approx(259.31)
+        assert et[2, 2] == approx(259.31)
+        assert et[0, 2] == approx(160.71)
+        assert et[1, 2] == approx(160.71)
+        assert et[4, 4] == approx(73.48)
+        assert et[5, 5] == approx(73.48)
 
     def test_serialization(self):
         # Test base serialize-deserialize
@@ -359,8 +364,8 @@ class TensorTest(PymatgenTest):
         self.assert_all_close(new, self.symm_rank3)
 
     def test_projection_methods(self):
-        assert round(abs(self.rand_rank2.project([1, 0, 0]) - self.rand_rank2[0, 0]), 7) == 0
-        assert round(abs(self.rand_rank2.project([1, 1, 1]) - np.sum(self.rand_rank2) / 3), 7) == 0
+        assert self.rand_rank2.project([1, 0, 0]) == approx(self.rand_rank2[0, 0])
+        assert self.rand_rank2.project([1, 1, 1]) == approx(np.sum(self.rand_rank2) / 3)
         # Test integration
         self.assert_all_close(self.ones.average_over_unit_sphere(), 1)
 
@@ -390,7 +395,7 @@ class TensorCollectionTest(PymatgenTest):
     def list_based_function_check(self, attribute, coll, *args, **kwargs):
         """
         This function allows for more efficient testing of list-based
-        functions in a "collection"-style class like TensorCollection
+        functions in a "collection"-style class like TensorCollection.
 
         It ensures that the test function
         """
@@ -461,18 +466,16 @@ class TensorCollectionTest(PymatgenTest):
 
     def test_serialization(self):
         # Test base serialize-deserialize
-        d = self.seq_tc.as_dict()
-        new = TensorCollection.from_dict(d)
+        dct = self.seq_tc.as_dict()
+        new = TensorCollection.from_dict(dct)
         for t, t_new in zip(self.seq_tc, new):
             self.assert_all_close(t, t_new)
 
-        # Suppress vsym warnings and test voigt
-        with warnings.catch_warnings(record=True):
-            vsym = self.rand_tc.voigt_symmetrized
-            d = vsym.as_dict(voigt=True)
-            new_vsym = TensorCollection.from_dict(d)
-            for t, t_new in zip(vsym, new_vsym):
-                self.assert_all_close(t, t_new)
+        voigt_symmetrized = self.rand_tc.voigt_symmetrized
+        dct = voigt_symmetrized.as_dict(voigt=True)
+        new_vsym = TensorCollection.from_dict(dct)
+        for t, t_new in zip(voigt_symmetrized, new_vsym):
+            self.assert_all_close(t, t_new)
 
 
 class SquareTensorTest(PymatgenTest):
@@ -495,11 +498,17 @@ class SquareTensorTest(PymatgenTest):
         ]
         bad_matrix = [[0.1, 0.2], [0.2, 0.3, 0.4], [0.2, 0.3, 0.5]]
         too_high_rank = np.zeros((3, 3, 3))
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard notation",
+        ):
             SquareTensor(non_sq_matrix)
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions",
+        ):
             SquareTensor(bad_matrix)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="SquareTensor input must be rank 2"):
             SquareTensor(too_high_rank)
 
     def test_properties(self):
@@ -509,8 +518,8 @@ class SquareTensorTest(PymatgenTest):
         assert self.symm_sqtensor == approx(self.symm_sqtensor.trans)
         # inverse
         assert self.non_symm.inv == approx(np.linalg.inv(self.non_symm))
-        with pytest.raises(ValueError):
-            self.non_invertible.inv
+        with pytest.raises(ValueError, match="SquareTensor is non-invertible"):
+            _ = self.non_invertible.inv
 
         # determinant
         assert self.rand_sqtensor.det == np.linalg.det(self.rand_sqtensor)
@@ -563,17 +572,16 @@ class SquareTensorTest(PymatgenTest):
 
     def test_serialization(self):
         # Test base serialize-deserialize
-        d = self.rand_sqtensor.as_dict()
-        new = SquareTensor.from_dict(d)
+        dct = self.rand_sqtensor.as_dict()
+        new = SquareTensor.from_dict(dct)
         self.assert_all_close(new, self.rand_sqtensor)
         assert isinstance(new, SquareTensor)
 
         # Ensure proper object-independent deserialization
-        obj = MontyDecoder().process_decoded(d)
+        obj = MontyDecoder().process_decoded(dct)
         assert isinstance(obj, SquareTensor)
 
-        with warnings.catch_warnings(record=True):
-            vsym = self.rand_sqtensor.voigt_symmetrized
-            d_vsym = vsym.as_dict(voigt=True)
-            new_voigt = Tensor.from_dict(d_vsym)
-            self.assert_all_close(vsym, new_voigt)
+        vsym = self.rand_sqtensor.voigt_symmetrized
+        d_vsym = vsym.as_dict(voigt=True)
+        new_voigt = Tensor.from_dict(d_vsym)
+        self.assert_all_close(vsym, new_voigt)
