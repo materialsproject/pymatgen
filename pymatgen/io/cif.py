@@ -909,12 +909,12 @@ class CifParser:
                     return keys[inds[0]]
             return False
 
-        for i, label in enumerate(data["_atom_site_label"]):
+        for idx, label in enumerate(data["_atom_site_label"]):
             try:
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
-                symbol = self._parse_symbol(data["_atom_site_type_symbol"][i])
-                num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][i])
+                symbol = self._parse_symbol(data["_atom_site_type_symbol"][idx])
+                num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][idx])
             except KeyError:
                 symbol = self._parse_symbol(label)
                 num_h = get_num_implicit_hydrogens(label)
@@ -925,7 +925,7 @@ class CifParser:
                 o_s = oxi_states.get(symbol, 0)
                 # use _atom_site_type_symbol if possible for oxidation state
                 if "_atom_site_type_symbol" in data.data:
-                    oxi_symbol = data["_atom_site_type_symbol"][i]
+                    oxi_symbol = data["_atom_site_type_symbol"][idx]
                     o_s = oxi_states.get(oxi_symbol, o_s)
                 try:
                     el = Species(symbol, o_s)
@@ -934,13 +934,13 @@ class CifParser:
             else:
                 el = get_el_sp(symbol)
 
-            x = str2float(data["_atom_site_fract_x"][i])
-            y = str2float(data["_atom_site_fract_y"][i])
-            z = str2float(data["_atom_site_fract_z"][i])
+            x = str2float(data["_atom_site_fract_x"][idx])
+            y = str2float(data["_atom_site_fract_y"][idx])
+            z = str2float(data["_atom_site_fract_z"][idx])
             magmom = magmoms.get(label, np.array([0, 0, 0]))
 
             try:
-                occu = str2float(data["_atom_site_occupancy"][i])
+                occu = str2float(data["_atom_site_occupancy"][idx])
             except (KeyError, ValueError):
                 occu = 1
 
@@ -1038,10 +1038,10 @@ class CifParser:
                 all_labels.extend(len(coords) * [labels[tmp_coords[0]]])
 
             # rescale occupancies if necessary
-            for i, species in enumerate(all_species):
+            for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
-                    all_species[i] = species / total_occu
+                    all_species[idx] = species / total_occu
 
         if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
             site_properties = {}
