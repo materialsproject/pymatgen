@@ -158,7 +158,7 @@ class PotcarCorrection(Correction):
         Returns:
             ufloat: 0.0 +/- 0.0 (from uncertainties package)
         """
-        if not SETTINGS.get("PMG_POTCAR_CHECKS") or not self.check_potcar:
+        if SETTINGS.get("PMG_POTCAR_CHECKS") is False or not self.check_potcar:
             return ufloat(0.0, 0.0)
 
         potcar_spec = entry.parameters.get("potcar_spec")
