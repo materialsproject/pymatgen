@@ -255,7 +255,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         )
 
         self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
-        self.ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
+        self.gga_compat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
 
     def tearDown(self):
         warnings.simplefilter("default")
@@ -263,7 +263,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
     def test_process_entry(self):
         # Correct parameters
         assert self.compat.process_entry(self.entry1) is not None
-        assert self.ggacompat.process_entry(self.entry1) is None
+        assert self.gga_compat.process_entry(self.entry1) is None
 
         # Correct parameters
         entry = ComputedEntry(
@@ -281,7 +281,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             },
         )
         assert self.compat.process_entry(entry) is None
-        assert self.ggacompat.process_entry(entry) is not None
+        assert self.gga_compat.process_entry(entry) is not None
 
         entry = ComputedEntry(
             "Fe2O3",
@@ -426,7 +426,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = self.compat.process_entry(entry)
         # assert entry.entry_id == -8
         assert entry.energy == approx(-1)
-        assert self.ggacompat.process_entry(entry).energy == approx(-1)
+        assert self.gga_compat.process_entry(entry).energy == approx(-1)
 
     def test_get_explanation_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
@@ -449,7 +449,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
     def test_get_corrections_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
-        ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
+        gga_compat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
 
         # Correct parameters
         entry = ComputedEntry(
@@ -472,7 +472,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
-        c = ggacompat.get_corrections_dict(entry)[0]
+        c = gga_compat.get_corrections_dict(entry)[0]
         assert "MP Advanced Correction" not in c
 
     def test_process_entries(self):
@@ -548,7 +548,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         )
 
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
-        self.ggacompat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
+        self.gga_compat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
 
     def tearDown(self):
         warnings.simplefilter("default")
@@ -556,7 +556,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
     def test_process_entry(self):
         # Correct parameters
         assert self.compat.process_entry(self.entry1) is not None
-        assert self.ggacompat.process_entry(self.entry1) is None
+        assert self.gga_compat.process_entry(self.entry1) is None
 
         # Correct parameters
         entry = ComputedEntry(
@@ -574,7 +574,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
             },
         )
         assert self.compat.process_entry(entry) is None
-        assert self.ggacompat.process_entry(entry) is not None
+        assert self.gga_compat.process_entry(entry) is not None
 
         entry = ComputedEntry(
             "Fe2O3",
@@ -895,7 +895,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         entry = ComputedEntry("O", -1, correction=0.0, parameters=params)
         entry = self.compat.process_entry(entry)
         assert entry.energy == approx(-1)
-        assert self.ggacompat.process_entry(entry).energy == approx(-1)
+        assert self.gga_compat.process_entry(entry).energy == approx(-1)
 
     def test_get_explanation_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
@@ -1006,6 +1006,22 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         # but should work fine if we disable POTCAR checking
         MaterialsProject2020Compatibility(check_potcar=False).process_entries(entry)
 
+    def test_process_entry_with_oxidation_state(self):
+        from pymatgen.core.periodic_table import Species
+
+        entry = ComputedEntry(
+            {Species("Fe2+"): 2, Species("O2-"): 3},
+            -1,
+            parameters={"is_hubbard": True, "hubbards": {"Fe": 5.3, "O": 0}, "run_type": "GGA+U"},
+        )
+
+        # Test that MaterialsProject2020Compatibility can process entries with oxidation states
+        # https://github.com/materialsproject/pymatgen/issues/3154
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        [processed_entry] = compat.process_entries(entry, clean=True, inplace=False)
+
+        assert len(processed_entry.energy_adjustments) == 1
+
 
 class MITCompatibilityTest(unittest.TestCase):
     def tearDown(self):
@@ -1014,7 +1030,7 @@ class MITCompatibilityTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.compat = MITCompatibility(check_potcar_hash=True)
-        self.ggacompat = MITCompatibility("GGA", check_potcar_hash=True)
+        self.gga_compat = MITCompatibility("GGA", check_potcar_hash=True)
         self.entry_O = ComputedEntry(
             "Fe2O3",
             -1,
@@ -1107,24 +1123,20 @@ class MITCompatibilityTest(unittest.TestCase):
             },
         )
 
-        assert self.ggacompat.process_entry(entry) is not None
+        assert self.gga_compat.process_entry(entry) is not None
 
     def test_wrong_U_value(self):
         # Wrong U value
-        entry = ComputedEntry(
-            "Fe2O3",
-            -1,
-            correction=0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 5.2, "O": 0},
-                "run_type": "GGA+U",
-                "potcar_spec": [
-                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
-                ],
-            },
-        )
+        params = {
+            "is_hubbard": True,
+            "hubbards": {"Fe": 5.2, "O": 0},
+            "run_type": "GGA+U",
+            "potcar_spec": [
+                {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+            ],
+        }
+        entry = ComputedEntry("Fe2O3", -1, correction=0.0, parameters=params)
 
         assert self.compat.process_entry(entry) is None
 
@@ -1144,7 +1156,7 @@ class MITCompatibilityTest(unittest.TestCase):
             },
         )
         assert self.compat.process_entry(entry) is None
-        assert self.ggacompat.process_entry(entry) is not None
+        assert self.gga_compat.process_entry(entry) is not None
 
     def test_wrong_psp(self):
         # Wrong psp
