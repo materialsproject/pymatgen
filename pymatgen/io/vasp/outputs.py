@@ -3937,7 +3937,7 @@ class Oszicar:
                         electronic_steps[-1].append(data)
                 elif re.match(r"^\s*N\s+E\s*", line.strip()):
                     header = line.strip().replace("d eps", "deps").split()
-                else:
+                elif line.strip() != "":
                     matches = re.findall(ionic_general_pattern, re.sub(r"d E ", "dE", line))
                     ionic_steps.append(dict(matches))
 
