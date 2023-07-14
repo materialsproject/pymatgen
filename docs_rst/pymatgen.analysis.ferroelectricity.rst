@@ -11,10 +11,13 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.analysis.ferroelectricity.polarization module
+------------------------------------------------------
 
-   pymatgen.analysis.ferroelectricity.polarization
+.. automodule:: pymatgen.analysis.ferroelectricity.polarization
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

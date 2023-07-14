@@ -1035,7 +1035,7 @@ class OutcarTest(PymatgenTest):
             "cores": 32,
         }
         assert outcar.efermi == approx(8.0942)
-        assert outcar.nelect == approx(3)
+        assert outcar.nelect == 3
         assert outcar.total_mag == approx(8.2e-06)
 
         assert outcar.as_dict() is not None
