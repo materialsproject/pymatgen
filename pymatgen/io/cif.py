@@ -872,7 +872,7 @@ class CifParser:
 
         return parsed_sym
 
-    def _get_structure(self, data: dict, primitive: bool, symmetrized: bool, skip_occu_checks: bool=False):
+    def _get_structure(self, data, primitive: bool, symmetrized: bool, skip_occu_checks: bool=False):
         """Generate structure from part of the cif."""
 
         def get_num_implicit_hydrogens(sym):
