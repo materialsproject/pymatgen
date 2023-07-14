@@ -1,6 +1,12 @@
 Change log
 ==========
 
+v2023.7.14
+----------
+- Emergency bug fix release to remove use of sys.path in pymatgen.io.ase package.
+- Fix "Incompatible POTCAR" error on ComputedEntries with oxidation states.
+- New global config variable `PMG_POTCAR_CHECKS` provides means to disable all POTCAR checking.
+
 v2023.7.11
 ----------
 * Use joblib to speed up expensive enumeration energy computations.
