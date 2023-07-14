@@ -1438,8 +1438,8 @@ class OszicarTest(PymatgenTest):
         assert self.oszicar_md.final_energy == approx(-209.86273)
 
     def test_fields(self):
-        assert set(self.oszicar_mag.ionic_steps[-1].keys()) == set(['F', 'E0', 'dE', 'mag'])
-        assert set(self.oszicar_md.ionic_steps[-1].keys()) == set(['T', 'E', 'F', 'E0', 'EK', 'SP', 'SK', 'mag'])
+        assert set(self.oszicar_mag.ionic_steps[-1].keys()) == {"F", "E0", "dE", "mag"}
+        assert set(self.oszicar_md.ionic_steps[-1].keys()) == {"T", "E", "F", "E0", "EK", "SP", "SK", "mag"}
 
 
 class LocpotTest(PymatgenTest):

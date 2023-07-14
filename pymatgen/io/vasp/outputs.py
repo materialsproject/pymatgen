@@ -3939,10 +3939,8 @@ class Oszicar:
                     header = line.strip().replace("d eps", "deps").split()
                 else:
                     matches = re.findall(ionic_general_pattern, re.sub(r"d E ", "dE", line))
-                    ionic_steps.append(
-                        {key: value for key, value in matches}
-                    )
-                
+                    ionic_steps.append(dict(matches))
+
         self.electronic_steps = electronic_steps
         self.ionic_steps = ionic_steps
 
