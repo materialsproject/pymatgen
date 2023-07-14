@@ -872,7 +872,7 @@ class CifParser:
 
         return parsed_sym
 
-    def _get_structure(self, data, primitive, symmetrized, skip_checks):
+    def _get_structure(self, data: dict, primitive: bool, symmetrized: bool, skip_occu_checks: bool=False):
         """Generate structure from part of the cif."""
 
         def get_num_implicit_hydrogens(sym):
@@ -946,7 +946,7 @@ class CifParser:
                 occu = 1
             coord = (x, y, z)
             match = get_matching_coord(coord)
-            if skip_checks:
+            if skip_occu_checks:
                 comp_d = {el: occu} if occu > 0 else {el: 1e-08}
             else:
                 if occu > 0:
@@ -1065,7 +1065,7 @@ class CifParser:
             else:
                 all_labels = None
             struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
-            if skip_checks:
+            if skip_occu_checks:
                 struct_2 = Structure(
                     lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels
                 )
@@ -1084,7 +1084,7 @@ class CifParser:
                 sg = SpacegroupOperations("Not Parsed", -1, self.symmetry_operations)
                 struct = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
 
-                if skip_checks:
+                if skip_occu_checks:
                     struct_2 = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
                     for i, _ in enumerate(struct_2):
                         struct_2[i] = PeriodicSite(
@@ -1094,7 +1094,7 @@ class CifParser:
 
                 return struct
 
-            if skip_checks:
+            if skip_occu_checks:
                 return struct_2
 
             struct = struct.get_sorted_structure()
@@ -1108,7 +1108,7 @@ class CifParser:
             return struct
         return None
 
-    def get_structures(self, primitive=True, symmetrized=False, skip_checks=False):
+    def get_structures(self, primitive: bool=True, symmetrized: bool =False, skip_occu_checks: bool=False):
         """
         Return list of structures in CIF file. primitive boolean sets whether a
         conventional cell structure or primitive cell structure is returned.
@@ -1125,16 +1125,16 @@ class CifParser:
                 currently Wyckoff labels and space group labels or numbers are
                 not included in the generated SymmetrizedStructure, these will be
                 notated as "Not Parsed" or -1 respectively.
-            skip_checks (bool): If True, the occupancy of the periodic sites will
-                not be checked, allowing for aphysical values to be accepted.This
-                is useful for experimental results in which occupancy was allowed
-                to refine to aphysical values to account for some other property
-                otherwise not refinable from diffraction.
+            skip_occu_checks (bool): If True, the occupancy of the periodic sites
+                will not be checked, allowing for aphysical values to be accepted.
+                This is useful for experimental results in which occupancy was 
+                allowed to refine to aphysical values to account for some other
+                property otherwise not refinable from diffraction.
 
         Returns:
             List of Structures.
         """
-        if skip_checks:
+        if skip_occu_checks:
             warnings.warn("Structures with aphysical site occupancies are not compatible with many pymatgen features.")
         if primitive and symmetrized:
             raise ValueError(
@@ -1145,7 +1145,7 @@ class CifParser:
         structures = []
         for i, d in enumerate(self._cif.data.values()):
             try:
-                struct = self._get_structure(d, primitive, symmetrized, skip_checks)
+                struct = self._get_structure(d, primitive, symmetrized, skip_occu_checks)
                 if struct:
                     structures.append(struct)
             except (KeyError, ValueError) as exc:

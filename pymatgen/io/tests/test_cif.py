@@ -898,10 +898,13 @@ Si1 Si 0 0 0 1 0.0
             parser.get_structures()
 
     def test_skip_checks(self):
-        structure = CifParser(
-            self.TEST_FILES_DIR / "Skip_checks_test.cif", occupancy_tolerance=10000000
-        ).get_structures(primitive=False, symmetrized=True, skip_checks=True)[0]
-        assert structure[0].species.as_dict()["O"] == 1.36
+        with open(self.TEST_FILES_DIR / "site_type_symbol_test.cif", "r") as f:
+            st_cif = f.read()
+        st_cif = st_cif.replace('Te    Te 1.0000','Te    Te 1.5000')
+        structure = CifParser.from_string(st_cif)
+        structure._occupancy_tolerance = 10000000
+        structure = structure.get_structures(primitive=False, symmetrized=True, skip_occu_checks=True)[0]
+        assert structure[-1].species.as_dict()["Te"] == 1.5000
 
 
 class MagCifTest(PymatgenTest):
