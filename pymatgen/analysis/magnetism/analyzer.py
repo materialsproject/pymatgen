@@ -21,10 +21,8 @@ from pymatgen.core.structure import DummySpecies, Element, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
-from pymatgen.transformations.advanced_transformations import (
-    MagOrderingTransformation, MagOrderParameterConstraint)
-from pymatgen.transformations.standard_transformations import \
-    AutoOxiStateDecorationTransformation
+from pymatgen.transformations.advanced_transformations import MagOrderingTransformation, MagOrderParameterConstraint
+from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
@@ -189,7 +187,7 @@ class CollinearMagneticStructureAnalyzer:
                 )
             magmoms = [m or 0 for m in structure.site_properties["magmom"]]
         elif has_spin:
-            magmoms = [getattr(sp, "spin") or 0 for sp in structure.species]
+            magmoms = [sp.spin or 0 for sp in structure.species]
             structure.remove_spin()
         else:
             # no magmoms present, add zero magmoms for now

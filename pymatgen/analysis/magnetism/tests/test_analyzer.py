@@ -10,9 +10,12 @@ import pytest
 from monty.serialization import loadfn
 from pytest import approx
 
-from pymatgen.analysis.magnetism import (CollinearMagneticStructureAnalyzer,
-                                         MagneticStructureEnumerator, Ordering,
-                                         magnetic_deformation)
+from pymatgen.analysis.magnetism import (
+    CollinearMagneticStructureAnalyzer,
+    MagneticStructureEnumerator,
+    Ordering,
+    magnetic_deformation,
+)
 from pymatgen.core import Element, Lattice, Species, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
@@ -244,7 +247,8 @@ Magmoms Sites
         struct = Structure(latt, species, coords)
 
         msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
-        assert msa.structure.site_properties['magmom'] == [-5, 5, 0, 0]
+        assert msa.structure.site_properties["magmom"] == [-5, 5, 0, 0]
+
 
 class MagneticStructureEnumeratorTest(unittest.TestCase):
     @unittest.skipIf(not enumlib_present, "enumlib not present")
