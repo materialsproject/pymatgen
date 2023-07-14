@@ -872,7 +872,7 @@ class CifParser:
 
         return parsed_sym
 
-    def _get_structure(self, data: dict, primitive: bool, symmetrized: bool, skip_occu_checks: bool=False):
+    def _get_structure(self, data: dict, primitive: bool, symmetrized: bool, skip_occu_checks: bool = False):
         """Generate structure from part of the cif."""
 
         def get_num_implicit_hydrogens(sym):
@@ -1108,7 +1108,7 @@ class CifParser:
             return struct
         return None
 
-    def get_structures(self, primitive: bool=True, symmetrized: bool =False, skip_occu_checks: bool=False):
+    def get_structures(self, primitive: bool = True, symmetrized: bool = False, skip_occu_checks: bool = False):
         """
         Return list of structures in CIF file. primitive boolean sets whether a
         conventional cell structure or primitive cell structure is returned.
@@ -1127,7 +1127,7 @@ class CifParser:
                 notated as "Not Parsed" or -1 respectively.
             skip_occu_checks (bool): If True, the occupancy of the periodic sites
                 will not be checked, allowing for aphysical values to be accepted.
-                This is useful for experimental results in which occupancy was 
+                This is useful for experimental results in which occupancy was
                 allowed to refine to aphysical values to account for some other
                 property otherwise not refinable from diffraction.
 
