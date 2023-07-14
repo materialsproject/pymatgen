@@ -1066,10 +1066,13 @@ class CifParser:
                 all_labels = None
             struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
             if skip_checks:
-                struct_2 = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
+                struct_2 = Structure(
+                    lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels
+                )
                 for i, _ in enumerate(struct_2):
                     struct_2[i] = PeriodicSite(
-                        allspecies_noedit[i], all_coords[i], lattice, properties=site_properties, skip_checks=True)
+                        allspecies_noedit[i], all_coords[i], lattice, properties=site_properties, skip_checks=True
+                    )
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
                 # TODO: extract Wyckoff labels (or other CIF attributes) and include as site_properties
