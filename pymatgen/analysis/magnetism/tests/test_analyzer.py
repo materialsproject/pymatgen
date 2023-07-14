@@ -10,12 +10,9 @@ import pytest
 from monty.serialization import loadfn
 from pytest import approx
 
-from pymatgen.analysis.magnetism import (
-    CollinearMagneticStructureAnalyzer,
-    MagneticStructureEnumerator,
-    Ordering,
-    magnetic_deformation,
-)
+from pymatgen.analysis.magnetism import (CollinearMagneticStructureAnalyzer,
+                                         MagneticStructureEnumerator, Ordering,
+                                         magnetic_deformation)
 from pymatgen.core import Element, Lattice, Species, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
@@ -237,6 +234,17 @@ Magmoms Sites
         assert msa.magnetic_species_and_magmoms["Ni"][1] == approx(5.0143)
         assert msa.magnetic_species_and_magmoms["O"] == approx(0.1465)
 
+    def test_missing_spin(self):
+        # This test catches the case where a structure has some species with
+        # Species.spin=None. This previously raised an error upon construction
+        # of the analyzer).
+        latt = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
+        species = [Species("Ni", spin=-5), Species("Ni", spin=5), Species("O", spin=None), Species("O", spin=None)]
+        coords = [[0.5, 0, 0.5], [0, 0, 0], [0.25, 0.5, 0.25], [0.75, 0.5, 0.75]]
+        struct = Structure(latt, species, coords)
+
+        msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
+        assert msa.structure.site_properties['magmom'] == [-5, 5, 0, 0]
 
 class MagneticStructureEnumeratorTest(unittest.TestCase):
     @unittest.skipIf(not enumlib_present, "enumlib not present")
