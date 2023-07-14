@@ -3914,14 +3914,14 @@ class Oszicar:
         electronic_steps = []
         ionic_steps = []
         ionic_general_pattern = re.compile(r"(\w+)=\s*(\S+)")
-        ionic_pattern = re.compile(r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+E0=\s*([\d\-\.E\+]+)\s+d\s*E\s*=\s*([\d\-\.E\+]+)$")
-        ionic_mag_pattern = re.compile(
+        re.compile(r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+E0=\s*([\d\-\.E\+]+)\s+d\s*E\s*=\s*([\d\-\.E\+]+)$")
+        re.compile(
             r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
             r"E0=\s*([\d\-\.E\+]+)\s+"
             r"d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
             r"mag=\s*([\d\-\.E\+]+)"
         )
-        ionic_MD_pattern = re.compile(
+        re.compile(
             r"(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
             r"E=\s*([\d\-\.E\+]+)\s+"
             r"F=\s*([\d\-\.E\+]+)\s+"
@@ -3931,7 +3931,7 @@ class Oszicar:
             r"SK=\s*([\d\-\.E\+]+)\s+"
             r"mag=\s*([\d\-\.E\+]+)"
         )
-        ionic_MD_pattern_old = re.compile(
+        re.compile(
             r"(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
             r"E=\s*([\d\-\.E\+]+)\s+"
             r"F=\s*([\d\-\.E\+]+)\s+"
@@ -3965,10 +3965,8 @@ class Oszicar:
                     header = line.strip().replace("d eps", "deps").split()
                 else:
                     matches = re.findall(ionic_general_pattern, re.sub(r"d E ", "dE", line))
-                    ionic_steps.append(
-                        {key: value for key, value in matches}
-                    )
-                
+                    ionic_steps.append(dict(matches))
+
         self.electronic_steps = electronic_steps
         self.ionic_steps = ionic_steps
 
