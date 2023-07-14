@@ -9,6 +9,7 @@ from typing import Generator
 from monty.io import reverse_readline
 from monty.itertools import chunks
 from monty.json import MSONable
+from monty.serialization import zopen
 
 from pymatgen.core.structure import Molecule
 
@@ -695,8 +696,12 @@ class AdfOutput:
         """
         workdir = os.path.dirname(self.filename)
         logfile = os.path.join(workdir, "logfile")
-        if not os.path.isfile(logfile):
-            raise OSError("The ADF logfile can not be accessed!")
+        for ext in ("", ".gz", ".bz2"):
+            if os.path.isfile(f"{logfile}{ext}"):
+                logfile = f"{logfile}{ext}"
+                break
+        else:
+            raise FileNotFoundError("The ADF logfile can not be accessed!")
 
         self.is_failed = False
         self.error = self.final_energy = self.final_structure = None
@@ -734,7 +739,7 @@ class AdfOutput:
         energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\sHartree")
         final_energy_patt = re.compile(r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)\sa\.u\.")
         error_patt = re.compile(r"<.*>\s<.*>\s+ERROR\sDETECTED:\s(.*)")
-        runtype_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")
+        run_type_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")
         end_patt = re.compile(r"<.*>\s<.*>\s+END")
         parse_cycle = False
         sites = []
@@ -744,8 +749,8 @@ class AdfOutput:
         # Stop parsing the logfile is this job is not terminated successfully.
         # The last non-empty line of the logfile must match the end pattern.
         # Otherwise the job has some internal failure. The TAPE13 part of the
-        # ADF manual has a detailed explanantion.
-        with open(logfile) as f:
+        # ADF manual has a detailed explanation.
+        with zopen(logfile, "rt") as f:
             for line in reverse_readline(f):
                 if line == "":
                     continue
@@ -765,7 +770,7 @@ class AdfOutput:
                     break
 
                 if self.run_type is None:
-                    m = runtype_patt.search(line)
+                    m = run_type_patt.search(line)
                     if m:
                         if m.group(1) == "FREQUENCIES":
                             self.freq_type = "Numerical"

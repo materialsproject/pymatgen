@@ -96,7 +96,7 @@ class SlabEntryTest(PymatgenTest):
         all_se = []
         ECu = self.Cu_ucell_entry.energy_per_atom
         for val in self.Cu_entry_dict.values():
-            slab_entry = list(val)[0]
+            slab_entry = next(iter(val))
             se = slab_entry.surface_energy(self.Cu_ucell_entry)
             all_se.append(se)
             # Manually calculate surface energy

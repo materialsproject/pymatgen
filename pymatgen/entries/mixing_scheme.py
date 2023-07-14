@@ -54,7 +54,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         compat_1: Compatibility | None = MaterialsProject2020Compatibility(),  # noqa: B008
         compat_2: Compatibility | None = None,
         fuzzy_matching: bool = True,
-    ):
+        check_potcar: bool = True,
+    ) -> None:
         """
         Instantiate the mixing scheme. The init method creates a generator class that
         contains relevant settings (e.g., StructureMatcher instance, Compatibility settings
@@ -93,29 +94,28 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 space group are all identical. If there are multiple materials of run_type_2
                 that satisfy these criteria, the one with lowest energy is considered to
                 match.
+            check_potcar: Whether to ensure the POTCARs used for the run_type_1 and run_type_2 calculations
+                are the same. This is useful for ensuring that the mixing scheme is not used on calculations
+                that used different POTCARs, which can lead to unphysical results. Defaults to True.
+                Has no effect if neither compat_1 nor compat_2 have a check_potcar attribute.
+                Can also be disabled globally by running `pmg config --add PMG_POTCAR_CHECKS false`.
         """
         self.name = "MP DFT mixing scheme"
         self.structure_matcher = structure_matcher or StructureMatcher()
         if run_type_1 == run_type_2:
-            raise ValueError(
-                f"You specified the same run_type {run_type_1} for both run_type_1 and run_type_2. "
-                "The mixing scheme is meaningless unless run_type_1 and run_type_2 are different"
-            )
+            raise ValueError(f"run_type_1={run_type_2=}. The mixing scheme is meaningless unless run_types different")
         self.run_type_1 = run_type_1
         self.run_type_2 = run_type_2
-        if self.run_type_1 == "GGA(+U)":
-            self.valid_rtypes_1 = ["GGA", "GGA+U"]
-        else:
-            self.valid_rtypes_1 = [self.run_type_1]
-
-        if self.run_type_2 == "GGA(+U)":
-            self.valid_rtypes_2 = ["GGA", "GGA+U"]
-        else:
-            self.valid_rtypes_2 = [self.run_type_2]
+        self.valid_rtypes_1 = ["GGA", "GGA+U"] if self.run_type_1 == "GGA(+U)" else [self.run_type_1]
+        self.valid_rtypes_2 = ["GGA", "GGA+U"] if self.run_type_2 == "GGA(+U)" else [self.run_type_2]
 
         self.compat_1 = compat_1
         self.compat_2 = compat_2
         self.fuzzy_matching = fuzzy_matching
+        self.check_potcar = check_potcar
+        for compat in (self.compat_1, self.compat_2):
+            if hasattr(compat, "check_potcar"):
+                compat.check_potcar = check_potcar  # type: ignore[union-attr]
 
     def process_entries(
         self,
