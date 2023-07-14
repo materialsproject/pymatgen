@@ -1420,12 +1420,26 @@ class BSVasprunTest(PymatgenTest):
 
 
 class OszicarTest(PymatgenTest):
+    @classmethod
+    def setUpClass(cls):
+        filepath = f"{cls.TEST_FILES_DIR}/OSZICAR"
+        cls.oszicar_mag = Oszicar(filepath)
+
+        filepath = f"{cls.TEST_FILES_DIR}/OSZICAR_MD"
+        cls.oszicar_md = Oszicar(filepath)
+
     def test_init(self):
-        filepath = f"{self.TEST_FILES_DIR}/OSZICAR"
-        oszicar = Oszicar(filepath)
-        assert len(oszicar.electronic_steps) == len(oszicar.ionic_steps)
-        assert len(oszicar.all_energies) == 60
-        assert oszicar.final_energy == approx(-526.63928)
+        assert len(self.oszicar_mag.electronic_steps) == len(self.oszicar_mag.ionic_steps)
+        assert len(self.oszicar_mag.all_energies) == 60
+        assert self.oszicar_mag.final_energy == approx(-526.63928)
+
+        assert len(self.oszicar_md.electronic_steps) == len(self.oszicar_md.ionic_steps)
+        assert len(self.oszicar_md.all_energies) == 3
+        assert self.oszicar_md.final_energy == approx(-209.86273)
+
+    def test_fields(self):
+        assert set(self.oszicar_mag.ionic_steps[-1].keys()) == set(['F', 'E0', 'dE', 'mag'])
+        assert set(self.oszicar_md.ionic_steps[-1].keys()) == set(['T', 'E', 'F', 'E0', 'EK', 'SP', 'SK', 'mag'])
 
 
 class LocpotTest(PymatgenTest):

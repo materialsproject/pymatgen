@@ -3913,6 +3913,7 @@ class Oszicar:
         """
         electronic_steps = []
         ionic_steps = []
+        ionic_general_pattern = re.compile(r"(\w+)=\s*(\S+)")
         ionic_pattern = re.compile(r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+E0=\s*([\d\-\.E\+]+)\s+d\s*E\s*=\s*([\d\-\.E\+]+)$")
         ionic_mag_pattern = re.compile(
             r"(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
@@ -3930,6 +3931,15 @@ class Oszicar:
             r"SK=\s*([\d\-\.E\+]+)\s+"
             r"mag=\s*([\d\-\.E\+]+)"
         )
+        ionic_MD_pattern_old = re.compile(
+            r"(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
+            r"E=\s*([\d\-\.E\+]+)\s+"
+            r"F=\s*([\d\-\.E\+]+)\s+"
+            r"E0=\s*([\d\-\.E\+]+)\s+"
+            r"EK=\s*([\d\-\.E\+]+)\s+"
+            r"SP=\s*([\d\-\.E\+]+)\s+"
+            r"SK=\s*([\d\-\.E\+]+)\s+"
+        )
         electronic_pattern = re.compile(r"\s*\w+\s*:(.*)")
 
         def smart_convert(header, num):
@@ -3943,8 +3953,7 @@ class Oszicar:
         header = []
         with zopen(filename, "rt") as fid:
             for line in fid:
-                line = line.strip()
-                m = electronic_pattern.match(line)
+                m = electronic_pattern.match(line.strip())
                 if m:
                     toks = m.group(1).split()
                     data = {header[i]: smart_convert(header[i], toks[i]) for i in range(len(toks))}
@@ -3952,41 +3961,14 @@ class Oszicar:
                         electronic_steps.append([data])
                     else:
                         electronic_steps[-1].append(data)
-                elif ionic_pattern.match(line.strip()):
-                    m = ionic_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "F": float(m.group(2)),
-                            "E0": float(m.group(3)),
-                            "dE": float(m.group(4)),
-                        }
-                    )
-                elif ionic_mag_pattern.match(line.strip()):
-                    m = ionic_mag_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "F": float(m.group(2)),
-                            "E0": float(m.group(3)),
-                            "dE": float(m.group(4)),
-                            "mag": float(m.group(5)),
-                        }
-                    )
-                elif ionic_MD_pattern.match(line.strip()):
-                    m = ionic_MD_pattern.match(line.strip())
-                    ionic_steps.append(
-                        {
-                            "T": float(m.group(2)),
-                            "E": float(m.group(3)),
-                            "F": float(m.group(4)),
-                            "E0": float(m.group(5)),
-                            "EK": float(m.group(6)),
-                            "SP": float(m.group(7)),
-                            "SK": float(m.group(8)),
-                            "mag": float(m.group(9)),
-                        }
-                    )
-                elif re.match(r"^\s*N\s+E\s*", line):
+                elif re.match(r"^\s*N\s+E\s*", line.strip()):
                     header = line.strip().replace("d eps", "deps").split()
+                else:
+                    matches = re.findall(ionic_general_pattern, re.sub(r"d E ", "dE", line))
+                    ionic_steps.append(
+                        {key: value for key, value in matches}
+                    )
+                
         self.electronic_steps = electronic_steps
         self.ionic_steps = ionic_steps
 
