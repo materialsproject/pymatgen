@@ -310,7 +310,8 @@ class FloatWithUnit(float):
     Error = UnitError
 
     @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):  # noqa: D102
+    def from_string(cls, *args, **kwargs):
+        """Use from_str instead."""
         return cls.from_str(*args, **kwargs)
 
     @classmethod

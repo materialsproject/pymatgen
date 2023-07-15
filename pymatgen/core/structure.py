@@ -2641,11 +2641,11 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
 
-            s = XSF(self).to_str()
+            string = XSF(self).to_str()
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as file:
-                    file.write(s)
-            return s
+                    file.write(string)
+            return string
         elif (
             fmt == "mcsqs"
             or fnmatch(filename, "*rndstr.in*")
@@ -2654,11 +2654,11 @@ class IStructure(SiteCollection, MSONable):
         ):
             from pymatgen.io.atat import Mcsqs
 
-            s = Mcsqs(self).to_str()
+            string = Mcsqs(self).to_str()
             if filename:
                 with zopen(filename, "wt", encoding="ascii") as file:
-                    file.write(s)
-            return s
+                    file.write(string)
+            return string
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
             from pymatgen.io.prismatic import Prismatic
 
@@ -2679,12 +2679,12 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "res" or fnmatch(filename, "*.res"):
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_to_str(self)
+            string = ResIO.structure_to_str(self)
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as file:
-                    file.write(s)
+                    file.write(string)
                 return None
-            return s
+            return string
         else:
             if fmt == "":
                 raise ValueError(f"Format not specified and could not infer from {filename=}")
