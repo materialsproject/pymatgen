@@ -68,8 +68,12 @@ class Xr:
         with zopen(filename, "wt") as f:
             f.write(str(self) + "\n")
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(string, use_cores=True, thresh=1.0e-4):
+    def from_str(string, use_cores=True, thresh=1.0e-4):
         """
         Creates an Xr object from a string representation.
 
@@ -162,4 +166,4 @@ class Xr:
                     file.
         """
         with zopen(filename, "rt") as f:
-            return Xr.from_string(f.read(), use_cores=use_cores, thresh=thresh)
+            return Xr.from_str(f.read(), use_cores=use_cores, thresh=thresh)

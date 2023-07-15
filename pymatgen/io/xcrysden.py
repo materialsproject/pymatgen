@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import numpy as np
+
 from pymatgen.core.periodic_table import Element
 
 if TYPE_CHECKING:
@@ -55,8 +57,12 @@ class XSF:
 
         return "\n".join(lines)
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @classmethod
-    def from_string(cls, input_string, cls_=None):
+    def from_str(cls, input_string, cls_=None):
         """
         Initialize a `Structure` object from a string with data in XSF format.
 

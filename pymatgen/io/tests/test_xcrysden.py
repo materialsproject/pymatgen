@@ -20,7 +20,7 @@ class XSFTest(PymatgenTest):
         )
         structure = Structure(lattice, ["Si", "Si"], coords)
         xsf = XSF(structure)
-        assert structure, XSF.from_string(xsf.to_string())
+        assert structure, XSF.from_str(xsf.to_string())
 
     def test_to_string(self):
         structure = self.get_structure("Li2O")
@@ -74,7 +74,7 @@ PRIMCOORD
 1 1
 H     -0.71644986    -0.41364333     1.19898200     0.00181803     0.00084718     0.00804832
 """
-        structure = XSF.from_string(test_string).structure
+        structure = XSF.from_str(test_string).structure
         assert str(structure.species[0]) == "H"
         test_string2 = """
 CRYSTAL
@@ -87,7 +87,7 @@ PRIMCOORD
 1     -0.71644986    -0.41364333     1.19898200     0.00181803     0.00084718     0.00804832
 """
 
-        structure2 = XSF.from_string(test_string2).structure
+        structure2 = XSF.from_str(test_string2).structure
         assert structure == structure2
 
 

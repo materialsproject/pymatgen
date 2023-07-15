@@ -2728,16 +2728,16 @@ class IStructure(SiteCollection, MSONable):
         if fmt_low == "cif":
             from pymatgen.io.cif import CifParser
 
-            parser = CifParser.from_string(input_string, **kwargs)
+            parser = CifParser.from_str(input_string, **kwargs)
             struct = parser.get_structures(primitive=primitive)[0]
         elif fmt_low == "poscar":
             from pymatgen.io.vasp import Poscar
 
-            struct = Poscar.from_string(input_string, False, read_velocities=False, **kwargs).structure
+            struct = Poscar.from_str(input_string, False, read_velocities=False, **kwargs).structure
         elif fmt_low == "cssr":
             from pymatgen.io.cssr import Cssr
 
-            cssr = Cssr.from_string(input_string, **kwargs)
+            cssr = Cssr.from_str(input_string, **kwargs)
             struct = cssr.structure
         elif fmt_low == "json":
             d = json.loads(input_string)
@@ -2749,11 +2749,11 @@ class IStructure(SiteCollection, MSONable):
         elif fmt_low == "xsf":
             from pymatgen.io.xcrysden import XSF
 
-            struct = XSF.from_string(input_string, **kwargs).structure
+            struct = XSF.from_str(input_string, **kwargs).structure
         elif fmt_low == "mcsqs":
             from pymatgen.io.atat import Mcsqs
 
-            struct = Mcsqs.structure_from_string(input_string, **kwargs)
+            struct = Mcsqs.structure_from_str(input_string, **kwargs)
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
 
@@ -3446,9 +3446,9 @@ class IMolecule(SiteCollection, MSONable):
         from pymatgen.io.xyz import XYZ
 
         if fmt.lower() == "xyz":
-            m = XYZ.from_string(input_string).molecule
+            m = XYZ.from_str(input_string).molecule
         elif fmt in ["gjf", "g03", "g09", "com", "inp"]:
-            m = GaussianInput.from_string(input_string).molecule
+            m = GaussianInput.from_str(input_string).molecule
         elif fmt == "json":
             d = json.loads(input_string)
             return cls.from_dict(d)
@@ -3459,7 +3459,7 @@ class IMolecule(SiteCollection, MSONable):
         else:
             from pymatgen.io.babel import BabelMolAdaptor
 
-            m = BabelMolAdaptor.from_string(input_string, file_format=fmt).pymatgen_mol
+            m = BabelMolAdaptor.from_str(input_string, file_format=fmt).pymatgen_mol
         return cls.from_sites(m)
 
     @classmethod

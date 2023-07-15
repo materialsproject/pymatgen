@@ -164,8 +164,12 @@ class CifBlock:
                     q.append(tuple(s))
         return q
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @classmethod
-    def from_string(cls, string):
+    def from_str(cls, string):
         """
         Reads CifBlock from string.
 
@@ -228,8 +232,12 @@ class CifFile:
         out = "\n".join(map(str, self.data.values()))
         return f"{self.comment}\n{out}\n"
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @classmethod
-    def from_string(cls, string):
+    def from_str(cls, string):
         """
         Reads CifFile from a string.
 
@@ -245,7 +253,7 @@ class CifFile:
             # CifParser was also not parsing it.
             if "powder_pattern" in re.split(r"\n", x, maxsplit=1)[0]:
                 continue
-            c = CifBlock.from_string("data_" + x)
+            c = CifBlock.from_str("data_" + x)
             dct[c.header] = c
         return cls(dct, string)
 
@@ -258,7 +266,7 @@ class CifFile:
         :return: CifFile
         """
         with zopen(str(filename), "rt", errors="replace") as f:
-            return cls.from_string(f.read())
+            return cls.from_str(f.read())
 
 
 class CifParser:
@@ -292,7 +300,7 @@ class CifParser:
         if isinstance(filename, (str, Path)):
             self._cif = CifFile.from_file(filename)
         else:
-            self._cif = CifFile.from_string(filename.read())
+            self._cif = CifFile.from_str(filename.read())
 
         # store if CIF contains features from non-core CIF dictionaries
         # e.g. magCIF
@@ -337,8 +345,13 @@ class CifParser:
             # pass individual CifBlocks to _sanitize_data
             self._cif.data[k] = self._sanitize_data(self._cif.data[k])
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(cif_string: str, **kwargs) -> CifParser:
+    def from_str(cif_string: str, **kwargs) -> CifParser:
         """
         Creates a CifParser from a string.
 

@@ -1149,8 +1149,13 @@ class Species(MSONable, Stringify):
         warnings.warn(f"No ionic radius for {self}!")
         return None
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):  # noqa: D102
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(species_string: str) -> Species:
+    def from_str(species_string: str) -> Species:
         """
         Returns a Species from a string representation.
 
@@ -1453,7 +1458,7 @@ class DummySpecies(Species):
         return DummySpecies(self.symbol, self._oxi_state)
 
     @staticmethod
-    def from_string(species_string: str) -> DummySpecies:
+    def from_str(species_string: str) -> DummySpecies:
         """
         Returns a Dummy from a string representation.
 
@@ -1567,12 +1572,12 @@ def get_el_sp(obj) -> Element | Species | DummySpecies:
         return Element.from_Z(i)
 
     try:
-        return Species.from_string(obj)
+        return Species.from_str(obj)
     except (ValueError, KeyError):
         try:
             return Element(obj)
         except (ValueError, KeyError):
             try:
-                return DummySpecies.from_string(obj)
+                return DummySpecies.from_str(obj)
             except Exception:
                 raise ValueError(f"Can't parse Element or String from {type(obj).__name__}: {obj}.")

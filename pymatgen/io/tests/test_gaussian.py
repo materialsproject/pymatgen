@@ -69,7 +69,7 @@ EPS=12
 
 """
         assert str(self.gau) == answer
-        gau = GaussianInput.from_string(answer)
+        gau = GaussianInput.from_str(answer)
         assert gau.functional == "HF"
         assert gau.input_parameters["EPS"] == "12"
 
@@ -89,7 +89,7 @@ EPS=12
 
 """
         assert self.gau.to_string(cart_coords=True) == answer
-        gau = GaussianInput.from_string(answer)
+        gau = GaussianInput.from_str(answer)
         assert gau.functional == "HF"
         assert gau.charge == 0
         assert gau.spin_multiplicity == 1
@@ -109,7 +109,7 @@ EPS=12
         toks = txt.split("--link1--")
         for idx, tok in enumerate(toks):
             lines = [line.strip() for line in tok.strip().split("\n")]
-            gau = GaussianInput.from_string("\n".join(lines))
+            gau = GaussianInput.from_str("\n".join(lines))
             assert gau.molecule is not None
             if idx == 0:
                 mol = gau.molecule
@@ -150,7 +150,7 @@ Sites (6)
         THETA=10.35464
         HALF3=11.861807"""
 
-        gau = GaussianInput.from_string(gau_str)
+        gau = GaussianInput.from_str(gau_str)
         assert gau.molecule.composition.reduced_formula == "X3SiH4"
         assert set(gau.route_parameters) == {"opt", "freq", "scf"}
 

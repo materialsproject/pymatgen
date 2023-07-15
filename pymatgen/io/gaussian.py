@@ -274,8 +274,12 @@ class GaussianInput:
 
         return Molecule(species, coords)
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(contents):
+    def from_str(contents):
         """
         Creates GaussianInput from a string.
 
@@ -361,7 +365,7 @@ class GaussianInput:
             GaussianInput object
         """
         with zopen(filename, "r") as f:
-            return GaussianInput.from_string(f.read())
+            return GaussianInput.from_str(f.read())
 
     def get_zmatrix(self):
         """Returns a z-matrix representation of the molecule."""
