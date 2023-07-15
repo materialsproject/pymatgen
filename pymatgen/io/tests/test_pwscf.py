@@ -353,7 +353,7 @@ CELL_PARAMETERS angstrom
             ]
         )
 
-        pwin = PWInput.from_string(string)
+        pwin = PWInput.from_str(string)
 
         # generate list of coords
         pw_sites = []

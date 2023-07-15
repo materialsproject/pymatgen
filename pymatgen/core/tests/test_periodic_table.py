@@ -353,7 +353,7 @@ class ElementTestCase(PymatgenTest):
 
 class SpeciesTestCase(PymatgenTest):
     def setUp(self):
-        self.specie1 = Species.from_string("Fe2+")
+        self.specie1 = Species.from_str("Fe2+")
         self.specie2 = Species("Fe", 3)
         self.specie3 = Species("Fe", 2)
         self.specie4 = Species("Fe", 2, spin=5)
@@ -459,17 +459,17 @@ class SpeciesTestCase(PymatgenTest):
     def test_to_from_string(self):
         fe3 = Species("Fe", 3, spin=5)
         assert str(fe3) == "Fe3+,spin=5"
-        fe = Species.from_string("Fe3+,spin=5")
+        fe = Species.from_str("Fe3+,spin=5")
         assert fe.spin == 5
         mo0 = Species("Mo", 0, spin=5)
         assert str(mo0) == "Mo0+,spin=5"
-        mo = Species.from_string("Mo0+,spin=4")
+        mo = Species.from_str("Mo0+,spin=4")
         assert mo.spin == 4
 
         # Shyue Ping: I don't understand the need for a None for oxidation state. That to me is basically an element.
         # Why make the thing so complicated for a use case that I have never seen???
         # fe_no_ox = Species("Fe", oxidation_state=None, spin=5)
-        # fe_no_ox_from_str = Species.from_string("Fe,spin=5")
+        # fe_no_ox_from_str = Species.from_str("Fe,spin=5")
         # assert fe_no_ox == fe_no_ox_from_str
 
     def test_no_oxidation_state(self):
@@ -521,12 +521,12 @@ class DummySpeciesTestCase(unittest.TestCase):
         assert DummySpecies("Xg", 3) == DummySpecies("Xg", 3)
 
     def test_from_string(self):
-        sp = DummySpecies.from_string("X")
+        sp = DummySpecies.from_str("X")
         assert sp.oxi_state == 0
-        sp = DummySpecies.from_string("X2+")
+        sp = DummySpecies.from_str("X2+")
         assert sp.oxi_state == 2
         assert sp.to_latex_string() == "X$^{2+}$"
-        sp = DummySpecies.from_string("X2+spin=5")
+        sp = DummySpecies.from_str("X2+spin=5")
         assert sp.oxi_state == 2
         assert sp.spin == 5
         assert sp.to_latex_string() == "X$^{2+}$"

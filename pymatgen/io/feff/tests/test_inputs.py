@@ -37,7 +37,7 @@ class HeaderTest(unittest.TestCase):
         assert header_string.splitlines() == header.splitlines(), "Failed to read HEADER file"
 
     def test_from_string(self):
-        header = Header.from_string(header_string)
+        header = Header.from_str(header_string)
         assert header.struct.composition.reduced_formula == "CoO", "Failed to generate structure from HEADER string"
 
     def test_get_string(self):
@@ -113,7 +113,7 @@ class FeffAtomsTest(unittest.TestCase):
         assert atoms.splitlines()[3].split()[4] == "O", "failed to read ATOMS file"
 
     def test_get_string(self):
-        header = Header.from_string(header_string)
+        header = Header.from_str(header_string)
         struct = header.struct
         central_atom = "O"
         a = Atoms(struct, central_atom, radius=10.0)

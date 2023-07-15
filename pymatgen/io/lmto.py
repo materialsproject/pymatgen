@@ -164,10 +164,14 @@ class LMTOCtrl:
         """
         with zopen(filename, "rt") as f:
             contents = f.read()
-        return LMTOCtrl.from_string(contents, **kwargs)
+        return LMTOCtrl.from_str(contents, **kwargs)
+
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
     @classmethod
-    def from_string(cls, data, sigfigs=8):
+    def from_str(cls, data, sigfigs=8):
         """
         Creates a CTRL file object from a string. This will mostly be
         used to read an LMTOCtrl object from a CTRL file. Empty spheres

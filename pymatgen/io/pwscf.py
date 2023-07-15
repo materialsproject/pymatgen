@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 
+import numpy as np
 from monty.io import zopen
 from monty.re import regrep
 
@@ -231,10 +232,14 @@ class PWInput:
             PWInput object
         """
         with zopen(filename, "rt") as f:
-            return PWInput.from_string(f.read())
+            return PWInput.from_str(f.read())
+
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_string(string):
+    def from_str(string):
         """
         Reads an PWInput object from a string.
 

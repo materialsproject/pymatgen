@@ -34,13 +34,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable, Literal, Sequence
 
+import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.cp2k.utils import chunk, postprocessor, preprocessor
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
-from pymatgen.io.vasp.inputs import Kpoints_supported_modes
+from pymatgen.io.vasp.inputs import KpointsSupportedModes
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
@@ -151,8 +152,12 @@ class Keyword(MSONable):
             verbose=d["verbose"],
         )
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(s):
+    def from_str(s):
         """
         Initialize from a string.
 
@@ -718,10 +723,14 @@ class Cp2kInput(Section):
         """Initialize from a file."""
         with zopen(file, "rt") as f:
             txt = preprocessor(f.read(), os.path.dirname(f.name))
-            return Cp2kInput.from_string(txt)
+            return Cp2kInput.from_str(txt)
+
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_string(s: str):
+    def from_str(s: str):
         """Initialize from a string."""
         lines = s.splitlines()
         lines = [line.replace("\t", "") for line in lines]
@@ -771,7 +780,7 @@ class Cp2kInput(Section):
                     self.by_path(current).insert(s)
                 current = current + "/" + alias if alias else current + "/" + name
             else:
-                kwd = Keyword.from_string(line)
+                kwd = Keyword.from_str(line)
                 tmp = self.by_path(current).get(kwd.name)
                 if tmp:
                     if isinstance(tmp, KeywordList):
@@ -2041,7 +2050,7 @@ class Kpoints(Section):
         kpts = kpoints.kpts
         weights = kpoints.kpts_weights
 
-        if kpoints.style == Kpoints_supported_modes.Monkhorst:
+        if kpoints.style == KpointsSupportedModes.Monkhorst:
             k = kpts[0]
             if isinstance(k, (int, float)):
                 x, y, z = k, k, k
@@ -2049,13 +2058,13 @@ class Kpoints(Section):
                 x, y, z = k
             scheme = f"MONKHORST-PACK {x} {y} {z}"
             units = "B_VECTOR"
-        elif kpoints.style == Kpoints_supported_modes.Reciprocal:
+        elif kpoints.style == KpointsSupportedModes.Reciprocal:
             units = "B_VECTOR"
             scheme = "GENERAL"
-        elif kpoints.style == Kpoints_supported_modes.Cartesian:
+        elif kpoints.style == KpointsSupportedModes.Cartesian:
             units = "CART_ANGSTROM"
             scheme = "GENERAL"
-        elif kpoints.style == Kpoints_supported_modes.Gamma:
+        elif kpoints.style == KpointsSupportedModes.Gamma:
             if (isinstance(kpts[0], Iterable) and tuple(kpts[0]) == (1, 1, 1)) or (
                 isinstance(kpts[0], (float, int)) and int(kpts[0]) == 1
             ):
@@ -2071,7 +2080,7 @@ class Kpoints(Section):
                 kpts = list(itertools.chain.from_iterable(_kpts))
                 scheme = "GENERAL"
                 units = "B_VECTOR"
-        elif kpoints.style == Kpoints_supported_modes.Line_mode:
+        elif kpoints.style == KpointsSupportedModes.Line_mode:
             scheme = "GENERAL"
             units = "B_VECTOR"
         else:
@@ -2163,7 +2172,7 @@ class Band_Structure(Section):
             kpoints: a kpoint object from the vasp module, which was constructed in line mode
             kpoints_line_density: Number of kpoints along each path
         """
-        if kpoints.style == Kpoints_supported_modes.Line_mode:
+        if kpoints.style == KpointsSupportedModes.Line_mode:
 
             def pairwise(iterable):
                 a = iter(iterable)
@@ -2178,8 +2187,8 @@ class Band_Structure(Section):
                 for lbls, kpts in zip(pairwise(kpoints.labels), pairwise(kpoints.kpts))
             ]
         elif kpoints.style in (
-            Kpoints_supported_modes.Reciprocal,
-            Kpoints_supported_modes.Cartesian,
+            KpointsSupportedModes.Reciprocal,
+            KpointsSupportedModes.Cartesian,
         ):
             kpoint_sets = [
                 Kpoint_Set(
@@ -2243,8 +2252,12 @@ class BasisInfo(MSONable):
         d2 = other.as_dict()
         return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @classmethod
-    def from_string(cls, string: str) -> BasisInfo:
+    def from_str(cls, string: str) -> BasisInfo:
         """Get summary info from a string."""
         string = string.upper()
         data: dict[str, Any] = {}
@@ -2439,16 +2452,21 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         return out
 
     @classmethod
-    def from_string(cls, string: str) -> GaussianTypeOrbitalBasisSet:
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, string: str) -> GaussianTypeOrbitalBasisSet:
         """Read from standard cp2k GTO formatted string."""
         lines = [line for line in string.split("\n") if line]
         firstline = lines[0].split()
         element = Element(firstline[0])
         names = firstline[1:]
         name, aliases = names[0], names[1:]
-        _info = BasisInfo.from_string(name).as_dict()
+        _info = BasisInfo.from_str(name).as_dict()
         for alias in aliases:
-            for k, v in BasisInfo.from_string(alias).as_dict().items():
+            for k, v in BasisInfo.from_str(alias).as_dict().items():
                 if _info[k] is None:
                     _info[k] = v
         info = BasisInfo.from_dict(_info)
@@ -2538,8 +2556,12 @@ class PotentialInfo(MSONable):
         d2 = other.as_dict()
         return all(not (v is not None and v != d2[k]) for k, v in d1.items())
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @classmethod
-    def from_string(cls, string):
+    def from_str(cls, string):
         """Get a cp2k formatted string representation."""
         string = string.upper()
         data = {}
@@ -2640,7 +2662,7 @@ class GthPotential(AtomicMetadata):
         s = sec.get_string()
         s = [_ for _ in s.split("\n") if not _.startswith("&")]
         s = "\n".join(s)
-        return cls.from_string(s)
+        return cls.from_str(s)
 
     def get_string(self):
         """Convert model to a GTH-formatted string."""
@@ -2675,15 +2697,19 @@ class GthPotential(AtomicMetadata):
                 out += "\n"
         return out
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @classmethod
-    def from_string(cls, string):
+    def from_str(cls, string):
         """Initialize model from a GTH formatted string."""
         lines = [line for line in string.split("\n") if line]
         firstline = lines[0].split()
         element, name, aliases = firstline[0], firstline[1], firstline[2:]
-        info = PotentialInfo.from_string(name).as_dict()
+        info = PotentialInfo.from_str(name).as_dict()
         for alias in aliases:
-            for k, v in PotentialInfo.from_string(alias).as_dict().items():
+            for k, v in PotentialInfo.from_str(alias).as_dict().items():
                 if info[k] is None:
                     info[k] = v
         info = PotentialInfo.from_dict(info)
@@ -2755,13 +2781,17 @@ class DataFile(MSONable):
     def from_file(cls, fn):
         """Load from a file."""
         with open(fn) as f:
-            data = cls.from_string(f.read())
+            data = cls.from_str(f.read())
             for obj in data.objects:
                 obj.filename = fn
             return data
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @classmethod
-    def from_string(cls):
+    def from_str(cls):
         """Initialize from a string."""
         raise NotImplementedError
 
@@ -2783,9 +2813,9 @@ class BasisFile(DataFile):
     """Data file for basis sets only."""
 
     @classmethod
-    def from_string(cls, string):
+    def from_str(cls, string):
         """Initialize from a string representation."""
-        basis_sets = [GaussianTypeOrbitalBasisSet.from_string(c) for c in chunk(string)]
+        basis_sets = [GaussianTypeOrbitalBasisSet.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)
 
 
@@ -2794,7 +2824,7 @@ class PotentialFile(DataFile):
     """Data file for potentials only."""
 
     @classmethod
-    def from_string(cls, string):
+    def from_str(cls, string):
         """Initialize from a string representation."""
-        basis_sets = [GthPotential.from_string(c) for c in chunk(string)]
+        basis_sets = [GthPotential.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)

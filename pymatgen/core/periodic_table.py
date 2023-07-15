@@ -1022,8 +1022,6 @@ class Species(MSONable, Stringify):
         spin: float | None = None,
     ) -> None:
         """
-        Initializes a Species.
-
         Args:
             symbol (str): Element symbol optionally incl. oxidation state. E.g. Fe, Fe2+, O2-.
             oxidation_state (float): Explicit oxidation state of element, e.g. -2, -1, 0, 1, 2, ...
@@ -1033,7 +1031,8 @@ class Species(MSONable, Stringify):
             spin: Spin associated with Species. Defaults to None.
 
         Raises:
-            ValueError: If oxidation state passed both in symbol and via oxidation_state kwarg.
+            ValueError: If oxidation state passed both in symbol string and via
+                oxidation_state kwarg.
         """
         if oxidation_state is not None and isinstance(symbol, str) and symbol[-1] in {"+", "-"}:
             raise ValueError(
@@ -1113,7 +1112,7 @@ class Species(MSONable, Stringify):
         return False
 
     @property
-    def element(self):
+    def element(self) -> Element:
         """Underlying element object."""
         return self._el
 
@@ -1140,18 +1139,24 @@ class Species(MSONable, Stringify):
             return self.ionic_radii[self._oxi_state]
         if self._oxi_state:
             d = self._el.data
-            oxstr = str(int(self._oxi_state))
-            if oxstr in d.get("Ionic radii hs", {}):
+            oxi_str = str(int(self._oxi_state))
+            if oxi_str in d.get("Ionic radii hs", {}):
                 warnings.warn(f"No default ionic radius for {self}. Using hs data.")
-                return d["Ionic radii hs"][oxstr]
-            if oxstr in d.get("Ionic radii ls", {}):
+                return d["Ionic radii hs"][oxi_str]
+            if oxi_str in d.get("Ionic radii ls", {}):
                 warnings.warn(f"No default ionic radius for {self}. Using ls data.")
-                return d["Ionic radii ls"][oxstr]
+                return d["Ionic radii ls"][oxi_str]
         warnings.warn(f"No ionic radius for {self}!")
         return None
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        """Use from_str instead."""
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(species_string: str) -> Species:
+    def from_str(species_string: str) -> Species:
         """
         Returns a Species from a string representation.
 
@@ -1171,22 +1176,22 @@ class Species(MSONable, Stringify):
         # 3rd group: ([+\-])          --> +
         # 4th group: (.*)             --> everything else, ",spin=5"
 
-        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
-        if m:
+        match = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
+        if match:
             # parse symbol
-            sym = m.group(1)
+            sym = match.group(1)
 
             # parse oxidation state (optional)
-            if not m.group(2) and not m.group(3):
+            if not match.group(2) and not match.group(3):
                 oxi = None
             else:
-                oxi = 1 if m.group(2) == "" else float(m.group(2))
-                oxi = -oxi if m.group(3) == "-" else oxi
+                oxi = 1 if match.group(2) == "" else float(match.group(2))
+                oxi = -oxi if match.group(3) == "-" else oxi
 
             # parse properties (optional)
             properties = None
-            if m.group(4):
-                toks = m.group(4).replace(",", "").split("=")
+            if match.group(4):
+                toks = match.group(4).replace(",", "").split("=")
                 properties = {toks[0]: ast.literal_eval(toks[1])}
 
             # but we need either an oxidation state or a property
@@ -1216,8 +1221,7 @@ class Species(MSONable, Stringify):
 
     def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:
         """
-        Gets the nuclear electric quadrupole moment in units of
-        e*millibarns.
+        Gets the nuclear electric quadrupole moment in units of e * millibarns.
 
         Args:
             isotope (str): the isotope to get the quadrupole moment for
@@ -1322,7 +1326,7 @@ class Species(MSONable, Stringify):
                 return 10 - n_electrons
         raise RuntimeError(f"should not reach here, {spin_config=}, {coordination=}")
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo) -> Species:
         return Species(self.symbol, self.oxi_state, spin=self._spin)
 
     def as_dict(self) -> dict:
@@ -1455,7 +1459,7 @@ class DummySpecies(Species):
         return DummySpecies(self.symbol, self._oxi_state)
 
     @staticmethod
-    def from_string(species_string: str) -> DummySpecies:
+    def from_str(species_string: str) -> DummySpecies:
         """
         Returns a Dummy from a string representation.
 
@@ -1569,12 +1573,12 @@ def get_el_sp(obj) -> Element | Species | DummySpecies:
         return Element.from_Z(i)
 
     try:
-        return Species.from_string(obj)
+        return Species.from_str(obj)
     except (ValueError, KeyError):
         try:
             return Element(obj)
         except (ValueError, KeyError):
             try:
-                return DummySpecies.from_string(obj)
+                return DummySpecies.from_str(obj)
             except Exception:
                 raise ValueError(f"Can't parse Element or String from {type(obj).__name__}: {obj}.")

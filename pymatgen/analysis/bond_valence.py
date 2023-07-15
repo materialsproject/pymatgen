@@ -31,8 +31,8 @@ for key, val in loadfn(os.path.join(module_dir, "bvparam_1991.yaml")).items():
 
 # Read in yaml containing data-mined ICSD BV data.
 all_data = loadfn(os.path.join(module_dir, "icsd_bv.yaml"))
-ICSD_BV_DATA = {Species.from_string(sp): data for sp, data in all_data["bvsum"].items()}
-PRIOR_PROB = {Species.from_string(sp): data for sp, data in all_data["occurrence"].items()}
+ICSD_BV_DATA = {Species.from_str(sp): data for sp, data in all_data["bvsum"].items()}
+PRIOR_PROB = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
 
 
 def calculate_bv_sum(site, nn_list, scale_factor=1.0):

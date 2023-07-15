@@ -126,9 +126,13 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             return f"<{type(self).__name__} at {self.filepath}>"
 
     def __str__(self) -> str:
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, verbose=0) -> str:
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, verbose=0) -> str:
         """String representation."""
         # pylint: disable=E1101
         lines: list[str] = []
