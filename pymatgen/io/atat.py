@@ -29,7 +29,11 @@ class Mcsqs:
         """
         self.structure = structure
 
-    def to_string(self):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self):
         """
         Returns:
             str: a structure in mcsqs rndstr.in format.

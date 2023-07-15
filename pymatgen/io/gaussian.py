@@ -379,9 +379,13 @@ class GaussianInput:
         return "\n".join(outs)
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, cart_coords=False):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, cart_coords=False):
         """Return GaussianInput string.
 
         Args:
@@ -446,7 +450,7 @@ class GaussianInput:
         Option: see __str__ method
         """
         with zopen(filename, "w") as file:
-            file.write(self.to_string(cart_coords))
+            file.write(self.to_str(cart_coords))
 
     def as_dict(self):
         """:return: MSONable dict"""

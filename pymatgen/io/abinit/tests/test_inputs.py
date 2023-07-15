@@ -73,8 +73,8 @@ class AbinitInputTestCase(PymatgenTest):
         assert "foo" not in inp
 
         # Test to_string
-        assert inp.to_string(with_structure=True, with_pseudos=True)
-        assert inp.to_string(with_structure=False, with_pseudos=False)
+        assert inp.to_str(with_structure=True, with_pseudos=True)
+        assert inp.to_str(with_structure=False, with_pseudos=False)
 
         inp.set_vars(ecut=5, toldfe=1e-6)
         assert inp["ecut"] == 5
@@ -227,7 +227,7 @@ class TestMultiDataset(PymatgenTest):
         assert all(split[i] == multi[i] for i in range(multi.ndtset))
         repr(multi)
         str(multi)
-        assert multi.to_string(with_pseudos=False)
+        assert multi.to_str(with_pseudos=False)
 
         tmpdir = tempfile.mkdtemp()
         filepath = os.path.join(tmpdir, "run.abi")

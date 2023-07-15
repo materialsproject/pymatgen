@@ -1212,7 +1212,7 @@ class CifParser:
             # cite keys are given as cif-reference-idx in order they are found
             entries[f"cifref{idx}"] = Entry("article", list(bibtex_entry.items()))
 
-        return BibliographyData(entries).to_string(bib_format="bibtex")
+        return BibliographyData(entries).to_str(bib_format="bibtex")
 
     def as_dict(self):
         """:return: MSONable dict"""

@@ -27,7 +27,11 @@ class XSF:
         """
         self.structure = structure
 
-    def to_string(self, atom_symbol=True):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, atom_symbol=True):
         """
         Returns a string with the structure in XSF format
         See http://www.xcrysden.org/doc/XSF.html.

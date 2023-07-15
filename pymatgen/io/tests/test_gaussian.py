@@ -88,7 +88,7 @@ H -0.513360 0.889165 -0.363000
 EPS=12
 
 """
-        assert self.gau.to_string(cart_coords=True) == answer
+        assert self.gau.to_str(cart_coords=True) == answer
         gau = GaussianInput.from_str(answer)
         assert gau.functional == "HF"
         assert gau.charge == 0
@@ -196,7 +196,7 @@ H 0
             route_parameters={"Pseudo": "Read"},
             title="Test",
         )
-        assert gau.to_string(cart_coords=False) == gau_str
+        assert gau.to_str(cart_coords=False) == gau_str
 
     def test_multiple_paramaters(self):
         """
@@ -222,7 +222,7 @@ H 0
         """Test that we can write input files without a geometry"""
         # Makes a file without geometry
         input_file = GaussianInput(None, charge=0, spin_multiplicity=2)
-        input_str = input_file.to_string().strip()
+        input_str = input_file.to_str().strip()
         assert input_str.endswith("0 2")
 
     def test_no_molecule_func_bset_charge_mult(self):
@@ -248,7 +248,7 @@ H 0
                 "pop": "naturalorbital",
             },
         )
-        input_str = input_file.to_string().strip()
+        input_str = input_file.to_str().strip()
         assert input_str == gau_str
 
 
