@@ -225,8 +225,8 @@ class CifFile:
         self.comment = comment or "# generated using pymatgen"
 
     def __str__(self):
-        s = [f"{v}" for v in self.data.values()]
-        return self.comment + "\n" + "\n".join(s) + "\n"
+        out = "\n".join(map(str, self.data.values()))
+        return f"{self.comment}\n{out}\n"
 
     @classmethod
     def from_string(cls, string):
@@ -268,10 +268,16 @@ class CifParser:
     CifParser's errors attribute.
     """
 
-    def __init__(self, filename, occupancy_tolerance=1.0, site_tolerance=1e-4, frac_tolerance=1e-4):
+    def __init__(
+        self,
+        filename: str | StringIO,
+        occupancy_tolerance: float = 1.0,
+        site_tolerance: float = 1e-4,
+        frac_tolerance: float = 1e-4,
+    ) -> None:
         """
         Args:
-            filename (str): CIF filename, bzipped or gzipped CIF files are fine too.
+            filename (str): CIF filename, gzipped or bzipped CIF files are fine too.
             occupancy_tolerance (float): If total occupancy of a site is between 1 and occupancy_tolerance, the
                 occupancies will be scaled down to 1.
             site_tolerance (float): This tolerance is used to determine if two sites are sitting in the same position,
@@ -291,17 +297,13 @@ class CifParser:
         # store if CIF contains features from non-core CIF dictionaries
         # e.g. magCIF
         self.feature_flags = {}
-        self.warnings = []
+        self.warnings: list[str] = []
 
         def is_magcif() -> bool:
             """Checks to see if file appears to be a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
-            prefixes = [
-                "_space_group_magn",
-                "_atom_site_moment",
-                "_space_group_symop_magn",
-            ]
+            prefixes = ["_space_group_magn", "_atom_site_moment", "_space_group_symop_magn"]
             for d in self._cif.data.values():
                 for k in d.data:
                     for prefix in prefixes:
@@ -336,7 +338,7 @@ class CifParser:
             self._cif.data[k] = self._sanitize_data(self._cif.data[k])
 
     @staticmethod
-    def from_string(cif_string, **kwargs):
+    def from_string(cif_string: str, **kwargs) -> CifParser:
         """
         Creates a CifParser from a string.
 
@@ -371,9 +373,8 @@ class CifParser:
             attached_hydrogens = [str2float(x) for x in data.data["_atom_site_attached_hydrogens"] if str2float(x) != 0]
             if len(attached_hydrogens) > 0:
                 self.warnings.append(
-                    "Structure has implicit hydrogens defined, "
-                    "parsed structure unlikely to be suitable for use "
-                    "in calculations unless hydrogens added."
+                    "Structure has implicit hydrogens defined, parsed structure unlikely to be "
+                    "suitable for use in calculations unless hydrogens added."
                 )
 
         # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do
