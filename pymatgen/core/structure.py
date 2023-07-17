@@ -2672,6 +2672,7 @@ class IStructure(SiteCollection, MSONable):
             sio = StringIO()
             yaml.dump(self.as_dict(), sio)
             return sio.getvalue()
+        # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen" or fnmatch(filename, "*.in*"):
             from pymatgen.io.fleur import FleurInput
 
@@ -2754,6 +2755,7 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.atat import Mcsqs
 
             struct = Mcsqs.structure_from_str(input_string, **kwargs)
+        # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
 
