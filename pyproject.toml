@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "Cython>=0.29.23,<3",
+  "Cython>=0.29.23",
   # pin NumPy version used in the build
   "oldest-supported-numpy",
   "setuptools>=65.0.0",
