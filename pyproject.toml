@@ -1,7 +1,7 @@
 [build-system]
 requires = [
+  "Cython>=0.29.23,<3",
   # pin NumPy version used in the build
-  "Cython>=0.29.23",
   "oldest-supported-numpy",
   "setuptools>=65.0.0",
 ]
@@ -70,8 +70,8 @@ ignore = [
   "PLR",     # pylint refactor
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT013",   # pytest-incorrect-pytest-import
-  "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
   "RUF012",  # Disable checks for mutable class args. This is a non-problem.
+  "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
