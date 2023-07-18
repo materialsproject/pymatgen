@@ -154,16 +154,9 @@ class BondDissociationEnergies(MSONable):
                         smiles = pbmol.write("smi").split()[0]
                         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
                         print(
-                            "Missing ring opening fragment resulting from the breakage of "
-                            + specie[bonds[0][0]]
-                            + " "
-                            + specie[bonds[0][1]]
-                            + " bond "
-                            + str(bonds[0][0])
-                            + " "
-                            + str(bonds[0][1])
-                            + " which would yield a molecule with this SMILES string: "
-                            + smiles
+                            f"Missing ring opening fragment resulting from the breakage of {specie[bonds[0][0]]} "
+                            f"{specie[bonds[0][1]]} bond {bonds[0][0]} {bonds[0][1]} which would yield a "
+                            f"molecule with this SMILES string: {smiles}"
                         )
                     elif len(good_entries) == 1:
                         # If we have only one good entry, format it and add it to the list that will eventually return:
@@ -282,21 +275,16 @@ class BondDissociationEnergies(MSONable):
         for entry in fragment_entries:
             # Check and make sure that PCM dielectric is consistent with principle:
             if "pcm_dielectric" in self.molecule_entry:
+                err_msg = (
+                    f"Principle molecule has a PCM dielectric of {self.molecule_entry['pcm_dielectric']}"
+                    " but a fragment entry has [[placeholder]] PCM dielectric! Please only pass fragment entries"
+                    " with PCM details consistent with the principle entry. Exiting..."
+                )
                 if "pcm_dielectric" not in entry:
-                    raise RuntimeError(
-                        "Principle molecule has a PCM dielectric of "
-                        + str(self.molecule_entry["pcm_dielectric"])
-                        + " but a fragment entry has no PCM dielectric! Please only pass fragment entries"
-                        " with PCM details consistent with the principle entry. Exiting..."
-                    )
+                    raise RuntimeError(err_msg.replace("[[placeholder]]", "no"))
                 if entry["pcm_dielectric"] != self.molecule_entry["pcm_dielectric"]:
-                    raise RuntimeError(
-                        "Principle molecule has a PCM dielectric of "
-                        + str(self.molecule_entry["pcm_dielectric"])
-                        + " but a fragment entry has a different PCM dielectric! Please only pass"
-                        " fragment entries with PCM details consistent with the principle entry."
-                        " Exiting..."
-                    )
+                    raise RuntimeError(err_msg.replace("[[placeholder]]", "a different"))
+
             # Build initial and final molgraphs:
             entry["initial_molgraph"] = MoleculeGraph.with_local_env_strategy(
                 Molecule.from_dict(entry["initial_molecule"]), OpenBabelNN()

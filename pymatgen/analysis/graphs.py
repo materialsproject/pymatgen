@@ -2142,11 +2142,8 @@ class MoleculeGraph(MSONable):
                     )
                 )
 
-            frag_key = (
-                str(unique_mol_graph_list[0].molecule.composition.alphabetical_formula)
-                + " E"
-                + str(len(unique_mol_graph_list[0].graph.edges()))
-            )
+            alph_formula = unique_mol_graph_list[0].molecule.composition.alphabetical_formula
+            frag_key = f"{alph_formula} E{len(unique_mol_graph_list[0].graph.edges())}"
             unique_mol_graph_dict[frag_key] = copy.deepcopy(unique_mol_graph_list)
         return unique_mol_graph_dict
 

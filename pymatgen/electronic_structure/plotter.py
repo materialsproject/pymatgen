@@ -4012,20 +4012,12 @@ def plot_fermi_surface(
 
     if energy_levels is None:
         energy_levels = [en_min + 0.01] if cbm else [en_max - 0.01]
-        print("Energy level set to: " + str(energy_levels[0]) + " eV")
+        print(f"Energy level set to: {energy_levels[0]} eV")
 
     else:
         for e in energy_levels:
             if e > en_max or e < en_min:
-                raise BoltztrapError(
-                    "energy level "
-                    + str(e)
-                    + " not in the range of possible energies: ["
-                    + str(en_min)
-                    + ", "
-                    + str(en_max)
-                    + "]"
-                )
+                raise BoltztrapError(f"energy level {e} not in the range of possible energies: [{en_min}, {en_max}]")
 
     n_surfaces = len(energy_levels)
     if colors is None:
