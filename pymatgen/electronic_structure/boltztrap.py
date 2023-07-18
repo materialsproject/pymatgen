@@ -334,9 +334,9 @@ class BoltztrapRunner(MSONable):
                 ops = [[[1, 0, 0], [0, 1, 0], [0, 0, 1]]]
             f.write(f"{len(ops)}\n")
 
-            for c in ops:
-                for row in c:
-                    f.write(f"{' '.join(str(i) for i in row)}\n")
+            for op in ops:
+                for row in op:
+                    f.write(f"{' '.join(map(str, row))}\n")
 
     def write_def(self, output_file):
         """
@@ -675,12 +675,8 @@ class BoltztrapRunner(MSONable):
                     logging.info(f"Could not converge with max lpfac; Decrease egrid to {self.energy_grid}")
 
             if not converged:
-                raise BoltztrapError(
-                    "Doping convergence not reached with lpfac="
-                    + str(self.lpfac)
-                    + ", energy_grid="
-                    + str(self.energy_grid)
-                )
+                lpfac, energy_grid = self.lpfac, self.energy_grid
+                raise BoltztrapError(f"Doping convergence not reached with {lpfac=}, {energy_grid=}")
 
             return path_dir
 
