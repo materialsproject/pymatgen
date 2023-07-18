@@ -150,8 +150,8 @@ class BondDissociationEnergies(MSONable):
                     # If we still have no good entries, something must have gone wrong with the calculations:
                     if len(good_entries) == 0:
                         bb = BabelMolAdaptor.from_molecule_graph(RO_frag)
-                        pbmol = bb.pybel_mol
-                        smiles = pbmol.write("smi").split()[0]
+                        pb_mol = bb.pybel_mol
+                        smiles = pb_mol.write("smi").split()[0]
                         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
                         print(
                             f"Missing ring opening fragment resulting from the breakage of {specie[bonds[0][0]]} "
@@ -200,18 +200,18 @@ class BondDissociationEnergies(MSONable):
                 # If we're missing some of either, tell the user:
                 if len(frag1_charges_found) < len(self.expected_charges):
                     bb = BabelMolAdaptor(frags[0].molecule)
-                    pbmol = bb.pybel_mol
-                    smiles = pbmol.write("smi").split()[0]
+                    pb_mol = bb.pybel_mol
+                    smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag1_charges_found:
-                            print("Missing charge " + str(charge) + " for fragment " + smiles)
+                            print(f"Missing charge {charge} for fragment {smiles}")
                 if len(frag2_charges_found) < len(self.expected_charges):
                     bb = BabelMolAdaptor(frags[1].molecule)
-                    pbmol = bb.pybel_mol
-                    smiles = pbmol.write("smi").split()[0]
+                    pb_mol = bb.pybel_mol
+                    smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag2_charges_found:
-                            print("Missing charge " + str(charge) + " for fragment " + smiles)
+                            print(f"Missing charge {charge} for fragment {smiles}")
                 # Now we attempt to pair fragments with the right total charge, starting with only fragments with no
                 # structural change:
                 for frag1 in frag1_entries[0]:  # 0 -> no structural change

@@ -286,13 +286,13 @@ class CorrectionCalculator:
         )
 
         print("Residual Error:")
-        print("Median = " + str(np.median(np.array(abs_errors))))
-        print("Mean = " + str(np.mean(np.array(abs_errors))))
-        print("Std Dev = " + str(np.std(np.array(abs_errors))))
+        print(f"Median = {np.median(np.array(abs_errors))}")
+        print(f"Mean = {np.mean(np.array(abs_errors))}")
+        print(f"Std Dev = {np.std(np.array(abs_errors))}")
         print("Original Error:")
-        print("Median = " + str(abs(np.median(np.array(self.diffs)))))
-        print("Mean = " + str(abs(np.mean(np.array(self.diffs)))))
-        print("Std Dev = " + str(np.std(np.array(self.diffs))))
+        print(f"Median = {abs(np.median(np.array(self.diffs)))}")
+        print(f"Mean = {abs(np.mean(np.array(self.diffs)))}")
+        print(f"Std Dev = {np.std(np.array(self.diffs))}")
 
         return fig
 
@@ -354,13 +354,13 @@ class CorrectionCalculator:
         )
 
         print("Residual Error:")
-        print("Median = " + str(np.median(np.array(abs_errors))))
-        print("Mean = " + str(np.mean(np.array(abs_errors))))
-        print("Std Dev = " + str(np.std(np.array(abs_errors))))
+        print(f"Median = {np.median(np.array(abs_errors))}")
+        print(f"Mean = {np.mean(np.array(abs_errors))}")
+        print(f"Std Dev = {np.std(np.array(abs_errors))}")
         print("Original Error:")
-        print("Median = " + str(abs(np.median(np.array(diffs_cpy)))))
-        print("Mean = " + str(abs(np.mean(np.array(diffs_cpy)))))
-        print("Std Dev = " + str(np.std(np.array(diffs_cpy))))
+        print(f"Median = {abs(np.median(np.array(diffs_cpy)))}")
+        print(f"Mean = {abs(np.mean(np.array(diffs_cpy)))}")
+        print(f"Std Dev = {np.std(np.array(diffs_cpy))}")
 
         return fig
 

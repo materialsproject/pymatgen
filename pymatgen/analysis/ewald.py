@@ -411,22 +411,13 @@ class EwaldSummation(MSONable):
         return self._eta
 
     def __str__(self):
-        if self._compute_forces:
-            output = [
-                "Real = " + str(self.real_space_energy),
-                "Reciprocal = " + str(self.reciprocal_space_energy),
-                "Point = " + str(self.point_energy),
-                "Total = " + str(self.total_energy),
-                "Forces:\n" + str(self.forces),
-            ]
-        else:
-            output = [
-                "Real = " + str(self.real_space_energy),
-                "Reciprocal = " + str(self.reciprocal_space_energy),
-                "Point = " + str(self.point_energy),
-                "Total = " + str(self.total_energy),
-                "Forces were not computed",
-            ]
+        output = [
+            f"Real = {self.real_space_energy}",
+            f"Reciprocal = {self.reciprocal_space_energy}",
+            f"Point = {self.point_energy}",
+            f"Total = {self.total_energy}",
+            f"Forces:\n{self.forces}" if self._compute_forces else "Forces were not computed",
+        ]
         return "\n".join(output)
 
     def as_dict(self, verbosity: int = 0) -> dict:
