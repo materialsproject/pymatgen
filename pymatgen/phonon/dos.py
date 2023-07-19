@@ -372,4 +372,4 @@ class CompletePhononDos(PhononDos):
         return d
 
     def __str__(self):
-        return "Complete phonon DOS for " + str(self.structure)
+        return f"Complete phonon DOS for {self.structure}"

@@ -1287,9 +1287,9 @@ class BSPlotterProjected(BSPlotter):
                     edict = {}
                     for elt in dictpa:
                         for anum in dictpa[elt]:
-                            edict[elt + str(anum)] = {}
+                            edict[f"{elt}{anum}"] = {}
                             for morb in dictio[elt]:
-                                edict[elt + str(anum)][morb] = proj[Spin.up][i][j][setos[morb]][anum - 1]
+                                edict[f"{elt}{anum}"][morb] = proj[Spin.up][i][j][setos[morb]][anum - 1]
                     proj_br[-1][str(Spin.up)][i].append(edict)
 
             if self._bs.is_spin_polarized:
@@ -1298,9 +1298,9 @@ class BSPlotterProjected(BSPlotter):
                         edict = {}
                         for elt in dictpa:
                             for anum in dictpa[elt]:
-                                edict[elt + str(anum)] = {}
+                                edict[f"{elt}{anum}"] = {}
                                 for morb in dictio[elt]:
-                                    edict[elt + str(anum)][morb] = proj[Spin.up][i][j][setos[morb]][anum - 1]
+                                    edict[f"{elt}{anum}"][morb] = proj[Spin.up][i][j][setos[morb]][anum - 1]
                         proj_br[-1][str(Spin.down)][i].append(edict)
 
         # Adjusting  projections for plot
@@ -1337,7 +1337,7 @@ class BSPlotterProjected(BSPlotter):
                                     for morb in dictio[elt]:
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
-                                            sprojection += atoms_morbs[elt + str(anum)][morb]
+                                            sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                         edict[elt + dictpa_d[elt][-1]][morb] = sprojection
                                 else:
                                     for anum in dictpa_d[elt]:
@@ -1356,7 +1356,7 @@ class BSPlotterProjected(BSPlotter):
                                         for morb in dictio[elt]:
                                             sprojection = 0.0
                                             for anum in sum_atoms[elt]:
-                                                sprojection += atoms_morbs[elt + str(anum)][morb]
+                                                sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                             edict[elt + dictpa_d[elt][-1]][morb] = sprojection
                                     else:
                                         for anum in dictpa_d[elt]:
@@ -1422,13 +1422,13 @@ class BSPlotterProjected(BSPlotter):
                                     for morb in dictio_d[elt][:-1]:
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
-                                            sprojection += atoms_morbs[elt + str(anum)][morb]
+                                            sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                         edict[elt + dictpa_d[elt][-1]][morb] = sprojection
 
                                     sprojection = 0.0
                                     for anum in sum_atoms[elt]:
                                         for morb in sum_morbs[elt]:
-                                            sprojection += atoms_morbs[elt + str(anum)][morb]
+                                            sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                     edict[elt + dictpa_d[elt][-1]][dictio_d[elt][-1]] = sprojection
 
                                 elif (elt in sum_atoms) and (elt not in sum_morbs):
@@ -1438,7 +1438,7 @@ class BSPlotterProjected(BSPlotter):
                                     for morb in dictio[elt]:
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
-                                            sprojection += atoms_morbs[elt + str(anum)][morb]
+                                            sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                         edict[elt + dictpa_d[elt][-1]][morb] = sprojection
 
                                 elif (elt not in sum_atoms) and (elt in sum_morbs):
@@ -1478,13 +1478,13 @@ class BSPlotterProjected(BSPlotter):
                                         for morb in dictio_d[elt][:-1]:
                                             sprojection = 0.0
                                             for anum in sum_atoms[elt]:
-                                                sprojection += atoms_morbs[elt + str(anum)][morb]
+                                                sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                             edict[elt + dictpa_d[elt][-1]][morb] = sprojection
 
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
                                             for morb in sum_morbs[elt]:
-                                                sprojection += atoms_morbs[elt + str(anum)][morb]
+                                                sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                         edict[elt + dictpa_d[elt][-1]][dictio_d[elt][-1]] = sprojection
 
                                     elif (elt in sum_atoms) and (elt not in sum_morbs):
@@ -1494,7 +1494,7 @@ class BSPlotterProjected(BSPlotter):
                                         for morb in dictio[elt]:
                                             sprojection = 0.0
                                             for anum in sum_atoms[elt]:
-                                                sprojection += atoms_morbs[elt + str(anum)][morb]
+                                                sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                             edict[elt + dictpa_d[elt][-1]][morb] = sprojection
 
                                     elif (elt not in sum_atoms) and (elt in sum_morbs):
@@ -2798,28 +2798,28 @@ class BoltztrapPlotter:
             plt.text(
                 self._bz.mu_doping["n"][temp][0] + 0.01,
                 limit,
-                "$n$=10$^{" + str(math.log10(self._bz.doping["n"][0])) + "}$",
+                f"$n$=10^{{{math.log10(self._bz.doping['n'][0])}}}$",
                 color="b",
             )
             plt.axvline(self._bz.mu_doping["n"][temp][-1], linewidth=3.0, linestyle="--")
             plt.text(
                 self._bz.mu_doping["n"][temp][-1] + 0.01,
                 limit,
-                "$n$=10$^{" + str(math.log10(self._bz.doping["n"][-1])) + "}$",
+                f"$n$=10^{{{math.log10(self._bz.doping['n'][-1])}}}$",
                 color="b",
             )
             plt.axvline(self._bz.mu_doping["p"][temp][0], linewidth=3.0, linestyle="--")
             plt.text(
                 self._bz.mu_doping["p"][temp][0] + 0.01,
                 limit,
-                "$p$=10$^{" + str(math.log10(self._bz.doping["p"][0])) + "}$",
+                f"$p$=10^{{{math.log10(self._bz.doping['p'][0])}}}$",
                 color="b",
             )
             plt.axvline(self._bz.mu_doping["p"][temp][-1], linewidth=3.0, linestyle="--")
             plt.text(
                 self._bz.mu_doping["p"][temp][-1] + 0.01,
                 limit,
-                "$p$=10$^{" + str(math.log10(self._bz.doping["p"][-1])) + "}$",
+                f"$p$=10^{{{math.log10(self._bz.doping['p'][-1])}}}$",
                 color="b",
             )
 
@@ -3134,7 +3134,7 @@ class BoltztrapPlotter:
                             tlist,
                             list(zip(*sbk_temp))[xyz],
                             marker="s",
-                            label=str(xyz) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
@@ -3188,7 +3188,7 @@ class BoltztrapPlotter:
                             tlist,
                             list(zip(*cond_temp))[xyz],
                             marker="s",
-                            label=str(xyz) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
@@ -3243,7 +3243,7 @@ class BoltztrapPlotter:
                             tlist,
                             list(zip(*pf_temp))[xyz],
                             marker="s",
-                            label=str(xyz) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
@@ -3299,7 +3299,7 @@ class BoltztrapPlotter:
                             tlist,
                             list(zip(*zt_temp))[xyz],
                             marker="s",
-                            label=str(xyz) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
@@ -3352,7 +3352,7 @@ class BoltztrapPlotter:
                             tlist,
                             list(zip(*em_temp))[xyz],
                             marker="s",
-                            label=str(xyz) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
@@ -3394,10 +3394,7 @@ class BoltztrapPlotter:
                 if output == "eigs":
                     for xyz in range(3):
                         plt.semilogx(
-                            self._bz.doping[dt],
-                            list(zip(*sbk[dt][temp]))[xyz],
-                            marker="s",
-                            label=str(xyz) + " " + str(temp) + " K",
+                            self._bz.doping[dt], list(zip(*sbk[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
                     plt.semilogx(
@@ -3449,10 +3446,7 @@ class BoltztrapPlotter:
                 if output == "eigs":
                     for xyz in range(3):
                         plt.semilogx(
-                            self._bz.doping[dt],
-                            list(zip(*cond[dt][temp]))[xyz],
-                            marker="s",
-                            label=str(xyz) + " " + str(temp) + " K",
+                            self._bz.doping[dt], list(zip(*cond[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
                     plt.semilogx(
@@ -3502,18 +3496,10 @@ class BoltztrapPlotter:
                 if output == "eigs":
                     for xyz in range(3):
                         plt.semilogx(
-                            self._bz.doping[dt],
-                            list(zip(*pf[dt][temp]))[xyz],
-                            marker="s",
-                            label=str(xyz) + " " + str(temp) + " K",
+                            self._bz.doping[dt], list(zip(*pf[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
-                    plt.semilogx(
-                        self._bz.doping[dt],
-                        pf[dt][temp],
-                        marker="s",
-                        label=str(temp) + " K",
-                    )
+                    plt.semilogx(self._bz.doping[dt], pf[dt][temp], marker="s", label=f"{temp} K")
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
                 plt.ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
@@ -3557,10 +3543,7 @@ class BoltztrapPlotter:
                 if output == "eigs":
                     for xyz in range(3):
                         plt.semilogx(
-                            self._bz.doping[dt],
-                            list(zip(*zt[dt][temp]))[xyz],
-                            marker="s",
-                            label=str(xyz) + " " + str(temp) + " K",
+                            self._bz.doping[dt], list(zip(*zt[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
                     plt.semilogx(
@@ -3612,10 +3595,7 @@ class BoltztrapPlotter:
                 if output == "eigs":
                     for xyz in range(3):
                         plt.semilogx(
-                            self._bz.doping[dt],
-                            list(zip(*em[dt][temp]))[xyz],
-                            marker="s",
-                            label=str(xyz) + " " + str(temp) + " K",
+                            self._bz.doping[dt], list(zip(*em[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
                     plt.semilogx(

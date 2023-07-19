@@ -290,10 +290,10 @@ class CompleteCohp(Cohp):
 
     def __str__(self):
         if self.are_coops:
-            return "Complete COOPs for " + str(self.structure)
+            return f"Complete COOPs for {self.structure}"
         if self.are_cobis:
-            return "Complete COBIs for " + str(self.structure)
-        return "Complete COHPs for " + str(self.structure)
+            return f"Complete COBIs for {self.structure}"
+        return f"Complete COHPs for {self.structure}"
 
     def as_dict(self):
         """JSON-serializable dict representation of CompleteCohp."""
@@ -1095,7 +1095,7 @@ class IcohpCollection(MSONable):
             return icohp_here.icohpvalue(spin)
 
         if isinstance(orbitals, list):
-            orbitals = str(orbitals[0]) + "-" + str(orbitals[1])
+            orbitals = f"{orbitals[0]}-{orbitals[1]}"
         if summed_spin_channels:
             return icohp_here.summed_orbital_icohp[orbitals]
 

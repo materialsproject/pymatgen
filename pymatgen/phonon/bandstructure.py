@@ -372,7 +372,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 {
                     "start_index": b[0],
                     "end_index": b[-1],
-                    "name": str(self.qpoints[b[0]].label) + "-" + str(self.qpoints[b[-1]].label),
+                    "name": f"{self.qpoints[b[0]].label}-{self.qpoints[b[-1]].label}",
                 }
             )
         # extract the frequencies with non-analytical contribution at gamma
