@@ -104,7 +104,7 @@ def run_mcsqs(
     # Generate clusters
     mcsqs_generate_clusters_cmd = ["mcsqs"]
     for num in clusters:
-        mcsqs_generate_clusters_cmd.append("-" + str(num) + "=" + str(clusters[num]))
+        mcsqs_generate_clusters_cmd.append(f"-{num}={clusters[num]}")
 
     # Run mcsqs to find clusters
     with Popen(mcsqs_generate_clusters_cmd) as process:

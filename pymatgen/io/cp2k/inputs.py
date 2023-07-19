@@ -100,9 +100,7 @@ class Keyword(MSONable):
 
     def __str__(self):
         return (
-            self.name.__str__()
-            + " "
-            + (f"[{self.units}] " if self.units else "")
+            f"{self.name} {f'[{self.units}] ' if self.units else ''}"
             + " ".join(map(str, self.values))
             + (" ! " + self.description if (self.description and self.verbose) else "")
         )
@@ -565,18 +563,15 @@ class Section(MSONable):
         """
         string = ""
         if d.description and d.verbose:
-            string += (
-                "\n"
-                + textwrap.fill(
-                    d.description,
-                    initial_indent="\t" * indent + "! ",
-                    subsequent_indent="\t" * indent + "! ",
-                    width=50,
-                )
-                + "\n"
+            filled = textwrap.fill(
+                d.description,
+                initial_indent="\t" * indent + "! ",
+                subsequent_indent="\t" * indent + "! ",
+                width=50,
             )
+            string += f"\n{filled}\n"
         string += "\t" * indent + "&" + d.name
-        string += " " + " ".join(map(str, d.section_parameters)) + "\n"
+        string += f" {' '.join(map(str, d.section_parameters))}\n"
 
         for v in d.keywords.values():
             if isinstance(v, KeywordList):
@@ -591,7 +586,7 @@ class Section(MSONable):
 
     def verbosity(self, verbosity):
         """
-        Change the section verbossity recursively by turning on/off the printing of descriptions.
+        Change the section verbosity recursively by turning on/off the printing of descriptions.
         Turning off descriptions may reduce the appealing documentation of input files, but also
         helps de-clutter them.
         """

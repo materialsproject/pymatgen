@@ -1386,7 +1386,7 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors: list[PeriodicNeighbor] = []
@@ -1423,7 +1423,7 @@ class IStructure(SiteCollection, MSONable):
                 is always included in the returned data.
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         return self.get_all_neighbors(r, include_index=include_index, include_image=include_image, sites=[site])[0]
 
@@ -1442,7 +1442,7 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         nn = self.get_sites_in_sphere(site.coords, r, include_index=include_index, include_image=include_image)
         return [d for d in nn if site != d[0]]
@@ -1903,7 +1903,7 @@ class IStructure(SiteCollection, MSONable):
                 data. Defaults to True.
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
@@ -2119,9 +2119,7 @@ class IStructure(SiteCollection, MSONable):
         # Check that both structures have the same species
         for i, site in enumerate(self):
             if site.species != end_structure[i].species:
-                raise ValueError(
-                    "Different species!\nStructure 1:\n" + str(self) + "\nStructure 2\n" + str(end_structure)
-                )
+                raise ValueError(f"Different species!\nStructure 1:\n{self}\nStructure 2\n{end_structure}")
 
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
@@ -3160,7 +3158,7 @@ class IMolecule(SiteCollection, MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d) -> dict:
+    def from_dict(cls, d) -> IMolecule | Molecule:
         """
         Reconstitute a Molecule object from a dict representation created using
         as_dict().
@@ -3198,7 +3196,7 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [:class:`pymatgen.core.structure.Neighbor`]
+            Neighbor
         """
         neighbors = []
         for i, site in enumerate(self._sites):
@@ -3217,7 +3215,7 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [:class:`pymatgen.core.structure.Neighbor`]
+            Neighbor
         """
         nns = self.get_sites_in_sphere(site.coords, r)
         return [nn for nn in nns if nn != site]
@@ -3233,7 +3231,7 @@ class IMolecule(SiteCollection, MSONable):
             dr (float): Width of shell.
 
         Returns:
-            [:class:`pymatgen.core.structure.Neighbor`]
+            Neighbor
         """
         outer = self.get_sites_in_sphere(origin, r + dr)
         inner = r - dr
@@ -3429,7 +3427,9 @@ class IMolecule(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_str(cls, input_string: str, fmt: str):
+    def from_str(
+        cls, input_string: str, fmt: Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"]
+    ) -> IMolecule | Molecule:
         """
         Reads the molecule from a string.
 
@@ -3448,21 +3448,21 @@ class IMolecule(SiteCollection, MSONable):
         from pymatgen.io.xyz import XYZ
 
         if fmt.lower() == "xyz":
-            m = XYZ.from_str(input_string).molecule
+            mol = XYZ.from_str(input_string).molecule
         elif fmt in ["gjf", "g03", "g09", "com", "inp"]:
-            m = GaussianInput.from_str(input_string).molecule
+            mol = GaussianInput.from_str(input_string).molecule
         elif fmt == "json":
-            d = json.loads(input_string)
-            return cls.from_dict(d)
+            dct = json.loads(input_string)
+            return cls.from_dict(dct)
         elif fmt == "yaml":
             yaml = YAML()
-            d = yaml.load(input_string)
-            return cls.from_dict(d)
+            dct = yaml.load(input_string)
+            return cls.from_dict(dct)
         else:
             from pymatgen.io.babel import BabelMolAdaptor
 
-            m = BabelMolAdaptor.from_str(input_string, file_format=fmt).pymatgen_mol
-        return cls.from_sites(m)
+            mol = BabelMolAdaptor.from_str(input_string, file_format=fmt).pymatgen_mol
+        return cls.from_sites(mol)
 
     @classmethod
     def from_file(cls, filename):

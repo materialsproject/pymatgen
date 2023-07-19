@@ -508,7 +508,7 @@ class ElementBase(Enum):
             L, S = min(comb_counter)
 
             J = list(np.arange(abs(L - S), abs(L) + abs(S) + 1))
-            term_symbols.append([str(int(2 * (abs(S)) + 1)) + L_symbols[abs(L)] + str(j) for j in J])
+            term_symbols.append([f"{int(2 * (abs(S)) + 1)}{L_symbols[abs(L)]}{j}" for j in J])
 
             # Delete all configurations included in this term
             for ML in range(-L, L - 1, -1):

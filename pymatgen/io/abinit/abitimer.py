@@ -753,7 +753,7 @@ class AbinitTimer:
                 else:
                     other_val += v
 
-            new_names.append("below minval " + str(minval))
+            new_names.append(f"below minval {minval}")
             new_values.append(other_val)
 
         elif minfract is not None:
@@ -768,7 +768,7 @@ class AbinitTimer:
                 else:
                     other_val += v
 
-            new_names.append("below minfract " + str(minfract))
+            new_names.append(f"below minfract {minfract}")
             new_values.append(other_val)
 
         else:
