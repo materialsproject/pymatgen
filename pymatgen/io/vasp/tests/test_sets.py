@@ -234,27 +234,27 @@ class MITMPRelaxSetTest(PymatgenTest):
         coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
         lattice = Lattice.cubic(4)
         struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
-        assert MITRelaxSet(struct).nelect == approx(16)
+        assert MITRelaxSet(struct).nelect == 16
 
         # Test estimate of number of bands (function of nelect) with nmag>0
-        assert MITRelaxSet(struct).estimate_nbands() == approx(15)
-        assert MPRelaxSet(struct).estimate_nbands() == approx(18)
+        assert MITRelaxSet(struct).estimate_nbands() == 15
+        assert MPRelaxSet(struct).estimate_nbands() == 18
 
         # Test estimate of number of bands (function of nelect) with nmag==0
         struct = Structure(lattice, ["Si", "Si", "Si"], coords)
-        assert MITRelaxSet(struct).estimate_nbands() == approx(11)
-        assert MPRelaxSet(struct).estimate_nbands() == approx(11)
+        assert MITRelaxSet(struct).estimate_nbands() == 11
+        assert MPRelaxSet(struct).estimate_nbands() == 11
 
         # Check that it works even when oxidation states are present. Was a bug
         # previously.
         struct = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
-        assert MITRelaxSet(struct).nelect == approx(16)
-        assert MPRelaxSet(struct).nelect == approx(22)
+        assert MITRelaxSet(struct).nelect == 16
+        assert MPRelaxSet(struct).nelect == 22
 
         # Check that it works for disordered structure. Was a bug previously
         struct = Structure(lattice, ["Si4+", "Fe2+", "Si4+"], coords)
-        assert MITRelaxSet(struct).nelect == approx(16)
-        assert MPRelaxSet(struct).nelect == approx(22)
+        assert MITRelaxSet(struct).nelect == 16
+        assert MPRelaxSet(struct).nelect == 22
 
     @skip_if_no_psp_dir
     def test_get_incar(self):
