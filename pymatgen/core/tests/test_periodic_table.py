@@ -515,6 +515,10 @@ class DummySpeciesTestCase(unittest.TestCase):
         self.specie2 = DummySpecies("X", 2, spin=3)
         assert self.specie2.spin == 3
 
+    def test_attr(self):
+        with pytest.raises(AttributeError):
+            _ = self.specie2.ionic_radius
+
     def test_eq(self):
         assert DummySpecies("Xg") != DummySpecies("Xh")
         assert DummySpecies("Xg") != DummySpecies("Xg", 3)

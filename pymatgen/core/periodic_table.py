@@ -1414,6 +1414,9 @@ class DummySpecies(Species):
         else:
             self._spin = spin
 
+    def __getattr__(self, attr):
+        raise AttributeError
+
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by Pauling electronegativity,
