@@ -1042,7 +1042,7 @@ class CifParser:
                 all_labels.extend(len(coords) * [labels[tmp_coords[0]]])
 
             # rescale occupancies if necessary
-            allspecies_noedit = all_species[:]
+            all_species_noedit = all_species[:]  # save copy before scaling in case of skip_occu_checks=True, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
@@ -1069,9 +1069,9 @@ class CifParser:
                 struct_2 = Structure(
                     lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels
                 )
-                for i, _ in enumerate(struct_2):
-                    struct_2[i] = PeriodicSite(
-                        allspecies_noedit[i], all_coords[i], lattice, properties=site_properties, skip_checks=True
+                for idx in range(len(struct_2)):
+                    struct_2[idx] = PeriodicSite(
+                        all_species_noedit[idx], all_coords[idx], lattice, properties=site_properties, skip_checks=True
                     )
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels
@@ -1086,9 +1086,13 @@ class CifParser:
 
                 if skip_occu_checks:
                     struct_2 = SymmetrizedStructure(struct, sg, equivalent_indices, wyckoffs)
-                    for i, _ in enumerate(struct_2):
-                        struct_2[i] = PeriodicSite(
-                            allspecies_noedit[i], all_coords[i], lattice, properties=site_properties, skip_checks=True
+                    for idx in range(len(struct_2)):
+                        struct_2[idx] = PeriodicSite(
+                            all_species_noedit[idx],
+                            all_coords[idx],
+                            lattice,
+                            properties=site_properties,
+                            skip_checks=True,
                         )
                     return struct_2
 
@@ -1125,16 +1129,15 @@ class CifParser:
                 currently Wyckoff labels and space group labels or numbers are
                 not included in the generated SymmetrizedStructure, these will be
                 notated as "Not Parsed" or -1 respectively.
-            skip_occu_checks (bool): If True, the occupancy of the periodic sites
-                will not be checked, allowing for aphysical values to be accepted.
-                This is useful for experimental results in which occupancy was
-                allowed to refine to aphysical values to account for some other
-                property otherwise not refinable from diffraction.
+            skip_occu_checks (bool): Default is False. If True, site occupancy will
+                not be checked, allowing aphysical occupancy != 1. Useful for experimental
+                results in which occupancy was allowed to refine to aphysical values.
+                Warning: Aphysical site occupancies are incompatible with many pymatgen features.
 
         Returns:
             List of Structures.
         """
-        if skip_occu_checks:
+        if skip_occu_checks:  # added in https://github.com/materialsproject/pymatgen/pull/2836
             warnings.warn("Structures with aphysical site occupancies are not compatible with many pymatgen features.")
         if primitive and symmetrized:
             raise ValueError(
@@ -1143,9 +1146,9 @@ class CifParser:
             )
 
         structures = []
-        for i, d in enumerate(self._cif.data.values()):
+        for idx, dct in enumerate(self._cif.data.values()):
             try:
-                struct = self._get_structure(d, primitive, symmetrized, skip_occu_checks)
+                struct = self._get_structure(dct, primitive, symmetrized, skip_occu_checks=skip_occu_checks)
                 if struct:
                     structures.append(struct)
             except (KeyError, ValueError) as exc:
@@ -1153,8 +1156,8 @@ class CifParser:
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
                 self.warnings.append(str(exc))
-                warnings.warn(f"No structure parsed for {i + 1} structure in CIF. Section of CIF file below.")
-                warnings.warn(str(d))
+                warnings.warn(f"No structure parsed for structure {idx + 1} in CIF. Section of CIF file below.")
+                warnings.warn(str(dct))
                 warnings.warn(f"Error is {exc}.")
 
         if self.warnings:
