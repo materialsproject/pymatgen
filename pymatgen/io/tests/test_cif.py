@@ -459,12 +459,12 @@ loop_
             test_cases[name] = name
             if len(name) == 2:
                 test_cases[name.upper()] = name
-                test_cases[name.upper() + str(1)] = name
+                test_cases[f"{name.upper()}1"] = name
                 test_cases[name.upper() + "A"] = name
-            test_cases[name + str(1)] = name
-            test_cases[name + str(2)] = name
-            test_cases[name + str(3)] = name
-            test_cases[name + str(1) + "A"] = name
+            test_cases[f"{name}1"] = name
+            test_cases[f"{name}2"] = name
+            test_cases[f"{name}3"] = name
+            test_cases[f"{name}1A"] = name
 
         special = {"Hw": "H", "Ow": "O", "Wat": "O", "wat": "O", "OH": "", "OH2": ""}
         test_cases.update(special)

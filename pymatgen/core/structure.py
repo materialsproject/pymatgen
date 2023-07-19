@@ -2119,9 +2119,7 @@ class IStructure(SiteCollection, MSONable):
         # Check that both structures have the same species
         for i, site in enumerate(self):
             if site.species != end_structure[i].species:
-                raise ValueError(
-                    "Different species!\nStructure 1:\n" + str(self) + "\nStructure 2\n" + str(end_structure)
-                )
+                raise ValueError(f"Different species!\nStructure 1:\n{self}\nStructure 2\n{end_structure}")
 
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
