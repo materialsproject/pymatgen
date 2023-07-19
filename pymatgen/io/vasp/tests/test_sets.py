@@ -237,8 +237,8 @@ class MITMPRelaxSetTest(PymatgenTest):
         assert MITRelaxSet(struct).nelect == approx(16)
 
         # Test estimate of number of bands (function of nelect) with nmag>0
-        assert MITRelaxSet(struct).estimate_nbands() == approx(13)
-        assert MPRelaxSet(struct).estimate_nbands() == approx(17)
+        assert MITRelaxSet(struct).estimate_nbands() == approx(15)
+        assert MPRelaxSet(struct).estimate_nbands() == approx(18)
 
         # Test estimate of number of bands (function of nelect) with nmag==0
         struct = Structure(lattice, ["Si", "Si", "Si"], coords)

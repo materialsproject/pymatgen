@@ -677,19 +677,24 @@ class DictSet(VaspInputSet):
         Estimate the number of bands that VASP will initialize a
         calculation with by default. Note that in practice this
         can depend on # of cores (if not set explicitly).
+        Note that this formula is slightly different than the formula on the VASP wiki
+        (as of July 2023). This is because the formula in the source code (`main.F`) is
+        slightly different than what is on the wiki.
         """
         nions = len(self.structure)
 
-        # from VASP's point of view, the number of magnetic atoms are
-        # the number of atoms with non-zero magmoms, so use Incar as
-        # source of truth
-        nmag = len([m for m in self.incar["MAGMOM"] if not np.allclose(m, 0)])
-
-        # by definition, if non-spin polarized ignore nmag
-        if (not nmag) or (self.incar["ISPIN"] == 1):
-            nbands = np.ceil(self.nelect / 2 + nions / 2)
+        # per the source, if non-spin polarized ignore nmag
+        if self.incar["ISPIN"] == 1:
+            nmag = 0
+        # otherwise set equal to sum of total magmoms
         else:
-            nbands = np.ceil(0.6 * self.nelect + nmag)
+            nmag = sum(self.incar["MAGMOM"])
+            nmag = np.floor((nmag+1)/2)
+
+        possible_val_1 = np.floor((self.nelect+2)/2) + max(np.floor(nions/2),3)
+        possible_val_2 = np.floor(self.nelect*0.6)
+
+        nbands = max(possible_val_1, possible_val_2) + nmag
 
         return int(nbands)
 
