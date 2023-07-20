@@ -59,10 +59,10 @@ class PDEntryTest(unittest.TestCase):
     def test_get_composition(self):
         comp = self.entry.composition
         expected_comp = Composition("LiFeO2")
-        assert comp == expected_comp, "Wrong composition!"
+        assert comp == expected_comp
         comp = self.gpentry.composition
         expected_comp = Composition("LiFe")
-        assert comp == expected_comp, "Wrong composition!"
+        assert comp == expected_comp
 
     def test_is_element(self):
         assert not self.entry.is_element
@@ -108,8 +108,8 @@ class TransformedPDEntryTest(unittest.TestCase):
         terminal_compositions = [Composition(c) for c in terminal_compositions]
 
         sp_mapping = {}
-        for i, comp in enumerate(terminal_compositions):
-            sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
+        for idx, comp in enumerate(terminal_compositions):
+            sp_mapping[comp] = DummySpecies("X" + chr(102 + idx))
 
         self.transformed_entry = TransformedPDEntry(entry, sp_mapping)
 
@@ -126,16 +126,19 @@ class TransformedPDEntryTest(unittest.TestCase):
     def test_get_composition(self):
         comp = self.transformed_entry.composition
         expected_comp = Composition({DummySpecies("Xf"): 14 / 30, DummySpecies("Xg"): 1.0, DummySpecies("Xh"): 2 / 30})
-        assert comp == expected_comp, "Wrong composition!"
+        assert comp == expected_comp
 
     def test_is_element(self):
-        assert not self.transformed_entry.is_element
+        assert self.transformed_entry.is_element is False
+        assert self.transformed_entry.original_entry.is_element is False
+        iron = Composition("Fe")
+        assert TransformedPDEntry(PDEntry(iron, 0), {iron: iron}).is_element is True
 
     def test_to_from_dict(self):
         dct = self.transformed_entry.as_dict()
         entry = TransformedPDEntry.from_dict(dct)
-        assert entry.name == "LiFeO2"
-        assert entry.energy_per_atom == approx(53.0 / (23 / 15))
+        assert entry.name == "LiFeO2" == self.transformed_entry.name
+        assert entry.energy_per_atom == approx(53.0 / (23 / 15)) == self.transformed_entry.energy_per_atom
 
     def test_str(self):
         assert str(self.transformed_entry).startswith("TransformedPDEntry Xf0+0.46666667 Xg")
@@ -146,7 +149,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         expected_comp = Composition(
             {DummySpecies("Xf"): 7 / 23, DummySpecies("Xg"): 15 / 23, DummySpecies("Xh"): 1 / 23}
         )
-        assert norm_entry.composition == expected_comp, "Wrong composition!"
+        assert norm_entry.composition == expected_comp
 
 
 class PhaseDiagramTest(PymatgenTest):
