@@ -480,7 +480,7 @@ class ConnectedComponent(MSONable):
         """Compute periodicity vectors of the connected component."""
         my_simple_graph = nx.Graph(self._connected_subgraph)
         cycles = nx.cycle_basis(my_simple_graph)
-        all_deltas = []
+        all_deltas: list[list] = []
         for cyc in map(list, cycles):
             cyc.append(cyc[0])
             this_cycle_deltas = [np.zeros(3, int)]
