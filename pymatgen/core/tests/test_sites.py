@@ -109,7 +109,7 @@ class PeriodicSiteTest(PymatgenTest):
         assert not self.site2.is_ordered
         assert self.propertied_site.properties["magmom"] == 5.1
         assert self.propertied_site.properties["charge"] == 4.2
-        assert self.labeled_site.label == "Fe2"
+        assert self.labeled_site.label == "site label"
 
     def test_distance(self):
         other_site = PeriodicSite("Fe", np.array([0, 0, 0]), self.lattice)
