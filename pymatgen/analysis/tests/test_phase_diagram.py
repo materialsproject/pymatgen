@@ -53,8 +53,8 @@ class PDEntryTest(unittest.TestCase):
         assert self.gpentry.energy_per_atom == 50.0 / 2, "Wrong energy per atom!"
 
     def test_get_name(self):
-        assert self.entry.name == "mp-757614", "Wrong name!"
-        assert self.gpentry.name == "mp-757614", "Wrong name!"
+        assert self.entry.name == "mp-757614"
+        assert self.gpentry.name == "mp-757614"
 
     def test_get_composition(self):
         comp = self.entry.composition
@@ -73,10 +73,10 @@ class PDEntryTest(unittest.TestCase):
         gpd = self.gpentry.as_dict()
         entry = PDEntry.from_dict(d)
 
-        assert entry.name == "mp-757614", "Wrong name!"
+        assert entry.name == "mp-757614"
         assert entry.energy_per_atom == 53.0 / 4
         gpentry = GrandPotPDEntry.from_dict(gpd)
-        assert gpentry.name == "mp-757614", "Wrong name!"
+        assert gpentry.name == "mp-757614"
         assert gpentry.energy_per_atom == 50.0 / 2
 
         d_anon = d.copy()
@@ -121,7 +121,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         assert self.transformed_entry.energy_per_atom == approx(53.0 / (23 / 15))
 
     def test_get_name(self):
-        assert self.transformed_entry.name == "LiFeO2", "Wrong name!"
+        assert self.transformed_entry.name == "LiFeO2"
 
     def test_get_composition(self):
         comp = self.transformed_entry.composition
@@ -132,9 +132,9 @@ class TransformedPDEntryTest(unittest.TestCase):
         assert not self.transformed_entry.is_element
 
     def test_to_from_dict(self):
-        d = self.transformed_entry.as_dict()
-        entry = TransformedPDEntry.from_dict(d)
-        assert entry.name == "LiFeO2", "Wrong name!"
+        dct = self.transformed_entry.as_dict()
+        entry = TransformedPDEntry.from_dict(dct)
+        assert entry.name == "LiFeO2"
         assert entry.energy_per_atom == approx(53.0 / (23 / 15))
 
     def test_str(self):

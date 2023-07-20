@@ -93,7 +93,7 @@ class PeriodicSiteTest(PymatgenTest):
             self.lattice,
             properties={"magmom": 5.1, "charge": 4.2},
         )
-        self.labeled_site = PeriodicSite("Fe", [0.25, 0.35, 0.45], self.lattice, label="Fe2")
+        self.labeled_site = PeriodicSite("Fe", [0.25, 0.35, 0.45], self.lattice, label="site label")
         self.dummy_site = PeriodicSite("X", [0, 0, 0], self.lattice)
 
     def test_properties(self):
@@ -220,7 +220,9 @@ class PeriodicSiteTest(PymatgenTest):
 
     def test_repr(self):
         assert repr(self.propertied_site) == "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]"
-        assert repr(self.labeled_site) == "PeriodicSite: Fe2 (Fe) (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]"
+        assert (
+            repr(self.labeled_site) == "PeriodicSite: site label (Fe) (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]"
+        )
 
 
 def get_distance_and_image_old(site1, site2, jimage=None):
