@@ -6,9 +6,7 @@ Atoms object and pymatgen Structure objects.
 
 from __future__ import annotations
 
-import sys
 import warnings
-from site import getsitepackages
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -20,10 +18,6 @@ if TYPE_CHECKING:
 
     from pymatgen.core.structure import SiteCollection
 
-
-# ensure site packages have higher precedence than local modules so that this file
-# can't shadow the ase package
-sys.path.insert(0, getsitepackages()[0])
 try:
     from ase import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator

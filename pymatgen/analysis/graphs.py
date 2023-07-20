@@ -2091,13 +2091,13 @@ class MoleculeGraph(MSONable):
         frag_dict = {}
         for ii in range(1, len(self.molecule)):
             for combination in combinations(graph.nodes, ii):
-                mycomp = []
+                comp = []
                 for idx in combination:
-                    mycomp.append(str(self.molecule[idx].specie))
-                mycomp = "".join(sorted(mycomp))
+                    comp.append(str(self.molecule[idx].specie))
+                comp = "".join(sorted(comp))
                 subgraph = nx.subgraph(graph, combination)
                 if nx.is_connected(subgraph):
-                    mykey = mycomp + str(len(subgraph.edges()))
+                    mykey = comp + str(len(subgraph.edges()))
                     if mykey not in frag_dict:
                         frag_dict[mykey] = [copy.deepcopy(subgraph)]
                     else:
@@ -2142,11 +2142,8 @@ class MoleculeGraph(MSONable):
                     )
                 )
 
-            frag_key = (
-                str(unique_mol_graph_list[0].molecule.composition.alphabetical_formula)
-                + " E"
-                + str(len(unique_mol_graph_list[0].graph.edges()))
-            )
+            alph_formula = unique_mol_graph_list[0].molecule.composition.alphabetical_formula
+            frag_key = f"{alph_formula} E{len(unique_mol_graph_list[0].graph.edges())}"
             unique_mol_graph_dict[frag_key] = copy.deepcopy(unique_mol_graph_list)
         return unique_mol_graph_dict
 

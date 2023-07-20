@@ -42,15 +42,15 @@ __date__ = "October 2021"
 
 class InputFile(MSONable):
     """
-    Abstract base class to represent a single input file. Note that use
-    of this class is optional; it is possible create an InputSet that
-    does not rely on underlying Inputfile objects.
+    Abstract base class to represent a single input file. Note that use of this class
+    is optional; it is possible create an InputSet that does not rely on underlying
+    InputFile objects.
 
-    All InputFile classes must implement a get_string method, which
-    is called by write_file.
+    All InputFile classes must implement a get_string method, which is called by
+    write_file.
 
-    If InputFile classes implement an __init__ method, they must assign all
-    arguments to __init__ as attributes.
+    If InputFile classes implement an __init__ method, they must assign all arguments
+    to __init__ as attributes.
     """
 
     @abc.abstractmethod
@@ -70,7 +70,7 @@ class InputFile(MSONable):
 
     @classmethod
     @abc.abstractmethod
-    def from_string(cls, contents: str):
+    def from_str(cls, contents: str):
         """
         Create an InputFile object from a string.
 
@@ -94,7 +94,7 @@ class InputFile(MSONable):
         """
         filename = path if isinstance(path, Path) else Path(path)
         with zopen(filename, "rt") as f:
-            return cls.from_string(f.read())
+            return cls.from_str(f.read())
 
     def __str__(self):
         return self.get_string()

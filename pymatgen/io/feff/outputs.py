@@ -54,7 +54,7 @@ class LDos(MSONable):
             ldos_file (str): output ldos file of run to obtain dos info, etc.
         """
         header_str = Header.header_string_from_file(feff_inp_file)
-        header = Header.from_string(header_str)
+        header = Header.from_str(header_str)
         structure = header.struct
         nsites = structure.num_sites
         parameters = Tags.from_file(feff_inp_file)

@@ -46,12 +46,12 @@ direct
 0.000000 0.000000 0.000000 Si
 0.750000 0.500000 0.750000 F
 """
-        poscar = Poscar.from_string(poscar_string)
+        poscar = Poscar.from_str(poscar_string)
         assert poscar.structure.composition == Composition("SiF")
 
         poscar_string = ""
         with pytest.raises(ValueError, match="Empty POSCAR"):
-            Poscar.from_string(poscar_string)
+            Poscar.from_str(poscar_string)
 
         # VASP 4 style file with default names, i.e. no element symbol found.
         poscar_string = """Test2
@@ -64,7 +64,7 @@ direct
 0.000000 0.000000 0.000000
 0.750000 0.500000 0.750000
 """
-        poscar = Poscar.from_string(poscar_string)
+        poscar = Poscar.from_str(poscar_string)
         assert poscar.structure.composition == Composition("HHe")
         # VASP 4 style file with default names, i.e. no element symbol found.
         poscar_string = """Test3
@@ -78,7 +78,7 @@ direct
 0.000000 0.000000 0.000000 T T T Si
 0.750000 0.500000 0.750000 F F F O
 """
-        poscar = Poscar.from_string(poscar_string)
+        poscar = Poscar.from_str(poscar_string)
         selective_dynamics = [list(x) for x in poscar.selective_dynamics]
 
         assert selective_dynamics == [[True, True, True], [False, False, False]]
@@ -156,7 +156,7 @@ direct
 0.000000 0.000000 0.000000 T T T Si
 0.750000 0.500000 0.750000 F F F O
 """
-        poscar = Poscar.from_string(poscar_string)
+        poscar = Poscar.from_str(poscar_string)
         d = poscar.as_dict()
         poscar2 = Poscar.from_dict(d)
         assert poscar2.comment == "Test3"
@@ -175,7 +175,7 @@ cart
 0.000000   0.00000000   0.00000000
 3.840198   1.50000000   2.35163175
 """
-        p = Poscar.from_string(poscar_string)
+        p = Poscar.from_str(poscar_string)
         site = p.structure[1]
         self.assert_all_close(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
@@ -259,7 +259,7 @@ direct
    0.0000000000000000    0.0000000000000000    0.0000000000000000 Si
    0.7500000000000000    0.5000000000000000    0.7500000000000000 F
 """
-        poscar = Poscar.from_string(poscar_string)
+        poscar = Poscar.from_str(poscar_string)
         assert str(poscar) == expected
 
     def test_from_md_run(self):
@@ -631,11 +631,11 @@ TIME       =  0.4"""
         incar["LSORBIT"] = "T"
         assert ans_string4_lsorbit == str(incar)
 
-        incar = Incar.from_string(ans_string1)
+        incar = Incar.from_str(ans_string1)
         assert incar["MAGMOM"] == [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
         assert incar["LANGEVIN_GAMMA"] == [10, 10, 10]
 
-        incar = Incar.from_string(ans_string2)
+        incar = Incar.from_str(ans_string2)
         assert incar["MAGMOM"] == [
             [-1, -1, -1],
             [-1, -1, -1],
@@ -648,7 +648,7 @@ TIME       =  0.4"""
         ]
         assert incar["LANGEVIN_GAMMA"] == [10]
 
-        incar = Incar.from_string(ans_string3)
+        incar = Incar.from_str(ans_string3)
         assert not incar["LSORBIT"]
         assert incar["MAGMOM"] == [-1, -1, 9, 9]
 
@@ -658,7 +658,7 @@ TIME       =  0.4"""
         incar1["QUAD_EFG"] = [0.0, 146.6, -25.58]
         ans_string1 = "LEFG = True\nQUAD_EFG = 0.0 146.6 -25.58\n"
         assert ans_string1 == str(incar1)
-        incar2 = Incar.from_string(ans_string1)
+        incar2 = Incar.from_str(ans_string1)
         assert ans_string1 == str(incar2)
 
     def test_types(self):
@@ -675,13 +675,13 @@ LPARD = True
 NBMOD = -3
 PREC = Accurate
 SIGMA = 0.1"""
-        i = Incar.from_string(incar_str)
+        i = Incar.from_str(incar_str)
         assert isinstance(i["EINT"], list)
         assert i["EINT"][0] == -0.85
 
         incar_str += "\nLHFCALC = .TRUE. ; HFSCREEN = 0.2"
         incar_str += "\nALGO = All;"
-        i = Incar.from_string(incar_str)
+        i = Incar.from_str(incar_str)
         assert i["LHFCALC"]
         assert i["HFSCREEN"] == 0.2
         assert i["ALGO"] == "All"
@@ -807,7 +807,7 @@ Cartesian
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [[1, 1, 1]]
         assert kpoints.style == Kpoints.supported_modes.Gamma
-        kpoints = Kpoints.from_string(
+        kpoints = Kpoints.from_str(
             """k-point mesh
 0
 G
@@ -845,7 +845,7 @@ G
 
     def test_automatic_kpoint(self):
         # struct = PymatgenTest.get_structure("Li2O")
-        p = Poscar.from_string(
+        p = Poscar.from_str(
             """Al1
 1.0
 2.473329 0.000000 1.427977

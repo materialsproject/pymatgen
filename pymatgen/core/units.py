@@ -145,7 +145,7 @@ del utype, d
 def _get_si_unit(unit):
     unit_type = _UNAME2UTYPE[unit]
     si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1, BASE_UNITS[unit_type])
-    return list(si_unit)[0], BASE_UNITS[unit_type][unit]
+    return next(iter(si_unit)), BASE_UNITS[unit_type][unit]
 
 
 class UnitError(BaseException):
@@ -309,11 +309,16 @@ class FloatWithUnit(float):
 
     Error = UnitError
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        """Use from_str instead."""
+        return cls.from_str(*args, **kwargs)
+
     @classmethod
-    def from_string(cls, s):
+    def from_str(cls, s):
         """Parse string to FloatWithUnit.
 
-        Example: Memory.from_string("1. Mb")
+        Example: Memory.from_str("1. Mb")
         """
         # Extract num and unit string.
         s = s.strip()
@@ -665,7 +670,7 @@ def _my_partial(func, *args, **kwargs):
     """
     newobj = partial(func, *args, **kwargs)
     # monkey patch
-    newobj.from_string = FloatWithUnit.from_string
+    newobj.from_str = FloatWithUnit.from_str
     return newobj
 
 

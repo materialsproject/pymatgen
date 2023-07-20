@@ -64,7 +64,7 @@ H 0.000000 0.000000 1.089000
 H 1.026719 0.000000 -0.363000
 H -0.513360 -0.889165 -0.363000
 H -0.513360 0.889165 -0.363000"""
-        xyz = XYZ.from_string(expected)
+        xyz = XYZ.from_str(expected)
         mol = xyz.molecule
         sp = ["C", "H", "H", "H", "H"]
         for i, site in enumerate(mol):
@@ -78,7 +78,7 @@ Random
 C 2.39132145462 -0.700993488928 -7.22293142224e-06
 C 1.16730636786 -1.38166622735 -2.77112970359e-06
 """
-        xyz = XYZ.from_string(mol_str)
+        xyz = XYZ.from_str(mol_str)
         mol = xyz.molecule
         assert abs(mol[0].z) < 1e-5
         assert abs(mol[1].z) < 1e-5
@@ -88,7 +88,7 @@ Random, Alternate Scientific Notation
 C 2.39132145462 -0.700993488928 -7.222*^-06
 C 1.16730636786 -1.38166622735 -2.771*^-06
 """
-        xyz = XYZ.from_string(mol_str)
+        xyz = XYZ.from_str(mol_str)
         mol = xyz.molecule
         assert mol[0].z == -7.222e-06
         assert mol[1].z == -2.771e-06
@@ -99,7 +99,7 @@ C   0.000000000000E+00  2.232615992397E+01  0.000000000000E+00
 C  -2.383225420567E-31  1.116307996198E+01  1.933502166311E+01
 C  -4.440892098501D-01 -1.116307996198d+01  1.933502166311E+01
 """
-        xyz = XYZ.from_string(mol_str)
+        xyz = XYZ.from_str(mol_str)
         mol = xyz.molecule
         assert mol[0].x == approx(0)
         assert mol[1].y == approx(11.16307996198)
@@ -115,7 +115,7 @@ C32-C2-1
  C    -0.68690   2.16170  -0.13790     4     5    18     7
  C     0.67160   2.15830   0.14350     5     4     2     6
  """
-        xyz = XYZ.from_string(mol_str)
+        xyz = XYZ.from_str(mol_str)
         mol = xyz.molecule
         assert mol[0].x == approx(2.70450)
         assert mol[1].y == approx(1.72490)

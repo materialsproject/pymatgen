@@ -120,6 +120,7 @@ jobs:
         uses: AndreMiras/coveralls-python-action@v20201129
 
   build_sdist:
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -136,6 +137,7 @@ jobs:
           path: dist/*.tar.gz
 
   build_wheels:
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
     needs: test
     strategy:
       matrix:

@@ -63,7 +63,7 @@ class LammpsInputSet(InputSet):
         if isinstance(inputfile, LammpsInputFile):
             self.inputfile = inputfile
         else:
-            self.inputfile = LammpsInputFile.from_string(inputfile, keep_stages=keep_stages)
+            self.inputfile = LammpsInputFile.from_str(inputfile, keep_stages=keep_stages)
         self.data = data
         self.calc_type = calc_type
         self.template_file = template_file

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.optimization package &mdash; pymatgen 2023.7.11 documentation</title>
+  <title>pymatgen.optimization package &mdash; pymatgen 2023.7.17 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.7.11
+                2023.7.17
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -128,7 +128,7 @@
 <p>This module contains an algorithm to solve the Linear Assignment Problem</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.optimization.linear_assignment.LinearAssignment">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LinearAssignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-13</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.11/pymatgen/optimization/linear_assignment.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.linear_assignment.LinearAssignment" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LinearAssignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-13</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/optimization/linear_assignment.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.linear_assignment.LinearAssignment" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class finds the solution to the Linear Assignment Problem.
 It finds a minimum cost matching between two sets, given a cost
@@ -157,7 +157,7 @@ It has the same functionality as linear_assignment.pyx, but is much slower
 as it is vectorized in numpy rather than cython.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.optimization.linear_assignment_numpy.LinearAssignment">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LinearAssignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.11/pymatgen/core/../optimization/linear_assignment_numpy.py#L19-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.linear_assignment_numpy.LinearAssignment" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LinearAssignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../optimization/linear_assignment_numpy.py#L19-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.linear_assignment_numpy.LinearAssignment" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class finds the solution to the Linear Assignment Problem.
 It finds a minimum cost matching between two sets, given a cost
@@ -178,7 +178,7 @@ rectangular</p></li>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.optimization.linear_assignment_numpy.LinearAssignment.min_cost">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_cost</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.11/pymatgen/optimization/linear_assignment_numpy.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.linear_assignment_numpy.LinearAssignment.min_cost" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_cost</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/optimization/linear_assignment_numpy.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.linear_assignment_numpy.LinearAssignment.min_cost" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the cost of the best assignment.</p>
 </dd></dl>
 
@@ -189,7 +189,7 @@ rectangular</p></li>
 <span id="pymatgen-optimization-neighbors-module"></span><h2>pymatgen.optimization.neighbors module<a class="headerlink" href="#module-pymatgen.optimization.neighbors" title="Permalink to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.optimization.neighbors.find_points_in_spheres">
-<span class="sig-name descname"><span class="pre">find_points_in_spheres</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.11/pymatgen/optimization/neighbors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.find_points_in_spheres" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">find_points_in_spheres</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/optimization/neighbors.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.find_points_in_spheres" title="Permalink to this definition"></a></dt>
 <dd><p>For each point in <cite>center_coords</cite>, get all the neighboring points in <cite>all_coords</cite>
 that are within the cutoff radius <cite>r</cite>. All the coordinates should be Cartesian.</p>
 <dl class="field-list simple">

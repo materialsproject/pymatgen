@@ -203,22 +203,22 @@ class EnumlibAdaptor:
             finder = SpacegroupAnalyzer(Structure.from_sites(ss), self.symm_prec)
             return finder.get_space_group_number()
 
-        target_sgnum = get_sg_info(list(symmetrized_structure))
+        target_sg_num = get_sg_info(list(symmetrized_structure))
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
-        sgnum = get_sg_info(curr_sites)
+        sg_num = get_sg_info(curr_sites)
         ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
-        logger.debug(f"Disordered sites has sg # {sgnum}")
+        logger.debug(f"Disordered sites has sg # {sg_num}")
         self.ordered_sites = []
 
         # progressively add ordered sites to our disordered sites
         # until we match the symmetry of our input structure
         if self.check_ordered_symmetry:
-            while sgnum != target_sgnum and len(ordered_sites) > 0:
+            while sg_num != target_sg_num and len(ordered_sites) > 0:
                 sites = ordered_sites.pop(0)
                 temp_sites = list(curr_sites) + sites
-                new_sgnum = get_sg_info(temp_sites)
-                if sgnum != new_sgnum:
-                    logger.debug(f"Adding {sites[0].specie} in enum. New sg # {new_sgnum}")
+                new_sg_num = get_sg_info(temp_sites)
+                if sg_num != new_sg_num:
+                    logger.debug(f"Adding {sites[0].specie} in enum. New sg # {new_sg_num}")
                     index_species.append(sites[0].specie)
                     index_amounts.append(len(sites))
                     sp_label = len(index_species) - 1
@@ -226,7 +226,7 @@ class EnumlibAdaptor:
                         coord_str.append(f"{coord_format.format(*site.coords)} {sp_label}")
                     disordered_sites.append(sites)
                     curr_sites = temp_sites
-                    sgnum = new_sgnum
+                    sg_num = new_sg_num
                 else:
                     self.ordered_sites.extend(sites)
 
@@ -367,7 +367,7 @@ class EnumlibAdaptor:
                 data = f.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)
-                poscar = Poscar.from_string(data, self.index_species)
+                poscar = Poscar.from_str(data, self.index_species)
                 sub_structure = poscar.structure
                 # Enumeration may have resulted in a super lattice. We need to
                 # find the mapping from the new lattice to the old lattice, and

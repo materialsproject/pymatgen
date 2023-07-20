@@ -6,9 +6,11 @@ import os
 import re
 from typing import Generator
 
+import numpy as np
 from monty.io import reverse_readline
 from monty.itertools import chunks
 from monty.json import MSONable
+from monty.serialization import zopen
 
 from pymatgen.core.structure import Molecule
 
@@ -352,8 +354,12 @@ class AdfKey(MSONable):
         subkeys = [AdfKey.from_dict(k) for k in subkey_list] or None
         return cls(key, options, subkeys)
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(string):
+    def from_str(string):
         """
         Construct an AdfKey object from the string.
 
@@ -406,13 +412,13 @@ class AdfKey(MSONable):
                 continue
             if el[0].upper() in AdfKey.block_keys:
                 if key is None:
-                    key = AdfKey.from_string(line)
+                    key = AdfKey.from_str(line)
                 else:
                     return key
             elif el[0].upper() == "END":
                 return key
             elif key is not None:
-                key.add_subkey(AdfKey.from_string(line))
+                key.add_subkey(AdfKey.from_str(line))
 
         raise Exception("IncompleteKey: 'END' is missing!")
 
@@ -482,27 +488,27 @@ class AdfTask(MSONable):
     @staticmethod
     def get_default_basis_set():
         """Returns: Default basis set."""
-        return AdfKey.from_string("Basis\ntype DZ\ncore small\nEND")
+        return AdfKey.from_str("Basis\ntype DZ\ncore small\nEND")
 
     @staticmethod
     def get_default_scf():
         """Returns: ADF using default SCF."""
-        return AdfKey.from_string("SCF\niterations 300\nEND")
+        return AdfKey.from_str("SCF\niterations 300\nEND")
 
     @staticmethod
     def get_default_geo():
         """Returns: ADFKey using default geometry."""
-        return AdfKey.from_string("GEOMETRY SinglePoint\nEND")
+        return AdfKey.from_str("GEOMETRY SinglePoint\nEND")
 
     @staticmethod
     def get_default_xc():
         """Returns: ADFKey using default XC."""
-        return AdfKey.from_string("XC\nGGA PBE\nEND")
+        return AdfKey.from_str("XC\nGGA PBE\nEND")
 
     @staticmethod
     def get_default_units():
         """Returns: Default units."""
-        return AdfKey.from_string("Units\nlength angstrom\nangle degree\nEnd")
+        return AdfKey.from_str("Units\nlength angstrom\nangle degree\nEnd")
 
     def _setup_task(self, geo_subkeys):
         """
@@ -695,8 +701,12 @@ class AdfOutput:
         """
         workdir = os.path.dirname(self.filename)
         logfile = os.path.join(workdir, "logfile")
-        if not os.path.isfile(logfile):
-            raise OSError("The ADF logfile can not be accessed!")
+        for ext in ("", ".gz", ".bz2"):
+            if os.path.isfile(f"{logfile}{ext}"):
+                logfile = f"{logfile}{ext}"
+                break
+        else:
+            raise FileNotFoundError("The ADF logfile can not be accessed!")
 
         self.is_failed = False
         self.error = self.final_energy = self.final_structure = None
@@ -734,7 +744,7 @@ class AdfOutput:
         energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\sHartree")
         final_energy_patt = re.compile(r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)\sa\.u\.")
         error_patt = re.compile(r"<.*>\s<.*>\s+ERROR\sDETECTED:\s(.*)")
-        runtype_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")
+        run_type_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")
         end_patt = re.compile(r"<.*>\s<.*>\s+END")
         parse_cycle = False
         sites = []
@@ -744,8 +754,8 @@ class AdfOutput:
         # Stop parsing the logfile is this job is not terminated successfully.
         # The last non-empty line of the logfile must match the end pattern.
         # Otherwise the job has some internal failure. The TAPE13 part of the
-        # ADF manual has a detailed explanantion.
-        with open(logfile) as f:
+        # ADF manual has a detailed explanation.
+        with zopen(logfile, "rt") as f:
             for line in reverse_readline(f):
                 if line == "":
                     continue
@@ -765,7 +775,7 @@ class AdfOutput:
                     break
 
                 if self.run_type is None:
-                    m = runtype_patt.search(line)
+                    m = run_type_patt.search(line)
                     if m:
                         if m.group(1) == "FREQUENCIES":
                             self.freq_type = "Numerical"

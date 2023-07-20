@@ -554,7 +554,7 @@ class PourbaixDiagram(MSONable):
             key=lambda x: (x.composition.reduced_composition, x.entry.energy_per_atom),
         )
         grouped_by_composition = itertools.groupby(sorted_entries, key=lambda x: x.composition.reduced_composition)
-        min_entries = [list(grouped_entries)[0] for comp, grouped_entries in grouped_by_composition]
+        min_entries = [next(iter(grouped_entries)) for comp, grouped_entries in grouped_by_composition]
         min_entries += ion_entries
 
         logger.debug("Constructing nph-nphi-composition points for qhull")

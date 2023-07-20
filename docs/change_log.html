@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Change log &mdash; pymatgen 2023.7.11 documentation</title>
+  <title>Change log &mdash; pymatgen 2023.7.17 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> pymatgen
           </a>
               <div class="version">
-                2023.7.11
+                2023.7.17
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -53,6 +53,8 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2023-7-17">v2023.7.17</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2023-7-14">v2023.7.14</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2023-7-11">v2023.7.11</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2023-6-28">v2023.6.28</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2023-6-23">v2023.6.23</a></li>
@@ -424,6 +426,30 @@
              
   <section id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this heading"></a></h1>
+<section id="v2023-7-17">
+<h2>v2023.7.17<a class="headerlink" href="#v2023-7-17" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Cython 3.0 support.</p></li>
+<li><p>PR #3157 from &#64;mattmcdermott magnetic-analyzer-fix. Fixes bug briefly mentioned in #3070, where recent
+spin property changes resulted in the <cite>MagneticStructureEnumerator</cite> failing. This is apparently due to
+creating structures where only some <cite>Species.spin</cite> properties are defined, causing
+CollinearMagneticStructureEnumerator` to fail.</p></li>
+<li><p>PR #3070 from &#64;mattmcdermott magnetic-enumerator-fix. To summarize: changes to default magnetic moments
+introduced in #2727 now mean that structures with only partially defined magnetic moments (e.g., on
+half the sites) cannot be successfully analyzed by <cite>SpaceGroupAnalyzer</cite>. This was encountered when
+performing magnetic ordering enumeration, as the previous default behavior for `
+MagOrderingTransformation` does not implicitly yield spins of 0 on the nonmagnetic sites. This has now
+been fixed.</p></li>
+</ul>
+</section>
+<section id="v2023-7-14">
+<h2>v2023.7.14<a class="headerlink" href="#v2023-7-14" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Emergency bug fix release to remove use of sys.path in pymatgen.io.ase package.</p></li>
+<li><p>Fix “Incompatible POTCAR” error on ComputedEntries with oxidation states.</p></li>
+<li><p>New global config variable <cite>PMG_POTCAR_CHECKS</cite> provides means to disable all POTCAR checking.</p></li>
+</ul>
+</section>
 <section id="v2023-7-11">
 <h2>v2023.7.11<a class="headerlink" href="#v2023-7-11" title="Permalink to this heading"></a></h2>
 <ul class="simple">

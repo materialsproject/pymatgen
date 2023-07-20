@@ -160,9 +160,9 @@ class ReactionTest(unittest.TestCase):
         reactants = [Composition("FePO4")]
         rxn = Reaction(reactants, products)
         assert str(rxn) == "FePO4 -> Fe1P1O3.9999 + 5e-05 O2"
-        assert rxn == Reaction.from_string(str(rxn))
+        assert rxn == Reaction.from_str(str(rxn))
 
-        rxn2 = Reaction.from_string("FePO4 + 20 CO -> 1e1 O2 + Fe1P1O4 + 20 C")
+        rxn2 = Reaction.from_str("FePO4 + 20 CO -> 1e1 O2 + Fe1P1O4 + 20 C")
         assert str(rxn2) == "20 CO -> 20 C + 10 O2"
 
     def test_equals(self):
@@ -322,9 +322,9 @@ class BalancedReactionTest(unittest.TestCase):
         for comp in new_rxn.all_comp:
             assert new_rxn.get_coeff(comp) == rxn.get_coeff(comp)
 
-    def test_from_string(self):
+    def test_from_str(self):
         rxn = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1}, {Composition("Li2O"): 2})
-        assert rxn == BalancedReaction.from_string("4 Li + O2 -> 2Li2O")
+        assert rxn == BalancedReaction.from_str("4 Li + O2 -> 2Li2O")
 
         rxn = BalancedReaction(
             {Composition("Li(NiO2)3"): 1},
@@ -335,7 +335,7 @@ class BalancedReactionTest(unittest.TestCase):
             },
         )
 
-        assert rxn == BalancedReaction.from_string("1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO")
+        assert rxn == BalancedReaction.from_str("1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO")
 
     def test_remove_spectator_species(self):
         rxn = BalancedReaction(
@@ -458,7 +458,7 @@ class ComputedReactionTest(unittest.TestCase):
     def test_calculated_reaction_energy_uncertainty_for_no_uncertainty(self):
         # test that reaction_energy_uncertainty property doesn't cause errors
         # when products/reactants have no uncertainties
-        assert self.rxn.calculated_reaction_energy_uncertainty == approx(0)
+        assert self.rxn.calculated_reaction_energy_uncertainty == 0
 
     def test_calculated_reaction_energy_uncertainty_for_nan(self):
         # test that reaction_energy_uncertainty property is nan when the uncertainty

@@ -249,7 +249,7 @@ class Poscar(MSONable):
         """
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
-        if check_for_POTCAR and (not SETTINGS.get("PMG_DISABLE_POTCAR_CHECKS", False)):
+        if check_for_POTCAR and SETTINGS.get("PMG_POTCAR_CHECKS") is not False:
             potcars = glob(os.path.join(dirname, "*POTCAR*"))
             if potcars:
                 try:
@@ -259,10 +259,15 @@ class Poscar(MSONable):
                 except Exception:
                     names = None
         with zopen(filename, "rt") as f:
-            return Poscar.from_string(f.read(), names, read_velocities=read_velocities)
+            return Poscar.from_str(f.read(), names, read_velocities=read_velocities)
+
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_string(data, default_names=None, read_velocities=True):
+    def from_str(data, default_names=None, read_velocities=True):
         """
         Reads a Poscar from a string.
 
@@ -754,10 +759,14 @@ class Incar(dict, MSONable):
             Incar object
         """
         with zopen(filename, "rt") as f:
-            return Incar.from_string(f.read())
+            return Incar.from_str(f.read())
+
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_string(string: str) -> Incar:
+    def from_str(string: str) -> Incar:
         """
         Reads an Incar object from a string.
 
@@ -982,7 +991,7 @@ class Incar(dict, MSONable):
                     )
 
 
-class Kpoints_supported_modes(Enum):
+class KpointsSupportedModes(Enum):
     """Enum type of all supported modes for Kpoint generation."""
 
     Automatic = 0
@@ -995,14 +1004,18 @@ class Kpoints_supported_modes(Enum):
     def __str__(self):
         return str(self.name)
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(s: str) -> Kpoints_supported_modes:
+    def from_str(s: str) -> KpointsSupportedModes:
         """
         :param s: String
         :return: Kpoints_supported_modes
         """
         c = s.lower()[0]
-        for m in Kpoints_supported_modes:
+        for m in KpointsSupportedModes:
             if m.name.lower()[0] == c:
                 return m
         raise ValueError(f"Can't interpret Kpoint mode {s}")
@@ -1011,13 +1024,13 @@ class Kpoints_supported_modes(Enum):
 class Kpoints(MSONable):
     """KPOINT reader/writer."""
 
-    supported_modes = Kpoints_supported_modes
+    supported_modes = KpointsSupportedModes
 
     def __init__(
         self,
         comment: str = "Default gamma",
         num_kpts: int = 0,
-        style: Kpoints_supported_modes = supported_modes.Gamma,
+        style: KpointsSupportedModes = supported_modes.Gamma,
         kpts: Sequence[float | int | Sequence] = ((1, 1, 1),),
         kpts_shift: tuple[float, float, float] = (0, 0, 0),
         kpts_weights=None,
@@ -1098,7 +1111,7 @@ class Kpoints(MSONable):
             enum.
         """
         if isinstance(style, str):
-            style = Kpoints.supported_modes.from_string(style)
+            style = Kpoints.supported_modes.from_str(style)
 
         if (
             style
@@ -1369,10 +1382,14 @@ class Kpoints(MSONable):
             Kpoints object
         """
         with zopen(filename, "rt") as f:
-            return Kpoints.from_string(f.read())
+            return Kpoints.from_str(f.read())
+
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_string(string):
+    def from_str(string):
         """
         Reads a Kpoints object from a KPOINTS string.
 

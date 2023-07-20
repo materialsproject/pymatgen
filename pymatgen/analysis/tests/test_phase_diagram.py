@@ -30,6 +30,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet
+from pymatgen.util.testing import PymatgenTest
 
 module_dir = Path(__file__).absolute().parent
 
@@ -93,7 +94,7 @@ class PDEntryTest(unittest.TestCase):
         assert str(pde) == "PDEntry : Li1 Fe1 O2 with energy = 53.0000"
 
     def test_read_csv(self):
-        entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
+        entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         assert entries.chemsys == {"Li", "Fe", "O"}, "Wrong elements!"
         assert len(entries) == 490, "Wrong number of entries!"
 
@@ -147,9 +148,9 @@ class TransformedPDEntryTest(unittest.TestCase):
         assert norm_entry.composition == expected_comp, "Wrong composition!"
 
 
-class PhaseDiagramTest(unittest.TestCase):
+class PhaseDiagramTest(PymatgenTest):
     def setUp(self):
-        self.entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
+        self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)
         warnings.simplefilter("ignore")
 
@@ -590,8 +591,10 @@ class PhaseDiagramTest(unittest.TestCase):
         assert isinstance(pd.to_json(), str)
 
     def test_read_json(self):
-        dumpfn(self.pd, "pd.json")
-        loadfn("pd.json")
+        dumpfn(self.pd, f"{self.tmp_path}/pd.json")
+        pd = loadfn(f"{self.tmp_path}/pd.json")
+        assert isinstance(pd, PhaseDiagram)
+        assert {*pd.as_dict()} == {*self.pd.as_dict()}
 
     def test_el_refs(self):
         # Create an imitation of pre_computed phase diagram with el_refs keys being
@@ -611,7 +614,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
+        self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
         self.pd6 = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -6})
 
@@ -645,7 +648,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
 
 class CompoundPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
+        self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
 
     def test_stable_entries(self):
@@ -843,7 +846,7 @@ class ReactionDiagramTest(unittest.TestCase):
 
 class PDPlotterTest(unittest.TestCase):
     def setUp(self):
-        entries = list(EntrySet.from_csv(os.path.join(module_dir, "pdentries_test.csv")))
+        entries = list(EntrySet.from_csv(os.path.join(module_dir, "pd_entries_test.csv")))
 
         elemental_entries = [e for e in entries if e.composition.elements == [Element("Li")]]
         self.pd_unary = PhaseDiagram(elemental_entries)

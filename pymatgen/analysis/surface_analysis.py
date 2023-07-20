@@ -216,7 +216,7 @@ class SlabEntry(ComputedStructureEntry):
         # from each element with an existing ref_entry.
         bulk_energy, gbulk_eqn = 0, 0
         for el, ref in ref_entries_dict.items():
-            N, delu = self.composition.as_dict()[el], Symbol("delu_" + str(el))
+            N, delu = self.composition.as_dict()[el], Symbol(f"delu_{el}")
             if el in ucell_comp.as_dict():
                 gbulk_eqn += ucell_reduced_comp[el] * (delu + ref.energy_per_atom)
             bulk_energy += N * (Symbol("delu_" + el) + ref.energy_per_atom)
@@ -681,7 +681,7 @@ class SurfaceEnergyPlotter:
         if not soln:
             warnings.warn("No solution")
             return soln
-        return {p: list(soln)[0][i] for i, p in enumerate(all_parameters)}
+        return {p: next(iter(soln))[i] for i, p in enumerate(all_parameters)}
 
     def stable_u_range_dict(
         self,

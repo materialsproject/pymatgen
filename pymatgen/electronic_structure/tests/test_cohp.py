@@ -881,10 +881,18 @@ class CompleteCohpTest(PymatgenTest):
         # The json files are dict representations of the COHPs from the LMTO
         # and LOBSTER calculations and should thus be the same.
 
-        assert self.cohp_lobster.as_dict() == self.cohp_lobster_dict.as_dict()
-        assert self.cohp_orb.as_dict() == self.cohp_orb_dict.as_dict()
+        def is_equal(a, b):
+            a_dict = a.as_dict()
+            b_dict = b.as_dict()
+            del a_dict["structure"]
+            del b_dict["structure"]
+            return (a_dict == b_dict) and (a.structure == b.structure)
+
+        assert is_equal(self.cohp_lobster, self.cohp_lobster_dict)
+        assert is_equal(self.cohp_orb, self.cohp_orb_dict)
         # Lobster 3.0, including f orbitals
-        assert self.cohp_lobster_forb.as_dict() == self.cohp_lobster_forb_dict.as_dict()
+
+        assert is_equal(self.cohp_lobster_forb, self.cohp_lobster_forb_dict)
 
         # Testing the LMTO dicts will be more involved. Since the average
         # is calculated and not read, there may be differences in rounding

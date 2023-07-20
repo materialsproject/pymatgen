@@ -1058,23 +1058,23 @@ class LocalStructOrderParamsTest(PymatgenTest):
 
         # Single bond.
         op_vals = ops_101.get_order_parameters(self.single_bond, 0)
-        assert int(op_vals[13] * 1000) == approx(1000)
+        assert op_vals[13] == approx(1)
         op_vals = ops_501.get_order_parameters(self.single_bond, 0)
-        assert int(op_vals[13] * 1000) == approx(799)
+        assert op_vals[13] == approx(0.7999999)
         op_vals = ops_101.get_order_parameters(self.linear, 0)
-        assert int(op_vals[13] * 1000) == approx(0)
+        assert op_vals[13] == approx(0.0)
 
         # Linear motif.
         op_vals = ops_101.get_order_parameters(self.linear, 0)
-        assert int(op_vals[1] * 1000) == approx(1000)
+        assert op_vals[1] == approx(1)
 
         # 45 degrees-bent motif.
         op_vals = ops_101.get_order_parameters(self.bent45, 0)
-        assert int(op_vals[2] * 1000) == approx(1000)
+        assert op_vals[2] == approx(1)
 
         # T-shape motif.
         op_vals = ops_101.get_order_parameters(self.T_shape, 0, indices_neighs=[1, 2, 3])
-        assert int(op_vals[23] * 1000) == approx(1000)
+        assert op_vals[23] == approx(1)
 
         # Cubic structure.
         op_vals = ops_099.get_order_parameters(self.cubic, 0)
@@ -1115,74 +1115,74 @@ class LocalStructOrderParamsTest(PymatgenTest):
         # Trigonal-planar motif.
         op_vals = ops_101.get_order_parameters(self.trigonal_planar, 0)
         assert int(op_vals[0] + 0.5) == 3
-        assert int(op_vals[14] * 1000 + 0.5) == approx(1000)
-        assert int(op_vals[29] * 1000 + 0.5) == approx(1000)
+        assert op_vals[14] == approx(1)
+        assert op_vals[29] == approx(1)
 
         # Regular triangle motif.
         op_vals = ops_101.get_order_parameters(self.regular_triangle, 0)
-        assert int(op_vals[9] * 1000) == approx(999)
+        assert op_vals[9] == approx(0.9999999)
 
         # Square-planar motif.
         op_vals = ops_101.get_order_parameters(self.square_planar, 0)
-        assert int(op_vals[15] * 1000 + 0.5) == approx(1000)
-        assert int(op_vals[30] * 1000 + 0.5) == approx(1000)
+        assert op_vals[15] == approx(1)
+        assert op_vals[30] == approx(1)
 
         # Square motif.
         op_vals = ops_101.get_order_parameters(self.square, 0)
-        assert int(op_vals[10] * 1000) == approx(1000)
+        assert op_vals[10] == approx(1)
 
         # Pentagonal planar.
         op_vals = ops_101.get_order_parameters(self.pentagonal_planar.sites, 0, indices_neighs=[1, 2, 3, 4, 5])
-        assert int(op_vals[12] * 1000 + 0.5) == approx(126)
-        assert int(op_vals[16] * 1000 + 0.5) == approx(1000)
-        assert int(op_vals[31] * 1000 + 0.5) == approx(1000)
+        assert op_vals[12] == approx(0.1260699690)
+        assert op_vals[16] == approx(1)
+        assert op_vals[31] == approx(1)
 
         # Trigonal pyramid motif.
         op_vals = ops_101.get_order_parameters(self.trigonal_pyramid, 0, indices_neighs=[1, 2, 3, 4])
-        assert int(op_vals[18] * 1000 + 0.5) == approx(1000)
+        assert op_vals[18] == approx(1)
 
         # Square pyramid motif.
         op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
-        assert int(op_vals[11] * 1000 + 0.5) == approx(1000)
-        assert int(op_vals[12] * 1000 + 0.5) == approx(667)
-        assert int(op_vals[17] * 1000 + 0.5) == approx(1000)
+        assert op_vals[11] == approx(1)
+        assert op_vals[12] == approx(2 / 3)
+        assert op_vals[17] == approx(1)
 
         # Pentagonal pyramid motif.
         op_vals = ops_101.get_order_parameters(self.pentagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6])
-        assert int(op_vals[19] * 1000 + 0.5) == approx(1000)
+        assert op_vals[19] == approx(1)
 
         # Hexagonal pyramid motif.
         op_vals = ops_101.get_order_parameters(self.hexagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7])
-        assert int(op_vals[20] * 1000 + 0.5) == approx(1000)
+        assert op_vals[20] == approx(1)
 
         # Trigonal bipyramidal.
         op_vals = ops_101.get_order_parameters(self.trigonal_bipyramidal.sites, 0, indices_neighs=[1, 2, 3, 4, 5])
-        assert int(op_vals[12] * 1000 + 0.5) == approx(1000)
+        assert op_vals[12] == approx(1)
 
         # Pentagonal bipyramidal.
         op_vals = ops_101.get_order_parameters(self.pentagonal_bipyramid.sites, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7])
-        assert int(op_vals[21] * 1000 + 0.5) == approx(1000)
+        assert op_vals[21] == approx(1)
 
         # Hexagonal bipyramid motif.
         op_vals = ops_101.get_order_parameters(self.hexagonal_bipyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7, 8])
-        assert int(op_vals[22] * 1000 + 0.5) == approx(1000)
+        assert op_vals[22] == approx(1)
 
         # Cuboctahedral motif.
         op_vals = ops_101.get_order_parameters(self.cuboctahedron, 0, indices_neighs=list(range(1, 13)))
-        assert int(op_vals[24] * 1000 + 0.5) == approx(1000)
-        assert int(op_vals[32] * 1000 + 0.5) == approx(1000)
+        assert op_vals[24] == approx(1)
+        assert op_vals[32] == approx(1)
 
         # See-saw motif.
         op_vals = ops_101.get_order_parameters(self.see_saw_rect, 0, indices_neighs=list(range(1, 5)))
-        assert int(op_vals[25] * 1000 + 0.5) == approx(1000)
+        assert op_vals[25] == approx(1)
 
         # Hexagonal planar motif.
         op_vals = ops_101.get_order_parameters(self.hexagonal_planar, 0, indices_neighs=[1, 2, 3, 4, 5, 6])
-        assert int(op_vals[26] * 1000 + 0.5) == approx(1000)
+        assert op_vals[26] == approx(1)
 
         # Square face capped trigonal prism.
         op_vals = ops_101.get_order_parameters(self.sq_face_capped_trig_pris, 0, indices_neighs=list(range(1, 8)))
-        assert int(op_vals[34] * 1000 + 0.5) == approx(1000)
+        assert op_vals[34] == approx(1)
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[1])

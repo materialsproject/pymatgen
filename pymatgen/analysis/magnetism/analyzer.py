@@ -187,7 +187,7 @@ class CollinearMagneticStructureAnalyzer:
                 )
             magmoms = [m or 0 for m in structure.site_properties["magmom"]]
         elif has_spin:
-            magmoms = [getattr(sp, "spin", 0) for sp in structure.species]
+            magmoms = [sp.spin or 0 for sp in structure.species]
             structure.remove_spin()
         else:
             # no magmoms present, add zero magmoms for now

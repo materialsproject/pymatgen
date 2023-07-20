@@ -32,7 +32,7 @@ class BaderAnalysisTest(unittest.TestCase):
         assert len(analysis.data) == 14
         assert analysis.data[0]["charge"] == approx(6.6136782, abs=1e-3)
         assert analysis.data[0]["charge"] == analysis.get_charge(0)
-        assert analysis.nelectrons == approx(96)
+        assert analysis.nelectrons == 96
         assert analysis.vacuum_charge == approx(0)
         ans = [
             -1.3863218,

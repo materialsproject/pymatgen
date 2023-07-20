@@ -56,7 +56,7 @@ class Cssr:
             f.write(str(self) + "\n")
 
     @staticmethod
-    def from_string(string):
+    def from_str(string):
         """
         Reads a string representation to a Cssr object.
 
@@ -93,4 +93,4 @@ class Cssr:
             Cssr object.
         """
         with zopen(filename, "rt") as f:
-            return Cssr.from_string(f.read())
+            return Cssr.from_str(f.read())

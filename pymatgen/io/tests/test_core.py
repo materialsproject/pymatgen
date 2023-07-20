@@ -25,8 +25,8 @@ class StructInputFile(InputFile):
         return str(cw)
 
     @classmethod
-    def from_string(cls, contents: str):
-        parser = CifParser.from_string(contents)
+    def from_str(cls, contents: str):
+        parser = CifParser.from_str(contents)
         struct = parser.get_structures()[0]
         return cls(structure=struct)
 

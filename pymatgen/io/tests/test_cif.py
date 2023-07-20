@@ -28,8 +28,8 @@ class CifBlockTest(PymatgenTest):
     def test_to_string(self):
         with open(f"{self.TEST_FILES_DIR}/Graphite.cif") as f:
             s = f.read()
-        c = CifBlock.from_string(s)
-        cif_str_2 = str(CifBlock.from_string(str(c)))
+        c = CifBlock.from_str(s)
+        cif_str_2 = str(CifBlock.from_str(str(c)))
         cif_str = """data_53781-ICSD
 _database_code_ICSD   53781
 _audit_creation_date   2003-04-01
@@ -116,7 +116,7 @@ loop_
         cif_str = """data_test
 _symmetry_space_group_name_H-M   "P -3 m 1"
 _thing   '_annoying_data'"""
-        cb = CifBlock.from_string(cif_str)
+        cb = CifBlock.from_str(cif_str)
         assert cb["_symmetry_space_group_name_H-M"] == "P -3 m 1"
         assert cb["_thing"] == "_annoying_data"
         assert str(cb) == cif_str.replace('"', "'")
@@ -126,7 +126,7 @@ _thing   '_annoying_data'"""
 _thing   ' '_annoying_data''
 _other   " "_more_annoying_data""
 _more   ' "even more" ' """
-        cb = CifBlock.from_string(cif_str)
+        cb = CifBlock.from_str(cif_str)
         assert cb["_thing"] == " '_annoying_data'"
         assert cb["_other"] == ' "_more_annoying_data"'
         assert cb["_more"] == ' "even more" '
@@ -141,7 +141,7 @@ long quotes
  ;
 actually going to end now
 ;"""
-        cb = CifBlock.from_string(cif_str)
+        cb = CifBlock.from_str(cif_str)
         assert cb["_thing"] == " long quotes  ;  still in the quote  ; actually going to end now"
 
     def test_long_loop(self):
@@ -267,7 +267,7 @@ loop_
     O  O24  1  0.956628  0.250000  0.292862  0  .  1
 
 """
-        parser = CifParser.from_string(cif_str)
+        parser = CifParser.from_str(cif_str)
         struct = parser.get_structures(primitive=False)[0]
         assert struct.formula == "Fe4 P4 O16"
         assert struct.lattice.a == approx(10.4117668699)
@@ -315,6 +315,23 @@ loop_
             "parsed structure unlikely to be suitable for use "
             "in calculations unless hydrogens added." in parser.warnings
         )
+
+    def test_site_labels(self):
+        parser = CifParser(f"{self.TEST_FILES_DIR}/garnet.cif")
+        struct = parser.get_structures(primitive=True)[0]
+
+        # ensure structure has correct number of labels
+        assert len(struct.labels) == len(struct)
+
+        # ensure the labels are unique and match the expected site names
+        expected_site_names = {"Al1", "Ca1", "O1", "Si1"}
+        assert {*struct.labels} == expected_site_names
+
+        # check label of each site
+        for site, label in zip(struct, struct.labels):
+            assert site.label == label
+            # Ensure the site label starts with the site species name
+            assert site.label.startswith(site.specie.name)
 
     def test_cif_parser_springer_pauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
@@ -442,12 +459,12 @@ loop_
             test_cases[name] = name
             if len(name) == 2:
                 test_cases[name.upper()] = name
-                test_cases[name.upper() + str(1)] = name
+                test_cases[f"{name.upper()}1"] = name
                 test_cases[name.upper() + "A"] = name
-            test_cases[name + str(1)] = name
-            test_cases[name + str(2)] = name
-            test_cases[name + str(3)] = name
-            test_cases[name + str(1) + "A"] = name
+            test_cases[f"{name}1"] = name
+            test_cases[f"{name}2"] = name
+            test_cases[f"{name}3"] = name
+            test_cases[f"{name}1A"] = name
 
         special = {"Hw": "H", "Ow": "O", "Wat": "O", "wat": "O", "OH": "", "OH2": ""}
         test_cases.update(special)
@@ -506,7 +523,7 @@ loop_
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         writer = CifWriter(poscar.structure, symprec=0.1)
 
-        cif = CifParser.from_string(str(writer))
+        cif = CifParser.from_str(str(writer))
         m = StructureMatcher()
 
         assert m.fit(cif.get_structures()[0], poscar.structure)
@@ -516,13 +533,13 @@ loop_
 
         struct = Structure.from_file(f"{self.TEST_FILES_DIR}/LiFePO4.cif")
         writer = CifWriter(struct, symprec=0.1)
-        s2 = CifParser.from_string(str(writer)).get_structures()[0]
+        s2 = CifParser.from_str(str(writer)).get_structures()[0]
 
         assert m.fit(struct, s2)
 
         struct = self.get_structure("Li2O")
         writer = CifWriter(struct, symprec=0.1)
-        s2 = CifParser.from_string(str(writer)).get_structures()[0]
+        s2 = CifParser.from_str(str(writer)).get_structures()[0]
         assert m.fit(struct, s2)
 
         # test angle tolerance.
@@ -589,7 +606,7 @@ loop_
         writer = CifWriter(si2, symprec=1e-3, significant_figures=10, refine_struct=False)
         s = str(writer)
         assert "Fd-3m" in s
-        same_si2 = CifParser.from_string(s).get_structures()[0]
+        same_si2 = CifParser.from_str(s).get_structures()[0]
         assert len(si2) == len(same_si2)
 
     def test_specie_cifwriter(self):
@@ -699,7 +716,7 @@ loop_
       _atom_site_occupancy
       ? ? ? ? ? ? ?
     """
-        parser = CifParser.from_string(string)
+        parser = CifParser.from_str(string)
         with pytest.raises(ValueError, match="Invalid cif file with no structures"):
             parser.get_structures()
 
@@ -753,7 +770,7 @@ loop_
   O  O24  1  0.956628  0.250000  0.292862  1
 
 """
-        parser = CifParser.from_string(cif_structure)
+        parser = CifParser.from_str(cif_structure)
         s_test = parser.get_structures(False)[0]
         filepath = f"{self.TEST_FILES_DIR}/POSCAR"
         poscar = Poscar.from_file(filepath)
@@ -764,14 +781,14 @@ loop_
 
     def test_empty(self):
         # single line
-        cb = CifBlock.from_string("data_mwe\nloop_\n_tag\n ''")
+        cb = CifBlock.from_str("data_mwe\nloop_\n_tag\n ''")
         assert cb.data["_tag"][0] == ""
 
         # multi line
-        cb = CifBlock.from_string("data_mwe\nloop_\n_tag\n;\n;")
+        cb = CifBlock.from_str("data_mwe\nloop_\n_tag\n;\n;")
         assert cb.data["_tag"][0] == ""
 
-        cb2 = CifBlock.from_string(str(cb))
+        cb2 = CifBlock.from_str(str(cb))
         assert cb == cb2
 
     def test_bad_cif(self):
@@ -845,7 +862,7 @@ loop_
   3  -x,-y,-z
   4  x-1/2,-y-1/2,z-1/2
 ;"""
-        parser = CifParser.from_string(s)
+        parser = CifParser.from_str(s)
         assert parser.get_structures()[0].formula == "Si1"
         cif = """
 data_1526655
@@ -876,7 +893,7 @@ _atom_site_occupancy
 _atom_site_U_iso_or_equiv
 Si1 Si 0 0 0 1 0.0
 """
-        parser = CifParser.from_string(cif)
+        parser = CifParser.from_str(cif)
         with pytest.raises(ValueError, match="Invalid cif file with no structures"):
             parser.get_structures()
 
@@ -950,7 +967,7 @@ Gd1 5.05 5.05 0.0"""
 
         # example with non-collinear spin
         s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
-        s_ncl_from_msg = CifParser.from_string(mag_cif_str).get_structures(primitive=False)[0]
+        s_ncl_from_msg = CifParser.from_str(mag_cif_str).get_structures(primitive=False)[0]
         assert s_ncl.formula == "Gd4 B16"
         assert not Magmom.are_collinear(s_ncl.site_properties["magmom"])
 
