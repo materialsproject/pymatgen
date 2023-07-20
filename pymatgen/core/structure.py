@@ -69,6 +69,7 @@ class Neighbor(Site):
         properties: dict | None = None,
         nn_distance: float = 0.0,
         index: int = 0,
+        label: str | None = None,
     ):
         """
         :param species: Same as Site
@@ -76,12 +77,14 @@ class Neighbor(Site):
         :param properties: Same as Site
         :param nn_distance: Distance to some other Site.
         :param index: Index within structure.
+        :param label: Label for the site. Defaults to None.
         """
         self.coords = coords
         self._species = species
         self.properties = properties or {}
         self.nn_distance = nn_distance
         self.index = index
+        self.label = label
 
     def __len__(self) -> Literal[3]:
         """Make neighbor Tuple-like to retain backwards compatibility."""
@@ -134,6 +137,7 @@ class PeriodicNeighbor(PeriodicSite):
         nn_distance: float = 0.0,
         index: int = 0,
         image: tuple = (0, 0, 0),
+        label: str | None = None,
     ):
         """
         Args:
@@ -144,6 +148,7 @@ class PeriodicNeighbor(PeriodicSite):
             nn_distance (float, optional): Distance to some other Site.. Defaults to 0.0.
             index (int, optional): Index within structure.. Defaults to 0.
             image (tuple, optional): PeriodicImage. Defaults to (0, 0, 0).
+            label (str, optional): Label for the site. Defaults to None.
         """
         self._lattice = lattice
         self._frac_coords = coords
@@ -152,6 +157,7 @@ class PeriodicNeighbor(PeriodicSite):
         self.nn_distance = nn_distance
         self.index = index
         self.image = image
+        self.label = label
 
     @property  # type: ignore
     def coords(self) -> np.ndarray:  # type: ignore

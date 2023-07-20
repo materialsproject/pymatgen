@@ -19,7 +19,15 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.structure import IMolecule, IStructure, Molecule, PeriodicNeighbor, Structure, StructureError
+from pymatgen.core.structure import (
+    IMolecule,
+    IStructure,
+    Molecule,
+    Neighbor,
+    PeriodicNeighbor,
+    Structure,
+    StructureError,
+)
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.util.testing import PymatgenTest
@@ -44,6 +52,19 @@ class NeighborTest(PymatgenTest):
         str_ = json.dumps(nn, cls=MontyEncoder)
         nn = json.loads(str_, cls=MontyDecoder)
         assert isinstance(nn[0], PeriodicNeighbor)
+
+    def test_neighbor_labels(self):
+        neighbor1 = Neighbor("C", [0, 0, 0])
+        assert neighbor1.label is None
+
+        neighbor2 = Neighbor("C", [0, 0, 0], label="C1")
+        assert neighbor2.label == "C1"
+
+        pneighbor1 = PeriodicNeighbor("C", [0, 0, 0], (10, 10, 10))
+        assert pneighbor1.label is None
+
+        pneighbor2 = PeriodicNeighbor("C", [0, 0, 0], (10, 10, 10), label="C1")
+        assert pneighbor2.label == "C1"
 
 
 class IStructureTest(PymatgenTest):
