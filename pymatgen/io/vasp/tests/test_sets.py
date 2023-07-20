@@ -236,15 +236,6 @@ class MITMPRelaxSetTest(PymatgenTest):
         struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
         assert MITRelaxSet(struct).nelect == 16
 
-        # Test estimate of number of bands (function of nelect) with nmag>0
-        assert MITRelaxSet(struct).estimate_nbands() == 15
-        assert MPRelaxSet(struct).estimate_nbands() == 18
-
-        # Test estimate of number of bands (function of nelect) with nmag==0
-        struct = Structure(lattice, ["Si", "Si", "Si"], coords)
-        assert MITRelaxSet(struct).estimate_nbands() == 11
-        assert MPRelaxSet(struct).estimate_nbands() == 11
-
         # Check that it works even when oxidation states are present. Was a bug
         # previously.
         struct = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
@@ -255,6 +246,35 @@ class MITMPRelaxSetTest(PymatgenTest):
         struct = Structure(lattice, ["Si4+", "Fe2+", "Si4+"], coords)
         assert MITRelaxSet(struct).nelect == 16
         assert MPRelaxSet(struct).nelect == 22
+
+    @skip_if_no_psp_dir
+    def test_estimate_nbands(self):
+        coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
+        lattice = Lattice.cubic(4)
+
+        # Test estimate of number of bands (function of nelect, nions, magmom, 
+        # noncollinearity of magnetism, and npar) for system of only Si.
+        struct = Structure(lattice, ["Si", "Si", "Si"], coords)
+        assert MITRelaxSet(struct).estimate_nbands() == 11
+        assert MPRelaxSet(struct).estimate_nbands() == 11
+
+        # Test estimate of number of bands (function of nelect, nions, magmom, 
+        # noncollinearity of magnetism, and npar) for system of Si and Fe.
+        struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
+        assert MITRelaxSet(struct).estimate_nbands() == 15
+        assert MPRelaxSet(struct).estimate_nbands() == 18
+
+        # Test estimate of number of bands (function of nelect, nions, magmom,
+        # noncollinearity of magnetism, and npar) with NPAR==4.
+        uis = {"NPAR":4}
+        assert MITRelaxSet(struct, user_incar_settings = uis).estimate_nbands() == approx(16)
+        assert MPRelaxSet(struct, user_incar_settings = uis).estimate_nbands() == approx(20)
+
+        # Test estimate of number of bands (function of nelect, nions, magmom, 
+        # noncollinearity of magnetism, and npar) with noncollinear magnetism turned on.
+        uis = {"LNONCOLLINEAR":True}
+        assert MITRelaxSet(struct, user_incar_settings = uis).estimate_nbands() == approx(30)
+        assert MPRelaxSet(struct, user_incar_settings = uis).estimate_nbands() == approx(36)
 
     @skip_if_no_psp_dir
     def test_get_incar(self):
