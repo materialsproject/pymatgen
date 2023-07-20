@@ -675,7 +675,7 @@ loop_
         for s in parser.get_structures(False):
             assert s.composition == 8 * Composition("C26H16BeN2O2S2")
 
-    def test_missing_atom_site_type_with_oxistates(self):
+    def test_missing_atom_site_type_with_oxi_states(self):
         parser = CifParser(f"{self.TEST_FILES_DIR}/P24Ru4H252C296S24N16.cif")
         c = Composition({"S0+": 24, "Ru0+": 4, "H0+": 252, "C0+": 296, "N0+": 16, "P0+": 24})
         for s in parser.get_structures(False):
