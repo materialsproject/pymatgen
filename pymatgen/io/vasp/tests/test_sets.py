@@ -249,7 +249,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
     @skip_if_no_psp_dir
     def test_estimate_nbands(self):
-        # estimate_nbands is a function of nelect, nions, magmom, noncollinearity of magnetism, and npar
+        # estimate_nbands is a function of n_elect, n_ions, magmom, noncollinearity of magnetism, and n_par
         coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
         lattice = Lattice.cubic(4)
 
