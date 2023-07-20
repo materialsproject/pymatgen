@@ -491,7 +491,7 @@ class ConnectedComponent(MSONable):
                     for current_delta in this_cycle_deltas:
                         this_cycle_deltas_new.append(current_delta + delta)
                 this_cycle_deltas = this_cycle_deltas_new
-            all_deltas.extend(this_cycle_deltas)
+            all_deltas.extend(this_cycle_deltas)  # type: ignore
             all_deltas = get_linearly_independent_vectors(all_deltas)
             if len(all_deltas) == 3:
                 return
@@ -509,7 +509,7 @@ class ConnectedComponent(MSONable):
                     current_delta = get_delta(n1, n2, e1data)
                     delta = get_delta(n2, n1, e2data)
                     current_delta += delta
-                    all_deltas.append(current_delta)
+                    all_deltas.append(current_delta)  # type: ignore
             else:
                 raise ValueError("Should not be here ...")
             all_deltas = get_linearly_independent_vectors(all_deltas)
