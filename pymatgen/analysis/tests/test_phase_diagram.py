@@ -138,7 +138,10 @@ class TransformedPDEntryTest(unittest.TestCase):
         assert entry.energy_per_atom == approx(53.0 / (23 / 15))
 
     def test_str(self):
-        assert str(self.transformed_entry) is not None
+        assert (
+            str(self.transformed_entry) == "TransformedPDEntry Xf0+0.46666667 Xg0+1.0 Xh0+0.06666667 "
+            "with original composition Li1 Fe1 O2, energy = 53.0000"
+        )
 
     def test_normalize(self):
         norm_entry = self.transformed_entry.normalize(mode="atom")
