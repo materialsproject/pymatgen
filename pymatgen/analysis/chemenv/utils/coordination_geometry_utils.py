@@ -603,11 +603,11 @@ class Plane:
         self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], np.float_)
         normv = np.linalg.norm(self.normal_vector)
         self.normal_vector /= normv
-        nonzeros = np.argwhere(self.normal_vector != 0.0).flatten()
-        zeros = list(set(range(3)) - set(nonzeros))
-        if len(nonzeros) == 0:
+        non_zeros = np.argwhere(self.normal_vector != 0.0).flatten()
+        zeros = list(set(range(3)) - set(non_zeros))
+        if len(non_zeros) == 0:
             raise ValueError("Normal vector is equal to 0.0")
-        if self.normal_vector[nonzeros[0]] < 0.0:
+        if self.normal_vector[non_zeros[0]] < 0.0:
             self.normal_vector = -self.normal_vector
             dd = -np.float_(coefficients[3]) / normv
         else:
@@ -622,32 +622,32 @@ class Plane:
         self.p3 = p3
         # Initializes 3 points belonging to the plane (useful for some methods)
         if self.p1 is None:
-            self.init_3points(nonzeros, zeros)
+            self.init_3points(non_zeros, zeros)
         self.vector_to_origin = dd * self.normal_vector
         self.e1 = self.e2 = None
         self.e3 = self.normal_vector
 
-    def init_3points(self, nonzeros, zeros):
+    def init_3points(self, non_zeros, zeros):
         """Initialize three random points on this plane.
 
-        :param nonzeros: Indices of plane coefficients ([a, b, c]) that are not zero.
+        :param non_zeros: Indices of plane coefficients ([a, b, c]) that are not zero.
         :param zeros: Indices of plane coefficients ([a, b, c]) that are equal to zero.
         :return: None
         """
-        if len(nonzeros) == 3:
+        if len(non_zeros) == 3:
             self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float_)
             self.p2 = np.array([0.0, -self.d / self.b, 0.0], np.float_)
             self.p3 = np.array([0.0, 0.0, -self.d / self.c], np.float_)
-        elif len(nonzeros) == 2:
+        elif len(non_zeros) == 2:
             self.p1 = np.zeros(3, np.float_)
-            self.p1[nonzeros[1]] = -self.d / self.coefficients[nonzeros[1]]
+            self.p1[non_zeros[1]] = -self.d / self.coefficients[non_zeros[1]]
             self.p2 = np.array(self.p1)
             self.p2[zeros[0]] = 1.0
             self.p3 = np.zeros(3, np.float_)
-            self.p3[nonzeros[0]] = -self.d / self.coefficients[nonzeros[0]]
-        elif len(nonzeros) == 1:
+            self.p3[non_zeros[0]] = -self.d / self.coefficients[non_zeros[0]]
+        elif len(non_zeros) == 1:
             self.p1 = np.zeros(3, np.float_)
-            self.p1[nonzeros[0]] = -self.d / self.coefficients[nonzeros[0]]
+            self.p1[non_zeros[0]] = -self.d / self.coefficients[non_zeros[0]]
             self.p2 = np.array(self.p1)
             self.p2[zeros[0]] = 1.0
             self.p3 = np.array(self.p1)
@@ -937,8 +937,8 @@ class Plane:
         """
         nn = np.cross(p1 - p3, p2 - p3)
         normal_vector = nn / norm(nn)
-        nonzeros = np.argwhere(normal_vector != 0.0)
-        if normal_vector[nonzeros[0, 0]] < 0.0:
+        non_zeros = np.argwhere(normal_vector != 0.0)
+        if normal_vector[non_zeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, p1)
         coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_)
@@ -980,8 +980,8 @@ class Plane:
         [UU, SS, Vt] = np.linalg.svd(AA)
         imin = np.argmin(SS)
         normal_vector = Vt[imin]
-        nonzeros = np.argwhere(normal_vector != 0.0)
-        if normal_vector[nonzeros[0, 0]] < 0.0:
+        non_zeros = np.argwhere(normal_vector != 0.0)
+        if normal_vector[non_zeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, mean_point)
         coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_)

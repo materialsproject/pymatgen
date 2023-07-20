@@ -337,7 +337,7 @@ class PeriodicSite(Site, MSONable):
                 raise ValueError("Species occupancies sum to more than 1!")
 
         self._lattice: Lattice = lattice
-        self._frac_coords: ArrayLike = frac_coords
+        self._frac_coords: np.ndarray = np.asarray(frac_coords)
         self._species: Composition = species  # type: ignore
         self._coords: np.ndarray | None = None
         self.properties: dict = properties or {}
@@ -361,8 +361,8 @@ class PeriodicSite(Site, MSONable):
         self._lattice = lattice
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
-    @property  # type: ignore
-    def coords(self) -> np.ndarray:  # type: ignore
+    @property
+    def coords(self) -> np.ndarray:
         """Cartesian coordinates."""
         if self._coords is None:
             self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
@@ -377,7 +377,7 @@ class PeriodicSite(Site, MSONable):
     @property
     def frac_coords(self) -> np.ndarray:
         """Fractional coordinates."""
-        return self._frac_coords  # type: ignore
+        return self._frac_coords
 
     @frac_coords.setter
     def frac_coords(self, frac_coords):
@@ -388,31 +388,31 @@ class PeriodicSite(Site, MSONable):
     @property
     def a(self) -> float:
         """Fractional a coordinate."""
-        return self._frac_coords[0]  # type: ignore
+        return self._frac_coords[0]
 
     @a.setter
     def a(self, a: float):
-        self._frac_coords[0] = a  # type: ignore
+        self._frac_coords[0] = a
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
     def b(self) -> float:
         """Fractional b coordinate."""
-        return self._frac_coords[1]  # type: ignore
+        return self._frac_coords[1]
 
     @b.setter
     def b(self, b: float):
-        self._frac_coords[1] = b  # type: ignore
+        self._frac_coords[1] = b
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
     def c(self) -> float:
         """Fractional c coordinate."""
-        return self._frac_coords[2]  # type: ignore
+        return self._frac_coords[2]
 
     @c.setter
     def c(self, c: float):
-        self._frac_coords[2] = c  # type: ignore
+        self._frac_coords[2] = c
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
@@ -554,20 +554,18 @@ class PeriodicSite(Site, MSONable):
         if self.label:
             name = f"{self.label} ({name})"
 
-        return (
-            f"PeriodicSite: {name} "
-            f"({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f}) "
-            f"[{self._frac_coords[0]:.4f}, {self._frac_coords[1]:.4f}, {self._frac_coords[2]:.4f}]"
-        )
+        x, y, z = self.coords
+        x_frac, y_frac, z_frac = map(float, self.frac_coords)
+        cls_name = type(self).__name__
+        return f"{cls_name}: {name} ({x:.4}, {y:.4}, {z:.4}) [{x_frac:.4}, {y_frac:.4}, {z_frac:.4}]"
 
     def as_dict(self, verbosity: int = 0) -> dict:
         """
         JSON-serializable dict representation of PeriodicSite.
 
         Args:
-            verbosity (int): Verbosity level. Default of 0 only includes the
-                matrix representation. Set to 1 for more details such as
-                Cartesian coordinates, etc.
+            verbosity (int): Verbosity level. Default of 0 only includes the matrix
+                representation. Set to 1 for more details such as Cartesian coordinates, etc.
         """
         species_list = []
         for spec, occu in self._species.items():
@@ -595,12 +593,12 @@ class PeriodicSite(Site, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d, lattice=None) -> PeriodicSite:
+    def from_dict(cls, dct, lattice=None) -> PeriodicSite:
         """
         Create PeriodicSite from dict representation.
 
         Args:
-            d (dict): dict representation of PeriodicSite
+            dct (dict): dict representation of PeriodicSite
             lattice: Optional lattice to override lattice specified in d.
                 Useful for ensuring all sites in a structure share the same
                 lattice.
@@ -609,7 +607,7 @@ class PeriodicSite(Site, MSONable):
             PeriodicSite
         """
         species = {}
-        for sp_occu in d["species"]:
+        for sp_occu in dct["species"]:
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(sp_occu["element"]):
                 sp = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
@@ -617,10 +615,10 @@ class PeriodicSite(Site, MSONable):
             else:
                 sp = Element(sp_occu["element"])  # type: ignore
             species[sp] = sp_occu["occu"]
-        props = d.get("properties")
+        props = dct.get("properties")
         if props is not None:
             for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
-        label = d.get("label")
-        lattice = lattice or Lattice.from_dict(d["lattice"])
-        return cls(species, d["abc"], lattice, properties=props, label=label)
+        label = dct.get("label")
+        lattice = lattice or Lattice.from_dict(dct["lattice"])
+        return cls(species, dct["abc"], lattice, properties=props, label=label)

@@ -96,7 +96,7 @@ class PourbaixEntry(MSONable, Stringify):
         else:
             self.concentration = 1.0
             self.phase_type = "Solid"
-            self.charge = 0.0
+            self.charge = 0
         self.uncorrected_energy = entry.energy
         if entry_id is not None:
             self.entry_id = entry_id
@@ -107,22 +107,22 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def npH(self):
-        """Returns:"""
-        return self.entry.composition.get("H", 0.0) - 2 * self.entry.composition.get("O", 0.0)
+        """Get the number of H."""
+        return self.entry.composition.get("H", 0) - 2 * self.entry.composition.get("O", 0)
 
     @property
     def nH2O(self):
-        """Returns: Number of H2O."""
-        return self.entry.composition.get("O", 0.0)
+        """Get the number of H2O."""
+        return self.entry.composition.get("O", 0)
 
     @property
     def nPhi(self):
-        """Returns: Number of H2O."""
+        """Get the number of electrons."""
         return self.npH - self.charge
 
     @property
     def name(self):
-        """Returns: Name for entry."""
+        """Get the name for entry."""
         if self.phase_type == "Solid":
             return self.entry.composition.reduced_formula + "(s)"
 
@@ -252,9 +252,10 @@ class PourbaixEntry(MSONable, Stringify):
         return self.entry.name
 
     def __repr__(self):
+        energy, npH, nPhi, nH2O, entry_id = self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id
         return (
-            f"Pourbaix Entry : {self.entry.composition} with energy = {self.energy:.4f}, npH = {self.npH}, "
-            f"nPhi = {self.nPhi}, nH2O = {self.nH2O}, entry_id = {self.entry_id} "
+            f"{type(self).__name__}({self.entry.composition} with {energy = :.4f}, {npH = }, "
+            f"{nPhi = }, {nH2O = }, {entry_id = })"
         )
 
 

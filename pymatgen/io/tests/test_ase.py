@@ -90,7 +90,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.get_initial_charges().tolist(), initial_charges
         assert atoms.get_charges().tolist(), charges
 
-    def test_get_atoms_from_structure_oxistates(self):
+    def test_get_atoms_from_structure_oxi_states(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structure = p.structure
         oxi_states = [1.0] * len(structure)
