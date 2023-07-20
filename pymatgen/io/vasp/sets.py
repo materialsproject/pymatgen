@@ -763,7 +763,7 @@ class DictSet(VaspInputSet):
         # TODO Only do this for VASP 6 for now. Older version require more advanced logic
 
         # get the ENCUT val
-        if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
+        if self.incar.get("ENCUT", 0) > 0:
             encut = self.incar["ENCUT"]
         else:
             encut = max(i_species.enmax for i_species in self.get_vasp_input()["POTCAR"])
