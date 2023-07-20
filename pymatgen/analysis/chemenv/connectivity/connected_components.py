@@ -527,13 +527,17 @@ class ConnectedComponent(MSONable):
         """
         return make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
 
-    def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True) -> None:
+    def show_graph(
+        self, graph: nx.MultiGraph | None = None, save_file: str | None = None, drawing_type: str = "internal"
+    ) -> None:
         """
+        Displays the graph using the specified drawing type.
+
         Args:
-            graph ():
-            save_file ():
-            drawing_type ():
-            pltshow ():
+            graph (Graph, optional): The graph to display. If not provided, the current graph is used.
+            save_file (str, optional): The file path to save the graph image to.
+                If not provided, the graph is not saved.
+            drawing_type (str): The type of drawing to use. Can be "internal" or "external".
         """
         import matplotlib.pyplot as plt
 
@@ -559,8 +563,6 @@ class ConnectedComponent(MSONable):
             import networkx
 
             networkx.draw_random(shown_graph)
-        if pltshow:
-            plt.show()
 
     @property
     def graph(self):
