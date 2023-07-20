@@ -681,29 +681,26 @@ class DictSet(VaspInputSet):
         (as of July 2023). This is because the formula in the source code (`main.F`) is
         slightly different than what is on the wiki.
         """
-        nions = len(self.structure)
+        n_ions = len(self.structure)
 
-        # per the source, if non-spin polarized ignore nmag
-        if self.incar["ISPIN"] == 1:
-            nmag = 0
-        # otherwise set equal to sum of total magmoms
-        else:
-            nmag = sum(self.incar["MAGMOM"])
-            nmag = np.floor((nmag + 1) / 2)
+        if self.incar["ISPIN"] == 1:  # per the VASP source, if non-spin polarized ignore n_mag
+            n_mag = 0
+        else:  # otherwise set equal to sum of total magmoms
+            n_mag = sum(self.incar["MAGMOM"])
+            n_mag = np.floor((n_mag + 1) / 2)
 
-        possible_val_1 = np.floor((self.nelect + 2) / 2) + max(np.floor(nions / 2), 3)
+        possible_val_1 = np.floor((self.nelect + 2) / 2) + max(np.floor(n_ions / 2), 3)
         possible_val_2 = np.floor(self.nelect * 0.6)
 
-        nbands = max(possible_val_1, possible_val_2) + nmag
+        n_bands = max(possible_val_1, possible_val_2) + n_mag
 
-        if "LNONCOLLINEAR" in self.incar and self.incar["LNONCOLLINEAR"] is True:
-            nbands = nbands * 2
+        if self.incar.get("LNONCOLLINEAR") is True:
+            n_bands = n_bands * 2
 
-        if "NPAR" in self.incar:
-            npar = self.incar["NPAR"]
-            nbands = (np.floor((nbands + npar - 1) / npar)) * npar
+        if n_par := self.incar.get("NPAR"):
+            n_bands = (np.floor((n_bands + n_par - 1) / n_par)) * n_par
 
-        return int(nbands)
+        return int(n_bands)
 
     def __str__(self):
         return type(self).__name__
