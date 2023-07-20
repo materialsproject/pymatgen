@@ -36,33 +36,34 @@ class SiteTest(PymatgenTest):
         assert self.propertied_site.properties["charge"] == 4.2
 
     def test_to_from_dict(self):
-        d = self.disordered_site.as_dict()
-        site = Site.from_dict(d)
+        dct = self.disordered_site.as_dict()
+        site = Site.from_dict(dct)
         assert site == self.disordered_site
         assert site != self.ordered_site
-        d = self.propertied_site.as_dict()
-        site = Site.from_dict(d)
+        dct = self.propertied_site.as_dict()
+        site = Site.from_dict(dct)
         assert site.properties["magmom"] == 5.1
         assert site.properties["charge"] == 4.2
-        d = self.propertied_magmom_vec_site.as_dict()
-        site = Site.from_dict(d)
+        dct = self.propertied_magmom_vec_site.as_dict()
+        site = Site.from_dict(dct)
         assert site.properties["magmom"] == Magmom([2.6, 2.6, 3.5])
         assert site.properties["charge"] == 4.2
-        d = self.dummy_site.as_dict()
-        site = Site.from_dict(d)
+        dct = self.dummy_site.as_dict()
+        site = Site.from_dict(dct)
         assert site.species == self.dummy_site.species
 
     def test_hash(self):
         assert hash(self.ordered_site) == 26
         assert hash(self.disordered_site) == 51
 
-    def test_cmp(self):
+    def test_gt_lt(self):
         assert self.ordered_site > self.disordered_site
+        assert self.disordered_site < self.ordered_site
 
     def test_distance(self):
-        osite = self.ordered_site
-        assert np.linalg.norm([0.25, 0.35, 0.45]) == osite.distance_from_point([0, 0, 0])
-        assert osite.distance(self.disordered_site) == 0
+        ord_site = self.ordered_site
+        assert np.linalg.norm([0.25, 0.35, 0.45]) == ord_site.distance_from_point([0, 0, 0])
+        assert ord_site.distance(self.disordered_site) == 0
 
     def test_pickle(self):
         o = pickle.dumps(self.propertied_site)
@@ -105,7 +106,7 @@ class PeriodicSiteTest(PymatgenTest):
         assert self.site.y == 3.5
         assert self.site.z == 4.5
         assert self.site.is_ordered
-        assert self.site.label is None
+        assert self.site.label == "Fe"
         assert not self.site2.is_ordered
         assert self.propertied_site.properties["magmom"] == 5.1
         assert self.propertied_site.properties["charge"] == 4.2
@@ -170,20 +171,23 @@ class PeriodicSiteTest(PymatgenTest):
         assert self.labeled_site == site
 
     def test_as_from_dict(self):
-        d = self.site2.as_dict()
-        site = PeriodicSite.from_dict(d)
+        dct = self.site2.as_dict()
+        site = PeriodicSite.from_dict(dct)
         assert site == self.site2
         assert site != self.site
-        assert site.label == self.site.label
-        d = self.propertied_site.as_dict()
-        site3 = PeriodicSite({"Si": 0.5, "Fe": 0.5}, [0, 0, 0], self.lattice)
-        d = site3.as_dict()
-        site = PeriodicSite.from_dict(d)
-        assert site.species == site3.species
+        assert site.label == self.site2.label
 
-        d = self.dummy_site.as_dict()
-        site = PeriodicSite.from_dict(d)
+        dct = self.propertied_site.as_dict()
+        site3 = PeriodicSite({"Si": 0.5, "Fe": 0.5}, [0, 0, 0], self.lattice)
+        dct = site3.as_dict()
+        site = PeriodicSite.from_dict(dct)
+        assert site.species == site3.species
+        assert site.label == site3.label
+
+        dct = self.dummy_site.as_dict()
+        site = PeriodicSite.from_dict(dct)
         assert site.species == self.dummy_site.species
+        assert site.label == self.dummy_site.label
 
     def test_to_unit_cell(self):
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)

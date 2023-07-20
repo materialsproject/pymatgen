@@ -944,7 +944,7 @@
     "pymatgen/core/tests/test_sites.py::PeriodicSiteTest::test_repr": 0.0002163760073017329,
     "pymatgen/core/tests/test_sites.py::PeriodicSiteTest::test_setters": 0.0005762910150224343,
     "pymatgen/core/tests/test_sites.py::PeriodicSiteTest::test_to_unit_cell": 0.0004528739955276251,
-    "pymatgen/core/tests/test_sites.py::SiteTest::test_cmp": 0.00041866599349305034,
+    "pymatgen/core/tests/test_sites.py::SiteTest::test_gt_lt": 0.00041866599349305034,
     "pymatgen/core/tests/test_sites.py::SiteTest::test_distance": 0.0005102920113131404,
     "pymatgen/core/tests/test_sites.py::SiteTest::test_hash": 0.00025291601195931435,
     "pymatgen/core/tests/test_sites.py::SiteTest::test_pickle": 0.00037470700044650584,
