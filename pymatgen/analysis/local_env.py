@@ -208,8 +208,8 @@ def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
         raise ValueError(
             f"Generating StructureGraphs for disordered Structures is unsupported. Pass on_disorder='take "
             "majority' | 'take_max_species' | 'error'. 'take_majority_strict' considers only the majority species from "
-            "each site in the bonding algorithm and raises ValueError in case there is no majority (e.g. as in {{Fe: "
-            "0.4, O: 0.4, C: 0.2}}) whereas 'take_majority_drop' just ignores the site altogether when computing bonds "
+            "each site in the bonding algorithm and raises ValueError in case there is no majority (e.g. as in {Fe: "
+            "0.4, O: 0.4, C: 0.2}) whereas 'take_majority_drop' just ignores the site altogether when computing bonds "
             "as if it didn't exist. 'take_max_species' extracts the first max species on each site (Fe in prev. "
             "example since Fe and O have equal occupancy and Fe comes first). 'error' raises an error in case "
             f"of disordered structure. Offending {structure = }"

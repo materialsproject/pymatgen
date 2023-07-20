@@ -219,10 +219,8 @@ class PeriodicSiteTest(PymatgenTest):
         self.assert_all_close(site.frac_coords, [0.015, 0.0325, 0.05])
 
     def test_repr(self):
-        assert repr(self.propertied_site) == "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]"
-        assert (
-            repr(self.labeled_site) == "PeriodicSite: site label (Fe) (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]"
-        )
+        assert repr(self.propertied_site) == "PeriodicSite: Fe2+ (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
+        assert repr(self.labeled_site) == "PeriodicSite: site label (Fe) (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
 
 
 def get_distance_and_image_old(site1, site2, jimage=None):

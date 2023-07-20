@@ -555,7 +555,7 @@ class PeriodicSite(Site, MSONable):
             name = f"{self.label} ({name})"
 
         x, y, z = self.coords
-        x_frac, y_frac, z_frac = self.frac_coords
+        x_frac, y_frac, z_frac = map(float, self.frac_coords)
         cls_name = type(self).__name__
         return f"{cls_name}: {name} ({x:.4}, {y:.4}, {z:.4}) [{x_frac:.4}, {y_frac:.4}, {z_frac:.4}]"
 
