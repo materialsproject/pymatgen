@@ -55,29 +55,19 @@ class NeighborTest(PymatgenTest):
 
     def test_neighbor_labels(self):
         comp = Composition("C")
+        for label in (None, "", "str label", ("tuple", "label")):
+            neighbor = Neighbor(comp, (0, 0, 0), label=label)
+            assert neighbor.label == label if label is not None else str(comp)
 
-        neighbor1 = Neighbor(comp, [0, 0, 0])
-        assert neighbor1.label == "C"
-
-        neighbor2 = Neighbor(comp, [0, 0, 0], label="my label")
-        assert neighbor2.label == "my label"
-
-        pneighbor1 = PeriodicNeighbor(comp, [0, 0, 0], (10, 10, 10))
-        assert pneighbor1.label == "C"
-
-        pneighbor2 = PeriodicNeighbor(comp, [0, 0, 0], (10, 10, 10), label="my label")
-        assert pneighbor2.label == "my label"
+            p_neighbor = PeriodicNeighbor(comp, (0, 0, 0), (10, 10, 10), label=label)
+            assert p_neighbor.label == label if label is not None else str(comp)
 
 
 class IStructureTest(PymatgenTest):
     def setUp(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         self.lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
+            [[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]]
         )
         self.struct = IStructure(self.lattice, ["Si"] * 2, coords)
         assert len(self.struct) == 2, "Wrong number of sites in structure!"
@@ -92,11 +82,7 @@ class IStructureTest(PymatgenTest):
         self.labeled_structure = IStructure(self.lattice, ["Si"] * 2, coords, labels=["Si1", "Si2"])
 
         self.lattice_pbc = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ],
+            [[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]],
             pbc=(True, True, False),
         )
 
@@ -341,7 +327,7 @@ class IStructureTest(PymatgenTest):
             assert interpolated_structs[0].lattice == inter_struct.lattice
         assert_array_equal(interpolated_structs[1][1].frac_coords, [0.625, 0.5, 0.625])
 
-        bad_lattice = [[1, 0.00, 0.00], [0, 1, 0.00], [0.00, 0, 1]]
+        bad_lattice = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         struct2 = IStructure(bad_lattice, ["Si"] * 2, coords2)
         with pytest.raises(ValueError, match="Structures with different lattices"):
             struct.interpolate(struct2)
@@ -787,9 +773,7 @@ class StructureTest(PymatgenTest):
         coords = []
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        lattice = Lattice(
-            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
-        )
+        lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
         self.structure = Structure(lattice, ["Si", "Si"], coords)
         self.cu_structure = Structure(lattice, ["Cu", "Cu"], coords)
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
@@ -1180,7 +1164,7 @@ class StructureTest(PymatgenTest):
             "P4_2'/mnm'",
             Lattice.tetragonal(4.87, 3.30),
             ["Mn", "F"],
-            [[0, 0, 0], [0.30, 0.30, 0.00]],
+            [[0, 0, 0], [0.30, 0.30, 0]],
             {"magmom": [4, 0]},
         )
 
@@ -1196,7 +1180,7 @@ class StructureTest(PymatgenTest):
             ["La", "Mn", "O", "O"],
             [
                 [0.05, 0.25, 0.99],
-                [0.00, 0.00, 0.50],
+                [0, 0, 0.50],
                 [0.48, 0.25, 0.08],
                 [0.31, 0.04, 0.72],
             ],
