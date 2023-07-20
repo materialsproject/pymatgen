@@ -689,10 +689,10 @@ class DictSet(VaspInputSet):
         # otherwise set equal to sum of total magmoms
         else:
             nmag = sum(self.incar["MAGMOM"])
-            nmag = np.floor((nmag+1)/2)
+            nmag = np.floor((nmag + 1) / 2)
 
-        possible_val_1 = np.floor((self.nelect+2)/2) + max(np.floor(nions/2),3)
-        possible_val_2 = np.floor(self.nelect*0.6)
+        possible_val_1 = np.floor((self.nelect + 2) / 2) + max(np.floor(nions / 2), 3)
+        possible_val_2 = np.floor(self.nelect * 0.6)
 
         nbands = max(possible_val_1, possible_val_2) + nmag
 
