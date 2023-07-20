@@ -2246,10 +2246,10 @@ class IStructure(SiteCollection, MSONable):
         def site_label(site):
             if not use_site_props:
                 return site.species_string
-            d = [site.species_string]
-            for k in sorted(site.properties):
-                d.append(k + "=" + str(site.properties[k]))
-            return ", ".join(d)
+            parts = [site.species_string]
+            for key in sorted(site.properties):
+                parts.append(f"{key}={site.properties[key]}")
+            return ", ".join(parts)
 
         # group sites by species string
         sites = sorted(self._sites, key=site_label)
