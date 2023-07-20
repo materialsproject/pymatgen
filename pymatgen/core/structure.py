@@ -84,7 +84,7 @@ class Neighbor(Site):
         self.properties = properties or {}
         self.nn_distance = nn_distance
         self.index = index
-        self.label = label
+        self.label = label if label else self.species_string
 
     def __len__(self) -> Literal[3]:
         """Make neighbor Tuple-like to retain backwards compatibility."""
@@ -157,7 +157,7 @@ class PeriodicNeighbor(PeriodicSite):
         self.nn_distance = nn_distance
         self.index = index
         self.image = image
-        self.label = label
+        self.label = label if label else self.species_string
 
     @property  # type: ignore
     def coords(self) -> np.ndarray:  # type: ignore
@@ -316,7 +316,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         return props
 
     @property
-    def labels(self) -> list[str | None]:
+    def labels(self) -> list[str]:
         """Return site labels as a list."""
         return [site.label for site in self]
 
@@ -2880,7 +2880,7 @@ class IMolecule(SiteCollection, MSONable):
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
         site_properties: dict | None = None,
-        labels: list[str | None] | None = None,
+        labels: Sequence[str | None] | None = None,
         charge_spin_check: bool = True,
     ) -> None:
         """
@@ -4298,7 +4298,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
         site_properties: dict | None = None,
-        labels: list[str | None] | None = None,
+        labels: Sequence[str | None] | None = None,
         charge_spin_check: bool = True,
     ) -> None:
         """

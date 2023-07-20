@@ -54,17 +54,19 @@ class NeighborTest(PymatgenTest):
         assert isinstance(nn[0], PeriodicNeighbor)
 
     def test_neighbor_labels(self):
-        neighbor1 = Neighbor("C", [0, 0, 0])
-        assert neighbor1.label is None
+        comp = Composition("C")
 
-        neighbor2 = Neighbor("C", [0, 0, 0], label="C1")
-        assert neighbor2.label == "C1"
+        neighbor1 = Neighbor(comp, [0, 0, 0])
+        assert neighbor1.label == "C"
 
-        pneighbor1 = PeriodicNeighbor("C", [0, 0, 0], (10, 10, 10))
-        assert pneighbor1.label is None
+        neighbor2 = Neighbor(comp, [0, 0, 0], label="my label")
+        assert neighbor2.label == "my label"
 
-        pneighbor2 = PeriodicNeighbor("C", [0, 0, 0], (10, 10, 10), label="C1")
-        assert pneighbor2.label == "C1"
+        pneighbor1 = PeriodicNeighbor(comp, [0, 0, 0], (10, 10, 10))
+        assert pneighbor1.label == "C"
+
+        pneighbor2 = PeriodicNeighbor(comp, [0, 0, 0], (10, 10, 10), label="my label")
+        assert pneighbor2.label == "my label"
 
 
 class IStructureTest(PymatgenTest):
@@ -192,7 +194,7 @@ class IStructureTest(PymatgenTest):
 
     def test_labeled_structure(self):
         assert self.labeled_structure.labels == ["Si1", "Si2"]
-        assert self.struct.labels == [None, None]
+        assert self.struct.labels == ["Si", "Si"]
 
     def test_get_distance(self):
         assert self.struct.get_distance(0, 1) == approx(2.35, abs=1e-2), "Distance calculated wrongly!"

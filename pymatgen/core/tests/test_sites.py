@@ -105,7 +105,7 @@ class PeriodicSiteTest(PymatgenTest):
         assert self.site.y == 3.5
         assert self.site.z == 4.5
         assert self.site.is_ordered
-        assert self.site.label is None
+        assert self.site.label == "Fe"
         assert not self.site2.is_ordered
         assert self.propertied_site.properties["magmom"] == 5.1
         assert self.propertied_site.properties["charge"] == 4.2
@@ -174,16 +174,19 @@ class PeriodicSiteTest(PymatgenTest):
         site = PeriodicSite.from_dict(d)
         assert site == self.site2
         assert site != self.site
-        assert site.label == self.site.label
+        assert site.label == self.site2.label
+
         d = self.propertied_site.as_dict()
         site3 = PeriodicSite({"Si": 0.5, "Fe": 0.5}, [0, 0, 0], self.lattice)
         d = site3.as_dict()
         site = PeriodicSite.from_dict(d)
         assert site.species == site3.species
+        assert site.label == site3.label
 
         d = self.dummy_site.as_dict()
         site = PeriodicSite.from_dict(d)
         assert site.species == self.dummy_site.species
+        assert site.label == self.dummy_site.label
 
     def test_to_unit_cell(self):
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)

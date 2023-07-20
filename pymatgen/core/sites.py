@@ -71,7 +71,7 @@ class Site(collections.abc.Hashable, MSONable):
         self._species: Composition = species  # type: ignore
         self.coords: np.ndarray = coords  # type: ignore
         self.properties: dict = properties or {}
-        self.label = label
+        self.label = label if label else self.species_string
 
     def __getattr__(self, attr):
         # overriding getattr doesn't play nicely with pickle, so we can't use self._properties
@@ -213,7 +213,7 @@ class Site(collections.abc.Hashable, MSONable):
     def __repr__(self):
         name = self.species_string
 
-        if self.label:
+        if self.label != name:
             name = f"{self.label} ({name})"
 
         return f"Site: {name} ({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f})"
@@ -256,6 +256,9 @@ class Site(collections.abc.Hashable, MSONable):
         }
         if self.properties:
             dct["properties"] = self.properties
+
+        dct["label"] = self.label
+
         return dct
 
     @classmethod
@@ -274,7 +277,8 @@ class Site(collections.abc.Hashable, MSONable):
         if props is not None:
             for key in props:
                 props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
-        return cls(atoms_n_occu, dct["xyz"], properties=props)
+        label = dct.get("label")
+        return cls(atoms_n_occu, dct["xyz"], properties=props, label=label)
 
 
 class PeriodicSite(Site, MSONable):
@@ -341,7 +345,7 @@ class PeriodicSite(Site, MSONable):
         self._species: Composition = species  # type: ignore
         self._coords: np.ndarray | None = None
         self.properties: dict = properties or {}
-        self.label = label
+        self.label = label if label else self.species_string
 
     def __hash__(self) -> int:
         """
@@ -551,7 +555,7 @@ class PeriodicSite(Site, MSONable):
     def __repr__(self):
         name = self.species_string
 
-        if self.label:
+        if self.label != name:
             name = f"{self.label} ({name})"
 
         x, y, z = self.coords
@@ -585,7 +589,6 @@ class PeriodicSite(Site, MSONable):
 
         if verbosity > 0:
             dct["xyz"] = [float(c) for c in self.coords]
-            dct["label"] = self.species_string
 
         dct["properties"] = self.properties
         dct["label"] = self.label
