@@ -689,20 +689,19 @@ class DictSet(VaspInputSet):
         # otherwise set equal to sum of total magmoms
         else:
             nmag = sum(self.incar["MAGMOM"])
-            nmag = np.floor((nmag+1)/2)
+            nmag = np.floor((nmag + 1) / 2)
 
-        possible_val_1 = np.floor((self.nelect+2)/2) + max(np.floor(nions/2),3)
-        possible_val_2 = np.floor(self.nelect*0.6)
+        possible_val_1 = np.floor((self.nelect + 2) / 2) + max(np.floor(nions / 2), 3)
+        possible_val_2 = np.floor(self.nelect * 0.6)
 
         nbands = max(possible_val_1, possible_val_2) + nmag
 
-        if "LNONCOLLINEAR" in self.incar.keys():
-            if self.incar["LNONCOLLINEAR"] == True:
-                nbands = nbands * 2
+        if "LNONCOLLINEAR" in self.incar and self.incar["LNONCOLLINEAR"] is True:
+            nbands = nbands * 2
 
-        if "NPAR" in self.incar.keys():
+        if "NPAR" in self.incar:
             npar = self.incar["NPAR"]
-            nbands = (np.floor((nbands+npar-1)/npar))*npar
+            nbands = (np.floor((nbands + npar - 1) / npar)) * npar
 
         return int(nbands)
 

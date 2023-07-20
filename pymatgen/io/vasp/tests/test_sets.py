@@ -252,13 +252,13 @@ class MITMPRelaxSetTest(PymatgenTest):
         coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
         lattice = Lattice.cubic(4)
 
-        # Test estimate of number of bands (function of nelect, nions, magmom, 
+        # Test estimate of number of bands (function of nelect, nions, magmom,
         # noncollinearity of magnetism, and npar) for system of only Si.
         struct = Structure(lattice, ["Si", "Si", "Si"], coords)
         assert MITRelaxSet(struct).estimate_nbands() == 11
         assert MPRelaxSet(struct).estimate_nbands() == 11
 
-        # Test estimate of number of bands (function of nelect, nions, magmom, 
+        # Test estimate of number of bands (function of nelect, nions, magmom,
         # noncollinearity of magnetism, and npar) for system of Si and Fe.
         struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
         assert MITRelaxSet(struct).estimate_nbands() == 15
@@ -266,15 +266,15 @@ class MITMPRelaxSetTest(PymatgenTest):
 
         # Test estimate of number of bands (function of nelect, nions, magmom,
         # noncollinearity of magnetism, and npar) with NPAR==4.
-        uis = {"NPAR":4}
-        assert MITRelaxSet(struct, user_incar_settings = uis).estimate_nbands() == approx(16)
-        assert MPRelaxSet(struct, user_incar_settings = uis).estimate_nbands() == approx(20)
+        uis = {"NPAR": 4}
+        assert MITRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(16)
+        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(20)
 
-        # Test estimate of number of bands (function of nelect, nions, magmom, 
+        # Test estimate of number of bands (function of nelect, nions, magmom,
         # noncollinearity of magnetism, and npar) with noncollinear magnetism turned on.
-        uis = {"LNONCOLLINEAR":True}
-        assert MITRelaxSet(struct, user_incar_settings = uis).estimate_nbands() == approx(30)
-        assert MPRelaxSet(struct, user_incar_settings = uis).estimate_nbands() == approx(36)
+        uis = {"LNONCOLLINEAR": True}
+        assert MITRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(30)
+        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(36)
 
     @skip_if_no_psp_dir
     def test_get_incar(self):
