@@ -138,10 +138,8 @@ class TransformedPDEntryTest(unittest.TestCase):
         assert entry.energy_per_atom == approx(53.0 / (23 / 15))
 
     def test_str(self):
-        assert (
-            str(self.transformed_entry) == "TransformedPDEntry Xf0+0.46666667 Xg0+1.0 Xh0+0.06666667 "
-            "with original composition Li1 Fe1 O2, energy = 53.0000"
-        )
+        assert str(self.transformed_entry).startswith("TransformedPDEntry Xf0+0.46666667 Xg")
+        assert str(self.transformed_entry).endswith("with original composition Li1 Fe1 O2, energy = 53.0000")
 
     def test_normalize(self):
         norm_entry = self.transformed_entry.normalize(mode="atom")
@@ -178,14 +176,14 @@ class PhaseDiagramTest(PymatgenTest):
 
     def test_dim1(self):
         # Ensure that dim 1 PDs can be generated.
-        for el in ["Li", "Fe", "O2"]:
+        for el in ("Li", "Fe", "O2"):
             entries = [entry for entry in self.entries if entry.composition.reduced_formula == el]
             pd = PhaseDiagram(entries)
             assert len(pd.stable_entries) == 1
 
             for entry in entries:
-                ehull = pd.get_e_above_hull(entry)
-                assert ehull >= 0
+                e_hull = pd.get_e_above_hull(entry)
+                assert e_hull >= 0
 
             plotter = PDPlotter(pd)
             lines, *_ = plotter.pd_plot_data

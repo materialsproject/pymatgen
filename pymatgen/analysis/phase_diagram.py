@@ -270,13 +270,12 @@ class TransformedPDEntry(PDEntry):
         Returns:
             MSONable dictionary representation of TransformedPDEntry.
         """
-        d = {
+        return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "sp_mapping": self.sp_mapping,
+            **self.original_entry.as_dict(),
         }
-        d.update(self.original_entry.as_dict())
-        return d
 
     @classmethod
     def from_dict(cls, d):
