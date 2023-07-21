@@ -164,8 +164,12 @@ class CifBlock:
                     q.append(tuple(s))
         return q
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @classmethod
-    def from_string(cls, string):
+    def from_str(cls, string):
         """
         Reads CifBlock from string.
 
@@ -225,11 +229,15 @@ class CifFile:
         self.comment = comment or "# generated using pymatgen"
 
     def __str__(self):
-        s = [f"{v}" for v in self.data.values()]
-        return self.comment + "\n" + "\n".join(s) + "\n"
+        out = "\n".join(map(str, self.data.values()))
+        return f"{self.comment}\n{out}\n"
+
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
     @classmethod
-    def from_string(cls, string):
+    def from_str(cls, string):
         """
         Reads CifFile from a string.
 
@@ -245,7 +253,7 @@ class CifFile:
             # CifParser was also not parsing it.
             if "powder_pattern" in re.split(r"\n", x, maxsplit=1)[0]:
                 continue
-            c = CifBlock.from_string("data_" + x)
+            c = CifBlock.from_str("data_" + x)
             dct[c.header] = c
         return cls(dct, string)
 
@@ -258,7 +266,7 @@ class CifFile:
         :return: CifFile
         """
         with zopen(str(filename), "rt", errors="replace") as f:
-            return cls.from_string(f.read())
+            return cls.from_str(f.read())
 
 
 class CifParser:
@@ -268,10 +276,16 @@ class CifParser:
     CifParser's errors attribute.
     """
 
-    def __init__(self, filename, occupancy_tolerance=1.0, site_tolerance=1e-4, frac_tolerance=1e-4):
+    def __init__(
+        self,
+        filename: str | StringIO,
+        occupancy_tolerance: float = 1.0,
+        site_tolerance: float = 1e-4,
+        frac_tolerance: float = 1e-4,
+    ) -> None:
         """
         Args:
-            filename (str): CIF filename, bzipped or gzipped CIF files are fine too.
+            filename (str): CIF filename, gzipped or bzipped CIF files are fine too.
             occupancy_tolerance (float): If total occupancy of a site is between 1 and occupancy_tolerance, the
                 occupancies will be scaled down to 1.
             site_tolerance (float): This tolerance is used to determine if two sites are sitting in the same position,
@@ -286,22 +300,18 @@ class CifParser:
         if isinstance(filename, (str, Path)):
             self._cif = CifFile.from_file(filename)
         else:
-            self._cif = CifFile.from_string(filename.read())
+            self._cif = CifFile.from_str(filename.read())
 
         # store if CIF contains features from non-core CIF dictionaries
         # e.g. magCIF
         self.feature_flags = {}
-        self.warnings = []
+        self.warnings: list[str] = []
 
         def is_magcif() -> bool:
             """Checks to see if file appears to be a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
-            prefixes = [
-                "_space_group_magn",
-                "_atom_site_moment",
-                "_space_group_symop_magn",
-            ]
+            prefixes = ["_space_group_magn", "_atom_site_moment", "_space_group_symop_magn"]
             for d in self._cif.data.values():
                 for k in d.data:
                     for prefix in prefixes:
@@ -335,8 +345,13 @@ class CifParser:
             # pass individual CifBlocks to _sanitize_data
             self._cif.data[k] = self._sanitize_data(self._cif.data[k])
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(cif_string, **kwargs):
+    def from_str(cif_string: str, **kwargs) -> CifParser:
         """
         Creates a CifParser from a string.
 
@@ -371,9 +386,8 @@ class CifParser:
             attached_hydrogens = [str2float(x) for x in data.data["_atom_site_attached_hydrogens"] if str2float(x) != 0]
             if len(attached_hydrogens) > 0:
                 self.warnings.append(
-                    "Structure has implicit hydrogens defined, "
-                    "parsed structure unlikely to be suitable for use "
-                    "in calculations unless hydrogens added."
+                    "Structure has implicit hydrogens defined, parsed structure unlikely to be "
+                    "suitable for use in calculations unless hydrogens added."
                 )
 
         # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do
@@ -895,6 +909,7 @@ class CifParser:
 
         coord_to_species = {}
         coord_to_magmoms = {}
+        labels = {}
 
         def get_matching_coord(coord):
             keys = list(coord_to_species)
@@ -908,15 +923,15 @@ class CifParser:
                     return keys[inds[0]]
             return False
 
-        for i in range(len(data["_atom_site_label"])):
+        for idx, label in enumerate(data["_atom_site_label"]):
             try:
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
-                symbol = self._parse_symbol(data["_atom_site_type_symbol"][i])
-                num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][i])
+                symbol = self._parse_symbol(data["_atom_site_type_symbol"][idx])
+                num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][idx])
             except KeyError:
-                symbol = self._parse_symbol(data["_atom_site_label"][i])
-                num_h = get_num_implicit_hydrogens(data["_atom_site_label"][i])
+                symbol = self._parse_symbol(label)
+                num_h = get_num_implicit_hydrogens(label)
             if not symbol:
                 continue
 
@@ -924,7 +939,7 @@ class CifParser:
                 o_s = oxi_states.get(symbol, 0)
                 # use _atom_site_type_symbol if possible for oxidation state
                 if "_atom_site_type_symbol" in data.data:
-                    oxi_symbol = data["_atom_site_type_symbol"][i]
+                    oxi_symbol = data["_atom_site_type_symbol"][idx]
                     o_s = oxi_states.get(oxi_symbol, o_s)
                 try:
                     el = Species(symbol, o_s)
@@ -933,13 +948,13 @@ class CifParser:
             else:
                 el = get_el_sp(symbol)
 
-            x = str2float(data["_atom_site_fract_x"][i])
-            y = str2float(data["_atom_site_fract_y"][i])
-            z = str2float(data["_atom_site_fract_z"][i])
-            magmom = magmoms.get(data["_atom_site_label"][i], np.array([0, 0, 0]))
+            x = str2float(data["_atom_site_fract_x"][idx])
+            y = str2float(data["_atom_site_fract_y"][idx])
+            z = str2float(data["_atom_site_fract_z"][idx])
+            magmom = magmoms.get(label, np.array([0, 0, 0]))
 
             try:
-                occu = str2float(data["_atom_site_occupancy"][i])
+                occu = str2float(data["_atom_site_occupancy"][idx])
             except (KeyError, ValueError):
                 occu = 1
 
@@ -955,13 +970,16 @@ class CifParser:
                         "in calculations unless hydrogens added."
                     )
                 comp = Composition(comp_d)
+
                 if not match:
                     coord_to_species[coord] = comp
                     coord_to_magmoms[coord] = magmom
+                    labels[coord] = label
                 else:
                     coord_to_species[match] += comp
                     # disordered magnetic not currently supported
                     coord_to_magmoms[match] = None
+                    labels[match] = label
 
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
@@ -980,6 +998,7 @@ class CifParser:
         all_magmoms = []
         all_hydrogens = []
         equivalent_indices = []
+        all_labels = []
 
         # check to see if magCIF file is disordered
         if self.feature_flags["magcif"]:
@@ -1030,12 +1049,13 @@ class CifParser:
                 all_coords.extend(coords)
                 all_species.extend(len(coords) * [species])
                 all_magmoms.extend(magmoms)
+                all_labels.extend(len(coords) * [labels[tmp_coords[0]]])
 
             # rescale occupancies if necessary
-            for i, species in enumerate(all_species):
+            for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if 1 < total_occu <= self._occupancy_tolerance:
-                    all_species[i] = species / total_occu
+                    all_species[idx] = species / total_occu
 
         if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
             site_properties = {}
@@ -1049,7 +1069,12 @@ class CifParser:
             if len(site_properties) == 0:
                 site_properties = None
 
-            struct = Structure(lattice, all_species, all_coords, site_properties=site_properties)
+            if any(all_labels):
+                assert len(all_labels) == len(all_species)
+            else:
+                all_labels = None
+
+            struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
 
             if symmetrized:
                 # Wyckoff labels not currently parsed, note that not all CIFs will contain Wyckoff labels

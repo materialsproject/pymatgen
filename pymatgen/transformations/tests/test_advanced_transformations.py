@@ -414,7 +414,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         alls = trans.apply_transformation(self.Fe3O4_oxi)
         assert isinstance(alls, Structure)
         assert str(alls[0].specie) == "Fe2+,spin=5"
-        assert str(alls[2].specie) == "Fe3+,spin=0"
+        assert str(alls[2].specie) == "Fe3+"
 
         # test multiple order parameters
         # this should only order on Fe3+ site, but assign spin to both

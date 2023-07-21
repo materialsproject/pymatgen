@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import warnings
 
+import numpy as np
 from monty.dev import requires
 
 from pymatgen.core.structure import IMolecule, Molecule
@@ -336,8 +337,12 @@ class BabelMolAdaptor:
         """
         return BabelMolAdaptor(mol.molecule)
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(string_data, file_format="xyz"):
+    def from_str(string_data, file_format="xyz"):
         """
         Uses OpenBabel to read a molecule from a string in all supported
         formats.

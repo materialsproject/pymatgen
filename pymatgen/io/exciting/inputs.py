@@ -73,8 +73,12 @@ class ExcitingInput(MSONable):
     def lockxyz(self, lockxyz):
         self.structure.add_site_property("selective_dynamics", lockxyz)
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(data):
+    def from_str(data):
         """Reads the exciting input from a string."""
         root = ET.fromstring(data)
         speciesnode = root.find("structure").iter("species")
@@ -150,7 +154,7 @@ class ExcitingInput(MSONable):
         """
         with zopen(filename, "rt") as f:
             data = f.read().replace("\n", "")
-        return ExcitingInput.from_string(data)
+        return ExcitingInput.from_str(data)
 
     def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
         """

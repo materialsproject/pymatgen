@@ -85,10 +85,10 @@ class FloatWithUnitTest(PymatgenTest):
         assert mega.to("byte") == 1024**2
         assert mega == Memory(1, "mb")
 
-        same_mega = Memory.from_string("1Mb")
+        same_mega = Memory.from_str("1Mb")
         assert same_mega.unit_type == "memory"
 
-        other_mega = Memory.from_string("+1.0 mb")
+        other_mega = Memory.from_str("+1.0 mb")
         assert mega == other_mega
 
     def test_unitized(self):

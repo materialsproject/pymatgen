@@ -30,6 +30,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet
+from pymatgen.util.testing import PymatgenTest
 
 module_dir = Path(__file__).absolute().parent
 
@@ -52,16 +53,16 @@ class PDEntryTest(unittest.TestCase):
         assert self.gpentry.energy_per_atom == 50.0 / 2, "Wrong energy per atom!"
 
     def test_get_name(self):
-        assert self.entry.name == "mp-757614", "Wrong name!"
-        assert self.gpentry.name == "mp-757614", "Wrong name!"
+        assert self.entry.name == "mp-757614"
+        assert self.gpentry.name == "mp-757614"
 
     def test_get_composition(self):
         comp = self.entry.composition
         expected_comp = Composition("LiFeO2")
-        assert comp == expected_comp, "Wrong composition!"
+        assert comp == expected_comp
         comp = self.gpentry.composition
         expected_comp = Composition("LiFe")
-        assert comp == expected_comp, "Wrong composition!"
+        assert comp == expected_comp
 
     def test_is_element(self):
         assert not self.entry.is_element
@@ -72,10 +73,10 @@ class PDEntryTest(unittest.TestCase):
         gpd = self.gpentry.as_dict()
         entry = PDEntry.from_dict(d)
 
-        assert entry.name == "mp-757614", "Wrong name!"
+        assert entry.name == "mp-757614"
         assert entry.energy_per_atom == 53.0 / 4
         gpentry = GrandPotPDEntry.from_dict(gpd)
-        assert gpentry.name == "mp-757614", "Wrong name!"
+        assert gpentry.name == "mp-757614"
         assert gpentry.energy_per_atom == 50.0 / 2
 
         d_anon = d.copy()
@@ -93,7 +94,7 @@ class PDEntryTest(unittest.TestCase):
         assert str(pde) == "PDEntry : Li1 Fe1 O2 with energy = 53.0000"
 
     def test_read_csv(self):
-        entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
+        entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         assert entries.chemsys == {"Li", "Fe", "O"}, "Wrong elements!"
         assert len(entries) == 490, "Wrong number of entries!"
 
@@ -107,8 +108,8 @@ class TransformedPDEntryTest(unittest.TestCase):
         terminal_compositions = [Composition(c) for c in terminal_compositions]
 
         sp_mapping = {}
-        for i, comp in enumerate(terminal_compositions):
-            sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
+        for idx, comp in enumerate(terminal_compositions):
+            sp_mapping[comp] = DummySpecies("X" + chr(102 + idx))
 
         self.transformed_entry = TransformedPDEntry(entry, sp_mapping)
 
@@ -120,36 +121,40 @@ class TransformedPDEntryTest(unittest.TestCase):
         assert self.transformed_entry.energy_per_atom == approx(53.0 / (23 / 15))
 
     def test_get_name(self):
-        assert self.transformed_entry.name == "LiFeO2", "Wrong name!"
+        assert self.transformed_entry.name == "LiFeO2"
 
     def test_get_composition(self):
         comp = self.transformed_entry.composition
         expected_comp = Composition({DummySpecies("Xf"): 14 / 30, DummySpecies("Xg"): 1.0, DummySpecies("Xh"): 2 / 30})
-        assert comp == expected_comp, "Wrong composition!"
+        assert comp == expected_comp
 
     def test_is_element(self):
-        assert not self.transformed_entry.is_element
+        assert self.transformed_entry.is_element is False
+        assert self.transformed_entry.original_entry.is_element is False
+        iron = Composition("Fe")
+        assert TransformedPDEntry(PDEntry(iron, 0), {iron: iron}).is_element is True
 
     def test_to_from_dict(self):
-        d = self.transformed_entry.as_dict()
-        entry = TransformedPDEntry.from_dict(d)
-        assert entry.name == "LiFeO2", "Wrong name!"
-        assert entry.energy_per_atom == approx(53.0 / (23 / 15))
+        dct = self.transformed_entry.as_dict()
+        entry = TransformedPDEntry.from_dict(dct)
+        assert entry.name == "LiFeO2" == self.transformed_entry.name
+        assert entry.energy_per_atom == approx(53.0 / (23 / 15)) == self.transformed_entry.energy_per_atom
 
     def test_str(self):
-        assert str(self.transformed_entry) is not None
+        assert str(self.transformed_entry).startswith("TransformedPDEntry Xf0+0.46666667 Xg")
+        assert str(self.transformed_entry).endswith("with original composition Li1 Fe1 O2, energy = 53.0000")
 
     def test_normalize(self):
         norm_entry = self.transformed_entry.normalize(mode="atom")
         expected_comp = Composition(
             {DummySpecies("Xf"): 7 / 23, DummySpecies("Xg"): 15 / 23, DummySpecies("Xh"): 1 / 23}
         )
-        assert norm_entry.composition == expected_comp, "Wrong composition!"
+        assert norm_entry.composition == expected_comp
 
 
-class PhaseDiagramTest(unittest.TestCase):
+class PhaseDiagramTest(PymatgenTest):
     def setUp(self):
-        self.entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
+        self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)
         warnings.simplefilter("ignore")
 
@@ -174,14 +179,14 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_dim1(self):
         # Ensure that dim 1 PDs can be generated.
-        for el in ["Li", "Fe", "O2"]:
+        for el in ("Li", "Fe", "O2"):
             entries = [entry for entry in self.entries if entry.composition.reduced_formula == el]
             pd = PhaseDiagram(entries)
             assert len(pd.stable_entries) == 1
 
             for entry in entries:
-                ehull = pd.get_e_above_hull(entry)
-                assert ehull >= 0
+                e_hull = pd.get_e_above_hull(entry)
+                assert e_hull >= 0
 
             plotter = PDPlotter(pd)
             lines, *_ = plotter.pd_plot_data
@@ -590,8 +595,10 @@ class PhaseDiagramTest(unittest.TestCase):
         assert isinstance(pd.to_json(), str)
 
     def test_read_json(self):
-        dumpfn(self.pd, "pd.json")
-        loadfn("pd.json")
+        dumpfn(self.pd, f"{self.tmp_path}/pd.json")
+        pd = loadfn(f"{self.tmp_path}/pd.json")
+        assert isinstance(pd, PhaseDiagram)
+        assert {*pd.as_dict()} == {*self.pd.as_dict()}
 
     def test_el_refs(self):
         # Create an imitation of pre_computed phase diagram with el_refs keys being
@@ -611,7 +618,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
+        self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
         self.pd6 = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -6})
 
@@ -645,7 +652,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
 
 class CompoundPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(module_dir / "pdentries_test.csv")
+        self.entries = EntrySet.from_csv(module_dir / "pd_entries_test.csv")
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
 
     def test_stable_entries(self):
@@ -843,7 +850,7 @@ class ReactionDiagramTest(unittest.TestCase):
 
 class PDPlotterTest(unittest.TestCase):
     def setUp(self):
-        entries = list(EntrySet.from_csv(os.path.join(module_dir, "pdentries_test.csv")))
+        entries = list(EntrySet.from_csv(os.path.join(module_dir, "pd_entries_test.csv")))
 
         elemental_entries = [e for e in entries if e.composition.elements == [Element("Li")]]
         self.pd_unary = PhaseDiagram(elemental_entries)

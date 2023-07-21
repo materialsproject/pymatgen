@@ -259,8 +259,8 @@ def update_changelog(ctx, version=None, dry_run=False):
             response = requests.get(f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}")
             lines.append(f"* PR #{pr_number} from @{contributor} {pr_name}")
             json_resp = response.json()
-            if "body" in json_resp and json_resp["body"]:
-                for ll in map(str.strip, json_resp["body"].split("\n")):
+            if body := json_resp["body"]:
+                for ll in map(str.strip, body.split("\n")):
                     if ll in ["", "## Summary"]:
                         continue
                     if ll.startswith(("## Checklist", "## TODO")):

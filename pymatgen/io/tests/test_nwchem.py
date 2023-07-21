@@ -379,7 +379,7 @@ title "H4C1 dft energy"
 charge -1
 task dft energy
 """
-        nwi = NwInput.from_string(str_inp)
+        nwi = NwInput.from_str(str_inp)
         assert nwi.geometry_options == ["units", "angstroms"]
         assert nwi.tasks[0].theory == "scf"
         assert nwi.tasks[0].basis_set["C"] == "6-31++G*"
@@ -388,7 +388,7 @@ task dft energy
 
         str_inp_symm = str_inp.replace("geometry units angstroms", "geometry units angstroms\n symmetry c1")
 
-        nwi_symm = NwInput.from_string(str_inp_symm)
+        nwi_symm = NwInput.from_str(str_inp_symm)
         assert nwi_symm.geometry_options == ["units", "angstroms"]
         assert nwi_symm.symmetry_options == ["c1"]
         assert nwi_symm.tasks[0].theory == "scf"

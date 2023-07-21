@@ -315,10 +315,10 @@ class EwaldSummation(MSONable):
         This method is heavily vectorized to utilize numpy's C backend for
         speed.
         """
-        numsites = self._s.num_sites
+        n_sites = self._s.num_sites
         prefactor = 2 * pi / self._vol
-        erecip = np.zeros((numsites, numsites), dtype=np.float_)
-        forces = np.zeros((numsites, 3), dtype=np.float_)
+        e_recip = np.zeros((n_sites, n_sites), dtype=np.float_)
+        forces = np.zeros((n_sites, 3), dtype=np.float_)
         coords = self._coords
         rcp_latt = self._s.lattice.reciprocal_lattice
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], self._gmax)
@@ -327,51 +327,51 @@ class EwaldSummation(MSONable):
 
         gs = rcp_latt.get_cartesian_coords(frac_coords)
         g2s = np.sum(gs**2, 1)
-        expvals = np.exp(-g2s / (4 * self._eta))
+        exp_vals = np.exp(-g2s / (4 * self._eta))
         grs = np.sum(gs[:, None] * coords[None, :], 2)
 
-        oxistates = np.array(self._oxi_states)
+        oxi_states = np.array(self._oxi_states)
 
         # create array where q_2[i,j] is qi * qj
-        qiqj = oxistates[None, :] * oxistates[:, None]
+        qiqj = oxi_states[None, :] * oxi_states[:, None]
 
         # calculate the structure factor
-        sreals = np.sum(oxistates[None, :] * np.cos(grs), 1)
-        simags = np.sum(oxistates[None, :] * np.sin(grs), 1)
+        s_reals = np.sum(oxi_states[None, :] * np.cos(grs), 1)
+        s_imags = np.sum(oxi_states[None, :] * np.sin(grs), 1)
 
-        for g, g2, gr, expval, sreal, simag in zip(gs, g2s, grs, expvals, sreals, simags):
+        for g, g2, gr, expval, sreal, simag in zip(gs, g2s, grs, exp_vals, s_reals, s_imags):
             # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
             m = (gr[None, :] + pi / 4) - gr[:, None]
             np.sin(m, m)
             m *= expval / g2
 
-            erecip += m
+            e_recip += m
 
             if self._compute_forces:
-                pref = 2 * expval / g2 * oxistates
+                pref = 2 * expval / g2 * oxi_states
                 factor = prefactor * pref * (sreal * np.sin(gr) - simag * np.cos(gr))
 
                 forces += factor[:, None] * g[None, :]
 
         forces *= EwaldSummation.CONV_FACT
-        erecip *= prefactor * EwaldSummation.CONV_FACT * qiqj * 2**0.5
-        return erecip, forces
+        e_recip *= prefactor * EwaldSummation.CONV_FACT * qiqj * 2**0.5
+        return e_recip, forces
 
     def _calc_real_and_point(self):
         """Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2."""
         fcoords = self._s.frac_coords
         forcepf = 2 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
-        numsites = self._s.num_sites
-        ereal = np.empty((numsites, numsites), dtype=np.float_)
+        n_sites = self._s.num_sites
+        ereal = np.empty((n_sites, n_sites), dtype=np.float_)
 
-        forces = np.zeros((numsites, 3), dtype=np.float_)
+        forces = np.zeros((n_sites, 3), dtype=np.float_)
 
         qs = np.array(self._oxi_states)
 
         epoint = -(qs**2) * sqrt(self._eta / pi)
 
-        for i in range(numsites):
+        for i in range(n_sites):
             nfcoords, rij, js, _ = self._s.lattice.get_points_in_sphere(
                 fcoords, coords[i], self._rmax, zip_results=False
             )
@@ -389,7 +389,7 @@ class EwaldSummation(MSONable):
             new_ereals = erfcval * qi * qj / rij
 
             # insert new_ereals
-            for key in range(numsites):
+            for key in range(n_sites):
                 ereal[key, i] = np.sum(new_ereals[js == key])
 
             if self._compute_forces:
@@ -411,22 +411,13 @@ class EwaldSummation(MSONable):
         return self._eta
 
     def __str__(self):
-        if self._compute_forces:
-            output = [
-                "Real = " + str(self.real_space_energy),
-                "Reciprocal = " + str(self.reciprocal_space_energy),
-                "Point = " + str(self.point_energy),
-                "Total = " + str(self.total_energy),
-                "Forces:\n" + str(self.forces),
-            ]
-        else:
-            output = [
-                "Real = " + str(self.real_space_energy),
-                "Reciprocal = " + str(self.reciprocal_space_energy),
-                "Point = " + str(self.point_energy),
-                "Total = " + str(self.total_energy),
-                "Forces were not computed",
-            ]
+        output = [
+            f"Real = {self.real_space_energy}",
+            f"Reciprocal = {self.reciprocal_space_energy}",
+            f"Point = {self.point_energy}",
+            f"Total = {self.total_energy}",
+            f"Forces:\n{self.forces}" if self._compute_forces else "Forces were not computed",
+        ]
         return "\n".join(output)
 
     def as_dict(self, verbosity: int = 0) -> dict:

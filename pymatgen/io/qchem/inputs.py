@@ -284,7 +284,7 @@ class QCInput(InputFile):
         return multi_job_string
 
     @classmethod
-    def from_string(cls, string: str) -> QCInput:
+    def from_str(cls, string: str) -> QCInput:
         """
         Read QcInput from string.
 
@@ -370,7 +370,7 @@ class QCInput(InputFile):
             QcInput
         """
         with zopen(filename, "rt") as f:
-            return QCInput.from_string(f.read())
+            return QCInput.from_str(f.read())
 
     @classmethod
     def from_multi_jobs_file(cls, filename: str) -> list[QCInput]:
@@ -387,7 +387,7 @@ class QCInput(InputFile):
             # the delimiter between QChem jobs is @@@
             multi_job_strings = f.read().split("@@@")
             # list of individual QChem jobs
-            return [cls.from_string(i) for i in multi_job_strings]
+            return [cls.from_str(i) for i in multi_job_strings]
 
     @staticmethod
     def molecule_template(molecule: Molecule | list[Molecule] | Literal["read"]) -> str:

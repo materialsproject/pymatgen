@@ -64,7 +64,7 @@ class FiestaInputTest(PymatgenTest):
             "\n            "
         )
         assert str(self.cellin) == ans
-        cellin = FiestaInput.from_string(ans)
+        cellin = FiestaInput.from_str(ans)
         assert cellin.GW_options["nc_corr"] == "10"
         assert cellin.COHSEX_options["eigMethod"] == "C"
 

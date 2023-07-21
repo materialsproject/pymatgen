@@ -418,7 +418,7 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
     # in case of charged species
     for ii, item in enumerate(species):
         if item not in ldict:
-            species[ii] = str(Species.from_string(item).element)
+            species[ii] = str(Species.from_str(item).element)
     connected_matrix = np.zeros((n_atoms, n_atoms))
 
     for ii in range(n_atoms):

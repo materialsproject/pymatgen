@@ -51,6 +51,14 @@ pymatgen.io.abinit.pseudos module
    :undoc-members:
    :show-inheritance:
 
+pymatgen.io.abinit.t module
+---------------------------
+
+.. automodule:: pymatgen.io.abinit.t
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pymatgen.io.abinit.variable module
 ----------------------------------
 

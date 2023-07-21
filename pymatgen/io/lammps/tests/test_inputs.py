@@ -121,7 +121,7 @@ fix 1 all box/relax iso 0.0 vmax 0.001
 minimize 1.0e-16 1.0e-16 5000 10000
 write_data run.data"""
 
-        lmp_input = LammpsInputFile().from_string(string)
+        lmp_input = LammpsInputFile().from_str(string)
         assert lmp_input.stages == LammpsInputFile().from_file(self.filename).stages
 
     def test_stages_names(self):
