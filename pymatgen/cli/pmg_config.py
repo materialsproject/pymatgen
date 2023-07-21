@@ -52,7 +52,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
                 continue
         for chk in chunks:
             try:
-                potential = GthPotential.from_string(chk)
+                potential = GthPotential.from_str(chk)
                 potential.filename = os.path.basename(potential_file)
                 potential.version = None
                 settings[potential.element.symbol]["potentials"][potential.get_hash()] = jsanitize(
@@ -74,7 +74,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
                 continue
         for chk in chunks:
             try:
-                basis = GaussianTypeOrbitalBasisSet.from_string(chk)
+                basis = GaussianTypeOrbitalBasisSet.from_str(chk)
                 basis.filename = os.path.basename(basis_file)
                 settings[basis.element.symbol]["basis_sets"][basis.get_hash()] = jsanitize(  # type: ignore
                     basis, strict=True
@@ -260,27 +260,28 @@ def install_software(install: Literal["enumlib", "bader"]):
 
 def add_config_var(tokens: list[str], backup_suffix: str) -> None:
     """Add/update keys in .pmgrc.yaml config file."""
-    if os.path.exists(SETTINGS_FILE):
-        # read and write new config file if exists
-        fpath = SETTINGS_FILE
-    elif os.path.exists(OLD_SETTINGS_FILE):
-        # else use old config file if exists
-        fpath = OLD_SETTINGS_FILE
-    else:
-        # if neither exists, create new config file
-        fpath = SETTINGS_FILE
-    dct = {}
-    if os.path.exists(fpath):
-        if backup_suffix:
-            shutil.copy(fpath, fpath + backup_suffix)
-            print(f"Existing {fpath} backed up to {fpath}{backup_suffix}")
-        dct = loadfn(fpath)
     if len(tokens) % 2 != 0:
         raise ValueError(f"Uneven number {len(tokens)} of tokens passed to pmg config. Needs a value for every key.")
+    if os.path.exists(SETTINGS_FILE):
+        # read and write new config file if exists
+        rc_path = SETTINGS_FILE
+    elif os.path.exists(OLD_SETTINGS_FILE):
+        # else use old config file if exists
+        rc_path = OLD_SETTINGS_FILE
+    else:
+        # if neither exists, create new config file
+        rc_path = SETTINGS_FILE
+    dct = {}
+    if os.path.exists(rc_path):
+        if backup_suffix:
+            shutil.copy(rc_path, rc_path + backup_suffix)
+            print(f"Existing {rc_path} backed up to {rc_path}{backup_suffix}")
+        dct = loadfn(rc_path)
+    special_vals = {"true": True, "false": False, "none": None, "null": None}
     for key, val in zip(tokens[0::2], tokens[1::2]):
-        dct[key] = val
-    dumpfn(dct, fpath)
-    print(f"New {fpath} written!")
+        dct[key] = special_vals.get(val.lower(), val)
+    dumpfn(dct, rc_path)
+    print(f"New {rc_path} written!")
 
 
 def configure_pmg(args: Namespace):

@@ -69,6 +69,7 @@ class Neighbor(Site):
         properties: dict | None = None,
         nn_distance: float = 0.0,
         index: int = 0,
+        label: str | None = None,
     ):
         """
         :param species: Same as Site
@@ -76,12 +77,14 @@ class Neighbor(Site):
         :param properties: Same as Site
         :param nn_distance: Distance to some other Site.
         :param index: Index within structure.
+        :param label: Label for the site. Defaults to None.
         """
         self.coords = coords
         self._species = species
         self.properties = properties or {}
         self.nn_distance = nn_distance
         self.index = index
+        self.label = label if label is not None else self.species_string
 
     def __len__(self) -> Literal[3]:
         """Make neighbor Tuple-like to retain backwards compatibility."""
@@ -134,6 +137,7 @@ class PeriodicNeighbor(PeriodicSite):
         nn_distance: float = 0.0,
         index: int = 0,
         image: tuple = (0, 0, 0),
+        label: str | None = None,
     ):
         """
         Args:
@@ -144,6 +148,7 @@ class PeriodicNeighbor(PeriodicSite):
             nn_distance (float, optional): Distance to some other Site.. Defaults to 0.0.
             index (int, optional): Index within structure.. Defaults to 0.
             image (tuple, optional): PeriodicImage. Defaults to (0, 0, 0).
+            label (str, optional): Label for the site. Defaults to None.
         """
         self._lattice = lattice
         self._frac_coords = coords
@@ -152,6 +157,7 @@ class PeriodicNeighbor(PeriodicSite):
         self.nn_distance = nn_distance
         self.index = index
         self.image = image
+        self.label = label if label is not None else self.species_string
 
     @property  # type: ignore
     def coords(self) -> np.ndarray:  # type: ignore
@@ -299,10 +305,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     def site_properties(self) -> dict[str, Sequence]:
-        """
-        Returns the site properties as a dict of sequences. E.g.,
-        {"magmom": (5,-5), "charge": (-4,4)}.
-        """
+        """Returns the site properties as a dict of sequences. E.g. {"magmom": (5,-5), "charge": (-4,4)}."""
         props: dict[str, Sequence] = {}
         prop_keys: set[str] = set()
         for site in self:
@@ -311,6 +314,11 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         for key in prop_keys:
             props[key] = [site.properties.get(key) for site in self]
         return props
+
+    @property
+    def labels(self) -> list[str]:
+        """Return site labels as a list."""
+        return [site.label for site in self]
 
     def __contains__(self, site: object) -> bool:
         return site in self.sites
@@ -850,6 +858,7 @@ class IStructure(SiteCollection, MSONable):
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
         site_properties: dict | None = None,
+        labels: list | None = None,
     ) -> None:
         """
         Create a periodic structure.
@@ -885,6 +894,10 @@ class IStructure(SiteCollection, MSONable):
                 dict of sequences, e.g. {"magmom":[5, 5, 5, 5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
         """
         if len(species) != len(coords):
             raise StructureError("atomic species and fractional coordinates must have same length")
@@ -897,6 +910,8 @@ class IStructure(SiteCollection, MSONable):
             if site_properties:
                 prop = {key: val[idx] for key, val in site_properties.items()}
 
+            label = labels[idx] if labels else None
+
             site = PeriodicSite(
                 specie,
                 coords[idx],
@@ -904,6 +919,7 @@ class IStructure(SiteCollection, MSONable):
                 to_unit_cell,
                 coords_are_cartesian=coords_are_cartesian,
                 properties=prop,  # type: ignore
+                label=label,
             )
             sites.append(site)
         self._sites: tuple[PeriodicSite, ...] = tuple(sites)
@@ -938,6 +954,7 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(f"You need at least one site to construct a {cls}")
         prop_keys: list[str] = []
         props = {}
+        labels = [site.label for site in sites]
         lattice = sites[0].lattice
         for idx, site in enumerate(sites):
             if site.lattice != lattice:
@@ -958,6 +975,7 @@ class IStructure(SiteCollection, MSONable):
             site_properties=props,
             validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
+            labels=labels,
         )
 
     @classmethod
@@ -1374,7 +1392,7 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors: list[PeriodicNeighbor] = []
@@ -1411,7 +1429,7 @@ class IStructure(SiteCollection, MSONable):
                 is always included in the returned data.
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         return self.get_all_neighbors(r, include_index=include_index, include_image=include_image, sites=[site])[0]
 
@@ -1430,7 +1448,7 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         nn = self.get_sites_in_sphere(site.coords, r, include_index=include_index, include_image=include_image)
         return [d for d in nn if site != d[0]]
@@ -1891,7 +1909,7 @@ class IStructure(SiteCollection, MSONable):
                 data. Defaults to True.
 
         Returns:
-            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
+            PeriodicNeighbor
         """
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
@@ -2002,6 +2020,7 @@ class IStructure(SiteCollection, MSONable):
                 coords_are_cartesian=True,
                 to_unit_cell=True,
                 site_properties=self.site_properties,
+                labels=self.labels,
                 charge=self._charge,
             )
         return self.copy()
@@ -2038,6 +2057,7 @@ class IStructure(SiteCollection, MSONable):
                 self.frac_coords,
                 charge=self._charge,
                 site_properties=props,
+                labels=self.labels,
             )
         reduced_latt = self._lattice.get_lll_reduced_lattice()
         new_sites = []
@@ -2053,6 +2073,7 @@ class IStructure(SiteCollection, MSONable):
                     reduced_latt,
                     to_unit_cell=True,
                     properties=site_props,
+                    label=site.label,
                     skip_checks=True,
                 )
             )
@@ -2104,9 +2125,7 @@ class IStructure(SiteCollection, MSONable):
         # Check that both structures have the same species
         for i, site in enumerate(self):
             if site.species != end_structure[i].species:
-                raise ValueError(
-                    "Different species!\nStructure 1:\n" + str(self) + "\nStructure 2\n" + str(end_structure)
-                )
+                raise ValueError(f"Different species!\nStructure 1:\n{self}\nStructure 2\n{end_structure}")
 
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
@@ -2227,10 +2246,10 @@ class IStructure(SiteCollection, MSONable):
         def site_label(site):
             if not use_site_props:
                 return site.species_string
-            d = [site.species_string]
-            for k in sorted(site.properties):
-                d.append(k + "=" + str(site.properties[k]))
-            return ", ".join(d)
+            parts = [site.species_string]
+            for key in sorted(site.properties):
+                parts.append(f"{key}={site.properties[key]}")
+            return ", ".join(parts)
 
         # group sites by species string
         sites = sorted(self._sites, key=site_label)
@@ -2327,6 +2346,7 @@ class IStructure(SiteCollection, MSONable):
                 new_coords = []
                 new_sp = []
                 new_props = collections.defaultdict(list)
+                new_labels = []
                 for gsites, gfcoords, non_nbrs in zip(grouped_sites, grouped_fcoords, grouped_non_nbrs):
                     all_frac = np.dot(gfcoords, m)
 
@@ -2364,6 +2384,7 @@ class IStructure(SiteCollection, MSONable):
                             new_sp.append(gsites[inds[0]].species)
                             for k in gsites[inds[0]].properties:
                                 new_props[k].append(gsites[inds[0]].properties[k])
+                            new_labels.append(gsites[inds[0]].label)
                             new_coords.append(coords)
 
                 if valid:
@@ -2374,6 +2395,7 @@ class IStructure(SiteCollection, MSONable):
                         new_sp,
                         new_coords,
                         site_properties=new_props,
+                        labels=new_labels,
                         coords_are_cartesian=False,
                     )
 
@@ -2623,11 +2645,11 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
 
-            s = XSF(self).to_string()
+            string = XSF(self).to_str()
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as file:
-                    file.write(s)
-            return s
+                    file.write(string)
+            return string
         elif (
             fmt == "mcsqs"
             or fnmatch(filename, "*rndstr.in*")
@@ -2636,15 +2658,15 @@ class IStructure(SiteCollection, MSONable):
         ):
             from pymatgen.io.atat import Mcsqs
 
-            s = Mcsqs(self).to_string()
+            string = Mcsqs(self).to_str()
             if filename:
                 with zopen(filename, "wt", encoding="ascii") as file:
-                    file.write(s)
-            return s
+                    file.write(string)
+            return string
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
             from pymatgen.io.prismatic import Prismatic
 
-            return Prismatic(self).to_string()
+            return Prismatic(self).to_str()
         elif fmt == "yaml" or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             if filename:
@@ -2654,6 +2676,7 @@ class IStructure(SiteCollection, MSONable):
             sio = StringIO()
             yaml.dump(self.as_dict(), sio)
             return sio.getvalue()
+        # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen" or fnmatch(filename, "*.in*"):
             from pymatgen.io.fleur import FleurInput
 
@@ -2661,12 +2684,12 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "res" or fnmatch(filename, "*.res"):
             from pymatgen.io.res import ResIO
 
-            s = ResIO.structure_to_str(self)
+            string = ResIO.structure_to_str(self)
             if filename:
                 with zopen(filename, "wt", encoding="utf8") as file:
-                    file.write(s)
+                    file.write(string)
                 return None
-            return s
+            return string
         else:
             if fmt == "":
                 raise ValueError(f"Format not specified and could not infer from {filename=}")
@@ -2710,16 +2733,16 @@ class IStructure(SiteCollection, MSONable):
         if fmt_low == "cif":
             from pymatgen.io.cif import CifParser
 
-            parser = CifParser.from_string(input_string, **kwargs)
+            parser = CifParser.from_str(input_string, **kwargs)
             struct = parser.get_structures(primitive=primitive)[0]
         elif fmt_low == "poscar":
             from pymatgen.io.vasp import Poscar
 
-            struct = Poscar.from_string(input_string, False, read_velocities=False, **kwargs).structure
+            struct = Poscar.from_str(input_string, False, read_velocities=False, **kwargs).structure
         elif fmt_low == "cssr":
             from pymatgen.io.cssr import Cssr
 
-            cssr = Cssr.from_string(input_string, **kwargs)
+            cssr = Cssr.from_str(input_string, **kwargs)
             struct = cssr.structure
         elif fmt_low == "json":
             d = json.loads(input_string)
@@ -2731,11 +2754,12 @@ class IStructure(SiteCollection, MSONable):
         elif fmt_low == "xsf":
             from pymatgen.io.xcrysden import XSF
 
-            struct = XSF.from_string(input_string, **kwargs).structure
+            struct = XSF.from_str(input_string, **kwargs).structure
         elif fmt_low == "mcsqs":
             from pymatgen.io.atat import Mcsqs
 
-            struct = Mcsqs.structure_from_string(input_string, **kwargs)
+            struct = Mcsqs.structure_from_str(input_string, **kwargs)
+        # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
 
@@ -2856,6 +2880,7 @@ class IMolecule(SiteCollection, MSONable):
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
         site_properties: dict | None = None,
+        labels: Sequence[str | None] | None = None,
         charge_spin_check: bool = True,
     ) -> None:
         """
@@ -2878,6 +2903,10 @@ class IMolecule(SiteCollection, MSONable):
                 a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
             charge_spin_check (bool): Whether to check that the charge and
                 spin multiplicity are compatible with each other. Defaults
                 to True.
@@ -2977,6 +3006,7 @@ class IMolecule(SiteCollection, MSONable):
         for site in sites:
             for k, v in site.properties.items():
                 props[k].append(v)
+        labels = [site.label for site in sites]
         return cls(
             [site.species for site in sites],
             [site.coords for site in sites],
@@ -2984,6 +3014,7 @@ class IMolecule(SiteCollection, MSONable):
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
             site_properties=props,
+            labels=labels,
             charge_spin_check=charge_spin_check,
         )
 
@@ -3133,7 +3164,7 @@ class IMolecule(SiteCollection, MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d) -> dict:
+    def from_dict(cls, d) -> IMolecule | Molecule:
         """
         Reconstitute a Molecule object from a dict representation created using
         as_dict().
@@ -3171,7 +3202,7 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [:class:`pymatgen.core.structure.Neighbor`]
+            Neighbor
         """
         neighbors = []
         for i, site in enumerate(self._sites):
@@ -3190,7 +3221,7 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [:class:`pymatgen.core.structure.Neighbor`]
+            Neighbor
         """
         nns = self.get_sites_in_sphere(site.coords, r)
         return [nn for nn in nns if nn != site]
@@ -3206,7 +3237,7 @@ class IMolecule(SiteCollection, MSONable):
             dr (float): Width of shell.
 
         Returns:
-            [:class:`pymatgen.core.structure.Neighbor`]
+            Neighbor
         """
         outer = self.get_sites_in_sphere(origin, r + dr)
         inner = r - dr
@@ -3402,7 +3433,9 @@ class IMolecule(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_str(cls, input_string: str, fmt: str):
+    def from_str(
+        cls, input_string: str, fmt: Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"]
+    ) -> IMolecule | Molecule:
         """
         Reads the molecule from a string.
 
@@ -3421,21 +3454,21 @@ class IMolecule(SiteCollection, MSONable):
         from pymatgen.io.xyz import XYZ
 
         if fmt.lower() == "xyz":
-            m = XYZ.from_string(input_string).molecule
+            mol = XYZ.from_str(input_string).molecule
         elif fmt in ["gjf", "g03", "g09", "com", "inp"]:
-            m = GaussianInput.from_string(input_string).molecule
+            mol = GaussianInput.from_str(input_string).molecule
         elif fmt == "json":
-            d = json.loads(input_string)
-            return cls.from_dict(d)
+            dct = json.loads(input_string)
+            return cls.from_dict(dct)
         elif fmt == "yaml":
             yaml = YAML()
-            d = yaml.load(input_string)
-            return cls.from_dict(d)
+            dct = yaml.load(input_string)
+            return cls.from_dict(dct)
         else:
             from pymatgen.io.babel import BabelMolAdaptor
 
-            m = BabelMolAdaptor.from_string(input_string, file_format=fmt).pymatgen_mol
-        return cls.from_sites(m)
+            mol = BabelMolAdaptor.from_str(input_string, file_format=fmt).pymatgen_mol
+        return cls.from_sites(mol)
 
     @classmethod
     def from_file(cls, filename):
@@ -3493,6 +3526,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
         site_properties: dict | None = None,
+        labels: list | None = None,
     ):
         """
         Create a periodic structure.
@@ -3527,6 +3561,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
         """
         super().__init__(
             lattice,
@@ -3537,6 +3575,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
+            labels=labels,
         )
 
         self._sites: list[PeriodicSite] = list(self._sites)  # type: ignore
@@ -4259,6 +4298,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
         site_properties: dict | None = None,
+        labels: Sequence[str | None] | None = None,
         charge_spin_check: bool = True,
     ) -> None:
         """
@@ -4281,6 +4321,10 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
             charge_spin_check (bool): Whether to check that the charge and
                 spin multiplicity are compatible with each other. Defaults
                 to True.
@@ -4292,6 +4336,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
             site_properties=site_properties,
+            labels=labels,
             charge_spin_check=charge_spin_check,
         )
         self._sites: list[Site] = list(self._sites)  # type: ignore

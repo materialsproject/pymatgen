@@ -42,8 +42,12 @@ class LammpsDump(MSONable):
         self.box = box
         self.data = data
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @classmethod
-    def from_string(cls, string):
+    def from_str(cls, string):
         """
         Constructor from string parsing.
 
@@ -116,11 +120,11 @@ def parse_lammps_dumps(file_pattern):
             for line in f:
                 if line.startswith("ITEM: TIMESTEP"):
                     if len(dump_cache) > 0:
-                        yield LammpsDump.from_string("".join(dump_cache))
+                        yield LammpsDump.from_str("".join(dump_cache))
                     dump_cache = [line]
                 else:
                     dump_cache.append(line)
-            yield LammpsDump.from_string("".join(dump_cache))
+            yield LammpsDump.from_str("".join(dump_cache))
 
 
 def parse_lammps_log(filename="log.lammps"):

@@ -61,7 +61,7 @@ class AtatTest(PymatgenTest):
 0.000000 -1.000000 -1.500000 O
 """
 
-        s = Mcsqs.structure_from_string(test_string)
+        s = Mcsqs.structure_from_str(test_string)
 
         assert s.composition.formula == "Sr3 Ca5 Mn7 Fe1 O24"
         assert s.lattice.a == approx(2.2360679775)
@@ -84,7 +84,7 @@ class AtatTest(PymatgenTest):
 0.000000 0.500000 0.000000 O2-=1.0
 0.500000 0.000000 0.000000 O2-=1.0"""
 
-        assert Mcsqs(struct).to_string() == ref_string
+        assert Mcsqs(struct).to_str() == ref_string
 
     def test_mcsqs_cif_nacl(self):
         # cif file from str2cif (utility distributed with atat)

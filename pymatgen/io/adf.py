@@ -6,6 +6,7 @@ import os
 import re
 from typing import Generator
 
+import numpy as np
 from monty.io import reverse_readline
 from monty.itertools import chunks
 from monty.json import MSONable
@@ -353,8 +354,12 @@ class AdfKey(MSONable):
         subkeys = [AdfKey.from_dict(k) for k in subkey_list] or None
         return cls(key, options, subkeys)
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(string):
+    def from_str(string):
         """
         Construct an AdfKey object from the string.
 
@@ -407,13 +412,13 @@ class AdfKey(MSONable):
                 continue
             if el[0].upper() in AdfKey.block_keys:
                 if key is None:
-                    key = AdfKey.from_string(line)
+                    key = AdfKey.from_str(line)
                 else:
                     return key
             elif el[0].upper() == "END":
                 return key
             elif key is not None:
-                key.add_subkey(AdfKey.from_string(line))
+                key.add_subkey(AdfKey.from_str(line))
 
         raise Exception("IncompleteKey: 'END' is missing!")
 
@@ -483,27 +488,27 @@ class AdfTask(MSONable):
     @staticmethod
     def get_default_basis_set():
         """Returns: Default basis set."""
-        return AdfKey.from_string("Basis\ntype DZ\ncore small\nEND")
+        return AdfKey.from_str("Basis\ntype DZ\ncore small\nEND")
 
     @staticmethod
     def get_default_scf():
         """Returns: ADF using default SCF."""
-        return AdfKey.from_string("SCF\niterations 300\nEND")
+        return AdfKey.from_str("SCF\niterations 300\nEND")
 
     @staticmethod
     def get_default_geo():
         """Returns: ADFKey using default geometry."""
-        return AdfKey.from_string("GEOMETRY SinglePoint\nEND")
+        return AdfKey.from_str("GEOMETRY SinglePoint\nEND")
 
     @staticmethod
     def get_default_xc():
         """Returns: ADFKey using default XC."""
-        return AdfKey.from_string("XC\nGGA PBE\nEND")
+        return AdfKey.from_str("XC\nGGA PBE\nEND")
 
     @staticmethod
     def get_default_units():
         """Returns: Default units."""
-        return AdfKey.from_string("Units\nlength angstrom\nangle degree\nEnd")
+        return AdfKey.from_str("Units\nlength angstrom\nangle degree\nEnd")
 
     def _setup_task(self, geo_subkeys):
         """

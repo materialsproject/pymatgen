@@ -164,10 +164,14 @@ class LMTOCtrl:
         """
         with zopen(filename, "rt") as f:
             contents = f.read()
-        return LMTOCtrl.from_string(contents, **kwargs)
+        return LMTOCtrl.from_str(contents, **kwargs)
+
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
     @classmethod
-    def from_string(cls, data, sigfigs=8):
+    def from_str(cls, data, sigfigs=8):
         """
         Creates a CTRL file object from a string. This will mostly be
         used to read an LMTOCtrl object from a CTRL file. Empty spheres
@@ -246,7 +250,7 @@ class LMTOCtrl:
         return LMTOCtrl.from_dict(structure_tokens)
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Creates a CTRL file object from a dictionary. The dictionary
         must contain the items "ALAT", PLAT" and "SITE".
@@ -254,37 +258,36 @@ class LMTOCtrl:
         Valid dictionary items are:
             ALAT: the a-lattice parameter
             PLAT: (3x3) array for the lattice vectors
-            SITE: list of dictionaries: {'ATOM': class label,
-                                         'POS': (3x1) array of fractional
-                                                coordinates}
+            SITE: list of dictionaries: {'ATOM': class label, 'POS': (3x1) array of fractional coordinates}
             CLASS (optional): list of unique atom labels as str
             SPCGRP (optional): space group symbol (str) or number (int)
             HEADER (optional): HEADER text as a str
             VERS (optional): LMTO version as a str
 
         Args:
-            d: The CTRL file as a dictionary.
+            dct: The CTRL file as a dictionary.
 
         Returns:
             An LMTOCtrl object.
         """
-        for cat in ["HEADER", "VERS"]:
-            if cat not in d:
-                d[cat] = None
-        alat = d["ALAT"] * bohr_to_angstrom
-        plat = d["PLAT"] * alat
+        dct.setdefault("HEADER", None)
+        dct.setdefault("VERS", None)
+        alat = dct["ALAT"] * bohr_to_angstrom
+        plat = dct["PLAT"] * alat
         species = []
         positions = []
-        for site in d["SITE"]:
+        for site in dct["SITE"]:
             species.append(re.split("[0-9*]", site["ATOM"])[0])
             positions.append(site["POS"] * alat)
 
         # Only check if the structure is to be generated from the space
         # group if the number of sites is the same as the number of classes.
         # If lattice and the spacegroup don't match, assume it's primitive.
-        if "CLASS" in d and "SPCGRP" in d and len(d["SITE"]) == len(d["CLASS"]):
+        if "CLASS" in dct and "SPCGRP" in dct and len(dct["SITE"]) == len(dct["CLASS"]):
             try:
-                structure = Structure.from_spacegroup(d["SPCGRP"], plat, species, positions, coords_are_cartesian=True)
+                structure = Structure.from_spacegroup(
+                    dct["SPCGRP"], plat, species, positions, coords_are_cartesian=True
+                )
             except ValueError:
                 structure = Structure(
                     plat,
@@ -296,7 +299,7 @@ class LMTOCtrl:
         else:
             structure = Structure(plat, species, positions, coords_are_cartesian=True, to_unit_cell=True)
 
-        return cls(structure, header=d["HEADER"], version=d["VERS"])
+        return cls(structure, header=dct["HEADER"], version=dct["VERS"])
 
 
 class LMTOCopl:

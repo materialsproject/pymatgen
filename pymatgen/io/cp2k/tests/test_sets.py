@@ -68,7 +68,7 @@ class SetTest(PymatgenTest):
                                                     3.01160535
                 0.50279207    1     2.33241791"""
         basis_and_potential = {
-            "Si": {"basis": GaussianTypeOrbitalBasisSet.from_string(gto), "potential": GthPotential.from_string(pot)}
+            "Si": {"basis": GaussianTypeOrbitalBasisSet.from_str(gto), "potential": GthPotential.from_str(pot)}
         }
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE", **self.setkwargs)
         assert ss.cutoff == approx(150)

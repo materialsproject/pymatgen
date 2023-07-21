@@ -194,14 +194,12 @@ class SimpleGraphCycle(MSONable):
     def order(self, raise_on_fail=True):
         """Orders the SimpleGraphCycle.
 
-        The ordering is performed such that the first node is the "lowest" one
-        and the second node is the lowest one of the two neighbor nodes of the
-        first node. If raise_on_fail is set to True a RuntimeError will be
-        raised if the ordering fails.
+        The ordering is performed such that the first node is the "lowest" one and the
+        second node is the lowest one of the two neighbor nodes of the first node. If
+        raise_on_fail is set to True a RuntimeError will be raised if the ordering fails.
 
-        :param raise_on_fail: If set to True, will raise a RuntimeError if the
-                              ordering fails.
-        :return: None
+        Args:
+            raise_on_fail (bool): If set to True, will raise a RuntimeError if the ordering fails.
         """
         # always validate the cycle if it needs to be ordered
         # also validates that the nodes can be strictly ordered

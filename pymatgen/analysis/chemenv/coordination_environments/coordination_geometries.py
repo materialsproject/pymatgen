@@ -631,9 +631,11 @@ class CoordinationGeometry:
             if dct["_algorithms"] is not None
             else None,
             equivalent_indices=dct.get("equivalent_indices"),
-            neighbors_sets_hints=[cls.NeighborsSetsHints.from_dict(nbshd) for nbshd in dct["neighbors_sets_hints"]]
-            if ("neighbors_sets_hints" in dct and dct["neighbors_sets_hints"] is not None)
-            else None,
+            neighbors_sets_hints=[
+                cls.NeighborsSetsHints.from_dict(nb_sets_hints)
+                for nb_sets_hints in dct.get("neighbors_sets_hints") or []
+            ]
+            or None,
         )
 
     def __str__(self):

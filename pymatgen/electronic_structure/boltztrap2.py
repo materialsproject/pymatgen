@@ -1147,7 +1147,7 @@ class BztPlotter:
                         plt.plot(
                             mu,
                             prop_out[:, i],
-                            label="eig " + str(i) + " " + str(temp) + " K",
+                            label=f"eig {i} {temp} K",
                         )
 
             plt.xlabel(r"$\mu$ (eV)", fontsize=30)
@@ -1165,7 +1165,7 @@ class BztPlotter:
                             doping_all,
                             prop_out[:, i],
                             "s-",
-                            label="eig " + str(i) + " " + str(temp) + " K",
+                            label=f"eig {i} {temp} K",
                         )
             plt.xlabel(r"Carrier conc. $cm^{-3}$", fontsize=30)
             leg_title = dop_type + "-type"
@@ -1187,7 +1187,7 @@ class BztPlotter:
                             temps_all,
                             prop_out[:, i],
                             "s-",
-                            label="eig " + str(i) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"eig {i} {dop} $cm^{{-3}}$",
                         )
 
             plt.xlabel(r"Temperature (K)", fontsize=30)

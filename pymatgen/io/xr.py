@@ -68,8 +68,12 @@ class Xr:
         with zopen(filename, "wt") as f:
             f.write(str(self) + "\n")
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(string, use_cores=True, thresh=1.0e-4):
+    def from_str(string, use_cores=True, thresh=1.0e-4):
         """
         Creates an Xr object from a string representation.
 
@@ -87,20 +91,20 @@ class Xr:
                     string representation.
         """
         lines = string.split("\n")
-        toks = lines[0].split()
-        lengths = [float(toks[i]) for i in range(1, len(toks))]
-        toks = lines[1].split()
-        angles = [float(i) for i in toks[0:3]]
-        toks = lines[2].split()
-        nsites = int(toks[0])
+        tokens = lines[0].split()
+        lengths = [float(tokens[i]) for i in range(1, len(tokens))]
+        tokens = lines[1].split()
+        angles = [float(i) for i in tokens[0:3]]
+        tokens = lines[2].split()
+        n_sites = int(tokens[0])
         mat = np.zeros((3, 3), dtype=float)
         for i in range(3):
-            toks = lines[4 + nsites + i].split()
-            toks2 = lines[4 + nsites + i + 3].split()
-            for j, item in enumerate(toks):
-                if item != toks2[j]:
+            tokens = lines[4 + n_sites + i].split()
+            tokens_2 = lines[4 + n_sites + i + 3].split()
+            for j, item in enumerate(tokens):
+                if item != tokens_2[j]:
                     raise RuntimeError("expected both matrices to be the same in xr file")
-            mat[i] = np.array([float(w) for w in toks])
+            mat[i] = np.array([float(w) for w in tokens])
         lat = Lattice(mat)
         if (
             fabs(lat.a - lengths[0]) / fabs(lat.a) > thresh
@@ -111,21 +115,13 @@ class Xr:
             or fabs(lat.gamma - angles[2]) / fabs(lat.gamma) > thresh
         ):
             raise RuntimeError(
-                "cell parameters in header ("
-                + str(lengths)
-                + ", "
-                + str(angles)
-                + ") are not consistent with Cartesian"
-                + " lattice vectors ("
-                + str(lat.abc)
-                + ", "
-                + str(lat.angles)
-                + ")"
+                f"cell parameters in header ({lengths}, {angles}) are not consistent with Cartesian "
+                f"lattice vectors ({lat.abc}, {lat.angles})"
             )
         # Ignore line w/ index 3.
         sp = []
         coords = []
-        for j in range(nsites):
+        for j in range(n_sites):
             m = re.match(
                 r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)",
                 lines[4 + j].strip(),
@@ -162,4 +158,4 @@ class Xr:
                     file.
         """
         with zopen(filename, "rt") as f:
-            return Xr.from_string(f.read(), use_cores=use_cores, thresh=thresh)
+            return Xr.from_str(f.read(), use_cores=use_cores, thresh=thresh)

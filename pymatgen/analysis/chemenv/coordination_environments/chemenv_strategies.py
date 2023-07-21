@@ -1864,7 +1864,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
             delta_cn_weight_estimators={
                 int(dcn): dcn_estimator for dcn, dcn_estimator in dd["delta_cn_weight_estimators"].items()
             }
-            if ("delta_cn_weight_estimators" in dd and dd["delta_cn_weight_estimators"] is not None)
+            if dd.get("delta_cn_weight_estimators") is not None
             else None,
             symmetry_measure_type=dd["symmetry_measure_type"],
         )

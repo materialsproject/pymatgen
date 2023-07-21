@@ -392,7 +392,7 @@ class ConnectedComponent(MSONable):
         self._order_periodicity_vectors()
 
     def compute_periodicity_all_simple_paths_algorithm(self):
-        """Returns:"""
+        """Get the periodicity vectors of the connected component."""
         self_loop_nodes = list(nx.nodes_with_selfloops(self._connected_subgraph))
         all_nodes_independent_cell_image_vectors = []
         my_simple_graph = nx.Graph(self._connected_subgraph)
@@ -476,23 +476,22 @@ class ConnectedComponent(MSONable):
                 if len(self._periodicity_vectors) == 3:
                     break
 
-    def compute_periodicity_cycle_basis(self):
-        """Returns:"""
+    def compute_periodicity_cycle_basis(self) -> None:
+        """Compute periodicity vectors of the connected component."""
         my_simple_graph = nx.Graph(self._connected_subgraph)
         cycles = nx.cycle_basis(my_simple_graph)
-        all_deltas = []
-        for cyc in cycles:
-            mycyc = list(cyc)
-            mycyc.append(cyc[0])
+        all_deltas: list[list] = []
+        for cyc in map(list, cycles):
+            cyc.append(cyc[0])
             this_cycle_deltas = [np.zeros(3, int)]
-            for node1, node2 in [(node1, mycyc[inode1 + 1]) for inode1, node1 in enumerate(mycyc[:-1])]:
+            for node1, node2 in [(node1, cyc[inode1 + 1]) for inode1, node1 in enumerate(cyc[:-1])]:
                 this_cycle_deltas_new = []
                 for edge_data in self._connected_subgraph[node1][node2].values():
                     delta = get_delta(node1, node2, edge_data)
                     for current_delta in this_cycle_deltas:
                         this_cycle_deltas_new.append(current_delta + delta)
                 this_cycle_deltas = this_cycle_deltas_new
-            all_deltas.extend(this_cycle_deltas)
+            all_deltas.extend(this_cycle_deltas)  # type: ignore
             all_deltas = get_linearly_independent_vectors(all_deltas)
             if len(all_deltas) == 3:
                 return
@@ -510,7 +509,7 @@ class ConnectedComponent(MSONable):
                     current_delta = get_delta(n1, n2, e1data)
                     delta = get_delta(n2, n1, e2data)
                     current_delta += delta
-                    all_deltas.append(current_delta)
+                    all_deltas.append(current_delta)  # type: ignore
             else:
                 raise ValueError("Should not be here ...")
             all_deltas = get_linearly_independent_vectors(all_deltas)
@@ -528,13 +527,17 @@ class ConnectedComponent(MSONable):
         """
         return make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
 
-    def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True) -> None:
+    def show_graph(
+        self, graph: nx.MultiGraph | None = None, save_file: str | None = None, drawing_type: str = "internal"
+    ) -> None:
         """
+        Displays the graph using the specified drawing type.
+
         Args:
-            graph ():
-            save_file ():
-            drawing_type ():
-            pltshow ():
+            graph (Graph, optional): The graph to display. If not provided, the current graph is used.
+            save_file (str, optional): The file path to save the graph image to.
+                If not provided, the graph is not saved.
+            drawing_type (str): The type of drawing to use. Can be "internal" or "external".
         """
         import matplotlib.pyplot as plt
 
@@ -560,8 +563,6 @@ class ConnectedComponent(MSONable):
             import networkx
 
             networkx.draw_random(shown_graph)
-        if pltshow:
-            plt.show()
 
     @property
     def graph(self):
@@ -569,18 +570,18 @@ class ConnectedComponent(MSONable):
 
         Returns:
             MultiGraph: Networkx MultiGraph object with environment as nodes and links between these nodes as edges
-                        with information about the image cell difference if any.
+                with information about the image cell difference if any.
         """
         return self._connected_subgraph
 
     @property
     def is_periodic(self) -> bool:
-        """Returns:"""
+        """Whether this connected component is periodic."""
         return not self.is_0d
 
     @property
     def is_0d(self) -> bool:
-        """Returns:"""
+        """Whether this connected component is 0-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
@@ -588,7 +589,7 @@ class ConnectedComponent(MSONable):
 
     @property
     def is_1d(self) -> bool:
-        """Returns:"""
+        """Whether this connected component is 1-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
@@ -596,7 +597,7 @@ class ConnectedComponent(MSONable):
 
     @property
     def is_2d(self) -> bool:
-        """Returns:"""
+        """Whether this connected component is 2-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
@@ -604,7 +605,7 @@ class ConnectedComponent(MSONable):
 
     @property
     def is_3d(self) -> bool:
-        """Returns:"""
+        """Whether this connected component is 3-dimensional."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         assert self._periodicity_vectors is not None  # fix mypy arg 1 to len has incompatible type Optional
@@ -622,8 +623,8 @@ class ConnectedComponent(MSONable):
         Example: [[1, 1, 0], [0, 1, -1], [0, 1, 1]] is ordered as [[0, 1, -1], [0, 1, 1], [1, 1, 0]]
         """
         for ipv, pv in enumerate(vectors):
-            nonzeros = np.nonzero(pv)[0]
-            if pv[nonzeros[0]] < 0 < len(nonzeros):
+            non_zeros = np.nonzero(pv)[0]
+            if pv[non_zeros[0]] < 0 < len(non_zeros):
                 vectors[ipv] = -pv
         return sorted(vectors, key=lambda x: x.tolist())
 
@@ -633,21 +634,21 @@ class ConnectedComponent(MSONable):
             raise ValueError("Number of periodicity vectors is larger than 3.")
         self._periodicity_vectors = self._order_vectors(self._periodicity_vectors)
         # for ipv, pv in enumerate(self._periodicity_vectors):
-        #     nonzeros = np.nonzero(pv)[0]
-        #     if (len(nonzeros) > 0) and (pv[nonzeros[0]] < 0):
+        #     non_zeros = np.nonzero(pv)[0]
+        #     if (len(non_zeros) > 0) and (pv[non_zeros[0]] < 0):
         #         self._periodicity_vectors[ipv] = -pv
         # self._periodicity_vectors = sorted(self._periodicity_vectors, key=lambda x: x.tolist())
 
     @property
     def periodicity_vectors(self):
-        """Returns:"""
+        """Get periodicity vectors of this connected component."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return [np.array(pp) for pp in self._periodicity_vectors]
 
     @property
     def periodicity(self):
-        """Returns:"""
+        """Get periodicity of this connected component."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return f"{len(self._periodicity_vectors):d}D"

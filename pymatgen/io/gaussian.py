@@ -274,8 +274,12 @@ class GaussianInput:
 
         return Molecule(species, coords)
 
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(contents):
+    def from_str(contents):
         """
         Creates GaussianInput from a string.
 
@@ -361,7 +365,7 @@ class GaussianInput:
             GaussianInput object
         """
         with zopen(filename, "r") as f:
-            return GaussianInput.from_string(f.read())
+            return GaussianInput.from_str(f.read())
 
     def get_zmatrix(self):
         """Returns a z-matrix representation of the molecule."""
@@ -375,9 +379,13 @@ class GaussianInput:
         return "\n".join(outs)
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, cart_coords=False):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, cart_coords=False):
         """Return GaussianInput string.
 
         Args:
@@ -442,7 +450,7 @@ class GaussianInput:
         Option: see __str__ method
         """
         with zopen(filename, "w") as file:
-            file.write(self.to_string(cart_coords))
+            file.write(self.to_str(cart_coords))
 
     def as_dict(self):
         """:return: MSONable dict"""

@@ -105,12 +105,9 @@ class Fragmenter(MSONable):
             for level in range(depth):
                 # If on the first level, perform one level of fragmentation on the principle molecule graph:
                 if level == 0:
+                    alph_formula = self.mol_graph.molecule.composition.alphabetical_formula
                     self.fragments_by_level["0"] = self._fragment_one_level(
-                        {
-                            str(self.mol_graph.molecule.composition.alphabetical_formula)
-                            + " E"
-                            + str(len(self.mol_graph.graph.edges())): [self.mol_graph]
-                        }
+                        {f"{alph_formula} E{len(self.mol_graph.graph.edges())}": [self.mol_graph]}
                     )
                 else:
                     num_frags_prev_level = 0
@@ -183,11 +180,8 @@ class Fragmenter(MSONable):
                         if self.open_rings:
                             fragments = [open_ring(old_frag, bond, self.opt_steps)]
                     for fragment in fragments:
-                        new_frag_key = (
-                            str(fragment.molecule.composition.alphabetical_formula)
-                            + " E"
-                            + str(len(fragment.graph.edges()))
-                        )
+                        alph_formula = fragment.molecule.composition.alphabetical_formula
+                        new_frag_key = f"{alph_formula} E{len(fragment.graph.edges())}"
                         proceed = True
                         if (
                             self.assume_previous_thoroughness
@@ -224,11 +218,8 @@ class Fragmenter(MSONable):
         we find. We also temporarily add the principle molecule graph to self.unique_fragments
         so that its rings are opened as well.
         """
-        mol_key = (
-            str(self.mol_graph.molecule.composition.alphabetical_formula)
-            + " E"
-            + str(len(self.mol_graph.graph.edges()))
-        )
+        alph_formula = self.mol_graph.molecule.composition.alphabetical_formula
+        mol_key = f"{alph_formula} E{len(self.mol_graph.graph.edges())}"
         self.all_unique_frag_dict[mol_key] = [self.mol_graph]
         new_frag_keys = {"0": []}
         new_frag_key_dict = {}
@@ -238,11 +229,8 @@ class Fragmenter(MSONable):
                 if ring_edges != []:
                     for bond in ring_edges[0]:
                         new_fragment = open_ring(fragment, [bond], self.opt_steps)
-                        frag_key = (
-                            str(new_fragment.molecule.composition.alphabetical_formula)
-                            + " E"
-                            + str(len(new_fragment.graph.edges()))
-                        )
+                        alph_formula = new_fragment.molecule.composition.alphabetical_formula
+                        frag_key = f"{alph_formula} E{len(new_fragment.graph.edges())}"
                         if frag_key not in self.all_unique_frag_dict:
                             if frag_key not in new_frag_keys["0"]:
                                 new_frag_keys["0"].append(copy.deepcopy(frag_key))
@@ -276,11 +264,8 @@ class Fragmenter(MSONable):
                     if ring_edges != []:
                         for bond in ring_edges[0]:
                             new_fragment = open_ring(fragment, [bond], self.opt_steps)
-                            frag_key = (
-                                str(new_fragment.molecule.composition.alphabetical_formula)
-                                + " E"
-                                + str(len(new_fragment.graph.edges()))
-                            )
+                            alph_formula = new_fragment.molecule.composition.alphabetical_formula
+                            frag_key = f"{alph_formula} E{len(new_fragment.graph.edges())}"
                             if frag_key not in self.all_unique_frag_dict:
                                 if frag_key not in new_frag_keys[str(idx)]:
                                     new_frag_keys[str(idx)].append(copy.deepcopy(frag_key))

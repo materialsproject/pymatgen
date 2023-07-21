@@ -1746,10 +1746,10 @@ class LightStructureEnvironments(MSONable):
                 fraction_ion_stat[elmt][oxi_state] = {env: fraction / sumspecie for env, fraction in envs.items()}
         for ce_symbol, ions in ce_ion_stat.items():
             fraction_ce_ion_stat[ce_symbol] = {}
-            sum_ce = np.sum([np.sum(list(oxistates.values())) for elmt, oxistates in ions.items()])
-            for elmt, oxistates in ions.items():
+            sum_ce = np.sum([np.sum(list(oxi_states.values())) for elmt, oxi_states in ions.items()])
+            for elmt, oxi_states in ions.items():
                 fraction_ce_ion_stat[ce_symbol][elmt] = {
-                    oxistate: fraction / sum_ce for oxistate, fraction in oxistates.items()
+                    oxistate: fraction / sum_ce for oxistate, fraction in oxi_states.items()
                 }
 
     def get_site_info_for_specie_ce(self, specie, ce_symbol):

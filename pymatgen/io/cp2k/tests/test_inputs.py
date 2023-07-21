@@ -66,7 +66,7 @@ H GTH-PBE-q1 GTH-PBE
 class BasisAndPotentialTest(PymatgenTest):
     def test_basis_info(self):
         # Ensure basis metadata can be read from string
-        b = BasisInfo.from_string("cc-pc-DZVP-MOLOPT-q1-SCAN")
+        b = BasisInfo.from_str("cc-pc-DZVP-MOLOPT-q1-SCAN")
         assert b.valence == 2
         assert b.molopt
         assert b.electrons == 1
@@ -76,33 +76,33 @@ class BasisAndPotentialTest(PymatgenTest):
         assert b.xc == "SCAN"
 
         # Ensure one-way softmatching works
-        b2 = BasisInfo.from_string("cc-pc-DZVP-MOLOPT-q1")
+        b2 = BasisInfo.from_str("cc-pc-DZVP-MOLOPT-q1")
         assert b2.softmatch(b)
         assert not b.softmatch(b2)
 
-        b3 = BasisInfo.from_string("cpFIT3")
+        b3 = BasisInfo.from_str("cpFIT3")
         assert b3.valence == 3
         assert b3.polarization == 1
         assert b3.contracted, True
 
     def test_potential_info(self):
         # Ensure potential metadata can be read from string
-        p = PotentialInfo.from_string("GTH-PBE-q1-NLCC")
+        p = PotentialInfo.from_str("GTH-PBE-q1-NLCC")
         assert p.potential_type == "GTH"
         assert p.xc == "PBE"
         assert p.nlcc
 
         # Ensure one-way softmatching works
-        p2 = PotentialInfo.from_string("GTH-q1-NLCC")
+        p2 = PotentialInfo.from_str("GTH-q1-NLCC")
         assert p2.softmatch(p)
         assert not p.softmatch(p2)
 
     def test_basis(self):
         # Ensure cp2k formatted string can be read for data correctly
-        mol_opt = GaussianTypeOrbitalBasisSet.from_string(basis)
+        mol_opt = GaussianTypeOrbitalBasisSet.from_str(basis)
         assert mol_opt.nexp == [7]
         # Basis file can read from strings
-        bf = BasisFile.from_string(basis)
+        bf = BasisFile.from_str(basis)
         for obj in [mol_opt, bf.objects[0]]:
             self.assert_all_close(
                 obj.exponents[0],
@@ -127,16 +127,16 @@ class BasisAndPotentialTest(PymatgenTest):
 
     def test_potentials(self):
         # Ensure cp2k formatted string can be read for data correctly
-        all = GthPotential.from_string(all_H)
+        all = GthPotential.from_str(all_H)
         assert all.potential == "All Electron"
-        pot = GthPotential.from_string(pot_H)
+        pot = GthPotential.from_str(pot_H)
         assert pot.potential == "Pseudopotential"
         assert pot.r_loc == approx(0.2)
         assert pot.nexp_ppl == approx(2)
         self.assert_all_close(pot.c_exp_ppl, [-4.17890044, 0.72446331])
 
         # Basis file can read from strings
-        pf = PotentialFile.from_string(pot_H)
+        pf = PotentialFile.from_str(pot_H)
         assert pf.objects[0] == pot
 
         # Ensure keyword can be properly generated
@@ -158,7 +158,7 @@ class InputTest(PymatgenTest):
             PROJECT_NAME CP2K ! default name
         &END
         """
-        ci = Cp2kInput.from_string(s)
+        ci = Cp2kInput.from_str(s)
         assert ci["GLOBAL"]["RUN_TYPE"] == Keyword("RUN_TYPE", "energy")
         assert ci["GLOBAL"]["PROJECT_NAME"].description == "default name"
         self.assert_msonable(ci)
@@ -225,7 +225,7 @@ class InputTest(PymatgenTest):
         # Can you initialize from jumbled input
         # should be case insensitive and ignore
         # excessive white space or tabs
-        ci = Cp2kInput.from_string(scramble)
+        ci = Cp2kInput.from_str(scramble)
         assert ci["FORCE_EVAL"]["DFT"]["UKS"] == Keyword("UKS", True)
         assert [k.name.upper() for k in ci["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"]] == [
             "BASIS_SET_FILE_NAME",
@@ -245,7 +245,7 @@ class InputTest(PymatgenTest):
             PROJECT_NAME CP2K ! default name
         &END
         """
-        s = Cp2kInput.from_string(s)
+        s = Cp2kInput.from_str(s)
         s.inc({"GLOBAL": {"TEST": 1}})
         assert s["global"]["test"] == Keyword("TEST", 1)
 

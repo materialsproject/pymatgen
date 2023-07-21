@@ -212,10 +212,10 @@ Lattice
       B : 0.0 0.0 -4.17
       C : -2.085 2.085 0.0
 Magmoms Sites
-+5.00   PeriodicSite: Ni (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
-        PeriodicSite: O (0.0000, 0.0000, -2.0850) [0.0000, 0.5000, 0.0000]
-        PeriodicSite: O (0.0000, 2.0850, 0.0000) [0.5000, 0.0000, 0.5000]
--5.00   PeriodicSite: Ni (0.0000, 2.0850, -2.0850) [0.5000, 0.5000, 0.5000]"""
++5.00   PeriodicSite: Ni (0.0, 0.0, 0.0) [0.0, 0.0, 0.0]
+        PeriodicSite: O (0.0, 0.0, -2.085) [0.0, 0.5, 0.0]
+        PeriodicSite: O (0.0, 2.085, 0.0) [0.5, 0.0, 0.5]
+-5.00   PeriodicSite: Ni (0.0, 2.085, -2.085) [0.5, 0.5, 0.5]"""
 
         # just compare lines form 'Magmoms Sites',
         # since lattice param string can vary based on machine precision
@@ -236,6 +236,18 @@ Magmoms Sites
         assert msa.magnetic_species_and_magmoms["Ni"][0] == approx(4.5)
         assert msa.magnetic_species_and_magmoms["Ni"][1] == approx(5.0143)
         assert msa.magnetic_species_and_magmoms["O"] == approx(0.1465)
+
+    def test_missing_spin(self):
+        # This test catches the case where a structure has some species with
+        # Species.spin=None. This previously raised an error upon construction
+        # of the analyzer).
+        latt = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
+        species = [Species("Ni", spin=-5), Species("Ni", spin=5), Species("O", spin=None), Species("O", spin=None)]
+        coords = [[0.5, 0, 0.5], [0, 0, 0], [0.25, 0.5, 0.25], [0.75, 0.5, 0.75]]
+        struct = Structure(latt, species, coords)
+
+        msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
+        assert msa.structure.site_properties["magmom"] == [-5, 5, 0, 0]
 
 
 class MagneticStructureEnumeratorTest(unittest.TestCase):

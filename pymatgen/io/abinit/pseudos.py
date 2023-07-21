@@ -126,9 +126,13 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             return f"<{type(self).__name__} at {self.filepath}>"
 
     def __str__(self) -> str:
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, verbose=0) -> str:
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, verbose=0) -> str:
         """String representation."""
         # pylint: disable=E1101
         lines: list[str] = []
@@ -258,14 +262,14 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """Build instance from dictionary (MSONable protocol)."""
-        new = cls.from_file(d["filepath"])
+        new = cls.from_file(dct["filepath"])
 
         # Consistency test based on md5
-        if "md5" in d and d["md5"] != new.md5:
+        if "md5" in dct and dct["md5"] != new.md5:
             raise ValueError(
-                f"The md5 found in file does not agree with the one in dict\nReceived {d['md5']}\nComputed {new.md5}"
+                f"The md5 found in file does not agree with the one in dict\nReceived {dct['md5']}\nComputed {new.md5}"
             )
 
         return new
