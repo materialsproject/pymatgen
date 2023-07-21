@@ -189,7 +189,9 @@ class AseAtomsAdaptor:
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
-        tags = atoms.get_tags()
+
+        # Get the tags
+        tags = atoms.get_tags() if atoms.has("tags") else None
 
         # Get the (final) site magmoms and charges from the ASE Atoms object.
         if getattr(atoms, "calc", None) is not None and getattr(atoms.calc, "results", None) is not None:
