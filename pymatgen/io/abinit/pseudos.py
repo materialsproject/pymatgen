@@ -267,7 +267,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         new = cls.from_file(dct["filepath"])
 
         # Consistency test based on md5
-        if "md5" in dct and dct["md5"] != new.md5:
+        if dct.get("md5") != new.md5:
             raise ValueError(
                 f"The md5 found in file does not agree with the one in dict\nReceived {dct['md5']}\nComputed {new.md5}"
             )
