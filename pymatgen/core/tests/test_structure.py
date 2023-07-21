@@ -1415,16 +1415,13 @@ class StructureTest(PymatgenTest):
         assert preds["magmoms"] == approx([0.00262399, 0.00262396], abs=1e-5)
         assert np.linalg.norm(preds["forces"]) == approx(1.998941843e-5, abs=1e-3)
         assert not hasattr(calculator, "dynamics"), "static calculation should not have dynamics"
-        for k in {
-            "atoms",
-            "results",
-            "parameters",
-            "get_spin_polarized",
-            "device",
-            "model",
-            "stress_weight",
-        }:
-            assert k in calculator.__dict__
+        assert "atoms" in calculator.__dict__
+        assert "results" in calculator.__dict__
+        assert "parameters" in calculator.__dict__
+        assert "get_spin_polarized" in calculator.__dict__
+        assert "device" in calculator.__dict__
+        assert "model" in calculator.__dict__
+        assert "stress_weight" in calculator.__dict__
         assert len(calculator.parameters) == 0
         assert isinstance(calculator.atoms, Atoms)
         assert len(calculator.atoms) == len(struct)
