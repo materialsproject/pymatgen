@@ -482,8 +482,9 @@ class PWInput:
             pass
 
         try:
-            val = val.replace("d", "e")
-            return smart_int_or_float(val)
+            # use local variable to avoid modifications to a string value
+            val_replace = val.replace("d", "e")
+            return smart_int_or_float(val_replace)
         except ValueError:
             pass
 
