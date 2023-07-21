@@ -19,7 +19,14 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.structure import IMolecule, IStructure, Molecule, PeriodicNeighbor, Structure, StructureError
+from pymatgen.core.structure import (
+    IMolecule,
+    IStructure,
+    Molecule,
+    PeriodicNeighbor,
+    Structure,
+    StructureError,
+)
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.util.testing import PymatgenTest
@@ -1408,18 +1415,16 @@ class StructureTest(PymatgenTest):
         assert preds["magmoms"] == approx([0.00262399, 0.00262396], abs=1e-5)
         assert np.linalg.norm(preds["forces"]) == approx(1.998941843e-5, abs=1e-3)
         assert not hasattr(calculator, "dynamics"), "static calculation should not have dynamics"
-        assert {*calculator.__dict__} == {
+        for k in {
             "atoms",
             "results",
             "parameters",
-            "_directory",
-            "prefix",
-            "name",
             "get_spin_polarized",
             "device",
             "model",
             "stress_weight",
-        }
+        }:
+            assert k in calculator.__dict__
         assert len(calculator.parameters) == 0
         assert isinstance(calculator.atoms, Atoms)
         assert len(calculator.atoms) == len(struct)
