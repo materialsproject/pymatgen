@@ -52,14 +52,14 @@ class OptimadeTest(PymatgenTest):
 
         if "mp" in extra_fields_single and "mp" in structs:
             assert len(structs["mp"]) == len(extra_fields_single["mp"])
-            struct_nl = list(extra_fields_single["mp"].values())[0]
+            struct_nl = next(iter(extra_fields_single["mp"].values()))
             assert "nsites" in struct_nl.data["_optimade"]
 
         if "mp" in extra_fields_set and "mp" in structs:
             assert len(structs["mp"]) == len(extra_fields_set["mp"])
 
             # Check that the requested response fields appear in the SNL metadata
-            struct_nl_set = list(extra_fields_set["mp"].values())[0]
+            struct_nl_set = next(iter(extra_fields_set["mp"].values()))
             assert field_set <= {*struct_nl_set.data["_optimade"]}
 
     # Tests fail in CI for unknown reason, use for development only.

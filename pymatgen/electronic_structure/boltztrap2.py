@@ -320,11 +320,11 @@ class VasprunLoader:
             self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
             self.proj = None
             if len(vrun_obj.eigenvalues) == 1:
-                e = list(vrun_obj.eigenvalues.values())[0]
+                e = next(iter(vrun_obj.eigenvalues.values()))
                 self.ebands = e[:, :, 0].transpose() * units.eV
                 self.dosweight = 2.0
                 if vrun_obj.projected_eigenvalues:
-                    self.proj = list(vrun_obj.projected_eigenvalues.values())[0]
+                    self.proj = next(iter(vrun_obj.projected_eigenvalues.values()))
 
             elif len(vrun_obj.eigenvalues) == 2:
                 raise BoltztrapError("spin bs case not implemented")

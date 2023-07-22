@@ -665,7 +665,7 @@ class ConnectedComponent(MSONable):
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
         # inside the cell if you start from a specific node
         ntest_nodes = 0
-        start_node = list(self.graph.nodes())[0]
+        start_node = next(iter(self.graph.nodes()))
 
         ntest_nodes += 1
         centered_connected_subgraph = nx.MultiGraph()

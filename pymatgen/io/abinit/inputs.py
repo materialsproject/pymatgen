@@ -550,7 +550,7 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
                 if abs(angle - 120) < 1.0:
                     j = (i + 1) % 3
                     k = (i + 2) % 3
-                    hex_ax = [ax for ax in range(3) if ax not in [j, k]][0]
+                    hex_ax = next(ax for ax in range(3) if ax not in [j, k])
                     break
             else:
                 raise ValueError("Cannot find hexagonal axis")

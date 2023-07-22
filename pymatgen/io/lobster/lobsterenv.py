@@ -742,11 +742,11 @@ class LobsterNeighbors(NearNeighbors):
                             for i in (
                                 neighbor.frac_coords
                                 - self.structure[
-                                    [
+                                    next(
                                         isite
                                         for isite, site in enumerate(self.structure)
                                         if neighbor.is_periodic_image(site)
-                                    ][0]
+                                    )
                                 ].frac_coords
                             )
                         ),
@@ -765,9 +765,9 @@ class LobsterNeighbors(NearNeighbors):
                                 self.list_keys[ineighbors][ineighbor]
                             ),
                         },
-                        "site_index": [
+                        "site_index": next(
                             isite for isite, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
-                        ][0],
+                        ),
                     }
                     for ineighbor, neighbor in enumerate(neighbors)
                 ]
@@ -783,11 +783,11 @@ class LobsterNeighbors(NearNeighbors):
                             for i in (
                                 neighbor.frac_coords
                                 - self.structure[
-                                    [
+                                    next(
                                         isite
                                         for isite, site in enumerate(self.structure)
                                         if neighbor.is_periodic_image(site)
-                                    ][0]
+                                    )
                                 ].frac_coords
                             )
                         ),
@@ -797,9 +797,9 @@ class LobsterNeighbors(NearNeighbors):
                             "bond_length": self.list_lengths[ineighbors][ineighbor],
                             "bond_label": self.list_keys[ineighbors][ineighbor],
                         },
-                        "site_index": [
+                        "site_index": next(
                             isite for isite, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
-                        ][0],
+                        ),
                     }
                     for ineighbor, neighbor in enumerate(neighbors)
                 ]

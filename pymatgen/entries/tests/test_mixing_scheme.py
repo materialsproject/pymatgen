@@ -1013,7 +1013,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         state_data = mixing_scheme_no_compat.get_mixing_state_data(entries)
         with pytest.raises(CompatibilityError, match="Invalid run_type='LDA'"):
             mixing_scheme_no_compat.get_adjustments(
-                [e for e in entries if e.parameters["run_type"] == "LDA"][0],
+                next(e for e in entries if e.parameters["run_type"] == "LDA"),
                 state_data,
             )
 
@@ -1659,7 +1659,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         """
         state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_complete.all_entries)
         # lower the energy of the SnBr2 ground state
-        e = [e for e in ms_complete.gga_entries if e.entry_id == "gga-4"][0]
+        e = next(e for e in ms_complete.gga_entries if e.entry_id == "gga-4")
         d_compat = DummyCompatibility()
         d_compat.process_entries(e)
 

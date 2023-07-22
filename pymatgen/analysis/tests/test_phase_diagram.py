@@ -374,7 +374,7 @@ class PhaseDiagramTest(PymatgenTest):
 
         duplicate_entry = PDEntry("Li2O", -14.31361175)
         scaled_dup_entry = PDEntry("Li4O2", -14.31361175 * 2)
-        stable_entry = [e for e in self.pd.stable_entries if e.name == "Li2O"][0]
+        stable_entry = next(e for e in self.pd.stable_entries if e.name == "Li2O")
 
         assert self.pd.get_phase_separation_energy(duplicate_entry) == self.pd.get_phase_separation_energy(
             stable_entry
