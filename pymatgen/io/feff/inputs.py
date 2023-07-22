@@ -278,6 +278,7 @@ class Header(MSONable):
 
         return "".join(feff_header_str)
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)

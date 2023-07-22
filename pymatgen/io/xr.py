@@ -68,6 +68,7 @@ class Xr:
         with zopen(filename, "wt") as f:
             f.write(str(self) + "\n")
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)

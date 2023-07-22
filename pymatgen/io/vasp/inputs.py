@@ -761,6 +761,7 @@ class Incar(dict, MSONable):
         with zopen(filename, "rt") as f:
             return Incar.from_str(f.read())
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -1004,6 +1005,7 @@ class KpointsSupportedModes(Enum):
     def __str__(self):
         return str(self.name)
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -1384,6 +1386,7 @@ class Kpoints(MSONable):
         with zopen(filename, "rt") as f:
             return Kpoints.from_str(f.read())
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
