@@ -371,7 +371,7 @@ class PWInput:
             "conv_thr",
             "Hubbard_U",
             "Hubbard_J0",
-            "defauss",
+            "degauss",
             "starting_magnetization",
         )
 
@@ -482,8 +482,7 @@ class PWInput:
             pass
 
         try:
-            val = val.replace("d", "e")
-            return smart_int_or_float(val)
+            return smart_int_or_float(val.replace("d", "e"))
         except ValueError:
             pass
 
