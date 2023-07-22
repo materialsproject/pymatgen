@@ -72,6 +72,9 @@ class AseAtomsAdaptor:
 
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
 
+        if "tags" in structure.site_properties:
+            atoms.set_tags(structure.site_properties["tags"])
+
         # Set the site magmoms in the ASE Atoms object
         # Note: ASE distinguishes between initial and converged
         # magnetic moment site properties, whereas pymatgen does not. Therefore, we
@@ -181,6 +184,9 @@ class AseAtomsAdaptor:
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
 
+        # Get the tags
+        tags = atoms.get_tags() if atoms.has("tags") else None
+
         # Get the (final) site magmoms and charges from the ASE Atoms object.
         if getattr(atoms, "calc", None) is not None and getattr(atoms.calc, "results", None) is not None:
             charges = atoms.calc.results.get("charges")
@@ -247,6 +253,8 @@ class AseAtomsAdaptor:
             structure.add_site_property("magmom", initial_magmoms)
         if sel_dyn is not None and ~np.all(sel_dyn):
             structure.add_site_property("selective_dynamics", sel_dyn)
+        if tags is not None:
+            structure.add_site_property("tags", tags)
 
         # Add oxidation states by site
         if oxi_states is not None:
