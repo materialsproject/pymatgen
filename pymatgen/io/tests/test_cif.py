@@ -792,11 +792,13 @@ loop_
         assert cb == cb2
 
     def test_bad_cif(self):
-        f = f"{self.TEST_FILES_DIR}/bad_occu.cif"
-        parser = CifParser(f)
-        with pytest.raises(ValueError, match="Invalid CIF file with no structures"):
-            parser.get_structures()
-        parser = CifParser(f, occupancy_tolerance=2)
+        filepath = f"{self.TEST_FILES_DIR}/bad_occu.cif"
+        parser = CifParser(filepath)
+        with pytest.raises(
+            ValueError, match="No structure parsed for section 1 in CIF.\nSpecies occupancies sum to more than 1!"
+        ):
+            parser.get_structures(on_error="raise")
+        parser = CifParser(filepath, occupancy_tolerance=2)
         struct = parser.get_structures()[0]
         assert struct[0].species["Al3+"] == approx(0.5)
 
