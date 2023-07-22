@@ -761,6 +761,7 @@ class Incar(dict, MSONable):
         with zopen(filename, "rt") as f:
             return Incar.from_str(f.read())
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
