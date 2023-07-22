@@ -209,14 +209,14 @@ CELL_PARAMETERS angstrom
         assert str(pw).strip() == expected.strip()
 
     def test_proc_val(self):
-        inputs={
-            "degauss": ("7.3498618000d-03",7.3498618000e-03)
-            , "nat": ("2",2)
-            , "nosym": (".TRUE.",True)
-            , "smearing": ("'cold'","cold")
+        inputs = {
+            "degauss": ("7.3498618000d-03", 7.3498618000e-03),
+            "nat": ("2", 2),
+            "nosym": (".TRUE.", True),
+            "smearing": ("'cold'", "cold"),
         }
-        for key,(input_str,expected) in inputs.items():
-            value=PWInput.proc_val(key,input_str)
+        for key, (input_str, expected) in inputs.items():
+            value = PWInput.proc_val(key, input_str)
             assert value == expected
 
     def test_read_str(self):
