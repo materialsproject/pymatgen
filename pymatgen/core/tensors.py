@@ -453,7 +453,7 @@ class Tensor(np.ndarray, MSONable):
             n_umask = np.logical_not(angles == angles[u_index])
             rotation[1] = get_uvec(vecs[u_index])
             # Shorter of remaining lattice vectors for c axis
-            c = [vec / mag for (mag, vec) in sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
+            c = next(vec / mag for (mag, vec) in sorted(zip(lengths[n_umask], vecs[n_umask])))
             rotation[2] = np.array(c)
             rotation[0] = np.cross(rotation[1], rotation[2])
 

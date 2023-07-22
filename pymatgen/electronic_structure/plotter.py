@@ -617,7 +617,7 @@ class BSPlotter:
         handles = []
         vbm_min, cbm_max = [], []
 
-        colors = list(plt.rcParams["axes.prop_cycle"].by_key().values())[0]
+        colors = next(iter(plt.rcParams["axes.prop_cycle"].by_key().values()))
         for ibs, bs in enumerate(self._bs):
             # set first bs in the list as ref for rescaling the distances of the other bands
             bs_ref = self._bs[0] if len(self._bs) > 1 and ibs > 0 else None
@@ -1871,7 +1871,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species)[0] == Element(elt):
+                        if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     for number in dictpa[elt]:
                         if isinstance(number, str):
@@ -1918,7 +1918,7 @@ class BSPlotterProjected(BSPlotter):
                         _sites = self._bs.structure.sites
                         indices = []
                         for i in range(0, len(_sites)):  # pylint: disable=C0200
-                            if list(_sites[i]._species)[0] == Element(elt):
+                            if next(iter(_sites[i]._species)) == Element(elt):
                                 indices.append(i + 1)
                         for number in sum_atoms[elt]:
                             if isinstance(number, str):
@@ -2042,7 +2042,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species)[0] == Element(elt):
+                        if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
@@ -2091,7 +2091,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species)[0] == Element(elt):
+                        if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))

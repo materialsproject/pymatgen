@@ -134,7 +134,7 @@ class SlabEntry(ComputedStructureEntry):
         self.label = label
         self.adsorbates = adsorbates if adsorbates else []
         self.clean_entry = clean_entry
-        self.ads_entries_dict = {str(list(ads.composition.as_dict())[0]): ads for ads in self.adsorbates}
+        self.ads_entries_dict = {str(next(iter(ads.composition.as_dict()))): ads for ads in self.adsorbates}
         self.mark = marker
         self.color = color
 
@@ -199,14 +199,14 @@ class SlabEntry(ComputedStructureEntry):
         ucell_entry_comp = ucell_entry.composition.reduced_composition.as_dict()
         slab_clean_comp = Composition({el: slab_comp[el] for el in ucell_entry_comp})
         if slab_clean_comp.reduced_composition != ucell_entry.composition.reduced_composition:
-            list_els = [list(entry.composition.as_dict())[0] for entry in ref_entries]
+            list_els = [next(iter(entry.composition.as_dict())) for entry in ref_entries]
             if not any(el in list_els for el in ucell_entry.composition.as_dict()):
                 warnings.warn("Elemental references missing for the non-dopant species.")
 
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
         ucell_reduced_comp = ucell_comp.reduced_composition
-        ref_entries_dict = {str(list(ref.composition.as_dict())[0]): ref for ref in ref_entries}
+        ref_entries_dict = {str(next(iter(ref.composition.as_dict()))): ref for ref in ref_entries}
         ref_entries_dict.update(self.ads_entries_dict)
 
         # Calculate Gibbs free energy of the bulk per unit formula
@@ -613,7 +613,7 @@ class SurfaceEnergyPlotter:
         axes = plt.gca()
 
         for hkl in self.all_slab_entries:
-            clean_entry = list(self.all_slab_entries[hkl])[0]
+            clean_entry = next(iter(self.all_slab_entries[hkl]))
             # Ignore any facets that never show up on the
             # Wulff shape regardless of chemical potential
             if all(a == 0 for a in hkl_area_dict[hkl]):
