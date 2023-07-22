@@ -1156,7 +1156,6 @@ class BasicMultiDataset:
             results = []
             for obj in self._inputs:
                 a = getattr(obj, name)
-                # print("name", name, ", type:", type(a), "callable: ",callable(a))
                 if callable(a):
                     results.append(a(*args, **kwargs))
                 else:
@@ -1260,7 +1259,6 @@ class BasicMultiDataset:
                         break
                 if isame:
                     global_vars.add(k0)
-            # print("global_vars vars", global_vars)
 
             w = 92
             if global_vars:

@@ -426,7 +426,6 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
             max_bond_length = ldict[species[ii]] + ldict[species[jj]] + tolerance
             frac_diff = fc_diff[jj] - fc_copy[ii]
             distance_ij = np.dot(struct.lattice.matrix.T, frac_diff)
-            # print(np.linalg.norm(distance_ij,axis=0))
             if sum(np.linalg.norm(distance_ij, axis=0) < max_bond_length) > 0:
                 connected_matrix[ii, jj] = 1
                 connected_matrix[jj, ii] = 1

@@ -523,7 +523,6 @@ class BztInterpolator:
 
         lattvec = self.data.get_lattvec()
         egrid, vgrid = fite.getBands(kpoints, self.equivalences, lattvec, self.coeffs)
-        # print(egrid.shape)
         if self.data.is_spin_polarized:
             h = sum(np.array_split(self.accepted, 2)[0])
             egrid = np.array_split(egrid, [h], axis=0)
@@ -1216,7 +1215,6 @@ class BztPlotter:
             raise BoltztrapError("BztInterpolator not present")
 
         tdos = self.bzt_interp.get_dos(T=T, npts_mu=npoints)
-        # print(npoints)
         dosPlotter = DosPlotter()
         dosPlotter.add_dos("Total", tdos)
 

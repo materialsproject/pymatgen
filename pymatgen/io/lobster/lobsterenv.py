@@ -523,8 +523,6 @@ class LobsterNeighbors(NearNeighbors):
             # iterate through labels and atoms and check which bonds can be included
             new_labels = []
             new_atoms = []
-            # print(labels)
-            # print(atoms)
             for label, atompair, isite in zip(labels, atoms, final_isites):
                 present = False
                 for atomtype in only_bonds_to:
@@ -544,7 +542,6 @@ class LobsterNeighbors(NearNeighbors):
                 if present:
                     new_labels.append(label)
                     new_atoms.append(atompair)
-            # print(new_labels)
             if len(new_labels) > 0:
                 divisor = len(new_labels) if per_bond else 1
 
@@ -570,7 +567,6 @@ class LobsterNeighbors(NearNeighbors):
                 self._split_string(atomsnames[1])[0],
             ]
             new.sort()
-            # print(new2)
             string_here = new[0] + "-" + new[1]
             all_labels.append(string_here)
         count = collections.Counter(all_labels)

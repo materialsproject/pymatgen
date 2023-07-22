@@ -444,7 +444,7 @@ class CifParser:
 
                     for et, occu in els_occu.items():
                         # new atom site labels have 'fix' appended
-                        new_atom_site_label.append(et + "_fix" + str(len(new_atom_site_label)))
+                        new_atom_site_label.append(f"{et}_fix{len(new_atom_site_label)}")
                         new_atom_site_type_symbol.append(et)
                         new_atom_site_occupancy.append(str(occu))
                         new_fract_x.append(str(x))

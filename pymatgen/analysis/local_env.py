@@ -192,7 +192,6 @@ class ValenceIonicRadiusEvaluator:
         # el = [site.species_string for site in self._structure]
         # el = [site.specie for site in self._structure]
         # valence_dict = dict(zip(el, valences))
-        # print valence_dict
         return valences
 
 

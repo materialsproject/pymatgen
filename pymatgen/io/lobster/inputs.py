@@ -331,7 +331,6 @@ class Lobsterin(dict, MSONable):
         if further_settings is not None:
             for key, item in further_settings.items():
                 incar[key] = item
-        # print it to file
         incar.write_file(incar_output)
 
     @staticmethod

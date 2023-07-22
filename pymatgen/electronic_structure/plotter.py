@@ -1053,7 +1053,7 @@ class BSPlotterProjected(BSPlotter):
                         plt.ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
                 else:
                     plt.ylim(ylim)
-                plt.title(str(el) + " " + str(o))
+                plt.title(f"{el} {o}")
                 count += 1
         return plt
 
@@ -1696,7 +1696,7 @@ class BSPlotterProjected(BSPlotter):
                             plt.ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
                     else:
                         plt.ylim(ylim)
-                    plt.title(elt + " " + numa + " " + str(o))
+                    plt.title(f"{elt} {numa} {o}")
 
         return plt
 
@@ -1996,18 +1996,18 @@ class BSPlotterProjected(BSPlotter):
             divide = [[]]
             divide[0].append(list_numbers[0])
             group = 0
-            for i in range(1, len(list_numbers)):
-                if list_numbers[i] == list_numbers[i - 1] + 1:
-                    divide[group].append(list_numbers[i])
+            for idx in range(1, len(list_numbers)):
+                if list_numbers[idx] == list_numbers[idx - 1] + 1:
+                    divide[group].append(list_numbers[idx])
                 else:
                     group += 1
-                    divide.append([list_numbers[i]])
+                    divide.append([list_numbers[idx]])
             label = ""
             for elem in divide:
                 if len(elem) > 1:
-                    label += str(elem[0]) + "-" + str(elem[-1]) + ","
+                    label += f"{elem[0]}-{elem[-1]},"
                 else:
-                    label += str(elem[0]) + ","
+                    label += f"{elem[0]},"
             return label[:-1]
 
         def orbital_label(list_orbitals):
@@ -2026,7 +2026,7 @@ class BSPlotterProjected(BSPlotter):
                     label += elem + ","
                 else:
                     orb_label = [orb[1:] for orb in orbs]
-                    label += elem + str(orb_label).replace("['", "").replace("']", "").replace("', '", "-") + ","
+                    label += f"{elem}{str(orb_label).replace('[' , '').replace(']' , '').replace(', ', '-')},"
             return label[:-1]
 
         if sum_atoms is None and sum_morbs is None:
@@ -2880,7 +2880,7 @@ class BoltztrapPlotter:
         plt.yticks(fontsize=25)
         if output == "tensor":
             plt.legend(
-                [str(i) + "_" + str(T) + "K" for T in temps for i in ("x", "y", "z")],
+                [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
                 fontsize=20,
             )
         elif output == "average":
@@ -2940,7 +2940,7 @@ class BoltztrapPlotter:
         plt.yticks(fontsize=25)
         if output == "tensor":
             plt.legend(
-                [str(i) + "_" + str(T) + "K" for T in temps for i in ("x", "y", "z")],
+                [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
                 fontsize=20,
             )
         elif output == "average":

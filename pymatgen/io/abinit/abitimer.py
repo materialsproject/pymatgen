@@ -153,7 +153,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         parser_failed = False
         inside, has_timer = 0, False
         for line in fh:
-            # print(line.strip())
             if line.startswith(self.BEGIN_TAG):
                 has_timer = True
                 sections = []
@@ -193,7 +192,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                         parser_failed = True
 
                     if not parser_failed:
-                        raise self.Error("line should be empty: " + str(inside) + line)
+                        raise self.Error(f"line should be empty: {inside}{line}")
 
         if not has_timer:
             raise self.Error(f"{fname}: No timer section found")
@@ -277,7 +276,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         peff["total"]["wall_fract"] = n * [100]
 
         for sect_name in self.section_names():
-            # print(sect_name)
             ref_sect = ref_t.get_section(sect_name)
             sects = [t.get_section(sect_name) for t in timers]
             try:
@@ -356,7 +354,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         if "good" in what:
             good = peff.good_sections(key=key, nmax=nmax)
             for g in good:
-                # print(g, peff[g])
                 yy = peff[g][key]
                 (line,) = ax.plot(xx, yy, "-->", linewidth=lw, markersize=msize)
                 lines.append(line)
@@ -366,7 +363,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         if "bad" in what:
             bad = peff.bad_sections(key=key, nmax=nmax)
             for b in bad:
-                # print(b, peff[b])
                 yy = peff[b][key]
                 (line,) = ax.plot(xx, yy, "-.<", linewidth=lw, markersize=msize)
                 lines.append(line)
@@ -518,7 +514,6 @@ class ParallelEfficiency(dict):
             # Ignore values where we had a division by zero.
             if all(v != -1 for v in peff[key]):
                 values = peff[key][:]
-                # print(sect_name, values)
                 if len(values) > 1:
                     ref_value = values.pop(self._ref_idx)
                     assert ref_value == 1.0

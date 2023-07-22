@@ -70,7 +70,7 @@ class LMTOCtrl:
         if "VERS" in ctrl_dict:
             lines.append("VERS".ljust(10) + self.version)
 
-        lines.append("STRUC".ljust(10) + "ALAT=" + str(round(ctrl_dict["ALAT"], sigfigs)))
+        lines.append(f"{'STRUC'.ljust(10)}ALAT={ctrl_dict['ALAT']:.{sigfigs}f}")
         for idx, latt in enumerate(ctrl_dict["PLAT"]):
             line = "PLAT=".rjust(15) if idx == 0 else " ".ljust(15)
             line += " ".join(str(round(v, sigfigs)) for v in latt)
@@ -83,7 +83,7 @@ class LMTOCtrl:
                     if token == "POS":
                         line.append("POS=" + " ".join(str(round(p, sigfigs)) for p in val))
                     else:
-                        line.append(token + "=" + str(val))
+                        line.append(f"{token}={val}")
                 line = " ".join(line)
                 lines.append(line)
 
@@ -126,7 +126,7 @@ class LMTOCtrl:
             if atom.symbol in num_atoms:
                 if label_index + 1 > sum(num_atoms.values()):
                     num_atoms[atom.symbol] += 1
-                    atom_label = atom.symbol + str(num_atoms[atom.symbol] - 1)
+                    atom_label = f"{atom.symbol}{num_atoms[atom.symbol] - 1}"
                     classes.append({"ATOM": atom_label, "Z": atom.Z})
             else:
                 num_atoms[atom.symbol] = 1
