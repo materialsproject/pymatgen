@@ -885,8 +885,8 @@ class CifParser:
 
         return parsed_sym
 
-    def _get_structure(self, data, primitive, symmetrized):
-        """Generate structure from part of the cif."""
+    def _get_structure(self, data, primitive, symmetrized) -> Structure | None:
+        """Generate structure from part of the CIF."""
 
         def get_num_implicit_hydrogens(sym):
             num_h = {"Wat": 2, "wat": 2, "O-H": 1}
@@ -915,18 +915,15 @@ class CifParser:
             keys = list(coord_to_species)
             coords = np.array(keys)
             for op in self.symmetry_operations:
-                c = op.operate(coord)
-                inds = find_in_coord_list_pbc(coords, c, atol=self._site_tolerance)
-                # can't use if inds, because python is dumb and np.array([0]) evaluates
-                # to False
-                if len(inds) > 0:
-                    return keys[inds[0]]
+                frac_coord = op.operate(coord)
+                indices = find_in_coord_list_pbc(coords, frac_coord, atol=self._site_tolerance)
+                if len(indices) > 0:
+                    return keys[indices[0]]
             return False
 
         for idx, label in enumerate(data["_atom_site_label"]):
             try:
-                # If site type symbol exists, use it. Otherwise, we use the
-                # label.
+                # If site type symbol exists, use it. Otherwise, we use the label.
                 symbol = self._parse_symbol(data["_atom_site_type_symbol"][idx])
                 num_h = get_num_implicit_hydrogens(data["_atom_site_type_symbol"][idx])
             except KeyError:
@@ -1144,7 +1141,7 @@ class CifParser:
         if self.warnings:
             warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
         if len(structures) == 0:
-            raise ValueError("Invalid cif file with no structures!")
+            raise ValueError("Invalid CIF file with no structures!")
         return structures
 
     def get_bibtex_string(self):
