@@ -136,16 +136,16 @@ class SmearingTest(PymatgenTest):
 
         assert fd1ev
 
-        same_fd = Smearing.as_smearing("fermi_dirac:" + str(1.0 / Ha_to_eV))
+        same_fd = Smearing.as_smearing(f"fermi_dirac:{1.0 / Ha_to_eV}")
 
         assert same_fd == fd1ev
 
-        nosmear = Smearing.nosmearing()
-        assert nosmear == Smearing.as_smearing("nosmearing")
+        no_smear = Smearing.nosmearing()
+        assert no_smear == Smearing.as_smearing("nosmearing")
 
-        assert not nosmear
-        assert nosmear != fd1ev
-        self.assert_msonable(nosmear)
+        assert not no_smear
+        assert no_smear != fd1ev
+        self.assert_msonable(no_smear)
 
         new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
         assert new_fd1ev == fd1ev
@@ -227,7 +227,7 @@ class PPModelTest(PymatgenTest):
         godby.to_abivars()
         assert godby
 
-        same_godby = PPModel.as_ppmodel("godby:" + str(12.0 / Ha_to_eV))
+        same_godby = PPModel.as_ppmodel(f"godby:{12.0 / Ha_to_eV}")
         assert same_godby == godby
 
         no_pp_model = PPModel.get_noppmodel()

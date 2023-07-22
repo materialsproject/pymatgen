@@ -310,9 +310,7 @@ class SubstitutionTransformation(AbstractTransformation):
         return struct
 
     def __str__(self):
-        return "Substitution Transformation :" + ", ".join(
-            [str(k) + "->" + str(v) for k, v in self._species_map.items()]
-        )
+        return "Substitution Transformation :" + ", ".join([f"{k}->{v}" for k, v in self._species_map.items()])
 
     def __repr__(self):
         return str(self)

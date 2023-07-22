@@ -97,7 +97,7 @@ class PWInput:
                         name = k
 
                 if name is None:
-                    name = site.specie.symbol + str(c)
+                    name = f"{site.specie.symbol}{c}"
                     site_descriptions[name] = site.properties
                     c += 1
 

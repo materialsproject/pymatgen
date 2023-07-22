@@ -1693,7 +1693,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             # k, count = p.element, 1
             # Handle multiple-pseudos with the same name!
             while k in dct:
-                k += k.split("#")[0] + "#" + str(count)
+                k += f"{k.split('#')[0]}#{count}"
                 count += 1
             dct.update({k: p.as_dict()})
         dct["@module"] = type(self).__module__
