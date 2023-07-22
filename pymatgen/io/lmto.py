@@ -166,6 +166,7 @@ class LMTOCtrl:
             contents = f.read()
         return LMTOCtrl.from_str(contents, **kwargs)
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)

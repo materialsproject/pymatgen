@@ -165,6 +165,7 @@ class CifBlock:
                     q.append(tuple(s))
         return q
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
@@ -233,6 +234,7 @@ class CifFile:
         out = "\n".join(map(str, self.data.values()))
         return f"{self.comment}\n{out}\n"
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)
