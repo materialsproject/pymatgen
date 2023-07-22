@@ -36,10 +36,10 @@ if __name__ == "__main__":
 
     new_algos = []
 
-    ialgo = 1
+    idx = 1
     for sep_plane_algo in cg._algorithms:
-        print(f"In {ialgo = :d}/{len(cg._algorithms):d}")
-        ialgo += 1
+        print(f"In {idx = :d}/{len(cg._algorithms):d}")
+        idx += 1
         if sep_plane_algo.algorithm_type != "SEPARATION_PLANE":
             raise ValueError("Should all be separation plane")
 

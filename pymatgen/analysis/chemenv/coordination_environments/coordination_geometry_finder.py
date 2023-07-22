@@ -1397,7 +1397,7 @@ class LocalGeometryFinder:
             algos = []
             local2perfect_maps = []
             perfect2local_maps = []
-            for iperm, perm in enumerate(algo.permutations):
+            for idx, perm in enumerate(algo.permutations):
                 local2perfect_map = {}
                 perfect2local_map = {}
                 permutations.append(perm)
@@ -1412,7 +1412,7 @@ class LocalGeometryFinder:
                 sm_info = symmetry_measure(points_distorted=points_distorted, points_perfect=points_perfect)
                 sm_info["translation_vector"] = self.local_geometry.centroid_with_centre
 
-                permutations_symmetry_measures[iperm] = sm_info
+                permutations_symmetry_measures[idx] = sm_info
                 algos.append(str(algo))
             return (
                 permutations_symmetry_measures,
@@ -1427,7 +1427,7 @@ class LocalGeometryFinder:
         algos = []
         local2perfect_maps = []
         perfect2local_maps = []
-        for iperm, perm in enumerate(algo.permutations):
+        for idx, perm in enumerate(algo.permutations):
             local2perfect_map = {}
             perfect2local_map = {}
             permutations.append(perm)
@@ -1442,7 +1442,7 @@ class LocalGeometryFinder:
             sm_info = symmetry_measure(points_distorted=points_distorted, points_perfect=points_perfect)
             sm_info["translation_vector"] = self.local_geometry.centroid_with_centre
 
-            permutations_symmetry_measures[iperm] = sm_info
+            permutations_symmetry_measures[idx] = sm_info
             algos.append(str(algo))
         return (
             permutations_symmetry_measures,
@@ -1995,7 +1995,7 @@ class LocalGeometryFinder:
         algos = []
         perfect2local_maps = []
         local2perfect_maps = []
-        for iperm in range(NRANDOM):
+        for idx in range(NRANDOM):
             perm = np.random.permutation(coordination_geometry.coordination_number)
             permutations.append(perm)
             p2l = {}
@@ -2010,7 +2010,7 @@ class LocalGeometryFinder:
             sm_info = symmetry_measure(points_distorted=points_distorted, points_perfect=points_perfect)
             sm_info["translation_vector"] = self.local_geometry.centroid_with_centre
 
-            permutations_symmetry_measures[iperm] = sm_info
+            permutations_symmetry_measures[idx] = sm_info
             algos.append("APPROXIMATE_FALLBACK")
         return (
             permutations_symmetry_measures,
