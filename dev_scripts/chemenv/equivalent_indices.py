@@ -133,5 +133,5 @@ if __name__ == "__main__":
             i7 = 6 if i0 in [1, 4] else 7
             equiv_list.append([i0, i1, i2, i3, i4, i5, i6, i7])
 
-    print(f"Equivalent indices ({len(equiv_list):d}) for {cg_symbol} : ")
+    print(f"Equivalent indices ({len(equiv_list)}) for {cg_symbol} : ")
     print(equiv_list)

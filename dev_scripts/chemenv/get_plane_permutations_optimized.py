@@ -194,7 +194,7 @@ if __name__ == "__main__":
             original_n_explicit_optimized_perms.append(eop)
             print(
                 f"  For this algorithm, there are {eop} optimized permutations and "
-                f"{len(algo.explicit_permutations):d} explicit permutations"
+                f"{len(algo.explicit_permutations)} explicit permutations"
             )
             if algo.other_plane_points is None:
                 input("Multiplicity and other plane points is not defined for this algorithm !")
@@ -204,7 +204,7 @@ if __name__ == "__main__":
                 ordered_plane=algo.ordered_plane, ordered_point_groups=algo.ordered_point_groups
             )
             algo._permutations = permutations
-            print(f"Safe permutations found ({len(permutations):d})")
+            print(f"Safe permutations found ({len(permutations)})")
 
             # Definition of the facets
             all_planes_point_indices = [algo.plane_points]
@@ -215,7 +215,7 @@ if __name__ == "__main__":
             explicit_permutations_per_plane = []
             for idx_plane, plane_point_indices in enumerate(all_planes_point_indices):
                 prt1(
-                    string=f"In plane {idx_plane:d} ({'-'.join(str(pp) for pp in plane_point_indices)})",
+                    string=f"In plane {idx_plane} ({'-'.join(str(pp) for pp in plane_point_indices)})",
                     printing_volume=printing_volume,
                 )
 
@@ -268,7 +268,7 @@ if __name__ == "__main__":
             algo.explicit_permutations = [list(perm) for perm in list(explicit_permutations_per_plane[0])]
             algo.explicit_permutations.sort()
             algo.explicit_permutations = np.array(algo.explicit_permutations)
-            print(f"Explicit permutations found ({len(algo.explicit_permutations):d})")
+            print(f"Explicit permutations found ({len(algo.explicit_permutations)})")
             print(algo.explicit_permutations)
             print()
             # Setup the permutations for the next optimization
@@ -339,7 +339,7 @@ if __name__ == "__main__":
             time_left: float | str = "Unknown"
             for indices_perm in perms_iterator:
                 prt1(
-                    string=f"Perm # {idx_perm:d}/{n_permutations:d} : "
+                    string=f"Perm # {idx_perm}/{n_permutations} : "
                     f"{'-'.join(map(str, indices_perm))} "
                     f"(est. rem. time : {time_left} sec)",
                     printing_volume=printing_volume,
@@ -355,7 +355,7 @@ if __name__ == "__main__":
                 separation_permutations = []
                 for idx_plane, plane_point_indices in enumerate(all_planes_point_indices):
                     prt2(
-                        string=f"In plane {idx_plane:d} ({'-'.join(str(pp) for pp in plane_point_indices)})",
+                        string=f"In plane {idx_plane} ({'-'.join(str(pp) for pp in plane_point_indices)})",
                         printing_volume=printing_volume,
                     )
 
@@ -403,11 +403,11 @@ if __name__ == "__main__":
                 time_left = f"{time_left:.1f}"
                 idx_perm += 1
             print(
-                f"Optimized permutations {len(perms_used):d}/{len(algo.permutations):d}"
+                f"Optimized permutations {len(perms_used)}/{len(algo.permutations)}"
                 f"(old : {original_n_explicit_optimized_perms[idx]}/{original_n_explicit_perms[idx]}) : "
             )
             for perm, number in perms_used.items():
-                print(f" - permutation {'-'.join(map(str, perm))} : {number:d}")
+                print(f" - permutation {'-'.join(map(str, perm))} : {number}")
             print(
                 f"For {idx=} (plane_points : [{', '.join(map(str, algo.plane_points))}], "
                 f"side_0 : [{', '.join(map(str, algo.point_groups[0]))}] and "
@@ -415,7 +415,7 @@ if __name__ == "__main__":
                 f"Optimized perturbations {len(perms_used)}/{len(algo.permutations)} (old : "
                 f"{original_n_explicit_optimized_perms[idx]}/{original_n_explicit_perms[idx]}) are :"
             )
-            # print(f"Optimized permutations ({len(perms_used):d}/{len(algo.permutations):d}) : ")
+            # print(f"Optimized permutations ({len(perms_used)}/{len(algo.permutations)}) : ")
             explicit_optimized_permutations = [list(perm) for perm in perms_used]
             explicit_optimized_permutations.sort()
             print(explicit_optimized_permutations)

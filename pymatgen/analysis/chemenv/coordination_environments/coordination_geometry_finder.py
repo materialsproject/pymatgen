@@ -723,14 +723,14 @@ class LocalGeometryFinder:
         # Loop on all the sites
         for isite, site in enumerate(self.structure):
             if isite not in sites_indices:
-                logging.debug(f" ... in site #{isite:d}/{len(self.structure):d} ({site.species_string}) : skipped")
+                logging.debug(f" ... in site #{isite}/{len(self.structure)} ({site.species_string}) : skipped")
                 continue
             if break_it:
                 logging.debug(
                     f" ... in site #{isite}/{len(self.structure)} ({site.species_string}) : skipped (timelimit)"
                 )
                 continue
-            logging.debug(f" ... in site #{isite:d}/{len(self.structure):d} ({site.species_string})")
+            logging.debug(f" ... in site #{isite}/{len(self.structure)} ({site.species_string})")
             t1 = time.process_time()
             if optimization > 0:
                 self.detailed_voronoi.local_planes[isite] = {}
@@ -748,7 +748,7 @@ class LocalGeometryFinder:
                 if cn not in all_cns:
                     continue
                 for inb_set, nb_set in enumerate(nb_sets):
-                    logging.debug(f"    ... getting environments for nb_set ({cn:d}, {inb_set:d})")
+                    logging.debug(f"    ... getting environments for nb_set ({cn}, {inb_set})")
                     t_nbset1 = time.process_time()
                     ce = self.update_nb_set_environments(
                         se=struct_envs,
@@ -778,7 +778,7 @@ class LocalGeometryFinder:
                             for nb_sets_hints in cg.neighbors_sets_hints:
                                 suggested_nb_set_voronoi_indices = nb_sets_hints.hints(hints_info)
                                 for idx_new, new_nb_set_voronoi_indices in enumerate(suggested_nb_set_voronoi_indices):
-                                    logging.debug(f"           hint # {idx_new:d}")
+                                    logging.debug(f"           hint # {idx_new}")
                                     new_nb_set = struct_envs.NeighborsSet(
                                         structure=struct_envs.structure,
                                         isite=isite,
