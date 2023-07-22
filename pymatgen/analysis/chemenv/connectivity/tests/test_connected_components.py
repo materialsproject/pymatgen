@@ -872,7 +872,7 @@ Node #3 Li (O:6), connected to :
         assert len(ccs_all) == 1
         cc_oct = ccs_oct[0]
         cc_all = ccs_all[0]
-        cc_oct_node = list(cc_oct.graph.nodes())[0]
+        cc_oct_node = next(iter(cc_oct.graph.nodes()))
         cseq = cc_oct.coordination_sequence(source_node=cc_oct_node, path_size=6)
         assert cseq == {1: 6, 2: 18, 3: 38, 4: 66, 5: 102, 6: 146}
         cc_all_oct_node = next(n for n in cc_all.graph.nodes() if n.coordination_environment == "O:6")

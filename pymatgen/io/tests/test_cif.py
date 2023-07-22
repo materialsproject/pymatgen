@@ -545,11 +545,11 @@ loop_
         # test angle tolerance.
         struct = Structure.from_file(f"{self.TEST_FILES_DIR}/LiFePO4.cif")
         writer = CifWriter(struct, symprec=0.1, angle_tolerance=0)
-        d = list(writer.ciffile.data.values())[0]
+        d = next(iter(writer.ciffile.data.values()))
         assert d["_symmetry_Int_Tables_number"] == 14
         struct = Structure.from_file(f"{self.TEST_FILES_DIR}/LiFePO4.cif")
         writer = CifWriter(struct, symprec=0.1, angle_tolerance=2)
-        d = list(writer.ciffile.data.values())[0]
+        d = next(iter(writer.ciffile.data.values()))
         assert d["_symmetry_Int_Tables_number"] == 62
 
     def test_disordered(self):

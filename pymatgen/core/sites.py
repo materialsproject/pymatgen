@@ -152,7 +152,7 @@ class Site(collections.abc.Hashable, MSONable):
     def species_string(self) -> str:
         """String representation of species on the site."""
         if self.is_ordered:
-            return str(list(self.species)[0])
+            return str(next(iter(self.species)))
         sorted_species = sorted(self.species)
         return ", ".join(f"{sp}:{self.species[sp]:.3f}" for sp in sorted_species)
 
@@ -170,7 +170,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         if not self.is_ordered:
             raise AttributeError("specie property only works for ordered sites!")
-        return list(self.species)[0]
+        return next(iter(self.species))
 
     @property
     def is_ordered(self) -> bool:

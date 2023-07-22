@@ -2157,7 +2157,7 @@ class IStructure(SiteCollection, MSONable):
 
             if len(unmapped_start_ind) == 1:
                 i = unmapped_start_ind[0]
-                j = list(set(range(len(start_coords))) - set(matched))[0]  # type: ignore
+                j = next(iter(set(range(len(start_coords))) - set(matched)))  # type: ignore
                 sorted_end_coords[i] = end_coords[j]
 
             end_coords = sorted_end_coords

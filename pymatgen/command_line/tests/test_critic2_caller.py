@@ -135,7 +135,7 @@ class Critic2AnalysisTest(unittest.TestCase):
     def test_graph_output(self):
         sg = self.c2o.structure_graph()
         assert str(sg.structure[3].specie) == "Xbcp"
-        assert set(list(sg.graph.edges(data=True))[0][2]) == {
+        assert set(next(iter(sg.graph.edges(data=True)))[2]) == {
             "to_jimage",
             "weight",
             "field",
