@@ -151,7 +151,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __contains__(self, key) -> bool:
         try:
             sp = get_el_sp(key)
-            return sp in self._data
+            # First check for species
+            if sp in self._data:
+                return True
+            # If not found, check for parent element (if it's a species)
+            if isinstance(sp, Species):
+                return sp.element in self._data
+            return False
         except ValueError as exc:
             raise TypeError(f"Invalid {key=} for Composition") from exc
 

@@ -999,19 +999,15 @@ class PawAbinitHeader(AbinitHeader):
         # Parse orbitals and number of meshes.
         header["orbitals"] = [int(t) for t in lines[0].split(":")[0].split()]
         header["number_of_meshes"] = num_meshes = int(lines[1].split(":")[0])
-        # print filename, header
 
         # Skip meshes =
         lines = lines[2 + num_meshes :]
         # for midx in range(num_meshes):
         #    l = midx + 1
 
-        # print lines[0]
         header["r_cut"] = float(lines[0].split(":")[0])
-        # print lines[1]
         header.update(_dict_from_lines(lines[1], [2], sep=":"))
 
-        # print("PAW header\n", header)
         return PawAbinitHeader(summary, **header)
 
 
@@ -1256,7 +1252,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
             attrib = AttrDict(node.attrib)
             assert attrib.id not in self.valence_states
             self.valence_states[attrib.id] = attrib
-        # print(self.valence_states)
 
         # Parse the radial grids
         self.rad_grids = {}

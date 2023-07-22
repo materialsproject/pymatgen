@@ -446,8 +446,8 @@ class MultiGraphCycle(MSONable):
         out = ["Multigraph cycle with nodes :"]
         cycle = []
         for inode, node1, node2 in zip(itertools.count(), self.nodes[:-1], self.nodes[1:]):
-            cycle.append(f"{node1} -*{self.edge_indices[inode]:d}*- {node2}")
-        cycle.append(f"{self.nodes[-1]} -*{self.edge_indices[-1]:d}*- {self.nodes[0]}")
+            cycle.append(f"{node1} -*{self.edge_indices[inode]}*- {node2}")
+        cycle.append(f"{self.nodes[-1]} -*{self.edge_indices[-1]}*- {self.nodes[0]}")
         # out.extend([str(node) for node in self.nodes])
         out.extend(cycle)
         return "\n".join(out)
@@ -470,9 +470,6 @@ def get_all_elementary_cycles(graph):
 
     cycle_basis = nx.cycle_basis(graph)
 
-    # print('CYCLE BASIS')
-    # print(cycle_basis)
-
     if len(cycle_basis) < 2:
         return {SimpleGraphCycle(c) for c in cycle_basis}
 
@@ -491,17 +488,14 @@ def get_all_elementary_cycles(graph):
             iedge = all_edges_dict[(n1, n2)]
             cycles_matrix[icycle, iedge] = True
 
-    # print(cycles_matrix)
     elementary_cycles_list = []
 
     for ncycles in range(1, len(cycle_basis) + 1):
         for cycles_combination in itertools.combinations(cycles_matrix, ncycles):
             edges_counts = np.array(np.mod(np.sum(cycles_combination, axis=0), 2), dtype=bool)
             myedges = [edge for iedge, edge in enumerate(index2edge) if edges_counts[iedge]]
-            # print(myedges)
             try:
                 sgc = SimpleGraphCycle.from_edges(myedges, edges_are_ordered=False)
-                # print(sgc)
             except ValueError as ve:
                 msg = ve.args[0]
                 if msg == "SimpleGraphCycle is not valid : Duplicate nodes.":

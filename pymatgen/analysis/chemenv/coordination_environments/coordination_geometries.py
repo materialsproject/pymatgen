@@ -866,7 +866,7 @@ class CoordinationGeometry:
             out += f"{vv[0]:15.8f} {vv[1]:15.8f} {vv[2]:15.8f}\n"
         for fc in _face_centers:
             out += f"{fc[0]:15.8f} {fc[1]:15.8f} {fc[2]:15.8f}\n"
-        out += f"{number_of_faces:d}\n"
+        out += f"{number_of_faces}\n"
         for iface, face in enumerate(self._faces):
             if len(face) == 3:
                 out += "4\n"
@@ -875,14 +875,14 @@ class CoordinationGeometry:
             else:
                 for ii, f in enumerate(face):
                     out += "4\n"
-                    out += f"{len(_vertices) + iface:d}\n"
-                    out += f"{f:d}\n"
-                    out += f"{face[np.mod(ii + 1, len(face))]:d}\n"
-                    out += f"{len(_vertices) + iface:d}\n"
+                    out += f"{len(_vertices) + iface}\n"
+                    out += f"{f}\n"
+                    out += f"{face[np.mod(ii + 1, len(face))]}\n"
+                    out += f"{len(_vertices) + iface}\n"
             if len(face) in [3, 4]:
                 for face_vertex in face:
-                    out += f"{face_vertex:d}\n"
-                out += f"{face[0]:d}\n"
+                    out += f"{face_vertex}\n"
+                out += f"{face[0]}\n"
         pmeshes.append({"pmesh_string": out})
         return pmeshes
 

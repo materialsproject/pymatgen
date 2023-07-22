@@ -224,18 +224,16 @@ class RelaxationTest(PymatgenTest):
 class PPModelTest(PymatgenTest):
     def test_base(self):
         godby = PPModel.as_ppmodel("godby:12 eV")
-        # print(godby)
-        # print(repr(godby))
         godby.to_abivars()
         assert godby
 
         same_godby = PPModel.as_ppmodel("godby:" + str(12.0 / Ha_to_eV))
         assert same_godby == godby
 
-        noppm = PPModel.get_noppmodel()
+        no_pp_model = PPModel.get_noppmodel()
 
-        assert not noppm
-        assert noppm != godby
+        assert not no_pp_model
+        assert no_pp_model != godby
         new_godby = PPModel.from_dict(godby.as_dict())
         assert new_godby == godby
 

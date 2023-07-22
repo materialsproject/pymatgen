@@ -378,7 +378,7 @@ class BoltztrapRunner(MSONable):
         for oi, o in enumerate(Orbital):
             for site_nb in range(len(self._bs.structure)):
                 if oi < len(self._bs.projections[Spin.up][0][0]):
-                    with open(output_file_proj + "_" + str(site_nb) + "_" + str(o), "w") as f:
+                    with open(f"{output_file_proj}_{site_nb}_{o}", "w") as f:
                         f.write(self._bs.structure.composition.formula + "\n")
                         f.write(str(len(self._bs.kpoints)) + "\n")
                         for i, kpt in enumerate(self._bs.kpoints):
@@ -495,7 +495,7 @@ class BoltztrapRunner(MSONable):
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write(f"{self.lpfac}                        # lpfac, number of latt-points per k-point\n")
                 fout.write("BANDS                     # run mode (only BOLTZ is supported)\n")
-                fout.write("P " + str(len(self.kpt_line)) + "\n")
+                fout.write(f"P {len(self.kpt_line)}\n")
                 for kp in self.kpt_line:
                     fout.writelines([str(k) + " " for k in kp])
                     fout.write("\n")
@@ -561,7 +561,7 @@ class BoltztrapRunner(MSONable):
 
         if self.run_type == "BANDS" and self.bs.is_spin_polarized:
             print(
-                "Reminder: for run_type " + str(self.run_type) + ", spin component are not separated! "
+                f"Reminder: for run_type {self.run_type}, spin component are not separated! "
                 "(you have a spin polarized band structure)"
             )
 
@@ -937,14 +937,12 @@ class BoltztrapAnalyzer:
                             bnd_around_efermi.append(nb)
                             break
             if len(bnd_around_efermi) < 8:
-                print("Warning! check performed on " + str(len(bnd_around_efermi)))
+                print(f"Warning! check performed on {len(bnd_around_efermi)}")
                 nb_list = bnd_around_efermi
             else:
                 nb_list = bnd_around_efermi[:8]
 
-        # print(nb_list)
         bcheck = compare_sym_bands(sbs_bz, sbs_ref, nb_list)
-        # print(bcheck)
         acc_err = [False, False]
         avg_corr = sum(item[1]["Corr"] for item in bcheck.items()) / 8
         avg_distance = sum(item[1]["Dist"] for item in bcheck.items()) / 8
@@ -2257,17 +2255,14 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
     else:
         # TODO: why is this needed? Shouldn't pmg take care of nb_bands?
         nbands = min(len(bands_obj.bands[Spin.up]), len(bands_ref_obj.bands[Spin.up]))
-    # print(nbands)
     arr_bands = np.array(bands_obj.bands[Spin.up][:nbands])
     # arr_bands_lavg = (arr_bands-np.mean(arr_bands,axis=1).reshape(nbands,1))
 
     if bands_ref_obj.is_spin_polarized:
         arr_bands_ref_up = np.array(bands_ref_obj.bands[Spin.up])
         arr_bands_ref_dw = np.array(bands_ref_obj.bands[Spin.down])
-        # print(arr_bands_ref_up.shape)
         arr_bands_ref = np.vstack((arr_bands_ref_up, arr_bands_ref_dw))
         arr_bands_ref = np.sort(arr_bands_ref, axis=0)[:nbands]
-        # print(arr_bands_ref.shape)
     else:
         arr_bands_ref = np.array(bands_ref_obj.bands[Spin.up][:nbands])
 

@@ -49,7 +49,6 @@ class LibxcFuncTest(PymatgenTest):
 
         # Test if object supports MSONable
         # TODO
-        # print("in test", type(ixc_11.x), type(ixc_11.c), type(ixc_11.xc))
         # ixc_11.x.as_dict()
         # self.assertMSONable(ixc_11)
 

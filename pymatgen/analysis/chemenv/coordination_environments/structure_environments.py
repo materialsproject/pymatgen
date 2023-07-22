@@ -351,9 +351,9 @@ class StructureEnvironments(MSONable):
             return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
         def __str__(self):
-            out = f"Neighbors Set for site #{self.isite:d} :\n"
-            out += f" - Coordination number : {len(self):d}\n"
-            voro_indices = ", ".join(f"{site_voronoi_index:d}" for site_voronoi_index in self.site_voronoi_indices)
+            out = f"Neighbors Set for site #{self.isite} :\n"
+            out += f" - Coordination number : {len(self)}\n"
+            voro_indices = ", ".join(f"{site_voronoi_index}" for site_voronoi_index in self.site_voronoi_indices)
             out += f" - Voronoi indices : {voro_indices}\n"
             return out
 
@@ -853,7 +853,7 @@ class StructureEnvironments(MSONable):
                 exponent = 3
             else:
                 exponent = plot_type["distance_parameter"][1]["exponent"]
-            xlabel = f"Distance parameter : $1.0-\\frac{{1.0}}{{\\alpha^{{{exponent:d}}}}}$"
+            xlabel = f"Distance parameter : $1.0-\\frac{{1.0}}{{\\alpha^{{{exponent}}}}}$"
 
             def dp_func(dp):
                 return 1.0 - 1.0 / np.power(dp, exponent)
@@ -896,7 +896,7 @@ class StructureEnvironments(MSONable):
                 if ce is None:
                     mycolor = "w"
                     myinvcolor = "k"
-                    mytext = f"{cn:d}"
+                    mytext = f"{cn}"
                 else:
                     mingeom = ce.minimum_geometry()
                     if mingeom is not None:
@@ -913,7 +913,7 @@ class StructureEnvironments(MSONable):
                     else:
                         mycolor = "w"
                         myinvcolor = "k"
-                        mytext = f"{cn:d}"
+                        mytext = f"{cn}"
                 nb_set_surface_pts = [(dp_func(pt[0]), ap_func(pt[1])) for pt in nb_set_surface_pts]
                 polygon = Polygon(
                     nb_set_surface_pts,
@@ -1140,7 +1140,7 @@ class StructureEnvironments(MSONable):
                     continue
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[{isite=:d}]",
+                        "difference": f"neighbors_sets[{isite=}]",
                         "comparison": "has_neighbors",
                         "self": "None",
                         "other": set(other_site_nb_sets),
@@ -1150,7 +1150,7 @@ class StructureEnvironments(MSONable):
             if other_site_nb_sets is None:
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[{isite=:d}]",
+                        "difference": f"neighbors_sets[{isite=}]",
                         "comparison": "has_neighbors",
                         "self": set(self_site_nb_sets),
                         "other": "None",
@@ -1162,7 +1162,7 @@ class StructureEnvironments(MSONable):
             if self_site_cns != other_site_cns:
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[{isite=:d}]",
+                        "difference": f"neighbors_sets[{isite=}]",
                         "comparison": "coordination_numbers",
                         "self": self_site_cns,
                         "other": other_site_cns,
@@ -1177,7 +1177,7 @@ class StructureEnvironments(MSONable):
                 if set_self_site_cn_nb_sets != set_other_site_cn_nb_sets:
                     differences.append(
                         {
-                            "difference": f"neighbors_sets[{isite=:d}][{cn=:d}]",
+                            "difference": f"neighbors_sets[{isite=}][{cn=}]",
                             "comparison": "neighbors_sets",
                             "self": self_site_cn_nb_sets,
                             "other": other_site_cn_nb_sets,
@@ -1444,9 +1444,9 @@ class LightStructureEnvironments(MSONable):
 
         def __str__(self):
             return (
-                f"Neighbors Set for site #{self.isite:d} :\n"
-                f" - Coordination number : {len(self):d}\n"
-                f" - Neighbors sites indices : {', '.join(f'{nb_idxs:d}' for nb_idxs in self.all_nbs_sites_indices)}\n"
+                f"Neighbors Set for site #{self.isite} :\n"
+                f" - Coordination number : {len(self)}\n"
+                f" - Neighbors sites indices : {', '.join(f'{nb_idxs}' for nb_idxs in self.all_nbs_sites_indices)}\n"
             )
 
         def as_dict(self):
@@ -1888,7 +1888,7 @@ class LightStructureEnvironments(MSONable):
         Returns: True if the site has a clear environment.
         """
         if self.coordination_environments[isite] is None:
-            raise ValueError(f"Coordination environments have not been determined for site {isite:d}")
+            raise ValueError(f"Coordination environments have not been determined for site {isite}")
         if conditions is None:
             return len(self.coordination_environments[isite]) == 1
         ce = max(self.coordination_environments[isite], key=lambda x: x["ce_fraction"])

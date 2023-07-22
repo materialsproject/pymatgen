@@ -402,7 +402,6 @@ def epsilon_imag(
     num_ = (max_band0 - min_band0) * (max_band1 - min_band1) * nk * nspin
     epsdd = np.zeros_like(egrid, dtype=np.complex128)
     for ib, jb, ik, ispin in tqdm(itertools.product(*iter_idx), total=num_):
-        # print(f"{ib=}, {jb=}, {ik=}, {ispin=}")
         fermi_w_i = step_func((eigs_shifted[ib, ik, ispin]) / sigma, ismear)
         fermi_w_j = step_func((eigs_shifted[jb, ik, ispin]) / sigma, ismear)
         weight = (fermi_w_j - fermi_w_i) * rspin * norm_kweights[ik]
