@@ -371,7 +371,7 @@ class PWInput:
             "conv_thr",
             "Hubbard_U",
             "Hubbard_J0",
-            "defauss",
+            "degauss",
             "starting_magnetization",
         )
 
