@@ -289,13 +289,7 @@ class LMTOCtrl:
                     dct["SPCGRP"], plat, species, positions, coords_are_cartesian=True
                 )
             except ValueError:
-                structure = Structure(
-                    plat,
-                    species,
-                    positions,
-                    coords_are_cartesian=True,
-                    to_unit_cell=True,
-                )
+                structure = Structure(plat, species, positions, coords_are_cartesian=True, to_unit_cell=True)
         else:
             structure = Structure(plat, species, positions, coords_are_cartesian=True, to_unit_cell=True)
 

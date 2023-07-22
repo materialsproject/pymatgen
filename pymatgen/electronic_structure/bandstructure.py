@@ -681,7 +681,7 @@ class BandStructure:
         labels_dict = {k.strip(): v for k, v in dct["labels_dict"].items()}
         projections = {}
         structure = None
-        if "projections" in dct and len(dct["projections"]) != 0:
+        if dct.get("projections"):
             structure = Structure.from_dict(dct["structure"])
             projections = {}
             for spin in dct["projections"]:

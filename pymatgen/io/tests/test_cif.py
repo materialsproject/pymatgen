@@ -26,10 +26,10 @@ except ImportError:
 
 class CifBlockTest(PymatgenTest):
     def test_to_string(self):
-        with open(f"{self.TEST_FILES_DIR}/Graphite.cif") as f:
-            s = f.read()
-        c = CifBlock.from_str(s)
-        cif_str_2 = str(CifBlock.from_str(str(c)))
+        with open(f"{self.TEST_FILES_DIR}/Graphite.cif") as file:
+            cif_str = file.read()
+        cif_block = CifBlock.from_str(cif_str)
+        cif_str_2 = str(CifBlock.from_str(str(cif_block)))
         cif_str = """data_53781-ICSD
 _database_code_ICSD   53781
 _audit_creation_date   2003-04-01
@@ -108,7 +108,7 @@ loop_
  _atom_site_attached_hydrogens
   C1  C0+  2  b  0  0  0.25  .  1.  0
   C2  C0+  2  c  0.3333  0.6667  0.25  .  1.  0"""
-        for l1, l2, l3 in zip(str(c).split("\n"), cif_str.split("\n"), cif_str_2.split("\n")):
+        for l1, l2, l3 in zip(str(cif_block).split("\n"), cif_str.split("\n"), cif_str_2.split("\n")):
             assert l1.strip() == l2.strip()
             assert l2.strip() == l3.strip()
 
@@ -717,7 +717,7 @@ loop_
       ? ? ? ? ? ? ?
     """
         parser = CifParser.from_str(string)
-        with pytest.raises(ValueError, match="Invalid cif file with no structures"):
+        with pytest.raises(ValueError, match="Invalid CIF file with no structures"):
             parser.get_structures()
 
     def test_get_lattice_from_lattice_type(self):
@@ -792,11 +792,13 @@ loop_
         assert cb == cb2
 
     def test_bad_cif(self):
-        f = f"{self.TEST_FILES_DIR}/bad_occu.cif"
-        parser = CifParser(f)
-        with pytest.raises(ValueError, match="Invalid cif file with no structures"):
-            parser.get_structures()
-        parser = CifParser(f, occupancy_tolerance=2)
+        filepath = f"{self.TEST_FILES_DIR}/bad_occu.cif"
+        parser = CifParser(filepath)
+        with pytest.raises(
+            ValueError, match="No structure parsed for section 1 in CIF.\nSpecies occupancies sum to more than 1!"
+        ):
+            parser.get_structures(on_error="raise")
+        parser = CifParser(filepath, occupancy_tolerance=2)
         struct = parser.get_structures()[0]
         assert struct[0].species["Al3+"] == approx(0.5)
 
@@ -829,7 +831,7 @@ loop_
         )
 
     def test_empty_deque(self):
-        s = """data_1526655
+        cif_str = """data_1526655
 _journal_name_full
 _space_group_IT_number           227
 _symmetry_space_group_name_Hall  'F 4d 2 3 -1d'
@@ -862,7 +864,7 @@ loop_
   3  -x,-y,-z
   4  x-1/2,-y-1/2,z-1/2
 ;"""
-        parser = CifParser.from_str(s)
+        parser = CifParser.from_str(cif_str)
         assert parser.get_structures()[0].formula == "Si1"
         cif = """
 data_1526655
@@ -894,7 +896,7 @@ _atom_site_U_iso_or_equiv
 Si1 Si 0 0 0 1 0.0
 """
         parser = CifParser.from_str(cif)
-        with pytest.raises(ValueError, match="Invalid cif file with no structures"):
+        with pytest.raises(ValueError, match="Invalid CIF file with no structures"):
             parser.get_structures()
 
 

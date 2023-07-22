@@ -320,15 +320,13 @@ class OptimadeRester:
                 pbar = tqdm(total=json["meta"].get("data_returned", 0), desc=identifier, initial=len(structures))
 
                 # TODO: check spec for `more_data_available` boolean, may simplify this conditional
-                if ("links" in json) and ("next" in json["links"]) and (json["links"]["next"]):
-                    while "next" in json["links"] and json["links"]["next"]:
-                        next_link = json["links"]["next"]
-                        if isinstance(next_link, dict) and "href" in next_link:
-                            next_link = next_link["href"]
-                        json = self._get_json(next_link)
-                        additional_structures = self._get_snls_from_resource(json, url, identifier)
-                        structures.update(additional_structures)
-                        pbar.update(len(additional_structures))
+                while next_link := json.get("links", {}).get("next"):
+                    if isinstance(next_link, dict) and "href" in next_link:
+                        next_link = next_link["href"]
+                    json = self._get_json(next_link)
+                    additional_structures = self._get_snls_from_resource(json, url, identifier)
+                    structures.update(additional_structures)
+                    pbar.update(len(additional_structures))
 
                 if structures:
                     all_snls[identifier] = structures
