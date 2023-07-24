@@ -7,9 +7,9 @@ import numpy as np
 import pytest
 from pytest import approx
 
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.core.periodic_table import Species
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Vasprun
@@ -138,7 +138,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         li2o[0].properties["magmom"] = 0
         sga = SpacegroupAnalyzer(li2o)
         assert len(sga._cell) == 4  # magmoms should be added!
-        assert sga._cell[3] == 12 * (0, )
+        assert sga._cell[3] == 12 * (0,)
 
         # now set spin for O only
         li2o = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
@@ -146,7 +146,16 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         assert not all(species.spin is None for species in li2o.types_of_species)
         sga = SpacegroupAnalyzer(li2o)
         assert len(sga._cell) == 4  # magmoms should be added!
-        assert sga._cell[3] == tuple(8 * [0, ] + 4 * [1, ])
+        assert sga._cell[3] == tuple(
+            8
+            * [
+                0,
+            ]
+            + 4
+            * [
+                1,
+            ]
+        )
 
     def test_get_symmetry(self):
         # see discussion in https://github.com/materialsproject/pymatgen/pull/2724
@@ -155,7 +164,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
         sga = SpacegroupAnalyzer(Co8, symprec=symprec)
         magmoms = [0] * len(Co8)  # bad magmoms, see https://github.com/materialsproject/pymatgen/pull/2727
-        sga._cell = (*sga._cell , magmoms)
+        sga._cell = (*sga._cell, magmoms)
         with pytest.raises(
             ValueError,
             match=f"Symmetry detection failed for structure with formula {Co8.formula}. "
