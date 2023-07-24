@@ -278,7 +278,7 @@ class AnionCorrection(Correction):
                 correction += self.sulfide_correction[sf_type] * comp["S"]
 
         # Check for oxide, peroxide, superoxide, and ozonide corrections.
-        if Element("O") in comp:
+        if True:
             if self.correct_peroxide:
                 if entry.data.get("oxide_type"):
                     if entry.data["oxide_type"] in self.oxide_correction:

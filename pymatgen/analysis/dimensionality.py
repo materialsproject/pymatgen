@@ -129,7 +129,7 @@ def get_structure_components(
     components = []
     for graph in comp_graphs:
         dimensionality, vertices = calculate_dimensionality_of_site(
-            bonded_structure, list(graph.nodes())[0], inc_vertices=True
+            bonded_structure, next(iter(graph.nodes())), inc_vertices=True
         )
 
         component = {"dimensionality": dimensionality}
@@ -267,7 +267,7 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
     seen_indices = []
     sites = []
 
-    start_index = list(graph.nodes())[0]
+    start_index = next(iter(graph.nodes()))
     queue = [(start_index, (0, 0, 0), bonded_structure.structure[start_index])]
     while len(queue) > 0:
         comp_i, image_i, site_i = queue.pop(0)
@@ -418,7 +418,7 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
     # in case of charged species
     for ii, item in enumerate(species):
         if item not in ldict:
-            species[ii] = str(Species.from_string(item).element)
+            species[ii] = str(Species.from_str(item).element)
     connected_matrix = np.zeros((n_atoms, n_atoms))
 
     for ii in range(n_atoms):
@@ -426,7 +426,6 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
             max_bond_length = ldict[species[ii]] + ldict[species[jj]] + tolerance
             frac_diff = fc_diff[jj] - fc_copy[ii]
             distance_ij = np.dot(struct.lattice.matrix.T, frac_diff)
-            # print(np.linalg.norm(distance_ij,axis=0))
             if sum(np.linalg.norm(distance_ij, axis=0) < max_bond_length) > 0:
                 connected_matrix[ii, jj] = 1
                 connected_matrix[jj, ii] = 1

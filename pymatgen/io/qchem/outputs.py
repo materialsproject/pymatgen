@@ -65,11 +65,8 @@ class QCOutput(MSONable):
         ).get("key")
         if self.data.get("multiple_outputs") is not None and self.data.get("multiple_outputs") != [["1"]]:
             raise ValueError(
-                "ERROR: multiple calculation outputs found in file "
-                + filename
-                + ". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"
-                + filename
-                + "')"
+                f"ERROR: multiple calculation outputs found in file {filename}. "
+                f"Please instead call QCOutput.mulitple_outputs_from_file(QCOutput, {filename!r})"
             )
 
         # Parse the Q-Chem major version
@@ -1777,7 +1774,7 @@ class QCOutput(MSONable):
             },
         )
 
-        for key, _v in temp_dict.items():
+        for key in temp_dict:
             if temp_dict.get(key) is None:
                 self.data["solvent_data"]["isosvp"][key] = None
             elif len(temp_dict.get(key)) == 1:
@@ -1824,7 +1821,7 @@ class QCOutput(MSONable):
             },
         )
 
-        for key, _v in temp_dict.items():
+        for key in temp_dict:
             if temp_dict.get(key) is None:
                 self.data["solvent_data"]["cmirs"][key] = None
             elif len(temp_dict.get(key)) == 1:

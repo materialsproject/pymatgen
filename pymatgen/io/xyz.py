@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from io import StringIO
 
+import numpy as np
 import pandas as pd
 from monty.io import zopen
 
@@ -68,8 +69,13 @@ class XYZ:
                 coords.append([float(val) for val in xyz])
         return Molecule(sp, coords)
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(contents):
+    def from_str(contents):
         """
         Creates XYZ object from a string.
 
@@ -105,7 +111,7 @@ class XYZ:
             XYZ object
         """
         with zopen(filename, "rt") as f:
-            return XYZ.from_string(f.read())
+            return XYZ.from_str(f.read())
 
     def as_dataframe(self):
         """

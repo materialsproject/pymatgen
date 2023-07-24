@@ -607,7 +607,7 @@ class Vasprun(MSONable):
         """
         final_esteps = self.ionic_steps[-1]["electronic_steps"] if self.incar not in ["CHI"] else 0
         # In a response function run there is no ionic steps, there is no scf step
-        if "LEPSILON" in self.incar and self.incar["LEPSILON"]:
+        if self.incar.get("LEPSILON"):
             i = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
             while set(final_esteps[i]) == to_check:
@@ -1295,7 +1295,7 @@ class Vasprun(MSONable):
         if elem.find("generation"):
             e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
-        k.style = Kpoints.supported_modes.from_string(e.attrib["param"] if "param" in e.attrib else "Reciprocal")
+        k.style = Kpoints.supported_modes.from_str(e.attrib["param"] if "param" in e.attrib else "Reciprocal")
         for v in e.findall("v"):
             name = v.attrib.get("name")
             toks = v.text.split()
@@ -3464,7 +3464,7 @@ class VolumetricData(BaseVolumetricData):
                     if line != "" or len(poscar_string) == 0:
                         poscar_string.append(line)
                     elif line == "":
-                        poscar = Poscar.from_string("\n".join(poscar_string))
+                        poscar = Poscar.from_str("\n".join(poscar_string))
                         poscar_read = True
                 elif not dim:
                     dim = [int(i) for i in line.split()]
@@ -4067,7 +4067,7 @@ class Xdatcar:
                     title = line
                 elif title == line:
                     preamble_done = False
-                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4092,7 +4092,7 @@ class Xdatcar:
                     else:
                         preamble.append(line)
                 elif line == "" or "Direct configuration=" in line:
-                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4105,7 +4105,7 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(line)
-            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+            p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)
@@ -4173,7 +4173,7 @@ class Xdatcar:
                     else:
                         preamble.append(line)
                 elif line == "" or "Direct configuration=" in line:
-                    p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+                    p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if ionicstep_end is None:
                         if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
@@ -4183,7 +4183,7 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(line)
-            p = Poscar.from_string("\n".join([*preamble, "Direct", *coords_str]))
+            p = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if ionicstep_end is None:
                 if ionicstep_cnt >= ionicstep_start:
                     structures.append(p.structure)

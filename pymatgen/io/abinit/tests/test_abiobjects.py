@@ -136,16 +136,16 @@ class SmearingTest(PymatgenTest):
 
         assert fd1ev
 
-        same_fd = Smearing.as_smearing("fermi_dirac:" + str(1.0 / Ha_to_eV))
+        same_fd = Smearing.as_smearing(f"fermi_dirac:{1.0 / Ha_to_eV}")
 
         assert same_fd == fd1ev
 
-        nosmear = Smearing.nosmearing()
-        assert nosmear == Smearing.as_smearing("nosmearing")
+        no_smear = Smearing.nosmearing()
+        assert no_smear == Smearing.as_smearing("nosmearing")
 
-        assert not nosmear
-        assert nosmear != fd1ev
-        self.assert_msonable(nosmear)
+        assert not no_smear
+        assert no_smear != fd1ev
+        self.assert_msonable(no_smear)
 
         new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
         assert new_fd1ev == fd1ev
@@ -224,18 +224,16 @@ class RelaxationTest(PymatgenTest):
 class PPModelTest(PymatgenTest):
     def test_base(self):
         godby = PPModel.as_ppmodel("godby:12 eV")
-        # print(godby)
-        # print(repr(godby))
         godby.to_abivars()
         assert godby
 
-        same_godby = PPModel.as_ppmodel("godby:" + str(12.0 / Ha_to_eV))
+        same_godby = PPModel.as_ppmodel(f"godby:{12.0 / Ha_to_eV}")
         assert same_godby == godby
 
-        noppm = PPModel.get_noppmodel()
+        no_pp_model = PPModel.get_noppmodel()
 
-        assert not noppm
-        assert noppm != godby
+        assert not no_pp_model
+        assert no_pp_model != godby
         new_godby = PPModel.from_dict(godby.as_dict())
         assert new_godby == godby
 

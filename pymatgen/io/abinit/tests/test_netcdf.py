@@ -81,7 +81,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
             data.print_tree()
             for group in data.walk_tree():
-                print("group: " + str(group))
+                print(f"{group=}")
 
             # Initialize pymatgen structure from GSR.
             structure = data.read_structure()
@@ -100,4 +100,4 @@ class TestAbinitHeader(PymatgenTest):
         head = AbinitHeader(foo=1, bar=2)
         assert head.foo == 1
         assert str(head)
-        assert head.to_string(verbose=2, title="title")
+        assert head.to_str(verbose=2, title="title")

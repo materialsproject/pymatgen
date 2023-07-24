@@ -89,12 +89,12 @@ class LarsenDimensionalityTest(PymatgenTest):
         assert list(components[0]["structure_graph"].graph.nodes()) == [0, 1]
 
     def test_calculate_dimensionality_of_site(self):
-        dimen = calculate_dimensionality_of_site(self.tricky_structure, 0)
-        assert dimen == 3
+        dim = calculate_dimensionality_of_site(self.tricky_structure, 0)
+        assert dim == 3
 
         # test vertices returned correctly
-        dimen, vertices = calculate_dimensionality_of_site(self.cscl, 0, inc_vertices=True)
-        assert dimen == 3
+        dim, vertices = calculate_dimensionality_of_site(self.cscl, 0, inc_vertices=True)
+        assert dim == 3
         assert len(vertices) == 4
 
     def test_zero_d_to_molecule_graph(self):

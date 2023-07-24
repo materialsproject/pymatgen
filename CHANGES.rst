@@ -1,6 +1,33 @@
 Change log
 ==========
 
+- Unreadable string concat ops to f-string by @janosh in https://github.com/materialsproject/pymatgen/pull/3162
+- Revert `mp-api<0.34.0` pin by @janosh in https://github.com/materialsproject/pymatgen/pull/3165
+- Fix CI error `"pdentries_test.csv"` not found by @janosh in https://github.com/materialsproject/pymatgen/pull/3168
+- Fix issues with labels by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3169
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2023.7.17...v2023.7.20
+
+v2023.7.17
+----------
+- Cython 3.0 support.
+- PR #3157 from @mattmcdermott magnetic-analyzer-fix. Fixes bug briefly mentioned in #3070, where recent
+  spin property changes resulted in the `MagneticStructureEnumerator` failing. This is apparently due to
+  creating structures where only some `Species.spin` properties are defined, causing
+  CollinearMagneticStructureEnumerator` to fail.
+- PR #3070 from @mattmcdermott magnetic-enumerator-fix. To summarize: changes to default magnetic moments
+  introduced in #2727 now mean that structures with only partially defined magnetic moments (e.g., on
+  half the sites) cannot be successfully analyzed by `SpaceGroupAnalyzer`. This was encountered when
+  performing magnetic ordering enumeration, as the previous default behavior for `
+  MagOrderingTransformation` does not implicitly yield spins of 0 on the nonmagnetic sites. This has now
+  been fixed.
+
+v2023.7.14
+----------
+- Emergency bug fix release to remove use of sys.path in pymatgen.io.ase package.
+- Fix "Incompatible POTCAR" error on ComputedEntries with oxidation states.
+- New global config variable `PMG_POTCAR_CHECKS` provides means to disable all POTCAR checking.
+
 v2023.7.11
 ----------
 * Use joblib to speed up expensive enumeration energy computations.

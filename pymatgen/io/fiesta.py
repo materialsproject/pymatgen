@@ -16,6 +16,7 @@ import shutil
 import subprocess
 from string import Template
 
+import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -554,7 +555,12 @@ $geometry
         )
 
     @classmethod
-    def from_string(cls, string_input):
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, string_input):
         """
         Read an FiestaInput from a string. Currently tested to work with
         files generated from this class itself.
@@ -701,7 +707,7 @@ $geometry
             FiestaInput object
         """
         with zopen(filename) as f:
-            return cls.from_string(f.read())
+            return cls.from_str(f.read())
 
 
 class FiestaOutput:

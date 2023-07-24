@@ -247,8 +247,13 @@ class BalancedReaction(MSONable):
         products = {Composition(comp): coeff for comp, coeff in d["products"].items()}
         return cls(reactants, products)
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(rxn_string):
+    def from_str(rxn_string):
         """
         Generates a balanced reaction from a string. The reaction must
         already be balanced.

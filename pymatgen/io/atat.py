@@ -29,7 +29,11 @@ class Mcsqs:
         """
         self.structure = structure
 
-    def to_string(self):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self):
         """
         Returns:
             str: a structure in mcsqs rndstr.in format.
@@ -58,8 +62,12 @@ class Mcsqs:
 
         return "\n".join(output)
 
+    @np.deprecate(message="Use from_str instead")
+    def structure_from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def structure_from_string(data):
+    def structure_from_str(data):
         """
         Parses a rndstr.in, lat.in or bestsqs.out file into pymatgen's
         Structure format.

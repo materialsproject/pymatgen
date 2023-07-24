@@ -552,7 +552,7 @@ tors 6 8 9 10 0.0
 ENDCONSTRAINT
 $end
 """
-        qcinput_test = QCInput.from_string(string)
+        qcinput_test = QCInput.from_str(string)
         species = [
             "S",
             "C",
@@ -987,7 +987,7 @@ $rem
    geom_opt_max_cycles = 200
 $end
 """
-        qcinp = QCInput.from_string(str_molecule)
+        qcinp = QCInput.from_str(str_molecule)
         assert str_molecule == str(qcinp)
 
     def test_read_plots(self):
@@ -1035,7 +1035,7 @@ $plots
    total_density 0
 $end
 """
-        qcinp = QCInput.from_string(str_molecule)
+        qcinp = QCInput.from_str(str_molecule)
         assert str_molecule == str(qcinp)
 
     def test_read_nbo(self):
@@ -1079,7 +1079,7 @@ $end
 $nbo
 $end
 """
-        qcinp = QCInput.from_string(str_molecule)
+        qcinp = QCInput.from_str(str_molecule)
         assert str_molecule == str(qcinp)
 
         str_molecule = """$molecule
@@ -1123,7 +1123,7 @@ $nbo
    print = 1
 $end
 """
-        qcinp = QCInput.from_string(str_molecule)
+        qcinp = QCInput.from_str(str_molecule)
         assert str_molecule == str(qcinp)
 
     def test_read_cdft(self):

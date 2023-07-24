@@ -267,7 +267,7 @@ class Lobsterin(dict, MSONable):
             for key in Lobsterin.AVAILABLEKEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
                     if key.lower() in [element.lower() for element in Lobsterin.FLOAT_KEYWORDS]:
-                        f.write(key + " " + str(self.get(key)) + "\n")
+                        f.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.BOOLEAN_KEYWORDS]:
                         # checks if entry is True or False
                         for key_here in self:
@@ -276,10 +276,10 @@ class Lobsterin(dict, MSONable):
                         if self.get(new_key):
                             f.write(key + "\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.STRING_KEYWORDS]:
-                        f.write(key + " " + str(self.get(key) + "\n"))
+                        f.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
                         for entry in self.get(key):
-                            f.write(key + " " + str(entry) + "\n")
+                            f.write(f"{key} {entry}\n")
 
     def as_dict(self):
         """:return: MSONable dict"""
@@ -331,7 +331,6 @@ class Lobsterin(dict, MSONable):
         if further_settings is not None:
             for key, item in further_settings.items():
                 incar[key] = item
-        # print it to file
         incar.write_file(incar_output)
 
     @staticmethod
@@ -365,17 +364,15 @@ class Lobsterin(dict, MSONable):
 
         basis_functions = []
         list_forin = []
-        for itype, type in enumerate(Potcar_names):
+        for idx, type in enumerate(Potcar_names):
             if type not in BASIS:
                 raise ValueError(
-                    "You have to provide the basis for"
-                    + str(type)
-                    + "manually. We don't have any information on this POTCAR."
+                    f"You have to provide the basis for {type} manually. We don't have any information on this POTCAR."
                 )
             basis_functions.append(BASIS[type].split())
-            tojoin = str(AtomTypes_Potcar[itype]) + " "
-            tojoin2 = "".join(str(str(e) + " ") for e in BASIS[type].split())
-            list_forin.append(str(tojoin + tojoin2))
+            to_join = str(AtomTypes_Potcar[idx]) + " "
+            to_join2 = "".join(str(str(e) + " ") for e in BASIS[type].split())
+            list_forin.append(str(to_join + to_join2))
         return list_forin
 
     @staticmethod

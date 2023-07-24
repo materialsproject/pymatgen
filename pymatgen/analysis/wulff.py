@@ -44,19 +44,13 @@ logger = logging.getLogger(__name__)
 
 def hkl_tuple_to_str(hkl):
     """
-    Prepare for display on plots
-    "(hkl)" for surfaces
-    Agrs:
+    Prepare for display on plots "(hkl)" for surfaces
+
+    Args:
         hkl: in the form of [h, k, l] or (h, k, l).
     """
-    str_format = "($"
-    for x in hkl:
-        if x < 0:
-            str_format += "\\overline{" + str(-x) + "}"
-        else:
-            str_format += str(x)
-    str_format += "$)"
-    return str_format
+    out = "".join(f"\\overline{{{-x}}}" if x < 0 else str(x) for x in hkl)
+    return f"(${out}$)"
 
 
 def get_tri_area(pts):
@@ -67,7 +61,7 @@ def get_tri_area(pts):
     Args:
         pts: [a, b, c] three points
     """
-    a, b, c = pts[0], pts[1], pts[2]
+    a, b, c = pts
     v1 = np.array(b) - np.array(a)
     v2 = np.array(c) - np.array(a)
     return abs(np.linalg.norm(np.cross(v1, v2)) / 2)
@@ -218,13 +212,13 @@ class WulffShape:
 
         miller_area = []
         for m, in_mill_fig in enumerate(self.input_miller_fig):
-            miller_area.append(in_mill_fig + " : " + str(round(self.color_area[m], 4)))
+            miller_area.append(f"{in_mill_fig} : {round(self.color_area[m], 4)}")
         self.miller_area = miller_area
 
     def _get_all_miller_e(self):
         """
-        From self: get miller_list(unique_miller), e_surf_list and symmetry operations(symmops)
-        according to lattice apply symmops to get all the miller index, then get normal, get
+        From self: get miller_list(unique_miller), e_surf_list and symmetry operations(symm_ops)
+        according to lattice apply symm_ops to get all the miller index, then get normal, get
         all the facets functions for Wulff shape calculation: |normal| = 1, e_surf is plane's
         distance to (0, 0, 0), normal[0]x + normal[1]y + normal[2]z = e_surf.
 
@@ -422,7 +416,13 @@ class WulffShape:
         from mpl_toolkits.mplot3d import Axes3D, art3d
 
         colors = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})
-        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = colors
+        (
+            color_list,
+            color_proxy,
+            color_proxy_on_wulff,
+            miller_on_wulff,
+            e_surf_on_wulff,
+        ) = colors
 
         if not direction:
             # If direction is not specified, use the miller indices of

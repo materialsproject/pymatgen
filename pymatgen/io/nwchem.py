@@ -420,7 +420,12 @@ class NwInput(MSONable):
         )
 
     @classmethod
-    def from_string(cls, string_input):
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, string_input):
         """
         Read an NwInput from a string. Currently tested to work with
         files generated from this class itself.
@@ -526,7 +531,7 @@ class NwInput(MSONable):
             NwInput object
         """
         with zopen(filename) as f:
-            return cls.from_string(f.read())
+            return cls.from_str(f.read())
 
 
 class NwInputError(Exception):

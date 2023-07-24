@@ -6,9 +6,7 @@ Atoms object and pymatgen Structure objects.
 
 from __future__ import annotations
 
-import sys
 import warnings
-from site import getsitepackages
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -20,10 +18,6 @@ if TYPE_CHECKING:
 
     from pymatgen.core.structure import SiteCollection
 
-
-# ensure site packages have higher precedence than local modules so that this file
-# can't shadow the ase package
-sys.path.insert(0, getsitepackages()[0])
 try:
     from ase import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
@@ -77,6 +71,9 @@ class AseAtomsAdaptor:
             cell = None
 
         atoms = Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
+
+        if "tags" in structure.site_properties:
+            atoms.set_tags(structure.site_properties["tags"])
 
         # Set the site magmoms in the ASE Atoms object
         # Note: ASE distinguishes between initial and converged
@@ -187,6 +184,9 @@ class AseAtomsAdaptor:
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
 
+        # Get the tags
+        tags = atoms.get_tags() if atoms.has("tags") else None
+
         # Get the (final) site magmoms and charges from the ASE Atoms object.
         if getattr(atoms, "calc", None) is not None and getattr(atoms.calc, "results", None) is not None:
             charges = atoms.calc.results.get("charges")
@@ -253,6 +253,8 @@ class AseAtomsAdaptor:
             structure.add_site_property("magmom", initial_magmoms)
         if sel_dyn is not None and ~np.all(sel_dyn):
             structure.add_site_property("selective_dynamics", sel_dyn)
+        if tags is not None:
+            structure.add_site_property("tags", tags)
 
         # Add oxidation states by site
         if oxi_states is not None:

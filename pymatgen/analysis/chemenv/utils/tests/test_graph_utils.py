@@ -41,7 +41,7 @@ class FakeNodeWithEqLtMethods:
         return self.isite < other.isite
 
     def __str__(self):
-        return f"FakeNode_{self.isite:d}"
+        return f"FakeNode_{self.isite}"
 
     def __hash__(self) -> int:
         return 0

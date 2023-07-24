@@ -550,7 +550,7 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
                 if abs(angle - 120) < 1.0:
                     j = (i + 1) % 3
                     k = (i + 2) % 3
-                    hex_ax = [ax for ax in range(3) if ax not in [j, k]][0]
+                    hex_ax = next(ax for ax in range(3) if ax not in [j, k])
                     break
             else:
                 raise ValueError("Cannot find hexagonal axis")
@@ -608,7 +608,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return f"<{type(self).__name__} at {id(self)}>"
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
     def write(self, filepath="run.abi"):
         """Write the input file to file to ``filepath``."""
@@ -694,7 +694,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         """Check if key is a valid name. Raise self.Error if not valid."""
 
     @abc.abstractmethod
-    def to_string(self):
+    def to_str(self):
         """Returns a string with the input."""
 
 
@@ -813,7 +813,11 @@ class BasicAbinitInput(AbstractInput, MSONable):
                 "Use Structure objects to prepare the input file."
             )
 
-    def to_string(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
         """
         String representation.
 
@@ -1152,7 +1156,6 @@ class BasicMultiDataset:
             results = []
             for obj in self._inputs:
                 a = getattr(obj, name)
-                # print("name", name, ", type:", type(a), "callable: ",callable(a))
                 if callable(a):
                     results.append(a(*args, **kwargs))
                 else:
@@ -1221,9 +1224,13 @@ class BasicMultiDataset:
         return all(self[0].structure == inp.structure for inp in self)
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, with_pseudos=True):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, with_pseudos=True):
         """
         String representation i.e. the input file read by Abinit.
 
@@ -1242,7 +1249,7 @@ class BasicMultiDataset:
                 return np.array_equal(vref, otherv)
 
             # Don't repeat variable that are common to the different datasets.
-            # Put them in the `Global Variables` section and exclude these variables in inp.to_string
+            # Put them in the `Global Variables` section and exclude these variables in inp.to_str
             global_vars = set()
             for k0, v0 in self[0].items():
                 isame = True
@@ -1252,7 +1259,6 @@ class BasicMultiDataset:
                         break
                 if isame:
                     global_vars.add(k0)
-            # print("global_vars vars", global_vars)
 
             w = 92
             if global_vars:
@@ -1265,7 +1271,7 @@ class BasicMultiDataset:
 
             has_same_structures = self.has_same_structures
             if has_same_structures:
-                # Write structure here and disable structure output in input.to_string
+                # Write structure here and disable structure output in input.to_str
                 lines.append(w * "#")
                 lines.append("#" + ("STRUCTURE").center(w - 1))
                 lines.append(w * "#")
@@ -1276,7 +1282,7 @@ class BasicMultiDataset:
             for i, inp in enumerate(self):
                 header = f"### DATASET {i + 1} ###"
                 is_last = i == self.ndtset - 1
-                s = inp.to_string(
+                s = inp.to_str(
                     post=str(i + 1),
                     with_pseudos=is_last and with_pseudos,
                     with_structure=not has_same_structures,
@@ -1294,7 +1300,7 @@ class BasicMultiDataset:
         # and we have variables that end with the dataset index e.g. acell1
         # We don't want to specify ndtset here since abinit will start to add DS# to
         # the input and output files thus complicating the algorithms we have to use to locate the files.
-        return self[0].to_string(with_pseudos=with_pseudos)
+        return self[0].to_str(with_pseudos=with_pseudos)
 
     def write(self, filepath="run.abi"):
         """

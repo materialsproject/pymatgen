@@ -36,14 +36,14 @@ if __name__ == "__main__":
 
     new_algos = []
 
-    ialgo = 1
+    idx = 1
     for sep_plane_algo in cg._algorithms:
-        print(f"In {ialgo = :d}/{len(cg._algorithms):d}")
-        ialgo += 1
+        print(f"In {idx = }/{len(cg._algorithms)}")
+        idx += 1
         if sep_plane_algo.algorithm_type != "SEPARATION_PLANE":
             raise ValueError("Should all be separation plane")
 
-        perms_on_file = f"Permutations on file in this algorithm ({len(sep_plane_algo._permutations):d}) "
+        perms_on_file = f"Permutations on file in this algorithm ({len(sep_plane_algo._permutations)}) "
         print(perms_on_file)
         print(sep_plane_algo._permutations)
         permutations = sep_plane_algo.safe_separation_permutations(
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
         sep_plane_algo._permutations = permutations
 
-        print(f"Test permutations ({len(permutations):d}) :")
+        print(f"Test permutations ({len(permutations)}) :")
         print(permutations)
 
         lgf = LocalGeometryFinder()
@@ -134,7 +134,7 @@ if __name__ == "__main__":
                 explicit_permutations.append(sep_perms[icsm])
 
         print(perms_on_file)
-        print(f"Permutations found ({len(explicit_permutations):d}) : ")
+        print(f"Permutations found ({len(explicit_permutations)}) : ")
         print(explicit_permutations)
         sep_plane_algo.explicit_permutations = explicit_permutations
         new_algos.append(sep_plane_algo)
