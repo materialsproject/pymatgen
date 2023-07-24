@@ -85,11 +85,9 @@ class SpacegroupAnalyzer:
                 unique_species.append(species)
                 zs.extend([len(unique_species)] * len(tuple(group)))
 
-        has_explicit_magmoms = False
-        if "magmom" in structure.site_properties or any(
-            hasattr(specie, "spin") for specie in structure.types_of_species
-        ):
-            has_explicit_magmoms = True
+        has_explicit_magmoms = "magmom" in structure.site_properties or any(
+            getattr(specie, "spin", None) is not None for specie in structure.types_of_species
+        )
 
         for site in structure:
             if hasattr(site, "magmom"):
