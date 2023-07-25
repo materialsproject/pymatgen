@@ -193,6 +193,7 @@ def periodic_table_heatmap(
     symbol_fontsize=14,
     max_row=9,
     readable_fontcolor=False,
+    pymatviz: bool = True,
     **kwargs,
 ):
     """
@@ -226,51 +227,55 @@ def periodic_table_heatmap(
             actinides.
         readable_fontcolor (bool): Whether to use readable font color depending
             on background color. Default is False.
+        pymatviz (bool): Whether to use pymatviz to generate the heatmap. Defaults to True.
+            See https://github.com/janosh/pymatviz.
         kwargs: Passed to pymatviz.ptable_heatmap_plotly
     """
-    try:
-        from pymatviz import ptable_heatmap_plotly
+    if pymatviz:
+        try:
+            from pymatviz import ptable_heatmap_plotly
 
-        if elemental_data:
-            kwargs.setdefault("elem_values", elemental_data)
-            print('elemental_data is deprecated, use elem_values={"Fe": 4.2, "O": 5.0} instead')
-        if cbar_label:
-            kwargs.setdefault("color_bar", {}).setdefault("title", cbar_label)
-            print('cbar_label is deprecated, use color_bar={"title": cbar_label} instead')
-        if cbar_label_size != 14:
-            kwargs.setdefault("color_bar", {}).setdefault("titlefont", {}).setdefault("size", cbar_label_size)
-            print('cbar_label_size is deprecated, use color_bar={"titlefont": {"size": cbar_label_size}} instead')
-        if cmap:
-            kwargs.setdefault("colorscale", cmap)
-            print("cmap is deprecated, use colorscale=cmap instead")
-        if cmap_range:
-            kwargs.setdefault("cscale_range", cmap_range)
-            print("cmap_range is deprecated, use cscale_range instead")
-        if value_format:
-            kwargs.setdefault("precision", value_format)
-            print("value_format is deprecated, use precision instead")
-        if blank_color != "grey":
-            print("blank_color is deprecated")
-        if edge_color != "white":
-            print("edge_color is deprecated")
-        if symbol_fontsize != 14:
-            print("symbol_fontsize is deprecated, use font_size instead")
-            kwargs.setdefault("font_size", symbol_fontsize)
-        if value_fontsize != 10:
-            print("value_fontsize is deprecated, use font_size instead")
-            kwargs.setdefault("font_size", value_fontsize)
-        if max_row != 9:
-            print("max_row is deprecated, use max_row instead")
-        if readable_fontcolor:
-            print("readable_fontcolor is deprecated, use font_colors instead, e.g. ('black', 'white')")
+            if elemental_data:
+                kwargs.setdefault("elem_values", elemental_data)
+                print('elemental_data is deprecated, use elem_values={"Fe": 4.2, "O": 5.0} instead')
+            if cbar_label:
+                kwargs.setdefault("color_bar", {}).setdefault("title", cbar_label)
+                print('cbar_label is deprecated, use color_bar={"title": cbar_label} instead')
+            if cbar_label_size != 14:
+                kwargs.setdefault("color_bar", {}).setdefault("titlefont", {}).setdefault("size", cbar_label_size)
+                print('cbar_label_size is deprecated, use color_bar={"titlefont": {"size": cbar_label_size}} instead')
+            if cmap:
+                kwargs.setdefault("colorscale", cmap)
+                print("cmap is deprecated, use colorscale=cmap instead")
+            if cmap_range:
+                kwargs.setdefault("cscale_range", cmap_range)
+                print("cmap_range is deprecated, use cscale_range instead")
+            if value_format:
+                kwargs.setdefault("precision", value_format)
+                print("value_format is deprecated, use precision instead")
+            if blank_color != "grey":
+                print("blank_color is deprecated")
+            if edge_color != "white":
+                print("edge_color is deprecated")
+            if symbol_fontsize != 14:
+                print("symbol_fontsize is deprecated, use font_size instead")
+                kwargs.setdefault("font_size", symbol_fontsize)
+            if value_fontsize != 10:
+                print("value_fontsize is deprecated, use font_size instead")
+                kwargs.setdefault("font_size", value_fontsize)
+            if max_row != 9:
+                print("max_row is deprecated, use max_row instead")
+            if readable_fontcolor:
+                print("readable_fontcolor is deprecated, use font_colors instead, e.g. ('black', 'white')")
 
-        return ptable_heatmap_plotly(**kwargs)
-    except ImportError:
-        print(
-            "You're using a deprecated version of periodic_table_heatmap(). Consider `pip install pymatviz` which "
-            "offers an interactive plotly periodic table heatmap. You can keep calling this same function from "
-            "pymatgen. Some of the arguments have changed which you'll be warned about."
-        )
+            return ptable_heatmap_plotly(**kwargs)
+        except ImportError:
+            print(
+                "You're using a deprecated version of periodic_table_heatmap(). Consider `pip install pymatviz` which "
+                "offers an interactive plotly periodic table heatmap. You can keep calling this same function from "
+                "pymatgen. Some of the arguments have changed which you'll be warned about. "
+                "To disable this warning, pass pymatviz=False."
+            )
 
     # Convert primitive_elemental data in the form of numpy array for plotting.
     if cmap_range is not None:
@@ -332,7 +337,7 @@ def periodic_table_heatmap(
     ax.axis("off")
     ax.invert_yaxis()
 
-    # Set the scalermap for fontcolor
+    # Set the scalarmap for fontcolor
     norm = colors.Normalize(vmin=min_val, vmax=max_val)
     scalar_cmap = cm.ScalarMappable(norm=norm, cmap=cmap)
 
