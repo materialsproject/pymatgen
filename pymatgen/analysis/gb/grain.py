@@ -21,6 +21,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
+    from pymatgen.core.trajectory import Vector3D
     from pymatgen.util.typing import CompositionLike
 
 # This module implements representations of grain boundaries, as well as
@@ -55,10 +56,10 @@ class GrainBoundary(Structure):
         lattice: np.ndarray | Lattice,
         species: Sequence[CompositionLike],
         coords: Sequence[ArrayLike],
-        rotation_axis: tuple[float, float, float],
+        rotation_axis: Vector3D,
         rotation_angle: float,
-        gb_plane: tuple[float, float, float],
-        join_plane: tuple[float, float, float],
+        gb_plane: Vector3D,
+        join_plane: Vector3D,
         init_cell: Structure,
         vacuum_thickness: float,
         ab_shift: tuple[float, float],

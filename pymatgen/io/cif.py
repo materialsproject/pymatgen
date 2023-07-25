@@ -13,7 +13,7 @@ from inspect import getfullargspec as getargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.io import zopen
@@ -31,6 +31,9 @@ from pymatgen.symmetry.groups import SYMM_DATA, SpaceGroup
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
+
+if TYPE_CHECKING:
+    from pymatgen.core.trajectory import Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
@@ -552,9 +555,7 @@ class CifParser:
 
         return data
 
-    def _unique_coords(
-        self, coords_in, magmoms_in=None, lattice=None, labels_in: dict[tuple[float, float, float], str] | None = None
-    ):
+    def _unique_coords(self, coords_in, magmoms_in=None, lattice=None, labels_in: dict[Vector3D, str] | None = None):
         """
         Generate unique coordinates using coord and symmetry positions
         and also their corresponding magnetic moments, if supplied.

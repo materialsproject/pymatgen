@@ -30,6 +30,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from datetime import date
 
+    from pymatgen.core.trajectory import Vector3D
+
 __all__ = ["ResProvider", "AirssProvider", "ResIO", "ResWriter", "ResParseError", "ResError"]
 
 
@@ -73,7 +75,7 @@ class ResCELL:
 class Ion:
     specie: str
     specie_num: int
-    pos: tuple[float, float, float]
+    pos: Vector3D
     occupancy: float
     spin: float | None
 
@@ -490,7 +492,7 @@ class AirssProvider(ResProvider):
 
     def get_mpgrid_offset_nkpts_spacing(
         self,
-    ) -> tuple[tuple[int, int, int], tuple[float, float, float], int, float] | None:
+    ) -> tuple[tuple[int, int, int], Vector3D, int, float] | None:
         """
         Retrieves the MP grid, the grid offsets, number of kpoints, and maximum kpoint spacing.
 
