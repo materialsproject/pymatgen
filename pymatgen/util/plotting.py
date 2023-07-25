@@ -381,12 +381,12 @@ def format_formula(formula):
     """
     formatted_formula = ""
     number_format = ""
-    for i, s in enumerate(formula):
-        if s.isdigit():
+    for idx, char in enumerate(formula):
+        if char.isdigit():
             if not number_format:
                 number_format = "_{"
-            number_format += s
-            if i == len(formula) - 1:
+            number_format += char
+            if idx == len(formula) - 1:
                 number_format += "}"
                 formatted_formula += number_format
         else:
@@ -394,7 +394,7 @@ def format_formula(formula):
                 number_format += "}"
                 formatted_formula += number_format
                 number_format = ""
-            formatted_formula += s
+            formatted_formula += char
 
     return f"${formatted_formula}$"
 
