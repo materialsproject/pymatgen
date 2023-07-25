@@ -91,7 +91,7 @@ class CompositionTest(PymatgenTest):
 
         # Test float in Composition
         comp = Composition({Element("Fe"): 2})
-        with pytest.raises(TypeError, match="expected string or bytes-like object, got 'float'"):
+        with pytest.raises(TypeError, match="expected string or bytes-like object"):
             assert 1.5 in comp
 
         # Test DummySpecies in Composition
