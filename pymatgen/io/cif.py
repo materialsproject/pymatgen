@@ -555,22 +555,26 @@ class CifParser:
 
         return data
 
-    def _unique_coords(self, coords_in, magmoms_in=None, lattice=None, labels_in: dict[Vector3D, str] | None = None):
+    def _unique_coords(
+        self,
+        coords: list[np.ndarray],
+        magmoms: list[Magmom] | None = None,
+        lattice: Lattice | None = None,
+        labels: dict[Vector3D, str] | None = None,
+    ):
         """
         Generate unique coordinates using coord and symmetry positions
         and also their corresponding magnetic moments, if supplied.
         """
-        coords: list[np.ndarray] = []
-        labels = []
+        coords_out: list[np.ndarray] = []
+        labels_out = []
+        labels = labels or {}
 
-        if labels_in is None:
-            labels_in = {}
-
-        if magmoms_in:
-            magmoms = []
-            if len(magmoms_in) != len(coords_in):
+        if magmoms:
+            magmoms_out = []
+            if len(magmoms) != len(coords):
                 raise ValueError
-            for tmp_coord, tmp_magmom in zip(coords_in, magmoms_in):
+            for tmp_coord, tmp_magmom in zip(coords, magmoms):
                 for op in self.symmetry_operations:
                     coord = op.operate(tmp_coord)
                     coord = np.array([i - math.floor(i) for i in coord])
@@ -583,20 +587,22 @@ class CifParser:
                         )
                     else:
                         magmom = Magmom(tmp_magmom)
-                    if not in_coord_list_pbc(coords, coord, atol=self._site_tolerance):
-                        coords.append(coord)
-                        magmoms.append(magmom)
-                        labels.append(labels_in[tmp_coord])
-            return coords, magmoms, labels
+                    if not in_coord_list_pbc(coords_out, coord, atol=self._site_tolerance):
+                        coords_out.append(coord)
+                        magmoms_out.append(magmom)
+                        labels_out.append(labels[tmp_coord])
+            return coords_out, magmoms_out, labels_out
 
-        for tmp_coord in coords_in:
+        for tmp_coord in coords:
             for op in self.symmetry_operations:
                 coord = op.operate(tmp_coord)
                 coord = np.array([i - math.floor(i) for i in coord])
-                if not in_coord_list_pbc(coords, coord, atol=self._site_tolerance):
-                    coords.append(coord)
-                    labels.append(labels_in[tmp_coord])
-        return coords, [Magmom(0)] * len(coords), labels  # return dummy magmoms
+                if not in_coord_list_pbc(coords_out, coord, atol=self._site_tolerance):
+                    coords_out.append(coord)
+                    labels_out.append(labels[tmp_coord])
+
+        dummy_magmoms = [Magmom(0)] * len(coords_out)
+        return coords_out, dummy_magmoms, labels_out
 
     def get_lattice(
         self,
@@ -1033,10 +1039,10 @@ class CifParser:
 
                 if self.feature_flags["magcif"]:
                     coords, magmoms, new_labels = self._unique_coords(
-                        tmp_coords, magmoms_in=tmp_magmom, labels_in=labels, lattice=lattice
+                        tmp_coords, magmoms=tmp_magmom, labels=labels, lattice=lattice
                     )
                 else:
-                    coords, magmoms, new_labels = self._unique_coords(tmp_coords, labels_in=labels)
+                    coords, magmoms, new_labels = self._unique_coords(tmp_coords, labels=labels)
 
                 assert len(new_labels) == len(coords)
 
