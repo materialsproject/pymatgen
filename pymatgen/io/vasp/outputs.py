@@ -3904,6 +3904,7 @@ class Oszicar:
             [{"dE": -526.36, "E0": -526.36024, "mag": 0.0, "F": -526.36024},
             ...]
             This is the typical output from VASP at the end of each ionic step.
+            The stored dict might be different depending on type of calculations.
     """
 
     def __init__(self, filename):
@@ -3938,6 +3939,7 @@ class Oszicar:
                 elif re.match(r"^\s*N\s+E\s*", line.strip()):
                     header = line.strip().replace("d eps", "deps").split()
                 elif line.strip() != "":
+                    # remove space first and apply field agnostic extraction
                     matches = re.findall(ionic_general_pattern, re.sub(r"d E ", "dE", line))
                     ionic_steps.append({key: float(value) for key, value in matches})
 
