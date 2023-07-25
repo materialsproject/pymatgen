@@ -1295,9 +1295,3 @@ class ChemicalPotential(dict, MSONable):
 
 class CompositionError(Exception):
     """Exception class for composition errors."""
-
-
-if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod()
