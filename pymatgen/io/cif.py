@@ -552,12 +552,19 @@ class CifParser:
 
         return data
 
-    def _unique_coords(self, coords_in, magmoms_in=None, lattice=None):
+    def _unique_coords(
+        self, coords_in, magmoms_in=None, lattice=None, labels_in: dict[tuple[float, float, float], str] | None = None
+    ):
         """
         Generate unique coordinates using coord and symmetry positions
         and also their corresponding magnetic moments, if supplied.
         """
-        coords = []
+        coords: list[np.ndarray] = []
+        labels = []
+
+        if labels_in is None:
+            labels_in = {}
+
         if magmoms_in:
             magmoms = []
             if len(magmoms_in) != len(coords_in):
@@ -578,7 +585,8 @@ class CifParser:
                     if not in_coord_list_pbc(coords, coord, atol=self._site_tolerance):
                         coords.append(coord)
                         magmoms.append(magmom)
-            return coords, magmoms
+                        labels.append(labels_in[tmp_coord])
+            return coords, magmoms, labels
 
         for tmp_coord in coords_in:
             for op in self.symmetry_operations:
@@ -586,7 +594,8 @@ class CifParser:
                 coord = np.array([i - math.floor(i) for i in coord])
                 if not in_coord_list_pbc(coords, coord, atol=self._site_tolerance):
                     coords.append(coord)
-        return coords, [Magmom(0)] * len(coords)  # return dummy magmoms
+                    labels.append(labels_in[tmp_coord])
+        return coords, [Magmom(0)] * len(coords), labels  # return dummy magmoms
 
     def get_lattice(
         self,
@@ -1022,9 +1031,13 @@ class CifParser:
                 tmp_magmom = [coord_to_magmoms[tmp_coord] for tmp_coord in tmp_coords]
 
                 if self.feature_flags["magcif"]:
-                    coords, magmoms = self._unique_coords(tmp_coords, magmoms_in=tmp_magmom, lattice=lattice)
+                    coords, magmoms, new_labels = self._unique_coords(
+                        tmp_coords, magmoms_in=tmp_magmom, labels_in=labels, lattice=lattice
+                    )
                 else:
-                    coords, magmoms = self._unique_coords(tmp_coords)
+                    coords, magmoms, new_labels = self._unique_coords(tmp_coords, labels_in=labels)
+
+                assert len(new_labels) == len(coords)
 
                 if set(comp.elements) == {Element("O"), Element("H")}:
                     # O with implicit hydrogens
@@ -1049,7 +1062,7 @@ class CifParser:
                 all_coords.extend(coords)
                 all_species.extend(len(coords) * [species])
                 all_magmoms.extend(magmoms)
-                all_labels.extend(len(coords) * [labels[tmp_coords[0]]])
+                all_labels.extend(new_labels)
 
             # rescale occupancies if necessary
             for idx, species in enumerate(all_species):

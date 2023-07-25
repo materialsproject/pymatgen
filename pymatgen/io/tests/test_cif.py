@@ -333,6 +333,28 @@ loop_
             # Ensure the site label starts with the site species name
             assert site.label.startswith(site.specie.name)
 
+        # ensure multiple species with different names have coorect labels
+        parser2 = CifParser(f"{self.TEST_FILES_DIR}/Fe3O4.cif")
+        struct2 = parser2.get_structures(primitive=False)[0]
+
+        expected_site_names2 = {
+            "O1",
+            "O2",
+            "O3",
+            "O4",
+            "O5",
+            "O6",
+            "O7",
+            "O8",
+            "Fe9",
+            "Fe10",
+            "Fe11",
+            "Fe12",
+            "Fe13",
+            "Fe14",
+        }
+        assert set(struct2.labels) == expected_site_names2
+
     def test_cif_parser_springer_pauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
 
