@@ -1020,7 +1020,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         compat = MaterialsProject2020Compatibility(check_potcar=False)
         [processed_entry] = compat.process_entries(entry, clean=True, inplace=False)
 
-        assert len(processed_entry.energy_adjustments) == 1
+        assert len(processed_entry.energy_adjustments) == 2
 
 
 class MITCompatibilityTest(unittest.TestCase):
