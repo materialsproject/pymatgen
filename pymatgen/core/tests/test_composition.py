@@ -89,27 +89,17 @@ class CompositionTest(PymatgenTest):
         c = Composition({"S": Composition.amount_tolerance / 2})
         assert len(c.elements) == 0
 
-    def test_str(self):
+    def test_str_and_repr(self):
         test_cases = [
-            ({"Li+": 2, "Mn3+": 2, "O2-": 4}, "Li+2 Mn3+2 O2-4"),
-            ({"H": 2, "O": 1}, "H2 O1"),
-            ({"Fe3+": 2, "O2-": 3}, "Fe3+2 O2-3"),
-            ({"C": 6, "H": 6}, "C6 H6"),
+            ({"Li+": 2, "Mn3+": 2, "O2-": 4}, {"str": "Li+2 Mn3+2 O2-4", "repr": "Composition('Li+:2 Mn3+:2 O2-:4')"}),
+            ("H2O", {"str": "H2 O1", "repr": "Composition('H2 O1')"}),
+            ({"Fe3+": 2, "O2-": 3}, {"str": "Fe3+2 O2-3", "repr": "Composition('Fe3+:2 O2-:3')"}),
+            ("C6H6", {"str": "C6 H6", "repr": "Composition('C6 H6')"}),
         ]
 
-        for comp, expected_str in test_cases:
-            assert str(Composition(comp)) == expected_str
-
-    def test_repr(self):
-        test_cases = [
-            ({"Li+": 2, "Mn3+": 2, "O2-": 4}, "Composition('Li+:2 Mn3+:2 O2-:4')"),
-            ("H2O", "Composition('H2 O1')"),
-            ({"Fe3+": 2, "O2-": 3}, "Composition('Fe3+:2 O2-:3')"),
-            ("C6H6", "Composition('C6 H6')"),
-        ]
-
-        for comp, expected_repr in test_cases:
-            assert repr(Composition(comp)) == expected_repr
+        for comp, expected in test_cases:
+            assert str(Composition(comp)) == expected["str"]
+            assert repr(Composition(comp)) == expected["repr"]
 
     def test_average_electroneg(self):
         electro_negs = (2.7224999999999997, 2.4160000000000004, 2.5485714285714285, 2.21, 2.718, 3.08, 1.21, 2.43)
