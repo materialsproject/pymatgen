@@ -777,6 +777,7 @@ class StructureTest(PymatgenTest):
         self.structure = Structure(lattice, ["Si", "Si"], coords)
         self.cu_structure = Structure(lattice, ["Cu", "Cu"], coords)
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
+        self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
 
     def test_mutable_sequence_methods(self):
         struct = self.structure
@@ -1063,6 +1064,11 @@ class StructureTest(PymatgenTest):
         self.structure.make_supercell(2)
         assert self.structure.formula == "Si32"
         self.assert_all_close(self.structure.lattice.abc, [15.360792, 35.195996, 7.680396], 5)
+
+    def test_make_supercell_labeled(self):
+        struct = self.labeled_structure.copy()
+        struct.make_supercell([1, 1, 2])
+        assert set(struct.labels) == {"Si1", "Si2"}
 
     def test_disordered_supercell_primitive_cell(self):
         latt = Lattice.cubic(2)

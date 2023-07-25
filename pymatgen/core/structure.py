@@ -1319,6 +1319,7 @@ class IStructure(SiteCollection, MSONable):
                     coords_are_cartesian=True,
                     to_unit_cell=False,
                     skip_checks=True,
+                    label=site.label,
                 )
                 new_sites.append(s)
 
@@ -2924,7 +2925,8 @@ class IMolecule(SiteCollection, MSONable):
             prop = None
             if site_properties:
                 prop = {k: v[idx] for k, v in site_properties.items()}
-            sites.append(Site(species[idx], coords[idx], properties=prop))
+            label = labels[idx] if labels else None
+            sites.append(Site(species[idx], coords[idx], properties=prop, label=label))
 
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
@@ -3703,6 +3705,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         coords_are_cartesian: bool = False,
         validate_proximity: bool = False,
         properties: dict | None = None,
+        label: str | None = None,
     ):
         """
         Insert a site to the structure.
@@ -3716,15 +3719,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
             validate_proximity (bool): Whether to check if inserted site is
                 too close to an existing site. Defaults to False.
             properties (dict): Properties associated with the site.
+            label (str): Label associated with the site.
 
         Returns:
             New structure with inserted site.
         """
         if not coords_are_cartesian:
-            new_site = PeriodicSite(species, coords, self._lattice, properties=properties)
+            new_site = PeriodicSite(species, coords, self._lattice, properties=properties, label=label)
         else:
             frac_coords = self._lattice.get_fractional_coords(coords)
-            new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties)
+            new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties, label=label)
 
         if validate_proximity:
             for site in self:
@@ -3740,6 +3744,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         coords: ArrayLike | None = None,
         coords_are_cartesian: bool = False,
         properties: dict | None = None,
+        label: str | None = None,
     ):
         """
         Replace a single site. Takes either a species or a dict of species and
@@ -3753,6 +3758,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             coords_are_cartesian (bool): Whether coordinates are cartesian.
                 Defaults to False.
             properties (dict): Properties associated with the site.
+            label (str): Label associated with the site.
         """
         if coords is None:
             frac_coords = self[i].frac_coords
@@ -3761,7 +3767,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         else:
             frac_coords = coords  # type: ignore
 
-        new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties)
+        new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties, label=label)
         self._sites[i] = new_site
 
     def substitute(self, index: int, func_group: IMolecule | Molecule | str, bond_order: int = 1) -> None:
@@ -3856,7 +3862,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         # group.
         del self[index]
         for site in fgroup[1:]:
-            s_new = PeriodicSite(site.species, site.coords, self.lattice, coords_are_cartesian=True)
+            s_new = PeriodicSite(site.species, site.coords, self.lattice, coords_are_cartesian=True, label=site.label)
             self._sites.append(s_new)
 
     def remove_species(self, species: Sequence[SpeciesLike]) -> None:
@@ -3878,6 +3884,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                         site.frac_coords,
                         self._lattice,
                         properties=site.properties,
+                        label=site.label,
                     )
                 )
         self._sites = new_sites
@@ -3918,6 +3925,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     self._lattice,
                     properties=site.properties,
                     skip_checks=True,
+                    label=site.label,
                 )
 
         else:
@@ -3931,6 +3939,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     self._lattice,
                     properties=site.properties,
                     skip_checks=True,
+                    label=site.label,
                 )
 
         self._sites = [operate_site(s) for s in self._sites]
@@ -4048,6 +4057,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 coords_are_cartesian=True,
                 properties=site.properties,
                 skip_checks=True,
+                label=site.label,
             )
             self._sites[idx] = new_site
 
@@ -4447,6 +4457,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         coords: ArrayLike,
         validate_proximity: bool = False,
         properties: dict | None = None,
+        label: str | None = None,
     ) -> Molecule:
         """
         Insert a site to the molecule.
@@ -4458,11 +4469,12 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             validate_proximity (bool): Whether to check if inserted site is
                 too close to an existing site. Defaults to True.
             properties (dict): Dict of properties for the Site.
+            label (str): Label of inserted site
 
         Returns:
             New molecule with inserted site.
         """
-        new_site = Site(species, coords, properties=properties)
+        new_site = Site(species, coords, properties=properties, label=label)
         if validate_proximity:
             for site in self:
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
@@ -4483,7 +4495,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species.items() if sp not in species}
             if len(new_sp_occu) > 0:
-                new_sites.append(Site(new_sp_occu, site.coords, properties=site.properties))
+                new_sites.append(Site(new_sp_occu, site.coords, properties=site.properties, label=site.label))
         self._sites = new_sites
 
     def remove_sites(self, indices: Sequence[int]):
@@ -4511,7 +4523,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             vector = [0, 0, 0]
         for i in indices:
             site = self._sites[i]
-            new_site = Site(site.species, site.coords + vector, properties=site.properties)
+            new_site = Site(site.species, site.coords + vector, properties=site.properties, label=site.label)
             self._sites[i] = new_site
 
     def rotate_sites(
@@ -4554,7 +4566,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         for idx in indices:
             site = self._sites[idx]
             s = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
-            new_site = Site(site.species, s, properties=site.properties)
+            new_site = Site(site.species, s, properties=site.properties, label=site.label)
             self._sites[idx] = new_site
 
     def perturb(self, distance: float):
@@ -4586,7 +4598,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         def operate_site(site):
             new_cart = symmop.operate(site.coords)
-            return Site(site.species, new_cart, properties=site.properties)
+            return Site(site.species, new_cart, properties=site.properties, label=site.label)
 
         self._sites = [operate_site(site) for site in self._sites]
 
