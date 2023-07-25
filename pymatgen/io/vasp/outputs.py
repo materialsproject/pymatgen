@@ -3904,7 +3904,7 @@ class Oszicar:
             [{"dE": -526.36, "E0": -526.36024, "mag": 0.0, "F": -526.36024},
             ...]
             This is the typical output from VASP at the end of each ionic step.
-            The stored dict might be different depending on type of calculations.
+            The stored dict might be different depending on the type of VASP run.
     """
 
     def __init__(self, filename):
