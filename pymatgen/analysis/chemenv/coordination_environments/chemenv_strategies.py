@@ -155,7 +155,7 @@ class AdditionalConditionInt(int, StrategyOption):
 
     allowed_values = "Integer amongst :\n"
     for integer, description in AdditionalConditions.CONDITION_DESCRIPTION.items():
-        allowed_values += f" - {integer:d} for {description!r}\n"
+        allowed_values += f" - {integer} for {description!r}\n"
 
     def __new__(cls, integer):
         """Special int representing additional conditions."""
@@ -163,7 +163,7 @@ class AdditionalConditionInt(int, StrategyOption):
             raise ValueError(f"Additional condition {integer} is not an integer")
         integer = int.__new__(cls, integer)
         if integer not in AdditionalConditions.ALL:
-            raise ValueError(f"Additional condition {integer:d} is not allowed")
+            raise ValueError(f"Additional condition {integer} is not allowed")
         return integer
 
     def as_dict(self):
@@ -748,7 +748,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         ce, ce_map = ce_and_map
         if ce is None:
             ce_dict = {
-                "ce_symbol": f"UNKNOWN:{ce_map[0]:d}",
+                "ce_symbol": f"UNKNOWN:{ce_map[0]}",
                 "ce_dict": None,
                 "ce_fraction": 1,
             }
@@ -1864,7 +1864,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
             delta_cn_weight_estimators={
                 int(dcn): dcn_estimator for dcn, dcn_estimator in dd["delta_cn_weight_estimators"].items()
             }
-            if ("delta_cn_weight_estimators" in dd and dd["delta_cn_weight_estimators"] is not None)
+            if dd.get("delta_cn_weight_estimators") is not None
             else None,
             symmetry_measure_type=dd["symmetry_measure_type"],
         )
@@ -2647,7 +2647,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                     ]
                     fractions = self.ce_estimator_fractions(csms)
                     if fractions is None:
-                        ce_symbols.append(f"UNCLEAR:{cn:d}")
+                        ce_symbols.append(f"UNCLEAR:{cn}")
                         ce_dicts.append(None)
                         ce_fractions.append(nb_set_fraction)
                         all_weights = weights_additional_info["weights"][isite][cn_map]
@@ -2668,7 +2668,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
                             ce_dict_fractions.append(dict_fractions)
                             ce_maps.append(cn_map)
                 else:
-                    ce_symbols.append(f"UNCLEAR:{cn:d}")
+                    ce_symbols.append(f"UNCLEAR:{cn}")
                     ce_dicts.append(None)
                     ce_fractions.append(nb_set_fraction)
                     all_weights = weights_additional_info["weights"][isite][cn_map]

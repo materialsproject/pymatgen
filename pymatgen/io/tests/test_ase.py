@@ -27,6 +27,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.get_pbc().all()
         assert atoms.get_chemical_symbols() == [s.species_string for s in structure]
         assert not atoms.has("initial_magmoms")
+        assert not atoms.has("initial_charges")
         assert atoms.calc is None
 
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
@@ -90,7 +91,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         assert atoms.get_initial_charges().tolist(), initial_charges
         assert atoms.get_charges().tolist(), charges
 
-    def test_get_atoms_from_structure_oxistates(self):
+    def test_get_atoms_from_structure_oxi_states(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structure = p.structure
         oxi_states = [1.0] * len(structure)
@@ -248,6 +249,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         # Atoms --> Structure --> Atoms --> Structure
         atoms = read(os.path.join(PymatgenTest.TEST_FILES_DIR, "OUTCAR"))
         atoms.info = {"test": "hi"}
+        atoms.set_tags([1] * len(atoms))
         atoms.set_constraint(FixAtoms(mask=[True] * len(atoms)))
         atoms.set_initial_charges([1.0] * len(atoms))
         atoms.set_initial_magnetic_moments([2.0] * len(atoms))
@@ -281,6 +283,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         atoms.set_initial_charges([1.0] * len(atoms))
         atoms.set_initial_magnetic_moments([2.0] * len(atoms))
         atoms.set_array("prop", np.array([3.0] * len(atoms)))
+        atoms.set_tags([1] * len(atoms))
         molecule = aio.AseAtomsAdaptor.get_molecule(atoms)
         atoms_back = aio.AseAtomsAdaptor.get_atoms(molecule)
         molecule_back = aio.AseAtomsAdaptor.get_molecule(atoms_back)

@@ -104,7 +104,7 @@ class SlabEntryTest(PymatgenTest):
             self.assert_all_close(float(se), manual_se, 10)
 
         # The (111) facet should be the most stable
-        clean111_entry = list(self.Cu_entry_dict[(1, 1, 1)])[0]
+        clean111_entry = next(iter(self.Cu_entry_dict[(1, 1, 1)]))
         se_Cu111 = clean111_entry.surface_energy(self.Cu_ucell_entry)
         assert min(all_se) == se_Cu111
 
@@ -212,19 +212,19 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         # For clean stoichiometric system, the two equations should
         # be parallel because the surface energy is a constant. Then
         # get_surface_equilibrium should return None
-        clean111_entry = list(self.Cu_entry_dict[(1, 1, 1)])[0]
-        clean100_entry = list(self.Cu_entry_dict[(1, 0, 0)])[0]
+        clean111_entry = next(iter(self.Cu_entry_dict[(1, 1, 1)]))
+        clean100_entry = next(iter(self.Cu_entry_dict[(1, 0, 0)]))
         soln = self.Cu_analyzer.get_surface_equilibrium([clean111_entry, clean100_entry])
         assert not soln
 
         # For adsorbed system, we should find one intercept
         Pt_entries = self.metals_O_entry_dict["Pt"]
-        clean = list(Pt_entries[(1, 1, 1)])[0]
+        clean = next(iter(Pt_entries[(1, 1, 1)]))
         ads = Pt_entries[(1, 1, 1)][clean][0]
         Pt_analyzer = self.Oads_analyzer_dict["Pt"]
         soln = Pt_analyzer.get_surface_equilibrium([clean, ads])
 
-        assert list(soln.values())[0] != list(soln.values())[1]
+        assert next(iter(soln.values())) != list(soln.values())[1]
 
         # Check if the number of parameters for adsorption are correct
         assert (Symbol("delu_O"), Symbol("gamma")) == tuple(soln)
@@ -424,7 +424,7 @@ def load_O_adsorption():
         for el, val in metals_O_entry_dict.items():
             if el in k:
                 if "111" in k:
-                    clean = list(val[(1, 1, 1)])[0]
+                    clean = next(iter(val[(1, 1, 1)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,
@@ -435,7 +435,7 @@ def load_O_adsorption():
                     )
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = [ads]
                 if "110" in k:
-                    clean = list(val[(1, 1, 0)])[0]
+                    clean = next(iter(val[(1, 1, 0)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,
@@ -446,7 +446,7 @@ def load_O_adsorption():
                     )
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = [ads]
                 if "100" in k:
-                    clean = list(val[(1, 0, 0)])[0]
+                    clean = next(iter(val[(1, 0, 0)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,

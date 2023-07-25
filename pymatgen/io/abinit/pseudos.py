@@ -262,14 +262,14 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """Build instance from dictionary (MSONable protocol)."""
-        new = cls.from_file(d["filepath"])
+        new = cls.from_file(dct["filepath"])
 
         # Consistency test based on md5
-        if "md5" in d and d["md5"] != new.md5:
+        if dct.get("md5") != new.md5:
             raise ValueError(
-                f"The md5 found in file does not agree with the one in dict\nReceived {d['md5']}\nComputed {new.md5}"
+                f"The md5 found in file does not agree with the one in dict\nReceived {dct['md5']}\nComputed {new.md5}"
             )
 
         return new
@@ -999,19 +999,15 @@ class PawAbinitHeader(AbinitHeader):
         # Parse orbitals and number of meshes.
         header["orbitals"] = [int(t) for t in lines[0].split(":")[0].split()]
         header["number_of_meshes"] = num_meshes = int(lines[1].split(":")[0])
-        # print filename, header
 
         # Skip meshes =
         lines = lines[2 + num_meshes :]
         # for midx in range(num_meshes):
         #    l = midx + 1
 
-        # print lines[0]
         header["r_cut"] = float(lines[0].split(":")[0])
-        # print lines[1]
         header.update(_dict_from_lines(lines[1], [2], sep=":"))
 
-        # print("PAW header\n", header)
         return PawAbinitHeader(summary, **header)
 
 
@@ -1256,7 +1252,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
             attrib = AttrDict(node.attrib)
             assert attrib.id not in self.valence_states
             self.valence_states[attrib.id] = attrib
-        # print(self.valence_states)
 
         # Parse the radial grids
         self.rad_grids = {}
@@ -1698,7 +1693,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             # k, count = p.element, 1
             # Handle multiple-pseudos with the same name!
             while k in dct:
-                k += k.split("#")[0] + "#" + str(count)
+                k += f"{k.split('#')[0]}#{count}"
                 count += 1
             dct.update({k: p.as_dict()})
         dct["@module"] = type(self).__module__

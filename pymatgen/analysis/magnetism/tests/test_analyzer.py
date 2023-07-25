@@ -212,10 +212,10 @@ Lattice
       B : 0.0 0.0 -4.17
       C : -2.085 2.085 0.0
 Magmoms Sites
-+5.00   PeriodicSite: Ni (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
-        PeriodicSite: O (0.0000, 0.0000, -2.0850) [0.0000, 0.5000, 0.0000]
-        PeriodicSite: O (0.0000, 2.0850, 0.0000) [0.5000, 0.0000, 0.5000]
--5.00   PeriodicSite: Ni (0.0000, 2.0850, -2.0850) [0.5000, 0.5000, 0.5000]"""
++5.00   PeriodicSite: Ni (0.0, 0.0, 0.0) [0.0, 0.0, 0.0]
+        PeriodicSite: O (0.0, 0.0, -2.085) [0.0, 0.5, 0.0]
+        PeriodicSite: O (0.0, 2.085, 0.0) [0.5, 0.0, 0.5]
+-5.00   PeriodicSite: Ni (0.0, 2.085, -2.085) [0.5, 0.5, 0.5]"""
 
         # just compare lines form 'Magmoms Sites',
         # since lattice param string can vary based on machine precision

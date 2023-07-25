@@ -236,15 +236,6 @@ class MITMPRelaxSetTest(PymatgenTest):
         struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
         assert MITRelaxSet(struct).nelect == 16
 
-        # Test estimate of number of bands (function of nelect) with nmag>0
-        assert MITRelaxSet(struct).estimate_nbands() == 13
-        assert MPRelaxSet(struct).estimate_nbands() == 17
-
-        # Test estimate of number of bands (function of nelect) with nmag==0
-        struct = Structure(lattice, ["Si", "Si", "Si"], coords)
-        assert MITRelaxSet(struct).estimate_nbands() == 11
-        assert MPRelaxSet(struct).estimate_nbands() == 11
-
         # Check that it works even when oxidation states are present. Was a bug
         # previously.
         struct = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
@@ -255,6 +246,32 @@ class MITMPRelaxSetTest(PymatgenTest):
         struct = Structure(lattice, ["Si4+", "Fe2+", "Si4+"], coords)
         assert MITRelaxSet(struct).nelect == 16
         assert MPRelaxSet(struct).nelect == 22
+
+    @skip_if_no_psp_dir
+    def test_estimate_nbands(self):
+        # estimate_nbands is a function of n_elect, n_ions, magmom, noncollinearity of magnetism, and n_par
+        coords = [[0] * 3, [0.5] * 3, [0.75] * 3]
+        lattice = Lattice.cubic(4)
+
+        # pure Si
+        struct = Structure(lattice, ["Si", "Si", "Si"], coords)
+        assert MITRelaxSet(struct).estimate_nbands() == 11
+        assert MPRelaxSet(struct).estimate_nbands() == 11
+
+        # Si + Fe
+        struct = Structure(lattice, ["Si", "Si", "Fe"], coords)
+        assert MITRelaxSet(struct).estimate_nbands() == 15
+        assert MPRelaxSet(struct).estimate_nbands() == 18
+
+        # Si + Fe with NPAR = 4
+        uis = {"NPAR": 4}
+        assert MITRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(16)
+        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(20)
+
+        # Si + Fe with noncollinear magnetism turned on
+        uis = {"LNONCOLLINEAR": True}
+        assert MITRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(30)
+        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(36)
 
     @skip_if_no_psp_dir
     def test_get_incar(self):
@@ -708,16 +725,14 @@ class MPStaticSetTest(PymatgenTest):
 
     def test_write_input_zipped(self):
         vis = MPStaticSet(self.get_structure("Si"))
-        vis.write_input(output_dir=".", potcar_spec=True, zip_output=True)
+        vis.write_input(output_dir=self.tmp_path, potcar_spec=True, zip_output=True)
 
-        assert os.path.isfile("MPStaticSet.zip")
-        with ZipFile("MPStaticSet.zip", "r") as zip:
+        assert os.path.isfile(f"{self.tmp_path}/MPStaticSet.zip")
+        with ZipFile(f"{self.tmp_path}/MPStaticSet.zip", "r") as zip:
             contents = zip.namelist()
             assert set(contents).issuperset({"INCAR", "POSCAR", "POTCAR.spec", "KPOINTS"})
             spec = zip.open("POTCAR.spec", "r").read().decode()
             assert spec == "Si"
-
-        os.remove("MPStaticSet.zip")
 
     def test_grid_size_from_struct(self):
         # TODO grab a bunch_of_calculations store as a list of tuples

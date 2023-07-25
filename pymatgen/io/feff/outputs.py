@@ -200,25 +200,25 @@ class LDos(MSONable):
             dicts = Potential.pot_dict_from_string(pot_string)
             pot_dict = dicts[1]
 
-        for i in range(0, len(dicts[0]) + 1):
-            if len(str(i)) == 1:
-                with zopen(f"{ldos_file}0{i}.dat", "rt") as fobject:
-                    f = fobject.readlines()
-                    s = float(f[3].split()[2])
-                    p = float(f[4].split()[2])
-                    d = float(f[5].split()[2])
-                    f1 = float(f[6].split()[2])
-                    tot = float(f[1].split()[4])
-                    cht[str(i)] = {pot_dict[i]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
+        for idx in range(len(dicts[0]) + 1):
+            if len(str(idx)) == 1:
+                with zopen(f"{ldos_file}0{idx}.dat", "rt") as file:
+                    lines = file.readlines()
+                    s = float(lines[3].split()[2])
+                    p = float(lines[4].split()[2])
+                    d = float(lines[5].split()[2])
+                    f1 = float(lines[6].split()[2])
+                    tot = float(lines[1].split()[4])
+                    cht[str(idx)] = {pot_dict[idx]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
             else:
-                with zopen(ldos_file + str(i) + ".dat", "rt") as fid:
-                    f = fid.readlines()
-                    s = float(f[3].split()[2])
-                    p = float(f[4].split()[2])
-                    d = float(f[5].split()[2])
-                    f1 = float(f[6].split()[2])
-                    tot = float(f[1].split()[4])
-                    cht[str(i)] = {pot_dict[i]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
+                with zopen(f"{ldos_file}{idx}.dat", "rt") as file:
+                    lines = file.readlines()
+                    s = float(lines[3].split()[2])
+                    p = float(lines[4].split()[2])
+                    d = float(lines[5].split()[2])
+                    f1 = float(lines[6].split()[2])
+                    tot = float(lines[1].split()[4])
+                    cht[str(idx)] = {pot_dict[idx]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
 
         return cht
 

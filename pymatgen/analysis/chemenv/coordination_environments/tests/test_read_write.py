@@ -74,14 +74,6 @@ class ReadWriteChemenvTest(unittest.TestCase):
         with open("tmp_dir/lse.json") as file:
             LightStructureEnvironments.from_dict(json.load(file))
 
-        # this_sites = [ss["site"] for ss in lse._all_nbs_sites]
-        # print(f"{this_sites=}")
-        # other_sites = [ss["site"] for ss in lse2._all_nbs_sites]
-        # print(f"{other_sites=}")
-
-        # print(f"{[x['site'] for x in lse._all_nbs_sites]=}")
-        # print(f"{ lse2._all_nbs_sites=}")
-
         # assert lse == lse2
 
     def test_structure_environments_neighbors_sets(self):

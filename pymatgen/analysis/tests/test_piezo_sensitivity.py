@@ -221,13 +221,13 @@ class PiezoSensitivityTest(PymatgenTest):
         dyn = pnstruc.get_dynamical_matrix_at_q([0, 0, 0])
         dyn = np.reshape(dyn, (10, 3, 10, 3)).swapaxes(1, 2)
         dyn = np.real(dyn)
-        numsites = len(self.piezo_struc)
+        n_sites = len(self.piezo_struc)
         masses = []
-        for j in range(numsites):
+        for j in range(n_sites):
             masses.append(self.piezo_struc.sites[j].specie.atomic_mass)
-        dynmass = np.zeros([numsites, numsites, 3, 3])
-        for m in range(numsites):
-            for n in range(numsites):
+        dynmass = np.zeros([n_sites, n_sites, 3, 3])
+        for m in range(n_sites):
+            for n in range(n_sites):
                 dynmass[m][n] = dyn[m][n] / np.sqrt(masses[m]) / np.sqrt(masses[n])
 
         dynmass = np.reshape(np.swapaxes(dynmass, 1, 2), (10 * 3, 10 * 3))
@@ -295,13 +295,13 @@ class PiezoSensitivityTest(PymatgenTest):
         dyn = pnstruc.get_dynamical_matrix_at_q([0, 0, 0])
         dyn = np.reshape(dyn, (10, 3, 10, 3)).swapaxes(1, 2)
         dyn = np.real(dyn)
-        numsites = len(self.piezo_struc)
+        n_sites = len(self.piezo_struc)
         masses = []
-        for j in range(numsites):
+        for j in range(n_sites):
             masses.append(self.piezo_struc.sites[j].specie.atomic_mass)
-        dynmass = np.zeros([numsites, numsites, 3, 3])
-        for m in range(numsites):
-            for n in range(numsites):
+        dynmass = np.zeros([n_sites, n_sites, 3, 3])
+        for m in range(n_sites):
+            for n in range(n_sites):
                 dynmass[m][n] = dyn[m][n] / np.sqrt(masses[m]) / np.sqrt(masses[n])
 
         dynmass = np.reshape(np.swapaxes(dynmass, 1, 2), (10 * 3, 10 * 3))

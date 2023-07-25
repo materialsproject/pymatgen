@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cif import CifParser
@@ -121,6 +122,40 @@ class SpacegroupAnalyzerTest(PymatgenTest):
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
         assert ds["international"] == "Pnma"
+
+    def test_init_cell(self):
+        # see https://github.com/materialsproject/pymatgen/pull/3179
+        li2o = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
+
+        # test that magmoms are not included in spacegroup analyzer when species have no spin
+        # or no magmom site properties are set
+        assert all(species.spin is None for species in li2o.types_of_species)
+        assert "magmom" not in li2o.site_properties
+        sga = SpacegroupAnalyzer(li2o)
+        assert len(sga._cell) == 3  # no magmoms should be added!
+
+        # give a magmom to random Li site
+        li2o[0].properties["magmom"] = 0
+        sga = SpacegroupAnalyzer(li2o)
+        assert len(sga._cell) == 4  # magmoms should be added!
+        assert sga._cell[3] == 12 * (0,)
+
+        # now set spin for O only
+        li2o = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
+        li2o.replace_species({"O2-": Species("O", oxidation_state=-2, spin=1)})
+        assert not all(species.spin is None for species in li2o.types_of_species)
+        sga = SpacegroupAnalyzer(li2o)
+        assert len(sga._cell) == 4  # magmoms should be added!
+        assert sga._cell[3] == tuple(
+            8
+            * [
+                0,
+            ]
+            + 4
+            * [
+                1,
+            ]
+        )
 
     def test_get_symmetry(self):
         # see discussion in https://github.com/materialsproject/pymatgen/pull/2724

@@ -53,16 +53,16 @@ class PDEntryTest(unittest.TestCase):
         assert self.gpentry.energy_per_atom == 50.0 / 2, "Wrong energy per atom!"
 
     def test_get_name(self):
-        assert self.entry.name == "mp-757614", "Wrong name!"
-        assert self.gpentry.name == "mp-757614", "Wrong name!"
+        assert self.entry.name == "mp-757614"
+        assert self.gpentry.name == "mp-757614"
 
     def test_get_composition(self):
         comp = self.entry.composition
         expected_comp = Composition("LiFeO2")
-        assert comp == expected_comp, "Wrong composition!"
+        assert comp == expected_comp
         comp = self.gpentry.composition
         expected_comp = Composition("LiFe")
-        assert comp == expected_comp, "Wrong composition!"
+        assert comp == expected_comp
 
     def test_is_element(self):
         assert not self.entry.is_element
@@ -73,10 +73,10 @@ class PDEntryTest(unittest.TestCase):
         gpd = self.gpentry.as_dict()
         entry = PDEntry.from_dict(d)
 
-        assert entry.name == "mp-757614", "Wrong name!"
+        assert entry.name == "mp-757614"
         assert entry.energy_per_atom == 53.0 / 4
         gpentry = GrandPotPDEntry.from_dict(gpd)
-        assert gpentry.name == "mp-757614", "Wrong name!"
+        assert gpentry.name == "mp-757614"
         assert gpentry.energy_per_atom == 50.0 / 2
 
         d_anon = d.copy()
@@ -108,8 +108,8 @@ class TransformedPDEntryTest(unittest.TestCase):
         terminal_compositions = [Composition(c) for c in terminal_compositions]
 
         sp_mapping = {}
-        for i, comp in enumerate(terminal_compositions):
-            sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
+        for idx, comp in enumerate(terminal_compositions):
+            sp_mapping[comp] = DummySpecies("X" + chr(102 + idx))
 
         self.transformed_entry = TransformedPDEntry(entry, sp_mapping)
 
@@ -121,31 +121,35 @@ class TransformedPDEntryTest(unittest.TestCase):
         assert self.transformed_entry.energy_per_atom == approx(53.0 / (23 / 15))
 
     def test_get_name(self):
-        assert self.transformed_entry.name == "LiFeO2", "Wrong name!"
+        assert self.transformed_entry.name == "LiFeO2"
 
     def test_get_composition(self):
         comp = self.transformed_entry.composition
         expected_comp = Composition({DummySpecies("Xf"): 14 / 30, DummySpecies("Xg"): 1.0, DummySpecies("Xh"): 2 / 30})
-        assert comp == expected_comp, "Wrong composition!"
+        assert comp == expected_comp
 
     def test_is_element(self):
-        assert not self.transformed_entry.is_element
+        assert self.transformed_entry.is_element is False
+        assert self.transformed_entry.original_entry.is_element is False
+        iron = Composition("Fe")
+        assert TransformedPDEntry(PDEntry(iron, 0), {iron: iron}).is_element is True
 
     def test_to_from_dict(self):
-        d = self.transformed_entry.as_dict()
-        entry = TransformedPDEntry.from_dict(d)
-        assert entry.name == "LiFeO2", "Wrong name!"
-        assert entry.energy_per_atom == approx(53.0 / (23 / 15))
+        dct = self.transformed_entry.as_dict()
+        entry = TransformedPDEntry.from_dict(dct)
+        assert entry.name == "LiFeO2" == self.transformed_entry.name
+        assert entry.energy_per_atom == approx(53.0 / (23 / 15)) == self.transformed_entry.energy_per_atom
 
     def test_str(self):
-        assert str(self.transformed_entry) is not None
+        assert str(self.transformed_entry).startswith("TransformedPDEntry Xf0+0.46666667 Xg")
+        assert str(self.transformed_entry).endswith("with original composition Li1 Fe1 O2, energy = 53.0000")
 
     def test_normalize(self):
         norm_entry = self.transformed_entry.normalize(mode="atom")
         expected_comp = Composition(
             {DummySpecies("Xf"): 7 / 23, DummySpecies("Xg"): 15 / 23, DummySpecies("Xh"): 1 / 23}
         )
-        assert norm_entry.composition == expected_comp, "Wrong composition!"
+        assert norm_entry.composition == expected_comp
 
 
 class PhaseDiagramTest(PymatgenTest):
@@ -175,14 +179,14 @@ class PhaseDiagramTest(PymatgenTest):
 
     def test_dim1(self):
         # Ensure that dim 1 PDs can be generated.
-        for el in ["Li", "Fe", "O2"]:
+        for el in ("Li", "Fe", "O2"):
             entries = [entry for entry in self.entries if entry.composition.reduced_formula == el]
             pd = PhaseDiagram(entries)
             assert len(pd.stable_entries) == 1
 
             for entry in entries:
-                ehull = pd.get_e_above_hull(entry)
-                assert ehull >= 0
+                e_hull = pd.get_e_above_hull(entry)
+                assert e_hull >= 0
 
             plotter = PDPlotter(pd)
             lines, *_ = plotter.pd_plot_data
@@ -370,7 +374,7 @@ class PhaseDiagramTest(PymatgenTest):
 
         duplicate_entry = PDEntry("Li2O", -14.31361175)
         scaled_dup_entry = PDEntry("Li4O2", -14.31361175 * 2)
-        stable_entry = [e for e in self.pd.stable_entries if e.name == "Li2O"][0]
+        stable_entry = next(e for e in self.pd.stable_entries if e.name == "Li2O")
 
         assert self.pd.get_phase_separation_energy(duplicate_entry) == self.pd.get_phase_separation_energy(
             stable_entry

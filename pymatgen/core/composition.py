@@ -151,7 +151,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __contains__(self, key) -> bool:
         try:
             sp = get_el_sp(key)
-            return sp in self._data
+            # First check for species
+            if sp in self._data:
+                return True
+            # If not found, check for parent element (if it's a species)
+            if isinstance(sp, Species):
+                return sp.element in self._data
+            return False
         except ValueError as exc:
             raise TypeError(f"Invalid {key=} for Composition") from exc
 
@@ -856,16 +862,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def remove_charges(self) -> Composition:
         """
-        Removes the charges from any species in a Composition object.
+        Returns a new Composition with charges from each Species removed.
 
         Returns:
             Composition object without charge decoration, for example
             {"Fe3+": 2.0, "O2-":3.0} becomes {"Fe": 2.0, "O":3.0}
         """
-        d: dict[Element, float] = collections.defaultdict(float)
-        for e, a in self.items():
-            d[Element(e.symbol)] += a
-        return Composition(d)
+        dct: dict[Element, float] = collections.defaultdict(float)
+        for specie, amt in self.items():
+            dct[Element(specie.symbol)] += amt
+        return Composition(dct)
 
     def _get_oxid_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
         """

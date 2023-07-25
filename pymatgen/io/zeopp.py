@@ -91,6 +91,7 @@ class ZeoCssr(Cssr):
 
         return "\n".join(output)
 
+    @classmethod
     @np.deprecate(message="Use from_str instead")
     def from_string(cls, *args, **kwargs):
         return cls.from_str(*args, **kwargs)

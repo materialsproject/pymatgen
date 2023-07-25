@@ -607,7 +607,7 @@ class Vasprun(MSONable):
         """
         final_esteps = self.ionic_steps[-1]["electronic_steps"] if self.incar not in ["CHI"] else 0
         # In a response function run there is no ionic steps, there is no scf step
-        if "LEPSILON" in self.incar and self.incar["LEPSILON"]:
+        if self.incar.get("LEPSILON"):
             i = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
             while set(final_esteps[i]) == to_check:

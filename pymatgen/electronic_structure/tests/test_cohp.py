@@ -1153,7 +1153,6 @@ class CompleteCohpTest(PymatgenTest):
         assert cohp_label.icohp == ref["ICOHP"]
         orbitals = [[Orbital.s, Orbital.px], ["s", "px"], [0, 3]]
         cohps = [self.cohp_orb.get_orbital_resolved_cohp("1", [[4, orb[0]], [4, orb[1]]]) for orb in orbitals]
-        # print(cohps)
         for cohp in cohps:
             assert cohp.as_dict() == cohp_label.as_dict()
 
@@ -1328,7 +1327,6 @@ class MethodTest(unittest.TestCase):
             summed_spin_channels=False,
         )
 
-        # print(result)
         assert result[Spin.up] == approx(-4.36062)
 
         result = get_integrated_cohp_in_energy_range(
@@ -1339,7 +1337,6 @@ class MethodTest(unittest.TestCase):
             relative_E_Fermi=True,
             summed_spin_channels=False,
         )
-        # print(result)
         assert result[Spin.up] == approx(-4.36062)
 
         result = get_integrated_cohp_in_energy_range(
@@ -1351,7 +1348,6 @@ class MethodTest(unittest.TestCase):
             summed_spin_channels=True,
         )
 
-        # print(result)
         assert result == approx(-4.36062)
 
     def test_get_integrated_cohp_in_energy_range_whole_range(self):

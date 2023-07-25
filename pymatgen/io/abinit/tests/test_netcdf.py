@@ -81,7 +81,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
             data.print_tree()
             for group in data.walk_tree():
-                print("group: " + str(group))
+                print(f"{group=}")
 
             # Initialize pymatgen structure from GSR.
             structure = data.read_structure()

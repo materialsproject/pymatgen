@@ -125,6 +125,29 @@ class TestLobsterNeighbors(unittest.TestCase):
             structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),
             additional_condition=6,
         )
+        # coop / cobi
+        self.chemenvlobster1_coop_NaCl = LobsterNeighbors(
+            are_coops=True,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOOPLIST.lobster.NaCl.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+            additional_condition=1,
+            noise_cutoff=None,
+        )
+
+        self.chemenvlobster1_cobi_NaCl = LobsterNeighbors(
+            are_coops=True,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOBILIST.lobster.NaCl.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+            additional_condition=1,
+            noise_cutoff=None,
+        )
+
+        self.chemenvlobster1_cobi_mp470 = LobsterNeighbors(
+            are_coops=True,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOBILIST.lobster.mp_470.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_470.gz")),
+            additional_condition=1,
+        )
 
         # TODO: use charge instead of valence
         self.chemenvlobster1_charges = LobsterNeighbors(
@@ -134,6 +157,26 @@ class TestLobsterNeighbors(unittest.TestCase):
             valences_from_charges=True,
             filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
             additional_condition=1,
+        )
+        self.chemenvlobster1_charges_noisecutoff = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_632319.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_632319.gz")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp_632319.gz"),
+            additional_condition=1,
+            perc_strength_ICOHP=0.05,
+            noise_cutoff=0.1,
+        )
+        self.chemenvlobster1_charges_wo_noisecutoff = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_632319.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_632319.gz")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp_632319.gz"),
+            additional_condition=1,
+            perc_strength_ICOHP=0.05,
+            noise_cutoff=None,
         )
         self.chemenvlobster1_charges_loewdin = LobsterNeighbors(
             are_coops=False,
@@ -217,17 +260,6 @@ class TestLobsterNeighbors(unittest.TestCase):
             additional_condition=0,
             adapt_extremum_to_add_cond=True,
         )
-
-    def test_use_of_coop(self):
-        with pytest.raises(ValueError, match="Algorithm only works correctly for ICOHPLIST.lobster"):
-            _ = LobsterNeighbors(
-                are_coops=True,
-                filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353.gz"),
-                structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),
-                valences_from_charges=True,
-                filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
-                additional_condition=1,
-            )
 
     def test_cation_anion_mode_without_ions(self):
         with pytest.raises(
@@ -331,6 +363,24 @@ class TestLobsterNeighbors(unittest.TestCase):
                 )
             )
             == 2
+        )
+        assert (
+            len(
+                self.chemenvlobster1_charges_noisecutoff.get_nn(
+                    structure=self.chemenvlobster1_charges_noisecutoff.structure,
+                    n=1,
+                )
+            )
+            == 0
+        )
+        assert (
+            len(
+                self.chemenvlobster1_charges_wo_noisecutoff.get_nn(
+                    structure=self.chemenvlobster1_charges_wo_noisecutoff.structure,
+                    n=1,
+                )
+            )
+            == 8
         )
         # NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
         assert (
@@ -451,6 +501,36 @@ class TestLobsterNeighbors(unittest.TestCase):
                 )
             )
             == 2
+        )
+
+        assert (
+            len(
+                self.chemenvlobster1_coop_NaCl.get_nn(
+                    structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+                    n=0,
+                )
+            )
+            == 6
+        )
+
+        assert (
+            len(
+                self.chemenvlobster1_cobi_NaCl.get_nn(
+                    structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+                    n=0,
+                )
+            )
+            == 6
+        )
+
+        assert (
+            len(
+                self.chemenvlobster1_cobi_mp470.get_nn(
+                    structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_470.gz")),
+                    n=3,
+                )
+            )
+            == 3
         )
 
         # NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2

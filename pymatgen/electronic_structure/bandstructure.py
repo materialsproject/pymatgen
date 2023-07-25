@@ -635,7 +635,7 @@ class BandStructure:
         labels_dict = {k.strip(): v for k, v in dct["labels_dict"].items()}
         projections = {}
         structure = None
-        if isinstance(list(dct["bands"].values())[0], dict):
+        if isinstance(next(iter(dct["bands"].values())), dict):
             eigenvals = {Spin(int(k)): np.array(dct["bands"][k]["data"]) for k in dct["bands"]}
         else:
             eigenvals = {Spin(int(k)): dct["bands"][k] for k in dct["bands"]}
@@ -681,7 +681,7 @@ class BandStructure:
         labels_dict = {k.strip(): v for k, v in dct["labels_dict"].items()}
         projections = {}
         structure = None
-        if "projections" in dct and len(dct["projections"]) != 0:
+        if dct.get("projections"):
             structure = Structure.from_dict(dct["structure"])
             projections = {}
             for spin in dct["projections"]:

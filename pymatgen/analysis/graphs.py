@@ -401,7 +401,7 @@ class StructureGraph(MSONable):
 
             # ensure that the first non-zero jimage index is positive
             # assumes that at least one non-zero index is present
-            is_positive = [idx for idx in to_jimage if idx != 0][0] > 0
+            is_positive = next(idx for idx in to_jimage if idx != 0) > 0
 
             if not is_positive:
                 # let's flip the jimage,
@@ -2097,11 +2097,11 @@ class MoleculeGraph(MSONable):
                 comp = "".join(sorted(comp))
                 subgraph = nx.subgraph(graph, combination)
                 if nx.is_connected(subgraph):
-                    mykey = comp + str(len(subgraph.edges()))
-                    if mykey not in frag_dict:
-                        frag_dict[mykey] = [copy.deepcopy(subgraph)]
+                    key = f"{comp} {len(subgraph.edges())}"
+                    if key not in frag_dict:
+                        frag_dict[key] = [copy.deepcopy(subgraph)]
                     else:
-                        frag_dict[mykey].append(copy.deepcopy(subgraph))
+                        frag_dict[key].append(copy.deepcopy(subgraph))
 
         # narrow to all unique fragments using graph isomorphism
         unique_frag_dict = {}

@@ -550,7 +550,7 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
                 if abs(angle - 120) < 1.0:
                     j = (i + 1) % 3
                     k = (i + 2) % 3
-                    hex_ax = [ax for ax in range(3) if ax not in [j, k]][0]
+                    hex_ax = next(ax for ax in range(3) if ax not in [j, k])
                     break
             else:
                 raise ValueError("Cannot find hexagonal axis")
@@ -1156,7 +1156,6 @@ class BasicMultiDataset:
             results = []
             for obj in self._inputs:
                 a = getattr(obj, name)
-                # print("name", name, ", type:", type(a), "callable: ",callable(a))
                 if callable(a):
                     results.append(a(*args, **kwargs))
                 else:
@@ -1260,7 +1259,6 @@ class BasicMultiDataset:
                         break
                 if isame:
                     global_vars.add(k0)
-            # print("global_vars vars", global_vars)
 
             w = 92
             if global_vars:

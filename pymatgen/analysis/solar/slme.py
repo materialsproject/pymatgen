@@ -271,7 +271,7 @@ def slme(
 
     max_power = power(test_voltage)
 
-    # Calculate the maximized efficience
+    # Calculate the maximized efficiency
     efficiency = max_power / power_in
 
     if plot_current_voltage:
@@ -280,6 +280,5 @@ def slme(
         plt.plot(V, power(V), linestyle="--")
         plt.savefig("pp.png")
         plt.close()
-        # print(power(V_Pmax))
 
     return 100.0 * efficiency

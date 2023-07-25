@@ -48,7 +48,7 @@ class AirssTITL:
         return (
             f"TITL {self.seed:s} {self.pressure:.2f} {self.volume:.4f} {self.energy:.5f} "
             f"{self.integrated_spin_density:f} {self.integrated_absolute_spin_density:f} ({self.spacegroup_label:s}) "
-            f"n - {self.appearances:d}"
+            f"n - {self.appearances}"
         )
 
 

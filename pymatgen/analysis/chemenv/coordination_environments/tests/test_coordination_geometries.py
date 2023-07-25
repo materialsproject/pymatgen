@@ -41,9 +41,9 @@ class CoordinationGeometriesTest(PymatgenTest):
         assert all(
             np.array_equal(
                 perm,
-                sepplane_algos_oct_0.explicit_optimized_permutations[iperm],
+                sepplane_algos_oct_0.explicit_optimized_permutations[idx],
             )
-            for iperm, perm in enumerate(sepplane_algos_oct[0].explicit_optimized_permutations)
+            for idx, perm in enumerate(sepplane_algos_oct[0].explicit_optimized_permutations)
         )
 
         assert (
