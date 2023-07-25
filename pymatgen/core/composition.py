@@ -151,13 +151,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __contains__(self, key) -> bool:
         try:
             sp = get_el_sp(key)
-            # First check for species
-            if sp in self._data:
-                return True
-            # If not found, check for parent element (if it's a species)
-            if isinstance(sp, Species):
-                return sp.element in self._data
-            return False
+            return sp in self._data
         except ValueError as exc:
             raise TypeError(f"Invalid {key=} for Composition") from exc
 
@@ -405,14 +399,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
         """
         el_amt = self.get_el_amt_dict()
-        g = gcd_float(list(el_amt.values()), 1 / max_denominator)
+        gcd = gcd_float(list(el_amt.values()), 1 / max_denominator)
 
-        d = {k: round(v / g) for k, v in el_amt.items()}
-        formula, factor = reduce_formula(d, iupac_ordering=iupac_ordering)
+        dct = {k: round(v / gcd) for k, v in el_amt.items()}
+        formula, factor = reduce_formula(dct, iupac_ordering=iupac_ordering)
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
             factor /= 2
-        return formula, factor * g
+        return formula, factor * gcd
 
     @property
     def reduced_formula(self) -> str:
@@ -434,8 +428,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         no carbon, all the elements, including hydrogen, are listed
         alphabetically.
         """
-        c = self.element_composition
-        elements = sorted(el.symbol for el in c)
+        elem_comp = self.element_composition
+        elements = sorted(el.symbol for el in elem_comp)
         hill_elements = []
         if "C" in elements:
             hill_elements.append("C")
@@ -445,7 +439,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 elements.remove("H")
         hill_elements += elements
 
-        formula = [f"{el}{formula_double_format(c[el]) if c[el] != 1 else ''}" for el in hill_elements]
+        formula = [f"{el}{formula_double_format(elem_comp[el]) if elem_comp[el] != 1 else ''}" for el in hill_elements]
         return " ".join(formula)
 
     @property
@@ -621,8 +615,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return not any(isinstance(el, DummySpecies) for el in self.elements)
 
-    def __repr__(self) -> str:
-        return "Comp: " + self.formula
+    def __repr__(self):
+        formula = " ".join(f"{k}{':' if hasattr(k, 'oxi_state') else ''}{v:g}" for k, v in self.items())
+        cls_name = type(self).__name__
+        return f"{cls_name}({formula!r})"
 
     @classmethod
     def from_dict(cls, d) -> Composition:
