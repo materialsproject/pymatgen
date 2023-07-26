@@ -988,6 +988,7 @@ class IStructure(SiteCollection, MSONable):
         site_properties: dict[str, Sequence] | None = None,
         coords_are_cartesian: bool = False,
         tol: float = 1e-5,
+        labels: list | None = None,
     ) -> IStructure | Structure:
         """
         Generate a structure using a spacegroup. Note that only symmetrically
@@ -1027,6 +1028,10 @@ class IStructure(SiteCollection, MSONable):
                 fractional_coords. Defaults to None for no properties.
             tol (float): A fractional tolerance to deal with numerical
                precision issues in determining if orbits are the same.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
         """
         from pymatgen.symmetry.groups import SpaceGroup
 
@@ -1056,10 +1061,13 @@ class IStructure(SiteCollection, MSONable):
         all_sp: list[str | Element | Species | DummySpecies | Composition] = []
         all_coords: list[list[float]] = []
         all_site_properties: dict[str, list] = collections.defaultdict(list)
+        all_labels: list[str | None] = []
         for idx, (sp, c) in enumerate(zip(species, frac_coords)):
             cc = spg.get_orbit(c, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)  # type: ignore
+            label = labels[idx] if labels else None
+            all_labels.extend([label] * len(cc))
             for k, v in props.items():
                 all_site_properties[k].extend([v[idx]] * len(cc))
 
@@ -1075,6 +1083,7 @@ class IStructure(SiteCollection, MSONable):
         site_properties: dict[str, Sequence],
         coords_are_cartesian: bool = False,
         tol: float = 1e-5,
+        labels: list | None = None,
     ) -> IStructure | Structure:
         """
         Generate a structure using a magnetic spacegroup. Note that only
@@ -1119,6 +1128,10 @@ class IStructure(SiteCollection, MSONable):
                 coordinates in Cartesian coordinates. Defaults to False.
             tol (float): A fractional tolerance to deal with numerical
                 precision issues in determining if orbits are the same.
+            labels (list[str]): Labels associated with the sites as a
+                list of strings, e.g. ['Li1', 'Li2']. Must have the same
+                length as the species and fractional coords. Defaults to
+                None for no labels.
 
         Returns:
             Structure | IStructure
@@ -1151,18 +1164,21 @@ class IStructure(SiteCollection, MSONable):
         all_coords: list[list[float]] = []
         all_magmoms: list[float] = []
         all_site_properties: dict[str, list] = collections.defaultdict(list)
-        for i, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):  # type: ignore
+        all_labels: list[str | None] = []
+        for idx, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):  # type: ignore
             cc, mm = msg.get_orbit(c, m, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)
             all_magmoms.extend(mm)
+            label = labels[idx] if labels else None
+            all_labels.extend([label] * len(cc))
             for k, v in site_properties.items():
                 if k != "magmom":
-                    all_site_properties[k].extend([v[i]] * len(cc))
+                    all_site_properties[k].extend([v[idx]] * len(cc))
 
         all_site_properties["magmom"] = all_magmoms
 
-        return cls(latt, all_sp, all_coords, site_properties=all_site_properties)
+        return cls(latt, all_sp, all_coords, site_properties=all_site_properties, labels=all_labels)
 
     def unset_charge(self):
         """Reset the charge to None, i.e., computed dynamically based on oxidation states."""
@@ -1406,6 +1422,7 @@ class IStructure(SiteCollection, MSONable):
                 nn_distance=dist,
                 image=img,  # type: ignore
                 index=i,
+                label=self[i].label,
             )
             neighbors.append(nn_site)
         return neighbors
@@ -1793,6 +1810,7 @@ class IStructure(SiteCollection, MSONable):
                         nn_distance=d,
                         index=pindex,
                         image=tuple(image),
+                        label=psite.label,
                     )
                 )
 
@@ -2185,7 +2203,7 @@ class IStructure(SiteCollection, MSONable):
             else:
                 lat = self.lattice
             fcoords = start_coords + x * vec
-            structs.append(self.__class__(lat, sp, fcoords, site_properties=self.site_properties))
+            structs.append(self.__class__(lat, sp, fcoords, site_properties=self.site_properties, labels=self.labels))
         return structs
 
     def get_miller_index_from_site_indexes(self, site_ids, round_dp=4, verbose=True):
@@ -3210,7 +3228,7 @@ class IMolecule(SiteCollection, MSONable):
         for i, site in enumerate(self._sites):
             dist = site.distance_from_point(pt)
             if dist <= r:
-                neighbors.append(Neighbor(site.species, site.coords, site.properties, dist, i))
+                neighbors.append(Neighbor(site.species, site.coords, site.properties, dist, i, label=site.label))
         return neighbors
 
     def get_neighbors(self, site: Site, r: float) -> list[Neighbor]:
@@ -3352,6 +3370,7 @@ class IMolecule(SiteCollection, MSONable):
                 all_coords,
                 coords_are_cartesian=True,
                 site_properties=sprops,
+                labels=self.labels * nimages,
             ).get_sorted_structure()
 
         return cls(
@@ -3360,6 +3379,7 @@ class IMolecule(SiteCollection, MSONable):
             coords,
             coords_are_cartesian=True,
             site_properties=sprops,
+            labels=self.labels * nimages,
         )
 
     def get_centered_molecule(self) -> IMolecule | Molecule:
@@ -3378,6 +3398,7 @@ class IMolecule(SiteCollection, MSONable):
             spin_multiplicity=self._spin_multiplicity,
             site_properties=self.site_properties,
             charge_spin_check=self._charge_spin_check,
+            labels=self.labels,
         )
 
     def to(self, filename: str = "", fmt: str = "") -> str | None:
