@@ -3317,7 +3317,7 @@ class IMolecule(SiteCollection, MSONable):
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
         lattice = Lattice.from_parameters(a * images[0], b * images[1], c * images[2], 90, 90, 90)  # type: ignore
-        nimages = images[0] * images[1] * images[2]  # type: ignore
+        nimages: int = images[0] * images[1] * images[2]  # type: ignore
         all_coords: list[ArrayLike] = []
 
         centered_coords = self.cart_coords - self.center_of_mass + offset
@@ -3366,7 +3366,7 @@ class IMolecule(SiteCollection, MSONable):
         if reorder:
             return cls(
                 lattice,
-                self.species * nimages,  # type: ignore
+                self.species * nimages,
                 all_coords,
                 coords_are_cartesian=True,
                 site_properties=sprops,
@@ -3375,7 +3375,7 @@ class IMolecule(SiteCollection, MSONable):
 
         return cls(
             lattice,
-            self.species * nimages,  # type: ignore
+            self.species * nimages,
             coords,
             coords_are_cartesian=True,
             site_properties=sprops,

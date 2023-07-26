@@ -557,7 +557,7 @@ class CifParser:
 
     def _unique_coords(
         self,
-        coords: list[np.ndarray],
+        coords: list[Vector3D],
         magmoms: list[Magmom] | None = None,
         lattice: Lattice | None = None,
         labels: dict[Vector3D, str] | None = None,
@@ -590,7 +590,7 @@ class CifParser:
                     if not in_coord_list_pbc(coords_out, coord, atol=self._site_tolerance):
                         coords_out.append(coord)
                         magmoms_out.append(magmom)
-                        labels_out.append(labels[tmp_coord])
+                        labels_out.append(labels.get(tmp_coord))
             return coords_out, magmoms_out, labels_out
 
         for tmp_coord in coords:
@@ -599,7 +599,7 @@ class CifParser:
                 coord = np.array([i - math.floor(i) for i in coord])
                 if not in_coord_list_pbc(coords_out, coord, atol=self._site_tolerance):
                     coords_out.append(coord)
-                    labels_out.append(labels[tmp_coord])
+                    labels_out.append(labels.get(tmp_coord))
 
         dummy_magmoms = [Magmom(0)] * len(coords_out)
         return coords_out, dummy_magmoms, labels_out
