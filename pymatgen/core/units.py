@@ -789,9 +789,9 @@ def unitized(unit):
 
     """
 
-    def wrap(f):
+    def wrap(func):
         def wrapped_f(*args, **kwargs):
-            val = f(*args, **kwargs)
+            val = func(*args, **kwargs)
             unit_type = _UNAME2UTYPE[unit]
 
             if isinstance(val, (FloatWithUnit, ArrayWithUnit)):
@@ -816,9 +816,3 @@ def unitized(unit):
         return wrapped_f
 
     return wrap
-
-
-if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod()

@@ -122,9 +122,9 @@ setup(
         "cmd_line": ["**/*"],
     },
     author="Pymatgen Development Team",
-    author_email="ongsp@eng.ucsd.edu",
+    author_email="ongsp@ucsd.edu",
     maintainer="Shyue Ping Ong, Matthew Horton, Janosh Riebesell",
-    maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov, janosh.riebesell@gmail.com",
+    maintainer_email="ongsp@ucsd.edu, mkhorton@lbl.gov, janosh.riebesell@gmail.com",
     url="https://pymatgen.org",
     license="MIT",
     project_urls={
