@@ -57,10 +57,10 @@ class NeighborTest(PymatgenTest):
         comp = Composition("C")
         for label in (None, "", "str label", ("tuple", "label")):
             neighbor = Neighbor(comp, (0, 0, 0), label=label)
-            assert neighbor.label == label if label is not None else str(comp)
+            assert neighbor.label == label if label is not None else "C"
 
             p_neighbor = PeriodicNeighbor(comp, (0, 0, 0), (10, 10, 10), label=label)
-            assert p_neighbor.label == label if label is not None else str(comp)
+            assert p_neighbor.label == label if label is not None else "C"
 
 
 class IStructureTest(PymatgenTest):

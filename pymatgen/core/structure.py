@@ -84,7 +84,7 @@ class Neighbor(Site):
         self.properties = properties or {}
         self.nn_distance = nn_distance
         self.index = index
-        self.label = label if label is not None else self.species_string
+        self._label = label
 
     def __len__(self) -> Literal[3]:
         """Make neighbor Tuple-like to retain backwards compatibility."""
@@ -157,7 +157,7 @@ class PeriodicNeighbor(PeriodicSite):
         self.nn_distance = nn_distance
         self.index = index
         self.image = image
-        self.label = label if label is not None else self.species_string
+        self._label = label
 
     @property  # type: ignore
     def coords(self) -> np.ndarray:  # type: ignore

@@ -355,6 +355,18 @@ loop_
         }
         assert set(struct2.labels) == expected_site_names2
 
+    def test_cif_writer_labeled(self):
+        parser = CifParser(f"{self.TEST_FILES_DIR}/garnet.cif")
+        struct = parser.get_structures()[0]
+        for i, site in enumerate(struct):
+            site.label = f"my_{site.specie.name}{i}"
+        writer = CifWriter(struct)
+
+        parser2 = CifParser.from_str(str(writer))
+        struct2 = parser2.get_structures()[0]
+
+        assert set(struct.labels) == set(struct2.labels)
+
     def test_cif_parser_springer_pauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
 

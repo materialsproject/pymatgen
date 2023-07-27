@@ -1362,15 +1362,19 @@ class CifWriter:
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
-                    atom_site_label.append(f"{sp.symbol}{count}")
                     atom_site_occupancy.append(str(occu))
+                    site_label = f"{sp.symbol}{count}"
 
                     if "magmom" in site.properties:
                         mag = site.properties["magmom"]
                     elif getattr(sp, "spin", None) is not None:
                         mag = sp.spin
                     else:
+                        # Use site label if available for regular sites
+                        site_label = site.label if site.label != site.species_string else site_label
                         mag = 0
+
+                    atom_site_label.append(site_label)
 
                     magmom = Magmom(mag)
                     if write_magmoms and abs(magmom) > 0:
@@ -1406,7 +1410,8 @@ class CifWriter:
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
-                    atom_site_label.append(f"{sp.symbol}{count}")
+                    site_label = site.label if site.label != site.species_string else f"{sp.symbol}{count}"
+                    atom_site_label.append(site_label)
                     atom_site_occupancy.append(str(occu))
                     count += 1
 

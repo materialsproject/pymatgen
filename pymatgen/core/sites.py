@@ -71,7 +71,7 @@ class Site(collections.abc.Hashable, MSONable):
         self._species: Composition = species  # type: ignore
         self.coords: np.ndarray = coords  # type: ignore
         self.properties: dict = properties or {}
-        self.label = label if label else self.species_string
+        self._label = label
 
     def __getattr__(self, attr):
         # overriding getattr doesn't play nicely with pickle, so we can't use self._properties
@@ -96,6 +96,15 @@ class Site(collections.abc.Hashable, MSONable):
         if total_occu > 1 + Composition.amount_tolerance:
             raise ValueError("Species occupancies sum to more than 1!")
         self._species = species
+
+    @property
+    def label(self):
+        """Site label."""
+        return self._label if self._label is not None else self.species_string
+
+    @label.setter
+    def label(self, label: str):
+        self._label = label
 
     @property
     def x(self) -> float:
@@ -345,7 +354,7 @@ class PeriodicSite(Site, MSONable):
         self._species: Composition = species  # type: ignore
         self._coords: np.ndarray | None = None
         self.properties: dict = properties or {}
-        self.label = label if label else self.species_string
+        self._label = label
 
     def __hash__(self) -> int:
         """
