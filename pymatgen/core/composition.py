@@ -151,7 +151,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __contains__(self, key) -> bool:
         try:
             sp = get_el_sp(key)
-            return sp in self._data
+            if isinstance(sp, Species):
+                return sp in self._data
+            # Element or str
+            return any(sp.symbol == s.symbol for s in self._data)
         except ValueError as exc:
             raise TypeError(f"Invalid {key=} for Composition") from exc
 
@@ -160,9 +163,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if not isinstance(other, (Composition, dict)):
             return NotImplemented
 
-        #  elements with amounts < Composition.amount_tolerance don't show up
-        #  in the el_map, so checking len enables us to only check one
-        #  composition's elements
+        # elements with amounts < Composition.amount_tolerance don't show up
+        # in the el_map, so checking len enables us to only check one
+        # composition's elements
         if len(self) != len(other):
             return False
 

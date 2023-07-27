@@ -758,7 +758,7 @@
     "pymatgen/core/tests/test_bonds.py::FuncTest::test_obtain_all_bond_lengths": 0.0001646250020712614,
     "pymatgen/core/tests/test_composition.py::ChemicalPotentialTest::test_init": 0.00024487500195391476,
     "pymatgen/core/tests/test_composition.py::ChemicalPotentialTest::test_math": 0.0002614989934954792,
-    "pymatgen/core/tests/test_composition.py::CompositionTest::test_Metallofullerene": 0.0008804169774521142,
+    "pymatgen/core/tests/test_composition.py::CompositionTest::test_metallofullerene": 0.0008804169774521142,
     "pymatgen/core/tests/test_composition.py::CompositionTest::test_add": 0.0006662499945377931,
     "pymatgen/core/tests/test_composition.py::CompositionTest::test_almost_equals": 0.0006189589767018333,
     "pymatgen/core/tests/test_composition.py::CompositionTest::test_alphabetical_formula": 0.0006650839932262897,
