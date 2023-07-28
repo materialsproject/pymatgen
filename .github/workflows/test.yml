@@ -81,8 +81,8 @@ jobs:
       - name: Install Bader
         if: runner.os == 'Linux'
         run: |
-          wget http://theory.cm.utexas.edu/henkelman/code/bader/download/v1.0/bader_linux_64.tar.gz
-          tar xvzf bader_linux_64.tar.gz
+          wget http://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
+          tar xvzf bader_lnx_64.tar.gz
           sudo mv bader /usr/local/bin/
       - name: Install dependencies
         run: |
