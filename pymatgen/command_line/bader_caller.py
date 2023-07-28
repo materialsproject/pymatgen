@@ -23,7 +23,6 @@ from shutil import which
 from tempfile import TemporaryDirectory
 
 import numpy as np
-from monty.dev import requires
 from monty.io import zopen
 
 from pymatgen.io.common import VolumetricData
@@ -36,6 +35,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Beta"
 __date__ = "4/5/13"
+
 
 BADEREXE = which("bader") or which("bader.exe")
 
@@ -91,12 +91,6 @@ class BaderAnalysis:
             }
     """
 
-    @requires(
-        which("bader") or which("bader.exe"),
-        "BaderAnalysis requires the executable bader to be in the path."
-        " Please download the library at http://theory.cm.utexas"
-        ".edu/vasp/bader/ and compile the executable.",
-    )
     def __init__(
         self,
         chgcar_filename=None,
@@ -104,6 +98,7 @@ class BaderAnalysis:
         chgref_filename=None,
         parse_atomic_densities=False,
         cube_filename=None,
+        bader_exe_path: str | None = None,
     ):
         """
         Initializes the Bader caller.
@@ -112,10 +107,13 @@ class BaderAnalysis:
             chgcar_filename (str): The filename of the CHGCAR.
             potcar_filename (str): The filename of the POTCAR.
             chgref_filename (str): The filename of the reference charge density.
-            parse_atomic_densities (bool): Optional. turns on atomic partition of the charge density
+            parse_atomic_densities (bool, optional): turns on atomic partition of the charge density
                 charge densities are atom centered
-            cube_filename (str): Optional. The filename of the cube file.
+            cube_filename (str, optional): The filename of the cube file.
+            bader_exe_path (str, optional): The path to the bader executable.
         """
+        if os.path.isfile(bader_exe_path or ""):
+            BADEREXE = bader_exe_path
         if not BADEREXE:
             raise RuntimeError(
                 "BaderAnalysis requires the executable bader to be in the path."
@@ -152,7 +150,7 @@ class BaderAnalysis:
             self.is_vasp = False
             self.cube = VolumetricData.from_cube(fpath)
             self.structure = self.cube.structure
-            self.nelects = None
+            self.nelects = None  # type: ignore
             chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
             self.reference_used = bool(chgref_filename)
 
