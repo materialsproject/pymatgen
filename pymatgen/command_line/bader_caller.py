@@ -450,9 +450,7 @@ def bader_analysis_from_path(path, suffix=""):
             warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
         return paths[0]
 
-    print(f"{path=}")
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
-    print(f"{chgcar_path=}")
     chgcar = Chgcar.from_file(chgcar_path)
 
     aeccar0_path = _get_filepath("AECCAR0", "Could not find AECCAR0, interpret Bader results with caution.")
