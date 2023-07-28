@@ -98,7 +98,7 @@ class BaderAnalysis:
         chgref_filename=None,
         parse_atomic_densities=False,
         cube_filename=None,
-        bader_exe_path: str | None = None,
+        bader_exe_path: str | None = BADEREXE,
     ):
         """
         Initializes the Bader caller.
@@ -112,14 +112,13 @@ class BaderAnalysis:
             cube_filename (str, optional): The filename of the cube file.
             bader_exe_path (str, optional): The path to the bader executable.
         """
-        if os.path.isfile(bader_exe_path or ""):
-            BADEREXE = bader_exe_path
-        if not BADEREXE:
+        if not BADEREXE and not os.path.isfile(bader_exe_path or ""):
             raise RuntimeError(
-                "BaderAnalysis requires the executable bader to be in the path."
-                " Please download the library at http://theory.cm.utexas"
-                ".edu/vasp/bader/ and compile the executable."
+                "BaderAnalysis requires the executable bader be in the PATH or the full path "
+                f"to the binary to be specified via {bader_exe_path=}. Download the binary at "
+                "https://theory.cm.utexas.edu/henkelman/code/bader."
             )
+        assert isinstance(BADEREXE, str)  # mypy type narrowing
 
         if not (cube_filename or chgcar_filename):
             raise ValueError("You must provide either a cube file or a CHGCAR")
@@ -157,7 +156,7 @@ class BaderAnalysis:
         tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
         with zopen(fpath, "rt") as f_in, open(tmpfile, "w") as f_out:
             shutil.copyfileobj(f_in, f_out)
-        args = [BADEREXE, tmpfile]
+        args: list[str] = [BADEREXE, tmpfile]
         if chgref_filename:
             with zopen(chgrefpath, "rt") as f_in, open("CHGCAR_ref", "w") as f_out:
                 shutil.copyfileobj(f_in, f_out)
@@ -222,7 +221,7 @@ class BaderAnalysis:
                 shift = (np.divide(chg.dim, 2) - index).astype(int)
 
                 # Shift the data so that the atomic charge density to the center for easier manipulation
-                shifted_data = np.roll(data, shift, axis=(0, 1, 2))
+                shifted_data = np.roll(data, shift, axis=(0, 1, 2))  # type: ignore
 
                 # Slices a central window from the data array
                 def slice_from_center(data, xwidth, ywidth, zwidth):
