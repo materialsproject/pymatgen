@@ -485,57 +485,61 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
     :param aeccar2: (optional) Chgcar object from aeccar2 file
     :return: summary dict
     """
-    with TemporaryDirectory() as tmp_dir:
-        os.chdir(tmp_dir)
-        if aeccar0 and aeccar2:
-            # construct reference file
-            chgref = aeccar0.linear_add(aeccar2)
-            chgref_path = os.path.join(tmp_dir, "CHGCAR_ref")
-            chgref.write_file(chgref_path)
-        else:
-            chgref_path = None
+    orig_dir = os.getcwd()
+    try:
+        with TemporaryDirectory() as tmp_dir:
+            os.chdir(tmp_dir)
+            if aeccar0 and aeccar2:
+                # construct reference file
+                chgref = aeccar0.linear_add(aeccar2)
+                chgref_path = os.path.join(tmp_dir, "CHGCAR_ref")
+                chgref.write_file(chgref_path)
+            else:
+                chgref_path = None
 
-        chgcar.write_file("CHGCAR")
-        chgcar_path = os.path.join(tmp_dir, "CHGCAR")
+            chgcar.write_file("CHGCAR")
+            chgcar_path = os.path.join(tmp_dir, "CHGCAR")
 
-        if potcar:
-            potcar.write_file("POTCAR")
-            potcar_path = os.path.join(tmp_dir, "POTCAR")
-        else:
-            potcar_path = None
+            if potcar:
+                potcar.write_file("POTCAR")
+                potcar_path = os.path.join(tmp_dir, "POTCAR")
+            else:
+                potcar_path = None
 
-        ba = BaderAnalysis(
-            chgcar_filename=chgcar_path,
-            potcar_filename=potcar_path,
-            chgref_filename=chgref_path,
-        )
-
-        summary = {
-            "min_dist": [d["min_dist"] for d in ba.data],
-            "charge": [d["charge"] for d in ba.data],
-            "atomic_volume": [d["atomic_vol"] for d in ba.data],
-            "vacuum_charge": ba.vacuum_charge,
-            "vacuum_volume": ba.vacuum_volume,
-            "reference_used": bool(chgref_path),
-            "bader_version": ba.version,
-        }
-
-        if potcar:
-            charge_transfer = [ba.get_charge_transfer(i) for i in range(len(ba.data))]
-            summary["charge_transfer"] = charge_transfer
-
-        if chgcar.is_spin_polarized:
-            # write a CHGCAR containing magnetization density only
-            chgcar.data["total"] = chgcar.data["diff"]
-            chgcar.is_spin_polarized = False
-            chgcar.write_file("CHGCAR_mag")
-
-            chgcar_mag_path = os.path.join(tmp_dir, "CHGCAR_mag")
             ba = BaderAnalysis(
-                chgcar_filename=chgcar_mag_path,
+                chgcar_filename=chgcar_path,
                 potcar_filename=potcar_path,
                 chgref_filename=chgref_path,
             )
-            summary["magmom"] = [d["charge"] for d in ba.data]
 
-        return summary
+            summary = {
+                "min_dist": [d["min_dist"] for d in ba.data],
+                "charge": [d["charge"] for d in ba.data],
+                "atomic_volume": [d["atomic_vol"] for d in ba.data],
+                "vacuum_charge": ba.vacuum_charge,
+                "vacuum_volume": ba.vacuum_volume,
+                "reference_used": bool(chgref_path),
+                "bader_version": ba.version,
+            }
+
+            if potcar:
+                charge_transfer = [ba.get_charge_transfer(i) for i in range(len(ba.data))]
+                summary["charge_transfer"] = charge_transfer
+
+            if chgcar.is_spin_polarized:
+                # write a CHGCAR containing magnetization density only
+                chgcar.data["total"] = chgcar.data["diff"]
+                chgcar.is_spin_polarized = False
+                chgcar.write_file("CHGCAR_mag")
+
+                chgcar_mag_path = os.path.join(tmp_dir, "CHGCAR_mag")
+                ba = BaderAnalysis(
+                    chgcar_filename=chgcar_mag_path,
+                    potcar_filename=potcar_path,
+                    chgref_filename=chgref_path,
+                )
+                summary["magmom"] = [d["charge"] for d in ba.data]
+    finally:
+        os.chdir(orig_dir)
+
+    return summary
