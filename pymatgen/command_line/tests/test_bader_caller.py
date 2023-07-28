@@ -68,7 +68,7 @@ class BaderAnalysisTest(unittest.TestCase):
         assert len(analysis.data) == 9
 
     def test_from_path(self):
-        test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
+        test_dir = f"{PymatgenTest.TEST_FILES_DIR}/bader"
         analysis = BaderAnalysis.from_path(test_dir)
         chgcar = os.path.join(test_dir, "CHGCAR.gz")
         chgref = os.path.join(test_dir, "_CHGCAR_sum.gz")
@@ -80,9 +80,7 @@ class BaderAnalysisTest(unittest.TestCase):
             os.remove("CHGREF")
 
     def test_automatic_runner(self):
-        test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
-
-        summary = bader_analysis_from_path(test_dir)
+        summary = bader_analysis_from_path(f"{PymatgenTest.TEST_FILES_DIR}/bader")
         """
         Reference summary dict (with bader 1.0)
         summary_ref = {

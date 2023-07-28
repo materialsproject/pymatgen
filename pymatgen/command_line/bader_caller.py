@@ -42,53 +42,20 @@ BADEREXE = which("bader") or which("bader.exe")
 
 class BaderAnalysis:
     """
-    Bader analysis for Cube files and VASP outputs.
+    Performs Bader analysis for Cube files and VASP outputs.
 
-    .. attribute: data
-
-        Atomic data parsed from bader analysis. Essentially a list of dicts
-        of the form::
-
-        [
-            {
-                "atomic_vol": 8.769,
-                "min_dist": 0.8753,
-                "charge": 7.4168,
-                "y": 1.1598,
-                "x": 0.0079,
-                "z": 0.8348
-            },
-            ...
-        ]
-
-    .. attribute: vacuum_volume
-
-        Vacuum volume of the Bader analysis.
-
-    .. attribute: vacuum_charge
-
-        Vacuum charge of the Bader analysis.
-
-    .. attribute: nelectrons
-
-        Number of electrons of the Bader analysis.
-
-    .. attribute: chgcar
-
-        Chgcar object associated with input CHGCAR file.
-
-    .. attribute: atomic_densities
-
-        list of charge densities for each atom centered on the atom
-        excess 0's are removed from the array to reduce the size of the array
-        the charge densities are dicts with the charge density map,
-        the shift vector applied to move the data to the center, and the original dimension of the charge density map
-        charge:
-            {
-            "data": charge density array
-            "shift": shift used to center the atomic charge density
-            "dim": dimension of the original charge density map
-            }
+    Attributes:
+        data (list[dict]): Atomic data parsed from bader analysis. Each dictionary in the list has the keys:
+            "atomic_vol", "min_dist", "charge", "x", "y", "z".
+        vacuum_volume (float): Vacuum volume of the Bader analysis.
+        vacuum_charge (float): Vacuum charge of the Bader analysis.
+        nelectrons (int): Number of electrons of the Bader analysis.
+        chgcar (Chgcar): Chgcar object associated with input CHGCAR file.
+        atomic_densities (list[dict]): List of charge densities for each atom centered on the atom.
+            Excess 0's are removed from the array to reduce its size. Each dictionary has the keys:
+            "data", "shift", "dim", where "data" is the charge density array,
+            "shift" is the shift used to center the atomic charge density, and
+            "dim" is the dimension of the original charge density map.
     """
 
     def __init__(
@@ -483,7 +450,9 @@ def bader_analysis_from_path(path, suffix=""):
             warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
         return paths[0]
 
+    print(f"{path=}")
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
+    print(f"{chgcar_path=}")
     chgcar = Chgcar.from_file(chgcar_path)
 
     aeccar0_path = _get_filepath("AECCAR0", "Could not find AECCAR0, interpret Bader results with caution.")
