@@ -15,7 +15,6 @@ Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 import warnings
 from glob import glob
@@ -23,7 +22,7 @@ from shutil import which
 from tempfile import TemporaryDirectory
 
 import numpy as np
-from monty.io import zopen
+from monty.tempfile import ScratchDir
 
 from pymatgen.io.common import VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
@@ -100,7 +99,7 @@ class BaderAnalysis:
             self.structure = self.chgcar.structure
             self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
             self.natoms = self.chgcar.poscar.natoms
-            chgref_path = os.path.abspath(chgref_filename) if chgref_filename else None
+            os.path.abspath(chgref_filename) if chgref_filename else None
             self.reference_used = bool(chgref_filename)
 
             # List of nelects for each atom from potcar
@@ -117,107 +116,108 @@ class BaderAnalysis:
             self.cube = VolumetricData.from_cube(fpath)
             self.structure = self.cube.structure
             self.nelects = None  # type: ignore
-            chgref_path = os.path.abspath(chgref_filename) if chgref_filename else None
+            os.path.abspath(chgref_filename) if chgref_filename else None
             self.reference_used = bool(chgref_filename)
 
-        tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
-        with zopen(fpath, "rt") as f_in, open(tmpfile, "w") as f_out:
-            shutil.copyfileobj(f_in, f_out)
-        args: list[str] = [BADEREXE, tmpfile]
-        if chgref_filename:
-            with zopen(chgref_path, "rt") as f_in, open("CHGCAR_ref", "w") as f_out:
-                shutil.copyfileobj(f_in, f_out)
-            args += ["-ref", "CHGCAR_ref"]
-        if parse_atomic_densities:
-            args += ["-p", "all_atom"]
-        with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
-            stdout, _ = rs.communicate()
-        if rs.returncode != 0:
-            raise RuntimeError(f"bader exited with return code {rs.returncode}. Please check your bader installation.")
+        with ScratchDir("."):
+            args = [BADEREXE, fpath]
 
-        try:
-            self.version = float(stdout.split()[5])
-        except ValueError:
-            self.version = -1  # Unknown
-        if self.version < 1.0:
-            warnings.warn(
-                "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
-                UserWarning,
-            )
+            if chgref_filename:
+                args += ["-ref", chgref_filename]
 
-        data = []
-        with open("ACF.dat") as f:
-            raw = f.readlines()
-            headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
-            raw.pop(0)
-            raw.pop(0)
-            while True:
-                line = raw.pop(0).strip()
-                if line.startswith("-"):
-                    break
-                vals = map(float, line.split()[1:])
-                data.append(dict(zip(headers, vals)))
-            for line in raw:
-                tokens = line.strip().split(":")
-                if tokens[0] == "VACUUM CHARGE":
-                    self.vacuum_charge = float(tokens[1])
-                elif tokens[0] == "VACUUM VOLUME":
-                    self.vacuum_volume = float(tokens[1])
-                elif tokens[0] == "NUMBER OF ELECTRONS":
-                    self.nelectrons = float(tokens[1])
-        self.data = data
+            if parse_atomic_densities:
+                args += ["-p", "all_atom"]
 
-        if self.parse_atomic_densities:
-            # convert the charge density for each atom spit out by Bader into Chgcar objects for easy parsing
-            atom_chgcars = [
-                Chgcar.from_file(f"BvAt{str(i).zfill(4)}.dat") for i in range(1, len(self.chgcar.structure) + 1)
-            ]
+            with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as proc:
+                stdout, stderr = proc.communicate()
+                if proc.returncode != 0:
+                    raise RuntimeError(
+                        f"{BADEREXE} exited with return code {proc.returncode}. Please check your bader installation."
+                    )
 
-            atomic_densities = []
-            # For each atom in the structure
-            for _, loc, chg in zip(
-                self.chgcar.structure,
-                self.chgcar.structure.frac_coords,
-                atom_chgcars,
-            ):
-                # Find the index of the atom in the charge density atom
-                index = np.round(np.multiply(loc, chg.dim))
+            try:
+                self.version = float(stdout.split()[5])
+            except ValueError:
+                self.version = -1  # Unknown
+            if self.version < 1.0:
+                warnings.warn(
+                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
+                    UserWarning,
+                )
 
-                data = chg.data["total"]
-                # Find the shift vector in the array
-                shift = (np.divide(chg.dim, 2) - index).astype(int)
+            data = []
+            with open("ACF.dat") as f:
+                lines = f.readlines()
+                headers = ("x", "y", "z", "charge", "min_dist", "atomic_vol")
+                lines.pop(0)
+                lines.pop(0)
+                while True:
+                    line = lines.pop(0).strip()
+                    if line.startswith("-"):
+                        break
+                    vals = map(float, line.split()[1:])
+                    data.append(dict(zip(headers, vals)))
+                for line in lines:
+                    toks = line.strip().split(":")
+                    if toks[0] == "VACUUM CHARGE":
+                        self.vacuum_charge = float(toks[1])
+                    elif toks[0] == "VACUUM VOLUME":
+                        self.vacuum_volume = float(toks[1])
+                    elif toks[0] == "NUMBER OF ELECTRONS":
+                        self.nelectrons = float(toks[1])
+            self.data = data
 
-                # Shift the data so that the atomic charge density to the center for easier manipulation
-                shifted_data = np.roll(data, shift, axis=(0, 1, 2))  # type: ignore
+            if self.parse_atomic_densities:
+                # convert the charge density for each atom spit out by Bader into Chgcar objects for easy parsing
+                atom_chgcars = [
+                    Chgcar.from_file(f"BvAt{str(i).zfill(4)}.dat") for i in range(1, len(self.chgcar.structure) + 1)
+                ]
 
-                # Slices a central window from the data array
-                def slice_from_center(data, x_width, y_width, z_width):
-                    x, y, z = data.shape
-                    start_x = x // 2 - (x_width // 2)
-                    start_y = y // 2 - (y_width // 2)
-                    start_z = z // 2 - (z_width // 2)
-                    return data[
-                        start_x : start_x + x_width,
-                        start_y : start_y + y_width,
-                        start_z : start_z + z_width,
-                    ]
+                atomic_densities = []
+                # For each atom in the structure
+                for _, loc, chg in zip(
+                    self.chgcar.structure,
+                    self.chgcar.structure.frac_coords,
+                    atom_chgcars,
+                ):
+                    # Find the index of the atom in the charge density atom
+                    index = np.round(np.multiply(loc, chg.dim))
 
-                # Finds the central encompassing volume which holds all the data within a precision
-                def find_encompassing_vol(data):
-                    total = np.sum(data)
-                    for idx in range(np.max(data.shape)):
-                        sliced_data = slice_from_center(data, idx, idx, idx)
-                        if total - np.sum(sliced_data) < 0.1:
-                            return sliced_data
-                    return None
+                    data = chg.data["total"]
+                    # Find the shift vector in the array
+                    shift = (np.divide(chg.dim, 2) - index).astype(int)
 
-                dct = {
-                    "data": find_encompassing_vol(shifted_data),
-                    "shift": shift,
-                    "dim": self.chgcar.dim,
-                }
-                atomic_densities.append(dct)
-            self.atomic_densities = atomic_densities
+                    # Shift the data so that the atomic charge density to the center for easier manipulation
+                    shifted_data = np.roll(data, shift, axis=(0, 1, 2))
+
+                    # Slices a central window from the data array
+                    def slice_from_center(data, xwidth, ywidth, zwidth):
+                        x, y, z = data.shape
+                        startx = x // 2 - (xwidth // 2)
+                        starty = y // 2 - (ywidth // 2)
+                        startz = z // 2 - (zwidth // 2)
+                        return data[
+                            startx : startx + xwidth,
+                            starty : starty + ywidth,
+                            startz : startz + zwidth,
+                        ]
+
+                    # Finds the central encompassing volume which holds all the data within a precision
+                    def find_encompassing_vol(data):
+                        total = np.sum(data)
+                        for i in range(np.max(data.shape)):
+                            sliced_data = slice_from_center(data, i, i, i)
+                            if total - np.sum(sliced_data) < 0.1:
+                                return sliced_data
+                        return None
+
+                    d = {
+                        "data": find_encompassing_vol(shifted_data),
+                        "shift": shift,
+                        "dim": self.chgcar.dim,
+                    }
+                    atomic_densities.append(d)
+                self.atomic_densities = atomic_densities
 
     def get_charge(self, atom_index):
         """
