@@ -100,7 +100,7 @@ class BaderAnalysis:
             self.structure = self.chgcar.structure
             self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
             self.natoms = self.chgcar.poscar.natoms
-            chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
+            chgref_path = os.path.abspath(chgref_filename) if chgref_filename else None
             self.reference_used = bool(chgref_filename)
 
             # List of nelects for each atom from potcar
@@ -117,7 +117,7 @@ class BaderAnalysis:
             self.cube = VolumetricData.from_cube(fpath)
             self.structure = self.cube.structure
             self.nelects = None  # type: ignore
-            chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
+            chgref_path = os.path.abspath(chgref_filename) if chgref_filename else None
             self.reference_used = bool(chgref_filename)
 
         tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
@@ -125,7 +125,7 @@ class BaderAnalysis:
             shutil.copyfileobj(f_in, f_out)
         args: list[str] = [BADEREXE, tmpfile]
         if chgref_filename:
-            with zopen(chgrefpath, "rt") as f_in, open("CHGCAR_ref", "w") as f_out:
+            with zopen(chgref_path, "rt") as f_in, open("CHGCAR_ref", "w") as f_out:
                 shutil.copyfileobj(f_in, f_out)
             args += ["-ref", "CHGCAR_ref"]
         if parse_atomic_densities:
@@ -191,32 +191,32 @@ class BaderAnalysis:
                 shifted_data = np.roll(data, shift, axis=(0, 1, 2))  # type: ignore
 
                 # Slices a central window from the data array
-                def slice_from_center(data, xwidth, ywidth, zwidth):
+                def slice_from_center(data, x_width, y_width, z_width):
                     x, y, z = data.shape
-                    startx = x // 2 - (xwidth // 2)
-                    starty = y // 2 - (ywidth // 2)
-                    startz = z // 2 - (zwidth // 2)
+                    start_x = x // 2 - (x_width // 2)
+                    start_y = y // 2 - (y_width // 2)
+                    start_z = z // 2 - (z_width // 2)
                     return data[
-                        startx : startx + xwidth,
-                        starty : starty + ywidth,
-                        startz : startz + zwidth,
+                        start_x : start_x + x_width,
+                        start_y : start_y + y_width,
+                        start_z : start_z + z_width,
                     ]
 
                 # Finds the central encompassing volume which holds all the data within a precision
                 def find_encompassing_vol(data):
                     total = np.sum(data)
-                    for i in range(np.max(data.shape)):
-                        sliced_data = slice_from_center(data, i, i, i)
+                    for idx in range(np.max(data.shape)):
+                        sliced_data = slice_from_center(data, idx, idx, idx)
                         if total - np.sum(sliced_data) < 0.1:
                             return sliced_data
                     return None
 
-                d = {
+                dct = {
                     "data": find_encompassing_vol(shifted_data),
                     "shift": shift,
                     "dim": self.chgcar.dim,
                 }
-                atomic_densities.append(d)
+                atomic_densities.append(dct)
             self.atomic_densities = atomic_densities
 
     def get_charge(self, atom_index):
@@ -486,6 +486,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
     :return: summary dict
     """
     with TemporaryDirectory() as tmp_dir:
+        os.chdir(tmp_dir)
         if aeccar0 and aeccar2:
             # construct reference file
             chgref = aeccar0.linear_add(aeccar2)
