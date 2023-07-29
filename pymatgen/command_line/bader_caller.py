@@ -99,7 +99,7 @@ class BaderAnalysis:
             self.structure = self.chgcar.structure
             self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
             self.natoms = self.chgcar.poscar.natoms
-            os.path.abspath(chgref_filename) if chgref_filename else None
+            chgref_fpath = os.path.abspath(chgref_filename) if chgref_filename else None
             self.reference_used = bool(chgref_filename)
 
             # List of nelects for each atom from potcar
@@ -115,15 +115,15 @@ class BaderAnalysis:
             self.is_vasp = False
             self.cube = VolumetricData.from_cube(fpath)
             self.structure = self.cube.structure
-            self.nelects = None  # type: ignore
-            os.path.abspath(chgref_filename) if chgref_filename else None
+            self.nelects = []
+            chgref_fpath = os.path.abspath(chgref_filename) if chgref_filename else None
             self.reference_used = bool(chgref_filename)
 
         with ScratchDir("."):
             args = [BADEREXE, fpath]
 
-            if chgref_filename:
-                args += ["-ref", chgref_filename]
+            if chgref_fpath:
+                args += ["-ref", chgref_fpath]
 
             if parse_atomic_densities:
                 args += ["-p", "all_atom"]
