@@ -25,11 +25,11 @@ def decompress_file_to_path(fin_path, fout_path=None):
         fin_path: Input file path
 
     Keyword Arguments:
-        fout_path: Output file path. If not provided, the decompressed file will be output to the path of input file
-            (default: {None})
+        fout_path: Output file path. If not provided, the decompressed file will be output to the same directory of the
+            input file. (default: {None})
 
     Returns:
-        File path
+        The final absolute file path
     """
     root, ext = os.path.splitext(fin_path)
     if ext.lower() in [".bz2", ".gz", ".z"]:
@@ -37,7 +37,7 @@ def decompress_file_to_path(fin_path, fout_path=None):
         with zopen(fin_path, "rb") as fin, open(fout_path, "wb") as fout:
             fout.writelines(fin)
         return os.path.abspath(fout_path)
-    return fin_path
+    return os.path.abspath(fin_path)
 
 
 def clean_lines(string_list, remove_empty_lines=True):

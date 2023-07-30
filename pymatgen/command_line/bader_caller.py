@@ -99,17 +99,15 @@ class BaderAnalysis:
                 fpath = os.path.abspath(chgcar_filename)
 
                 # decompress the file if compressed
-                fpath = decompress_file_to_path(fin_path=fpath, fout_path=".")
+                fpath = decompress_file_to_path(fin_path=chgcar_filename, fout_path=".")
 
                 self.chgcar = Chgcar.from_file(fpath)
                 self.structure = self.chgcar.structure
                 self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
                 self.natoms = self.chgcar.poscar.natoms
-                if chgref_filename:
-                    chgref_fpath = os.path.abspath(chgref_filename)
-                    chgref_fpath = decompress_file_to_path(fin_path=chgref_fpath, fout_path=".")
-                else:
-                    chgref_fpath = None
+                chgref_fpath = (
+                    decompress_file_to_path(fin_path=chgref_filename, fout_path=".") if chgref_filename else None
+                )
                 self.reference_used = bool(chgref_filename)
 
                 # List of nelects for each atom from potcar
@@ -124,16 +122,13 @@ class BaderAnalysis:
 
             else:
                 self.is_vasp = False
-                fpath = os.path.abspath(cube_filename)
-                fpath = decompress_file_to_path(fin_path=fpath, fout_path=".")
+                fpath = decompress_file_to_path(fin_path=cube_filename, fout_path=".")
                 self.cube = VolumetricData.from_cube(fpath)
                 self.structure = self.cube.structure
                 self.nelects = []
-                if chgref_filename:
-                    chgref_fpath = os.path.abspath(chgref_filename)
-                    chgref_fpath = decompress_file_to_path(fin_path=chgref_fpath, fout_path=".")
-                else:
-                    chgref_fpath = None
+                chgref_fpath = (
+                    decompress_file_to_path(fin_path=chgref_filename, fout_path=".") if chgref_filename else None
+                )
                 self.reference_used = bool(chgref_filename)
 
             args = [BADEREXE, fpath]
