@@ -131,9 +131,11 @@ class BaderAnalysis:
             with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as proc:
                 stdout, stderr = proc.communicate()
                 if proc.returncode != 0:
-                    raise RuntimeError(
-                        f"{BADEREXE} exited with return code {proc.returncode}. Please check your bader installation."
+                    err = (
+                        f"{BADEREXE} exited with return code {proc.returncode} with error message: {stderr!s}. "
+                        "Please check your bader installation."
                     )
+                    raise RuntimeError(err)
 
             try:
                 self.version = float(stdout.split()[5])
