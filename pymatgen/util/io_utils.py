@@ -17,6 +17,29 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
+def decompress_file_to_path(fin_path, fout_path=None):
+    """
+    Decompresses file if needed. Returns the original path if the file is not compressed.
+
+    Arguments:
+        fin_path: Input file path
+
+    Keyword Arguments:
+        fout_path: Output file path. If not provided, the decompressed file will be output to the path of input file
+            (default: {None})
+
+    Returns:
+        File path
+    """
+    root, ext = os.path.splitext(fin_path)
+    if ext.lower() in [".bz2", ".gz", ".z"]:
+        fout_path = os.path.join(fout_path, root.split("/")[-1]) if fout_path else root
+        with zopen(fin_path, "rb") as fin, open(fout_path, "wb") as fout:
+            fout.writelines(fin)
+        return os.path.abspath(fout_path)
+    return fin_path
+
+
 def clean_lines(string_list, remove_empty_lines=True):
     """
     Strips whitespace, carriage returns and empty lines from a list of strings.

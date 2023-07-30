@@ -27,6 +27,7 @@ from monty.tempfile import ScratchDir
 from pymatgen.io.common import VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
+from pymatgen.util.io_utils import decompress_file_to_path
 
 __author__ = "shyuepingong"
 __version__ = "0.1"
@@ -92,34 +93,49 @@ class BaderAnalysis:
             raise ValueError("You cannot parse a cube and a CHGCAR at the same time.")
         self.parse_atomic_densities = parse_atomic_densities
 
-        if chgcar_filename:
-            fpath = os.path.abspath(chgcar_filename)
-            self.is_vasp = True
-            self.chgcar = Chgcar.from_file(fpath)
-            self.structure = self.chgcar.structure
-            self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
-            self.natoms = self.chgcar.poscar.natoms
-            chgref_fpath = os.path.abspath(chgref_filename) if chgref_filename else None
-            self.reference_used = bool(chgref_filename)
-
-            # List of nelects for each atom from potcar
-            potcar_indices = []
-            for i, v in enumerate(self.natoms):
-                potcar_indices += [i] * v
-            self.nelects = (
-                [self.potcar[potcar_indices[i]].nelectrons for i in range(len(self.structure))] if self.potcar else []
-            )
-
-        else:
-            fpath = os.path.abspath(cube_filename)
-            self.is_vasp = False
-            self.cube = VolumetricData.from_cube(fpath)
-            self.structure = self.cube.structure
-            self.nelects = []
-            chgref_fpath = os.path.abspath(chgref_filename) if chgref_filename else None
-            self.reference_used = bool(chgref_filename)
-
         with ScratchDir("."):
+            if chgcar_filename:
+                self.is_vasp = True
+                fpath = os.path.abspath(chgcar_filename)
+
+                # decompress the file if compressed
+                fpath = decompress_file_to_path(fin_path=fpath, fout_path=".")
+
+                self.chgcar = Chgcar.from_file(fpath)
+                self.structure = self.chgcar.structure
+                self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
+                self.natoms = self.chgcar.poscar.natoms
+                if chgref_filename:
+                    chgref_fpath = os.path.abspath(chgref_filename)
+                    chgref_fpath = decompress_file_to_path(fin_path=chgref_fpath, fout_path=".")
+                else:
+                    chgref_fpath = None
+                self.reference_used = bool(chgref_filename)
+
+                # List of nelects for each atom from potcar
+                potcar_indices = []
+                for i, v in enumerate(self.natoms):
+                    potcar_indices += [i] * v
+                self.nelects = (
+                    [self.potcar[potcar_indices[i]].nelectrons for i in range(len(self.structure))]
+                    if self.potcar
+                    else []
+                )
+
+            else:
+                self.is_vasp = False
+                fpath = os.path.abspath(cube_filename)
+                fpath = decompress_file_to_path(fin_path=fpath, fout_path=".")
+                self.cube = VolumetricData.from_cube(fpath)
+                self.structure = self.cube.structure
+                self.nelects = []
+                if chgref_filename:
+                    chgref_fpath = os.path.abspath(chgref_filename)
+                    chgref_fpath = decompress_file_to_path(fin_path=chgref_fpath, fout_path=".")
+                else:
+                    chgref_fpath = None
+                self.reference_used = bool(chgref_filename)
+
             args = [BADEREXE, fpath]
 
             if chgref_fpath:
@@ -408,7 +424,7 @@ class BaderAnalysis:
         if aeccar0 and aeccar2:
             # `chgsum.pl AECCAR0 AECCAR2` equivalent to obtain chgref_file
             chgref = Chgcar.from_file(aeccar0) + Chgcar.from_file(aeccar2)
-            chgref_filename = "CHGREF"
+            chgref_filename = os.path.join(path, "CHGREF")
             chgref.write_file(chgref_filename)
         else:
             chgref_filename = None
