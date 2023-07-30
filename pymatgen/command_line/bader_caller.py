@@ -96,11 +96,8 @@ class BaderAnalysis:
         with ScratchDir("."):
             if chgcar_filename:
                 self.is_vasp = True
-                fpath = os.path.abspath(chgcar_filename)
-
                 # decompress the file if compressed
                 fpath = decompress_file_to_path(fin_path=chgcar_filename, fout_path=".")
-
                 self.chgcar = Chgcar.from_file(fpath)
                 self.structure = self.chgcar.structure
                 self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
