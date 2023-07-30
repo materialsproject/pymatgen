@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import unittest
 import warnings
 from shutil import which
@@ -8,6 +9,8 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
+from monty.io import zopen
+from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path
@@ -63,9 +66,16 @@ class BaderAnalysisTest(unittest.TestCase):
         analysis = BaderAnalysis(chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"))
         assert len(analysis.data) == 14
 
-        # Test Cube file format parsing
-        analysis = BaderAnalysis(cube_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "bader/elec.cube.gz"))
-        assert len(analysis.data) == 9
+        # Decompress .gz files into temp folder before test
+        with ScratchDir("."):
+            # Test Cube file format parsing
+            cube_zpath = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader/elec.cube.gz")
+            cube_tpath = "elec.cube"
+            with zopen(cube_zpath, "rt") as fin, open(cube_tpath, "w") as fout:
+                shutil.copyfileobj(fin, fout)
+
+            analysis = BaderAnalysis(cube_filename=cube_tpath)
+            assert len(analysis.data) == 9
 
     def test_from_path(self):
         test_dir = f"{PymatgenTest.TEST_FILES_DIR}/bader"

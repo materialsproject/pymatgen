@@ -43,14 +43,12 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 import warnings
 from glob import glob
 from shutil import which
 
 import numpy as np
-from monty.io import zopen
 from monty.tempfile import ScratchDir
 
 from pymatgen.core import Element
@@ -179,14 +177,13 @@ class ChargemolAnalysis:
             jobcontrol_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
         with ScratchDir("."):
-            with zopen(self._chgcarpath, "rt") as f_in, open("CHGCAR", "w") as f_out:
-                shutil.copyfileobj(f_in, f_out)
-            with zopen(self._potcarpath, "rt") as f_in, open("POTCAR", "w") as f_out:
-                shutil.copyfileobj(f_in, f_out)
-            with zopen(self._aeccar0path, "rt") as f_in, open("AECCAR0", "w") as f_out:
-                shutil.copyfileobj(f_in, f_out)
-            with zopen(self._aeccar2path, "rt") as f_in, open("AECCAR2", "w") as f_out:
-                shutil.copyfileobj(f_in, f_out)
+            try:
+                os.symlink(self._chgcarpath, "./CHGCAR")
+                os.symlink(self._potcarpath, "./POTCAR")
+                os.symlink(self._aeccar0path, "./AECCAR0")
+                os.symlink(self._aeccar2path, "./AECCAR2")
+            except OSError as e:
+                print(f"Error creating symbolic link: {e}")
 
             # write job_script file:
             self._write_jobscript_for_chargemol(**jobcontrol_kwargs)
@@ -198,11 +195,13 @@ class ChargemolAnalysis:
                 stdin=subprocess.PIPE,
                 close_fds=True,
             ) as rs:
-                rs.communicate()
+                stdout, stderr = rs.communicate()
             if rs.returncode != 0:
-                raise RuntimeError(
-                    f"Chargemol exited with return code {rs.returncode}. Please check your Chargemol installation."
+                err = (
+                    f"Chargemol exited with return code {rs.returncode} with error message: {stderr!s}. "
+                    "Please check your Chargemol installation."
                 )
+                raise RuntimeError(err)
 
             self._from_data_dir()
 
