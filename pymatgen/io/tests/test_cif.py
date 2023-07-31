@@ -358,8 +358,8 @@ loop_
     def test_cif_writer_labeled(self):
         parser = CifParser(f"{self.TEST_FILES_DIR}/garnet.cif")
         struct = parser.get_structures()[0]
-        for i, site in enumerate(struct):
-            site.label = f"my_{site.specie.name}{i}"
+        for idx, site in enumerate(struct):
+            site.label = f"my_{site.specie.name}{idx}"
         writer = CifWriter(struct)
 
         parser2 = CifParser.from_str(str(writer))
