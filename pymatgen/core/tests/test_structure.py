@@ -1068,13 +1068,23 @@ class StructureTest(PymatgenTest):
         self.assert_all_close(struct.lattice.abc, [7.6803959, 17.5979979, 7.6803959])
 
     def test_make_supercell(self):
-        self.struct.make_supercell([2, 1, 1])
-        assert self.struct.formula == "Si4"
-        self.struct.make_supercell([[1, 0, 0], [2, 1, 0], [0, 0, 1]])
-        assert self.struct.formula == "Si4"
-        self.struct.make_supercell(2)
-        assert self.struct.formula == "Si32"
-        self.assert_all_close(self.struct.lattice.abc, [15.360792, 35.195996, 7.680396], 5)
+        supercell = self.struct.make_supercell([2, 1, 1])
+        assert supercell.formula == "Si4"
+        # test that make_supercell modified the original structure
+        assert len(self.struct) == len(supercell)
+
+        supercell.make_supercell([[1, 0, 0], [2, 1, 0], [0, 0, 1]])
+        assert supercell.formula == "Si4"
+        supercell.make_supercell(2)
+        assert supercell.formula == "Si32"
+        self.assert_all_close(supercell.lattice.abc, [15.360792, 35.195996, 7.680396], 5)
+
+        # test in_place=False leaves original structure unchanged
+        orig_len = len(self.struct)
+        # test that make_supercell casts floats to ints
+        supercell = self.struct.make_supercell([2.5, 1, 1], in_place=False)
+        assert len(self.struct) == orig_len
+        assert len(supercell) == 2 * orig_len
 
     def test_make_supercell_labeled(self):
         struct = self.labeled_structure.copy()
