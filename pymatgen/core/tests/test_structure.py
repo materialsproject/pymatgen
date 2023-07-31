@@ -6,7 +6,6 @@ import random
 import warnings
 from pathlib import Path
 from shutil import which
-from tempfile import TemporaryDirectory
 from unittest import skipIf
 
 import numpy as np
@@ -1467,8 +1466,7 @@ class StructureTest(PymatgenTest):
     def test_relax_ase_opt_kwargs(self):
         pytest.importorskip("ase")
         structure = self.cu_structure
-        tmp_dir = TemporaryDirectory()
-        traj_file = f"{tmp_dir.name}/testing.traj"
+        traj_file = f"{self.tmp_path}/testing.traj"
         relaxed, traj = structure.relax(
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
         )
@@ -2005,8 +2003,7 @@ class MoleculeTest(PymatgenTest):
 
     def test_relax_ase_mol_return_traj(self):
         pytest.importorskip("ase")
-        tmp_dir = TemporaryDirectory()
-        traj_file = f"{tmp_dir.name}/testing.traj"
+        traj_file = f"{self.tmp_path}/testing.traj"
         relaxed, traj = self.mol.relax(
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
         )
