@@ -1044,8 +1044,6 @@ class CifParser:
                 else:
                     coords, magmoms, new_labels = self._unique_coords(tmp_coords, labels=labels)
 
-                assert len(new_labels) == len(coords)
-
                 if set(comp.elements) == {Element("O"), Element("H")}:
                     # O with implicit hydrogens
                     im_h = comp["H"]
