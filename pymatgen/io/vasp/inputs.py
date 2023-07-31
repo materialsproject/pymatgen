@@ -40,6 +40,7 @@ from pymatgen.util.string import str_delimited
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
+    from pymatgen.core.trajectory import Vector3D
     from pymatgen.util.typing import PathLike
 
 
@@ -1034,7 +1035,7 @@ class Kpoints(MSONable):
         num_kpts: int = 0,
         style: KpointsSupportedModes = supported_modes.Gamma,
         kpts: Sequence[float | int | Sequence] = ((1, 1, 1),),
-        kpts_shift: tuple[float, float, float] = (0, 0, 0),
+        kpts_shift: Vector3D = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
         labels=None,
@@ -1155,7 +1156,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def gamma_automatic(kpts: tuple[int, int, int] = (1, 1, 1), shift: tuple[float, float, float] = (0, 0, 0)):
+    def gamma_automatic(kpts: tuple[int, int, int] = (1, 1, 1), shift: Vector3D = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Gamma centered Kpoint
         grid.
@@ -1177,7 +1178,7 @@ class Kpoints(MSONable):
         )
 
     @staticmethod
-    def monkhorst_automatic(kpts: tuple[int, int, int] = (2, 2, 2), shift: tuple[float, float, float] = (0, 0, 0)):
+    def monkhorst_automatic(kpts: tuple[int, int, int] = (2, 2, 2), shift: Vector3D = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint
         grid.

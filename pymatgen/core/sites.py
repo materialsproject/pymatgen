@@ -71,7 +71,7 @@ class Site(collections.abc.Hashable, MSONable):
         self._species: Composition = species  # type: ignore
         self.coords: np.ndarray = coords  # type: ignore
         self.properties: dict = properties or {}
-        self.label = label if label else self.species_string
+        self._label = label
 
     def __getattr__(self, attr):
         # overriding getattr doesn't play nicely with pickle, so we can't use self._properties
@@ -86,7 +86,7 @@ class Site(collections.abc.Hashable, MSONable):
         return self._species
 
     @species.setter
-    def species(self, species: SpeciesLike | CompositionLike):
+    def species(self, species: SpeciesLike | CompositionLike) -> None:
         if not isinstance(species, Composition):
             try:
                 species = Composition({get_el_sp(species): 1})  # type: ignore
@@ -98,12 +98,21 @@ class Site(collections.abc.Hashable, MSONable):
         self._species = species
 
     @property
+    def label(self) -> str:
+        """Site label."""
+        return self._label if self._label is not None else self.species_string
+
+    @label.setter
+    def label(self, label: str) -> None:
+        self._label = label
+
+    @property
     def x(self) -> float:
         """Cartesian x coordinate."""
         return self.coords[0]
 
     @x.setter
-    def x(self, x: float):
+    def x(self, x: float) -> None:
         self.coords[0] = x
 
     @property
@@ -112,7 +121,7 @@ class Site(collections.abc.Hashable, MSONable):
         return self.coords[1]
 
     @y.setter
-    def y(self, y: float):
+    def y(self, y: float) -> None:
         self.coords[1] = y
 
     @property
@@ -121,7 +130,7 @@ class Site(collections.abc.Hashable, MSONable):
         return self.coords[2]
 
     @z.setter
-    def z(self, z: float):
+    def z(self, z: float) -> None:
         self.coords[2] = z
 
     def distance(self, other) -> float:
@@ -345,7 +354,7 @@ class PeriodicSite(Site, MSONable):
         self._species: Composition = species  # type: ignore
         self._coords: np.ndarray | None = None
         self.properties: dict = properties or {}
-        self.label = label if label else self.species_string
+        self._label = label
 
     def __hash__(self) -> int:
         """
@@ -360,7 +369,7 @@ class PeriodicSite(Site, MSONable):
         return self._lattice
 
     @lattice.setter
-    def lattice(self, lattice: Lattice):
+    def lattice(self, lattice: Lattice) -> None:
         """Sets Lattice associated with PeriodicSite."""
         self._lattice = lattice
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
@@ -373,7 +382,7 @@ class PeriodicSite(Site, MSONable):
         return self._coords
 
     @coords.setter
-    def coords(self, coords):
+    def coords(self, coords) -> None:
         """Set Cartesian coordinates."""
         self._coords = np.array(coords)
         self._frac_coords = self._lattice.get_fractional_coords(self._coords)
@@ -384,7 +393,7 @@ class PeriodicSite(Site, MSONable):
         return self._frac_coords
 
     @frac_coords.setter
-    def frac_coords(self, frac_coords):
+    def frac_coords(self, frac_coords) -> None:
         """Set fractional coordinates."""
         self._frac_coords = np.array(frac_coords)
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
@@ -395,7 +404,7 @@ class PeriodicSite(Site, MSONable):
         return self._frac_coords[0]
 
     @a.setter
-    def a(self, a: float):
+    def a(self, a: float) -> None:
         self._frac_coords[0] = a
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
@@ -405,7 +414,7 @@ class PeriodicSite(Site, MSONable):
         return self._frac_coords[1]
 
     @b.setter
-    def b(self, b: float):
+    def b(self, b: float) -> None:
         self._frac_coords[1] = b
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
@@ -415,7 +424,7 @@ class PeriodicSite(Site, MSONable):
         return self._frac_coords[2]
 
     @c.setter
-    def c(self, c: float):
+    def c(self, c: float) -> None:
         self._frac_coords[2] = c
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
@@ -425,7 +434,7 @@ class PeriodicSite(Site, MSONable):
         return self.coords[0]
 
     @x.setter
-    def x(self, x: float):
+    def x(self, x: float) -> None:
         self.coords[0] = x
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
@@ -435,7 +444,7 @@ class PeriodicSite(Site, MSONable):
         return self.coords[1]
 
     @y.setter
-    def y(self, y: float):
+    def y(self, y: float) -> None:
         self.coords[1] = y
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
@@ -445,7 +454,7 @@ class PeriodicSite(Site, MSONable):
         return self.coords[2]
 
     @z.setter
-    def z(self, z: float):
+    def z(self, z: float) -> None:
         self.coords[2] = z
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
@@ -455,7 +464,7 @@ class PeriodicSite(Site, MSONable):
         if in_place:
             self.frac_coords = np.array(frac_coords)
             return None
-        return PeriodicSite(self.species, frac_coords, self.lattice, properties=self.properties)
+        return PeriodicSite(self.species, frac_coords, self.lattice, properties=self.properties, label=self.label)
 
     def is_periodic_image(self, other: PeriodicSite, tolerance: float = 1e-8, check_lattice: bool = True) -> bool:
         """

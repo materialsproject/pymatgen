@@ -23,6 +23,8 @@ from pymatgen.util.num import abs_cap
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
+    from pymatgen.core.trajectory import Vector3D
+
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
 __maintainer__ = "Shyue Ping Ong"
@@ -67,7 +69,7 @@ class Lattice(MSONable):
         self._pbc = tuple(pbc)
 
     @property
-    def lengths(self) -> tuple[float, float, float]:
+    def lengths(self) -> Vector3D:
         """
         Lattice lengths.
 
@@ -76,7 +78,7 @@ class Lattice(MSONable):
         return tuple(np.sqrt(np.sum(self._matrix**2, axis=1)).tolist())  # type: ignore
 
     @property
-    def angles(self) -> tuple[float, float, float]:
+    def angles(self) -> Vector3D:
         """
         Lattice angles.
 
@@ -414,7 +416,7 @@ class Lattice(MSONable):
         return self.lengths[2]
 
     @property
-    def abc(self) -> tuple[float, float, float]:
+    def abc(self) -> Vector3D:
         """Lengths of the lattice vectors, i.e. (a, b, c)."""
         return self.lengths
 
