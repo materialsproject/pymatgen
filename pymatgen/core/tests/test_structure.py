@@ -766,6 +766,12 @@ Direct
         assert_array_equal(struct_pbc.pbc, (True, True, False))
         assert not struct_pbc.is_3d_periodic
 
+    def test_sites_setter(self):
+        struct = self.struct.copy()
+        new_sites = struct.sites[::-1]  # reverse order of sites
+        struct.sites = new_sites
+        assert struct.sites == new_sites
+
 
 class StructureTest(PymatgenTest):
     def setUp(self):
