@@ -222,8 +222,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns distance between sites at index i and j.
 
         Args:
-            i: Index of first site
-            j: Index of second site
+            i: 1st site index
+            j: 2nd site index
 
         Returns:
             Distance between sites at index i and index j.
@@ -396,9 +396,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns angle specified by three sites.
 
         Args:
-            i: Index of first site.
-            j: Index of second site.
-            k: Index of third site.
+            i: 1st site index
+            j: 2nd site index
+            k: 3rd site index
 
         Returns:
             Angle in degrees.
@@ -412,10 +412,10 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns dihedral angle specified by four sites.
 
         Args:
-            i: Index of first site
-            j: Index of second site
-            k: Index of third site
-            l: Index of fourth site
+            i: 1st site index
+            j: 2nd site index
+            k: 3rd site index
+            l: 4th site index
 
         Returns:
             Dihedral angle in degrees.
@@ -1368,8 +1368,8 @@ class IStructure(SiteCollection, MSONable):
         atom and the specified jimage atom.
 
         Args:
-            i (int): Index of first site
-            j (int): Index of second site
+            i (int): 1st site index
+            j (int): 2nd site index
             jimage: Number of lattice translations in each lattice direction.
                 Default is None for nearest image.
 
@@ -3042,8 +3042,8 @@ class IMolecule(SiteCollection, MSONable):
         ind1 and ind2.
 
         Args:
-            ind1 (int): Index of first site.
-            ind2 (int): Index of second site.
+            ind1 (int): 1st site index
+            ind2 (int): 2nd site index
             tol (float): Relative tolerance to test. Basically, the code
                 checks if the distance between the sites is less than (1 +
                 tol) * typical bond distances. Defaults to 0.2, i.e.,
@@ -3203,8 +3203,8 @@ class IMolecule(SiteCollection, MSONable):
         Get distance between site i and j.
 
         Args:
-            i (int): Index of first site
-            j (int): Index of second site
+            i (int): 1st site index
+            j (int): 2nd site index
 
         Returns:
             Distance between the two sites.
@@ -3770,7 +3770,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         occupations.
 
         Args:
-            idx (int): Index of the site in the _sites list.
+            idx (int): Index of the site in the sites list.
             species (species-like): Species of replacement site
             coords (3x1 array): Coordinates of replacement site. If None,
                 the current coordinates are assumed.
