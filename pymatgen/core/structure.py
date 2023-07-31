@@ -858,7 +858,7 @@ class IStructure(SiteCollection, MSONable):
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
         site_properties: dict | None = None,
-        labels: list | None = None,
+        labels: Sequence[str | None] | None = None,
     ) -> None:
         """
         Create a periodic structure.
@@ -988,7 +988,7 @@ class IStructure(SiteCollection, MSONable):
         site_properties: dict[str, Sequence] | None = None,
         coords_are_cartesian: bool = False,
         tol: float = 1e-5,
-        labels: list | None = None,
+        labels: Sequence[str | None] | None = None,
     ) -> IStructure | Structure:
         """
         Generate a structure using a spacegroup. Note that only symmetrically
@@ -1083,7 +1083,7 @@ class IStructure(SiteCollection, MSONable):
         site_properties: dict[str, Sequence],
         coords_are_cartesian: bool = False,
         tol: float = 1e-5,
-        labels: list | None = None,
+        labels: Sequence[str | None] | None = None,
     ) -> IStructure | Structure:
         """
         Generate a structure using a magnetic spacegroup. Note that only
@@ -3549,7 +3549,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
         site_properties: dict | None = None,
-        labels: list | None = None,
+        labels: Sequence[str | None] | None = None,
     ):
         """
         Create a periodic structure.

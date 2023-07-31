@@ -337,22 +337,7 @@ loop_
         parser2 = CifParser(f"{self.TEST_FILES_DIR}/Fe3O4.cif")
         struct2 = parser2.get_structures(primitive=False)[0]
 
-        expected_site_names2 = {
-            "O1",
-            "O2",
-            "O3",
-            "O4",
-            "O5",
-            "O6",
-            "O7",
-            "O8",
-            "Fe9",
-            "Fe10",
-            "Fe11",
-            "Fe12",
-            "Fe13",
-            "Fe14",
-        }
+        expected_site_names2 = {*"O1 O2 O3 O4 O5 O6 O7 O8 Fe9 Fe10 Fe11 Fe12 Fe13 Fe14".split()}
         assert set(struct2.labels) == expected_site_names2
 
     def test_cif_writer_labeled(self):
