@@ -1029,6 +1029,9 @@ class StructureTest(PymatgenTest):
         struct_pbc.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=True, to_unit_cell=True)
         self.assert_all_close(struct_pbc.frac_coords[0], [0.25, 0.25, 1.25])
 
+        with pytest.raises(IndexError, match="list index out of range"):
+            self.struct.translate_sites([5], [0.5, 0.5, 0.5])
+
     def test_rotate_sites(self):
         self.struct.rotate_sites(
             indices=[1],
@@ -1044,6 +1047,9 @@ class StructureTest(PymatgenTest):
             to_unit_cell=True,
         )
         self.assert_all_close(self.struct.frac_coords[1], [0.75, 0.5, 0.75], decimal=6)
+
+        with pytest.raises(IndexError, match="list index out of range"):
+            self.struct.rotate_sites([5], 2.0 * np.pi / 3.0, self.struct[0].coords, to_unit_cell=False)
 
     def test_mul(self):
         self.struct *= [2, 1, 1]
