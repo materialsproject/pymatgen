@@ -56,7 +56,6 @@ class GulpCallerTest(unittest.TestCase):
         gin += "buck\n"
         gin += "Mg core O shel   946.627 0.31813  0.00000 0.0 10.0\n"
         gin += "O  shel O shel 22764.000 0.14900 27.87900 0.0 12.0\n"
-        gin = gin
         gc = GulpCaller()
 
         """Some inherent checks are in the run_gulp function itself.
