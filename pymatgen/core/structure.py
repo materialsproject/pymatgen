@@ -332,8 +332,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     def __iter__(self) -> Iterator[Site]:
         return self.sites.__iter__()
 
-    def __getitem__(self, ind):
-        return self.sites[ind]
+    # TODO return type needs fixing (can be list[Site] but raises lots of mypy errors)
+    def __getitem__(self, ind: int | slice) -> Site:
+        return self.sites[ind]  # type: ignore[return-value]
 
     def __len__(self) -> int:
         return len(self.sites)
@@ -1375,7 +1376,8 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             distance
         """
-        return self[i].distance(self[j], jimage)
+        site: PeriodicSite = self[i]
+        return site.distance(self[j], jimage)
 
     def get_sites_in_sphere(
         self,
