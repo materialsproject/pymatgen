@@ -206,9 +206,15 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     DISTANCE_TOLERANCE = 0.5
 
     @property
-    @abstractmethod
-    def sites(self) -> tuple[Site, ...]:
-        """Returns a tuple of sites."""
+    def sites(self) -> Sequence[Site]:
+        """Returns an iterator for the sites in the Structure."""
+        return self._sites
+
+    @sites.setter
+    def sites(self, sites: Sequence[PeriodicSite]) -> None:
+        """Sets the sites in the Structure."""
+        # use tuple for immutable IStructure/IMolecule, else use list
+        self._sites = tuple(sites) if isinstance(self, (IStructure, IMolecule)) else list(sites)
 
     @abstractmethod
     def get_distance(self, i: int, j: int) -> float:
@@ -1204,11 +1210,6 @@ class IStructure(SiteCollection, MSONable):
         periodic structures, this should return the nearest image distance.
         """
         return self.lattice.get_all_distances(self.frac_coords, self.frac_coords)
-
-    @property
-    def sites(self) -> tuple[PeriodicSite, ...]:
-        """Returns an iterator for the sites in the Structure."""
-        return self._sites
 
     @property
     def lattice(self) -> Lattice:
