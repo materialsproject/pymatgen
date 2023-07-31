@@ -1320,8 +1320,8 @@ class IStructure(SiteCollection, MSONable):
         """
         scale_matrix = np.array(scaling_matrix, int)
         if scale_matrix.shape != (3, 3):
-            scale_matrix = np.array(scale_matrix * np.eye(3), int)
-        new_lattice = Lattice(np.dot(scale_matrix, self._lattice.matrix))
+            scale_matrix = scale_matrix * np.eye(3)
+        new_lattice = Lattice(np.dot(scale_matrix, self.lattice.matrix))
 
         f_lat = lattice_points_in_supercell(scale_matrix)
         c_lat = new_lattice.get_cartesian_coords(f_lat)
@@ -4106,12 +4106,12 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for idx in range(len(self._sites)):
             self.translate_sites([idx], get_rand_vec(), frac_coords=False)
 
-    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True) -> None:
+    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True, in_place: bool = True) -> None:
         """
         Create a supercell.
 
         Args:
-            scaling_matrix: A scaling matrix for transforming the lattice
+            scaling_matrix (ArrayLike): A scaling matrix for transforming the lattice
                 vectors. Has to be all integers. Several options are possible:
 
                 a. A full 3x3 scaling matrix defining the linear combination
@@ -4124,14 +4124,24 @@ class Structure(IStructure, collections.abc.MutableSequence):
                    c.
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
-            to_unit_cell: Whether or not to fall back sites into the unit cell
+            to_unit_cell (bool): Whether or not to fold sites back into the unit cell
+                if they have fractional coords > 1. Defaults to True.
+            in_place (bool): Whether to perform the operation in-place or to return
+                a new Structure object. Defaults to True.
+
+        Returns:
+            Structure: self if in_place is True else self.copy() after making supercell
         """
-        supercell = self * scaling_matrix
+        # TODO (janosh) maybe default in_place to False after a depreciation period
+        struct = self if in_place else self.copy()
+        supercell = struct * scaling_matrix
         if to_unit_cell:
             for site in supercell:
                 site.to_unit_cell(in_place=True)
-        self.sites = supercell.sites
-        self.lattice = supercell.lattice
+        struct.sites = supercell.sites
+        struct.lattice = supercell.lattice
+
+        return struct
 
     def scale_lattice(self, volume: float) -> None:
         """
