@@ -77,7 +77,7 @@ class StructureMatcherTest(PymatgenTest):
         assert sm._get_supercell_size(s2, s1) == (1, True)
 
         sm = StructureMatcher(supercell_size="wfieoh")
-        with pytest.raises(ValueError, match="Can't parse Element or String from str: wfieoh"):
+        with pytest.raises(ValueError, match="Can't parse Element or Species from str: wfieoh"):
             sm._get_supercell_size(s1, s2)
 
     def test_cmp_fstruct(self):

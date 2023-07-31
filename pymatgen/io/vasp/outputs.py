@@ -3641,14 +3641,14 @@ class Chgcar(VolumetricData):
         self._distance_matrix = {}
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename: str):
         """
-        Reads a CHGCAR file.
+        Read a CHGCAR file.
 
         :param filename: Filename
         :return: Chgcar
         """
-        (poscar, data, data_aug) = VolumetricData.parse_file(filename)
+        poscar, data, data_aug = VolumetricData.parse_file(filename)
         return Chgcar(poscar, data, data_aug=data_aug)
 
     @property

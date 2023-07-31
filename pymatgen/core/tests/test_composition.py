@@ -12,7 +12,7 @@ import pytest
 from pytest import approx
 
 from pymatgen.core.composition import ChemicalPotential, Composition
-from pymatgen.core.periodic_table import Element, Species
+from pymatgen.core.periodic_table import DummySpecies, Element, Species
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -52,6 +52,7 @@ class CompositionTest(PymatgenTest):
         assert "'Composition' object does not support item deletion" in str(exc.value)
 
     def test_in(self):
+        # test the Composition.__contains__ magic method
         assert "Fe" in self.comps[0]
         assert "Fe" not in self.comps[2]
         assert Element("Fe") in self.comps[0]
@@ -61,6 +62,46 @@ class CompositionTest(PymatgenTest):
             self.comps[0]["Hello"]
         with pytest.raises(KeyError, match="Invalid key='Vac'"):
             self.comps[0]["Vac"]
+
+        # Test Species in Composition
+        comp = Composition({Species("Fe2+"): 2})
+        assert Species("Fe2+") in comp
+        assert Species("Fe3+") not in comp
+        assert "Fe" in comp
+        assert Element("Fe") in comp
+
+        # Test Element in Composition with Species
+        comp = Composition({Species("Fe2+"): 2})
+        assert Element("Fe") in comp
+        assert Element("O") not in comp
+        assert "Fe" in comp
+        assert "O" not in comp
+
+        # Test str in Composition with Element
+        comp = Composition({"Fe": 2})
+        assert "Fe" in comp
+        assert "O" not in comp
+        assert Element("Fe") in comp
+        assert Element("O") not in comp
+
+        # Test int (atomic number) in Composition
+        comp = Composition({Element("Fe"): 2})
+        assert 26 in comp  # atomic number for Fe
+        assert 8 not in comp  # atomic number for O
+
+        # Test float in Composition
+        comp = Composition({Element("Fe"): 2})
+        with pytest.raises(TypeError, match="expected string or bytes-like object"):
+            assert 1.5 in comp
+
+        # Test DummySpecies in Composition
+        comp = Composition({DummySpecies("X"): 2})
+        assert DummySpecies("X") in comp
+        assert DummySpecies("A") not in comp
+        assert "X" in comp
+        assert "Y" not in comp
+        assert Element("Fe") not in comp
+        assert Species("Fe2+") not in comp
 
     def test_hill_formula(self):
         c = Composition("CaCO3")
@@ -88,6 +129,18 @@ class CompositionTest(PymatgenTest):
 
         c = Composition({"S": Composition.amount_tolerance / 2})
         assert len(c.elements) == 0
+
+    def test_str_and_repr(self):
+        test_cases = [
+            ({"Li+": 2, "Mn3+": 2, "O2-": 4}, {"str": "Li+2 Mn3+2 O2-4", "repr": "Composition('Li+:2 Mn3+:2 O2-:4')"}),
+            ("H2O", {"str": "H2 O1", "repr": "Composition('H2 O1')"}),
+            ({"Fe3+": 2, "O2-": 3}, {"str": "Fe3+2 O2-3", "repr": "Composition('Fe3+:2 O2-:3')"}),
+            ("C6H6", {"str": "C6 H6", "repr": "Composition('C6 H6')"}),
+        ]
+
+        for comp, expected in test_cases:
+            assert str(Composition(comp)) == expected["str"]
+            assert repr(Composition(comp)) == expected["repr"]
 
     def test_average_electroneg(self):
         electro_negs = (2.7224999999999997, 2.4160000000000004, 2.5485714285714285, 2.21, 2.718, 3.08, 1.21, 2.43)
@@ -516,21 +569,12 @@ class CompositionTest(PymatgenTest):
             {"V": 5, "O": -2},
         )
 
+        expected_oxi_guesses = dict(Li=1, Fe=2, P=5, O=-2)
         # max_sites for very large composition - should timeout if incorrect
-        assert Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=7)[0] == {
-            "Li": 1,
-            "Fe": 2,
-            "P": 5,
-            "O": -2,
-        }
+        assert Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=7)[0] == expected_oxi_guesses
 
         # max_sites for very large composition - should timeout if incorrect
-        assert Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=-1)[0] == {
-            "Li": 1,
-            "Fe": 2,
-            "P": 5,
-            "O": -2,
-        }
+        assert Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=-1)[0] == expected_oxi_guesses
 
         # negative max_sites less than -1 - should throw error if cannot reduce
         # to under the abs(max_sites) number of sites. Will also timeout if
@@ -560,7 +604,7 @@ class CompositionTest(PymatgenTest):
         assert decorated.get(Species("Ni", 0)) == 1
         assert decorated.get(Species("Al", 0)) == 1
 
-    def test_Metallofullerene(self):
+    def test_metallofullerene(self):
         # Test: Parse Metallofullerene formula (e.g. Y3N@C80)
         formula = "Y3N@C80"
         sym_dict = {"Y": 3, "N": 1, "C": 80}

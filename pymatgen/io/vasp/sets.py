@@ -526,12 +526,11 @@ class DictSet(VaspInputSet):
         # significant difference between SCF -> NonSCF even without Hubbard U enabled.
         # Thanks to Andrew Rosen for investigating and reporting.
         if "LMAXMIX" not in settings:
-            blocks = {site.specie.block for site in structure}
             # contains f-electrons
-            if "f" in blocks:
+            if any(el.Z > 56 for el in structure.composition):
                 incar["LMAXMIX"] = 6
             # contains d-electrons
-            elif "d" in blocks:
+            elif any(el.Z > 20 for el in structure.composition):
                 incar["LMAXMIX"] = 4
 
         # Warn user about LASPH for +U, meta-GGAs, hybrids, and vdW-DF
