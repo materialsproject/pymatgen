@@ -1032,6 +1032,12 @@ class StructureTest(PymatgenTest):
         with pytest.raises(IndexError, match="list index out of range"):
             self.struct.translate_sites([5], [0.5, 0.5, 0.5])
 
+        # test inverse operation leaves structure unchanged
+        original_struct = self.struct.copy()
+        self.struct.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=True, to_unit_cell=False)
+        self.struct.translate_sites([0], [-0.5, -0.5, -0.5], frac_coords=True, to_unit_cell=False)
+        assert self.struct == original_struct
+
     def test_rotate_sites(self):
         self.struct.rotate_sites(
             indices=[1],
