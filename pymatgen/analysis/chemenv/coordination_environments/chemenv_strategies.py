@@ -2024,7 +2024,6 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
             self.area_weight = self.w_area_has_intersection
         elif weight_type == "has_intersection_smoothstep":
             raise NotImplementedError
-            # self.area_weight = self.w_area_has_intersection_smoothstep
         else:
             raise ValueError(f'Weight type is {weight_type!r} while it should be "has_intersection"')
         self.surface_definition = surface_definition
@@ -2058,22 +2057,6 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         :return: Weight of the neighbors set.
         """
         return self.area_weight(
-            nb_set=nb_set,
-            structure_environments=structure_environments,
-            cn_map=cn_map,
-            additional_info=additional_info,
-        )
-
-    def w_area_has_intersection_smoothstep(self, nb_set, structure_environments, cn_map, additional_info):
-        """Get intersection of the neighbors set area with the surface.
-
-        :param nb_set: Neighbors set.
-        :param structure_environments: Structure environments.
-        :param cn_map: Mapping index of the neighbors set.
-        :param additional_info: Additional information.
-        :return: Area intersection between neighbors set and surface.
-        """
-        return self.w_area_intersection_specific(
             nb_set=nb_set,
             structure_environments=structure_environments,
             cn_map=cn_map,
