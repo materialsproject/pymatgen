@@ -2073,18 +2073,12 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         :param additional_info: Additional information.
         :return: Area intersection between neighbors set and surface.
         """
-        w_area = self.w_area_intersection_specific(
+        return self.w_area_intersection_specific(
             nb_set=nb_set,
             structure_environments=structure_environments,
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        if w_area > 0:
-            if self.smoothstep_distance is not None:
-                w_area = w_area
-            if self.smoothstep_angle is not None:
-                w_area = w_area
-        return w_area
 
     def w_area_has_intersection(self, nb_set, structure_environments, cn_map, additional_info):
         """Get intersection of the neighbors set area with the surface.
