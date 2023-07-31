@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from shutil import which
 from subprocess import TimeoutExpired
 
 import pytest
@@ -14,8 +15,7 @@ from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "packmol")
 
-# Just skip this whole test for now since packmol is problematic.
-if True:  # if which("packmol") is None:
+if which("packmol") is None:
     pytest.skip("packmol executable not present", allow_module_level=True)
 
 
