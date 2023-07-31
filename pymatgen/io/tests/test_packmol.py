@@ -185,6 +185,7 @@ class TestPackmolSet(PymatgenTest):
         Confirm that seed = -1 generates random structures
         while seed = 1 is deterministic
         """
+        pytest.importorskip("openbabel")
         mm = MoleculeMatcher()
 
         # deterministic output
