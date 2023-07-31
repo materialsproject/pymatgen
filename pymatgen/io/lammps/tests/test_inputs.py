@@ -4,9 +4,7 @@ import filecmp
 import os
 import re
 import shutil
-import tempfile
 import unittest
-from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -671,45 +669,43 @@ class FuncTest(unittest.TestCase):
 
 class LammpsTemplateGenTest(PymatgenTest):
     def test_write_inputs(self):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            # simple script without data file
-            lis = LammpsTemplateGen().get_input_set(
-                script_template=f"{PymatgenTest.TEST_FILES_DIR}/lammps/kappa.txt",
-                settings={"method": "heat"},
-                data=None,
-                data_filename="data.peptide",
-            )
-            tmp_dir = Path(tmp_dir)
-            assert len(lis) == 1
-            lis.write_input(tmp_dir / "heat")
+        # simple script without data file
+        lis = LammpsTemplateGen().get_input_set(
+            script_template=f"{PymatgenTest.TEST_FILES_DIR}/lammps/kappa.txt",
+            settings={"method": "heat"},
+            data=None,
+            data_filename="data.peptide",
+        )
+        assert len(lis) == 1
+        lis.write_input(self.tmp_path / "heat")
 
-            with open(tmp_dir / "heat" / "in.lammps") as f:
-                kappa_script = f.read()
-            fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
-            # placeholders supposed to be filled
-            assert fix_hot.group(1) == "heat"
-            fix_cold = re.search(r"fix\s+cold\s+all\s+([^\s]+)\s+", kappa_script)
-            assert fix_cold.group(1) == "heat"
-            lattice = re.search(r"lattice\s+fcc\s+(.*)\n", kappa_script)
-            # parentheses not supposed to be filled
-            assert lattice.group(1) == "${rho}"
-            pair_style = re.search(r"pair_style\slj/cut\s+(.*)\n", kappa_script)
-            assert pair_style.group(1) == "${rc}"
+        with open(self.tmp_path / "heat" / "in.lammps") as f:
+            kappa_script = f.read()
+        fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
+        # placeholders supposed to be filled
+        assert fix_hot.group(1) == "heat"
+        fix_cold = re.search(r"fix\s+cold\s+all\s+([^\s]+)\s+", kappa_script)
+        assert fix_cold.group(1) == "heat"
+        lattice = re.search(r"lattice\s+fcc\s+(.*)\n", kappa_script)
+        # parentheses not supposed to be filled
+        assert lattice.group(1) == "${rho}"
+        pair_style = re.search(r"pair_style\slj/cut\s+(.*)\n", kappa_script)
+        assert pair_style.group(1) == "${rc}"
 
-            # script with data file
-            obj = LammpsData.from_file(
-                os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "data.quartz"), atom_style="atomic"
-            )
-            lis = LammpsTemplateGen().get_input_set(
-                script_template=f"{PymatgenTest.TEST_FILES_DIR}/lammps/in.peptide",
-                settings=None,
-                data=obj,
-                data_filename="data.peptide",
-            )
-            assert len(lis) == 2
-            assert isinstance(lis["data.peptide"], LammpsData)
-            lis.write_input(tmp_dir / "obj")
+        # script with data file
+        obj = LammpsData.from_file(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "data.quartz"), atom_style="atomic"
+        )
+        lis = LammpsTemplateGen().get_input_set(
+            script_template=f"{PymatgenTest.TEST_FILES_DIR}/lammps/in.peptide",
+            settings=None,
+            data=obj,
+            data_filename="data.peptide",
+        )
+        assert len(lis) == 2
+        assert isinstance(lis["data.peptide"], LammpsData)
+        lis.write_input(self.tmp_path / "obj")
 
-            obj_read = LammpsData.from_file(str(tmp_dir / "obj" / "data.peptide"), atom_style="atomic")
-            pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
-            pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
+        obj_read = LammpsData.from_file(str(self.tmp_path / "obj" / "data.peptide"), atom_style="atomic")
+        pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
+        pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)

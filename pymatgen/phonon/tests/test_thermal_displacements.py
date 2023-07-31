@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import tempfile
 
 import numpy as np
 from pytest import approx
@@ -167,13 +166,12 @@ class ThermalDisplacementTest(PymatgenTest):
 
     def test_write_file(self):
         printed = False
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            self.thermal.write_cif(os.path.join(tmpdirname, "U.cif"))
-            with open(os.path.join(tmpdirname, "U.cif")) as file:
-                file.seek(0)  # set position to start of file
-                lines = file.read().splitlines()  # now we won't have those newlines
-                if "_atom_site_aniso_U_12" in lines:
-                    printed = True
+        self.thermal.write_cif(f"{self.tmp_path}/U.cif")
+        with open(f"{self.tmp_path}/U.cif") as file:
+            file.seek(0)  # set position to start of file
+            lines = file.read().splitlines()  # now we won't have those newlines
+            if "_atom_site_aniso_U_12" in lines:
+                printed = True
         assert printed
 
     def test_from_ucif(self):
@@ -304,21 +302,19 @@ class ThermalDisplacementTest(PymatgenTest):
     def test_visualization_directionality_criterion(self):
         # test file creation for VESTA
         printed = False
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            self.thermal.visualize_directionality_quality_criterion(
-                filename=os.path.join(tmp_dir, "U.vesta"), other=self.thermal, which_structure=0
-            )
-            with open(os.path.join(tmp_dir, "U.vesta")) as file:
-                file.seek(0)  # set position to start of file
-                lines = file.read().splitlines()  # now we won't have those newlines
-                if "VECTR" in lines:
-                    printed = True
+        self.thermal.visualize_directionality_quality_criterion(
+            filename=f"{self.tmp_path}/U.vesta", other=self.thermal, which_structure=0
+        )
+        with open(f"{self.tmp_path}/U.vesta") as file:
+            file.seek(0)  # set position to start of file
+            lines = file.read().splitlines()  # now we won't have those newlines
+            if "VECTR" in lines:
+                printed = True
         assert printed
 
     def test_from_cif_P1(self):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            self.thermal.write_cif(os.path.join(tmp_dir, "U.cif"))
-            new_thermals = ThermalDisplacementMatrices.from_cif_P1(os.path.join(tmp_dir, "U.cif"))
-            self.assert_all_close(new_thermals[0].thermal_displacement_matrix_cif_matrixform, self.thermal.Ucif)
-            self.assert_all_close(new_thermals[0].structure.frac_coords, self.thermal.structure.frac_coords)
-            self.assert_all_close(new_thermals[0].structure.volume, self.thermal.structure.volume)
+        self.thermal.write_cif(f"{self.tmp_path}/U.cif")
+        new_thermals = ThermalDisplacementMatrices.from_cif_P1(f"{self.tmp_path}/U.cif")
+        self.assert_all_close(new_thermals[0].thermal_displacement_matrix_cif_matrixform, self.thermal.Ucif)
+        self.assert_all_close(new_thermals[0].structure.frac_coords, self.thermal.structure.frac_coords)
+        self.assert_all_close(new_thermals[0].structure.volume, self.thermal.structure.volume)
