@@ -6,7 +6,6 @@ import random
 import warnings
 from pathlib import Path
 from shutil import which
-from tempfile import TemporaryDirectory
 from unittest import skipIf
 
 import numpy as np
@@ -57,10 +56,10 @@ class NeighborTest(PymatgenTest):
         comp = Composition("C")
         for label in (None, "", "str label", ("tuple", "label")):
             neighbor = Neighbor(comp, (0, 0, 0), label=label)
-            assert neighbor.label == label if label is not None else str(comp)
+            assert neighbor.label == label if label is not None else "C"
 
             p_neighbor = PeriodicNeighbor(comp, (0, 0, 0), (10, 10, 10), label=label)
-            assert p_neighbor.label == label if label is not None else str(comp)
+            assert p_neighbor.label == label if label is not None else "C"
 
 
 class IStructureTest(PymatgenTest):
@@ -777,6 +776,7 @@ class StructureTest(PymatgenTest):
         self.structure = Structure(lattice, ["Si", "Si"], coords)
         self.cu_structure = Structure(lattice, ["Cu", "Cu"], coords)
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
+        self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
 
     def test_mutable_sequence_methods(self):
         struct = self.structure
@@ -1063,6 +1063,11 @@ class StructureTest(PymatgenTest):
         self.structure.make_supercell(2)
         assert self.structure.formula == "Si32"
         self.assert_all_close(self.structure.lattice.abc, [15.360792, 35.195996, 7.680396], 5)
+
+    def test_make_supercell_labeled(self):
+        struct = self.labeled_structure.copy()
+        struct.make_supercell([1, 1, 2])
+        assert set(struct.labels) == {"Si1", "Si2"}
 
     def test_disordered_supercell_primitive_cell(self):
         latt = Lattice.cubic(2)
@@ -1467,8 +1472,7 @@ class StructureTest(PymatgenTest):
     def test_relax_ase_opt_kwargs(self):
         pytest.importorskip("ase")
         structure = self.cu_structure
-        tmp_dir = TemporaryDirectory()
-        traj_file = f"{tmp_dir.name}/testing.traj"
+        traj_file = f"{self.tmp_path}/testing.traj"
         relaxed, traj = structure.relax(
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
         )
@@ -2005,8 +2009,7 @@ class MoleculeTest(PymatgenTest):
 
     def test_relax_ase_mol_return_traj(self):
         pytest.importorskip("ase")
-        tmp_dir = TemporaryDirectory()
-        traj_file = f"{tmp_dir.name}/testing.traj"
+        traj_file = f"{self.tmp_path}/testing.traj"
         relaxed, traj = self.mol.relax(
             calculator=EMT(), fmax=0.01, steps=2, return_trajectory=True, opt_kwargs={"trajectory": traj_file}
         )

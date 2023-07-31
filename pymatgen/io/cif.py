@@ -13,7 +13,7 @@ from inspect import getfullargspec as getargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.io import zopen
@@ -31,6 +31,9 @@ from pymatgen.symmetry.groups import SYMM_DATA, SpaceGroup
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
+
+if TYPE_CHECKING:
+    from pymatgen.core.trajectory import Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
@@ -552,17 +555,26 @@ class CifParser:
 
         return data
 
-    def _unique_coords(self, coords_in, magmoms_in=None, lattice=None):
+    def _unique_coords(
+        self,
+        coords: list[Vector3D],
+        magmoms: list[Magmom] | None = None,
+        lattice: Lattice | None = None,
+        labels: dict[Vector3D, str] | None = None,
+    ):
         """
         Generate unique coordinates using coord and symmetry positions
         and also their corresponding magnetic moments, if supplied.
         """
-        coords = []
-        if magmoms_in:
-            magmoms = []
-            if len(magmoms_in) != len(coords_in):
+        coords_out: list[np.ndarray] = []
+        labels_out = []
+        labels = labels or {}
+
+        if magmoms:
+            magmoms_out = []
+            if len(magmoms) != len(coords):
                 raise ValueError
-            for tmp_coord, tmp_magmom in zip(coords_in, magmoms_in):
+            for tmp_coord, tmp_magmom in zip(coords, magmoms):
                 for op in self.symmetry_operations:
                     coord = op.operate(tmp_coord)
                     coord = np.array([i - math.floor(i) for i in coord])
@@ -575,18 +587,22 @@ class CifParser:
                         )
                     else:
                         magmom = Magmom(tmp_magmom)
-                    if not in_coord_list_pbc(coords, coord, atol=self._site_tolerance):
-                        coords.append(coord)
-                        magmoms.append(magmom)
-            return coords, magmoms
+                    if not in_coord_list_pbc(coords_out, coord, atol=self._site_tolerance):
+                        coords_out.append(coord)
+                        magmoms_out.append(magmom)
+                        labels_out.append(labels.get(tmp_coord))
+            return coords_out, magmoms_out, labels_out
 
-        for tmp_coord in coords_in:
+        for tmp_coord in coords:
             for op in self.symmetry_operations:
                 coord = op.operate(tmp_coord)
                 coord = np.array([i - math.floor(i) for i in coord])
-                if not in_coord_list_pbc(coords, coord, atol=self._site_tolerance):
-                    coords.append(coord)
-        return coords, [Magmom(0)] * len(coords)  # return dummy magmoms
+                if not in_coord_list_pbc(coords_out, coord, atol=self._site_tolerance):
+                    coords_out.append(coord)
+                    labels_out.append(labels.get(tmp_coord))
+
+        dummy_magmoms = [Magmom(0)] * len(coords_out)
+        return coords_out, dummy_magmoms, labels_out
 
     def get_lattice(
         self,
@@ -1022,9 +1038,11 @@ class CifParser:
                 tmp_magmom = [coord_to_magmoms[tmp_coord] for tmp_coord in tmp_coords]
 
                 if self.feature_flags["magcif"]:
-                    coords, magmoms = self._unique_coords(tmp_coords, magmoms_in=tmp_magmom, lattice=lattice)
+                    coords, magmoms, new_labels = self._unique_coords(
+                        tmp_coords, magmoms=tmp_magmom, labels=labels, lattice=lattice
+                    )
                 else:
-                    coords, magmoms = self._unique_coords(tmp_coords)
+                    coords, magmoms, new_labels = self._unique_coords(tmp_coords, labels=labels)
 
                 if set(comp.elements) == {Element("O"), Element("H")}:
                     # O with implicit hydrogens
@@ -1049,7 +1067,7 @@ class CifParser:
                 all_coords.extend(coords)
                 all_species.extend(len(coords) * [species])
                 all_magmoms.extend(magmoms)
-                all_labels.extend(len(coords) * [labels[tmp_coords[0]]])
+                all_labels.extend(new_labels)
 
             # rescale occupancies if necessary
             for idx, species in enumerate(all_species):
@@ -1342,15 +1360,19 @@ class CifWriter:
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
-                    atom_site_label.append(f"{sp.symbol}{count}")
                     atom_site_occupancy.append(str(occu))
+                    site_label = f"{sp.symbol}{count}"
 
                     if "magmom" in site.properties:
                         mag = site.properties["magmom"]
                     elif getattr(sp, "spin", None) is not None:
                         mag = sp.spin
                     else:
+                        # Use site label if available for regular sites
+                        site_label = site.label if site.label != site.species_string else site_label
                         mag = 0
+
+                    atom_site_label.append(site_label)
 
                     magmom = Magmom(mag)
                     if write_magmoms and abs(magmom) > 0:
@@ -1386,7 +1408,8 @@ class CifWriter:
                     atom_site_fract_x.append(format_str.format(site.a))
                     atom_site_fract_y.append(format_str.format(site.b))
                     atom_site_fract_z.append(format_str.format(site.c))
-                    atom_site_label.append(f"{sp.symbol}{count}")
+                    site_label = site.label if site.label != site.species_string else f"{sp.symbol}{count}"
+                    atom_site_label.append(site_label)
                     atom_site_occupancy.append(str(occu))
                     count += 1
 

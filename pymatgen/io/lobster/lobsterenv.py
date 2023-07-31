@@ -1279,9 +1279,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         Returns: LobsterLightStructureEnvironments
         """
         strategy = None
-        valences = valences
         valences_origin = "user-defined"
-        structure = structure
 
         coordination_environments = []
 
