@@ -333,7 +333,7 @@ loop_
             # Ensure the site label starts with the site species name
             assert site.label.startswith(site.specie.name)
 
-        # ensure multiple species with different names have coorect labels
+        # ensure multiple species with different names have correct labels
         parser2 = CifParser(f"{self.TEST_FILES_DIR}/Fe3O4.cif")
         struct2 = parser2.get_structures(primitive=False)[0]
 
