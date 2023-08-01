@@ -12,68 +12,20 @@ of everyone on this page! This goes from the smallest bug fix or addition
 to years of contributions.
 
 If you believe your name has been missed from this list, please let us know
-by filling out `this form`_ so you can be credited appropriately.
-A list of pymatgen developers can also be found `on GitHub`_.
+by filling out [this form](https://forms.gle/JnisFb38QDR8QTFTA) so you can be credited appropriately.
+A list of `pymatgen` developers can also be found [on GitHub](https://github.com/materialsproject/pymatgen/graphs/contributors).
 
-.. _this form: https://forms.gle/JnisFb38QDR8QTFTA
-.. _on GitHub: https://github.com/materialsproject/pymatgen/graphs/contributors
+_A zoomable, interactive map of `pymatgen` contributors based on associated institutions. If you spot an error or omission, let us know or fill out the form above._
 
-.. raw:: html
-   :file: _static/team-map.html
-
-:caption: A zoomable, interactive map of pymatgen contributors based on associated institutions. If you spot an error or an omission, let us know or fill out the form above.
-
-# Maintainers
+<iframe src="/_static/team-map.html" width="100%" height="500"></iframe>
 
 ## Lead Maintainers
 
-| **Shyue Ping Ong** |shyuep| |0000-0001-7777-8871|
-| Founding developer of *pymatgen*
-| Associate Professor, Department of NanoEngineering
-| University of California, San Diego
-
-.. |shyuep| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
-   :target: https://github.com/shyuep
-   :width: 16
-   :height: 16
-   :alt: GitHub commits from shyuep
-
-.. |0000-0001-5726-2587| image:: _static/orcid.svg
-   :target: https://orcid.org/0000-0001-5726-2587
-   :width: 16
-   :height: 16
-   :alt: ORCID profile for 0000-0001-5726-2587
-
-| **Matthew Horton** |mkhorton| |0000-0001-7777-8871|
-| Senior Research Software Engineer
-| Microsoft Research
-
-.. |mkhorton| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
-   :target: https://github.com/mkhorton
-   :width: 16
-   :height: 16
-   :alt: GitHub commits from mkhorton
-
-.. |0000-0001-7777-8871| image:: _static/orcid.svg
-   :target: https://orcid.org/0000-0001-7777-8871
-   :width: 16
-   :height: 16
-   :alt: ORCID profile for 0000-0001-7777-8871
-
-| **Janosh Riebesell** |janosh|
-| University of Cambridge
-| Materials Project Staff
-.. |janosh| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
-   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:janosh
-   :width: 16
-   :height: 16
-   :alt: janosh GitHub profile
-
-.. |janosh.dev| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/browser.svg
-   :target: https://janosh.dev
-   :width: 16
-   :height: 16
-   :alt: janosh homepage
+| Name             |                                                                          | ![GitHub](https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg) GitHub | ![orcid](_static/orcid.svg) ORCID                            | 🌐 Web                                                        |
+| ---------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Shyue Ping Ong   | Lead developer, Associate Professor, Department of NanoEngineering, UCSD | [shyuep](https://github.com/shyuep)                                                         | [0000-0001-7777-8871](https://orcid.org/0000-0001-5726-2587) | [materialsvirtuallab.org](https://materialsvirtuallab.org)   |
+| Matthew Horton   | Senior Software Engineer @ Microsoft Research                            | [mkhorton](https://github.com/mkhorton)                                                     | [0000-0001-7777-8871](https://orcid.org/0000-0001-7777-8871) | [linkedin.com/in/mkhorton](https://linkedin.com/in/mkhorton) |
+| Janosh Riebesell | University of Cambridge, Materials Project Staff                         | [janosh](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:janosh)          | [0000-0001-5233-3462](https://orcid.org/0000-0001-5233-3462) | [janosh.dev](https://janosh.dev)                             |
 
 ## Newest Contributors
 
