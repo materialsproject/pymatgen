@@ -5,7 +5,7 @@ monty==2022.9.9
 ruamel.yaml==0.17.32
 scipy==1.9.0
 tabulate==0.9.0
-matplotlib==3.5.2
+matplotlib==3.7.2
 palettable==3.3.0
 spglib==2.0.2
 pandas==2.0.3
