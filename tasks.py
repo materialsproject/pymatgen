@@ -49,21 +49,21 @@ def make_doc(ctx):
             with open(fn, "w") as f:
                 f.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
-        ctx.run("cp ../README.md index.md")
+        # ctx.run("cp ../README.md index.md")
         ctx.run("cp ../CHANGES.md CHANGES.md")
         ctx.run("rm -rf *.orig doctrees", warn=True)
 
-        with open("index.md") as f:
-            contents = f.read()
-        with open("index.md", "w") as f:
-            contents = re.sub(
-                r"\n## Official Documentation[^#]*",
-                "{: .no_toc }\n\n## Table of contents\n{: .no_toc .text-delta }\n* TOC\n{:toc}\n\n",
-                contents
-            )
-            contents = "---\nlayout: default\ntitle: Home\nnav_order: 1\n---\n\n" + contents
-
-            f.write(contents)
+        # with open("index.md") as f:
+        #     contents = f.read()
+        # with open("index.md", "w") as f:
+        #     contents = re.sub(
+        #         r"\n## Official Documentation[^#]*",
+        #         "{: .no_toc }\n\n## Table of contents\n{: .no_toc .text-delta }\n* TOC\n{:toc}\n\n",
+        #         contents
+        #     )
+        #     contents = "---\nlayout: default\ntitle: Home\nnav_order: 1\n---\n\n" + contents
+        #
+        #     f.write(contents)
 
 @task
 def make_dash(ctx):
