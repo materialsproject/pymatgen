@@ -1,3 +1,9 @@
+---
+layout: default
+title: Changelog
+nav_order: 3
+---
+
 # Change log
 
 - Unreadable string concat ops to f-string by @janosh in https://github.com/materialsproject/pymatgen/pull/3162

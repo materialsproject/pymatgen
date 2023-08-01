@@ -1,16 +1,16 @@
-============
-Installation
-============
+---
+layout: default
+title: Installation
+nav_order: 2
+---
 
-Requirements
-============
+## Requirements
 
 All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-Optional dependencies
----------------------
+## Optional dependencies
 
 Optional libraries that are required if you need certain features.
 
@@ -36,8 +36,7 @@ Optional libraries that are required if you need certain features.
    numba places additional constraints on the versions of numpy and 
    Python that may be used.
 
-Optional non-Python programs
-----------------------------
+## Optional non-Python programs
 
 Optional non-python libraries (because no good python alternative exists at
 the moment) required only for certain features:
@@ -45,8 +44,8 @@ the moment) required only for certain features:
 1. ffmpeg: For generation of movies in structure_vtk.py. The executable ffmpeg
    must be in the path. Get it at http://www.ffmpeg.org.
 2. enum: For the use of
-   :class:`pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation`
-   and :mod:`pymatgen.command_line.enumlib_caller` module. This library by Gus
+   `pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation`
+   and `pymatgen.command_line.enumlib_caller` module. This library by Gus
    Hart provides a robust way to enumerate derivative structures. It can be
    used to completely enumerate all symmetrically distinct ordered structures
    of disordered structures via EnumerateStructureTransformation. Many other
@@ -72,8 +71,7 @@ the moment) required only for certain features:
 8. graphviz (http://graphviz.org): For visualization of graphs generated
    using critic2.
 
-Conda-based install
-===================
+## Conda-based install
 
 For these instructions, we will assume the **64-bit** versions of all OSes.
 For OSX and Linux, both latest Python 3.x and 2.7 are supported. For Windows,
@@ -81,8 +79,7 @@ only latest Python 3.x is supported. Most common functionality should work
 out of the box on Windows, but some specialized analyses relying on external
 programs may require you to compile those programs from source.
 
-Step 1: Install conda
----------------------
+### Step 1: Install conda
 
 Download and install the version of conda for your operating system from
 http://conda.pydata.org/miniconda.html. For Windows, **make sure it is the
@@ -98,8 +95,7 @@ run::
 Note that you may need to create a new terminal after this step in order for
 the environmental variables added by conda to be loaded.
 
-Step 2b: (Optional) Create a conda environment
-----------------------------------------------
+### Step 2b: (Optional) Create a conda environment
 
 If you are working with many python packages, it is generally recommended you
 create a separate environment for each of your packages. For example::
@@ -108,8 +104,7 @@ create a separate environment for each of your packages. For example::
     source activate my_pymatgen  # OSX or Linux
     activate my_pymatgen  # Windows
 
-Step 3: Install pymatgen
-------------------------
+### Step 3: Install pymatgen
 
 You can install pymatgen via conda as well via the conda-forge channel on
 Anaconda cloud::
@@ -122,8 +117,7 @@ then do pip install::
     conda install --yes numpy scipy matplotlib
     pip install pymatgen
 
-Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)
----------------------------------------------------------------------
+### Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)
 
 If you would like to use the enumeration capabilities powered by Gus Hart's
 enumlib or perform Bader charge analysis powered by the Bader analysis code
@@ -136,64 +130,78 @@ command line tool as follows::
 Then put these in your PATH somewhere. You can also download the source of
 these from the official repos and follow the compile instructions.
 
-POTCAR Setup
-============
+## POTCAR Setup
 
 For the code to generate POTCAR files, it needs to know where the VASP
 pseudopotential files are. We are not allowed to distribute these under the
 VASP license. The good news is that the `pmg` command line utility includes a
 config functionality.
 
-After installation, do::
+After installation, do
 
-    pmg config -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
+```bash
+pmg config -p <EXTRACTED_VASP_POTCAR> <MY_PSP>
+```
 
 In the above, `<EXTRACTED_VASP_POTCAR>` is the location of the directory that
 you extracted the downloaded VASP pseudopotential files. Typically, it has
-the following format::
+the following format:
 
-    - <EXTRACTED_VASP_POTCAR>
-    |- POT_GGA_PAW_PBE
-    ||- Ac_s
-    |||-POTCAR
-    |||-...
+```
+ - <EXTRACTED_VASP_POTCAR>
+ |- POT_GGA_PAW_PBE
+ ||- Ac_s
+ |||-POTCAR
+ |||-...
+```
 
-or::
+or:
 
-    - <EXTRACTED_VASP_POTCAR>
-    |- potpaw_PBE
-    ||- Ac_s
-    |||-POTCAR
-    |||-...
+```
+ - <EXTRACTED_VASP_POTCAR>
+ |- potpaw_PBE
+ ||- Ac_s
+ |||-POTCAR
+ |||-...
+```
+
 
 and follow the instructions. If you have done it correctly, you should get a
 resources directory with the following directory structure::
 
-    - psp_resources
-    |- POT_GGA_PAW_PBE
-    ||- POTCAR.Ac_s.gz
-    ||- POTCAR.Ac.gz
-    ||- POTCAR.Ag.gz
-    ...
-    |- POT_GGA_PAW_PW91
-    ...
+```
+- psp_resources
+|- POT_GGA_PAW_PBE
+||- POTCAR.Ac_s.gz
+||- POTCAR.Ac.gz
+||- POTCAR.Ag.gz
+...
+|- POT_GGA_PAW_PW91
+...
+```
 
 After generating the resources directory, you should add a VASP_PSP_DIR config
 variable pointing to the generated directory and you should then be
-able to generate POTCARs::
+able to generate POTCARs:
 
-    pmg config --add PMG_VASP_PSP_DIR <MY_PSP>
+```bash
+pmg config --add PMG_VASP_PSP_DIR <MY_PSP>
+```
 
 If you are using newer sets of pseudopotential files from VASP, the directory
 names may be different, e.g., POT_GGA_PAW_PBE_52. For such cases, please also
-add a default functional specification as follows::
+add a default functional specification as follows:
 
-    pmg config --add PMG_DEFAULT_FUNCTIONAL PBE_52
+```bash
+pmg config --add PMG_DEFAULT_FUNCTIONAL PBE_52
+```
 
 You can also use this to specify whatever functional you would like to use by
 default in pymatgen, e.g., LDA_52, PW91, etc. Type::
 
-    pmg potcar -h
+```bash
+pmg potcar -h
+```
 
 to see full list of choices.
 
@@ -209,10 +217,9 @@ to see full list of choices.
     from these other functionals with Materials Project data. For up-to-date information
     on this, please consult the Materials Project documentation.
 
-PyPy Support
-============
+## PyPy Support
 
-`PyPy <https://www.pypy.org>`_ is an alternative Python interpreter for running Python code
+[PyPy](https://www.pypy.org) is an alternative Python interpreter for running Python code
 and comes with significant speed improvements for common applications. However, historically,
 fewer packages offer PyPy support.
 
@@ -232,22 +239,18 @@ but it comes with some important caveats:
 
 We welcome any developers interested in expanding our PyPy support.
 
-Setup for Developers (using GitHub)
-===================================
+## Setup for Developers (using GitHub)
 
-Step 1: Preparing your system
------------------------------
+### Step 1: Preparing your system
 
-Windows
-~~~~~~~
+#### Windows
 
 1. Download Microsoft Visual Studio 2015 (the free Community Edition) is fine.
 2. Install Visual Studio 2015, but *make sure that you select More Options ->
    Programming Languages -> Visual C++ during the installation process*. By
    default, Visual Studio does not install Visual C++, which is needed.
 
-Mac OSX
-~~~~~~~
+#### Mac OSX
 
 1. Download and install Xcode. Afterwards, install the XCode command line
    tools by typing the following in a terminal::
@@ -257,14 +260,12 @@ Mac OSX
 2. (Optional) Install gfortran. Get an installer at
    http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
 
-Linux
-~~~~~
+#### Linux
 
 1. Usually no preparation is needed as most of the standard compilers should
    already be available.
 
-Step 2: Install pymatgen in developmental mode
-----------------------------------------------
+### Step 2: Install pymatgen in developmental mode
 
 1. Make sure you have git and `git-lfs <https://git-lfs.github.com/>`_ installed.
    Clone the repo at https://github.com/materialsproject/pymatgen.
@@ -285,8 +286,7 @@ and functionality of the code.
 Please read up on pymatgen's :doc:`coding guidelines </contributing>` before
 you start coding. It will make integration much easier.
 
-Installation tips for optional libraries
-========================================
+## Installation tips for optional libraries
 
 This section provides a guide for installing various optional libraries used in
 pymatgen. Some of the python libraries are rather tricky to build in certain
@@ -295,8 +295,7 @@ Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard
 gcc and other compilers (e.g., Xcode on Macs) already installed.
 
-VTK on Mac OS X (tested on v7.0)
---------------------------------
+### VTK on Mac OS X (tested on v7.0)
 
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
@@ -336,8 +335,7 @@ installed. You can test this by going into a python terminal and trying::
 
     import vtk
 
-OpenBabel Mac OS X (tested on v2.3.2)
--------------------------------------
+### OpenBabel Mac OS X (tested on v2.3.2)
 
 **Anaconda install**
 
@@ -426,8 +424,7 @@ Here are the steps that I took to make it work:
 
         export PYTHONPATH=/usr/local/lib:$PYTHONPATH
 
-Zeo++
------
+### Zeo++
 
 If you use the defects analysis package, you will need to install Zeo++.
 

@@ -1,5 +1,9 @@
-Compatibility
-=============
+---
+layout: default
+title: Compatibility
+nav_order: 4
+---
+# Compatibility
 
 Pymatgen is a tool used for academic research and is actively developed by
 a large community of people. As such, releases are frequent, and new features
@@ -15,8 +19,7 @@ future development, or because other libraries we depend upon might change
 their own requirements. If a breaking change is causing significant issues,
 please post on the GitHub Issues page to see if it can be resolved.
 
-Depending on Pymatgen
----------------------
+## Depending on Pymatgen
 
 Pymatgen uses `calendar versioning <http://calver.org/>`_ based on a YYYY-MM-DD format.
 This has generally worked well since changes to core pymatgen functionality that most
@@ -53,8 +56,7 @@ example `pymatgen==2021.3.3`. While this will always install the same version of
 it can lead to unnecessary dependency conflicts with other tools that depend on (a different
 version of) Pymatgen.
 
-Minimum Python Version
-----------------------
+## Minimum Python Version
 
 As a rule of thumb, pymatgen will support whatever versions of Python the latest
 version of numpy supports (at the time of writing, this is Python 3.8+). You can
@@ -62,17 +64,15 @@ also check what versions of Python are being tested automatically as part of our
 continuous integration testing on GitHub. We currently test pymatgen on Mac,
 Windows and Linux.
 
-Recent Breaking Changes
------------------------
+## Recent Breaking Changes
 
-v2022.9.28
+### v2022.9.28
 
 Merge `Waverder` and `Wavederf` objects into a single `Waverder` object.
 `#2666 <https://github.com/materialsproject/pymatgen/pull/2666>`_
 #. :code:`pymatgen.io.vasp.outputs` 
 
-v2022.2.1
-~~~~~~~~~
+### v2022.2.1
 
 Moved defect-specific code under `defects` module.
 `#2582 <https://github.com/materialsproject/pymatgen/pull/2582>`_
@@ -96,13 +96,11 @@ Removal of deprecated functions:
 #. :code:`Lattice.lengths_and_angles()`
 #. :code:`Site.species_and_occu()`
 
-v2022.01.08
-~~~~~~~~~~~
+### v2022.01.08
 
 Dropped Python 3.7 support for compatibility with the latest numpy. `d00945 <https://github.com/materialsproject/pymatgen/commit/d00945491e9b53548ea8a6755a002c2066ad0ac9>`_ `61ec51c <https://github.com/materialsproject/pymatgen/commit/61ec51cc9751d65df0783af3713e2425d733191e>`_
 
-v2022.0.0
-~~~~~~~~~
+### v2022.0.0
 
 Pymatgen root imports have been removed from v2022.0.0 in preparation for a change to a more modular, extensible
 architecture that will allow more developers to contribute.
@@ -140,14 +138,12 @@ From a Linux command line, you can try::
 This should resolve most import errors and only a few more modifications may
 need to be done by hand.
 
-v2021.3.3
-~~~~~~~~~
+### v2021.3.3
 
 The variable `pymatgen.SETTINGS` has been moved to `pymatgen.settings.SETTINGS`. Since this is
 mostly used internally within pymatgen, it is not expected to lead to significant external issues.
 
-v2021.2.8.1
-~~~~~~~~~~~
+### v2021.2.8.1
 
 The minimum version of Python was increased from 3.6 to 3.7 following the lead of numpy. However,
 at this point there are no exclusively Python 3.7+ features used in pymatgen so pymatgen may still
@@ -156,8 +152,7 @@ be able to be installed manually on Python 3.6 systems, although this usage is n
 Support for `aconvasp` has been removed since the corresponding tests were failing and this module
 was not being maintained.
 
-v2020.10.20
-~~~~~~~~~~~
+### v2020.10.20
 
 The band structure plotting functionality, `BSPlotter`, has been overhauled to allow plotting of
 multiple band structures. This might cause issues for tools relying on the internal structure
