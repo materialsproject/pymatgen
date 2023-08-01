@@ -2536,8 +2536,7 @@ right away.
 ### _class_ pymatgen.util.testing.PymatgenTest(methodName='runTest')
 Bases: `TestCase`
 
-Extends unittest.TestCase with functions (taken from numpy.testing.utils)
-that support the comparison of arrays.
+Extends unittest.TestCase with several assert methods for array and str comparison.
 
 Create an instance of the class that will use the named test
 method when executed. Raises a ValueError if the instance does
@@ -2614,8 +2613,6 @@ test_eq is True.
     protocols.
 
 
-
-#### warnings(_ = <module 'warnings' from '/Users/shyue/miniconda3/envs/mavrl/lib/python3.9/warnings.py'_ )
 ## pymatgen.util.typing module
 
 This module defines convenience types for type hinting purposes.

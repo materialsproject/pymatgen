@@ -25500,9 +25500,6 @@ nav_order: 5
             * [`PymatgenTest.serialize_with_pickle()`](pymatgen.util.md#pymatgen.util.testing.PymatgenTest.serialize_with_pickle)
 
 
-            * [`PymatgenTest.warnings`](pymatgen.util.md#pymatgen.util.testing.PymatgenTest.warnings)
-
-
     * [pymatgen.util.typing module](pymatgen.util.md#module-pymatgen.util.typing)
 
 

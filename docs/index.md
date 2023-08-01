@@ -6,8 +6,9 @@ nav_order: 1
 
 <h1 align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen-white.svg">
-    <img alt="Logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.svg" height="70">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/assets/pymatgen-white.svg">
+    <img alt="Logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/assets/pymatgen.svg"
+height="70">
   </picture>
 </h1>
 
