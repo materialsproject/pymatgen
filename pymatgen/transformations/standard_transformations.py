@@ -562,38 +562,34 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         # generate the list of manipulations and input structure
         struct = Structure.from_sites(structure)
 
-        m_list = []
+        manipulations = []
         for group in equivalent_sites:
             total_occupancy = dict(
                 sum((structure[idx].species for idx in group), Composition()).items()  # type: ignore[attr-defined]
             )
             # round total occupancy to possible values
-            for k, v in total_occupancy.items():
-                if abs(v - round(v)) > 0.25:
+            for key, val in total_occupancy.items():
+                if abs(val - round(val)) > 0.25:
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
-                total_occupancy[k] = int(round(v))
+                total_occupancy[key] = int(round(val))
             # start with an ordered structure
             initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))
             for idx in group:
                 struct[idx] = initial_sp
             # determine the manipulations
-            for k, v in total_occupancy.items():
-                if k == initial_sp:
+            for key, val in total_occupancy.items():
+                if key == initial_sp:
                     continue
-                m = [
-                    k.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state else 0,
-                    v,
-                    list(group),
-                    k,
-                ]
-                m_list.append(m)
+                oxi_ratio = key.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state else 0
+                manipulation = [oxi_ratio, val, list(group), key]
+                manipulations.append(manipulation)
             # determine the number of empty sites
             empty = len(group) - sum(total_occupancy.values())
             if empty > 0.5:
-                m_list.append([0, empty, list(group), None])
+                manipulations.append([0, empty, list(group), None])
 
         matrix = EwaldSummation(struct).total_energy_matrix
-        ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self.algo)
+        ewald_m = EwaldMinimizer(matrix, manipulations, num_to_return, self.algo)
 
         self._all_structures = []
 
