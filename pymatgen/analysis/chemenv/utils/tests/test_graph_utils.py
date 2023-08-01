@@ -4,11 +4,7 @@ import numpy as np
 import pytest
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.analysis.chemenv.utils.graph_utils import (
-    MultiGraphCycle,
-    SimpleGraphCycle,
-    get_delta,
-)
+from pymatgen.analysis.chemenv.utils.graph_utils import MultiGraphCycle, SimpleGraphCycle, get_delta
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
@@ -28,7 +24,7 @@ class FakeNodeWithEqMethod:
             return NotImplemented
         return self.isite == other.isite
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return 0
 
 
@@ -45,9 +41,9 @@ class FakeNodeWithEqLtMethods:
         return self.isite < other.isite
 
     def __str__(self):
-        return f"FakeNode_{self.isite:d}"
+        return f"FakeNode_{self.isite}"
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return 0
 
 
@@ -65,7 +61,7 @@ class FakeNodeWithEqMethodWrongSortable:
 
         return self.isite == other.isite
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return 0
 
     def __lt__(self, other):

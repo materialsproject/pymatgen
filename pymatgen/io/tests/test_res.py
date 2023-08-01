@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-import os
-
 import pytest
+from pytest import approx
 
 from pymatgen.core import Structure
-from pymatgen.io.res import AirssProvider, ParseError, ResWriter
+from pymatgen.io.res import AirssProvider, ResParseError, ResWriter
 from pymatgen.util.testing import PymatgenTest
 
-res_coc = os.path.join(PymatgenTest.TEST_FILES_DIR, "res", "coc-115925-9326-14.res")
+res_coc = f"{PymatgenTest.TEST_FILES_DIR}/res/coc-115925-9326-14.res"
 
 
 @pytest.mark.parametrize("provider", [AirssProvider.from_file(res_coc, "strict")])
@@ -17,9 +16,9 @@ class TestAirssProvider:
         entry = provider.get_cut_grid_gmax_fsbc()
         assert entry is not None
         cut, gs, gm, fsbc = entry
-        assert cut == pytest.approx(326.5366)
-        assert gs == pytest.approx(1.75)
-        assert gm == pytest.approx(16.201)
+        assert cut == approx(326.5366)
+        assert gs == approx(1.75)
+        assert gm == approx(16.201)
         assert fsbc == "automatic"
 
     def test_moks(self, provider: AirssProvider):
@@ -38,14 +37,14 @@ class TestAirssProvider:
 
     def test_titl(self, provider: AirssProvider):
         assert provider.seed == "coc-115925-9326-14"
-        assert provider.energy == pytest.approx(-3.90427411e003)
+        assert provider.energy == approx(-3.90427411e003)
         assert provider.spacegroup_label == "R3"
-        assert provider.pressure == pytest.approx(15.0252)
-        assert provider.volume == pytest.approx(57.051984)
+        assert provider.pressure == approx(15.0252)
+        assert provider.volume == approx(57.051984)
 
     def test_lattice(self, provider: AirssProvider):
-        assert provider.lattice.lengths == pytest.approx((5.07144, 5.07144, 3.89024))
-        assert provider.lattice.angles == pytest.approx((49.32125, 49.32125, 60))
+        assert provider.lattice.lengths == approx((5.07144, 5.07144, 3.89024))
+        assert provider.lattice.angles == approx((49.32125, 49.32125, 60))
 
     def test_misc(self, provider: AirssProvider):
         rs_info = provider.get_run_start_info()
@@ -84,7 +83,7 @@ class TestAirssProvider:
         string_strip = "\n".join(line for line in string.splitlines() if "REM" not in line)
         prov = AirssProvider.from_str(string_strip, "strict")
         assert entry.structure == prov.entry.structure
-        with pytest.raises(ParseError):
+        with pytest.raises(ResParseError, match="No CASTEP version found in REM"):
             prov.get_castep_version()
 
     def test_as_dict(self, provider: AirssProvider):
@@ -110,10 +109,10 @@ class TestAirssProvider:
             "volume",
         ]
         assert dct["seed"] == "coc-115925-9326-14"
-        assert dct["energy"] == pytest.approx(-3904.2741)
+        assert dct["energy"] == approx(-3904.2741)
         assert dct["spacegroup_label"] == "R3"
-        assert dct["pressure"] == pytest.approx(15.0252)
-        assert dct["volume"] == pytest.approx(57.051984)
+        assert dct["pressure"] == approx(15.0252)
+        assert dct["volume"] == approx(57.051984)
 
 
 class TestSpin:
@@ -127,12 +126,12 @@ class TestSpin:
 
         for site in provider.structure:
             if site.properties["magmom"] is not None:
-                assert site.properties.get("magmom") == pytest.approx(-1.4)
+                assert site.properties.get("magmom") == approx(-1.4)
                 return
         pytest.fail("valid 'magmom' not found in any site properties")
 
     def test_gh_2938_example(self):
-        res_spin_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "res", "spins-in-last-col.res")
+        res_spin_file = f"{PymatgenTest.TEST_FILES_DIR}/res/spins-in-last-col.res"
         with open(res_spin_file) as res_file:
             contents = res_file.read()
 
@@ -147,4 +146,4 @@ class TestStructureModule:
     def test_structure_from_file(self):
         structure: Structure = Structure.from_file(res_coc)
         # just check that we read it
-        assert structure.lattice.angles == pytest.approx((49.32125, 49.32125, 60))
+        assert structure.lattice.angles == approx((49.32125, 49.32125, 60))

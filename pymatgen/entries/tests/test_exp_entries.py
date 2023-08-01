@@ -27,7 +27,3 @@ class ExpEntryTest(unittest.TestCase):
 
     def test_str(self):
         assert str(self.entry) is not None
-
-
-if __name__ == "__main__":
-    unittest.main()

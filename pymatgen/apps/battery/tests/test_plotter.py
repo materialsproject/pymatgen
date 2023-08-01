@@ -47,7 +47,3 @@ class VoltageProfilePlotterTest(unittest.TestCase):
         plotter.add_electrode(self.ie_LTO, "LTO insertion")
         fig = plotter.get_plotly_figure()
         assert fig.layout.xaxis.title.text == "x Workion Ion per Host F.U."
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import pytest
 
 from pymatgen.core.molecular_orbitals import MolecularOrbitals
@@ -40,9 +38,5 @@ class MolecularOrbitalTestCase(PymatgenTest):
 
     # test for raising ValueError for fractional composition
     def test_fractional_compositions(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="composition subscripts must be integers"):
             MolecularOrbitals("Na0.5Cl0.5")
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -89,8 +89,7 @@ def readfile(file_object):
         return file_object.read()
     if isinstance(file_object, str):
         with open(file_object) as f:
-            content = f.read()
-        return content
+            return f.read()
     raise ValueError("``file_object`` must be a string or a file object!")
 
 
@@ -131,21 +130,21 @@ class AdfKeyTest(unittest.TestCase):
         assert str(AdfKey.from_dict(zlmfit.as_dict())) == zlmfit_string
 
     def test_from_string(self):
-        k1 = AdfKey.from_string("CHARGE -1 0")
+        k1 = AdfKey.from_str("CHARGE -1 0")
         assert k1.key == "CHARGE"
         assert k1.options == [-1, 0]
 
-        k2 = AdfKey.from_string("step rad=0.15 angle=10.0")
+        k2 = AdfKey.from_str("step rad=0.15 angle=10.0")
         assert k2.key == "step"
         assert k2.options[0] == ["rad", 0.15]
         assert k2.options[1] == ["angle", 10.0]
 
-        k3 = AdfKey.from_string("GEOMETRY\noptim all\niterations 100\nEND\n")
+        k3 = AdfKey.from_str("GEOMETRY\noptim all\niterations 100\nEND\n")
         assert k3.key == "GEOMETRY"
         assert k3.subkeys[0].options[0] == "all"
         assert k3.subkeys[1].options[0] == 100
 
-        k4 = AdfKey.from_string(
+        k4 = AdfKey.from_str(
             """SCF
             iterations 300
             converge 1.0e-7 1.0e-7
@@ -166,7 +165,7 @@ class AdfKeyTest(unittest.TestCase):
         k1.remove_option(0)
         assert k1.options == [0, 2]
 
-        k2 = AdfKey.from_string("step rad=0.15 angle=10.0")
+        k2 = AdfKey.from_str("step rad=0.15 angle=10.0")
         k2.add_option(["length", 0.1])
         assert k2.options[2] == ["length", 0.1]
         k2.remove_option("rad")
@@ -225,23 +224,23 @@ class AdfTaskTest(unittest.TestCase):
 
 rhb18 = {
     "title": "RhB18",
-    "basis_set": AdfKey.from_string("BASIS\ntype TZP\ncore small\nEND"),
-    "xc": AdfKey.from_string("XC\nHybrid PBE0\nEND"),
-    "units": AdfKey.from_string("UNITS\nlength angstrom\nEND"),
+    "basis_set": AdfKey.from_str("BASIS\ntype TZP\ncore small\nEND"),
+    "xc": AdfKey.from_str("XC\nHybrid PBE0\nEND"),
+    "units": AdfKey.from_str("UNITS\nlength angstrom\nEND"),
     "other_directives": [
-        AdfKey.from_string("SYMMETRY"),
-        AdfKey.from_string("RELATIVISTIC scalar zora"),
-        AdfKey.from_string("INTEGRATION 6.0 6.0 6.0"),
-        AdfKey.from_string("SAVE TAPE21"),
-        AdfKey.from_string("A1FIT 10.0"),
+        AdfKey.from_str("SYMMETRY"),
+        AdfKey.from_str("RELATIVISTIC scalar zora"),
+        AdfKey.from_str("INTEGRATION 6.0 6.0 6.0"),
+        AdfKey.from_str("SAVE TAPE21"),
+        AdfKey.from_str("A1FIT 10.0"),
     ],
     "geo_subkeys": [
-        AdfKey.from_string("optim all"),
-        AdfKey.from_string("iterations 300"),
-        AdfKey.from_string("step rad=0.15 angle=10.0"),
-        AdfKey.from_string("hessupd BFGS"),
+        AdfKey.from_str("optim all"),
+        AdfKey.from_str("iterations 300"),
+        AdfKey.from_str("step rad=0.15 angle=10.0"),
+        AdfKey.from_str("hessupd BFGS"),
     ],
-    "scf": AdfKey.from_string(
+    "scf": AdfKey.from_str(
         """SCF
              iterations 300
              converge 1.0e-7 1.0e-7
@@ -306,7 +305,3 @@ class AdfOutputTest(unittest.TestCase):
         o = AdfOutput(filename)
         assert o.final_energy == approx(-0.74399276)
         assert len(o.final_structure) == 4
-
-
-if __name__ == "__main__":
-    unittest.main()

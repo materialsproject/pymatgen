@@ -1,6 +1,4 @@
-"""
-Predicting potential dopants
-"""
+"""Predicting potential dopants."""
 
 from __future__ import annotations
 
@@ -8,9 +6,7 @@ import warnings
 
 import numpy as np
 
-from pymatgen.analysis.structure_prediction.substitution_probability import (
-    SubstitutionPredictor,
-)
+from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
 from pymatgen.core.periodic_table import Element, Species
 
 
@@ -49,8 +45,8 @@ def get_dopants_from_substitution_probabilities(structure, num_dopants=5, thresh
     subs = [
         {
             "probability": pred["probability"],
-            "dopant_species": list(pred["substitutions"])[0],
-            "original_species": list(pred["substitutions"].values())[0],
+            "dopant_species": next(iter(pred["substitutions"])),
+            "original_species": next(iter(pred["substitutions"].values())),
         }
         for species_preds in subs
         for pred in species_preds
@@ -128,9 +124,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
 
 
 def _get_dopants(substitutions, num_dopants, match_oxi_sign):
-    """
-    Utility method to get n- and p-type dopants from a list of substitutions.
-    """
+    """Utility method to get n- and p-type dopants from a list of substitutions."""
     n_type = [
         pred
         for pred in substitutions

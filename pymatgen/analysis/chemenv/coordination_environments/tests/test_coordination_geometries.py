@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     AllCoordinationGeometries,
@@ -42,9 +41,9 @@ class CoordinationGeometriesTest(PymatgenTest):
         assert all(
             np.array_equal(
                 perm,
-                sepplane_algos_oct_0.explicit_optimized_permutations[iperm],
+                sepplane_algos_oct_0.explicit_optimized_permutations[idx],
             )
-            for iperm, perm in enumerate(sepplane_algos_oct[0].explicit_optimized_permutations)
+            for idx, perm in enumerate(sepplane_algos_oct[0].explicit_optimized_permutations)
         )
 
         assert (
@@ -65,9 +64,9 @@ class CoordinationGeometriesTest(PymatgenTest):
         cg_oct = allcg["O:6"]
         cg_oct2 = CoordinationGeometry.from_dict(cg_oct.as_dict())
 
-        assert cg_oct.central_site == pytest.approx(cg_oct2.central_site)
+        assert cg_oct.central_site == approx(cg_oct2.central_site)
         for p1, p2 in zip(cg_oct.points, cg_oct2.points):
-            assert p1 == pytest.approx(p2)
+            assert p1 == approx(p2)
         assert (
             str(cg_oct) == "Coordination geometry type : Octahedron (IUPAC: OC-6 || IUCr: [6o])\n"
             "\n"
@@ -106,7 +105,7 @@ class CoordinationGeometriesTest(PymatgenTest):
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        self.assertArrayAlmostEqual(cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces)
+        self.assert_all_close(cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces)
 
         faces = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
@@ -118,7 +117,7 @@ class CoordinationGeometriesTest(PymatgenTest):
             [[0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             [[0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, -1.0, 0.0]],
         ]
-        self.assertArrayAlmostEqual(cg_oct.faces(sites=sites), faces)
+        self.assert_all_close(cg_oct.faces(sites=sites), faces)
 
         edges = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
@@ -134,7 +133,7 @@ class CoordinationGeometriesTest(PymatgenTest):
             [[0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        self.assertArrayAlmostEqual(cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges)
+        self.assert_all_close(cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges)
 
         edges = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
@@ -150,9 +149,9 @@ class CoordinationGeometriesTest(PymatgenTest):
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0]],
         ]
-        self.assertArrayAlmostEqual(cg_oct.edges(sites=sites), edges)
+        self.assert_all_close(cg_oct.edges(sites=sites), edges)
 
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             cg_oct.solid_angles(),
             [2.0943951, 2.0943951, 2.0943951, 2.0943951, 2.0943951, 2.0943951],
         )
@@ -293,23 +292,23 @@ class CoordinationGeometriesTest(PymatgenTest):
         ]
 
         assert allcg.get_geometry_from_name("Octahedron").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError) as exc_info:
+        with pytest.raises(LookupError) as exc:
             allcg.get_geometry_from_name("Octahedran")
-        assert str(exc_info.value) == "No coordination geometry found with name 'Octahedran'"
+        assert str(exc.value) == "No coordination geometry found with name 'Octahedran'"
 
         assert allcg.get_geometry_from_IUPAC_symbol("OC-6").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError) as exc_info:
+        with pytest.raises(LookupError) as exc:
             allcg.get_geometry_from_IUPAC_symbol("OC-7")
-        assert str(exc_info.value) == "No coordination geometry found with IUPAC symbol 'OC-7'"
+        assert str(exc.value) == "No coordination geometry found with IUPAC symbol 'OC-7'"
 
         assert allcg.get_geometry_from_IUCr_symbol("[6o]").mp_symbol == cg_oct.mp_symbol
-        with pytest.raises(LookupError) as exc_info:
+        with pytest.raises(LookupError) as exc:
             allcg.get_geometry_from_IUCr_symbol("[6oct]")
-        assert str(exc_info.value) == "No coordination geometry found with IUCr symbol '[6oct]'"
+        assert str(exc.value) == "No coordination geometry found with IUCr symbol '[6oct]'"
 
-        with pytest.raises(LookupError) as exc_info:
+        with pytest.raises(LookupError) as exc:
             allcg.get_geometry_from_mp_symbol("O:7")
-        assert str(exc_info.value) == "No coordination geometry found with mp_symbol 'O:7'"
+        assert str(exc.value) == "No coordination geometry found with mp_symbol 'O:7'"
 
         assert (
             allcg.pretty_print(maxcn=4)
@@ -431,7 +430,3 @@ class CoordinationGeometriesTest(PymatgenTest):
             13: {(0, 6, 7): ["SH:13"]},
             20: {(5, 10, 5): ["DD:20"]},
         }
-
-
-if __name__ == "__main__":
-    unittest.main()

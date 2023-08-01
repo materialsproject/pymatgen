@@ -1,9 +1,7 @@
 # Copyright (c) Materials Virtual Lab.
 # Distributed under the terms of the BSD License.
 
-"""
-Implementation for `pmg query` CLI.
-"""
+"""Implementation for `pmg query` CLI."""
 
 from __future__ import annotations
 
@@ -18,7 +16,7 @@ from pymatgen.ext.matproj import MPRester
 
 def do_query(args):
     """
-    Perform query to the Materials Project
+    Perform query to the Materials Project.
 
     Args:
         args (dict): Args from argparse.
@@ -31,13 +29,13 @@ def do_query(args):
     if args.structure:
         count = 0
         for d in m.query(criteria, properties=["structure", "task_id"]):
-            s = d["structure"]
-            formula = re.sub(r"\s+", "", s.formula)
+            struct = d["structure"]
+            formula = re.sub(r"\s+", "", struct.formula)
             if args.structure == "poscar":
                 fname = f"POSCAR.{d['task_id']}_{formula}"
             else:
                 fname = f"{d['task_id']}-{formula}.{args.structure}"
-            s.to(filename=fname)
+            struct.to(filename=fname)
             count += 1
         print(f"{count} structures written!")
     elif args.entries:

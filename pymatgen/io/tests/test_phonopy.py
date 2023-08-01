@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from monty.tempfile import ScratchDir
+from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.core.periodic_table import Element
@@ -33,8 +33,8 @@ from pymatgen.util.testing import PymatgenTest
 try:
     from phonopy import Phonopy
     from phonopy.file_IO import parse_FORCE_CONSTANTS
-except ImportError as ex:
-    print(ex)
+except ImportError as exc:
+    print(exc)
     Phonopy = None
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "phonopy")
@@ -46,25 +46,25 @@ class PhonopyParserTest(PymatgenTest):
 
         assert ph_bs.bands[1][10] == approx(0.7753555184)
         assert ph_bs.bands[5][100] == approx(5.2548379776)
-        self.assertArrayEqual(ph_bs.bands.shape, (6, 204))
-        self.assertArrayEqual(ph_bs.eigendisplacements.shape, (6, 204, 2, 3))
-        self.assertArrayAlmostEqual(
+        assert_array_equal(ph_bs.bands.shape, (6, 204))
+        assert_array_equal(ph_bs.eigendisplacements.shape, (6, 204, 2, 3))
+        self.assert_all_close(
             ph_bs.eigendisplacements[3][50][0],
             [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],
         )
         assert ph_bs.has_eigendisplacements, True
-        self.assertArrayEqual(ph_bs.min_freq()[0].frac_coords, [0, 0, 0])
+        assert_array_equal(ph_bs.min_freq()[0].frac_coords, [0, 0, 0])
         assert ph_bs.min_freq()[1] == approx(-0.03700895020)
         assert ph_bs.has_imaginary_freq()
         assert not ph_bs.has_imaginary_freq(tol=0.5)
-        self.assertArrayAlmostEqual(ph_bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
+        self.assert_all_close(ph_bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
         assert ph_bs.nb_bands == 6
         assert ph_bs.nb_qpoints == 204
-        self.assertArrayAlmostEqual(ph_bs.qpoints[1].frac_coords, [0.01, 0, 0])
+        self.assert_all_close(ph_bs.qpoints[1].frac_coords, [0.01, 0, 0])
         assert ph_bs.has_nac
         assert ph_bs.get_nac_frequencies_along_dir([1, 1, 0])[3] == approx(4.6084532143)
         assert ph_bs.get_nac_frequencies_along_dir([1, 0, 1]) is None
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             ph_bs.get_nac_eigendisplacements_along_dir([1, 1, 0])[3][1],
             [(0.1063906409128248 + 0j), 0j, 0j],
         )
@@ -110,8 +110,8 @@ class StructureConversionTest(PymatgenTest):
         assert s_pmg.lattice._matrix[1, 1] == approx(s_pmg2.lattice._matrix[1, 1], abs=1e-7)
         assert symbols_pmg == set(s_ph.symbols)
         assert symbols_pmg == symbols_pmg2
-        self.assertArrayAlmostEqual(coords_ph[3], s_pmg.frac_coords[3])
-        self.assertArrayAlmostEqual(s_pmg.frac_coords[3], s_pmg2.frac_coords[3])
+        self.assert_all_close(coords_ph[3], s_pmg.frac_coords[3])
+        self.assert_all_close(s_pmg.frac_coords[3], s_pmg2.frac_coords[3])
         assert s_ph.get_number_of_atoms() == s_pmg.num_sites
         assert s_pmg.num_sites == s_pmg2.num_sites
 
@@ -124,29 +124,28 @@ class GetDisplacedStructuresTest(PymatgenTest):
         structures = get_displaced_structures(pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix)
 
         assert len(structures) == 49
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             structures[4].frac_coords[0],
             np.array([0.10872682, 0.21783039, 0.12595286]),
             7,
         )
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             structures[-1].frac_coords[9],
             np.array([0.89127318, 0.78130015, 0.37404715]),
             7,
         )
         assert structures[0].num_sites == 128
         assert structures[10].num_sites == 128
-        self.assertArrayAlmostEqual(structures[0].lattice._matrix, structures[8].lattice._matrix, 8)
+        self.assert_all_close(structures[0].lattice._matrix, structures[8].lattice._matrix, 8)
 
         # test writing output
-        with ScratchDir("."):
-            structures = get_displaced_structures(
-                pmg_structure=pmg_s,
-                atom_disp=0.01,
-                supercell_matrix=supercell_matrix,
-                yaml_fname="test.yaml",
-            )
-            assert os.path.exists("test.yaml")
+        structures = get_displaced_structures(
+            pmg_structure=pmg_s,
+            atom_disp=0.01,
+            supercell_matrix=supercell_matrix,
+            yaml_fname="test.yaml",
+        )
+        assert os.path.exists("test.yaml")
 
 
 @unittest.skipIf(Phonopy is None, "Phonopy not present")
@@ -200,7 +199,7 @@ class TestPhonopyFromForceConstants(unittest.TestCase):
         assert bs.bands[2][10] == approx(2.869229797603161)
 
 
-@unittest.skipIf(Phonopy is None, "Phonopy not present")
+# @unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestGruneisen(unittest.TestCase):
     def test_ph_bs_symm_line(self):
         self.bs_symm_line_1 = get_gruneisen_ph_bs_symm_line(
@@ -217,8 +216,8 @@ class TestGruneisen(unittest.TestCase):
         # check if a bit of the gruneisen parameters happens
 
         assert self.bs_symm_line_1.gruneisen[0][0] != self.bs_symm_line_2.gruneisen[0][0]
-        with pytest.raises(ValueError):
-            self.bs_symm_line_2 = get_gruneisen_ph_bs_symm_line(
+        with pytest.raises(ValueError, match="Please provide a structure or structure path"):
+            get_gruneisen_ph_bs_symm_line(
                 gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus_InP.yaml")
             )
 
@@ -232,7 +231,7 @@ class TestGruneisen(unittest.TestCase):
         assert self.gruneisenobject_Si.gruneisen[0][0] == approx(-0.1190736091)
 
         # catch the exception when no structure is present
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Please provide a structure or structure path"):
             get_gruneisenparameter(
                 os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_InP_without_struct.yaml")
             )
@@ -248,20 +247,20 @@ class TestThermalDisplacementMatrices(PymatgenTest):
             os.path.join(PymatgenTest.TEST_FILES_DIR, "thermal_displacement_matrices", "POSCAR"),
         )
 
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             list(list_matrices[0].thermal_displacement_matrix_cart[0]),
             [0.00516, 0.00613, 0.00415, -0.00011, -0.00158, -0.00081],
         )
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             list(list_matrices[0].thermal_displacement_matrix_cart[21]),
             [0.00488, 0.00497, 0.00397, -0.00070, -0.00070, 0.00144],
         )
 
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             list(list_matrices[0].thermal_displacement_matrix_cif[0]),
             [0.00457, 0.00613, 0.00415, -0.00011, -0.00081, -0.00082],
         )
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             list(list_matrices[0].thermal_displacement_matrix_cif[21]),
             [0.00461, 0.00497, 0.00397, -0.00070, 0.00002, 0.00129],
         )
@@ -271,7 +270,3 @@ class TestThermalDisplacementMatrices(PymatgenTest):
 
         assert list_matrices[-1].temperature == approx(300.0)
         assert list_matrices[0].temperature == approx(0.0)
-
-
-if __name__ == "__main__":
-    unittest.main()

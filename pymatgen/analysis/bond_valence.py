@@ -1,6 +1,4 @@
-"""
-This module implements classes to perform bond valence analyses.
-"""
+"""This module implements classes to perform bond valence analyses."""
 
 from __future__ import annotations
 
@@ -9,6 +7,7 @@ import functools
 import operator
 import os
 from math import exp, sqrt
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.serialization import loadfn
@@ -16,7 +15,8 @@ from monty.serialization import loadfn
 from pymatgen.core.periodic_table import Element, Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-# Let's initialize some module level properties.
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 # List of electronegative elements specified in M. O'Keefe, & N. Brese,
 # JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
@@ -31,8 +31,8 @@ for key, val in loadfn(os.path.join(module_dir, "bvparam_1991.yaml")).items():
 
 # Read in yaml containing data-mined ICSD BV data.
 all_data = loadfn(os.path.join(module_dir, "icsd_bv.yaml"))
-ICSD_BV_DATA = {Species.from_string(sp): data for sp, data in all_data["bvsum"].items()}
-PRIOR_PROB = {Species.from_string(sp): data for sp, data in all_data["occurrence"].items()}
+ICSD_BV_DATA = {Species.from_str(sp): data for sp, data in all_data["bvsum"].items()}
+PRIOR_PROB = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
 
 
 def calculate_bv_sum(site, nn_list, scale_factor=1.0):
@@ -48,7 +48,7 @@ def calculate_bv_sum(site, nn_list, scale_factor=1.0):
             which may tend to under (GGA) or over bind (LDA).
     """
     el1 = Element(site.specie.symbol)
-    bvsum = 0
+    bv_sum = 0
     for nn in nn_list:
         el2 = Element(nn.specie.symbol)
         if (el1 in ELECTRONEG or el2 in ELECTRONEG) and el1 != el2:
@@ -58,8 +58,8 @@ def calculate_bv_sum(site, nn_list, scale_factor=1.0):
             c2 = BV_PARAMS[el2]["c"]
             R = r1 + r2 - r1 * r2 * (sqrt(c1) - sqrt(c2)) ** 2 / (c1 * r1 + c2 * r2)
             vij = exp((R - nn.nn_distance * scale_factor) / 0.31)
-            bvsum += vij * (1 if el1.X < el2.X else -1)
-    return bvsum
+            bv_sum += vij * (1 if el1.X < el2.X else -1)
+    return bv_sum
 
 
 def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
@@ -205,7 +205,7 @@ class BVAnalyzer:
                 prob[el] = {key: 0 for key in prob[el]}
         return prob
 
-    def get_valences(self, structure):
+    def get_valences(self, structure: Structure):
         """
         Returns a list of valences for each site in the structure.
 
@@ -272,8 +272,8 @@ class BVAnalyzer:
         # make variables needed for recursion
         if structure.is_ordered:
             n_sites = np.array(list(map(len, equi_sites)))
-            vmin = np.array(list(map(min, valences)))
-            vmax = np.array(list(map(max, valences)))
+            valence_min = np.array(list(map(min, valences)))
+            valence_max = np.array(list(map(max, valences)))
 
             self._n = 0
             self._best_score = 0
@@ -281,8 +281,8 @@ class BVAnalyzer:
 
             def evaluate_assignment(v_set):
                 el_oxi = collections.defaultdict(list)
-                for i, sites in enumerate(equi_sites):
-                    el_oxi[sites[0].specie.symbol].append(v_set[i])
+                for idx, sites in enumerate(equi_sites):
+                    el_oxi[sites[0].specie.symbol].append(v_set[idx])
                 max_diff = max(max(v) - min(v) for v in el_oxi.values())
                 if max_diff > 1:
                     return
@@ -295,42 +295,42 @@ class BVAnalyzer:
                 # recurses to find permutations of valences based on whether a
                 # charge balanced assignment can still be found
                 if self._n > self.max_permutations:
-                    return None
+                    return
                 if assigned is None:
                     assigned = []
 
                 i = len(assigned)
-                highest = vmax.copy()
+                highest = valence_max.copy()
                 highest[:i] = assigned
                 highest *= n_sites
                 highest = np.sum(highest)
 
-                lowest = vmin.copy()
+                lowest = valence_min.copy()
                 lowest[:i] = assigned
                 lowest *= n_sites
                 lowest = np.sum(lowest)
 
                 if highest < 0 or lowest > 0:
                     self._n += 1
-                    return None
+                    return
 
                 if i == len(valences):
                     evaluate_assignment(assigned)
                     self._n += 1
-                    return None
+                    return
                 for v in valences[i]:
                     new_assigned = list(assigned)
                     _recurse([*new_assigned, v])
-                return None
+                return
 
         else:
-            n_sites = np.array([len(i) for i in equi_sites])
+            n_sites = np.array([len(sites) for sites in equi_sites])
             tmp = []
             attrib = []
-            for insite, nsite in enumerate(n_sites):
-                for _ in valences[insite]:
-                    tmp.append(nsite)
-                    attrib.append(insite)
+            for idx, n_site in enumerate(n_sites):
+                for _ in valences[idx]:
+                    tmp.append(n_site)
+                    attrib.append(idx)
             new_nsites = np.array(tmp)
             fractions = []
             elements = []
@@ -338,13 +338,10 @@ class BVAnalyzer:
                 for sp, occu in get_z_ordered_elmap(sites[0].species):
                     elements.append(sp.symbol)
                     fractions.append(occu)
-            fractions = np.array(fractions, np.float_)
-            new_valences = []
-            for vals in valences:
-                for val in vals:
-                    new_valences.append(val)
-            vmin = np.array([min(i) for i in new_valences], np.float_)
-            vmax = np.array([max(i) for i in new_valences], np.float_)
+            fractions = np.array(fractions, np.float_)  # type: ignore[assignment]
+            new_valences = [val for vals in valences for val in vals]
+            valence_min = np.array([min(i) for i in new_valences], np.float_)
+            valence_max = np.array([max(i) for i in new_valences], np.float_)
 
             self._n = 0
             self._best_score = 0
@@ -373,18 +370,18 @@ class BVAnalyzer:
                 # recurses to find permutations of valences based on whether a
                 # charge balanced assignment can still be found
                 if self._n > self.max_permutations:
-                    return None
+                    return
                 if assigned is None:
                     assigned = []
 
                 i = len(assigned)
-                highest = vmax.copy()
+                highest = valence_max.copy()
                 highest[:i] = assigned
                 highest *= new_nsites
                 highest *= fractions
                 highest = np.sum(highest)
 
-                lowest = vmin.copy()
+                lowest = valence_min.copy()
                 lowest[:i] = assigned
                 lowest *= new_nsites
                 lowest *= fractions
@@ -392,18 +389,18 @@ class BVAnalyzer:
 
                 if highest < -self.charge_neutrality_tolerance or lowest > self.charge_neutrality_tolerance:
                     self._n += 1
-                    return None
+                    return
 
                 if i == len(new_valences):
                     evaluate_assignment(assigned)
                     self._n += 1
-                    return None
+                    return
 
                 for v in new_valences[i]:
                     new_assigned = list(assigned)
                     _recurse([*new_assigned, v])
 
-                return None
+                return
 
         _recurse()
 
@@ -428,7 +425,7 @@ class BVAnalyzer:
             return [[int(frac_site) for frac_site in assigned[site]] for site in structure]
         raise ValueError("Valences cannot be assigned!")
 
-    def get_oxi_state_decorated_structure(self, structure):
+    def get_oxi_state_decorated_structure(self, structure: Structure):
         """
         Get an oxidation state decorated structure. This currently works only
         for ordered structures only.

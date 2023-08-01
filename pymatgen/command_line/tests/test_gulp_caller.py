@@ -1,5 +1,5 @@
 """
-Created on Jan 22, 2013
+Created on Jan 22, 2013.
 
 @author: Bharat Medasani
 """
@@ -56,7 +56,6 @@ class GulpCallerTest(unittest.TestCase):
         gin += "buck\n"
         gin += "Mg core O shel   946.627 0.31813  0.00000 0.0 10.0\n"
         gin += "O  shel O shel 22764.000 0.14900 27.87900 0.0 12.0\n"
-        gin = gin
         gc = GulpCaller()
 
         """Some inherent checks are in the run_gulp function itself.
@@ -137,7 +136,7 @@ class GulpIOTest(unittest.TestCase):
         assert "lib" in gin
 
     def test_library_line_wrong_file(self):
-        with pytest.raises(GulpError):
+        with pytest.raises(GulpError, match="GULP library not found"):
             self.gio.library_line("temp_to_fail.lib")
 
     def test_buckingham_potential(self):
@@ -253,7 +252,7 @@ class GulpIOTest(unittest.TestCase):
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
-        assert len(struct.sites) == 8
+        assert len(struct) == 8
         assert struct.lattice.a == 4.212
         assert struct.lattice.alpha == 90
 
@@ -286,12 +285,12 @@ class GlobalFunctionsTest(unittest.TestCase):
     def test_get_energy_tersoff(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False)
         structure = p.structure
-        enrgy = get_energy_tersoff(structure)
-        assert isinstance(enrgy, float)
+        energy = get_energy_tersoff(structure)
+        assert isinstance(energy, float)
 
     def test_get_energy_buckingham(self):
-        enrgy = get_energy_buckingham(self.mgo_uc)
-        assert isinstance(enrgy, float)
+        energy = get_energy_buckingham(self.mgo_uc)
+        assert isinstance(energy, float)
         # test with vacancy structure
         del self.mgo_uc[0]
         energy = get_energy_buckingham(
@@ -302,11 +301,11 @@ class GlobalFunctionsTest(unittest.TestCase):
         assert isinstance(energy, float)
 
     def test_get_energy_relax_structure_buckingham(self):
-        enrgy, struct = get_energy_relax_structure_buckingham(self.mgo_uc)
-        assert isinstance(enrgy, float)
+        energy, struct = get_energy_relax_structure_buckingham(self.mgo_uc)
+        assert isinstance(energy, float)
         assert isinstance(struct, Structure)
-        site_len = len(struct.sites)
-        assert site_len == len(self.mgo_uc.sites)
+        site_len = len(struct)
+        assert site_len == len(self.mgo_uc)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -362,7 +361,3 @@ class BuckinghamPotentialBushTest(unittest.TestCase):
     def test_spring(self):
         assert self.bpb.spring_dict["Li"] == ""
         assert self.bpb.spring_dict["O"] != ""
-
-
-if __name__ == "__main__":
-    unittest.main()

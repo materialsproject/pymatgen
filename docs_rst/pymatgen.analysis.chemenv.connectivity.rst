@@ -11,13 +11,37 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.analysis.chemenv.connectivity.connected\_components module
+-------------------------------------------------------------------
 
-   pymatgen.analysis.chemenv.connectivity.connected_components
-   pymatgen.analysis.chemenv.connectivity.connectivity_finder
-   pymatgen.analysis.chemenv.connectivity.environment_nodes
-   pymatgen.analysis.chemenv.connectivity.structure_connectivity
+.. automodule:: pymatgen.analysis.chemenv.connectivity.connected_components
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.analysis.chemenv.connectivity.connectivity\_finder module
+------------------------------------------------------------------
+
+.. automodule:: pymatgen.analysis.chemenv.connectivity.connectivity_finder
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.analysis.chemenv.connectivity.environment\_nodes module
+----------------------------------------------------------------
+
+.. automodule:: pymatgen.analysis.chemenv.connectivity.environment_nodes
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.analysis.chemenv.connectivity.structure\_connectivity module
+---------------------------------------------------------------------
+
+.. automodule:: pymatgen.analysis.chemenv.connectivity.structure_connectivity
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

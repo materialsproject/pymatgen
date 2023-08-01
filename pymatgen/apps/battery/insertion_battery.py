@@ -169,16 +169,12 @@ class InsertionElectrode(AbstractElectrode):
 
     @property
     def fully_charged_entry(self):
-        """
-        The most charged entry along the topotactic path.
-        """
+        """The most charged entry along the topotactic path."""
         return self.stable_entries[0]
 
     @property
     def fully_discharged_entry(self):
-        """
-        The most discharged entry along the topotactic path.
-        """
+        """The most discharged entry along the topotactic path."""
         return self.stable_entries[-1]
 
     def get_max_instability(self, min_voltage=None, max_voltage=None):
@@ -271,7 +267,7 @@ class InsertionElectrode(AbstractElectrode):
         For example, an LiTiO2 electrode might contain three subelectrodes:
         [LiTiO2 --> TiO2, LiTiO2 --> Li0.5TiO2, Li0.5TiO2 --> TiO2]
         This method can be used to return all the subelectrodes with some
-        options
+        options.
 
         Args:
             adjacent_only: Only return electrodes from compounds that are
@@ -374,7 +370,7 @@ class InsertionElectrode(AbstractElectrode):
     def from_dict_legacy(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             InsertionElectrode
@@ -388,9 +384,7 @@ class InsertionElectrode(AbstractElectrode):
         )
 
     def as_dict_legacy(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -401,9 +395,7 @@ class InsertionElectrode(AbstractElectrode):
 
 @dataclass
 class InsertionVoltagePair(AbstractVoltagePair):
-    """
-    Defines an Insertion Voltage Pair.
-    """
+    """Defines an Insertion Voltage Pair."""
 
     entry_charge: ComputedEntry
     entry_discharge: ComputedEntry

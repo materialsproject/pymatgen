@@ -1,6 +1,4 @@
-"""
-This module provides classes for non-standard space-group settings
-"""
+"""This module provides classes for non-standard space-group settings."""
 
 from __future__ import annotations
 
@@ -23,9 +21,7 @@ __date__ = "Apr 2017"
 
 
 class JonesFaithfulTransformation:
-    """
-    Transformation for space-groups defined in a non-standard setting
-    """
+    """Transformation for space-groups defined in a non-standard setting."""
 
     def __init__(self, P, p):
         """
@@ -61,21 +57,26 @@ class JonesFaithfulTransformation:
 
     @classmethod
     def from_transformation_string(cls, transformation_string="a,b,c;0,0,0"):
-        """
-        Construct SpaceGroupTransformation from its transformation string.
-        :param P: matrix
-        :param p: origin shift vector
-        :return:
+        """Construct SpaceGroupTransformation from its transformation string.
+
+        Args:
+            transformation_string (str, optional): Defaults to "a,b,c;0,0,0".
+
+        Returns:
+            JonesFaithfulTransformation
         """
         P, p = JonesFaithfulTransformation.parse_transformation_string(transformation_string)
         return cls(P, p)
 
     @classmethod
     def from_origin_shift(cls, origin_shift="0,0,0"):
-        """
-        Construct SpaceGroupTransformation from its origin shift string.
-        :param p: origin shift vector
-        :return:
+        """Construct SpaceGroupTransformation from its origin shift string.
+
+        Args:
+            origin_shift (str, optional): Defaults to "0,0,0".
+
+        Returns:
+            JonesFaithfulTransformation
         """
         P = np.identity(3)
         p = [float(Fraction(x)) for x in origin_shift.split(",")]
@@ -125,31 +126,23 @@ class JonesFaithfulTransformation:
 
     @property
     def P(self) -> list[list[float]]:
-        """
-        :return: transformation matrix
-        """
+        """:return: transformation matrix"""
         return self._P
 
     @property
     def p(self) -> list[float]:
-        """
-        :return: translation vector
-        """
+        """:return: translation vector"""
         return self._p
 
     @property
     def inverse(self) -> JonesFaithfulTransformation:
-        """
-        :return: JonesFaithfulTransformation
-        """
+        """:return: JonesFaithfulTransformation"""
         Q = np.linalg.inv(self.P)
         return JonesFaithfulTransformation(Q, -np.matmul(Q, self.p))
 
     @property
     def transformation_string(self) -> str:
-        """
-        :return: transformation string
-        """
+        """:return: transformation string"""
         return self._get_transformation_string_from_Pp(self.P, self.p)
 
     @staticmethod
@@ -160,11 +153,7 @@ class JonesFaithfulTransformation:
         return P_string + ";" + p_string
 
     def transform_symmop(self, symmop: SymmOp | MagSymmOp) -> SymmOp | MagSymmOp:
-        """
-        Takes a symmetry operation and transforms it.
-        :param symmop: SymmOp or MagSymmOp
-        :return:
-        """
+        """Takes a symmetry operation and transforms it."""
         W_rot = symmop.rotation_matrix
         w_translation = symmop.translation_vector
         Q = np.linalg.inv(self.P)
@@ -183,11 +172,7 @@ class JonesFaithfulTransformation:
         raise RuntimeError
 
     def transform_coords(self, coords: list[list[float]] | np.ndarray) -> list[list[float]]:
-        """
-        Takes a list of coordinates and transforms them.
-        :param coords: List of coords
-        :return:
-        """
+        """Takes a list of coordinates and transforms them."""
         new_coords = []
         for x in coords:
             x = np.array(x)
@@ -197,11 +182,7 @@ class JonesFaithfulTransformation:
         return new_coords
 
     def transform_lattice(self, lattice: Lattice) -> Lattice:
-        """
-        Takes a Lattice object and transforms it.
-        :param lattice: Lattice
-        :return:
-        """
+        """Transforms a lattice."""
         return Lattice(np.matmul(lattice.matrix, self.P))
 
     def __eq__(self, other: object) -> bool:

@@ -16,20 +16,11 @@ from pymatgen.core.periodic_table import DummySpecies, Element, Species
 
 if TYPE_CHECKING:  # needed to avoid circular imports
     from pymatgen.analysis.cost import CostEntry  # type: ignore[attr-defined]
-    from pymatgen.analysis.phase_diagram import (
-        GrandPotPDEntry,
-        PDEntry,
-        TransformedPDEntry,
-    )
+    from pymatgen.analysis.phase_diagram import GrandPotPDEntry, PDEntry, TransformedPDEntry
     from pymatgen.entries import Entry
-    from pymatgen.entries.computed_entries import (
-        ComputedEntry,
-        ComputedStructureEntry,
-        GibbsComputedStructureEntry,
-    )
+    from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, GibbsComputedStructureEntry
     from pymatgen.entries.exp_entries import ExpEntry
 
-VectorLike = Union[Sequence[float], np.ndarray]
 MatrixLike = Union[Sequence[Sequence[float]], Sequence[np.ndarray], np.ndarray]
 
 PathLike = Union[str, Path]

@@ -74,14 +74,14 @@ task dft optimize"""
         assert str(self.task) == answer
 
     def test_to_from_dict(self):
-        d = self.task.as_dict()
-        t = NwTask.from_dict(d)
-        assert isinstance(t, NwTask)
+        dct = self.task.as_dict()
+        task = NwTask.from_dict(dct)
+        assert isinstance(task, NwTask)
 
     def test_init(self):
-        with pytest.raises(NwInputError):
+        with pytest.raises(NwInputError, match="Invalid theory='bad'"):
             NwTask(0, 1, {"H": "6-31g"}, theory="bad")
-        with pytest.raises(NwInputError):
+        with pytest.raises(NwInputError, match="Invalid operation='bad'"):
             NwTask(0, 1, {"H": "6-31g"}, operation="bad")
 
     def test_dft_task(self):
@@ -379,7 +379,7 @@ title "H4C1 dft energy"
 charge -1
 task dft energy
 """
-        nwi = NwInput.from_string(str_inp)
+        nwi = NwInput.from_str(str_inp)
         assert nwi.geometry_options == ["units", "angstroms"]
         assert nwi.tasks[0].theory == "scf"
         assert nwi.tasks[0].basis_set["C"] == "6-31++G*"
@@ -388,7 +388,7 @@ task dft energy
 
         str_inp_symm = str_inp.replace("geometry units angstroms", "geometry units angstroms\n symmetry c1")
 
-        nwi_symm = NwInput.from_string(str_inp_symm)
+        nwi_symm = NwInput.from_str(str_inp_symm)
         assert nwi_symm.geometry_options == ["units", "angstroms"]
         assert nwi_symm.symmetry_options == ["c1"]
         assert nwi_symm.tasks[0].theory == "scf"
@@ -477,7 +477,3 @@ class NwOutputTest(unittest.TestCase):
         assert spectrum.x[0] == approx(1.9291)
         assert spectrum.y[0] == approx(0.0)
         assert spectrum.y[1000] == approx(0.0007423569947114812)
-
-
-if __name__ == "__main__":
-    unittest.main()

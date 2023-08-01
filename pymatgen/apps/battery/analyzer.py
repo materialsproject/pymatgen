@@ -1,6 +1,4 @@
-"""
-Analysis classes for batteries
-"""
+"""Analysis classes for batteries."""
 
 from __future__ import annotations
 
@@ -25,13 +23,11 @@ ELECTRON_TO_AMPERE_HOURS = EV_PER_ATOM_TO_J_PER_MOL / 3600
 
 
 class BatteryAnalyzer:
-    """
-    A suite of methods for starting with an oxidized structure and determining its potential as a battery
-    """
+    """A suite of methods for starting with an oxidized structure and determining its potential as a battery."""
 
     def __init__(self, struc_oxid, working_ion="Li", oxi_override=None):
         """
-        Pass in a structure for analysis
+        Pass in a structure for analysis.
 
         Arguments:
             struc_oxid: a Structure object; oxidation states *must* be assigned for this structure; disordered
@@ -123,7 +119,7 @@ class BatteryAnalyzer:
     def _get_max_cap_ah(self, remove, insert):
         """
         Give max capacity in mAh for inserting and removing a charged ion
-        This method does not normalize the capacity and intended as a helper method
+        This method does not normalize the capacity and intended as a helper method.
         """
         num_working_ions = 0
         if remove:
@@ -167,15 +163,15 @@ class BatteryAnalyzer:
 
     def get_removals_int_oxid(self):
         """
-        Returns a set of ion removal steps, e.g. set([1.0 2.0 4.0]) etc. in order to
+        Returns a set of ion removal steps, e.g. set([1 2 4]) etc. in order to
         produce integer oxidation states of the redox metals.
         If multiple redox metals are present, all combinations of reduction/oxidation are tested.
         Note that having more than 3 redox metals will likely slow down the algorithm.
 
         Examples:
-            LiFePO4 will return [1.0]
-            Li4Fe3Mn1(PO4)4 will return [1.0, 2.0, 3.0, 4.0])
-            Li6V4(PO4)6 will return [4.0, 6.0])  *note that this example is not normalized*
+            LiFePO4 will return [1]
+            Li4Fe3Mn1(PO4)4 will return [1, 2, 3, 4])
+            Li6V4(PO4)6 will return [4, 6])  *note that this example is not normalized*
 
         Returns:
             array of integer ion removals. If you double the unit cell, your answers will be twice as large!
@@ -245,7 +241,7 @@ class BatteryAnalyzer:
 
 def is_redox_active_intercalation(element) -> bool:
     """
-    True if element is redox active and interesting for intercalation materials
+    True if element is redox active and interesting for intercalation materials.
 
     Args:
         element: Element object

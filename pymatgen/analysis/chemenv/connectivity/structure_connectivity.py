@@ -1,6 +1,4 @@
-"""
-Structure connectivity class.
-"""
+"""Structure connectivity class."""
 
 from __future__ import annotations
 
@@ -11,15 +9,9 @@ import networkx as nx
 import numpy as np
 from monty.json import MSONable, jsanitize
 
-from pymatgen.analysis.chemenv.connectivity.connected_components import (
-    ConnectedComponent,
-)
-from pymatgen.analysis.chemenv.connectivity.environment_nodes import (
-    get_environment_node,
-)
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
-    LightStructureEnvironments,
-)
+from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
+from pymatgen.analysis.chemenv.connectivity.environment_nodes import get_environment_node
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -45,9 +37,7 @@ def get_delta_image(isite1, isite2, data1, data2):
 
 
 class StructureConnectivity(MSONable):
-    """
-    Main class containing the connectivity of a structure.
-    """
+    """Main class containing the connectivity of a structure."""
 
     def __init__(
         self,
@@ -97,9 +87,7 @@ class StructureConnectivity(MSONable):
         return self._environment_subgraph
 
     def add_sites(self):
-        """
-        Add the sites in the structure connectivity graph.
-        """
+        """Add the sites in the structure connectivity graph."""
         self._graph.add_nodes_from(list(range(len(self.light_structure_environments.structure))))
 
     def add_bonds(self, isite, site_neighbors_set):
@@ -278,10 +266,8 @@ class StructureConnectivity(MSONable):
     def setup_atom_environments_subgraph(self, atoms_environments):
         raise NotImplementedError
 
-    def print_links(self):
-        """
-        Returns:
-        """
+    def print_links(self) -> None:
+        """Print all links in the graph."""
         nodes = self.environment_subgraph().nodes()
         print("Links in graph :")
         for node in nodes:
@@ -299,9 +285,7 @@ class StructureConnectivity(MSONable):
                     )
 
     def as_dict(self):
-        """
-        Returns:
-        """
+        """Convert to MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

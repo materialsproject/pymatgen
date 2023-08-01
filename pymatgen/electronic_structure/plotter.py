@@ -1,6 +1,4 @@
-"""
-This module implements plotter for DOS and band structure.
-"""
+"""This module implements plotter for DOS and band structure."""
 
 from __future__ import annotations
 
@@ -48,19 +46,17 @@ logger = logging.getLogger(__name__)
 
 class DosPlotter:
     """
-    Class for plotting DOSs. Note that the interface is extremely flexible
-    given that there are many different ways in which people want to view
-    DOS. The typical usage is::
+    Class for plotting phonon DOSs. The interface is extremely flexible given there are many
+    different ways in which people want to view DOS.
+    Typical usage is:
+        # Initializes plotter with some optional args. Defaults are usually fine
+        plotter = PhononDosPlotter().
 
-        # Initializes plotter with some optional args. Defaults are usually
-        # fine,
-        plotter = DosPlotter()
-
-        # Adds a DOS with a label.
+        # Add DOS with a label
         plotter.add_dos("Total DOS", dos)
 
-        # Alternatively, you can add a dict of DOSs. This is the typical
-        # form returned by CompleteDos.get_spd/element/others_dos().
+        # Alternatively, you can add a dict of DOSes. This is the typical form
+        # returned by CompletePhononDos.get_element_dos().
         plotter.add_dos_dict({"dos1": dos1, "dos2": dos2})
         plotter.add_dos_dict(complete_dos.get_spd_dos())
     """
@@ -281,9 +277,7 @@ class DosPlotter:
 
 
 class BSPlotter:
-    """
-    Class to plot or get data to facilitate the plot of band structure objects.
-    """
+    """Class to plot or get data to facilitate the plot of band structure objects."""
 
     def __init__(self, bs: BandStructureSymmLine) -> None:
         """
@@ -329,9 +323,7 @@ class BSPlotter:
         return True
 
     def add_bs(self, bs: BandStructureSymmLine | list[BandStructureSymmLine]) -> None:
-        """
-        Method to add bands objects to the BSPlotter
-        """
+        """Method to add bands objects to the BSPlotter."""
         if not isinstance(bs, list):
             bs = [bs]
 
@@ -342,9 +334,7 @@ class BSPlotter:
             self._nb_bands.extend([b.nb_bands for b in bs])
 
     def _maketicks(self, plt):
-        """
-        Utility private method to add ticks to a band structure
-        """
+        """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
         uniq_d = []
@@ -382,9 +372,7 @@ class BSPlotter:
 
     @staticmethod
     def _get_branch_steps(branches):
-        """
-        Method to find discontinuous branches
-        """
+        """Method to find discontinuous branches."""
         steps = [0]
         for b1, b2 in zip(branches[:-1], branches[1:]):
             if b2["name"].split("-")[0] != b1["name"].split("-")[-1]:
@@ -419,7 +407,7 @@ class BSPlotter:
 
     def bs_plot_data(self, zero_to_efermi=True, bs=None, bs_ref=None, split_branches=True):
         """
-        Get the data nicely formatted for a plot
+        Get the data nicely formatted for a plot.
 
         Args:
             zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
@@ -440,17 +428,17 @@ class BSPlotter:
             {Spin:[np.array(nb_bands,kpoints),...]} as a list of discontinuous kpath
             of energies. The energy of multiple continuous branches are stored together.
             vbm: A list of tuples (distance,energy) marking the vbms. The
-            energies are shifted with respect to the fermi level is the
+            energies are shifted with respect to the Fermi level is the
             option has been selected.
             cbm: A list of tuples (distance,energy) marking the cbms. The
-            energies are shifted with respect to the fermi level is the
+            energies are shifted with respect to the Fermi level is the
             option has been selected.
             lattice: The reciprocal lattice.
             zero_energy: This is the energy used as zero for the plot.
             band_gap:A string indicating the band gap and its nature (empty if
             it's a metal).
             is_metal: True if the band structure is metallic (i.e., there is at
-            least one band crossing the fermi level).
+            least one band crossing the Fermi level).
         """
         if bs is None:
             # if: BSPlotter, else: BSPlotterProjected
@@ -553,7 +541,7 @@ class BSPlotter:
                 f"WARNING! Distance / branch, band cannot be "
                 f"interpolated. See full warning in source. "
                 f"If this is not a mistake, try increasing "
-                f"smooth_tol. Current smooth_tol is {smooth_tol}."
+                f"smooth_tol. Current {smooth_tol=}."
             )
 
             warning_m_fewer_k = (
@@ -629,7 +617,7 @@ class BSPlotter:
         handles = []
         vbm_min, cbm_max = [], []
 
-        colors = list(plt.rcParams["axes.prop_cycle"].by_key().values())[0]
+        colors = next(iter(plt.rcParams["axes.prop_cycle"].by_key().values()))
         for ibs, bs in enumerate(self._bs):
             # set first bs in the list as ref for rescaling the distances of the other bands
             bs_ref = self._bs[0] if len(self._bs) > 1 and ibs > 0 else None
@@ -860,7 +848,7 @@ class BSPlotter:
         Plot two band structure for comparison. One is in red the other in blue
         (no difference in spins). The two band structures need to be defined
         on the same symmetry lines! and the distance between symmetry lines is
-        the one of the band structure used to build the BSPlotter
+        the one of the band structure used to build the BSPlotter.
 
         Args:
             other_plotter: Another band structure object defined along the same symmetry lines
@@ -905,7 +893,7 @@ class BSPlotter:
         return plt
 
     def plot_brillouin(self):
-        """Plot the Brillouin zone"""
+        """Plot the Brillouin zone."""
         # get labels and lines
         labels = {}
         for k in self._bs[0].kpoints:
@@ -997,7 +985,7 @@ class BSPlotterProjected(BSPlotter):
             vbm_cbm_marker: Add markers for the VBM and CBM. Defaults to False.
 
         Returns:
-            a pylab object with different subfigures for each projection
+            a pyplot object with different subfigures for each projection
             The blue and red colors are for spin up and spin down.
             The bigger the red or blue dot in the band structure the higher
             character for the corresponding element and orbital.
@@ -1065,16 +1053,16 @@ class BSPlotterProjected(BSPlotter):
                         plt.ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
                 else:
                     plt.ylim(ylim)
-                plt.title(str(el) + " " + str(o))
+                plt.title(f"{el} {o}")
                 count += 1
         return plt
 
     def get_elt_projected_plots(self, zero_to_efermi=True, ylim=None, vbm_cbm_marker=False):
         """
-        Method returning a plot composed of subplots along different elements
+        Method returning a plot composed of subplots along different elements.
 
         Returns:
-            a pylab object with different subfigures for each projection
+            a pyplot object with different subfigures for each projection
             The blue and red colors are for spin up and spin down
             The bigger the red or blue dot in the band structure the higher
             character for the corresponding element and orbital
@@ -1162,11 +1150,11 @@ class BSPlotterProjected(BSPlotter):
 
     def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
         """
-        Returns a pylab plot object with one plot where the band structure
+        Returns a pyplot plot object with one plot where the band structure
         line color depends on the character of the band (along different
         elements). Each element is associated with red, green or blue
         and the corresponding rgb color depending on the character of the band
-        is used. The method can only deal with binary and ternary compounds
+        is used. The method can only deal with binary and ternary compounds.
 
         spin up and spin down are differientiated by a '-' and a '--' line
 
@@ -1177,7 +1165,7 @@ class BSPlotterProjected(BSPlotter):
                 second green, last blue
 
         Returns:
-            a pylab object
+            a pyplot object
         """
         band_linewidth = 3.0
         if len(self._bs.structure.composition.elements) > 3:
@@ -1219,10 +1207,7 @@ class BSPlotterProjected(BSPlotter):
                             sign = "--"
                         plt.plot(
                             [data["distances"][b][j], data["distances"][b][j + 1]],
-                            [
-                                data["energy"][str(s)][b][i][j],
-                                data["energy"][str(s)][b][i][j + 1],
-                            ],
+                            [data["energy"][str(s)][b][i][j], data["energy"][str(s)][b][i][j + 1]],
                             sign,
                             color=color,
                             linewidth=band_linewidth,
@@ -1236,11 +1221,12 @@ class BSPlotterProjected(BSPlotter):
                 plt.ylim(self._bs.efermi + e_min, self._bs.efermi + e_max)
         else:
             plt.ylim(data["vbm"][0][1] - 4.0, data["cbm"][0][1] + 2.0)
+        # https://github.com/materialsproject/pymatgen/issues/562
+        x_max = data["distances"][-1][-1]
+        plt.xlim(0, x_max)
         return plt
 
     def _get_projections_by_branches_patom_pmorb(self, dictio, dictpa, sum_atoms, sum_morbs, selected_branches):
-        import copy
-
         setos = {
             "s": 0,
             "py": 1,
@@ -1301,9 +1287,9 @@ class BSPlotterProjected(BSPlotter):
                     edict = {}
                     for elt in dictpa:
                         for anum in dictpa[elt]:
-                            edict[elt + str(anum)] = {}
+                            edict[f"{elt}{anum}"] = {}
                             for morb in dictio[elt]:
-                                edict[elt + str(anum)][morb] = proj[Spin.up][i][j][setos[morb]][anum - 1]
+                                edict[f"{elt}{anum}"][morb] = proj[Spin.up][i][j][setos[morb]][anum - 1]
                     proj_br[-1][str(Spin.up)][i].append(edict)
 
             if self._bs.is_spin_polarized:
@@ -1312,15 +1298,13 @@ class BSPlotterProjected(BSPlotter):
                         edict = {}
                         for elt in dictpa:
                             for anum in dictpa[elt]:
-                                edict[elt + str(anum)] = {}
+                                edict[f"{elt}{anum}"] = {}
                                 for morb in dictio[elt]:
-                                    edict[elt + str(anum)][morb] = proj[Spin.up][i][j][setos[morb]][anum - 1]
+                                    edict[f"{elt}{anum}"][morb] = proj[Spin.up][i][j][setos[morb]][anum - 1]
                         proj_br[-1][str(Spin.down)][i].append(edict)
 
         # Adjusting  projections for plot
         dictio_d, dictpa_d = self._summarize_keys_for_plot(dictio, dictpa, sum_atoms, sum_morbs)
-        print(f"dictio_d: {dictio_d!s}")
-        print(f"dictpa_d: {dictpa_d!s}")
 
         if (sum_atoms is None) and (sum_morbs is None):
             proj_br_d = copy.deepcopy(proj_br)
@@ -1353,7 +1337,7 @@ class BSPlotterProjected(BSPlotter):
                                     for morb in dictio[elt]:
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
-                                            sprojection += atoms_morbs[elt + str(anum)][morb]
+                                            sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                         edict[elt + dictpa_d[elt][-1]][morb] = sprojection
                                 else:
                                     for anum in dictpa_d[elt]:
@@ -1372,7 +1356,7 @@ class BSPlotterProjected(BSPlotter):
                                         for morb in dictio[elt]:
                                             sprojection = 0.0
                                             for anum in sum_atoms[elt]:
-                                                sprojection += atoms_morbs[elt + str(anum)][morb]
+                                                sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                             edict[elt + dictpa_d[elt][-1]][morb] = sprojection
                                     else:
                                         for anum in dictpa_d[elt]:
@@ -1438,13 +1422,13 @@ class BSPlotterProjected(BSPlotter):
                                     for morb in dictio_d[elt][:-1]:
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
-                                            sprojection += atoms_morbs[elt + str(anum)][morb]
+                                            sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                         edict[elt + dictpa_d[elt][-1]][morb] = sprojection
 
                                     sprojection = 0.0
                                     for anum in sum_atoms[elt]:
                                         for morb in sum_morbs[elt]:
-                                            sprojection += atoms_morbs[elt + str(anum)][morb]
+                                            sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                     edict[elt + dictpa_d[elt][-1]][dictio_d[elt][-1]] = sprojection
 
                                 elif (elt in sum_atoms) and (elt not in sum_morbs):
@@ -1454,7 +1438,7 @@ class BSPlotterProjected(BSPlotter):
                                     for morb in dictio[elt]:
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
-                                            sprojection += atoms_morbs[elt + str(anum)][morb]
+                                            sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                         edict[elt + dictpa_d[elt][-1]][morb] = sprojection
 
                                 elif (elt not in sum_atoms) and (elt in sum_morbs):
@@ -1494,13 +1478,13 @@ class BSPlotterProjected(BSPlotter):
                                         for morb in dictio_d[elt][:-1]:
                                             sprojection = 0.0
                                             for anum in sum_atoms[elt]:
-                                                sprojection += atoms_morbs[elt + str(anum)][morb]
+                                                sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                             edict[elt + dictpa_d[elt][-1]][morb] = sprojection
 
                                         sprojection = 0.0
                                         for anum in sum_atoms[elt]:
                                             for morb in sum_morbs[elt]:
-                                                sprojection += atoms_morbs[elt + str(anum)][morb]
+                                                sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                         edict[elt + dictpa_d[elt][-1]][dictio_d[elt][-1]] = sprojection
 
                                     elif (elt in sum_atoms) and (elt not in sum_morbs):
@@ -1510,7 +1494,7 @@ class BSPlotterProjected(BSPlotter):
                                         for morb in dictio[elt]:
                                             sprojection = 0.0
                                             for anum in sum_atoms[elt]:
-                                                sprojection += atoms_morbs[elt + str(anum)][morb]
+                                                sprojection += atoms_morbs[f"{elt}{anum}"][morb]
                                             edict[elt + dictpa_d[elt][-1]][morb] = sprojection
 
                                     elif (elt not in sum_atoms) and (elt in sum_morbs):
@@ -1601,7 +1585,7 @@ class BSPlotterProjected(BSPlotter):
                 2 columns.
 
         Returns:
-            A pylab object with different subfigures for different projections.
+            A pyplot object with different subfigures for different projections.
             The blue and red colors lines are bands
             for spin up and spin down. The green and cyan dots are projections
             for spin up and spin down. The bigger
@@ -1712,7 +1696,7 @@ class BSPlotterProjected(BSPlotter):
                             plt.ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
                     else:
                         plt.ylim(ylim)
-                    plt.title(elt + " " + numa + " " + str(o))
+                    plt.title(f"{elt} {numa} {o}")
 
         return plt
 
@@ -1835,8 +1819,7 @@ class BSPlotterProjected(BSPlotter):
                 for orb in dictio[elt]:
                     if orb in individual_orbs:
                         duplicate.remove(orb)
-                        for o in individual_orbs[orb]:
-                            duplicate.append(o)
+                        duplicate += individual_orbs[orb]
                 dictio[elt] = copy.deepcopy(duplicate)
 
                 if sum_morbs is None:
@@ -1854,8 +1837,7 @@ class BSPlotterProjected(BSPlotter):
                             )
                         if orb in individual_orbs:
                             sum_morbs[elt].pop(0)
-                            for o in individual_orbs[orb]:
-                                sum_morbs[elt].append(o)
+                            sum_morbs[elt] += individual_orbs[orb]
                         else:
                             raise ValueError(f"You never sum projection over one orbital in sum_morbs[{elt}]")
                     else:
@@ -1863,8 +1845,7 @@ class BSPlotterProjected(BSPlotter):
                         for orb in sum_morbs[elt]:
                             if orb in individual_orbs:
                                 duplicate.remove(orb)
-                                for o in individual_orbs[orb]:
-                                    duplicate.append(o)
+                                duplicate += individual_orbs[orb]
                         sum_morbs[elt] = copy.deepcopy(duplicate)
 
                     for orb in sum_morbs[elt]:
@@ -1890,7 +1871,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species)[0] == Element(elt):
+                        if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     for number in dictpa[elt]:
                         if isinstance(number, str):
@@ -1937,7 +1918,7 @@ class BSPlotterProjected(BSPlotter):
                         _sites = self._bs.structure.sites
                         indices = []
                         for i in range(0, len(_sites)):  # pylint: disable=C0200
-                            if list(_sites[i]._species)[0] == Element(elt):
+                            if next(iter(_sites[i]._species)) == Element(elt):
                                 indices.append(i + 1)
                         for number in sum_atoms[elt]:
                             if isinstance(number, str):
@@ -2015,18 +1996,18 @@ class BSPlotterProjected(BSPlotter):
             divide = [[]]
             divide[0].append(list_numbers[0])
             group = 0
-            for i in range(1, len(list_numbers)):
-                if list_numbers[i] == list_numbers[i - 1] + 1:
-                    divide[group].append(list_numbers[i])
+            for idx in range(1, len(list_numbers)):
+                if list_numbers[idx] == list_numbers[idx - 1] + 1:
+                    divide[group].append(list_numbers[idx])
                 else:
                     group += 1
-                    divide.append([list_numbers[i]])
+                    divide.append([list_numbers[idx]])
             label = ""
             for elem in divide:
                 if len(elem) > 1:
-                    label += str(elem[0]) + "-" + str(elem[-1]) + ","
+                    label += f"{elem[0]}-{elem[-1]},"
                 else:
-                    label += str(elem[0]) + ","
+                    label += f"{elem[0]},"
             return label[:-1]
 
         def orbital_label(list_orbitals):
@@ -2045,7 +2026,7 @@ class BSPlotterProjected(BSPlotter):
                     label += elem + ","
                 else:
                     orb_label = [orb[1:] for orb in orbs]
-                    label += elem + str(orb_label).replace("['", "").replace("']", "").replace("', '", "-") + ","
+                    label += f"{elem}{str(orb_label).replace('[' , '').replace(']' , '').replace(', ', '-')},"
             return label[:-1]
 
         if sum_atoms is None and sum_morbs is None:
@@ -2061,7 +2042,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species)[0] == Element(elt):
+                        if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
@@ -2110,7 +2091,7 @@ class BSPlotterProjected(BSPlotter):
                     _sites = self._bs.structure.sites
                     indices = []
                     for i in range(0, len(_sites)):  # pylint: disable=C0200
-                        if list(_sites[i]._species)[0] == Element(elt):
+                        if next(iter(_sites[i]._species)) == Element(elt):
                             indices.append(i + 1)
                     flag_1 = len(set(dictpa[elt]).intersection(indices))
                     flag_2 = len(set(sum_atoms[elt]).intersection(indices))
@@ -2129,9 +2110,7 @@ class BSPlotterProjected(BSPlotter):
         return dictio_d, dictpa_d
 
     def _maketicks_selected(self, plt, branches):
-        """
-        Utility private method to add ticks to a band structure with selected branches
-        """
+        """Utility private method to add ticks to a band structure with selected branches."""
         ticks = self.get_ticks()
         distance = []
         label = []
@@ -2226,7 +2205,7 @@ class BSDOSPlotter:
     """
     A joint, aligned band structure and density of states plot. Contributions
     from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
-    http://gvallver.perso.univ-pau.fr/?p=587
+    http://gvallver.perso.univ-pau.fr/?p=587.
     """
 
     def __init__(
@@ -2393,7 +2372,7 @@ class BSDOSPlotter:
         bs_ax.set_xlabel("Wavevector $k$", fontsize=self.axis_fontsize, family=self.font)
         bs_ax.set_ylabel("$E-E_F$ / eV", fontsize=self.axis_fontsize, family=self.font)
 
-        # add BS fermi level line at E=0 and gridlines
+        # add BS Fermi level line at E=0 and gridlines
         bs_ax.hlines(y=0, xmin=0, xmax=x_distances_list[-1][-1], color="k", lw=2)
         bs_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))
         bs_ax.set_yticklabels(np.arange(emin, emax + 1e-5, self.egrid_interval), size=self.tick_fontsize)
@@ -2566,7 +2545,7 @@ class BSDOSPlotter:
             green: green data
             blue: blue data
             alpha: alpha values data
-            linestyles: linestyle for plot (e.g., "solid" or "dotted")
+            linestyles: linestyle for plot (e.g., "solid" or "dotted").
         """
         from matplotlib.collections import LineCollection
 
@@ -2584,7 +2563,7 @@ class BSDOSPlotter:
     @staticmethod
     def _get_colordata(bs, elements, bs_projection):
         """
-        Get color data, including projected band structures
+        Get color data, including projected band structures.
 
         Args:
             bs: Bandstructure object
@@ -2639,9 +2618,7 @@ class BSDOSPlotter:
 
     @staticmethod
     def _cmyk_triangle(ax, c_label, m_label, y_label, k_label, loc):
-        """
-        Draw an RGB triangle legend on the desired axis
-        """
+        """Draw an RGB triangle legend on the desired axis."""
         if loc not in range(1, 11):
             loc = 2
 
@@ -2692,9 +2669,7 @@ class BSDOSPlotter:
 
     @staticmethod
     def _rgb_triangle(ax, r_label, g_label, b_label, loc):
-        """
-        Draw an RGB triangle legend on the desired axis
-        """
+        """Draw an RGB triangle legend on the desired axis."""
         if loc not in range(1, 11):
             loc = 2
 
@@ -2807,14 +2782,12 @@ class BSDOSPlotter:
 
 class BoltztrapPlotter:
     # TODO: We need a unittest for this. Come on folks.
-    """
-    class containing methods to plot the data from Boltztrap.
-    """
+    """class containing methods to plot the data from Boltztrap."""
 
     def __init__(self, bz):
         """
         Args:
-            bz: a BoltztrapAnalyzer object
+            bz: a BoltztrapAnalyzer object.
         """
         self._bz = bz
 
@@ -2825,28 +2798,28 @@ class BoltztrapPlotter:
             plt.text(
                 self._bz.mu_doping["n"][temp][0] + 0.01,
                 limit,
-                "$n$=10$^{" + str(math.log10(self._bz.doping["n"][0])) + "}$",
+                f"$n$=10^{{{math.log10(self._bz.doping['n'][0])}}}$",
                 color="b",
             )
             plt.axvline(self._bz.mu_doping["n"][temp][-1], linewidth=3.0, linestyle="--")
             plt.text(
                 self._bz.mu_doping["n"][temp][-1] + 0.01,
                 limit,
-                "$n$=10$^{" + str(math.log10(self._bz.doping["n"][-1])) + "}$",
+                f"$n$=10^{{{math.log10(self._bz.doping['n'][-1])}}}$",
                 color="b",
             )
             plt.axvline(self._bz.mu_doping["p"][temp][0], linewidth=3.0, linestyle="--")
             plt.text(
                 self._bz.mu_doping["p"][temp][0] + 0.01,
                 limit,
-                "$p$=10$^{" + str(math.log10(self._bz.doping["p"][0])) + "}$",
+                f"$p$=10^{{{math.log10(self._bz.doping['p'][0])}}}$",
                 color="b",
             )
             plt.axvline(self._bz.mu_doping["p"][temp][-1], linewidth=3.0, linestyle="--")
             plt.text(
                 self._bz.mu_doping["p"][temp][-1] + 0.01,
                 limit,
-                "$p$=10$^{" + str(math.log10(self._bz.doping["p"][-1])) + "}$",
+                f"$p$=10^{{{math.log10(self._bz.doping['p'][-1])}}}$",
                 color="b",
             )
 
@@ -2907,7 +2880,7 @@ class BoltztrapPlotter:
         plt.yticks(fontsize=25)
         if output == "tensor":
             plt.legend(
-                [str(i) + "_" + str(T) + "K" for T in temps for i in ("x", "y", "z")],
+                [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
                 fontsize=20,
             )
         elif output == "average":
@@ -2967,7 +2940,7 @@ class BoltztrapPlotter:
         plt.yticks(fontsize=25)
         if output == "tensor":
             plt.legend(
-                [str(i) + "_" + str(T) + "K" for T in temps for i in ("x", "y", "z")],
+                [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
                 fontsize=20,
             )
         elif output == "average":
@@ -2975,9 +2948,9 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return plt
 
-    def plot_seebeck_mu(self, temp: float = 600, output: str = "eig", xlim: Sequence[float] = None):
+    def plot_seebeck_mu(self, temp: float = 600, output: str = "eig", xlim: Sequence[float] | None = None):
         """
-        Plot the seebeck coefficient in function of Fermi level
+        Plot the seebeck coefficient in function of Fermi level.
 
         Args:
             temp (float): the temperature
@@ -3008,10 +2981,14 @@ class BoltztrapPlotter:
         return plt
 
     def plot_conductivity_mu(
-        self, temp: float = 600, output: str = "eig", relaxation_time: float = 1e-14, xlim: Sequence[float] = None
+        self,
+        temp: float = 600,
+        output: str = "eig",
+        relaxation_time: float = 1e-14,
+        xlim: Sequence[float] | None = None,
     ):
         """
-        Plot the conductivity in function of Fermi level. Semi-log plot
+        Plot the conductivity in function of Fermi level. Semi-log plot.
 
         Args:
             temp (float): the temperature
@@ -3044,10 +3021,14 @@ class BoltztrapPlotter:
         return plt
 
     def plot_power_factor_mu(
-        self, temp: float = 600, output: str = "eig", relaxation_time: float = 1e-14, xlim: Sequence[float] = None
+        self,
+        temp: float = 600,
+        output: str = "eig",
+        relaxation_time: float = 1e-14,
+        xlim: Sequence[float] | None = None,
     ):
         """
-        Plot the power factor in function of Fermi level. Semi-log plot
+        Plot the power factor in function of Fermi level. Semi-log plot.
 
         Args:
             temp (float): the temperature
@@ -3079,7 +3060,11 @@ class BoltztrapPlotter:
         return plt
 
     def plot_zt_mu(
-        self, temp: float = 600, output: str = "eig", relaxation_time: float = 1e-14, xlim: Sequence[float] = None
+        self,
+        temp: float = 600,
+        output: str = "eig",
+        relaxation_time: float = 1e-14,
+        xlim: Sequence[float] | None = None,
     ):
         """
         Plot the ZT in function of Fermi level.
@@ -3149,7 +3134,7 @@ class BoltztrapPlotter:
                             tlist,
                             list(zip(*sbk_temp))[xyz],
                             marker="s",
-                            label=str(xyz) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
@@ -3203,7 +3188,7 @@ class BoltztrapPlotter:
                             tlist,
                             list(zip(*cond_temp))[xyz],
                             marker="s",
-                            label=str(xyz) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
@@ -3258,7 +3243,7 @@ class BoltztrapPlotter:
                             tlist,
                             list(zip(*pf_temp))[xyz],
                             marker="s",
-                            label=str(xyz) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
@@ -3275,7 +3260,7 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return plt
 
-    def plot_zt_temp(self, doping="all", output="average", relaxation_time=1e-14):
+    def plot_zt_temp(self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
         """
         Plot the figure of merit zT in function of temperature for different doping levels.
 
@@ -3286,13 +3271,15 @@ class BoltztrapPlotter:
                 with 'eigs' you get all the three directions.
             relaxation_time: specify a constant relaxation time value
 
+        Raises:
+            ValueError: if output is not 'average' or 'eigs'
+
         Returns:
             a matplotlib object
         """
-        if output == "average":
-            zt = self._bz.get_zt(relaxation_time=relaxation_time, output="average")
-        elif output == "eigs":
-            zt = self._bz.get_zt(relaxation_time=relaxation_time, output="eigs")
+        if output not in ("average", "eigs"):
+            raise ValueError(f"{output=} must be 'average' or 'eigs'")
+        zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output)
 
         plt = pretty_plot(22, 14)
         tlist = sorted(zt["n"])
@@ -3312,7 +3299,7 @@ class BoltztrapPlotter:
                             tlist,
                             list(zip(*zt_temp))[xyz],
                             marker="s",
-                            label=str(xyz) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
@@ -3365,7 +3352,7 @@ class BoltztrapPlotter:
                             tlist,
                             list(zip(*em_temp))[xyz],
                             marker="s",
-                            label=str(xyz) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
@@ -3407,10 +3394,7 @@ class BoltztrapPlotter:
                 if output == "eigs":
                     for xyz in range(3):
                         plt.semilogx(
-                            self._bz.doping[dt],
-                            list(zip(*sbk[dt][temp]))[xyz],
-                            marker="s",
-                            label=str(xyz) + " " + str(temp) + " K",
+                            self._bz.doping[dt], list(zip(*sbk[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
                     plt.semilogx(
@@ -3462,10 +3446,7 @@ class BoltztrapPlotter:
                 if output == "eigs":
                     for xyz in range(3):
                         plt.semilogx(
-                            self._bz.doping[dt],
-                            list(zip(*cond[dt][temp]))[xyz],
-                            marker="s",
-                            label=str(xyz) + " " + str(temp) + " K",
+                            self._bz.doping[dt], list(zip(*cond[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
                     plt.semilogx(
@@ -3515,18 +3496,10 @@ class BoltztrapPlotter:
                 if output == "eigs":
                     for xyz in range(3):
                         plt.semilogx(
-                            self._bz.doping[dt],
-                            list(zip(*pf[dt][temp]))[xyz],
-                            marker="s",
-                            label=str(xyz) + " " + str(temp) + " K",
+                            self._bz.doping[dt], list(zip(*pf[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
-                    plt.semilogx(
-                        self._bz.doping[dt],
-                        pf[dt][temp],
-                        marker="s",
-                        label=str(temp) + " K",
-                    )
+                    plt.semilogx(self._bz.doping[dt], pf[dt][temp], marker="s", label=f"{temp} K")
             plt.title(dt + "-type", fontsize=20)
             if i == 0:
                 plt.ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
@@ -3570,10 +3543,7 @@ class BoltztrapPlotter:
                 if output == "eigs":
                     for xyz in range(3):
                         plt.semilogx(
-                            self._bz.doping[dt],
-                            list(zip(*zt[dt][temp]))[xyz],
-                            marker="s",
-                            label=str(xyz) + " " + str(temp) + " K",
+                            self._bz.doping[dt], list(zip(*zt[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
                     plt.semilogx(
@@ -3625,10 +3595,7 @@ class BoltztrapPlotter:
                 if output == "eigs":
                     for xyz in range(3):
                         plt.semilogx(
-                            self._bz.doping[dt],
-                            list(zip(*em[dt][temp]))[xyz],
-                            marker="s",
-                            label=str(xyz) + " " + str(temp) + " K",
+                            self._bz.doping[dt], list(zip(*em[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
                         )
                 elif output == "average":
                     plt.semilogx(
@@ -3653,7 +3620,7 @@ class BoltztrapPlotter:
         return plt
 
     def plot_dos(self, sigma=0.05):
-        """Plot dos
+        """Plot dos.
 
         Args:
             sigma: a smearing
@@ -3667,7 +3634,7 @@ class BoltztrapPlotter:
 
     def plot_carriers(self, temp=300):
         """
-        Plot the carrier concentration in function of Fermi level
+        Plot the carrier concentration in function of Fermi level.
 
         Args:
             temp: the temperature
@@ -3691,7 +3658,7 @@ class BoltztrapPlotter:
 
     def plot_hall_carriers(self, temp=300):
         """
-        Plot the Hall carrier concentration in function of Fermi level
+        Plot the Hall carrier concentration in function of Fermi level.
 
         Args:
             temp: the temperature
@@ -3729,7 +3696,7 @@ class CohpPlotter:
             are_coops: Switch to indicate that these are COOPs, not COHPs.
                 Defaults to False for COHPs.
             are_cobis: Switch to indicate that these are COBIs, not COHPs/COOPs.
-                Defaults to False for COHPs
+                Defaults to False for COHPs.
         """
         self.zero_at_efermi = zero_at_efermi
         self.are_coops = are_coops
@@ -4025,20 +3992,12 @@ def plot_fermi_surface(
 
     if energy_levels is None:
         energy_levels = [en_min + 0.01] if cbm else [en_max - 0.01]
-        print("Energy level set to: " + str(energy_levels[0]) + " eV")
+        print(f"Energy level set to: {energy_levels[0]} eV")
 
     else:
         for e in energy_levels:
             if e > en_max or e < en_min:
-                raise BoltztrapError(
-                    "energy level "
-                    + str(e)
-                    + " not in the range of possible energies: ["
-                    + str(en_min)
-                    + ", "
-                    + str(en_max)
-                    + "]"
-                )
+                raise BoltztrapError(f"energy level {e} not in the range of possible energies: [{en_min}, {en_max}]")
 
     n_surfaces = len(energy_levels)
     if colors is None:
@@ -4151,7 +4110,7 @@ def plot_fermi_surface(
 
 def plot_wigner_seitz(lattice, ax=None, **kwargs):
     """
-    Adds the skeleton of the Wigner-Seitz cell of the lattice to a matplotlib Axes
+    Adds the skeleton of the Wigner-Seitz cell of the lattice to a matplotlib Axes.
 
     Args:
         lattice: Lattice object
@@ -4186,7 +4145,7 @@ def plot_wigner_seitz(lattice, ax=None, **kwargs):
 
 def plot_lattice_vectors(lattice, ax=None, **kwargs):
     """
-    Adds the basis vectors of the lattice provided to a matplotlib Axes
+    Adds the basis vectors of the lattice provided to a matplotlib Axes.
 
     Args:
         lattice: Lattice object
@@ -4217,7 +4176,7 @@ def plot_lattice_vectors(lattice, ax=None, **kwargs):
 
 def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs):
     """
-    Adds a line passing through the coordinates listed in 'line' to a matplotlib Axes
+    Adds a line passing through the coordinates listed in 'line' to a matplotlib Axes.
 
     Args:
         line: list of coordinates.
@@ -4254,7 +4213,7 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax=None, **kwargs)
 
 def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax=None, **kwargs):
     """
-    Adds labels to a matplotlib Axes
+    Adds labels to a matplotlib Axes.
 
     Args:
         labels: dict containing the label as a key and the coordinates as value.
@@ -4329,7 +4288,7 @@ def fold_point(p, lattice, coords_are_cartesian=False):
 
 def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax=None, **kwargs):
     """
-    Adds Points to a matplotlib Axes
+    Adds Points to a matplotlib Axes.
 
     Args:
         points: list of coordinates
@@ -4403,7 +4362,7 @@ def plot_brillouin_zone(
 ):
     """
     Plots a 3D representation of the Brillouin zone of the structure.
-    Can add to the plot paths, labels and kpoints
+    Can add to the plot paths, labels and kpoints.
 
     Args:
         bz_lattice: Lattice object of the Brillouin zone

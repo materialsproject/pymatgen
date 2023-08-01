@@ -15,7 +15,7 @@ from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import PymatgenTest
 
-pytest.importorskip("openbabel", reason="OpenBabel not installed")
+pybel = pytest.importorskip("openbabel.pybel")
 
 
 class BabelMolAdaptorTest(unittest.TestCase):
@@ -68,7 +68,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
 
     def test_from_string(self):
         xyz = XYZ(self.mol)
-        adaptor = BabelMolAdaptor.from_string(str(xyz), "xyz")
+        adaptor = BabelMolAdaptor.from_str(str(xyz), "xyz")
         mol = adaptor.pymatgen_mol
         assert mol.formula == "H4 C1"
 
@@ -81,21 +81,17 @@ class BabelMolAdaptorTest(unittest.TestCase):
             assert site.distance(optmol[0]) == approx(1.09216, abs=1e-1)
 
     def test_make3d(self):
-        from openbabel import pybel as pb
-
-        mol_0d = pb.readstring("smi", "CCCC").OBMol
+        mol_0d = pybel.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol_0d)
         adaptor.make3d()
         assert mol_0d.GetDimension() == 3
 
     def add_hydrogen(self):
-        from openbabel import pybel as pb
-
-        mol_0d = pb.readstring("smi", "CCCC").OBMol
-        assert len(pb.Molecule(mol_0d).atoms) == 2
+        mol_0d = pybel.readstring("smi", "CCCC").OBMol
+        assert len(pybel.Molecule(mol_0d).atoms) == 2
         adaptor = BabelMolAdaptor(mol_0d)
         adaptor.add_hydrogen()
-        assert len(adaptor.pymatgen_mol.sites) == 14
+        assert len(adaptor.pymatgen_mol) == 14
 
     def test_rotor_search_wrs(self):
         mol = copy.deepcopy(self.mol)
@@ -126,9 +122,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
             assert site.distance(optmol[0]) == approx(1.09216, abs=1e-1)
 
     def test_confab_conformers(self):
-        from openbabel import pybel as pb
-
-        mol = pb.readstring("smi", "CCCC").OBMol
+        mol = pybel.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol)
         adaptor.make3d()
         conformers = adaptor.confab_conformers()
@@ -136,7 +130,3 @@ class BabelMolAdaptorTest(unittest.TestCase):
         assert len(conformers) >= 1
         if len(conformers) > 1:
             assert MoleculeMatcher().get_rmsd(conformers[0], conformers[1]) != approx(0)
-
-
-if __name__ == "__main__":
-    unittest.main()

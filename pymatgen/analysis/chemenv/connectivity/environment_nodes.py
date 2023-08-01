@@ -1,6 +1,4 @@
-"""
-Environment nodes module.
-"""
+"""Environment nodes module."""
 
 from __future__ import annotations
 
@@ -10,9 +8,7 @@ from monty.json import MSONable
 
 
 class AbstractEnvironmentNode(MSONable):
-    """
-    Abstract class used to define an environment as a node in a graph.
-    """
+    """Abstract class used to define an environment as a node in a graph."""
 
     COORDINATION_ENVIRONMENT = 0
     NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS = 1
@@ -44,7 +40,7 @@ class AbstractEnvironmentNode(MSONable):
         """Index of the central site."""
         return self.i_central_site
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Simple hash function based on the hash function of the central site."""
         return self.central_site.__hash__()
 
@@ -97,13 +93,11 @@ class AbstractEnvironmentNode(MSONable):
 
     def __str__(self):
         """String representation of the AbstractEnvironmentNode."""
-        return f"Node #{self.isite:d} {self.atom_symbol} ({self.coordination_environment})"
+        return f"Node #{self.isite} {self.atom_symbol} ({self.coordination_environment})"
 
 
 class EnvironmentNode(AbstractEnvironmentNode):
-    """
-    Class used to define an environment as a node in a graph.
-    """
+    """Class used to define an environment as a node in a graph."""
 
     def __init__(self, central_site, i_central_site, ce_symbol) -> None:
         """

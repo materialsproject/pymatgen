@@ -1,6 +1,6 @@
 """
 Development script of the ChemEnv utility to get the explicit permutations for coordination environments identified
-with the separation plane algorithms (typically with coordination numbers >= 6)
+with the separation plane algorithms (typically with coordination numbers >= 6).
 """
 
 from __future__ import annotations
@@ -10,9 +10,7 @@ import json
 
 import numpy as np
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -21,11 +19,11 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane, c
 
 if __name__ == "__main__":
     # Choose the geometry
-    allcg = AllCoordinationGeometries()
+    all_cg = AllCoordinationGeometries()
     while True:
         cg_symbol = input("Enter symbol of the geometry for which you want to get the explicit permutations : ")
         try:
-            cg = allcg[cg_symbol]
+            cg = all_cg[cg_symbol]
             break
         except LookupError:
             print("Wrong geometry, try again ...")
@@ -38,14 +36,14 @@ if __name__ == "__main__":
 
     new_algos = []
 
-    ialgo = 1
+    idx = 1
     for sep_plane_algo in cg._algorithms:
-        print(f"In {ialgo = :d}/{len(cg._algorithms):d}")
-        ialgo += 1
+        print(f"In {idx = }/{len(cg._algorithms)}")
+        idx += 1
         if sep_plane_algo.algorithm_type != "SEPARATION_PLANE":
             raise ValueError("Should all be separation plane")
 
-        perms_on_file = f"Permutations on file in this algorithm ({len(sep_plane_algo._permutations):d}) "
+        perms_on_file = f"Permutations on file in this algorithm ({len(sep_plane_algo._permutations)}) "
         print(perms_on_file)
         print(sep_plane_algo._permutations)
         permutations = sep_plane_algo.safe_separation_permutations(
@@ -54,7 +52,7 @@ if __name__ == "__main__":
 
         sep_plane_algo._permutations = permutations
 
-        print(f"Test permutations ({len(permutations):d}) :")
+        print(f"Test permutations ({len(permutations)}) :")
         print(permutations)
 
         lgf = LocalGeometryFinder()
@@ -104,7 +102,7 @@ if __name__ == "__main__":
         # Actual test of the permutations
         cgsm = lgf._cg_csm_separation_plane(
             coordination_geometry=cg,
-            sepplane=sep_plane_algo,
+            sep_plane=sep_plane_algo,
             local_plane=local_plane,
             plane_separations=[],
             dist_tolerances=[0.05, 0.1, 0.2, 0.3],
@@ -136,7 +134,7 @@ if __name__ == "__main__":
                 explicit_permutations.append(sep_perms[icsm])
 
         print(perms_on_file)
-        print(f"Permutations found ({len(explicit_permutations):d}) : ")
+        print(f"Permutations found ({len(explicit_permutations)}) : ")
         print(explicit_permutations)
         sep_plane_algo.explicit_permutations = explicit_permutations
         new_algos.append(sep_plane_algo)

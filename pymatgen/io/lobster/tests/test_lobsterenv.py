@@ -8,6 +8,7 @@ import pytest
 from pytest import approx
 
 from pymatgen.analysis.graphs import StructureGraph
+from pymatgen.core import Element
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import Cohp
 from pymatgen.electronic_structure.core import Spin
@@ -20,7 +21,7 @@ __version__ = "0.1"
 __email__ = "janine.george@uclouvain.be"
 __date__ = "Jan 14, 2021"
 
-test_dir_env = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "environments")
+test_dir_env = f"{PymatgenTest.TEST_FILES_DIR}/cohp/environments"
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -124,6 +125,29 @@ class TestLobsterNeighbors(unittest.TestCase):
             structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),
             additional_condition=6,
         )
+        # coop / cobi
+        self.chemenvlobster1_coop_NaCl = LobsterNeighbors(
+            are_coops=True,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOOPLIST.lobster.NaCl.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+            additional_condition=1,
+            noise_cutoff=None,
+        )
+
+        self.chemenvlobster1_cobi_NaCl = LobsterNeighbors(
+            are_coops=True,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOBILIST.lobster.NaCl.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+            additional_condition=1,
+            noise_cutoff=None,
+        )
+
+        self.chemenvlobster1_cobi_mp470 = LobsterNeighbors(
+            are_coops=True,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOBILIST.lobster.mp_470.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_470.gz")),
+            additional_condition=1,
+        )
 
         # TODO: use charge instead of valence
         self.chemenvlobster1_charges = LobsterNeighbors(
@@ -133,6 +157,26 @@ class TestLobsterNeighbors(unittest.TestCase):
             valences_from_charges=True,
             filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
             additional_condition=1,
+        )
+        self.chemenvlobster1_charges_noisecutoff = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_632319.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_632319.gz")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp_632319.gz"),
+            additional_condition=1,
+            perc_strength_ICOHP=0.05,
+            noise_cutoff=0.1,
+        )
+        self.chemenvlobster1_charges_wo_noisecutoff = LobsterNeighbors(
+            are_coops=False,
+            filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_632319.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_632319.gz")),
+            valences_from_charges=True,
+            filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp_632319.gz"),
+            additional_condition=1,
+            perc_strength_ICOHP=0.05,
+            noise_cutoff=None,
         )
         self.chemenvlobster1_charges_loewdin = LobsterNeighbors(
             are_coops=False,
@@ -217,19 +261,10 @@ class TestLobsterNeighbors(unittest.TestCase):
             adapt_extremum_to_add_cond=True,
         )
 
-    def test_use_of_coop(self):
-        with pytest.raises(ValueError):
-            _ = LobsterNeighbors(
-                are_coops=True,
-                filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353.gz"),
-                structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),
-                valences_from_charges=True,
-                filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.mp-353.gz"),
-                additional_condition=1,
-            )
-
     def test_cation_anion_mode_without_ions(self):
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(
+            ValueError, match="Valences cannot be assigned, additional_conditions 1, 3, 5 and 6 will not work"
+        ):
             _ = LobsterNeighbors(
                 are_coops=False,
                 filename_ICOHP=os.path.join(test_dir_env, "../ICOHPLIST.lobster"),
@@ -237,8 +272,9 @@ class TestLobsterNeighbors(unittest.TestCase):
                 valences_from_charges=False,
                 additional_condition=1,
             )
-        assert str(exc.value) == "Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work"
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(
+            ValueError, match="All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work"
+        ):
             _ = LobsterNeighbors(
                 are_coops=False,
                 filename_ICOHP=os.path.join(test_dir_env, "../ICOHPLIST.lobster"),
@@ -247,11 +283,12 @@ class TestLobsterNeighbors(unittest.TestCase):
                 additional_condition=1,
                 valences=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             )
-        assert str(exc.value) == "All valences are equal to 0, additional_conditions 1 and 3 and 5 and 6 will not work"
 
     def test_wrong_additional_correction(self):
-        with pytest.raises(ValueError):
-            _ = LobsterNeighbors(
+        with pytest.raises(
+            ValueError, match=r"Unexpected additional_condition=10, must be one of \[0, 1, 2, 3, 4, 5, 6\]"
+        ):
+            LobsterNeighbors(
                 are_coops=False,
                 filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_353.gz"),
                 structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),
@@ -273,7 +310,11 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert test.limits == [-100000, 0]
 
     def test_molecules_allowed(self):
-        self.chemenvlobster1.molecules_allowed
+        assert not self.chemenvlobster1.molecules_allowed
+
+    def test_get_anion_types(self):
+        assert self.chemenvlobster0_second.get_anion_types() == {Element("O")}
+        assert self.chemenvlobster0_second.anion_types == {Element("O")}
 
     def test_get_nn_info(self):
         # NO_ADDITIONAL_CONDITION = 0
@@ -322,6 +363,24 @@ class TestLobsterNeighbors(unittest.TestCase):
                 )
             )
             == 2
+        )
+        assert (
+            len(
+                self.chemenvlobster1_charges_noisecutoff.get_nn(
+                    structure=self.chemenvlobster1_charges_noisecutoff.structure,
+                    n=1,
+                )
+            )
+            == 0
+        )
+        assert (
+            len(
+                self.chemenvlobster1_charges_wo_noisecutoff.get_nn(
+                    structure=self.chemenvlobster1_charges_wo_noisecutoff.structure,
+                    n=1,
+                )
+            )
+            == 8
         )
         # NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
         assert (
@@ -444,6 +503,36 @@ class TestLobsterNeighbors(unittest.TestCase):
             == 2
         )
 
+        assert (
+            len(
+                self.chemenvlobster1_coop_NaCl.get_nn(
+                    structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+                    n=0,
+                )
+            )
+            == 6
+        )
+
+        assert (
+            len(
+                self.chemenvlobster1_cobi_NaCl.get_nn(
+                    structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
+                    n=0,
+                )
+            )
+            == 6
+        )
+
+        assert (
+            len(
+                self.chemenvlobster1_cobi_mp470.get_nn(
+                    structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_470.gz")),
+                    n=3,
+                )
+            )
+            == 3
+        )
+
         # NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
         assert (
             len(
@@ -547,21 +636,7 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert isinstance(sg, StructureGraph)
 
     def test_raises_extended_structure_graph(self):
-        with pytest.raises(ValueError):
-            self.chemenvlobsterNaCl = LobsterNeighbors(
-                are_coops=False,
-                filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.NaCl.gz"),
-                structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.NaCl.gz")),
-                valences_from_charges=True,
-                filename_CHARGE=os.path.join(test_dir_env, "CHARGE.lobster.NaCl.gz"),
-                filename_blist_sg1=os.path.join(test_dir_env, "ICOBILIST.lobster.NaCl.gz"),
-                filename_blist_sg2=os.path.join(test_dir_env, "ICOOPLIST.lobster.NaCl.gz"),
-                add_additional_data_sg=True,
-                id_blist_sg1="icopppp",
-                id_blist_sg2="icoop",
-                additional_condition=1,
-            )
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Algorithm can only work with ICOOPs, ICOBIs"):
             self.chemenvlobsterNaCl = LobsterNeighbors(
                 are_coops=False,
                 filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.NaCl.gz"),
@@ -578,8 +653,7 @@ class TestLobsterNeighbors(unittest.TestCase):
 
     def test_order_parameter(self):
         assert self.chemenvlobster1_second.get_local_order_parameters(
-            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")),
-            n=0,
+            structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_353.gz")), n=0
         )["linear"] == approx(1.0)
 
     def test_get_structure_environments(self):
@@ -601,14 +675,14 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert results[0] == approx(-33.26058)
         for bond in results[1]:
             assert bond == approx(-5.54345, abs=1e-3)
-        assert results[2] == approx(6)
-        assert results[3] == approx(["27", "30", "48", "49", "64", "73"])
+        assert results[2] == 6
+        assert results[3] == ["27", "30", "48", "49", "64", "73"]
 
         results2 = self.chemenvlobster1.get_info_icohps_to_neighbors(isites=None)
         assert results2[0] == approx(-33.26058)
         for bond in results2[1]:
             assert bond == approx(-5.54345, abs=1e-3)
-        assert results2[2] == approx(6)
+        assert results2[2] == 6
         assert results2[3] == ["27", "30", "48", "49", "64", "73"]
         assert results2[4] == [
             ["Re1", "O2"],
@@ -636,64 +710,29 @@ class TestLobsterNeighbors(unittest.TestCase):
         assert len(chemenv_here.get_info_icohps_between_neighbors(isites=[0])[4]) == 6
 
     def test_get_plot_label(self):
-        assert (
-            self.chemenvlobster1._get_plot_label(
-                atoms=[
-                    ["Re1", "O2"],
-                    ["Re1", "O2"],
-                    ["Re1", "O3"],
-                    ["Re1", "O3"],
-                    ["Re1", "O4"],
-                    ["Re1", "O4"],
-                ],
-                per_bond=False,
-            )
-            == "6 x O-Re"
+        label = self.chemenvlobster1._get_plot_label(
+            atoms=[["Re1", "O2"], ["Re1", "O2"], ["Re1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Re1", "O4"]],
+            per_bond=False,
         )
-        assert (
-            self.chemenvlobster1._get_plot_label(
-                atoms=[
-                    ["Re1", "O2"],
-                    ["Re1", "O2"],
-                    ["Re1", "O3"],
-                    ["Re1", "O3"],
-                    ["Re1", "O4"],
-                    ["Si1", "O4"],
-                ],
-                per_bond=False,
-            )
-            == "5 x O-Re, 1 x O-Si"
-        )
+        assert label == "6 x O-Re"
 
-        assert (
-            self.chemenvlobster1._get_plot_label(
-                atoms=[
-                    ["Si1", "O2"],
-                    ["Si1", "O2"],
-                    ["Si1", "O3"],
-                    ["Re1", "O3"],
-                    ["Re1", "O4"],
-                    ["Si1", "O4"],
-                ],
-                per_bond=False,
-            )
-            == "4 x O-Si, 2 x O-Re"
+        label = self.chemenvlobster1._get_plot_label(
+            atoms=[["Re1", "O2"], ["Re1", "O2"], ["Re1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Si1", "O4"]],
+            per_bond=False,
         )
+        assert label == "5 x O-Re, 1 x O-Si"
 
-        assert (
-            self.chemenvlobster1._get_plot_label(
-                atoms=[
-                    ["Re1", "O2"],
-                    ["Re1", "O2"],
-                    ["Re1", "O3"],
-                    ["Re1", "O3"],
-                    ["Re1", "O4"],
-                    ["Re1", "O4"],
-                ],
-                per_bond=True,
-            )
-            == "6 x O-Re (per bond)"
+        label = self.chemenvlobster1._get_plot_label(
+            atoms=[["Si1", "O2"], ["Si1", "O2"], ["Si1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Si1", "O4"]],
+            per_bond=False,
         )
+        assert label == "4 x O-Si, 2 x O-Re"
+
+        label = self.chemenvlobster1._get_plot_label(
+            atoms=[["Re1", "O2"], ["Re1", "O2"], ["Re1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Re1", "O4"]],
+            per_bond=True,
+        )
+        assert label == "6 x O-Re (per bond)"
 
     def test_get_info_cohps_to_neighbors(self):
         chemenvlobster1 = LobsterNeighbors(
@@ -702,68 +741,51 @@ class TestLobsterNeighbors(unittest.TestCase):
             structure=Structure.from_file(os.path.join(test_dir_env, "POSCAR.mp_190.gz")),
             additional_condition=1,
         )
-        assert (
-            chemenvlobster1.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
-                isites=[0],
-                only_bonds_to=["O"],
-            )[0]
-            == "6 x O-Re (per bond)"
-        )
-        cohp = chemenvlobster1.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+        cohpcar_lobster_mp_190 = os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz")
+        plot_label, summed_cohpcar_mp_190 = chemenvlobster1.get_info_cohps_to_neighbors(
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=["O"],
-        )[1]
-        assert isinstance(cohp, Cohp)
+        )
+        assert plot_label == "6 x O-Re (per bond)"
+        assert isinstance(summed_cohpcar_mp_190, Cohp)
 
-        cophthing = chemenvlobster1.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+        coph_thing = chemenvlobster1.get_info_cohps_to_neighbors(
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=None,
             per_bond=False,
         )[1]
-        assert np.sum([cophthing.icohp[Spin.up], cophthing.icohp[Spin.down]], axis=0)[300] == approx(
+        assert np.sum([coph_thing.icohp[Spin.up], coph_thing.icohp[Spin.down]], axis=0)[300] == approx(
             chemenvlobster1.get_info_icohps_to_neighbors(isites=[0])[0]
         )
 
         # summed_spin_channel
-        cophthing = chemenvlobster1.get_info_cohps_to_neighbors(
-            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+        coph_thing = chemenvlobster1.get_info_cohps_to_neighbors(
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=None,
             per_bond=False,
             summed_spin_channels=True,
         )[1]
-        assert cophthing.icohp[Spin.up][300] == approx(chemenvlobster1.get_info_icohps_to_neighbors(isites=[0])[0])
+        assert coph_thing.icohp[Spin.up][300] == approx(chemenvlobster1.get_info_icohps_to_neighbors(isites=[0])[0])
 
-        assert (
-            chemenvlobster1.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
-                isites=[0],
-                only_bonds_to=["Te"],
-            )[0]
-            is None
+        plot_label, summed_cohpcar_mp_190_Te = chemenvlobster1.get_info_cohps_to_neighbors(
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
+            isites=[0],
+            only_bonds_to=["Te"],
         )
 
-        assert (
-            chemenvlobster1.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
-                isites=[0],
-                only_bonds_to=["Te"],
-            )[1]
-            is None
-        )
+        assert plot_label is None
+        assert summed_cohpcar_mp_190_Te is None
 
-        assert (
-            self.chemenvlobster0_NaSi.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.NaSi.gz"),
-                isites=[8],
-                onlycation_isites=False,
-                only_bonds_to=["Na"],
-            )[0]
-            == "1 x Na-Si (per bond)"
+        plot_label, _summed_cohpcar_NaSi = self.chemenvlobster0_NaSi.get_info_cohps_to_neighbors(
+            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.NaSi.gz"),
+            isites=[8],
+            onlycation_isites=False,
+            only_bonds_to=["Na"],
         )
+        assert plot_label == "1 x Na-Si (per bond)"
         assert (
             self.chemenvlobster0_NaSi.get_info_cohps_to_neighbors(
                 path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.NaSi.gz"),
@@ -775,14 +797,14 @@ class TestLobsterNeighbors(unittest.TestCase):
         )
 
         chemenvlobster1.plot_cohps_of_neighbors(
-            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=["O"],
             summed_spin_channels=True,
         )
 
         chemenvlobster1.plot_cohps_of_neighbors(
-            path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+            path_to_COHPCAR=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=["O"],
             summed_spin_channels=True,
@@ -790,24 +812,21 @@ class TestLobsterNeighbors(unittest.TestCase):
             ylim=None,
         )
 
-        with pytest.raises(ValueError):
+        expected_msg = "COHPCAR and ICOHPLIST do not fit together"
+        with pytest.raises(ValueError, match=expected_msg):
             # icohplist and cohpcar do not fit together
             self.chemenvlobster1.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+                path_to_COHPCAR=cohpcar_lobster_mp_190,
                 isites=[0],
                 only_bonds_to=None,
                 per_bond=False,
             )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=expected_msg):
             # icohplist and cohpcar do not fit together
             self.chemenvlobster2.get_info_cohps_to_neighbors(
-                path_to_COHPCAR=os.path.join(test_dir_env, "COHPCAR.lobster.mp-190.gz"),
+                path_to_COHPCAR=cohpcar_lobster_mp_190,
                 isites=[0],
                 only_bonds_to=None,
                 per_bond=False,
             )
-
-
-if __name__ == "__main__":
-    unittest.main()

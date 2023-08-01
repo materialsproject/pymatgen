@@ -67,9 +67,7 @@ class BaseLammpsGenerator(InputGenerator):
     def get_input_set(  # type: ignore
         self, structure: Structure | LammpsData | CombinedData | None  # pylint: disable=E1131
     ) -> LammpsInputSet:
-        """
-        Generate a LammpsInputSet from the structure/data, tailored to the template file.
-        """
+        """Generate a LammpsInputSet from the structure/data, tailored to the template file."""
         data = LammpsData.from_structure(structure) if isinstance(structure, Structure) else structure
 
         # Load the template
@@ -79,14 +77,10 @@ class BaseLammpsGenerator(InputGenerator):
         # Replace all variables
         input_str = Template(template_str).safe_substitute(**self.settings)
         # Get LammpsInputFile
-        input_file = LammpsInputFile.from_string(input_str, keep_stages=self.keep_stages)
+        input_file = LammpsInputFile.from_str(input_str, keep_stages=self.keep_stages)
 
         # Get the LammpsInputSet from the InputFile and data
-        input_set = LammpsInputSet(
-            inputfile=input_file, data=data, calc_type=self.calc_type, template_file=self.template
-        )
-
-        return input_set
+        return LammpsInputSet(inputfile=input_file, data=data, calc_type=self.calc_type, template_file=self.template)
 
 
 class LammpsMinimization(BaseLammpsGenerator):
@@ -97,7 +91,7 @@ class LammpsMinimization(BaseLammpsGenerator):
     ```
     structure = Structure.from_file("mp-149.cif")
     lmp_minimization = LammpsMinimization(units="atomic").get_input_set(structure)
-    ```
+    ```.
 
     Do not forget to specify the force field, otherwise LAMMPS will not be able to run!
 
@@ -110,7 +104,7 @@ class LammpsMinimization(BaseLammpsGenerator):
 
     def __init__(
         self,
-        template: str = None,
+        template: str | None = None,
         units: str = "metal",
         atom_style: str = "full",
         dimension: int = 3,

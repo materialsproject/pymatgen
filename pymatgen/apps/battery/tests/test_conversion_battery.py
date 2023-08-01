@@ -7,10 +7,7 @@ import unittest
 from monty.json import MontyDecoder
 from pytest import approx
 
-from pymatgen.apps.battery.conversion_battery import (
-    ConversionElectrode,
-    ConversionVoltagePair,
-)
+from pymatgen.apps.battery.conversion_battery import ConversionElectrode, ConversionVoltagePair
 from pymatgen.core.composition import Composition
 from pymatgen.util.testing import PymatgenTest
 
@@ -117,7 +114,3 @@ class ConversionElectrodeTest(unittest.TestCase):
                     # composite at each discharge step, of which entry object is simplified to reduced formula
                     entries_formula_list = [entry.composition.reduced_formula for entry in getattr(vpair, attri)]
                     assert entries_formula_list == composite_dict[attri][step]
-
-
-if __name__ == "__main__":
-    unittest.main()

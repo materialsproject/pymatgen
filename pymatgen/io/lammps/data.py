@@ -106,9 +106,7 @@ ATOMS_HEADERS = {
 
 
 class LammpsBox(MSONable):
-    """
-    Object for representing a simulation box in LAMMPS settings.
-    """
+    """Object for representing a simulation box in LAMMPS settings."""
 
     def __init__(self, bounds, tilt=None):
         """
@@ -145,9 +143,7 @@ class LammpsBox(MSONable):
 
     @property
     def volume(self):
-        """
-        Volume of simulation box.
-        """
+        """Volume of simulation box."""
         m = self._matrix
         return np.dot(np.cross(m[0], m[1]), m[2])
 
@@ -229,9 +225,7 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
 
 
 class LammpsData(MSONable):
-    """
-    Object for representing the data in a LAMMPS data file.
-    """
+    """Object for representing the data in a LAMMPS data file."""
 
     def __init__(
         self,
@@ -313,9 +307,9 @@ class LammpsData(MSONable):
         latt = self.box.to_lattice()
         site_properties = {}
         if "q" in atoms:
-            site_properties["charge"] = atoms["q"].values
+            site_properties["charge"] = atoms["q"].to_numpy()
         if self.velocities is not None:
-            site_properties["velocities"] = self.velocities.values
+            site_properties["velocities"] = self.velocities.to_numpy()
         return Structure(
             latt,
             species,
@@ -423,26 +417,17 @@ class LammpsData(MSONable):
 
         section_template = "{kw}\n\n{df}\n"
         parts = []
-        for k, v in body_dict.items():
-            index = k != "PairIJ Coeffs"
-            if (
-                k
-                in [
-                    "Bond Coeffs",
-                    "Angle Coeffs",
-                    "Dihedral Coeffs",
-                    "Improper Coeffs",
-                ]
-                and hybrid
-            ):
-                listofdf = np.array_split(v, len(v.index))
+        for key, val in body_dict.items():
+            index = key != "PairIJ Coeffs"
+            if hybrid and key in ["Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs", "Improper Coeffs"]:
+                dfs = np.array_split(val, len(val.index))
                 df_string = ""
-                for i, df in enumerate(listofdf):
+                for idx, df in enumerate(dfs):
                     if isinstance(df.iloc[0]["coeff1"], str):
                         try:
                             formatters = {
                                 **default_formatters,
-                                **coeffs[k][df.iloc[0]["coeff1"]],
+                                **coeffs[key][df.iloc[0]["coeff1"]],
                             }
                         except KeyError:
                             formatters = default_formatters
@@ -454,23 +439,19 @@ class LammpsData(MSONable):
                             na_rep="",
                         )
                     else:
-                        line_string = v.to_string(
+                        line_string = val.to_string(
                             header=False,
                             formatters=default_formatters,
                             index_names=False,
                             index=index,
                             na_rep="",
-                        ).splitlines()[i]
+                        ).splitlines()[idx]
                     df_string += line_string.replace("nan", "").rstrip() + "\n"
             else:
-                df_string = v.to_string(
-                    header=False,
-                    formatters=default_formatters,
-                    index_names=False,
-                    index=index,
-                    na_rep="",
+                df_string = val.to_string(
+                    header=False, formatters=default_formatters, index_names=False, index=index, na_rep=""
                 )
-            parts.append(section_template.format(kw=k, df=df_string))
+            parts.append(section_template.format(kw=key, df=df_string))
         body = "\n".join(parts)
 
         return file_template.format(stats=stats, box=box, body=body)
@@ -618,7 +599,7 @@ class LammpsData(MSONable):
             species = masses.loc[type_ids, "element"]
             labels = masses.loc[type_ids, "label"]
             coords = atoms[["x", "y", "z"]]
-            m = Molecule(species.values, coords.values, site_properties={ff_label: labels.values})
+            m = Molecule(species.values, coords.values, site_properties={ff_label: labels.to_numpy()})
             charges = atoms.get("q")
             velocities = atoms[["vx", "vy", "vz"]] if "vx" in atoms.columns else None
             topologies = {}
@@ -706,7 +687,7 @@ class LammpsData(MSONable):
                     elif df.shape[1] == len(names) + 3:  # pylint: disable=E1101
                         names += ["nx", "ny", "nz"]
                     else:
-                        raise ValueError(f"Format in Atoms section inconsistent with atom_style {atom_style}")
+                        raise ValueError(f"Format in Atoms section inconsistent with {atom_style=}")
                 else:
                     raise NotImplementedError(f"Parser for {kw} section not implemented")
             df.columns = names
@@ -831,24 +812,24 @@ class LammpsData(MSONable):
                 "charge" (charged). Default to "charge".
             is_sort (bool): whether to sort sites
         """
-        s = structure.get_sorted_structure() if is_sort else structure.copy()
-        box, symm_op = lattice_2_lmpbox(s.lattice)
-        coords = symm_op.operate_multi(s.cart_coords)
-        site_properties = s.site_properties
+        struct = structure.get_sorted_structure() if is_sort else structure.copy()
+        box, symm_op = lattice_2_lmpbox(struct.lattice)
+        coords = symm_op.operate_multi(struct.cart_coords)
+        site_properties = struct.site_properties
         if "velocities" in site_properties:
-            velos = np.array(s.site_properties["velocities"])
+            velos = np.array(struct.site_properties["velocities"])
             rot = SymmOp.from_rotation_and_translation(symm_op.rotation_matrix)
             rot_velos = rot.operate_multi(velos)
             site_properties.update({"velocities": rot_velos})  # type: ignore
         boxed_s = Structure(
             box.to_lattice(),
-            s.species,
+            struct.species,
             coords,
             site_properties=site_properties,
             coords_are_cartesian=True,
         )
 
-        symbols = list(s.symbol_set)
+        symbols = list(struct.symbol_set)
         if ff_elements:
             symbols.extend(ff_elements)
         elements = sorted(Element(el) for el in set(symbols))
@@ -871,7 +852,7 @@ class LammpsData(MSONable):
 
     def set_charge_atom_type(self, charges: dict[str | int, float]):
         """
-        Add or modify charges of all atoms of a given type in the data
+        Add or modify charges of all atoms of a given type in the data.
 
         Args:
             charges: Dict containing the charges for the atom types to set.
@@ -883,7 +864,7 @@ class LammpsData(MSONable):
         for iat, q in charges.items():
             if isinstance(iat, str):
                 mass_iat = Element(iat).atomic_mass
-                iat = self.masses.loc[self.masses["mass"] == mass_iat].index.values[0]
+                iat = self.masses.loc[self.masses["mass"] == mass_iat].index[0]
             self.atoms.loc[self.atoms["type"] == iat, "q"] = q
 
 
@@ -919,7 +900,7 @@ class Topology(MSONable):
                     "Angles": [[i, j, k], ...],
                     "Dihedrals": [[i, j, k, l], ...],
                     "Impropers": [[i, j, k, l], ...]
-                }
+                }.
         """
         if not isinstance(sites, (Molecule, Structure)):
             sites = Molecule.from_sites(sites)
@@ -1022,7 +1003,7 @@ class ForceField(MSONable):
 
     @staticmethod
     def _is_valid(df):
-        return not pd.isna(df).values.any()
+        return not pd.isna(df).to_numpy().any()
 
     def __init__(self, mass_info, nonbond_coeffs=None, topo_coeffs=None):
         """
@@ -1093,7 +1074,7 @@ class ForceField(MSONable):
 
         self.topo_coeffs = topo_coeffs
         if self.topo_coeffs:
-            self.topo_coeffs = {k: v for k, v in self.topo_coeffs.items() if k in SECTION_KEYWORDS["ff"][2:]}
+            self.topo_coeffs = {key: v for key, v in self.topo_coeffs.items() if key in SECTION_KEYWORDS["ff"][2:]}
             for k in self.topo_coeffs:
                 coeffs, mapper = self._process_topo(k)
                 ff_dfs.update(coeffs)
@@ -1104,20 +1085,20 @@ class ForceField(MSONable):
     def _process_nonbond(self):
         pair_df = pd.DataFrame(self.nonbond_coeffs)
         assert self._is_valid(pair_df), "Invalid nonbond coefficients with rows varying in length"
-        npair, ncoeff = pair_df.shape
-        pair_df.columns = [f"coeff{i}" for i in range(1, ncoeff + 1)]
+        n_pair, n_coeff = pair_df.shape
+        pair_df.columns = [f"coeff{i}" for i in range(1, n_coeff + 1)]
         nm = len(self.mass_info)
-        ncomb = int(nm * (nm + 1) / 2)
-        if npair == nm:
+        n_comb = int(nm * (nm + 1) / 2)
+        if n_pair == nm:
             kw = "Pair Coeffs"
             pair_df.index = range(1, nm + 1)
-        elif npair == ncomb:
+        elif n_pair == n_comb:
             kw = "PairIJ Coeffs"
             ids = list(itertools.combinations_with_replacement(range(1, nm + 1), 2))
             id_df = pd.DataFrame(ids, columns=["id1", "id2"])
             pair_df = pd.concat([id_df, pair_df], axis=1)
         else:
-            raise ValueError(f"Expecting {nm} Pair Coeffs or {ncomb} PairIJ Coeffs for {nm} atom types, got {npair}")
+            raise ValueError(f"Expecting {nm} Pair Coeffs or {n_comb} PairIJ Coeffs for {nm} atom types, got {n_pair}")
         return {kw: pair_df}
 
     def _process_topo(self, kw):
@@ -1126,7 +1107,7 @@ class ForceField(MSONable):
                 label_arr = np.array(label)
                 seqs = [[0, 1, 2, 3], [0, 2, 1, 3], [3, 1, 2, 0], [3, 2, 1, 0]]
                 return [tuple(label_arr[s]) for s in seqs]
-            return [label] + [label[::-1]]
+            return [label, label[::-1]]
 
         main_data, distinct_types = [], []
         class2_data = {k: [] for k in self.topo_coeffs[kw][0] if k in CLASS2_KEYWORDS.get(kw, [])}
@@ -1348,31 +1329,25 @@ class CombinedData(LammpsData):
         Returns:
             [(LammpsBox, ForceField, [Topology]), ...]
         """
-        disassembles = []
-        for mol in self.mols:
-            disassembles.append(
-                mol.disassemble(atom_labels=atom_labels, guess_element=guess_element, ff_label=ff_label)
-            )
-        return disassembles
+        return [
+            mol.disassemble(atom_labels=atom_labels, guess_element=guess_element, ff_label=ff_label)
+            for mol in self.mols
+        ]
 
     @classmethod
     def from_ff_and_topologies(cls):
-        """
-        Unsupported constructor for CombinedData objects.
-        """
-        raise AttributeError("Unsupported constructor for CombinedData objects.")
+        """Unsupported constructor for CombinedData objects."""
+        raise AttributeError("Unsupported constructor for CombinedData objects")
 
     @classmethod
     def from_structure(cls):
-        """
-        Unsupported constructor for CombinedData objects.
-        """
-        raise AttributeError("Unsupported constructor for CombinedData objects.")
+        """Unsupported constructor for CombinedData objects."""
+        raise AttributeError("Unsupported constructor for CombinedData objects")
 
     @classmethod
     def parse_xyz(cls, filename):
         """
-        Load xyz file generated from packmol (for those who find it hard to install openbabel)
+        Load xyz file generated from packmol (for those who find it hard to install openbabel).
 
         Returns:
             pandas.DataFrame
@@ -1447,7 +1422,7 @@ class CombinedData(LammpsData):
         as a comment. For single molecule ID data, the info format is:
             num name
         For data with multiple molecule ID, the format is:
-            num(mols_per_data) name
+            num(mols_per_data) name.
 
         Args:
             distance (int): No. of significant figures to output for

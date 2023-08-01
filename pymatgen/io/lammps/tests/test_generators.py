@@ -19,10 +19,10 @@ class LammpsMinimizationTest(PymatgenTest):
 
     def test_get_input_set(self):
         lmp_min = LammpsMinimization(keep_stages=False).get_input_set(self.structure)
-        assert list(lmp_min.data.as_dict().keys()) == list(LammpsData.from_structure(self.structure).as_dict().keys())
+        assert list(lmp_min.data.as_dict()) == list(LammpsData.from_structure(self.structure).as_dict())
         assert (
-            lmp_min.data.as_dict()["atoms"].values
-            == LammpsData.from_structure(self.structure).as_dict()["atoms"].values
+            lmp_min.data.as_dict()["atoms"].to_numpy()
+            == LammpsData.from_structure(self.structure).as_dict()["atoms"].to_numpy()
         ).all()
         assert lmp_min.inputfile.stages == [
             {
@@ -52,10 +52,10 @@ class LammpsMinimizationTest(PymatgenTest):
         ]
 
         lmp_min = LammpsMinimization(units="atomic", dimension=2, keep_stages=False).get_input_set(self.structure)
-        assert list(lmp_min.data.as_dict().keys()) == list(LammpsData.from_structure(self.structure).as_dict().keys())
+        assert list(lmp_min.data.as_dict()) == list(LammpsData.from_structure(self.structure).as_dict())
         assert (
-            lmp_min.data.as_dict()["atoms"].values
-            == LammpsData.from_structure(self.structure).as_dict()["atoms"].values
+            lmp_min.data.as_dict()["atoms"].to_numpy()
+            == LammpsData.from_structure(self.structure).as_dict()["atoms"].to_numpy()
         ).all()
         assert lmp_min.inputfile.stages == [
             {

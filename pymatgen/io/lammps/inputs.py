@@ -2,7 +2,7 @@
 This module implements methods for reading/manupilating/writing LAMMPS input files.
 It does not implement methods for automatically creating inputs based on a structure
 and computation type. For this, see the InputSet and InputGenerator in sets.py, or
-https://github.com/Matgenix/atomate2-lammps
+https://github.com/Matgenix/atomate2-lammps.
 """
 
 from __future__ import annotations
@@ -183,7 +183,7 @@ class LammpsInputFile(InputFile):
 
     def add_stage(
         self,
-        stage: dict = None,
+        stage: dict | None = None,
         commands: str | list[str] | dict[str, str | float] | None = None,
         stage_name: str | None = None,
         after_stage: str | int | None = None,
@@ -522,7 +522,12 @@ class LammpsInputFile(InputFile):
             f.write(self.get_string(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
-    def from_string(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> LammpsInputFile:
         """
         Helper method to parse string representation of LammpsInputFile.
         If you created the input file by hand, there is no guarantee that the representation
@@ -617,7 +622,7 @@ class LammpsInputFile(InputFile):
         """
         filename = path if isinstance(path, Path) else Path(path)
         with zopen(filename, "rt") as f:
-            return cls.from_string(f.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
+            return cls.from_str(f.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
 
     def __repr__(self):
         return self.get_string()

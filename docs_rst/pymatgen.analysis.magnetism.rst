@@ -11,12 +11,29 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.analysis.magnetism.analyzer module
+-------------------------------------------
 
-   pymatgen.analysis.magnetism.analyzer
-   pymatgen.analysis.magnetism.heisenberg
-   pymatgen.analysis.magnetism.jahnteller
+.. automodule:: pymatgen.analysis.magnetism.analyzer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.analysis.magnetism.heisenberg module
+---------------------------------------------
+
+.. automodule:: pymatgen.analysis.magnetism.heisenberg
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.analysis.magnetism.jahnteller module
+---------------------------------------------
+
+.. automodule:: pymatgen.analysis.magnetism.jahnteller
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

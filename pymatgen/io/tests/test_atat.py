@@ -61,7 +61,7 @@ class AtatTest(PymatgenTest):
 0.000000 -1.000000 -1.500000 O
 """
 
-        s = Mcsqs.structure_from_string(test_string)
+        s = Mcsqs.structure_from_str(test_string)
 
         assert s.composition.formula == "Sr3 Ca5 Mn7 Fe1 O24"
         assert s.lattice.a == approx(2.2360679775)
@@ -69,8 +69,8 @@ class AtatTest(PymatgenTest):
         assert s.lattice.c == approx(1.73205080757)
 
     def test_mcsqs_export(self):
-        s = self.get_structure("SrTiO3")
-        s.replace_species({"Sr2+": {"Sr2+": 0.5, "Ca2+": 0.5}})
+        struct = self.get_structure("SrTiO3")
+        struct.replace_species({"Sr2+": {"Sr2+": 0.5, "Ca2+": 0.5}})
 
         ref_string = """3.905000 0.000000 0.000000
 -0.000000 3.905000 0.000000
@@ -84,7 +84,7 @@ class AtatTest(PymatgenTest):
 0.000000 0.500000 0.000000 O2-=1.0
 0.500000 0.000000 0.000000 O2-=1.0"""
 
-        assert Mcsqs(s).to_string() == ref_string
+        assert Mcsqs(struct).to_str() == ref_string
 
     def test_mcsqs_cif_nacl(self):
         # cif file from str2cif (utility distributed with atat)
@@ -94,7 +94,7 @@ class AtatTest(PymatgenTest):
         struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.out"))
 
         assert struc_from_cif.matches(struc_from_out)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             struc_from_out.lattice.parameters,
             struc_from_cif.lattice.parameters,
             decimal=4,
@@ -108,7 +108,7 @@ class AtatTest(PymatgenTest):
         struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.out"))
 
         assert struc_from_cif.matches(struc_from_out)
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             struc_from_out.lattice.parameters,
             struc_from_cif.lattice.parameters,
             decimal=4,

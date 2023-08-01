@@ -26,10 +26,10 @@ class CifTransmuterTest(PymatgenTest):
         trans.append(SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"}))
         tsc = CifTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "MultiStructure.cif")], trans)
         assert len(tsc) == 2
-        expected_ans = {"Mn", "O", "Li", "P"}
+        expected = {"Mn", "O", "Li", "P"}
         for s in tsc:
             els = {el.symbol for el in s.final_structure.composition.elements}
-            assert expected_ans == els
+            assert expected == els
 
 
 class PoscarTransmuterTest(PymatgenTest):
@@ -40,10 +40,10 @@ class PoscarTransmuterTest(PymatgenTest):
             [os.path.join(self.TEST_FILES_DIR, "POSCAR"), os.path.join(self.TEST_FILES_DIR, "POSCAR")], trans
         )
         assert len(tsc) == 2
-        expected_ans = {"Mn", "O", "P"}
+        expected = {"Mn", "O", "P"}
         for s in tsc:
             els = {el.symbol for el in s.final_structure.composition.elements}
-            assert expected_ans == els
+            assert expected == els
 
     def test_transmuter(self):
         tsc = PoscarTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "POSCAR")])
@@ -54,14 +54,14 @@ class PoscarTransmuterTest(PymatgenTest):
         tsc.append_transformation(OrderDisorderedStructureTransformation(), extend_collection=50)
         assert len(tsc) == 4
 
-        t = SuperTransformation(
+        trafo = SuperTransformation(
             [
                 SubstitutionTransformation({"Fe2+": "Mg2+"}),
                 SubstitutionTransformation({"Fe2+": "Zn2+"}),
                 SubstitutionTransformation({"Fe2+": "Be2+"}),
             ]
         )
-        tsc.append_transformation(t, extend_collection=True)
+        tsc.append_transformation(trafo, extend_collection=True)
         assert len(tsc) == 12
         for x in tsc:
             # should be 4 trans + starting structure

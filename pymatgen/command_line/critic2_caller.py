@@ -26,7 +26,7 @@ appropriate (e.g. the two nucleus critical points linked to
  a bond critical point)
 * critic2 can do many other things besides
 
-If you use this module, please cite the following:
+If you use this module, please cite:
 
 A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,
 Comput. Phys. Communications 185, 1007-1018 (2014)
@@ -59,6 +59,7 @@ from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -66,11 +67,18 @@ if TYPE_CHECKING:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+due.cite(
+    Doi("10.1016/j.cpc.2008.07.018"),
+    description="Critic: a new program for the topological analysis of solid-state electron densities",
+)
+due.cite(
+    Doi("10.1016/j.cpc.2013.10.026"),
+    description="Critic2: A program for real-space analysis of quantum chemical interactions in solids",
+)
+
 
 class Critic2Caller:
-    """
-    Class to call critic2 and store standard output for further processing.
-    """
+    """Class to call critic2 and store standard output for further processing."""
 
     @requires(
         which("critic2"),
@@ -79,7 +87,7 @@ class Critic2Caller:
     )
     def __init__(self, input_script):
         """
-        Run Critic2 on a given input script
+        Run Critic2 on a given input script.
 
         :param input_script: string defining the critic2 input
         """
@@ -216,9 +224,7 @@ class Critic2Caller:
 
         input_script = "\n".join(input_script)
 
-        with ScratchDir(".") as temp_dir:
-            os.chdir(temp_dir)
-
+        with ScratchDir("."):
             structure.to(filename="POSCAR")
 
             if chgcar and isinstance(chgcar, VolumetricData):
@@ -247,8 +253,8 @@ class Critic2Caller:
     @classmethod
     def from_path(cls, path, suffix="", zpsp=None):
         """
-        Convenience method to run critic2 analysis on a folder containing
-        typical VASP output files.
+        Convenience method to run critic2 analysis on a folder with typical VASP output files.
+
         This method will:
 
         1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped
@@ -306,9 +312,7 @@ class Critic2Caller:
 
 
 class CriticalPointType(Enum):
-    """
-    Enum type for the different varieties of critical point.
-    """
+    """Enum type for the different varieties of critical point."""
 
     nucleus = "nucleus"  # (3, -3)
     bond = "bond"  # (3, -1)
@@ -336,14 +340,11 @@ def get_filepath(filename, warning, path, suffix):
         # however, better to use 'suffix' kwarg to avoid this!
         paths.sort(reverse=True)
         warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
-    path = paths[0]
-    return path
+    return paths[0]
 
 
 class CriticalPoint(MSONable):
-    """
-    Access information about a critical point and the field values at that point.
-    """
+    """Access information about a critical point and the field values at that point."""
 
     def __init__(
         self,
@@ -386,9 +387,7 @@ class CriticalPoint(MSONable):
 
     @property
     def type(self):
-        """
-        Returns: Instance of CriticalPointType
-        """
+        """Returns: Instance of CriticalPointType."""
         return CriticalPointType(self._type)
 
     def __str__(self):
@@ -396,9 +395,7 @@ class CriticalPoint(MSONable):
 
     @property
     def laplacian(self):
-        """
-        Returns: The Laplacian of the field at the critical point
-        """
+        """Returns: The Laplacian of the field at the critical point."""
         return np.trace(self.field_hessian)
 
     @property
@@ -408,7 +405,7 @@ class CriticalPoint(MSONable):
         can be physically interpreted as e.g. degree
         of pi-bonding in organic molecules. Consult
         literature for more information.
-        Returns: The ellpiticity of the field at the critical point
+        Returns: The ellpiticity of the field at the critical point.
         """
         eig, _ = np.linalg.eig(self.field_hessian)
         eig.sort()
@@ -416,9 +413,7 @@ class CriticalPoint(MSONable):
 
 
 class Critic2Analysis(MSONable):
-    """
-    Class to process the standard output from critic2 into pymatgen-compatible objects.
-    """
+    """Class to process the standard output from critic2 into pymatgen-compatible objects."""
 
     def __init__(self, structure: Structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None):
         """
@@ -601,7 +596,7 @@ class Critic2Analysis(MSONable):
     def get_critical_point_for_site(self, n: int):
         """
         Args:
-            n (int): Site index
+            n (int): Site index.
 
         Returns: A CriticalPoint instance
         """
@@ -610,7 +605,7 @@ class Critic2Analysis(MSONable):
     def get_volume_and_charge_for_site(self, n):
         """
         Args:
-            n: Site index n
+            n: Site index n.
 
         Returns: A dict containing "volume" and "charge" keys,
         or None if YT integration not performed
@@ -702,8 +697,7 @@ class Critic2Analysis(MSONable):
 
     @staticmethod
     def _annotate_structure_with_yt(yt, structure: Structure, zpsp):
-        volume_idx = None
-        charge_idx = None
+        volume_idx = charge_idx = None
 
         for prop in yt["integration"]["properties"]:
             if prop["label"] == "Volume":

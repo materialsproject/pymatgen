@@ -1,6 +1,4 @@
-"""
-Development script to test the algorithms of a given model coordination environments
-"""
+"""Development script to test the algorithms of a given model coordination environments."""
 
 from __future__ import annotations
 
@@ -11,9 +9,7 @@ from random import shuffle
 
 import numpy as np
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -69,7 +65,7 @@ if __name__ == "__main__":
         lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
         points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
 
-        print(f"Perm # {idx_perm:d}/{n_perms:d} : ", indices_perm)
+        print(f"Perm # {idx_perm}/{n_perms} : ", indices_perm)
 
         algos_results = []
         for algo in cg.algorithms:

@@ -1,12 +1,8 @@
-"""
-Development script to get the multiplicity of the separation facets for some model coordination environments
-"""
+"""Development script to get the multiplicity of the separation facets for some model coordination environments."""
 
 from __future__ import annotations
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -34,5 +30,5 @@ if __name__ == "__main__":
             all_plane_points.append(tuple(equiv_plane))
         all_plane_points = [tuple(equiv_plane) for equiv_plane in set(all_plane_points)]
 
-    print(f"All plane points ({len(all_plane_points):d}) for {cg_symbol} : ")
+    print(f"All plane points ({len(all_plane_points)}) for {cg_symbol} : ")
     print(all_plane_points)

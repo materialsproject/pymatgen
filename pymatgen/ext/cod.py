@@ -1,7 +1,7 @@
 """
 This module provides classes to interface with the Crystallography Open
 Database. If you use data from the COD, please cite the following works (as
-stipulated by the COD developers)::
+stipulated by the COD developers).
 
     Merkys, A., Vaitkus, A., Butkus, J., Okulič-Kazarinas, M., Kairys, V. &
     Gražulis, S. (2016) "COD::CIF::Parser: an error-correcting CIF parser for
@@ -41,14 +41,10 @@ from pymatgen.core.structure import Structure
 
 
 class COD:
-    """
-    An interface to the Crystallography Open Database.
-    """
+    """An interface to the Crystallography Open Database."""
 
     def __init__(self):
-        """
-        Blank __init__. No args required.
-        """
+        """Blank __init__. No args required."""
         self.url = "www.crystallography.net"
 
     def query(self, sql: str) -> str:
@@ -124,8 +120,8 @@ class COD:
                 cod_id, sg = line.split("\t")
                 r = requests.get(f"http://www.crystallography.net/cod/{cod_id.strip()}.cif")
                 try:
-                    s = Structure.from_str(r.text, fmt="cif", **kwargs)
-                    structures.append({"structure": s, "cod_id": int(cod_id), "sg": sg})
+                    struct = Structure.from_str(r.text, fmt="cif", **kwargs)
+                    structures.append({"structure": struct, "cod_id": int(cod_id), "sg": sg})
                 except Exception:
                     warnings.warn(f"\nStructure.from_str failed while parsing CIF file:\n{r.text}")
                     raise

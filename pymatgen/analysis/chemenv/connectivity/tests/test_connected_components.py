@@ -8,19 +8,11 @@ import networkx as nx
 import numpy as np
 import pytest
 
-from pymatgen.analysis.chemenv.connectivity.connected_components import (
-    ConnectedComponent,
-)
-from pymatgen.analysis.chemenv.connectivity.connectivity_finder import (
-    ConnectivityFinder,
-)
+from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
+from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    SimplestChemenvStrategy,
-)
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
-    LocalGeometryFinder,
-)
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
     StructureEnvironments,
@@ -866,11 +858,11 @@ Node #3 Li (O:6), connected to :
             "structure_environments_files",
             "se_mp-5020.json",
         )
-        with open(BaTiO3_se_fpath) as f:
-            dd = json.load(f)
-        se = StructureEnvironments.from_dict(dd)
+        with open(BaTiO3_se_fpath) as file:
+            dct = json.load(file)
+        struct_envs = StructureEnvironments.from_dict(dct)
         lse = LightStructureEnvironments.from_structure_environments(
-            strategy=SimplestChemenvStrategy(), structure_environments=se
+            strategy=SimplestChemenvStrategy(), structure_environments=struct_envs
         )
         cf = ConnectivityFinder()
         sc = cf.get_structure_connectivity(light_structure_environments=lse)
@@ -880,7 +872,7 @@ Node #3 Li (O:6), connected to :
         assert len(ccs_all) == 1
         cc_oct = ccs_oct[0]
         cc_all = ccs_all[0]
-        cc_oct_node = list(cc_oct.graph.nodes())[0]
+        cc_oct_node = next(iter(cc_oct.graph.nodes()))
         cseq = cc_oct.coordination_sequence(source_node=cc_oct_node, path_size=6)
         assert cseq == {1: 6, 2: 18, 3: 38, 4: 66, 5: 102, 6: 146}
         cc_all_oct_node = next(n for n in cc_all.graph.nodes() if n.coordination_environment == "O:6")

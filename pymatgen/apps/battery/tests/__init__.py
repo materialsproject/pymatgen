@@ -1,3 +1,1 @@
-"""
-Tests for battery classes
-"""
+"""Tests for battery classes."""

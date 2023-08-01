@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 import pytest
 
@@ -1127,7 +1126,3 @@ class FreqSetTest(PymatgenTest):
         assert test_FreqSet.rem == ref_dict
         assert test_FreqSet.smx == {"solvent": "water"}
         assert test_FreqSet.molecule == test_molecule
-
-
-if __name__ == "__main__":
-    unittest.main()

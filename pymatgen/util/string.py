@@ -1,23 +1,10 @@
-"""
-This module provides utility classes for string operations.
-"""
+"""This module provides utility classes for string operations."""
 from __future__ import annotations
 
 import re
 from fractions import Fraction
 
-SUBSCRIPT_UNICODE = {
-    "0": "₀",
-    "1": "₁",
-    "2": "₂",
-    "3": "₃",
-    "4": "₄",
-    "5": "₅",
-    "6": "₆",
-    "7": "₇",
-    "8": "₈",
-    "9": "₉",
-}
+SUBSCRIPT_UNICODE = {"0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄", "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉"}
 
 SUPERSCRIPT_UNICODE = {
     "0": "⁰",
@@ -40,9 +27,7 @@ SUPERSCRIPT_UNICODE = {
 
 
 class Stringify:
-    """
-    Mix-in class for string formatting, e.g. superscripting numbers and symbols or superscripting.
-    """
+    """Mix-in class for string formatting, e.g. superscripting numbers and symbols or superscripting."""
 
     STRING_MODE = "SUBSCRIPT"
 
@@ -98,25 +83,26 @@ class Stringify:
 
 
 def str_delimited(results, header=None, delimiter="\t"):
-    """
+    r"""
     Given a tuple of tuples, generate a delimited string form.
     >>> results = [["a","b","c"],["d","e","f"],[1,2,3]]
     >>> print(str_delimited(results,delimiter=","))
     a,b,c
     d,e,f
-    1,2,3
+    1,2,3.
 
     Args:
-        result: 2d sequence of arbitrary types.
+        results: 2d sequence of arbitrary types.
         header: optional header
+        delimiter: Defaults to "\t" for tab-delimited output.
 
     Returns:
         Aligned string output in a table-like format.
     """
-    returnstr = ""
+    out = ""
     if header is not None:
-        returnstr += delimiter.join(header) + "\n"
-    return returnstr + "\n".join(delimiter.join([str(m) for m in result]) for result in results)
+        out += delimiter.join(header) + "\n"
+    return out + "\n".join(delimiter.join([str(m) for m in result]) for result in results)
 
 
 def formula_double_format(afloat, ignore_ones=True, tol: float = 1e-8):
@@ -135,27 +121,23 @@ def formula_double_format(afloat, ignore_ones=True, tol: float = 1e-8):
     if ignore_ones and afloat == 1:
         return ""
     if abs(afloat - int(afloat)) < tol:
-        return str(int(afloat))
-    return str(round(afloat, 8))
+        return int(afloat)
+    return round(afloat, 8)
 
 
 def charge_string(charge, brackets=True, explicit_one=True):
     """
     Returns a string representing the charge of an Ion. By default, the
     charge is placed in brackets with the sign preceding the magnitude, e.g.,
-    '[+2]'. For uncharged species, the string returned is '(aq)'
+    '[+2]'. For uncharged species, the string returned is '(aq)'.
 
     Args:
+        charge: the charge of the Ion
         brackets: whether to enclose the charge in brackets, e.g. [+2]. Default: True
         explicit_one: whether to include the number one for monovalent ions, e.g.
             +1 rather than +. Default: True
     """
-    if charge > 0:
-        chg_str = f"+{formula_double_format(charge, False)}"
-    elif charge < 0:
-        chg_str = f"-{formula_double_format(abs(charge), False)}"
-    else:
-        chg_str = "(aq)"
+    chg_str = "(aq)" if charge == 0 else f"{formula_double_format(charge, False):+}"
 
     if chg_str in ["+1", "-1"] and not explicit_one:
         chg_str = chg_str.replace("1", "")
@@ -186,7 +168,7 @@ def latexify(formula):
 def htmlify(formula):
     """
     Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
-    Fe<sub>2</sub>O</sub>3</sub>
+    Fe<sub>2</sub>O</sub>3</sub>.
 
     Note that Composition now has a to_html_string() method that may
     be used instead.
@@ -264,9 +246,7 @@ def unicodeify_spacegroup(spacegroup_symbol):
     symbol = symbol.replace("$", "")
     symbol = symbol.replace("{", "")
     # overline unicode symbol comes after the character with the overline
-    symbol = symbol.replace("}", overline)
-
-    return symbol
+    return symbol.replace("}", overline)
 
 
 def unicodeify_species(specie_string):
@@ -293,9 +273,7 @@ def unicodeify_species(specie_string):
 
 
 def stream_has_colours(stream):
-    """
-    True if stream supports colours. Python cookbook, #475186
-    """
+    """True if stream supports colours. Python cookbook, #475186."""
     if not hasattr(stream, "isatty"):
         return False
 
@@ -319,30 +297,30 @@ def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x",
     :param components: either ('x', 'y', 'z') or ('a', 'b', 'c')
     :param c: optional additional character to print (used for magmoms)
     :param delim: delimiter
-    :return: xyz string
+    :return: xyz string.
     """
     parts = []
-    for i in range(3):
-        s = ""
-        m = matrix[i]
-        t = translation_vec[i]
+    for idx in range(3):
+        string = ""
+        m = matrix[idx]
+        offset = translation_vec[idx]
         for j, dim in enumerate(components):
             if m[j] != 0:
                 f = Fraction(m[j]).limit_denominator()
-                if s != "" and f >= 0:
-                    s += "+"
+                if string != "" and f >= 0:
+                    string += "+"
                 if abs(f.numerator) != 1:
-                    s += str(f.numerator)
+                    string += str(f.numerator)
                 elif f < 0:
-                    s += "-"
-                s += c + dim
+                    string += "-"
+                string += c + dim
                 if f.denominator != 1:
-                    s += "/" + str(f.denominator)
-        if t != 0:
-            s += ("+" if (t > 0 and s != "") else "") + str(Fraction(t).limit_denominator())
-        if s == "":
-            s += "0"
-        parts.append(s)
+                    string += "/" + str(f.denominator)
+        if offset != 0:
+            string += ("+" if (offset > 0 and string != "") else "") + str(Fraction(offset).limit_denominator())
+        if string == "":
+            string += "0"
+        parts.append(string)
     return delim.join(parts)
 
 
@@ -409,7 +387,7 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     factor = factor_comp.get_reduced_formula_and_factor()[1]
 
     total_disordered_occu /= factor
-    remainder = formula_double_format(total_disordered_occu, ignore_ones=False) + "-" + "-".join(symbols)
+    remainder = f"{formula_double_format(total_disordered_occu, ignore_ones=False)}-{'-'.join(symbols)}"
 
     for sp, occu in comp:
         species = str(sp)
@@ -441,6 +419,6 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
             if fmt != "plain":
                 disordered_formula.append(sub_end)
     disordered_formula.append(" ")
-    disordered_formula += [f"{k}={formula_double_format(v)} " for k, v in variable_map.items()]
+    disordered_formula += [f"{key}={formula_double_format(val)} " for key, val in variable_map.items()]
 
     return "".join(map(str, disordered_formula))[0:-1]

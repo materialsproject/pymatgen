@@ -11,10 +11,13 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.analysis.topological.spillage module
+---------------------------------------------
 
-   pymatgen.analysis.topological.spillage
+.. automodule:: pymatgen.analysis.topological.spillage
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

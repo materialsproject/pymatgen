@@ -2,18 +2,11 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
-import warnings
 
 from pytest import approx
 from sympy import Number, Symbol
 
-from pymatgen.analysis.surface_analysis import (
-    NanoscaleStability,
-    SlabEntry,
-    SurfaceEnergyPlotter,
-    WorkFunctionAnalyzer,
-)
+from pymatgen.analysis.surface_analysis import NanoscaleStability, SlabEntry, SurfaceEnergyPlotter, WorkFunctionAnalyzer
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import PymatgenTest
 
@@ -26,15 +19,11 @@ __date__ = "Aug 24, 2017"
 
 
 def get_path(path_str):
-    path = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
-    return path
+    return os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests", path_str)
 
 
 class SlabEntryTest(PymatgenTest):
     def setUp(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-
         with open(os.path.join(get_path(""), "ucell_entries.txt")) as ucell_entries:
             ucell_entries = json.loads(ucell_entries.read())
         self.ucell_entries = ucell_entries
@@ -107,15 +96,15 @@ class SlabEntryTest(PymatgenTest):
         all_se = []
         ECu = self.Cu_ucell_entry.energy_per_atom
         for val in self.Cu_entry_dict.values():
-            slab_entry = list(val)[0]
+            slab_entry = next(iter(val))
             se = slab_entry.surface_energy(self.Cu_ucell_entry)
             all_se.append(se)
             # Manually calculate surface energy
             manual_se = (slab_entry.energy - ECu * len(slab_entry.structure)) / (2 * slab_entry.surface_area)
-            self.assertArrayAlmostEqual(float(se), manual_se, 10)
+            self.assert_all_close(float(se), manual_se, 10)
 
         # The (111) facet should be the most stable
-        clean111_entry = list(self.Cu_entry_dict[(1, 1, 1)])[0]
+        clean111_entry = next(iter(self.Cu_entry_dict[(1, 1, 1)]))
         se_Cu111 = clean111_entry.surface_energy(self.Cu_ucell_entry)
         assert min(all_se) == se_Cu111
 
@@ -197,7 +186,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             # Test WulffShape for adsorbed surfaces
             # chempot = analyzer.max_adsorption_chempot_range(0)
             wulff = analyzer.wulff_from_chempot(delu_default=-6)
-            wulff.weighted_surface_energy
+            _ = wulff.weighted_surface_energy
 
         # Test if a different Wulff shape is generated
         # for Ni when adsorption comes into play
@@ -223,19 +212,19 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         # For clean stoichiometric system, the two equations should
         # be parallel because the surface energy is a constant. Then
         # get_surface_equilibrium should return None
-        clean111_entry = list(self.Cu_entry_dict[(1, 1, 1)])[0]
-        clean100_entry = list(self.Cu_entry_dict[(1, 0, 0)])[0]
+        clean111_entry = next(iter(self.Cu_entry_dict[(1, 1, 1)]))
+        clean100_entry = next(iter(self.Cu_entry_dict[(1, 0, 0)]))
         soln = self.Cu_analyzer.get_surface_equilibrium([clean111_entry, clean100_entry])
         assert not soln
 
         # For adsorbed system, we should find one intercept
         Pt_entries = self.metals_O_entry_dict["Pt"]
-        clean = list(Pt_entries[(1, 1, 1)])[0]
+        clean = next(iter(Pt_entries[(1, 1, 1)]))
         ads = Pt_entries[(1, 1, 1)][clean][0]
         Pt_analyzer = self.Oads_analyzer_dict["Pt"]
         soln = Pt_analyzer.get_surface_equilibrium([clean, ads])
 
-        assert list(soln.values())[0] != list(soln.values())[1]
+        assert next(iter(soln.values())) != list(soln.values())[1]
 
         # Check if the number of parameters for adsorption are correct
         assert (Symbol("delu_O"), Symbol("gamma")) == tuple(soln)
@@ -435,7 +424,7 @@ def load_O_adsorption():
         for el, val in metals_O_entry_dict.items():
             if el in k:
                 if "111" in k:
-                    clean = list(val[(1, 1, 1)])[0]
+                    clean = next(iter(val[(1, 1, 1)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,
@@ -446,7 +435,7 @@ def load_O_adsorption():
                     )
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = [ads]
                 if "110" in k:
-                    clean = list(val[(1, 1, 0)])[0]
+                    clean = next(iter(val[(1, 1, 0)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,
@@ -457,7 +446,7 @@ def load_O_adsorption():
                     )
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = [ads]
                 if "100" in k:
-                    clean = list(val[(1, 0, 0)])[0]
+                    clean = next(iter(val[(1, 0, 0)]))
                     ads = SlabEntry(
                         entry.structure,
                         entry.energy,
@@ -469,7 +458,3 @@ def load_O_adsorption():
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = [ads]
 
     return metals_O_entry_dict
-
-
-if __name__ == "__main__":
-    unittest.main()

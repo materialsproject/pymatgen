@@ -11,13 +11,37 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.io.qchem.inputs module
+-------------------------------
 
-   pymatgen.io.qchem.inputs
-   pymatgen.io.qchem.outputs
-   pymatgen.io.qchem.sets
-   pymatgen.io.qchem.utils
+.. automodule:: pymatgen.io.qchem.inputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.qchem.outputs module
+--------------------------------
+
+.. automodule:: pymatgen.io.qchem.outputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.qchem.sets module
+-----------------------------
+
+.. automodule:: pymatgen.io.qchem.sets
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.qchem.utils module
+------------------------------
+
+.. automodule:: pymatgen.io.qchem.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

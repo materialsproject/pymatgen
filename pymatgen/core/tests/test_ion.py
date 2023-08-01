@@ -23,7 +23,7 @@ class IonTest(unittest.TestCase):
         self.comp.append(Ion.from_formula("Ca[2+]"))
         self.comp.append(Ion.from_formula("NaOH(aq)"))
 
-    def test_init_(self):
+    def test_init(self):
         c = Composition({"Fe": 4, "O": 16, "P": 4})
         charge = 4
         assert Ion(c, charge).formula == "Fe4 P4 O16 +4"
@@ -89,7 +89,7 @@ class IonTest(unittest.TestCase):
         ]
         all_formulas = [c.formula for c in self.comp]
         assert all_formulas == correct_formulas
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="co2 is an invalid formula"):
             Ion.from_formula("(co2)(po4)2")
 
     def test_mixed_valence(self):
@@ -165,7 +165,7 @@ class IonTest(unittest.TestCase):
             other_z = random.randint(1, 92)
         comp2 = Ion(Composition({fixed_el: 1, Element.from_Z(other_z): 0}), 1)
         assert comp1 == comp2, f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
-        assert hash(comp1) == hash(comp2), "Hashcode equality test failed!"
+        assert hash(comp1) == hash(comp2), "Hash equality test failed!"
 
     def test_equality(self):
         assert self.comp[0] == (self.comp[0])
@@ -193,7 +193,3 @@ class IonTest(unittest.TestCase):
         ]
         all_latex = [c.to_latex_string() for c in self.comp]
         assert all_latex == correct_latex
-
-
-if __name__ == "__main__":
-    unittest.main()

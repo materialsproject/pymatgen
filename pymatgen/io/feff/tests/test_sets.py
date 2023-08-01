@@ -127,10 +127,10 @@ TITLE sites: 4
         # Zn should not appear in the pot_dict
         with pytest.warns(UserWarning, match="ION tags"):
             MPXANESSet("Zn", m)
-        s = self.structure.copy()
-        s.set_charge(1)
+        struct = self.structure.copy()
+        struct.set_charge(1)
         with pytest.raises(ValueError, match="not supported"):
-            MPXANESSet("Co", s)
+            MPXANESSet("Co", struct)
 
     def test_reciprocal_tags_and_input(self):
         user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
@@ -253,7 +253,3 @@ TITLE sites: 4
         assert original_mole_shell == output_mole_shell
 
         shutil.rmtree(os.path.join(".", "feff_dist_regen"))
-
-
-if __name__ == "__main__":
-    unittest.main()

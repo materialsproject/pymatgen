@@ -11,12 +11,29 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.io.lobster.inputs module
+---------------------------------
 
-   pymatgen.io.lobster.inputs
-   pymatgen.io.lobster.lobsterenv
-   pymatgen.io.lobster.outputs
+.. automodule:: pymatgen.io.lobster.inputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.lobster.lobsterenv module
+-------------------------------------
+
+.. automodule:: pymatgen.io.lobster.lobsterenv
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.io.lobster.outputs module
+----------------------------------
+
+.. automodule:: pymatgen.io.lobster.outputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

@@ -1,6 +1,4 @@
-"""
-Classes for reading/writing mcsqs files following the rndstr.in format.
-"""
+"""Classes for reading/writing mcsqs files following the rndstr.in format."""
 
 from __future__ import annotations
 
@@ -24,16 +22,21 @@ class Mcsqs:
     used by mcsqs and other ATAT codes.
     """
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
-        :param structure: input Structure
+        Args:
+            Structure: input Structure.
         """
         self.structure = structure
 
-    def to_string(self):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self):
         """
-        Returns a structure in mcsqs rndstr.in format.
-        :return (str):
+        Returns:
+            str: a structure in mcsqs rndstr.in format.
         """
         # add lattice vectors
         mat = self.structure.lattice.matrix
@@ -59,8 +62,12 @@ class Mcsqs:
 
         return "\n".join(output)
 
+    @np.deprecate(message="Use from_str instead")
+    def structure_from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def structure_from_string(data):
+    def structure_from_str(data):
         """
         Parses a rndstr.in, lat.in or bestsqs.out file into pymatgen's
         Structure format.

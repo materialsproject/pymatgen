@@ -1,10 +1,15 @@
-"""
-Support for reading XCrysDen files.
-"""
+"""Support for reading XCrysDen files."""
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+import numpy as np
+
 from pymatgen.core.periodic_table import Element
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -13,20 +18,23 @@ __maintainer__ = "Matteo Giantomassi"
 
 
 class XSF:
-    """
-    Class for parsing XCrysden files.
-    """
+    """Class for parsing XCrysden files."""
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
-        :param structure: Structure object.
+        Args:
+            structure (Structure): Structure object.
         """
         self.structure = structure
 
-    def to_string(self, atom_symbol=True):
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self, atom_symbol=True):
         """
         Returns a string with the structure in XSF format
-        See http://www.xcrysden.org/doc/XSF.html
+        See http://www.xcrysden.org/doc/XSF.html.
 
         Args:
             atom_symbol (bool): Uses atom symbol instead of atomic number. Defaults to True.
@@ -54,7 +62,12 @@ class XSF:
         return "\n".join(lines)
 
     @classmethod
-    def from_string(cls, input_string, cls_=None):
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, input_string, cls_=None):
         """
         Initialize a `Structure` object from a string with data in XSF format.
 

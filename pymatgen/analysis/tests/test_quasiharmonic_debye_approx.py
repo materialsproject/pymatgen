@@ -23,18 +23,18 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
                     "c": 2.56301993,
                     "gamma": 60.00000504373715,
                     "matrix": [
-                        [2.21964022, 0.0, 1.28151046],
+                        [2.21964022, 0, 1.28151046],
                         [0.73987974, 2.09269747, 1.28151046],
-                        [-0.0, -0.0, 2.56301993],
+                        [-0, -0, 2.56301993],
                     ],
                     "volume": 11.905318492097948,
                 },
                 "sites": [
                     {
-                        "abc": [-0.0, -0.0, -0.0],
+                        "abc": [-0, -0, -0],
                         "label": "B",
                         "species": [{"element": "B", "occu": 1}],
-                        "xyz": [0.0, 0.0, 0.0],
+                        "xyz": [0, 0, 0],
                     },
                     {
                         "abc": [0.25, 0.25, 0.25],
@@ -107,7 +107,7 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
     def test_bulk_modulus(self):
         eos = EOS(self.eos)
         eos_fit = eos.fit(self.volumes, self.energies)
-        print(f"{str(eos_fit.b0_GPa)=}")
+        print(f"{eos_fit.b0_GPa=!s}")
         bulk_modulus = float(str(eos_fit.b0_GPa).split()[0])
         bulk_modulus_ans = float(str(self.qhda.bulk_modulus).split()[0])
         np.testing.assert_almost_equal(bulk_modulus, bulk_modulus_ans, 3)

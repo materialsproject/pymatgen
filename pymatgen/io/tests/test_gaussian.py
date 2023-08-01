@@ -38,7 +38,9 @@ class GaussianInputTest(unittest.TestCase):
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=-1)
         gau = GaussianInput(mol, route_parameters={"SP": "", "SCF": "Tight"})
         assert gau.spin_multiplicity == 2
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="Charge of -1 and spin multiplicity of 1 is not possible for this molecule"
+        ):
             GaussianInput(mol, spin_multiplicity=1)
 
     def test_str_and_from_string(self):
@@ -67,7 +69,7 @@ EPS=12
 
 """
         assert str(self.gau) == answer
-        gau = GaussianInput.from_string(answer)
+        gau = GaussianInput.from_str(answer)
         assert gau.functional == "HF"
         assert gau.input_parameters["EPS"] == "12"
 
@@ -86,8 +88,8 @@ H -0.513360 0.889165 -0.363000
 EPS=12
 
 """
-        assert self.gau.to_string(cart_coords=True) == answer
-        gau = GaussianInput.from_string(answer)
+        assert self.gau.to_str(cart_coords=True) == answer
+        gau = GaussianInput.from_str(answer)
         assert gau.functional == "HF"
         assert gau.charge == 0
         assert gau.spin_multiplicity == 1
@@ -107,7 +109,7 @@ EPS=12
         toks = txt.split("--link1--")
         for idx, tok in enumerate(toks):
             lines = [line.strip() for line in tok.strip().split("\n")]
-            gau = GaussianInput.from_string("\n".join(lines))
+            gau = GaussianInput.from_str("\n".join(lines))
             assert gau.molecule is not None
             if idx == 0:
                 mol = gau.molecule
@@ -148,7 +150,7 @@ Sites (6)
         THETA=10.35464
         HALF3=11.861807"""
 
-        gau = GaussianInput.from_string(gau_str)
+        gau = GaussianInput.from_str(gau_str)
         assert gau.molecule.composition.reduced_formula == "X3SiH4"
         assert set(gau.route_parameters) == {"opt", "freq", "scf"}
 
@@ -194,7 +196,7 @@ H 0
             route_parameters={"Pseudo": "Read"},
             title="Test",
         )
-        assert gau.to_string(cart_coords=False) == gau_str
+        assert gau.to_str(cart_coords=False) == gau_str
 
     def test_multiple_paramaters(self):
         """
@@ -220,7 +222,7 @@ H 0
         """Test that we can write input files without a geometry"""
         # Makes a file without geometry
         input_file = GaussianInput(None, charge=0, spin_multiplicity=2)
-        input_str = input_file.to_string().strip()
+        input_str = input_file.to_str().strip()
         assert input_str.endswith("0 2")
 
     def test_no_molecule_func_bset_charge_mult(self):
@@ -246,12 +248,12 @@ H 0
                 "pop": "naturalorbital",
             },
         )
-        input_str = input_file.to_string().strip()
+        input_str = input_file.to_str().strip()
         assert input_str == gau_str
 
 
 class GaussianOutputTest(unittest.TestCase):
-    # todo: Add unittest for PCM type output.
+    # TODO: Add unittest for PCM type output.
 
     def setUp(self):
         self.gauout = GaussianOutput(os.path.join(test_dir, "methane.log"))
@@ -340,7 +342,7 @@ class GaussianOutputTest(unittest.TestCase):
         gau = GaussianOutput(os.path.join(test_dir, "H2O_gau.out"))
         assert gau.num_basis_func == 13
         assert gau.electrons == (5, 5)
-        assert gau.is_spin is True
+        assert gau.is_spin
         assert gau.eigenvalues[Spin.down] == [
             -20.55343,
             -1.35264,
@@ -477,7 +479,3 @@ class GaussianOutputTest(unittest.TestCase):
         assert gout.title == "H4 C3 O3"
         assert gout.charge == 0
         assert gout.spin_multiplicity == 1
-
-
-if __name__ == "__main__":
-    unittest.main()

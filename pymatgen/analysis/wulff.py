@@ -44,19 +44,13 @@ logger = logging.getLogger(__name__)
 
 def hkl_tuple_to_str(hkl):
     """
-    Prepare for display on plots
-    "(hkl)" for surfaces
-    Agrs:
-        hkl: in the form of [h, k, l] or (h, k, l)
+    Prepare for display on plots "(hkl)" for surfaces
+
+    Args:
+        hkl: in the form of [h, k, l] or (h, k, l).
     """
-    str_format = "($"
-    for x in hkl:
-        if x < 0:
-            str_format += "\\overline{" + str(-x) + "}"
-        else:
-            str_format += str(x)
-    str_format += "$)"
-    return str_format
+    out = "".join(f"\\overline{{{-x}}}" if x < 0 else str(x) for x in hkl)
+    return f"(${out}$)"
 
 
 def get_tri_area(pts):
@@ -67,17 +61,14 @@ def get_tri_area(pts):
     Args:
         pts: [a, b, c] three points
     """
-    a, b, c = pts[0], pts[1], pts[2]
+    a, b, c = pts
     v1 = np.array(b) - np.array(a)
     v2 = np.array(c) - np.array(a)
-    area_tri = abs(np.linalg.norm(np.cross(v1, v2)) / 2)
-    return area_tri
+    return abs(np.linalg.norm(np.cross(v1, v2)) / 2)
 
 
 class WulffFacet:
-    """
-    Helper container for each Wulff plane.
-    """
+    """Helper container for each Wulff plane."""
 
     def __init__(self, normal, e_surf, normal_pt, dual_pt, index, m_ind_orig, miller):
         """
@@ -221,15 +212,15 @@ class WulffShape:
 
         miller_area = []
         for m, in_mill_fig in enumerate(self.input_miller_fig):
-            miller_area.append(in_mill_fig + " : " + str(round(self.color_area[m], 4)))
+            miller_area.append(f"{in_mill_fig} : {round(self.color_area[m], 4)}")
         self.miller_area = miller_area
 
     def _get_all_miller_e(self):
         """
-        From self: get miller_list(unique_miller), e_surf_list and symmetry operations(symmops)
-        according to lattice apply symmops to get all the miller index, then get normal, get
+        From self: get miller_list(unique_miller), e_surf_list and symmetry operations(symm_ops)
+        according to lattice apply symm_ops to get all the miller index, then get normal, get
         all the facets functions for Wulff shape calculation: |normal| = 1, e_surf is plane's
-        distance to (0, 0, 0), normal[0]x + normal[1]y + normal[2]z = e_surf
+        distance to (0, 0, 0), normal[0]x + normal[1]y + normal[2]z = e_surf.
 
         Returns:
             [WulffFacet]
@@ -260,7 +251,7 @@ class WulffShape:
         """
         |normal| = 1, e_surf is plane's distance to (0, 0, 0),
         plane function:
-            normal[0]x + normal[1]y + normal[2]z = e_surf
+            normal[0]x + normal[1]y + normal[2]z = e_surf.
 
         from self:
             normal_e_m to get the plane functions
@@ -269,8 +260,7 @@ class WulffShape:
         """
         matrix_surfs = [self.facets[dual_simp[i]].normal for i in range(3)]
         matrix_e = [self.facets[dual_simp[i]].e_surf for i in range(3)]
-        cross_pt = np.dot(np.linalg.inv(matrix_surfs), matrix_e)
-        return cross_pt
+        return np.dot(np.linalg.inv(matrix_surfs), matrix_e)
 
     def _get_simpx_plane(self):
         """
@@ -357,9 +347,7 @@ class WulffShape:
         self.get_plot(*args, **kwargs).show()
 
     def get_line_in_facet(self, facet):
-        """
-        Returns the sorted pts in a facet used to draw a line
-        """
+        """Returns the sorted pts in a facet used to draw a line."""
         lines = list(facet.outer_lines)
         pt = []
         prev = None
@@ -428,7 +416,13 @@ class WulffShape:
         from mpl_toolkits.mplot3d import Axes3D, art3d
 
         colors = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})
-        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = colors
+        (
+            color_list,
+            color_proxy,
+            color_proxy_on_wulff,
+            miller_on_wulff,
+            e_surf_on_wulff,
+        ) = colors
 
         if not direction:
             # If direction is not specified, use the miller indices of
@@ -468,7 +462,6 @@ class WulffShape:
         ax.set_zlim([-r_range * 1.1, r_range * 1.1])  # pylint: disable=E1101
         # add legend
         if legend_on:
-            color_proxy = color_proxy
             if show_area:
                 ax.legend(
                     color_proxy,
@@ -659,7 +652,7 @@ class WulffShape:
     def _get_azimuth_elev(self, miller_index):
         """
         Args:
-            miller_index: viewing direction
+            miller_index: viewing direction.
 
         Returns:
             azim, elev for plotting
@@ -674,37 +667,29 @@ class WulffShape:
 
     @property
     def volume(self):
-        """
-        Volume of the Wulff shape
-        """
+        """Volume of the Wulff shape."""
         return self.wulff_convex.volume
 
     @property
     def miller_area_dict(self):
-        """
-        Returns {hkl: area_hkl on wulff}
-        """
+        """Returns {hkl: area_hkl on wulff}."""
         return dict(zip(self.miller_list, self.color_area))
 
     @property
     def miller_energy_dict(self):
-        """
-        Returns {hkl: surface energy_hkl}
-        """
+        """Returns {hkl: surface energy_hkl}."""
         return dict(zip(self.miller_list, self.e_surf_list))
 
     @property
     def surface_area(self):
-        """
-        Total surface area of Wulff shape.
-        """
+        """Total surface area of Wulff shape."""
         return sum(self.miller_area_dict.values())
 
     @property
     def weighted_surface_energy(self):
         """
         Returns:
-            sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)
+            sum(surface_energy_hkl * area_hkl)/ sum(area_hkl).
         """
         return self.total_surface_energy / self.surface_area
 
@@ -712,7 +697,7 @@ class WulffShape:
     def area_fraction_dict(self):
         """
         Returns:
-            (dict): {hkl: area_hkl/total area on wulff}
+            (dict): {hkl: area_hkl/total area on wulff}.
         """
         return {hkl: area / self.surface_area for hkl, area in self.miller_area_dict.items()}
 
@@ -738,7 +723,7 @@ class WulffShape:
         This is useful for determining the critical nucleus size.
         A large shape factor indicates great anisotropy.
         See Ballufi, R. W., Allen, S. M. & Carter, W. C. Kinetics
-            of Materials. (John Wiley & Sons, 2005), p.461
+            of Materials. (John Wiley & Sons, 2005), p.461.
 
         Returns:
             (float) Shape factor.

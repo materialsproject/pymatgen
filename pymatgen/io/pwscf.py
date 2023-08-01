@@ -1,12 +1,11 @@
-"""
-This module implements input and output processing from PWSCF.
-"""
+"""This module implements input and output processing from PWSCF."""
 
 from __future__ import annotations
 
 import re
 from collections import defaultdict
 
+import numpy as np
 from monty.io import zopen
 from monty.re import regrep
 
@@ -98,7 +97,7 @@ class PWInput:
                         name = k
 
                 if name is None:
-                    name = site.specie.symbol + str(c)
+                    name = f"{site.specie.symbol}{c}"
                     site_descriptions[name] = site.properties
                     c += 1
 
@@ -159,7 +158,7 @@ class PWInput:
             kpt_str.extend([f"{i}" for i in self.kpoints_shift])
             out.append(f"  {' '.join(kpt_str)}")
         elif self.kpoints_mode == "crystal_b":
-            out.append(f" {len(self.kpoints_grid)!s}")
+            out.append(f" {len(self.kpoints_grid)}")
             for i in range(len(self.kpoints_grid)):
                 kpt_str = [f"{entry:.4f}" for entry in self.kpoints_grid[i]]
                 out.append(f" {' '.join(kpt_str)}")
@@ -173,12 +172,12 @@ class PWInput:
 
     def as_dict(self):
         """
-        Create a dictionary representation of a PWInput object
+        Create a dictionary representation of a PWInput object.
 
         Returns:
             dict
         """
-        pwinput_dict = {
+        return {
             "structure": self.structure.as_dict(),
             "pseudo": self.pseudo,
             "sections": self.sections,
@@ -186,7 +185,6 @@ class PWInput:
             "kpoints_grid": self.kpoints_grid,
             "kpoints_shift": self.kpoints_shift,
         }
-        return pwinput_dict
 
     @classmethod
     def from_dict(cls, pwinput_dict):
@@ -199,7 +197,7 @@ class PWInput:
         Returns:
             PWInput object
         """
-        pwinput = cls(
+        return cls(
             structure=Structure.from_dict(pwinput_dict["structure"]),
             pseudo=pwinput_dict["pseudo"],
             control=pwinput_dict["sections"]["control"],
@@ -211,7 +209,6 @@ class PWInput:
             kpoints_grid=pwinput_dict["kpoints_grid"],
             kpoints_shift=pwinput_dict["kpoints_shift"],
         )
-        return pwinput
 
     def write_file(self, filename):
         """
@@ -235,10 +232,15 @@ class PWInput:
             PWInput object
         """
         with zopen(filename, "rt") as f:
-            return PWInput.from_string(f.read())
+            return PWInput.from_str(f.read())
+
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
 
     @staticmethod
-    def from_string(string):
+    def from_str(string):
         """
         Reads an PWInput object from a string.
 
@@ -370,7 +372,7 @@ class PWInput:
             "conv_thr",
             "Hubbard_U",
             "Hubbard_J0",
-            "defauss",
+            "degauss",
             "starting_magnetization",
         )
 
@@ -481,8 +483,7 @@ class PWInput:
             pass
 
         try:
-            val = val.replace("d", "e")
-            return smart_int_or_float(val)
+            return smart_int_or_float(val.replace("d", "e"))
         except ValueError:
             pass
 
@@ -498,33 +499,29 @@ class PWInput:
 
 
 class PWInputError(BaseException):
-    """
-    Error for PWInput
-    """
+    """Error for PWInput."""
 
 
 class PWOutput:
-    """
-    Parser for PWSCF output file.
-    """
+    """Parser for PWSCF output file."""
 
-    patterns = {
-        "energies": r"total energy\s+=\s+([\d\.\-]+)\sRy",
-        "ecut": r"kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
-        "lattice_type": r"bravais\-lattice index\s+=\s+(\d+)",
-        "celldm1": r"celldm\(1\)=\s+([\d\.]+)\s",
-        "celldm2": r"celldm\(2\)=\s+([\d\.]+)\s",
-        "celldm3": r"celldm\(3\)=\s+([\d\.]+)\s",
-        "celldm4": r"celldm\(4\)=\s+([\d\.]+)\s",
-        "celldm5": r"celldm\(5\)=\s+([\d\.]+)\s",
-        "celldm6": r"celldm\(6\)=\s+([\d\.]+)\s",
-        "nkpts": r"number of k points=\s+([\d]+)",
-    }
+    patterns = dict(
+        energies=r"total energy\s+=\s+([\d\.\-]+)\sRy",
+        ecut=r"kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
+        lattice_type=r"bravais\-lattice index\s+=\s+(\d+)",
+        celldm1=r"celldm\(1\)=\s+([\d\.]+)\s",
+        celldm2=r"celldm\(2\)=\s+([\d\.]+)\s",
+        celldm3=r"celldm\(3\)=\s+([\d\.]+)\s",
+        celldm4=r"celldm\(4\)=\s+([\d\.]+)\s",
+        celldm5=r"celldm\(5\)=\s+([\d\.]+)\s",
+        celldm6=r"celldm\(6\)=\s+([\d\.]+)\s",
+        nkpts=r"number of k points=\s+([\d]+)",
+    )
 
     def __init__(self, filename):
         """
         Args:
-            filename (str): Filename
+            filename (str): Filename.
         """
         self.filename = filename
         self.data = defaultdict(list)
@@ -573,7 +570,7 @@ class PWOutput:
     def get_celldm(self, idx: int):
         """
         Args:
-            idx (int): index
+            idx (int): index.
 
         Returns:
             Cell dimension along index
@@ -582,14 +579,10 @@ class PWOutput:
 
     @property
     def final_energy(self):
-        """
-        Returns: Final energy
-        """
+        """Returns: Final energy."""
         return self.data["energies"][-1]
 
     @property
     def lattice_type(self):
-        """
-        Returns: Lattice type.
-        """
+        """Returns: Lattice type."""
         return self.data["lattice_type"]

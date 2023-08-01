@@ -1,6 +1,4 @@
-"""
-This module implements plotter for DOS and band structure.
-"""
+"""This module implements plotter for DOS and band structure."""
 
 from __future__ import annotations
 
@@ -26,7 +24,7 @@ def freq_units(units):
     """
 
     Args:
-        units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1
+        units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1.
 
     Returns:
         Returns conversion factor from THz to the required units and the label in the form of a namedtuple
@@ -57,20 +55,17 @@ def freq_units(units):
 
 class PhononDosPlotter:
     """
-    Class for plotting phonon DOSs. Note that the interface is extremely flexible
-    given that there are many different ways in which people want to view
-    DOS. The typical usage is::
+    Class for plotting phonon DOSs. The interface is extremely flexible given there are many
+    different ways in which people want to view DOS.
+    Typical usage is:
+        # Initializes plotter with some optional args. Defaults are usually fine
+        plotter = PhononDosPlotter().
 
-        # Initializes plotter with some optional args. Defaults are usually
-        # fine,
-        plotter = PhononDosPlotter()
-
-        # Adds a DOS with a label.
+        # Add DOS with a label
         plotter.add_dos("Total DOS", dos)
 
-        # Alternatively, you can add a dict of DOSs. This is the typical
-        # form returned by CompletePhononDos.get_element_dos().
-
+        # Alternatively, you can add a dict of DOSes. This is the typical form
+        # returned by CompletePhononDos.get_element_dos().
     """
 
     def __init__(self, stack=False, sigma=None):
@@ -78,8 +73,7 @@ class PhononDosPlotter:
         Args:
             stack: Whether to plot the DOS as a stacked area graph
             sigma: A float specifying a standard deviation for Gaussian smearing
-            the DOS for nicer looking plots. Defaults to None for no
-            smearing.
+                the DOS for nicer looking plots. Defaults to None for no smearing.
         """
         self.stack = stack
         self.sigma = sigma
@@ -233,9 +227,7 @@ class PhononDosPlotter:
 
 
 class PhononBSPlotter:
-    """
-    Class to plot or get data to facilitate the plot of band structure objects.
-    """
+    """Class to plot or get data to facilitate the plot of band structure objects."""
 
     def __init__(self, bs):
         """
@@ -252,9 +244,7 @@ class PhononBSPlotter:
         self._nb_bands = self._bs.nb_bands
 
     def _maketicks(self, plt):
-        """
-        utility private method to add ticks to a band structure
-        """
+        """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
         # Sanitize only plot the uniq values
         uniq_d = []
@@ -292,7 +282,7 @@ class PhononBSPlotter:
 
     def bs_plot_data(self):
         """
-        Get the data nicely formatted for a plot
+        Get the data nicely formatted for a plot.
 
         Returns:
             A dict of the following format:
@@ -372,7 +362,7 @@ class PhononBSPlotter:
     def _get_weight(self, vec: np.ndarray, indices: list[list[int]]) -> np.ndarray:
         """
         compute the weight for each combination of sites according to the
-        eigenvector
+        eigenvector.
         """
         num_atom = int(self._nb_bands / 3)
         new_vec = np.zeros(num_atom)
@@ -393,10 +383,7 @@ class PhononBSPlotter:
 
     @staticmethod
     def _make_color(colors: list[int]) -> list[int]:
-        """
-        convert the eigendisplacements to rgb colors
-
-        """
+        """Convert the eigendisplacements to rgb colors."""
         # if there are two groups, use red and blue
         if len(colors) == 2:
             return [colors[0], 0, colors[1]]
@@ -603,7 +590,7 @@ class PhononBSPlotter:
         plot two band structure for comparison. One is in red the other in blue.
         The two band structures need to be defined on the same symmetry lines!
         and the distance between symmetry lines is the one of the band structure
-        used to build the PhononBSPlotter
+        used to build the PhononBSPlotter.
 
         Args:
             other_plotter: another PhononBSPlotter object defined along the same symmetry lines
@@ -635,9 +622,7 @@ class PhononBSPlotter:
         return plt
 
     def plot_brillouin(self):
-        """
-        plot the Brillouin zone
-        """
+        """Plot the Brillouin zone."""
         # get labels and lines
         labels = {}
         for q in self._bs.qpoints:
@@ -660,7 +645,7 @@ class ThermoPlotter:
     """
     Plotter for thermodynamic properties obtained from phonon DOS.
     If the structure corresponding to the DOS, it will be used to extract the formula unit and provide
-    the plots in units of mol instead of mole-cell
+    the plots in units of mol instead of mole-cell.
     """
 
     def __init__(self, dos, structure=None):
@@ -732,9 +717,7 @@ class ThermoPlotter:
 
         ylabel = "$C_v$ (J/K/mol)" if self.structure else "$C_v$ (J/K/mol-c)"
 
-        fig = self._plot_thermo(self.dos.cv, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
-
-        return fig
+        return self._plot_thermo(self.dos.cv, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
     @add_fig_kwargs
     def plot_entropy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
@@ -755,9 +738,7 @@ class ThermoPlotter:
 
         ylabel = "$S$ (J/K/mol)" if self.structure else "$S$ (J/K/mol-c)"
 
-        fig = self._plot_thermo(self.dos.entropy, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
-
-        return fig
+        return self._plot_thermo(self.dos.entropy, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
     @add_fig_kwargs
     def plot_internal_energy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
@@ -778,9 +759,9 @@ class ThermoPlotter:
 
         ylabel = "$\\Delta E$ (kJ/mol)" if self.structure else "$\\Delta E$ (kJ/mol-c)"
 
-        fig = self._plot_thermo(self.dos.internal_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs)
-
-        return fig
+        return self._plot_thermo(
+            self.dos.internal_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs
+        )
 
     @add_fig_kwargs
     def plot_helmholtz_free_energy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
@@ -801,11 +782,9 @@ class ThermoPlotter:
 
         ylabel = "$\\Delta F$ (kJ/mol)" if self.structure else "$\\Delta F$ (kJ/mol-c)"
 
-        fig = self._plot_thermo(
+        return self._plot_thermo(
             self.dos.helmholtz_free_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs
         )
-
-        return fig
 
     @add_fig_kwargs
     def plot_thermodynamic_properties(self, tmin, tmax, ntemp, ylim=None, **kwargs):
@@ -862,15 +841,13 @@ class ThermoPlotter:
 
 
 class GruneisenPlotter:
-    """
-    Class to plot Gruneisenparameter Object
-    """
+    """Class to plot Gruneisenparameter Object."""
 
     def __init__(self, gruneisen):
         """
         Class to plot information from Gruneisenparameter Object
         Args:
-            gruneisen: GruneisenParameter Object
+            gruneisen: GruneisenParameter Object.
         """
         self._gruneisen = gruneisen
 
@@ -880,7 +857,7 @@ class GruneisenPlotter:
         Args:
             marker: marker for the depiction
             markersize: size of the marker
-            units: unit for the plots, accepted units: thz, ev, mev, ha, cm-1, cm^-1
+            units: unit for the plots, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
 
         Returns: plot
         """
@@ -911,7 +888,7 @@ class GruneisenPlotter:
         """
         will show the plot
         Args:
-            units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1
+            units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
 
         Returns: plot
         """
@@ -924,7 +901,7 @@ class GruneisenPlotter:
         Args:
             filename: name of the filename
             img_format: format of the saved plot
-            units: accepted units: thz, ev, mev, ha, cm-1, cm^-1
+            units: accepted units: thz, ev, mev, ha, cm-1, cm^-1.
         """
         plt = self.get_plot(units=units)
         plt.savefig(filename, format=img_format)
@@ -932,9 +909,7 @@ class GruneisenPlotter:
 
 
 class GruneisenPhononBSPlotter(PhononBSPlotter):
-    """
-    Class to plot or get data to facilitate the plot of band structure objects.
-    """
+    """Class to plot or get data to facilitate the plot of band structure objects."""
 
     def __init__(self, bs):
         """
@@ -951,7 +926,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
 
     def bs_plot_data(self):
         """
-        Get the data nicely formatted for a plot
+        Get the data nicely formatted for a plot.
 
         Returns:
             A dict of the following format:
@@ -1058,7 +1033,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         plot two band structure for comparison. One is in red the other in blue.
         The two band structures need to be defined on the same symmetry lines!
         and the distance between symmetry lines is
-        the one of the band structure used to build the PhononBSPlotter
+        the one of the band structure used to build the PhononBSPlotter.
 
         Args:
             other_plotter (GruneisenPhononBSPlotter): another phonon DOS plotter defined along

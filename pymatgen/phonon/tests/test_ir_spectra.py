@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 from monty.serialization import loadfn
 
@@ -22,7 +21,3 @@ class IRDielectricTensorTest(PymatgenTest):
     def tearDown(self):
         if os.path.isfile("test.json"):
             os.remove("test.json")
-
-
-if __name__ == "__main__":
-    unittest.main()

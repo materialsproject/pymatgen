@@ -1,6 +1,4 @@
-"""
-This module contains the classes to build a ConversionElectrode.
-"""
+"""This module contains the classes to build a ConversionElectrode."""
 
 from __future__ import annotations
 
@@ -41,9 +39,7 @@ class ConversionElectrode(AbstractElectrode):
 
     @property
     def initial_comp(self) -> Composition:
-        """
-        The pymatgen Composition representation of the initial composition
-        """
+        """The pymatgen Composition representation of the initial composition."""
         return Composition(self.initial_comp_formula)
 
     @classmethod
@@ -60,8 +56,7 @@ class ConversionElectrode(AbstractElectrode):
             allow_unstable: Allow compositions that are unstable
         """
         working_ion = Element(working_ion_symbol)
-        entry = None
-        working_ion_entry = None
+        entry = working_ion_entry = None
         for e in pd.stable_entries:
             if e.composition.reduced_formula == comp.reduced_formula:
                 entry = e
@@ -77,7 +72,6 @@ class ConversionElectrode(AbstractElectrode):
         profile.reverse()
         if len(profile) < 2:
             return None
-        working_ion_entry = working_ion_entry
         working_ion = working_ion_entry.composition.elements[0].symbol
         normalization_els = {}
         for el, amt in comp.items():
@@ -88,7 +82,7 @@ class ConversionElectrode(AbstractElectrode):
             framework.pop(working_ion)
         framework = Composition(framework)
 
-        vpairs = [
+        v_pairs = [
             ConversionVoltagePair.from_steps(
                 profile[i],
                 profile[i + 1],
@@ -99,7 +93,7 @@ class ConversionElectrode(AbstractElectrode):
         ]
 
         return ConversionElectrode(  # pylint: disable=E1123
-            voltage_pairs=vpairs,
+            voltage_pairs=v_pairs,
             working_ion_entry=working_ion_entry,
             initial_comp_formula=comp.reduced_formula,
             framework_formula=framework.reduced_formula,
@@ -131,7 +125,7 @@ class ConversionElectrode(AbstractElectrode):
         For example, an LiTiO2 electrode might contain three subelectrodes:
         [LiTiO2 --> TiO2, LiTiO2 --> Li0.5TiO2, Li0.5TiO2 --> TiO2]
         This method can be used to return all the subelectrodes with some
-        options
+        options.
 
         Args:
             adjacent_only: Only return electrodes from compounds that are
@@ -192,9 +186,7 @@ class ConversionElectrode(AbstractElectrode):
         return True
 
     def __eq__(self, conversion_electrode):
-        """
-        Check if two electrodes are exactly the same:
-        """
+        """Check if two electrodes are exactly the same."""
         if len(self) != len(conversion_electrode):
             return False
 
@@ -214,7 +206,7 @@ class ConversionElectrode(AbstractElectrode):
                 return False
         return True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return 7
 
     def __repr__(self):
@@ -345,26 +337,24 @@ class ConversionVoltagePair(AbstractVoltagePair):
             sum(curr_rxn.all_comp[i].weight * abs(curr_rxn.coeffs[i]) for i in range(len(curr_rxn.all_comp))) / 2
         )
         mass_charge = prev_mass_dischg
-        mass_discharge = mass_discharge
         vol_discharge = sum(
             abs(curr_rxn.get_coeff(e.composition)) * e.structure.volume
             for e in step2["entries"]
             if e.composition.reduced_formula != working_ion
         )
 
-        totalcomp = Composition({})
+        total_comp = Composition({})
         for comp in prev_rxn.products:
             if comp.reduced_formula != working_ion:
-                totalcomp += comp * abs(prev_rxn.get_coeff(comp))
-        frac_charge = totalcomp.get_atomic_fraction(Element(working_ion))
+                total_comp += comp * abs(prev_rxn.get_coeff(comp))
+        frac_charge = total_comp.get_atomic_fraction(Element(working_ion))
 
-        totalcomp = Composition({})
+        total_comp = Composition({})
         for comp in curr_rxn.products:
             if comp.reduced_formula != working_ion:
-                totalcomp += comp * abs(curr_rxn.get_coeff(comp))
-        frac_discharge = totalcomp.get_atomic_fraction(Element(working_ion))
+                total_comp += comp * abs(curr_rxn.get_coeff(comp))
+        frac_discharge = total_comp.get_atomic_fraction(Element(working_ion))
 
-        rxn = rxn
         entries_charge = step1["entries"]
         entries_discharge = step2["entries"]
 

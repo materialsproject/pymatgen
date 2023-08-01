@@ -1,19 +1,10 @@
 from __future__ import annotations
 
-import unittest
-from pathlib import Path
-
 import pytest
 from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.cp2k.sets import (
-    SETTINGS,
-    Cp2kValidationError,
-    DftSet,
-    GaussianTypeOrbitalBasisSet,
-    GthPotential,
-)
+from pymatgen.io.cp2k.sets import SETTINGS, Cp2kValidationError, DftSet, GaussianTypeOrbitalBasisSet, GthPotential
 from pymatgen.util.testing import PymatgenTest
 
 Si_structure = Structure(
@@ -26,8 +17,7 @@ molecule = Molecule(species=["Si"], coords=[[0, 0, 0]])
 
 class SetTest(PymatgenTest):
     def setUp(self) -> None:
-        self.TEST_FILES_DIR = Path.joinpath(self.TEST_FILES_DIR, "cp2k")
-        SETTINGS["PMG_CP2K_DATA_DIR"] = self.TEST_FILES_DIR
+        SETTINGS["PMG_CP2K_DATA_DIR"] = f"{self.TEST_FILES_DIR}/cp2k"
         self.setkwargs = {
             "print_pdos": False,
             "print_dos": False,
@@ -49,8 +39,8 @@ class SetTest(PymatgenTest):
         basis_and_potential = {"Si": {"basis": "SZV-GTH-q4", "potential": "GTH-PBE-q4", "aux_basis": "cFIT3"}}
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
         basis_sets = ss["force_eval"]["subsys"]["Si_1"].get("basis_set")
-        assert any("AUX_FIT" in b.values for b in basis_sets)
-        assert any("cFIT3" in b.values for b in basis_sets)
+        assert any("AUX_FIT" in b.values for b in basis_sets)  # noqa: PD011
+        assert any("cFIT3" in b.values for b in basis_sets)  # noqa: PD011
 
         # Basis sets / potentials by hash value
         basis_and_potential = {
@@ -78,7 +68,7 @@ class SetTest(PymatgenTest):
                                                     3.01160535
                 0.50279207    1     2.33241791"""
         basis_and_potential = {
-            "Si": {"basis": GaussianTypeOrbitalBasisSet.from_string(gto), "potential": GthPotential.from_string(pot)}
+            "Si": {"basis": GaussianTypeOrbitalBasisSet.from_str(gto), "potential": GthPotential.from_str(pot)}
         }
         ss = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE", **self.setkwargs)
         assert ss.cutoff == approx(150)
@@ -119,13 +109,9 @@ class SetTest(PymatgenTest):
 
         # Validator will trip for kpoints + hfx
         ss.update({"force_eval": {"dft": {"kpoints": {}}}})
-        with pytest.raises(Cp2kValidationError):
+        with pytest.raises(Cp2kValidationError, match="CP2K v2022.1: Does not support hartree fock with kpoints"):
             ss.validate()
 
         ss = DftSet(molecule, basis_and_potential=basis_and_potential, xc_functionals="PBE")
         assert ss.check("force_eval/dft/poisson")
-        assert ss["force_eval"]["dft"]["poisson"].get("periodic").values[0].upper() == "NONE"
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert ss["force_eval"]["dft"]["poisson"].get("periodic").values[0].upper() == "NONE"  # noqa: PD011

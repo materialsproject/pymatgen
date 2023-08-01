@@ -1,6 +1,4 @@
-"""
-Utilities for Qchem io.
-"""
+"""Utilities for Qchem io."""
 
 from __future__ import annotations
 
@@ -15,7 +13,7 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 
 
 def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
-    r"""General pattern reading on an input string
+    r"""General pattern reading on an input string.
 
     Args:
         text_str (str): the input string to search for patterns
@@ -56,9 +54,7 @@ def read_matrix_pattern(header_pattern, footer_pattern, elements_pattern, text, 
     elements = re.findall(elements_pattern, text_between_header_and_footer)
 
     # Apply postprocessing to all the elements
-    elements = [postprocess(e) for e in elements]
-
-    return elements
+    return [postprocess(e) for e in elements]
 
 
 def read_table_pattern(

@@ -188,7 +188,3 @@ y,-x,-z+1/2
 
         for transformed_op, ref_transformed_op in zip(transformed_symmops, ref_transformed_symmops):
             assert transformed_op == ref_transformed_op
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -129,7 +129,7 @@ def get_structure_components(
     components = []
     for graph in comp_graphs:
         dimensionality, vertices = calculate_dimensionality_of_site(
-            bonded_structure, list(graph.nodes())[0], inc_vertices=True
+            bonded_structure, next(iter(graph.nodes())), inc_vertices=True
         )
 
         component = {"dimensionality": dimensionality}
@@ -267,13 +267,13 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
     seen_indices = []
     sites = []
 
-    start_index = list(graph.nodes())[0]
+    start_index = next(iter(graph.nodes()))
     queue = [(start_index, (0, 0, 0), bonded_structure.structure[start_index])]
     while len(queue) > 0:
         comp_i, image_i, site_i = queue.pop(0)
 
         if comp_i in [x[0] for x in seen_indices]:
-            raise ValueError("Graph component is not 0D")
+            raise ValueError("Graph component is not zero-dimensional")
 
         seen_indices.append((comp_i, image_i))
         sites.append(site_i)
@@ -291,9 +291,7 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
     sorted_sites = np.array(sites, dtype=object)[indices_ordering]
     sorted_graph = nx.convert_node_labels_to_integers(graph, ordering="sorted")
     mol = Molecule([s.specie for s in sorted_sites], [s.coords for s in sorted_sites])
-    mol_graph = MoleculeGraph.with_edges(mol, nx.Graph(sorted_graph).edges())
-
-    return mol_graph
+    return MoleculeGraph.with_edges(mol, nx.Graph(sorted_graph).edges())
 
 
 def get_dimensionality_cheon(
@@ -420,16 +418,14 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
     # in case of charged species
     for ii, item in enumerate(species):
         if item not in ldict:
-            species[ii] = str(Species.from_string(item).element)
-    latmat = struct.lattice.matrix
+            species[ii] = str(Species.from_str(item).element)
     connected_matrix = np.zeros((n_atoms, n_atoms))
 
     for ii in range(n_atoms):
         for jj in range(ii + 1, n_atoms):
             max_bond_length = ldict[species[ii]] + ldict[species[jj]] + tolerance
             frac_diff = fc_diff[jj] - fc_copy[ii]
-            distance_ij = np.dot(latmat.T, frac_diff)
-            # print(np.linalg.norm(distance_ij,axis=0))
+            distance_ij = np.dot(struct.lattice.matrix.T, frac_diff)
             if sum(np.linalg.norm(distance_ij, axis=0) < max_bond_length) > 0:
                 connected_matrix[ii, jj] = 1
                 connected_matrix[jj, ii] = 1
@@ -444,8 +440,8 @@ def find_clusters(struct, connected_matrix):
     If there are atoms that are not bonded to anything, returns [0,1,0]. (For
     faster computation time)
 
-    Author: "Gowoon Cheon"
-    Email: "gcheon@stanford.edu"
+    Author: Gowoon Cheon
+    Email: gcheon@stanford.edu
 
     Args:
         struct (Structure): Input structure

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import unittest
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.fiesta import FiestaInput, FiestaOutput
@@ -65,7 +64,7 @@ class FiestaInputTest(PymatgenTest):
             "\n            "
         )
         assert str(self.cellin) == ans
-        cellin = FiestaInput.from_string(ans)
+        cellin = FiestaInput.from_str(ans)
         assert cellin.GW_options["nc_corr"] == "10"
         assert cellin.COHSEX_options["eigMethod"] == "C"
 
@@ -88,7 +87,3 @@ class FiestaOutputTest(PymatgenTest):
             "sigma_c_SCF": "0.3900",
             "z": "0.87",
         }
-
-
-if __name__ == "__main__":
-    unittest.main()

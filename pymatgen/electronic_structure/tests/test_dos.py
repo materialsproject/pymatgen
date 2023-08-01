@@ -13,12 +13,7 @@ from pytest import approx
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
-from pymatgen.electronic_structure.dos import (
-    DOS,
-    CompleteDos,
-    FermiDos,
-    LobsterCompleteDos,
-)
+from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -36,7 +31,7 @@ class DosTest(unittest.TestCase):
 
         assert dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
         assert dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="x is out of range of provided x_values"):
             dos.get_interpolated_value(1000)
 
     def test_get_smeared_densities(self):
@@ -148,7 +143,7 @@ class CompleteDosTest(unittest.TestCase):
 
         assert dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
         assert dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="x is out of range of provided x_values"):
             dos.get_interpolated_value(1000)
 
     def test_to_from_dict(self):
@@ -284,18 +279,18 @@ class CompleteDosTest(unittest.TestCase):
         dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
         dos_fp2 = self.dos.get_dos_fp(type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
         # test exceptions
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(
+            ValueError,
+            match="Cannot compute similarity index. Please set either "
+            "normalize=True or tanimoto=True or both to False.",
+        ):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True, normalize=True)
-        assert (
-            str(exc_info.value) == "Cannot compute similarity index. Please set either "
-            "normalize=True or tanimoto=True or both to False."
-        )
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(
+            ValueError,
+            match="Please recheck type requested, either the orbital "
+            "projections unavailable in input DOS or there's a typo in type.",
+        ):
             self.dos.get_dos_fp(type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        assert (
-            str(exc_info.value) == "Please recheck type requested, either the orbital "
-            "projections unavailable in input DOS or there's a typo in type."
-        )
 
 
 class DOSTest(PymatgenTest):
@@ -310,16 +305,16 @@ class DOSTest(PymatgenTest):
         assert dos.get_gap() == approx(2.0589, abs=1e-4)
         assert len(dos.x) == 301
         assert dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(2.16815942458015, abs=1e-7)
-        self.assertArrayAlmostEqual(dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
+        self.assert_all_close(dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
 
         assert dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, abs=1e-7)
         assert dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="x is out of range of provided x_values"):
             dos.get_interpolated_value(1000)
 
-        self.assertArrayAlmostEqual(dos.get_cbm_vbm(spin=Spin.up), (3.8729, 1.2992999999999999))
+        self.assert_all_close(dos.get_cbm_vbm(spin=Spin.up), (3.8729, 1.2992999999999999))
 
-        self.assertArrayAlmostEqual(dos.get_cbm_vbm(spin=Spin.down), (4.645, 1.8140000000000001))
+        self.assert_all_close(dos.get_cbm_vbm(spin=Spin.down), (4.645, 1.8140000000000001))
 
 
 class SpinPolarizationTest(unittest.TestCase):
@@ -803,7 +798,3 @@ class LobsterCompleteDosTest(unittest.TestCase):
         assert self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element("F"))[OrbitalType(0)].efermi == approx(
             efermi
         )
-
-
-if __name__ == "__main__":
-    unittest.main()
