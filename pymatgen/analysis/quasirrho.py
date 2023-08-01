@@ -16,17 +16,20 @@ __version__ = "0.1"
 __maintainer__ = "Alex Epstein"
 __email__ = "aepstein@lbl.gov"
 __date__ = "August 1, 2023"
-__credits__ = "Ryan Kingsbury, Steven Wheeler, Trevor Seguin, " "Evan Spotte-Smith"
+__credits__ = "Ryan Kingsbury, Steven Wheeler, Trevor Seguin, Evan Spotte-Smith"
 
 from math import isclose
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.constants as const
 
-from pymatgen.core import Molecule
 from pymatgen.core.units import kb as kb_ev
-from pymatgen.io.gaussian import GaussianOutput
-from pymatgen.io.qchem.outputs import QCOutput
+
+if TYPE_CHECKING:
+    from pymatgen.core import Molecule
+    from pymatgen.io.gaussian import GaussianOutput
+    from pymatgen.io.qchem.outputs import QCOutput
 
 # Define useful constants
 kb = kb_ev * const.eV  # Pymatgen kb [J/k]
@@ -35,7 +38,7 @@ h = const.h  # Planck's constant [J.s]
 R = const.R / const.calorie  # Ideal gas constant [cal/mol/K]
 R_ha = const.R / const.value("Hartree energy") / const.Avogadro  # Ideal gas
 # constant [Ha/K]
-R_volume = const.R / const.atm * 1000  # Ideal gas constant [L.atm.K^−1.mol^−1]
+R_volume = const.R / const.atm * 1000  # Ideal gas constant [L.atm.K^-1.mol^-1]
 
 # Define useful conversion factors
 amu_to_kg = const.value("atomic mass unit-kilogram relationship")  # AMU to kg
@@ -74,8 +77,8 @@ def get_avg_mom_inertia(mol):
 class QuasiRRHO:
     """
     Class to calculate thermochemistry using Grimme's Quasi-RRHO approximation.
-    All outputs are in atomic units, e.g. energy outpouts are in Hartrees.
-    Citation: Grimme, S. Chemistry - A European Journal 18, 9955–9964 (2012).
+    All outputs are in atomic units, e.g. energy outputs are in Hartrees.
+    Citation: Grimme, S. Chemistry - A European Journal 18, 9955-9964 (2012).
 
     Attributes:
         temp (float): Temperature [K]
@@ -98,7 +101,7 @@ class QuasiRRHO:
     def __init__(
         self,
         mol: Molecule,
-        frequencies: List,
+        frequencies: list,
         energy: float,
         mult: int,
         sigma_r=1,
@@ -107,7 +110,6 @@ class QuasiRRHO:
         conc=1,
         v0=100,
     ):
-
         """
         Args:
             mol (Molecule): Pymatgen molecule
