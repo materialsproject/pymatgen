@@ -208,13 +208,14 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     @property
     def sites(self) -> list[Site]:
         """Returns an iterator for the sites in the Structure."""
-        return self._sites  # type: ignore[return-value]
+        return self._sites  # type: ignore[has-type]
 
     @sites.setter
     def sites(self, sites: Sequence[PeriodicSite]) -> None:
         """Sets the sites in the Structure."""
-        # use tuple for immutable IStructure/IMolecule, else use list
-        self._sites = tuple(sites) if isinstance(self, (IStructure, IMolecule)) else list(sites)
+        # if self is mutable Structure or Molecule, set _sites as list
+        is_mutable = isinstance(self._sites, list)  # type: ignore[has-type]
+        self._sites = list(sites) if is_mutable else tuple(sites)
 
     @abstractmethod
     def get_distance(self, i: int, j: int) -> float:
