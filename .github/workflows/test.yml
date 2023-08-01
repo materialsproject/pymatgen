@@ -115,9 +115,10 @@ jobs:
           coverage combine coverage*/.coverage*
           coverage report
           coverage xml
-      - name: Coveralls Python
-        continue-on-error: true
-        uses: AndreMiras/coveralls-python-action@v20201129
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   build_sdist:
     if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
