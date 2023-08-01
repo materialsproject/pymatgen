@@ -41,7 +41,7 @@ setup(
         "plotly>=4.5.0",
         "pybtex",
         # TODO remove after https://github.com/materialsproject/emmet/issues/768 is fixed
-        "pydantic<2.0.0",
+        "pydantic<3.0.0",
         "requests",
         "ruamel.yaml>=0.17.0",
         "scipy>=1.5.0",
