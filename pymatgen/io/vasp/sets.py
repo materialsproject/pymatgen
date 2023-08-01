@@ -1868,18 +1868,23 @@ class MPNMRSet(MPStaticSet):
     """Init a MPNMRSet."""
 
     def __init__(
-        self, structure: Structure, mode="cs", isotopes=None, prev_incar=None, reciprocal_density=100, **kwargs
+        self,
+        structure: Structure,
+        mode: Literal["cs", "efg"] = "cs",
+        isotopes: list | None = None,
+        prev_incar: Incar = None,
+        reciprocal_density: int = 100,
+        **kwargs,
     ):
         """
         Args:
             structure (Structure): Structure to compute
             mode (str): The NMR calculation to run
-                            "cs": for Chemical Shift
-                            "efg" for Electric Field Gradient
+                "cs": for Chemical Shift
+                "efg" for Electric Field Gradient
             isotopes (list): list of Isotopes for quadrupole moments
             prev_incar (Incar): Incar file from previous run.
-            reciprocal_density (int): density of k-mesh by reciprocal
-                                    volume (defaults to 100)
+            reciprocal_density (int): density of k-mesh by reciprocal volume. Defaults to 100.
             **kwargs: kwargs supported by MPStaticSet.
         """
         self.mode = mode
@@ -1900,7 +1905,7 @@ class MPNMRSet(MPStaticSet):
                     "LCHARG": False,
                     "LNMR_SYM_RED": True,
                     "NELMIN": 10,
-                    "NSLPLINE": True,
+                    "NLSPLINE": True,
                     "PREC": "ACCURATE",
                     "SIGMA": 0.01,
                 }
