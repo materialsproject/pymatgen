@@ -9,12 +9,12 @@ Author: Shyue Ping Ong
 from __future__ import annotations
 
 import datetime
+import glob
 import json
 import os
 import re
 import subprocess
 import webbrowser
-import glob
 
 import requests
 from invoke import task

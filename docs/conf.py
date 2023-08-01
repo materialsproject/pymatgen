@@ -13,10 +13,8 @@ serve to show the default.
 
 from __future__ import annotations
 
-import os
-import sys
-
 from pymatgen.core import __author__
+
 # sys.path.insert(0, os.path.abspath("."))
 # sys.path.insert(0, os.path.dirname(".."))
 # sys.path.insert(0, os.path.dirname("../pymatgen"))
