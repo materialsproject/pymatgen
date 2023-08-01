@@ -17,23 +17,16 @@ A list of `pymatgen` developers can also be found [on GitHub](https://github.com
 
 _A zoomable, interactive map of `pymatgen` contributors based on associated institutions. If you spot an error or omission, let us know or fill out the form above._
 
-<iframe src="/_static/team-map.html" width="100%" height="500"></iframe>
+<!-- TODO broken due to file not found, where does jekyll serve static assets? -->
+<!-- <iframe src="/team-map.html" width="100%" height="500"></iframe> -->
 
 ## Lead Maintainers
 
-| Name             |                                                                          | ![GitHub](https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg) GitHub | ![orcid](_static/orcid.svg) ORCID                            | 🌐 Web                                                        |
-| ---------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Shyue Ping Ong   | Lead developer, Associate Professor, Department of NanoEngineering, UCSD | [shyuep](https://github.com/shyuep)                                                         | [0000-0001-7777-8871](https://orcid.org/0000-0001-5726-2587) | [materialsvirtuallab.org](https://materialsvirtuallab.org)   |
-| Matthew Horton   | Senior Software Engineer @ Microsoft Research                            | [mkhorton](https://github.com/mkhorton)                                                     | [0000-0001-7777-8871](https://orcid.org/0000-0001-7777-8871) | [linkedin.com/in/mkhorton](https://linkedin.com/in/mkhorton) |
-| Janosh Riebesell | University of Cambridge, Materials Project Staff                         | [janosh](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:janosh)          | [0000-0001-5233-3462](https://orcid.org/0000-0001-5233-3462) | [janosh.dev](https://janosh.dev)                             |
-
-## Newest Contributors
-
-Welcome and thank you to our newest contributors `@KirbyBroderick`_, `@sudarshanv01`_ and `@dgaines2`_!
-
-- @KirbyBroderick: https://github.com/KirbyBroderick
-- @sudarshanv01: https://github.com/sudarshanv01
-- @dgaines2: https://github.com/dgaines2
+| Name             | Position                                                                 | 💻 GitHub                                                                           | 🔬 ORCID                                                      | 🌐 Web                                                        |
+| ---------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Shyue Ping Ong   | Lead developer, Associate Professor, Department of NanoEngineering, UCSD | [shyuep](https://github.com/shyuep)                                                | [0000-0001-7777-8871](https://orcid.org/0000-0001-5726-2587) | [materialsvirtuallab.org](https://materialsvirtuallab.org)   |
+| Matthew Horton   | Senior Software Engineer @ Microsoft Research                            | [mkhorton](https://github.com/mkhorton)                                            | [0000-0001-7777-8871](https://orcid.org/0000-0001-7777-8871) | [linkedin.com/in/mkhorton](https://linkedin.com/in/mkhorton) |
+| Janosh Riebesell | University of Cambridge, Materials Project Staff                         | [janosh](https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:janosh) | [0000-0001-5233-3462](https://orcid.org/0000-0001-5233-3462) | [janosh.dev](https://janosh.dev)                             |
 
 ## List of Developers (A–Z)
 
@@ -1488,6 +1481,86 @@ Thanks
 
 Thanks also to:
 
-adam-kerrigan, adengz, albalu, antonf-ekb, as2362, aykol, benedictsaunders, bernstei, cajfisher, ctoher, czhengsci, dcossey014, dongsenfo, dynikon, eantono, exenGT, ExpHP, flaviu-gostin, frssp, fyalcin, gcheon, gen4438, GkAntonius, hmlli, jdagdelen, johnson1228, jonringer, JosephMontoya-TRI, JSelf42, KazMorita, KirbyBroderick, kylebystrom, ldamewood, leicheng, Liam-Deacon, mamachra, manaslkht, marcoesters, mdforti, miaoliu, mjwen, mt-huebsch, nathan-diodan, naveensrinivasan, nawagner, ndardenne, nishiyamat, nkeilbart, Nokimann, orionarcher, penicillin0, pmla, Qi-max, qianchenqc, rajeshsharma98, renpj, RoberTnf, rpw199912j, ruixingw, sdacek, shaunrong, smheidrich, sonium0, thefrankwan, Tinaatucsd, tirkarthi, tom-wood, utopianf, w6ye, WardLT, wardsimon, wmdrichards, wsyxbcl, xivh, yang-ruoxi, yiming-xu, YunxingZuo, Zhuoying, zooks97
+[adam-kerrigan], [adengz], [albalu], [antonf-ekb], [as2362], [aykol], [benedictsaunders], [bernstei], [cajfisher], [ctoher], [czhengsci], [dcossey014], [dongsenfo], [dynikon], [eantono], [exenGT], [ExpHP], [flaviu-gostin], [frssp], [fyalcin], [gcheon], [gen4438], [GkAntonius], [hmlli], [jdagdelen], [johnson1228], [jonringer], [JosephMontoya-TRI], [JSelf42], [KazMorita], [KirbyBroderick], [kylebystrom], [ldamewood], [leicheng], [Liam-Deacon], [mamachra], [manaslkht], [marcoesters], [mdforti], [miaoliu], [mjwen], [mt-huebsch], [nathan-diodan], [naveensrinivasan], [nawagner], [ndardenne], [nishiyamat], [nkeilbart], [Nokimann], [orionarcher], [penicillin0], [pmla], [Qi-max], [qianchenqc], [rajeshsharma98], [renpj], [RoberTnf], [rpw199912j], [ruixingw], [sdacek], [shaunrong], [smheidrich], [sonium0], [thefrankwan], [Tinaatucsd], [tirkarthi], [tom-wood], [utopianf], [w6ye], [WardLT], [wardsimon], [wmdrichards], [wsyxbcl], [xivh], [yang-ruoxi], [yiming-xu], [YunxingZuo], [Zhuoying], [zooks97]
 
 These are developers who have contributed via GitHub but have not filled out the form linked above.
+
+[adam-kerrigan]: https://github.com/adam-kerrigan
+[adengz]: https://github.com/adengz
+[albalu]: https://github.com/albalu
+[antonf-ekb]: https://github.com/antonf-ekb
+[as2362]: https://github.com/as2362
+[aykol]: https://github.com/aykol
+[benedictsaunders]: https://github.com/benedictsaunders
+[bernstei]: https://github.com/bernstei
+[cajfisher]: https://github.com/cajfisher
+[ctoher]: https://github.com/ctoher
+[czhengsci]: https://github.com/czhengsci
+[dcossey014]: https://github.com/dcossey014
+[dongsenfo]: https://github.com/dongsenfo
+[dynikon]: https://github.com/dynikon
+[eantono]: https://github.com/eantono
+[exenGT]: https://github.com/exenGT
+[ExpHP]: https://github.com/ExpHP
+[flaviu-gostin]: https://github.com/flaviu-gostin
+[frssp]: https://github.com/frssp
+[fyalcin]: https://github.com/fyalcin
+[gcheon]: https://github.com/gcheon
+[gen4438]: https://github.com/gen4438
+[GkAntonius]: https://github.com/GkAntonius
+[hmlli]: https://github.com/hmlli
+[jdagdelen]: https://github.com/jdagdelen
+[johnson1228]: https://github.com/johnson1228
+[jonringer]: https://github.com/jonringer
+[JosephMontoya-TRI]: https://github.com/JosephMontoya-TRI
+[JSelf42]: https://github.com/JSelf42
+[KazMorita]: https://github.com/KazMorita
+[KirbyBroderick]: https://github.com/KirbyBroderick
+[kylebystrom]: https://github.com/kylebystrom
+[ldamewood]: https://github.com/ldamewood
+[leicheng]: https://github.com/leicheng
+[Liam-Deacon]: https://github.com/Liam-Deacon
+[mamachra]: https://github.com/mamachra
+[manaslkht]: https://github.com/manaslkht
+[marcoesters]: https://github.com/marcoesters
+[mdforti]: https://github.com/mdforti
+[miaoliu]: https://github.com/miaoliu
+[mjwen]: https://github.com/mjwen
+[mt-huebsch]: https://github.com/mt-huebsch
+[nathan-diodan]: https://github.com/nathan-diodan
+[naveensrinivasan]: https://github.com/naveensrinivasan
+[nawagner]: https://github.com/nawagner
+[ndardenne]: https://github.com/ndardenne
+[nishiyamat]: https://github.com/nishiyamat
+[nkeilbart]: https://github.com/nkeilbart
+[Nokimann]: https://github.com/Nokimann
+[orionarcher]: https://github.com/orionarcher
+[penicillin0]: https://github.com/penicillin0
+[pmla]: https://github.com/pmla
+[Qi-max]: https://github.com/Qi-max
+[qianchenqc]: https://github.com/qianchenqc
+[rajeshsharma98]: https://github.com/rajeshsharma98
+[renpj]: https://github.com/renpj
+[RoberTnf]: https://github.com/RoberTnf
+[rpw199912j]: https://github.com/rpw199912j
+[ruixingw]: https://github.com/ruixingw
+[sdacek]: https://github.com/sdacek
+[shaunrong]: https://github.com/shaunrong
+[smheidrich]: https://github.com/smheidrich
+[sonium0]: https://github.com/sonium0
+[thefrankwan]: https://github.com/thefrankwan
+[Tinaatucsd]: https://github.com/Tinaatucsd
+[tirkarthi]: https://github.com/tirkarthi
+[tom-wood]: https://github.com/tom-wood
+[utopianf]: https://github.com/utopianf
+[w6ye]: https://github.com/w6ye
+[WardLT]: https://github.com/WardLT
+[wardsimon]: https://github.com/wardsimon
+[wmdrichards]: https://github.com/wmdrichards
+[wsyxbcl]: https://github.com/wsyxbcl
+[xivh]: https://github.com/xivh
+[yang-ruoxi]: https://github.com/yang-ruoxi
+[yiming-xu]: https://github.com/yiming-xu
+[YunxingZuo]: https://github.com/YunxingZuo
+[Zhuoying]: https://github.com/Zhuoying
+[zooks97]: https://github.com/zooks97
