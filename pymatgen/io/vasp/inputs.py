@@ -2281,9 +2281,9 @@ class Potcar(list, MSONable):
         potcar = Potcar()
 
         functionals = []
-        for p in fdata.split("End of Dataset"):
-            if p_strip := p.strip():
-                single = PotcarSingle(p_strip + "\nEnd of Dataset\n")
+        for p in fdata.split("End of Dataset\n"):
+            if p.strip():
+                single = PotcarSingle(p + "End of Dataset\n")
                 potcar.append(single)
                 functionals.append(single.functional)
         if len(set(functionals)) != 1:
