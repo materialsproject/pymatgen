@@ -78,6 +78,13 @@ jobs:
           for pkg in cmd_line/*;
             do echo "$(pwd)/cmd_line/$pkg/Linux_64bit" >> "$GITHUB_PATH";
           done
+      - name: Install Bader
+        if: runner.os == 'Linux'
+        run: |
+          wget http://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
+          tar xvzf bader_lnx_64.tar.gz
+          sudo mv bader /usr/local/bin/
+        continue-on-error: true
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
@@ -130,7 +137,9 @@ jobs:
         name: Install Python
         with:
           python-version: "3.10"
-      - run: python -m pip install build
+      - run: |
+          python -m pip install build
+          pip install -e .
       - name: Build sdist
         run: python -m build --sdist
       - uses: actions/upload-artifact@v3

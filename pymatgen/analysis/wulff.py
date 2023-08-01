@@ -462,7 +462,6 @@ class WulffShape:
         ax.set_zlim([-r_range * 1.1, r_range * 1.1])  # pylint: disable=E1101
         # add legend
         if legend_on:
-            color_proxy = color_proxy
             if show_area:
                 ax.legend(
                     color_proxy,

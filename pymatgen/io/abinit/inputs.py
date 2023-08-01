@@ -1087,9 +1087,6 @@ class BasicMultiDataset:
         if isinstance(pseudos, Pseudo):
             pseudos = [pseudos]
 
-        elif isinstance(pseudos, PseudoTable):
-            pseudos = pseudos
-
         elif all(isinstance(p, Pseudo) for p in pseudos):
             pseudos = PseudoTable(pseudos)
 

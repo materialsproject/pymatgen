@@ -81,7 +81,6 @@ class CRESTInput(MSONable):
         """
         atoms_to_constrain = constraints["atoms"]
         force_constant = constraints["force_constant"]
-        reference_fnm = reference_fnm
         mol = molecule
         atoms_for_mtd = [idx for idx in range(1, len(mol) + 1) if idx not in atoms_to_constrain]
         # Write as 1-3,5 instead of 1,2,3,5
@@ -91,7 +90,6 @@ class CRESTInput(MSONable):
                 interval_list.append(v)
                 if i != len(atoms_for_mtd) - 1:
                     interval_list.append(atoms_for_mtd[i + 1])
-        force_constant = force_constant
         allowed_mtd_string = ",".join(
             [f"{interval_list[i]}-{interval_list[i + 1]}" for i in range(len(interval_list)) if i % 2 == 0]
         )
