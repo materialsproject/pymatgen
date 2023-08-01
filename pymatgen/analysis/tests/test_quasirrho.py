@@ -59,9 +59,8 @@ class TestQuasiRRHO(PymatgenTest):
         Test manual input creation. Values from GaussianOutput
         """
         rrho_in = {}
-        rrho_in["mult"] = self.gout.spin_multiplicity
-        rrho_in["elec_energy"] = self.gout.final_energy
-        rrho_in["mol"] = self.gout.final_structure
+        rrho_in["final_energy"] = self.gout.final_energy
+        rrho_in["optimized_molecule"] = self.gout.final_structure.as_dict()
         vib_freqs = [f["frequency"] for f in self.gout.frequencies[-1]]
         rrho_in["frequencies"] = vib_freqs
 

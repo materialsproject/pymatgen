@@ -8,6 +8,8 @@ A module to calculate free energies using the Quasi-Rigid Rotor Harmonic
 See: Grimme, S. Chem. Eur. J. 2012, 18, 9955
 """
 
+from __future__ import annotations
+
 __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.1"
@@ -17,11 +19,11 @@ __date__ = "January 5, 2021"
 __credits__ = "Steven Wheeler, Trevor Seguin, Evan Spotte-Smith"
 
 from math import isclose
-from typing import Union
 
 import numpy as np
 import scipy.constants as const
 
+from pymatgen.core import Molecule
 from pymatgen.core.units import amu_to_kg
 from pymatgen.core.units import kb as kb_ev
 from pymatgen.io.gaussian import GaussianOutput
@@ -39,7 +41,7 @@ kcal2hartree = 0.0015936  # kcal/mol to hartree/mol
 
 def get_avg_mom_inertia(mol):
     """
-    Caclulate the average moment of inertia of a molecule
+    Calculate the average moment of inertia of a molecule
     :param mol: Molecule
     :return: average moment of inertia, eigenvalues of inertia tensor
     """
@@ -67,9 +69,7 @@ class QuasiRRHO:
     All outputs are in atomic units.
     """
 
-    def __init__(
-        self, output: Union[GaussianOutput, QCOutput, dict], sigma_r=1, temp=298.15, press=101317, conc=1, v0=100
-    ):
+    def __init__(self, output: GaussianOutput | QCOutput | dict, sigma_r=1, temp=298.15, press=101317, conc=1, v0=100):
         """
 
         :param output: Requires input of a Gaussian output file,
@@ -83,7 +83,6 @@ class QuasiRRHO:
         :param conc (float): Solvent concentration [M]
         :param v0 (float): Cutoff frequency for Quasi-RRHO method [cm^1]
         """
-
         # TO-DO: calculate sigma_r with PointGroupAnalyzer
         # and/or edit Gaussian and QChem io to parse for sigma_r
 
@@ -96,6 +95,7 @@ class QuasiRRHO:
         self.entropy_quasiRRHO = None  # Ha/K
         self.free_energy_quasiRRHO = None  # Ha
         self.concentration_corrected_g_quasiRRHO = None  # Ha
+        self.h_corrected = None
 
         self.entropy_ho = None  # Ha/K
         self.free_energy_ho = None  # Ha
@@ -124,24 +124,24 @@ class QuasiRRHO:
             )
 
         if isinstance(output, dict):
+            mol = Molecule.from_dict(output.get("optimized_molecule", output.get("initial_molecule")))
             self._get_quasirrho_thermo(
-                mol=output["mol"],
-                mult=output["mult"],
+                mol=mol,
+                mult=mol.spin_multiplicity,
                 sigma_r=self.sigma_r,
-                frequencies=output["frequencies"],
-                elec_energy=output["elec_energy"],
+                frequencies=output.get("frequencies", []),
+                elec_energy=output["final_energy"],
             )
 
     def _get_quasirrho_thermo(self, mol, mult, sigma_r, frequencies, elec_energy):
         """
-        Caclulate Quasi-RRHO thermochemistry
+        Calculate Quasi-RRHO thermochemistry
         :param mol: Molecule
         :param mult: Spin multiplicity
         :param sigma_r: Rotational symmetry number
         :param frequencies: List of frequencies [a.u.]
         :param elec_energy: Electronic energy [a.u.]
         """
-
         # Calculate mass in kg
         mass = 0
         for site in mol.sites:
@@ -206,14 +206,14 @@ class QuasiRRHO:
         sv *= R
         ev *= R
         etot = (et + er + ev) * kcal2hartree / 1000
-        h_corrected = etot + R * self.temp * kcal2hartree / 1000
+        self.h_corrected = etot + R * self.temp * kcal2hartree / 1000
 
         molarity_corr = 0.000003166488448771253 * self.temp * np.log(0.082057338 * self.temp * self.conc)
         self.entropy_ho = st + sr + sv + se
-        self.free_energy_ho = elec_energy + h_corrected - (self.temp * self.entropy_ho * kcal2hartree / 1000)
+        self.free_energy_ho = elec_energy + self.h_corrected - (self.temp * self.entropy_ho * kcal2hartree / 1000)
         self.entropy_quasiRRHO = st + sr + sv_quasiRRHO + se
         self.free_energy_quasiRRHO = (
-            elec_energy + h_corrected - (self.temp * self.entropy_quasiRRHO * kcal2hartree / 1000)
+            elec_energy + self.h_corrected - (self.temp * self.entropy_quasiRRHO * kcal2hartree / 1000)
         )
 
         self.concentration_corrected_g_quasiRRHO = self.free_energy_quasiRRHO + molarity_corr
