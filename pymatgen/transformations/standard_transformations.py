@@ -532,15 +532,15 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         if self.no_oxi_states:
             structure = Structure.from_sites(structure)
-            for i, site in enumerate(structure):
-                structure[i] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore[assignment]
+            for idx, site in enumerate(structure):
+                structure[idx] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore[assignment]
 
         equivalent_sites: list[list[int]] = []
         exemplars: list[PeriodicSite] = []
         # generate list of equivalent sites to order
         # equivalency is determined by sp_and_occu and symmetry
         # if symmetrized structure is true
-        for i, site in enumerate(structure):
+        for idx, site in enumerate(structure):
             if site.is_ordered:
                 continue
             for j, ex in enumerate(exemplars):
@@ -553,19 +553,20 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 else:
                     sym_test = True
                 if sym_test:
-                    equivalent_sites[j].append(i)
+                    equivalent_sites[j].append(idx)
                     break
             else:
-                equivalent_sites.append([i])
+                equivalent_sites.append([idx])
                 exemplars.append(site)
 
         # generate the list of manipulations and input structure
         struct = Structure.from_sites(structure)
 
         m_list = []
-        for g in equivalent_sites:
-            total_occupancy = sum((structure[i].species for i in g), Composition())
-            total_occupancy = dict(total_occupancy.items())
+        for group in equivalent_sites:
+            total_occupancy = dict(
+                sum((structure[idx].species for idx in group), Composition()).items()  # type: ignore[attr-defined]
+            )
             # round total occupancy to possible values
             for k, v in total_occupancy.items():
                 if abs(v - round(v)) > 0.25:
@@ -573,8 +574,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 total_occupancy[k] = int(round(v))
             # start with an ordered structure
             initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))
-            for i in g:
-                struct[i] = initial_sp
+            for idx in group:
+                struct[idx] = initial_sp
             # determine the manipulations
             for k, v in total_occupancy.items():
                 if k == initial_sp:
@@ -582,14 +583,14 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 m = [
                     k.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state else 0,
                     v,
-                    list(g),
+                    list(group),
                     k,
                 ]
                 m_list.append(m)
             # determine the number of empty sites
-            empty = len(g) - sum(total_occupancy.values())
+            empty = len(group) - sum(total_occupancy.values())
             if empty > 0.5:
-                m_list.append([0, empty, list(g), None])
+                m_list.append([0, empty, list(group), None])
 
         matrix = EwaldSummation(struct).total_energy_matrix
         ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self.algo)
