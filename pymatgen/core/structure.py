@@ -403,9 +403,9 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Returns:
             Angle in degrees.
         """
-        v1 = self[i].coords - self[j].coords
-        v2 = self[k].coords - self[j].coords
-        return get_angle(v1, v2, units="degrees")
+        vec_1 = self[i].coords - self[j].coords
+        vec_2 = self[k].coords - self[j].coords
+        return get_angle(vec_1, vec_2, units="degrees")
 
     def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:  # noqa: E741
         """
@@ -435,11 +435,10 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Molecules, while PBC is taken into account for periodic structures.
 
         Args:
-            tol (float): Distance tolerance. Default is 0.5A.
+            tol (float): Distance tolerance. Default is 0.5 Angstrom, which is fairly large.
 
         Returns:
-            (bool) True if SiteCollection does not contain atoms that are too
-            close together.
+            (bool) True if SiteCollection does not contain atoms that are too close together.
         """
         if len(self) == 1:
             return True
@@ -3735,19 +3734,19 @@ class Structure(IStructure, collections.abc.MutableSequence):
             coords (3x1 array): Coordinates of inserted site
             coords_are_cartesian (bool): Whether coordinates are cartesian.
                 Defaults to False.
-            validate_proximity (bool): Whether to check if inserted site is
-                too close to an existing site. Defaults to False.
+            validate_proximity (bool): Whether to check if inserted site is too close to
+                an existing site. Controlled by self.DISTANCE_TOLERANCE. Defaults to False.
             properties (dict): Properties associated with the site.
             label (str): Label associated with the site.
 
         Returns:
             New structure with inserted site.
         """
-        if not coords_are_cartesian:
-            new_site = PeriodicSite(species, coords, self._lattice, properties=properties, label=label)
-        else:
+        if coords_are_cartesian:
             frac_coords = self._lattice.get_fractional_coords(coords)
             new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties, label=label)
+        else:
+            new_site = PeriodicSite(species, coords, self._lattice, properties=properties, label=label)
 
         if validate_proximity:
             for site in self:
@@ -3755,6 +3754,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     raise ValueError("New site is too close to an existing site!")
 
         self.sites.insert(idx, new_site)
+
+        return self
 
     def replace(
         self,
