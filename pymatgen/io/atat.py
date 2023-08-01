@@ -1,9 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Classes for reading/writing mcsqs files following the rndstr.in format.
 """
+
+from __future__ import annotations
 
 import numpy as np
 
@@ -29,7 +28,6 @@ class Mcsqs:
         """
         :param structure: input Structure
         """
-
         self.structure = structure
 
     def to_string(self):
@@ -37,10 +35,9 @@ class Mcsqs:
         Returns a structure in mcsqs rndstr.in format.
         :return (str):
         """
-
         # add lattice vectors
-        m = self.structure.lattice.matrix
-        output = ["{:6f} {:6f} {:6f}".format(*l) for l in m]
+        mat = self.structure.lattice.matrix
+        output = [f"{vec[0]:6f} {vec[1]:6f} {vec[2]:6f}" for vec in mat]
 
         # define coord system, use Cartesian
         output.append("1.0 0.0 0.0")
@@ -57,14 +54,8 @@ class Mcsqs:
                     sp = sp.replace(",", "__").replace("=", "___")
                 species_str.append(f"{sp}={occu}")
             species_str = ",".join(species_str)
-            output.append(
-                "{:6f} {:6f} {:6f} {}".format(
-                    site.frac_coords[0],
-                    site.frac_coords[1],
-                    site.frac_coords[2],
-                    species_str,
-                )
-            )
+            a, b, c = site.frac_coords
+            output.append(f"{a:6f} {b:6f} {c:6f} {species_str}")
 
         return "\n".join(output)
 
@@ -77,7 +68,6 @@ class Mcsqs:
         :param data: contents of a rndstr.in, lat.in or bestsqs.out file
         :return: Structure object
         """
-
         data = data.splitlines()
         data = [x.split() for x in data if x]  # remove empty lines
 
@@ -118,20 +108,18 @@ class Mcsqs:
 
         all_coords = []
         all_species = []
-        for l in data[first_species_line:]:
-
-            coords = np.array([l[0], l[1], l[2]], dtype=float)
+        for line in data[first_species_line:]:
+            coords = np.array([line[0], line[1], line[2]], dtype=float)
             scaled_coords = np.matmul(coords, np.linalg.inv(lattice_vecs))
             all_coords.append(scaled_coords)
 
-            species_strs = "".join(l[3:])  # join multiple strings back together
+            species_strs = "".join(line[3:])  # join multiple strings back together
             species_strs = species_strs.replace(" ", "")  # trim any white space
             species_strs = species_strs.split(",")  # comma-delimited
 
             species = {}
 
             for species_occ in species_strs:
-
                 # gets a species, occupancy pair
                 species_occ = species_occ.split("=")
 

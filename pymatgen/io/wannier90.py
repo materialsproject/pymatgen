@@ -1,9 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Modules for working with wannier90 input and output.
 """
+
+from __future__ import annotations
 
 from typing import Sequence
 
@@ -160,7 +159,7 @@ class Unk:
     def __repr__(self) -> str:
         return (
             f"<UNK ik={self.ik} nbnd={self.nbnd} ncl={self.is_noncollinear}"
-            + f" ngx={self.ng[0]} ngy={self.ng[1]} ngz={self.ng[2]}>"
+            f" ngx={self.ng[0]} ngy={self.ng[1]} ngz={self.ng[2]}>"
         )
 
     def __eq__(self, other: object) -> bool:
@@ -186,7 +185,6 @@ class Unk:
                     and np.allclose(self.data[ib, 1], other.data[ib, 1], atol=1e-4)
                 ):
                     return False
-            else:
-                if not np.allclose(self.data[ib], other.data[ib], atol=1e-4):
-                    return False
+            elif not np.allclose(self.data[ib], other.data[ib], atol=1e-4):
+                return False
         return True

@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import os
 import unittest
 import warnings
 
 import networkx as nx
+import pytest
 from monty.serialization import loadfn
 
 from pymatgen.analysis.dimensionality import (
@@ -56,44 +59,44 @@ class LarsenDimensionalityTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def test_get_dimensionality(self):
-        self.assertEqual(get_dimensionality_larsen(self.lifepo), 3)
-        self.assertEqual(get_dimensionality_larsen(self.graphite), 2)
-        self.assertEqual(get_dimensionality_larsen(self.cscl), 3)
+        assert get_dimensionality_larsen(self.lifepo) == 3
+        assert get_dimensionality_larsen(self.graphite) == 2
+        assert get_dimensionality_larsen(self.cscl) == 3
 
     def test_tricky_structure(self):
         """
         Test for a tricky structure that other dimensionality finders say is
         2D but is actually an interpenetrated 3D structure.
         """
-        self.assertEqual(get_dimensionality_larsen(self.tricky_structure), 3)
+        assert get_dimensionality_larsen(self.tricky_structure) == 3
 
     def test_get_structure_components(self):
         # test components are returned correctly with the right keys
         components = get_structure_components(self.tricky_structure)
-        self.assertEqual(len(components), 1)
-        self.assertEqual(components[0]["dimensionality"], 3)
-        self.assertTrue(isinstance(components[0]["structure_graph"], StructureGraph))
-        self.assertEqual(components[0]["structure_graph"].structure.num_sites, 10)
+        assert len(components) == 1
+        assert components[0]["dimensionality"] == 3
+        assert isinstance(components[0]["structure_graph"], StructureGraph)
+        assert components[0]["structure_graph"].structure.num_sites == 10
 
         # test 2D structure and get orientation information
         components = get_structure_components(self.graphite, inc_orientation=True)
-        self.assertEqual(len(components), 2)
-        self.assertEqual(components[0]["dimensionality"], 2)
-        self.assertTrue(isinstance(components[0]["structure_graph"], StructureGraph))
-        self.assertEqual(components[0]["structure_graph"].structure.num_sites, 2)
-        self.assertEqual(components[0]["orientation"], (0, 0, 1))
+        assert len(components) == 2
+        assert components[0]["dimensionality"] == 2
+        assert isinstance(components[0]["structure_graph"], StructureGraph)
+        assert components[0]["structure_graph"].structure.num_sites == 2
+        assert components[0]["orientation"] == (0, 0, 1)
 
         # test getting component graphs
-        self.assertEqual(list(components[0]["structure_graph"].graph.nodes()), [0, 1])
+        assert list(components[0]["structure_graph"].graph.nodes()) == [0, 1]
 
     def test_calculate_dimensionality_of_site(self):
         dimen = calculate_dimensionality_of_site(self.tricky_structure, 0)
-        self.assertEqual(dimen, 3)
+        assert dimen == 3
 
         # test vertices returned correctly
         dimen, vertices = calculate_dimensionality_of_site(self.cscl, 0, inc_vertices=True)
-        self.assertEqual(dimen, 3)
-        self.assertEqual(len(vertices), 4)
+        assert dimen == 3
+        assert len(vertices) == 4
 
     def test_zero_d_to_molecule_graph(self):
         comp_graphs = [
@@ -102,34 +105,35 @@ class LarsenDimensionalityTest(PymatgenTest):
 
         mol_graph = zero_d_graph_to_molecule_graph(self.mol_structure, comp_graphs[0])
 
-        self.assertEqual(mol_graph.get_connected_sites(0)[0].index, 1)
-        self.assertEqual(mol_graph.get_connected_sites(1)[1].index, 2)
-        self.assertEqual(mol_graph.molecule.num_sites, 3)
+        assert mol_graph.get_connected_sites(0)[0].index == 1
+        assert mol_graph.get_connected_sites(1)[1].index == 2
+        assert mol_graph.molecule.num_sites == 3
 
         # test catching non zero dimensionality graphs
         comp_graphs = [self.graphite.graph.subgraph(c) for c in nx.weakly_connected_components(self.graphite.graph)]
-        self.assertRaises(ValueError, zero_d_graph_to_molecule_graph, self.graphite, comp_graphs[0])
+        with pytest.raises(ValueError):
+            zero_d_graph_to_molecule_graph(self.graphite, comp_graphs[0])
 
         # test for a troublesome structure
         s = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "PH7CN3O3F.json.gz"))
         bs = CrystalNN().get_bonded_structure(s)
         comp_graphs = [bs.graph.subgraph(c) for c in nx.weakly_connected_components(bs.graph)]
         mol_graph = zero_d_graph_to_molecule_graph(bs, comp_graphs[0])
-        self.assertEqual(mol_graph.molecule.num_sites, 12)
+        assert mol_graph.molecule.num_sites == 12
 
 
 class CheonDimensionalityTest(PymatgenTest):
     def test_get_dimensionality(self):
         s = self.get_structure("LiFePO4")
-        self.assertEqual(get_dimensionality_cheon(s), "intercalated ion")
+        assert get_dimensionality_cheon(s) == "intercalated ion"
 
         s = self.get_structure("Graphite")
-        self.assertEqual(get_dimensionality_cheon(s), "2D")
+        assert get_dimensionality_cheon(s) == "2D"
 
     def test_get_dimensionality_with_bonds(self):
         s = self.get_structure("CsCl")
-        self.assertEqual(get_dimensionality_cheon(s), "intercalated ion")
-        self.assertEqual(get_dimensionality_cheon(s, ldict={"Cs": 3.7, "Cl": 3}), "3D")
+        assert get_dimensionality_cheon(s) == "intercalated ion"
+        assert get_dimensionality_cheon(s, ldict={"Cs": 3.7, "Cl": 3}) == "3D"
 
     def test_tricky_structure(self):
         tricky_structure = Structure(
@@ -150,24 +154,24 @@ class CheonDimensionalityTest(PymatgenTest):
         )
 
         # cheon dimensionality gets wrong structure using default parameters
-        self.assertEqual(get_dimensionality_cheon(tricky_structure), "2D")
+        assert get_dimensionality_cheon(tricky_structure) == "2D"
         # cheon dimensionality gets tricky structure right using a
         # bigger supercell
-        self.assertEqual(get_dimensionality_cheon(tricky_structure, larger_cell=True), "3D")
+        assert get_dimensionality_cheon(tricky_structure, larger_cell=True) == "3D"
 
 
 class GoraiDimensionalityTest(PymatgenTest):
     def test_get_dimensionality(self):
         s = self.get_structure("LiFePO4")
-        self.assertEqual(get_dimensionality_gorai(s), 3)
+        assert get_dimensionality_gorai(s) == 3
 
         s = self.get_structure("Graphite")
-        self.assertEqual(get_dimensionality_gorai(s), 2)
+        assert get_dimensionality_gorai(s) == 2
 
     def test_get_dimensionality_with_bonds(self):
         s = self.get_structure("CsCl")
-        self.assertEqual(get_dimensionality_gorai(s), 1)
-        self.assertEqual(get_dimensionality_gorai(s, bonds={("Cs", "Cl"): 3.7}), 3)
+        assert get_dimensionality_gorai(s) == 1
+        assert get_dimensionality_gorai(s, bonds={("Cs", "Cl"): 3.7}) == 3
 
 
 if __name__ == "__main__":

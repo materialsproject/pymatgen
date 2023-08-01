@@ -1,9 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements input and output processing from PWSCF.
 """
+
+from __future__ import annotations
 
 import re
 from collections import defaultdict
@@ -74,7 +73,7 @@ class PWInput:
                 except KeyError:
                     raise PWInputError(f"Missing {site} in pseudo specification!")
         else:
-            for species in self.structure.composition.keys():
+            for species in self.structure.composition:
                 if str(species) not in pseudo:
                     raise PWInputError(f"Missing {species} in pseudo specification!")
         self.pseudo = pseudo
@@ -105,7 +104,7 @@ class PWInput:
 
         def to_str(v):
             if isinstance(v, str):
-                return f"'{v}'"
+                return f"{v!r}"
             if isinstance(v, float):
                 return f"{str(v).replace('e', 'd')}"
             if isinstance(v, bool):
@@ -118,10 +117,10 @@ class PWInput:
             v1 = self.sections[k1]
             out.append(f"&{k1.upper()}")
             sub = []
-            for k2 in sorted(v1.keys()):
+            for k2 in sorted(v1):
                 if isinstance(v1[k2], list):
                     n = 1
-                    for l in v1[k2][: len(site_descriptions)]:
+                    for _ in v1[k2][: len(site_descriptions)]:
                         sub.append(f"  {k2}({n}) = {to_str(v1[k2][n - 1])}")
                         n += 1
                 else:
@@ -139,10 +138,7 @@ class PWInput:
         out.append("ATOMIC_SPECIES")
         for k, v in sorted(site_descriptions.items(), key=lambda i: i[0]):
             e = re.match(r"[A-Z][a-z]?", k).group(0)
-            if self.pseudo is not None:
-                p = v
-            else:
-                p = v["pseudo"]
+            p = v if self.pseudo is not None else v["pseudo"]
             out.append(f"  {k}  {Element(e).atomic_mass:.4f} {p}")
 
         out.append("ATOMIC_POSITIONS crystal")
@@ -163,7 +159,7 @@ class PWInput:
             kpt_str.extend([f"{i}" for i in self.kpoints_shift])
             out.append(f"  {' '.join(kpt_str)}")
         elif self.kpoints_mode == "crystal_b":
-            out.append(f" {str(len(self.kpoints_grid))}")
+            out.append(f" {len(self.kpoints_grid)!s}")
             for i in range(len(self.kpoints_grid)):
                 kpt_str = [f"{entry:.4f}" for entry in self.kpoints_grid[i]]
                 out.append(f" {' '.join(kpt_str)}")
@@ -225,7 +221,7 @@ class PWInput:
             filename (str): The string filename to output to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__())
+            f.write(str(self))
 
     @staticmethod
     def from_file(filename):
@@ -295,7 +291,7 @@ class PWInput:
                     key_ = m.group(2).strip()
                     val = m.group(3).strip()
                     if key_ != "":
-                        if sections[section].get(key, None) is None:
+                        if sections[section].get(key) is None:
                             val_ = [0.0] * 20  # MAX NTYP DEFINITION
                             val_[int(key_) - 1] = PWInput.proc_val(key, val)
                             sections[section][key] = val_
@@ -498,6 +494,7 @@ class PWInput:
         m = re.match(r"^[\"|'](.+)[\"|']$", val)
         if m:
             return m.group(1)
+        return None
 
 
 class PWInputError(BaseException):

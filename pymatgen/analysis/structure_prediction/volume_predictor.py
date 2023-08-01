@@ -1,9 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Predict volumes of crystal structures.
 """
+
+from __future__ import annotations
 
 import os
 import warnings
@@ -20,10 +19,9 @@ bond_params = loadfn(os.path.join(MODULE_DIR, "DLS_bond_params.yaml"))
 
 
 def _is_ox(structure):
-    comp = structure.composition
-    for k in comp.keys():
+    for elem in structure.composition:
         try:
-            k.oxi_state
+            elem.oxi_state
         except AttributeError:
             return False
     return True
@@ -52,7 +50,7 @@ class RLSVolumePredictor:
         self.radii_type = radii_type
         self.use_bv = use_bv
 
-    def predict(self, structure, ref_structure):
+    def predict(self, structure: Structure, ref_structure):
         """
         Given a structure, returns the predicted volume.
 
@@ -60,10 +58,10 @@ class RLSVolumePredictor:
             structure (Structure): structure w/unknown volume
             ref_structure (Structure): A reference structure with a similar
                 structure but different species.
+
         Returns:
             a float value of the predicted volume
         """
-
         if self.check_isostructural:
             m = StructureMatcher()
             mapping = m.get_best_electronegativity_anonymous_mapping(structure, ref_structure)
@@ -86,8 +84,8 @@ class RLSVolumePredictor:
                 ref_comp = ref_structure.composition
 
                 # Check if all the associated ionic radii are available.
-                if any(k.ionic_radius is None for k in list(comp.keys())) or any(
-                    k.ionic_radius is None for k in list(ref_comp.keys())
+                if any(k.ionic_radius is None for k in list(comp)) or any(
+                    k.ionic_radius is None for k in list(ref_comp)
                 ):
                     raise ValueError("Not all the ionic radii are available!")
 
@@ -121,14 +119,16 @@ class RLSVolumePredictor:
 
         raise ValueError("Cannot find volume scaling based on radii choices specified!")
 
-    def get_predicted_structure(self, structure, ref_structure):
+    def get_predicted_structure(self, structure: Structure, ref_structure):
         """
         Given a structure, returns back the structure scaled to predicted
         volume.
+
         Args:
             structure (Structure): structure w/unknown volume
             ref_structure (Structure): A reference structure with a similar
                 structure but different species.
+
         Returns:
             a Structure object with predicted volume
         """
@@ -167,7 +167,7 @@ class DLSVolumePredictor:
         self.min_scaling = min_scaling
         self.max_scaling = max_scaling
 
-    def predict(self, structure, icsd_vol=False):
+    def predict(self, structure: Structure, icsd_vol=False):
         """
         Given a structure, returns the predicted volume.
 
@@ -179,7 +179,6 @@ class DLSVolumePredictor:
         Returns:
             a float value of the predicted volume.
         """
-
         # Get standard deviation of electronnegativity in the structure.
         std_x = np.std([site.specie.X for site in structure])
         # Sites that have atomic radii
@@ -187,7 +186,7 @@ class DLSVolumePredictor:
         # Record the "DLS estimated radius" from bond_params.
         bp_dict = {}
 
-        for sp in list(structure.composition.keys()):
+        for sp in list(structure.composition):
             if sp.atomic_radius:
                 sub_sites.extend([site for site in structure if site.specie == sp])
             else:
@@ -199,7 +198,7 @@ class DLSVolumePredictor:
                 r, k = bond_params[sp.symbol]["r"], bond_params[sp.symbol]["k"]
                 bp_dict[sp] = float(r) + float(k) * std_x
 
-        # Structure object that include only sites with known atomic radii.
+        # Structure object that includes only sites with known atomic radii.
         reduced_structure = Structure.from_sites(sub_sites)
         smallest_ratio = None
 
@@ -213,6 +212,7 @@ class DLSVolumePredictor:
                 if sp1 in bp_dict and sp2 in bp_dict:
                     expected_dist = bp_dict[sp1] + bp_dict[sp2]
                 else:
+                    assert sp1.atomic_radius is not None
                     expected_dist = sp1.atomic_radius + sp2.atomic_radius
 
                 if not smallest_ratio or nn.nn_distance / expected_dist < smallest_ratio:
@@ -234,10 +234,11 @@ class DLSVolumePredictor:
 
         return structure.volume * volume_factor
 
-    def get_predicted_structure(self, structure, icsd_vol=False):
+    def get_predicted_structure(self, structure: Structure, icsd_vol=False):
         """
         Given a structure, returns back the structure scaled to predicted
         volume.
+
         Args:
             structure (Structure): structure w/unknown volume
 

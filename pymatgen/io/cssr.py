@@ -1,9 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides input and output from the CSSR file format.
 """
+
+from __future__ import annotations
 
 import re
 
@@ -36,9 +35,11 @@ class Cssr:
         self.structure = structure
 
     def __str__(self):
+        a, b, c = self.structure.lattice.abc
+        alpha, beta, gamma = self.structure.lattice.angles
         output = [
-            "{:.4f} {:.4f} {:.4f}".format(*self.structure.lattice.abc),
-            "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1".format(*self.structure.lattice.angles),
+            f"{a:.4f} {b:.4f} {c:.4f}",
+            f"{alpha:.2f} {beta:.2f} {gamma:.2f} SPGR =  1 P 1    OPT = 1",
             f"{len(self.structure)} 0",
             f"0 {self.structure.formula}",
         ]
@@ -69,14 +70,14 @@ class Cssr:
         """
         lines = string.split("\n")
         toks = lines[0].split()
-        lengths = [float(i) for i in toks]
+        lengths = [float(tok) for tok in toks]
         toks = lines[1].split()
-        angles = [float(i) for i in toks[0:3]]
+        angles = [float(tok) for tok in toks[0:3]]
         latt = Lattice.from_parameters(*lengths, *angles)
         sp = []
         coords = []
-        for l in lines[4:]:
-            m = re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", l.strip())
+        for line in lines[4:]:
+            m = re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", line.strip())
             if m:
                 sp.append(m.group(1))
                 coords.append([float(m.group(i)) for i in range(2, 5)])

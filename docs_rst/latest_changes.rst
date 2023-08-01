@@ -1,6 +1,7 @@
 Change log
 ==========
 
-v2022.2.10
+v2023.5.10
 ----------
-* Require Cython during setup. (@jonringer)
+* Fix mem leak in pbc_shortest_vector cython code. (@stichri)
+* Set all cython code to language level 3.

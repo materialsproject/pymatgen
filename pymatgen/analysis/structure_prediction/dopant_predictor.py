@@ -2,6 +2,8 @@
 Predicting potential dopants
 """
 
+from __future__ import annotations
+
 import warnings
 
 import numpy as np
@@ -47,7 +49,7 @@ def get_dopants_from_substitution_probabilities(structure, num_dopants=5, thresh
     subs = [
         {
             "probability": pred["probability"],
-            "dopant_species": list(pred["substitutions"].keys())[0],
+            "dopant_species": list(pred["substitutions"])[0],
             "original_species": list(pred["substitutions"].values())[0],
         }
         for species_preds in subs
@@ -199,8 +201,8 @@ def _int_to_roman(number):
     roman_conv = [(10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
 
     result = []
-    for (arabic, roman) in roman_conv:
-        (factor, number) = divmod(number, arabic)
+    for arabic, roman in roman_conv:
+        factor, number = divmod(number, arabic)
         result.append(roman * factor)
         if number == 0:
             break

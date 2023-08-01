@@ -1,9 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains the error classes for the chemenv package.
 """
+
+from __future__ import annotations
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"

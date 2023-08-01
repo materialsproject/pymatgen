@@ -1,4 +1,4 @@
-.. image:: _static/pymatgen.png
+.. image:: _static/pymatgen.svg
    :width: 300 px
    :alt: pymatgen
    :align: center
@@ -48,7 +48,7 @@ reports. The following are resources for pymatgen:
 * Code contributions via `pull requests <https://github.com/materialsproject/pymatgen/pulls>`_ welcome.
 * For help with usage that are unrelated to bugs or feature requests, please use the pymatgen `Discourse page
   <https://discuss.matsci.org/c/pymatgen>`_.
-* `matgenb <http://matgenb.materialsvirtuallab.org>`_ provides some Jupyter notebooks demonstrating functionality.
+* `matgenb <https://github.com/materialsvirtuallab/matgenb#introduction>`_ provides some Jupyter notebooks demonstrating functionality.
 * Follow us on `Twitter <http://twitter.com/pymatgen>`_ to get news and tips.
 
     *The code is mightier than the pen.*
@@ -63,7 +63,7 @@ modifications. MPRester should now be imported from `pymatgen.ext.matproj`. All 
 `Element`, `Species`, `Lattice`, `Structure`, etc. should be imported from `pymatgen.core`. There are a few simple ways
 you can respond to this change:
 
-* To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen<=2022.0.0 since all
+* To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen<2022.0.0 since all
   the imports were already available in previous versions), you need to replace all instances of
   `from pymatgen import MPRester` with `from pymatgen.ext.matproj import MPRester`, followed by replacing all instances
   of `from pymatgen import` with `from pymatgen.core import`. These two steps have to be done in that sequence, since
@@ -97,7 +97,7 @@ One of the ways you can contribute is to fork the matgenb repo and add your own 
 
 Below are a quick look at some of the graphical output possible.
 
-.. figure:: _static/examples.png
+.. figure:: _static/phase_diagram.png
    :width: 100%
    :alt: Examples
    :align: center
@@ -362,7 +362,7 @@ Here are some quick examples of the core capabilities and objects:
     1 Cl     0.510000     0.510000     0.510000
     2 Cs     0.000000     0.000000     0.000000
     >>>
-    >>> # Molecules function similarly, but with Site and cartesian coords.
+    >>> # Molecules function similarly, but with Site and Cartesian coords.
     >>> # The following changes the C in CH4 to an N and displaces it by 0.01A
     >>> # in the x-direction.
     >>> methane[0] = "N", [0.01, 0, 0]
@@ -533,12 +533,6 @@ entire pymatgen Development Team. If individual contributors want to maintain a
 record of what changes/contributions they have specific copyright on, they
 should indicate their copyright in the commit message of the change, when
 they commit the change to one of the pymatgen repositories.
-
-With this in mind, the following banner should be used in any source code file
-to indicate the copyright and license terms::
-
-    # Copyright (c) Pymatgen Development Team.
-    # Distributed under the terms of the MIT License.
 
 Indices and tables
 ==================

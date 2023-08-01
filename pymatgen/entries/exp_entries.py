@@ -1,9 +1,14 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines Entry classes for containing experimental data.
 """
+
+from __future__ import annotations
+
+from monty.json import MSONable
+
+from pymatgen.analysis.phase_diagram import PDEntry
+from pymatgen.analysis.thermochemistry import ThermoData
+from pymatgen.core.composition import Composition
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -11,13 +16,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jun 27, 2012"
-
-
-from monty.json import MSONable
-
-from pymatgen.analysis.phase_diagram import PDEntry
-from pymatgen.analysis.thermochemistry import ThermoData
-from pymatgen.core.composition import Composition
 
 
 class ExpEntry(PDEntry, MSONable):
@@ -55,9 +53,6 @@ class ExpEntry(PDEntry, MSONable):
     def __repr__(self):
         return f"ExpEntry {self.composition.formula}, Energy = {self.energy:.4f}"
 
-    def __str__(self):
-        return self.__repr__()
-
     @classmethod
     def from_dict(cls, d):
         """
@@ -72,8 +67,8 @@ class ExpEntry(PDEntry, MSONable):
         :return: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "thermodata": [td.as_dict() for td in self._thermodata],
             "composition": self.composition.as_dict(),
             "temperature": self.temperature,

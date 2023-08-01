@@ -1,19 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains some utility functions and classes that are used in the chemenv package.
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
-
-from typing import Dict
+from __future__ import annotations
 
 import numpy as np
 
@@ -25,13 +14,21 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
     smoothstep,
 )
 
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
 
 class AbstractRatioFunction:
     """
     Abstract class for all ratio functions
     """
 
-    ALLOWED_FUNCTIONS = {}  # type: Dict[str, list]
+    ALLOWED_FUNCTIONS: dict[str, list] = {}
 
     def __init__(self, function, options_dict=None):
         """Constructor for AbstractRatioFunction
@@ -40,10 +37,7 @@ class AbstractRatioFunction:
         :param options_dict: Dictionary containing the parameters for the ratio function.
         """
         if function not in self.ALLOWED_FUNCTIONS:
-            raise ValueError(
-                'Function "{}" is not allowed in RatioFunction of '
-                'type "{}"'.format(function, self.__class__.__name__)
-            )
+            raise ValueError(f'Function {function!r} is not allowed in RatioFunction of type "{type(self).__name__}"')
         self.eval = object.__getattribute__(self, function)
         self.function = function
         self.setup_parameters(options_dict=options_dict)
@@ -70,29 +64,29 @@ class AbstractRatioFunction:
                 if len(function_options) == 1:
                     opts = f'Option "{function_options[0]}"'
                 else:
-                    opts1 = ", ".join([f'"{op}"' for op in function_options[:-1]])
-                    opts = "Options {}".format(" and ".join([opts1, f'"{function_options[-1]}"']))
+                    opts1 = ", ".join(f"{op!r}" for op in function_options[:-1])
+                    opts = f'Options {opts1} and "{function_options[-1]}"'
                 if options_dict is None or len(options_dict) == 0:
                     missing = "no option was provided."
                 else:
-                    optgiven = list(options_dict.keys())
+                    optgiven = list(options_dict)
                     if len(options_dict) == 1:
-                        missing = f'only "{optgiven[0]}" was provided.'
+                        missing = f"only {optgiven[0]!r} was provided."
                     else:
-                        missing1 = ", ".join([f'"{miss}"' for miss in optgiven[:-1]])
-                        missing = "only {} were provided.".format(" and ".join([missing1, f'"{optgiven[-1]}"']))
+                        missing1 = ", ".join(f"{miss!r}" for miss in optgiven[:-1])
+                        missing = f"only {missing1} and {optgiven[-1]!r} were provided."
                 raise ValueError(
-                    '{} should be provided for function "{}" in RatioFunction of '
-                    'type "{}" while {}'.format(opts, self.function, self.__class__.__name__, missing)
+                    f"{opts} should be provided for function {self.function!r} in RatioFunction of "
+                    f"type {type(self).__name__!r} while {missing}"
                 )
             # Setup the options and raise an error if a wrong option is provided
             for key, val in options_dict.items():
                 if key not in function_options:
                     raise ValueError(
-                        'Option "{}" not allowed for function "{}" in RatioFunction of '
-                        'type "{}"'.format(key, self.function, self.__class__.__name__)
+                        f"Option {key!r} not allowed for function {self.function!r} in RatioFunction of "
+                        f'type "{type(self).__name__}"'
                     )
-                self.__setattr__(key, val)
+                setattr(self, key, val)
 
     def evaluate(self, value):
         """Evaluate the ratio function for the given value.

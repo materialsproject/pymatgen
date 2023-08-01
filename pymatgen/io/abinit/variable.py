@@ -1,5 +1,8 @@
 """Support for Abinit input variables."""
+from __future__ import annotations
+
 import collections
+import collections.abc
 import string
 
 import numpy as np
@@ -54,7 +57,7 @@ class InputVariable:
     def get_value(self):
         """Return the value."""
         if self.units:
-            return list(self.value) + [self.units]
+            return [*self.value, self.units]
         return self.value
 
     @property
@@ -107,7 +110,6 @@ class InputVariable:
 
         # values in lists
         if isinstance(value, (list, tuple)):
-
             # Reshape a list of lists into a single list
             if all(isinstance(v, (list, tuple)) for v in value):
                 line += self.format_list2d(value, floatdecimal)
@@ -179,7 +181,6 @@ class InputVariable:
         elif type_all == str:
             formatspec = f">{width}"
         else:
-
             # Number of decimal
             maxdec = max(len(str(f - int(f))) - 2 for f in lvals)
             ndec = min(max(maxdec, floatdecimal), 10)
@@ -217,7 +218,7 @@ class InputVariable:
         return line.rstrip("\n")
 
 
-def is_iter(obj):
+def is_iter(obj) -> bool:
     """Return True if the argument is list-like."""
     return hasattr(obj, "__iter__")
 
@@ -234,7 +235,7 @@ def flatten(iterable):
                 return tuple(array)
             iterator = stack.pop()
         else:
-            if not isinstance(value, str) and isinstance(value, collections.Iterable):
+            if not isinstance(value, str) and isinstance(value, collections.abc.Iterable):
                 stack.append(iterator)
                 iterator = iter(value)
             else:

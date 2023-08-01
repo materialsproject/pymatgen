@@ -1,24 +1,22 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 This module provides classes to store, generate, and manipulate material interfaces.
 """
 
+from __future__ import annotations
+
 from itertools import product
-from typing import Iterator, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Iterator, Sequence
 
 import numpy as np
 from scipy.linalg import polar
 
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.interfaces.zsl import ZSLGenerator, fast_norm
-from pymatgen.core import Structure
 from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
 
-Vector3D = Tuple[float, float, float]
-Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
-Matrix2D = Tuple[Vector3D, Vector3D]
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 class CoherentInterfaceBuilder:
@@ -31,9 +29,9 @@ class CoherentInterfaceBuilder:
         self,
         substrate_structure: Structure,
         film_structure: Structure,
-        film_miller: Tuple[int, int, int],
-        substrate_miller: Tuple[int, int, int],
-        zslgen: Optional[ZSLGenerator] = None,
+        film_miller: tuple[int, int, int],
+        substrate_miller: tuple[int, int, int],
+        zslgen: ZSLGenerator | None = None,
     ):
         """
         Args:
@@ -43,7 +41,6 @@ class CoherentInterfaceBuilder:
             substrate_miller: miller index for the substrate layer
             zslgen: BiDirectionalZSL if you want custom lattice matching tolerances for coherency
         """
-
         # Bulk structures
         self.substrate_structure = substrate_structure
         self.film_structure = film_structure
@@ -108,7 +105,6 @@ class CoherentInterfaceBuilder:
         """
         Finds all terminations
         """
-
         film_sg = SlabGenerator(
             self.film_structure,
             self.film_miller,
@@ -146,29 +142,30 @@ class CoherentInterfaceBuilder:
                 zip(film_terminations, film_shits), zip(sub_terminations, sub_shifts)
             )
         }
-        self.terminations = list(self._terminations.keys())
+        self.terminations = list(self._terminations)
 
     def get_interfaces(
         self,
-        termination: Tuple[str, str],
+        termination: tuple[str, str],
         gap: float = 2.0,
         vacuum_over_film: float = 20.0,
-        film_thickness: Union[float, int] = 1,
-        substrate_thickness: Union[float, int] = 1,
+        film_thickness: float | int = 1,
+        substrate_thickness: float | int = 1,
         in_layers: bool = True,
     ) -> Iterator[Interface]:
-        """
-        Generates interface structures given the film and substrate structure
+        """Generates interface structures given the film and substrate structure
         as well as the desired terminations
 
-
         Args:
-            terminations: termination from self.termination list
-            gap: gap between film and substrate
-            vacuum_over_film: vacuum over the top of the film
-            film_thickness: the film thickness
-            substrate_thickness: substrate thickness
-            in_layers: set the thickness in layer units
+            termination (tuple[str, str]): termination from self.termination list
+            gap (float, optional): gap between film and substrate. Defaults to 2.0.
+            vacuum_over_film (float, optional): vacuum over the top of the film. Defaults to 20.0.
+            film_thickness (float | int, optional): the film thickness. Defaults to 1.
+            substrate_thickness (float | int, optional): substrate thickness. Defaults to 1.
+            in_layers (bool, optional): set the thickness in layer units. Defaults to True.
+
+        Yields:
+            Iterator[Interface]: interfaces from slabs
         """
         film_sg = SlabGenerator(
             self.film_structure,
@@ -226,7 +223,7 @@ class CoherentInterfaceBuilder:
 
             # Add extra info
             match_dict = match.as_dict()
-            interface_properties = {k: match_dict[k] for k in match_dict.keys() if not k.startswith("@")}
+            interface_properties = {k: match_dict[k] for k in match_dict if not k.startswith("@")}
 
             dfm = Deformation(match.match_transformation)
 
@@ -250,7 +247,7 @@ class CoherentInterfaceBuilder:
 
 def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
     """
-    Finds a trasnformation matrix that will rotate and strain the film to the subtrate while preserving the c-axis
+    Finds a transformation matrix that will rotate and strain the film to the substrate while preserving the c-axis
     """
     film_matrix = np.array(film_matrix)
     film_matrix = film_matrix.tolist()[:2]
@@ -262,9 +259,10 @@ def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
     # direction
     sub_matrix = np.array(sub_matrix)
     sub_matrix = sub_matrix.tolist()[:2]
-    temp_sub = np.cross(sub_matrix[0], sub_matrix[1])
-    temp_sub = temp_sub / fast_norm(temp_sub)
-    temp_sub = temp_sub * fast_norm(film_matrix[2])
+    temp_sub = np.cross(sub_matrix[0], sub_matrix[1]).astype(float)  # conversion to float necessary if using numba
+    temp_sub = temp_sub * fast_norm(
+        np.array(film_matrix[2], dtype=float)
+    )  # conversion to float necessary if using numba
     sub_matrix.append(temp_sub)
 
     transform_matrix = np.transpose(np.linalg.solve(film_matrix, sub_matrix))
@@ -274,7 +272,7 @@ def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
     return rot
 
 
-def get_2d_transform(start: np.ndarray, end: np.ndarray) -> np.ndarray:
+def get_2d_transform(start: Sequence, end: Sequence) -> np.ndarray:
     """
     Gets a 2d transformation matrix
     that converts start to end

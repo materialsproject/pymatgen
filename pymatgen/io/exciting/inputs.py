@@ -1,9 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Classes for reading/manipulating/writing exciting input files.
 """
+
+from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 
@@ -46,7 +45,7 @@ class ExcitingInput(MSONable):
         booleans.
     """
 
-    def __init__(self, structure, title=None, lockxyz=None):
+    def __init__(self, structure: Structure, title=None, lockxyz=None):
         """
         Args:
             structure (Structure):  Structure object.
@@ -55,7 +54,6 @@ class ExcitingInput(MSONable):
             lockxyz (Nx3 array): bool values for selective dynamics,
                 where N is number of sites. Defaults to None.
         """
-
         if structure.is_ordered:
             site_properties = {}
             if lockxyz:
@@ -84,7 +82,6 @@ class ExcitingInput(MSONable):
         """
         Reads the exciting input from a string
         """
-
         root = ET.fromstring(data)
         speciesnode = root.find("structure").iter("species")
         elements = []
@@ -110,8 +107,8 @@ class ExcitingInput(MSONable):
                 # Obtain lockxyz for each atom
                 if atom.get("lockxyz") is not None:
                     lxyz = []
-                    for l in atom.get("lockxyz").split():
-                        if l in ("True", "true"):
+                    for line in atom.get("lockxyz").split():
+                        if line in ("True", "true"):
                             lxyz.append(True)
                         else:
                             lxyz.append(False)
@@ -119,10 +116,10 @@ class ExcitingInput(MSONable):
                 else:
                     lockxyz.append([False, False, False])
         # check the atomic positions type
-        if "cartesian" in root.find("structure").attrib.keys():
+        if "cartesian" in root.find("structure").attrib:
             if root.find("structure").attrib["cartesian"]:
                 cartesian = True
-                for i, p in enumerate(positions):
+                for p in positions:
                     for j in range(3):
                         p[j] = p[j] * ExcitingInput.bohr2ang
                 print(positions)
@@ -130,16 +127,10 @@ class ExcitingInput(MSONable):
             cartesian = False
         # get the scale attribute
         scale_in = root.find("structure").find("crystal").get("scale")
-        if scale_in:
-            scale = float(scale_in) * ExcitingInput.bohr2ang
-        else:
-            scale = ExcitingInput.bohr2ang
+        scale = float(scale_in) * ExcitingInput.bohr2ang if scale_in else ExcitingInput.bohr2ang
         # get the stretch attribute
         stretch_in = root.find("structure").find("crystal").get("stretch")
-        if stretch_in:
-            stretch = np.array([float(a) for a in stretch_in])
-        else:
-            stretch = np.array([1.0, 1.0, 1.0])
+        stretch = np.array([float(a) for a in stretch_in]) if stretch_in else np.array([1.0, 1.0, 1.0])
         # get basis vectors and scale them accordingly
         basisnode = root.find("structure").find("crystal").iter("basevect")
         for vect in basisnode:
@@ -167,7 +158,7 @@ class ExcitingInput(MSONable):
             data = f.read().replace("\n", "")
         return ExcitingInput.from_string(data)
 
-    def write_etree(self, celltype, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
+    def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
         """
         Writes the exciting input parameters to an xml object.
 
@@ -222,26 +213,19 @@ class ExcitingInput(MSONable):
 
         # write lattice
         basis = new_struct.lattice.matrix
-        for i in range(3):
+        for idx in range(3):
             basevect = ET.SubElement(crystal, "basevect")
-            basevect.text = "{:16.8f} {:16.8f} {:16.8f}".format(
-                basis[i][0],
-                basis[i][1],
-                basis[i][2],
-            )
+            basevect.text = f"{basis[idx][0]:16.8f} {basis[idx][1]:16.8f} {basis[idx][2]:16.8f}"
         # write atomic positions for each species
         index = 0
-        for i in sorted(new_struct.types_of_species, key=lambda el: el.X):
-            species = ET.SubElement(structure, "species", speciesfile=i.symbol + ".xml")
-            sites = new_struct.indices_from_symbol(i.symbol)
+        for elem in sorted(new_struct.types_of_species, key=lambda el: el.X):
+            species = ET.SubElement(structure, "species", speciesfile=elem.symbol + ".xml")
+            sites = new_struct.indices_from_symbol(elem.symbol)
 
             for j in sites:
-                coord = "{:16.8f} {:16.8f} {:16.8f}".format(
-                    new_struct[j].frac_coords[0],
-                    new_struct[j].frac_coords[1],
-                    new_struct[j].frac_coords[2],
-                )
-                # obtain cartesian coords from fractional ones if needed
+                fc = new_struct[j].frac_coords
+                coord = f"{fc[0]:16.8f} {fc[1]:16.8f} {fc[2]:16.8f}"
+                # obtain Cartesian coords from fractional ones if needed
                 if cartesian:
                     coord2 = []
                     for k in range(3):
@@ -261,11 +245,11 @@ class ExcitingInput(MSONable):
             kpath = HighSymmKpath(new_struct, symprec=symprec, angle_tolerance=angle_tolerance)
             prop = ET.SubElement(root, "properties")
             bandstrct = ET.SubElement(prop, "bandstructure")
-            for i in range(len(kpath.kpath["path"])):
+            for idx in range(len(kpath.kpath["path"])):
                 plot = ET.SubElement(bandstrct, "plot1d")
                 path = ET.SubElement(plot, "path", steps="100")
-                for j in range(len(kpath.kpath["path"][i])):
-                    symbol = kpath.kpath["path"][i][j]
+                for j in range(len(kpath.kpath["path"][idx])):
+                    symbol = kpath.kpath["path"][idx][j]
                     coords = kpath.kpath["kpoints"][symbol]
                     coord = f"{coords[0]:16.8f} {coords[1]:16.8f} {coords[2]:16.8f}"
                     if symbol == "\\Gamma":
@@ -282,7 +266,7 @@ class ExcitingInput(MSONable):
 
         return root
 
-    def write_string(self, celltype, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
+    def write_string(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
         """
         Writes exciting input.xml as a string.
 
@@ -317,7 +301,9 @@ class ExcitingInput(MSONable):
             raise ValueError("Incorrect celltype!")
         return string
 
-    def write_file(self, celltype, filename, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
+    def write_file(
+        self, celltype, filename, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs
+    ):
         """
         Writes exciting input file.
 
@@ -370,9 +356,8 @@ class ExcitingInput(MSONable):
                 ExcitingInput._indent(el, level + 1)
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
-        else:
-            if level and (not elem.tail or not elem.tail.strip()):
-                elem.tail = i
+        elif level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
 
     def _dicttoxml(self, paramdict_, element):
         for key, value in paramdict_.items():

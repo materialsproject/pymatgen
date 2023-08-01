@@ -1,10 +1,9 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains some script utils that are used in the chemenv package.
 """
 
+
+from __future__ import annotations
 
 import re
 
@@ -25,7 +24,6 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import (
     NeighborsNotComputedChemenvError,
 )
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
-from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
 from pymatgen.ext.matproj import MPRester
@@ -100,30 +98,26 @@ def draw_cg(
     if len(neighbors) < 3:
         if show_distorted:
             vis.add_bonds(neighbors, site, color=[0.0, 1.0, 0.0], opacity=0.4, radius=0.175)
-        if show_perfect:
-            if len(neighbors) == 2:
-                perfect_geometry = AbstractGeometry.from_cg(cg)
-                trans = csm_info["other_symmetry_measures"][f"translation_vector_{csm_suffix}"]
-                rot = csm_info["other_symmetry_measures"][f"rotation_matrix_{csm_suffix}"]
-                scale = csm_info["other_symmetry_measures"][f"scaling_factor_{csm_suffix}"]
-                points = perfect_geometry.points_wcs_ctwcc()
-                rotated_points = rotateCoords(points, rot)
-                points = [scale * pp + trans for pp in rotated_points]
-                if "wcs" in csm_suffix:
-                    ef_points = points[1:]
-                else:
-                    ef_points = points
-                edges = cg.edges(ef_points, input="coords")
-                vis.add_edges(edges, color=[1.0, 0.0, 0.0])
-                for point in points:
-                    vis.add_partial_sphere(
-                        coords=point,
-                        radius=perf_radius,
-                        color=[0.0, 0.0, 0.0],
-                        start=0,
-                        end=360,
-                        opacity=1,
-                    )
+        if show_perfect and len(neighbors) == 2:
+            perfect_geometry = AbstractGeometry.from_cg(cg)
+            trans = csm_info["other_symmetry_measures"][f"translation_vector_{csm_suffix}"]
+            rot = csm_info["other_symmetry_measures"][f"rotation_matrix_{csm_suffix}"]
+            scale = csm_info["other_symmetry_measures"][f"scaling_factor_{csm_suffix}"]
+            points = perfect_geometry.points_wcs_ctwcc()
+            rotated_points = rotateCoords(points, rot)
+            points = [scale * pp + trans for pp in rotated_points]
+            ef_points = points[1:] if "wcs" in csm_suffix else points
+            edges = cg.edges(ef_points, input="coords")
+            vis.add_edges(edges, color=[1.0, 0.0, 0.0])
+            for point in points:
+                vis.add_partial_sphere(
+                    coords=point,
+                    radius=perf_radius,
+                    color=[0.0, 0.0, 0.0],
+                    start=0,
+                    end=360,
+                    opacity=1,
+                )
     else:
         if show_distorted:
             if perm is not None:
@@ -135,7 +129,7 @@ def draw_cg(
             else:
                 faces = cg.faces(neighbors)
                 edges = cg.edges(neighbors)
-            symbol = list(site.species.keys())[0].symbol
+            symbol = list(site.species)[0].symbol
             if faces_color_override:
                 mycolor = faces_color_override
             else:
@@ -150,10 +144,7 @@ def draw_cg(
             points = perfect_geometry.points_wcs_ctwcc()
             rotated_points = rotateCoords(points, rot)
             points = [scale * pp + trans for pp in rotated_points]
-            if "wcs" in csm_suffix:
-                ef_points = points[1:]
-            else:
-                ef_points = points
+            ef_points = points[1:] if "wcs" in csm_suffix else points
             edges = cg.edges(ef_points, input="coords")
             vis.add_edges(edges, color=[1.0, 0.0, 0.0])
             for point in points:
@@ -205,26 +196,6 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_colo
     return vis
 
 
-def welcome(chemenv_config):
-    """
-    Show welcome message.
-    :param chemenv_config:
-    :return:
-    """
-    print("Chemical Environment package (ChemEnv)")
-    print(chemenv_citations())
-    print(chemenv_config.package_options_description())
-
-
-def thankyou():
-    """
-    Show thank you message.
-    :return:
-    """
-    print("Thank you for using the ChemEnv package")
-    print(chemenv_citations())
-
-
 def compute_environments(chemenv_configuration):
     """
     Compute the environments.
@@ -256,8 +227,8 @@ def compute_environments(chemenv_configuration):
             test = input(" ... ")
             if test == "q":
                 break
-            if test not in list(questions.keys()):
-                for key_character, qq in questions.items():
+            if test not in list(questions):
+                for qq in questions.values():
                     if re.match(string_sources[qq]["regexp"], str(test)) is not None:
                         found = True
                         source_type = qq
@@ -314,32 +285,28 @@ def compute_environments(chemenv_configuration):
                         if ce is None:
                             continue
                         thecg = allcg.get_geometry_from_mp_symbol(ce[0])
-                        mystring = "Environment for site #{} {} ({}) : {} ({})\n".format(
-                            str(isite),
-                            comp.get_reduced_formula_and_factor()[0],
-                            str(comp),
-                            thecg.name,
-                            ce[0],
+                        mystring = (
+                            f"Environment for site #{isite} {comp.get_reduced_formula_and_factor()[0]}"
+                            f" ({comp}) : {thecg.name} ({ce[0]})\n"
                         )
                     else:
-                        mystring = "Environments for site #{} {} ({}) : \n".format(
-                            str(isite),
-                            comp.get_reduced_formula_and_factor()[0],
-                            str(comp),
+                        mystring = (
+                            f"Environments for site #{isite} {comp.get_reduced_formula_and_factor()[0]} ({comp}) : \n"
                         )
                         for ce in ces:
                             cg = allcg.get_geometry_from_mp_symbol(ce[0])
                             csm = ce[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
-                            mystring += " - {} ({}): {:.2f} % (csm : {:2f})\n".format(
-                                cg.name, cg.mp_symbol, 100.0 * ce[2], csm
-                            )
-                    if test in ["d", "g"] and strategy.uniquely_determines_coordination_environments:
-                        if thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL:
-                            mystring += "  <Continuous symmetry measures>  "
-                            mingeoms = se.ce_list[isite][thecg.coordination_number][0].minimum_geometries()
-                            for mingeom in mingeoms:
-                                csm = mingeom[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
-                                mystring += f"{mingeom[0]} : {csm:.2f}       "
+                            mystring += f" - {cg.name} ({cg.mp_symbol}): {ce[2]:.2%} (csm : {csm:2f})\n"
+                    if (
+                        test in ["d", "g"]
+                        and strategy.uniquely_determines_coordination_environments
+                        and thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL
+                    ):
+                        mystring += "  <Continuous symmetry measures>  "
+                        mingeoms = se.ce_list[isite][thecg.coordination_number][0].minimum_geometries()
+                        for mingeom in mingeoms:
+                            csm = mingeom[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
+                            mystring += f"{mingeom[0]} : {csm:.2f}       "
                     print(mystring)
             if test == "g":
                 while True:
@@ -389,7 +356,7 @@ def compute_environments(chemenv_configuration):
                     firsttime = False
                 vis.set_structure(se.structure)
                 strategy.set_structure_environments(se)
-                for isite, site in enumerate(se.structure):
+                for site in se.structure:
                     try:
                         ces = strategy.get_site_coordination_environments(site)
                     except NeighborsNotComputedChemenvError:
@@ -418,4 +385,4 @@ def compute_environments(chemenv_configuration):
             test = input('Go to next structure ? ("y" to do so) : ')
             if test == "y":
                 break
-        print("")
+        print()

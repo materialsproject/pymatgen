@@ -8,6 +8,8 @@ References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  &
             2) https://doi.org/10.1103/PhysRevLett.108.068701
 """
 
+from __future__ import annotations
+
 import os
 from math import pi
 
@@ -27,7 +29,6 @@ def get_dir_indir_gap(run=""):
     """
     Get direct and indirect bandgaps for a vasprun.xml
     """
-
     v = Vasprun(run)
     bandstructure = v.get_band_structure()
     dir_gap = bandstructure.get_direct_band_gap()
@@ -38,8 +39,10 @@ def get_dir_indir_gap(run=""):
 def matrix_eigvals(matrix):
     """
     Calculate the eigenvalues of a matrix.
+
     Args:
         matrix (np.array): The matrix to diagonalise.
+
     Returns:
         (np.array): Array of the matrix eigenvalues.
     """
@@ -51,6 +54,7 @@ def to_matrix(xx, yy, zz, xy, yz, xz):
     """
     Convert a list of matrix components to a symmetric 3x3 matrix.
     Inputs should be in the order xx, yy, zz, xy, yz, xz.
+
     Args:
         xx (float): xx component of the matrix.
         yy (float): yy component of the matrix.
@@ -58,6 +62,7 @@ def to_matrix(xx, yy, zz, xy, yz, xz):
         xy (float): xy component of the matrix.
         yz (float): yz component of the matrix.
         xz (float): xz component of the matrix.
+
     Returns:
         (np.array): The matrix, as a 3x3 numpy array.
     """
@@ -69,10 +74,12 @@ def parse_dielectric_data(data):
     """
     Convert a set of 2D vasprun formatted dielectric data to
     the eigenvalues of each corresponding 3x3 symmetric numpy matrices.
+
     Args:
         data (list): length N list of dielectric data. Each entry should be
                      a list of ``[xx, yy, zz, xy, xz, yz ]`` dielectric
                      tensor elements.
+
     Returns:
         (np.array):  a Nx3 numpy array. Each row contains the eigenvalues
                      for the corresponding row in `data`.
@@ -84,6 +91,7 @@ def absorption_coefficient(dielectric):
     """
     Calculate the optical absorption coefficient from an input set of
     pymatgen vasprun dielectric constant data.
+
     Args:
         dielectric (list): A list containing the dielectric response function
                            in the pymatgen vasprun format.
@@ -157,7 +165,6 @@ def slme(
         The calculated maximum efficiency.
 
     """
-
     # Defining constants for tidy equations
     c = constants.c  # speed of light, m/s
     h = constants.h  # Planck's constant J*s (W)

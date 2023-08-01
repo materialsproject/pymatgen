@@ -1,20 +1,21 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
 """
 
-from typing import Callable, List, Literal, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Callable, Literal
 
 import numpy as np
 from monty.json import MSONable
 from scipy import stats
-from scipy.ndimage.filters import convolve1d
+from scipy.ndimage import convolve1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
-from pymatgen.util.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
@@ -68,7 +69,7 @@ class Spectrum(MSONable):
             return self.x
         if item == self.YLABEL.lower():
             return self.y
-        raise AttributeError(f"Invalid attribute name {str(item)}")
+        raise AttributeError(f"Invalid attribute name {item!s}")
 
     def __len__(self):
         return self.ydim[0]
@@ -92,7 +93,7 @@ class Spectrum(MSONable):
 
         self.y /= factor / value
 
-    def smear(self, sigma: float = 0.0, func: Union[str, Callable] = "gaussian"):
+    def smear(self, sigma: float = 0.0, func: str | Callable = "gaussian"):
         """
         Apply Gaussian/Lorentzian smearing to spectrum y value.
 
@@ -120,7 +121,7 @@ class Spectrum(MSONable):
             self.y = np.array([convolve1d(self.y[:, k], weights) for k in range(self.ydim[1])]).T
             self.y *= total / np.sum(self.y, axis=0)  # renormalize to maintain the same integrated sum as before.
 
-    def get_interpolated_value(self, x: float) -> List[float]:
+    def get_interpolated_value(self, x: float) -> list[float]:
         """
         Returns an interpolated y value for a particular x value.
 
@@ -214,16 +215,10 @@ class Spectrum(MSONable):
         Returns a string containing values and labels of spectrum object for
         plotting.
         """
-        return "\n".join(
-            [
-                self.__class__.__name__,
-                f"{self.XLABEL}: {self.x}",
-                f"{self.YLABEL}: {self.y}",
-            ]
-        )
+        return f"{type(self).__name__}\n{self.XLABEL}: {self.x}\n{self.YLABEL}: {self.y}"
 
     def __repr__(self):
         """
         Returns a printable representation of the class
         """
-        return self.__str__()
+        return str(self)

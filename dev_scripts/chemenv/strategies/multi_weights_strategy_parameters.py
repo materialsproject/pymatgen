@@ -1,19 +1,12 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Script to visualize the model coordination environments
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
+from __future__ import annotations
 
 import copy
 import json
+from typing import Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -37,10 +30,22 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
+
 allcg = AllCoordinationGeometries()
 
 
 class CoordinationEnvironmentMorphing:
+    """
+    Class to morph a coordination environment into another one.
+    """
+
     def __init__(self, initial_environment_symbol, expected_final_environment_symbol, morphing_description):
         self.initial_environment_symbol = initial_environment_symbol
         self.expected_final_environment_symbol = expected_final_environment_symbol
@@ -50,6 +55,17 @@ class CoordinationEnvironmentMorphing:
 
     @classmethod
     def simple_expansion(cls, initial_environment_symbol, expected_final_environment_symbol, neighbors_indices):
+        """
+        Simple expansion of a coordination environment.
+
+        Args:
+            initial_environment_symbol (str): The initial coordination environment symbol.
+            expected_final_environment_symbol (str): The expected final coordination environment symbol.
+            neighbors_indices (list): The indices of the neighbors to be expanded.
+
+        Returns:
+            CoordinationEnvironmentMorphing
+        """
         morphing_description = [
             {"ineighbor": i_nb, "site_type": "neighbor", "expansion_origin": "central_site"}
             for i_nb in neighbors_indices
@@ -60,7 +76,14 @@ class CoordinationEnvironmentMorphing:
             morphing_description=morphing_description,
         )
 
-    def figure_fractions(self, weights_options, morphing_factors=None):
+    def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] = None) -> None:
+        """
+        Plot the fractions of the initial and final coordination environments as a function of the morphing factor.
+
+        Args:
+            weights_options (dict): The weights options.
+            morphing_factors (list): The morphing factors.
+        """
         if morphing_factors is None:
             morphing_factors = np.linspace(1.0, 2.0, 21)
         # Set up the local geometry finder
@@ -69,7 +92,7 @@ class CoordinationEnvironmentMorphing:
         # Set up the weights for the MultiWeights strategy
         weights = self.get_weights(weights_options)
         # Set up the strategy
-        strat = MultiWeightsChemenvStrategy(
+        strategy = MultiWeightsChemenvStrategy(
             dist_ang_area_weight=weights["DistAngArea"],
             self_csm_weight=weights["SelfCSM"],
             delta_csm_weight=weights["DeltaCSM"],
@@ -88,8 +111,8 @@ class CoordinationEnvironmentMorphing:
             # Get the StructureEnvironments
             lgf.setup_structure(structure=struct)
             se = lgf.compute_structure_environments(only_indices=[0], valences=fake_valences)
-            strat.set_structure_environments(structure_environments=se)
-            result = strat.get_site_coordination_environments_fractions(
+            strategy.set_structure_environments(structure_environments=se)
+            result = strategy.get_site_coordination_environments_fractions(
                 site=se.structure[0], isite=0, return_strategy_dict_info=True, return_all=True
             )
             for res in result:
@@ -126,23 +149,23 @@ class CoordinationEnvironmentMorphing:
 
     def get_structure(self, morphing_factor):
         lattice = Lattice.cubic(5.0)
-        myspecies = ["O"] * (self.coordination_geometry.coordination_number + 1)
-        myspecies[0] = "Cu"
+        species = ["O"] * (self.coordination_geometry.coordination_number + 1)
+        species[0] = "Cu"
 
         coords = copy.deepcopy(self.abstract_geometry.points_wcs_ctwcc())
         bare_points = self.abstract_geometry.bare_points_with_centre
 
         for morphing in self.morphing_description:
             if morphing["site_type"] == "neighbor":
-                isite = morphing["ineighbor"] + 1
+                i_site = morphing["ineighbor"] + 1
                 if morphing["expansion_origin"] == "central_site":
                     origin = bare_points[0]
-                vector = bare_points[isite] - origin
-                coords[isite] += vector * (morphing_factor - 1.0)
+                vector = bare_points[i_site] - origin
+                coords[i_site] += vector * (morphing_factor - 1.0)
             else:
                 raise ValueError(f"Key \"site_type\" is {morphing['site_type']} while it can only be neighbor")
 
-        structure = Structure(lattice=lattice, species=myspecies, coords=coords, coords_are_cartesian=True)
+        structure = Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
         return structure
 
     def estimate_parameters(self, dist_factor_min, dist_factor_max, symmetry_measure_type="csm_wcs_ctwcc"):
@@ -261,11 +284,11 @@ if __name__ == "__main__":
     alldeltacsmmins = []
     all_cn_pairs = []
     for ii in range(1, 14):
-        self_weight_max_csms_per_cn[str(ii)] = list()
+        self_weight_max_csms_per_cn[str(ii)] = []
         for jj in range(ii + 1, 14):
             cn_pair = f"{ii:d}_{jj:d}"
-            self_weight_max_csms[cn_pair] = list()
-            delta_csm_mins[cn_pair] = list()
+            self_weight_max_csms[cn_pair] = []
+            delta_csm_mins[cn_pair] = []
             all_cn_pairs.append(cn_pair)
     for ce_pair_dict in ce_pairs:
         ce1 = ce_pair_dict["initial_environment_symbol"]

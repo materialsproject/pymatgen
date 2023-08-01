@@ -1,13 +1,12 @@
+# cython: language_level=3
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: nonecheck=False
 # cython: cdivision=False
 # cython: profile=True
-# cython: language_level=3
 # distutils: language = c
-# distutils: define_macros=NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION
 
-from __future__ import print_function
+# isort: dont-add-imports
 
 import numpy as np
 
@@ -23,7 +22,7 @@ cdef void *safe_malloc(size_t size) except? NULL:
         return NULL
     cdef void *ptr = malloc(size)
     if ptr == NULL:
-        raise MemoryError("Memory allocation of %s bytes failed!" % size)
+        raise MemoryError(f"Memory allocation of {size} bytes failed!")
     return ptr
 
 
@@ -34,16 +33,16 @@ cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
         return NULL
     cdef void *ptr = realloc(ptr_orig, size)
     if ptr == NULL:
-        raise MemoryError("Realloc memory of %s bytes failed!" % size)
+        raise MemoryError(f"Realloc memory of {size} bytes failed!")
     return ptr
 
 
 def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords,
-                           float r, long[:] pbc, double[:, ::1] lattice,
+                           float r, object pbc, double[:, ::1] lattice,
                            double tol=1e-8, float min_r=1.0):
     """
     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
-    cutoff radius `r`. All the coordinates should be in cartesian.
+    cutoff radius `r`. All the coordinates should be in Cartesian.
 
     Args:
         all_coords: (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,
@@ -69,6 +68,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
         return findex1[mask], findex2[mask], foffset_vectors[mask], fdistances[
             mask]
 
+    cdef long[:] pbc_int = np.array(pbc, dtype=long)  # convert bool to int
     cdef int i, j, k, l, m, n
     cdef double maxr[3]
     # valid boundary, that is the minimum in center_coords - r
@@ -99,7 +99,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     get_frac_coords(lattice, all_coords, offset_correction)
     for i in range(n_total):
         for j in range(3):
-            if pbc[j]:
+            if pbc_int[j]:
                 # only wrap atoms when this dimension is PBC
                 all_fcoords[i, j] = offset_correction[i, j] % 1
                 offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
@@ -109,7 +109,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     get_max_r(lattice, maxr, r)
     # Get fractional coordinates of center points
     get_frac_coords(lattice, center_coords, frac_coords)
-    get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
+    get_bounds(frac_coords, maxr, pbc_int, max_bounds, min_bounds)
     for i in range(3):
         nlattice *= (max_bounds[i] - min_bounds[i])
     matmul(all_fcoords, lattice, coords_in_cell)
@@ -204,7 +204,6 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     cdef long *index_2 = <long*> safe_malloc(n*sizeof(long))
     cdef double *offset_final = <double*> safe_malloc(3*n*sizeof(double))
     cdef double *distances = <double*> safe_malloc(n*sizeof(double))
-    cdef long[:] ncube_indices_map
     cdef long cube_index_temp
     cdef long link_index
     cdef double d_temp2
@@ -499,10 +498,8 @@ cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d
 
 def compute_offset_vectors(long n):
     cdef long i, j, k
-    cdef long v[3]
     cdef double center[8][3] # center vertices coords
     cdef int ind
-    cdef bint is_within
     cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
     cdef long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
     cdef long count = 0
@@ -514,7 +511,7 @@ def compute_offset_vectors(long n):
                 center[ind][1] = j - 0.5
                 center[ind][2] = k - 0.5
 
-    cdef double off[8][3] # offseted vertices
+    cdef double off[8][3] # offsetted vertices
     for i in range(-n, n + 1):
         for j in range(-n, n + 1):
             for k in range(-n, n + 1):
@@ -541,12 +538,12 @@ cdef bint distance_vertices(double center[8][3], double off[8][3], double r):
                 return 1
     return 0
 
-cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offseted)[8][3]):
+cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offsetted)[8][3]):
     cdef int i, j, k
     for i in range(2):
         for j in range(2):
             for k in range(2):
                 ind = i * 4 + j * 2 + k
-                offseted[ind][0] = center[ind][0] + n
-                offseted[ind][1] = center[ind][1] + m
-                offseted[ind][2] = center[ind][2] + l
+                offsetted[ind][0] = center[ind][0] + n
+                offsetted[ind][1] = center[ind][1] + m
+                offsetted[ind][2] = center[ind][2] + l

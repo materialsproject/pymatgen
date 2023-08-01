@@ -1,56 +1,67 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+# pylint: disable=C0414,W0718,C0301
 
-"""
-This package contains core modules and classes for representing structures and
-operations on them.
-"""
+"""This package contains core modules and classes for representing structures and operations on them."""
+
+from __future__ import annotations
 
 import os
 import warnings
+from typing import Any
 
 from ruamel.yaml import YAML
 
-from .composition import Composition
-from .lattice import Lattice
-from .operations import SymmOp
-from .periodic_table import DummySpecies, Element, Species
-from .sites import PeriodicSite, Site
-from .structure import IMolecule, IStructure, Molecule, Structure
-from .units import ArrayWithUnit, FloatWithUnit, Unit
+from pymatgen.core.composition import Composition as Composition
+from pymatgen.core.lattice import Lattice as Lattice
+from pymatgen.core.operations import SymmOp as SymmOp
+from pymatgen.core.periodic_table import DummySpecies as DummySpecies
+from pymatgen.core.periodic_table import Element as Element
+from pymatgen.core.periodic_table import Species as Species
+from pymatgen.core.sites import PeriodicSite as PeriodicSite
+from pymatgen.core.sites import Site as Site
+from pymatgen.core.structure import IMolecule as IMolecule
+from pymatgen.core.structure import IStructure as IStructure
+from pymatgen.core.structure import Molecule as Molecule
+from pymatgen.core.structure import Structure as Structure
+from pymatgen.core.units import ArrayWithUnit as ArrayWithUnit
+from pymatgen.core.units import FloatWithUnit as FloatWithUnit
+from pymatgen.core.units import Unit as Unit
 
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
-__maintainer__ = "Shyue Ping Ong"
+__maintainer__ = "Shyue Ping Ong, Matthew Horton, Janosh Riebesell"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2022.2.10"
+__version__ = "2023.5.10"
 
 
-SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
+SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")
+OLD_SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
 
-def _load_pmg_settings():
-    # Load environment variables by default as backup
-    d = {}
-    for k, v in os.environ.items():
-        if k.startswith("PMG_"):
-            d[k] = v
-        elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
-            d["PMG_" + k] = v
+def _load_pmg_settings() -> dict[str, Any]:
+    settings: dict[str, Any] = {}
 
-    # Override anything in env vars with that in yml file
-    if os.path.exists(SETTINGS_FILE):
+    # Load .pmgrc.yaml file
+    yaml = YAML()
+    for file_path in (SETTINGS_FILE, OLD_SETTINGS_FILE):
         try:
-            yaml = YAML()
-            with open(SETTINGS_FILE) as f:
-                d_yml = yaml.load(f)
-            d.update(d_yml)
-        except Exception as ex:
+            with open(file_path, encoding="utf-8") as yml_file:
+                settings = yaml.load(yml_file) or {}
+            break
+        except FileNotFoundError:
+            continue
+        except Exception as exc:
             # If there are any errors, default to using environment variables
             # if present.
-            warnings.warn(f"Error loading .pmgrc.yaml: {ex}. You may need to reconfigure your yaml file.")
+            warnings.warn(f"Error loading {file_path}: {exc}.\nYou may need to reconfigure your yaml file.")
 
-    return d
+    # Override .pmgrc.yaml with env vars (if present)
+    for key, val in os.environ.items():
+        if key.startswith("PMG_"):
+            settings[key] = val
+        elif key in ("VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"):
+            settings[f"PMG_{key}"] = val
+
+    return settings
 
 
 SETTINGS = _load_pmg_settings()

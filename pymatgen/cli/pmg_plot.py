@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 
 """
 Implementation for `pmg plot` CLI.
 """
 
+
+from __future__ import annotations
 
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.structure import Structure
@@ -31,14 +31,14 @@ def get_dos_plot(args):
 
     if args.site:
         for i, site in enumerate(structure):
-            all_dos["Site " + str(i) + " " + site.specie.symbol] = dos.get_site_dos(site)
+            all_dos[f"Site {i} {site.specie.symbol}"] = dos.get_site_dos(site)
 
     if args.element:
         syms = [tok.strip() for tok in args.element[0].split(",")]
         all_dos = {}
-        for el, dos in dos.get_element_dos().items():
+        for el, el_dos in dos.get_element_dos().items():
             if el.symbol in syms:
-                all_dos[el] = dos
+                all_dos[el] = el_dos
     if args.orbital:
         all_dos = dos.get_spd_dos()
 
@@ -84,9 +84,9 @@ def get_xrd_plot(args):
     Args:
         args (dict): Args from argparse
     """
-    s = Structure.from_file(args.xrd_structure_file)
+    struct = Structure.from_file(args.xrd_structure_file)
     c = XRDCalculator()
-    return c.get_plot(s)
+    return c.get_plot(struct)
 
 
 def plot(args):

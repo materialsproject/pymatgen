@@ -1,14 +1,13 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Provides classes for generating high-symmetry k-paths using different conventions.
 """
 
+from __future__ import annotations
+
 import abc
 import itertools
-import operator
 from math import ceil, cos, e, pi, sin, tan
+from typing import TYPE_CHECKING, Any
 from warnings import warn
 
 import networkx as nx
@@ -22,9 +21,13 @@ from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 try:
-    from seekpath import get_path  # type: ignore
+    from seekpath import get_path
 except ImportError:
     get_path = None
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
+    from pymatgen.util.typing import SpeciesLike
 
 __author__ = "Geoffroy Hautier, Katherine Latimer, Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -42,21 +45,21 @@ class KPathBase(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         """
         Args:
-        structure (Structure): Structure object
-        symprec (float): Tolerance for symmetry finding
+        structure (Structure): Structure object.
+        symprec (float): Tolerance for symmetry finding.
         angle_tolerance (float): Angle tolerance for symmetry finding.
         atol (float): Absolute tolerance used to compare structures
-            and determine symmetric equivalence of points and lines
-            in the BZ.
+            and determine symmetric equivalence of points and lines in the BZ.
+        *args: Other arguments supported by subclasses.
+        **kwargs: Other keyword arguments supported by subclasses.
         """
-
         self._structure = structure
         self._latt = self._structure.lattice
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
-        self._kpath = None
+        self._kpath: dict[str, Any] | None = None
 
         self._symprec = symprec
         self._atol = atol
@@ -97,8 +100,8 @@ class KPathBase(metaclass=abc.ABCMeta):
     def get_kpoints(self, line_density=20, coords_are_cartesian=True):
         """
         Returns:
-        the kpoints along the paths in cartesian coordinates
-        together with the labels for symmetry points -Wei.
+        kpoints along the path in Cartesian coordinates
+        together with the critical-point labels.
         """
         list_k_points = []
         sym_point_labels = []
@@ -131,34 +134,34 @@ class KPathBase(metaclass=abc.ABCMeta):
 
 class KPathSetyawanCurtarolo(KPathBase):
     """
-    This class looks for path along high symmetry lines in
-    the Brillouin Zone.
+    This class looks for a path along high-symmetry lines in
+    the Brillouin zone.
     It is based on Setyawan, W., & Curtarolo, S. (2010).
     High-throughput electronic band structure calculations:
     Challenges and tools. Computational Materials Science,
     49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
     It should be used with primitive structures that
-    comply with the definition from the paper.
-    The symmetry is determined by spglib through the
+    comply with the definition given in the paper.
+    The symmetry is determined by spglib using the
     SpacegroupAnalyzer class. The analyzer can be used to
-    produce the correct primitive structure (method
-    get_primitive_standard_structure(international_monoclinic=False)).
+    produce the correct primitive structure with the method
+    get_primitive_standard_structure(international_monoclinic=False).
     A warning will signal possible compatibility problems
-    with the given structure. KPoints from get_kpoints() method
-    are returned in the reciprocal cell basis defined in the paper.
+    with the given structure. k-points generated using the get_kpoints() method
+    are returned for the reciprocal cell basis defined in the paper.
     """
 
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5):
         """
         Args:
-        structure (Structure): Structure object
-        symprec (float): Tolerance for symmetry finding
+        structure (Structure): Structure object.
+        symprec (float): Tolerance for symmetry finding.
         angle_tolerance (float): Angle tolerance for symmetry finding.
         atol (float): Absolute tolerance used to compare the input
             structure with the one expected as primitive standard.
-            A warning will be issued if the lattices don't match.
+            A warning will be issued if the cells don't match.
         """
-        if "magmom" in structure.site_properties.keys():
+        if "magmom" in structure.site_properties:
             warn(
                 "'magmom' entry found in site properties but will be ignored \
                   for the Setyawan and Curtarolo convention."
@@ -172,12 +175,12 @@ class KPathSetyawanCurtarolo(KPathBase):
         self._rec_lattice = self._prim.lattice.reciprocal_lattice
 
         # Note: this warning will be issued for space groups 38-41, since the primitive cell must be
-        # reformatted to match Setyawan/Curtarolo convention in order to work with the current k-path
+        # reformatted to match the Setyawan/Curtarolo convention in order to work with the current k-path
         # generation scheme.
         if not np.allclose(self._structure.lattice.matrix, self._prim.lattice.matrix, atol=atol):
             warn(
                 "The input structure does not match the expected standard primitive! "
-                "The path can be incorrect. Use at your own risk."
+                "The path may be incorrect. Use at your own risk."
             )
 
         lattice_type = self._sym.get_lattice_type()
@@ -606,8 +609,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "A": np.array([0.0, 0.0, 0.5]),
-            "H": np.array([1.0 / 3.0, 1.0 / 3.0, 0.5]),
-            "K": np.array([1.0 / 3.0, 1.0 / 3.0, 0.0]),
+            "H": np.array([1 / 3, 1 / 3, 0.5]),
+            "K": np.array([1 / 3, 1 / 3, 0.0]),
             "L": np.array([0.5, 0.0, 0.5]),
             "M": np.array([0.5, 0.0, 0.0]),
         }
@@ -624,18 +627,18 @@ class KPathSetyawanCurtarolo(KPathBase):
         """
         self.name = "RHL1"
         eta = (1 + 4 * cos(alpha)) / (2 + 4 * cos(alpha))
-        nu = 3.0 / 4.0 - eta / 2.0
+        nu = 3 / 4 - eta / 2.0
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
-            "B": np.array([eta, 0.5, 1.0 - eta]),
-            "B_1": np.array([1.0 / 2.0, 1.0 - eta, eta - 1.0]),
+            "B": np.array([eta, 0.5, 1 - eta]),
+            "B_1": np.array([1 / 2.0, 1 - eta, eta - 1.0]),
             "F": np.array([0.5, 0.5, 0.0]),
             "L": np.array([0.5, 0.0, 0.0]),
             "L_1": np.array([0.0, 0.0, -0.5]),
             "P": np.array([eta, nu, nu]),
-            "P_1": np.array([1.0 - nu, 1.0 - nu, 1.0 - eta]),
+            "P_1": np.array([1 - nu, 1 - nu, 1 - eta]),
             "P_2": np.array([nu, nu, eta - 1.0]),
-            "Q": np.array([1.0 - nu, nu, 0.0]),
+            "Q": np.array([1 - nu, nu, 0.0]),
             "X": np.array([nu, 0.0, -nu]),
             "Z": np.array([0.5, 0.5, 0.5]),
         }
@@ -653,7 +656,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         """
         self.name = "RHL2"
         eta = 1 / (2 * tan(alpha / 2.0) ** 2)
-        nu = 3.0 / 4.0 - eta / 2.0
+        nu = 3 / 4 - eta / 2.0
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
             "F": np.array([0.5, -0.5, 0.0]),
@@ -661,7 +664,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             "P": np.array([1 - nu, -nu, 1 - nu]),
             "P_1": np.array([nu, nu - 1.0, nu - 1.0]),
             "Q": np.array([eta, eta, eta]),
-            "Q_1": np.array([1.0 - eta, -eta, -eta]),
+            "Q_1": np.array([1 - eta, -eta, -eta]),
             "Z": np.array([0.5, -0.5, 0.5]),
         }
         path = [["\\Gamma", "P", "Z", "Q", "\\Gamma", "F", "P_1", "Q_1", "L", "Z"]]
@@ -681,10 +684,10 @@ class KPathSetyawanCurtarolo(KPathBase):
             "D": np.array([0.5, 0.0, 0.5]),
             "D_1": np.array([0.5, 0.5, -0.5]),
             "E": np.array([0.5, 0.5, 0.5]),
-            "H": np.array([0.0, eta, 1.0 - nu]),
-            "H_1": np.array([0.0, 1.0 - eta, nu]),
+            "H": np.array([0.0, eta, 1 - nu]),
+            "H_1": np.array([0.0, 1 - eta, nu]),
             "H_2": np.array([0.0, eta, -nu]),
-            "M": np.array([0.5, eta, 1.0 - nu]),
+            "M": np.array([0.5, eta, 1 - nu]),
             "M_1": np.array([0.5, 1 - eta, nu]),
             "M_2": np.array([0.5, 1 - eta, nu]),
             "X": np.array([0.0, 0.5, 0.0]),
@@ -934,24 +937,20 @@ class KPathSetyawanCurtarolo(KPathBase):
 
 class KPathSeek(KPathBase):
     """
-    This class looks for path along high symmetry lines in
-    the Brillouin Zone.
-    It is based on Hinuma, Y., Pizzi, G., Kumagai, Y., Oba, F.,
-    & Tanaka, I. (2017). Band structure diagram paths based on
-    crystallography. Computational Materials Science, 128, 140–184.
-    https://doi.org/10.1016/j.commatsci.2016.10.015
-    It should be used with primitive structures that
-    comply with the definition from the paper.
-    The symmetry is determined by spglib through the
-    SpacegroupAnalyzer class. KPoints from get_kpoints() method
-    are returned in the reciprocal cell basis defined in the paper.
+    This class looks for a path along high-symmetry lines in the Brillouin zone. It is based on
+    Hinuma, Y., Pizzi, G., Kumagai, Y., Oba, F., & Tanaka, I. (2017). Band structure diagram paths
+    based on crystallography. Computational Materials Science, 128, 140-184.
+    https://doi.org/10.1016/j.commatsci.2016.10.015. It should be used with primitive structures that
+    comply with the definition given in the paper. The symmetry is determined by spglib using the
+    SpacegroupAnalyzer class. k-points are generated using the get_kpoints() method for the
+    reciprocal cell basis defined in the paper.
     """
 
     @requires(
         get_path is not None,
-        "SeeK-path is required to use the convention by Hinuma et al.",
+        "SeeK-path needs to be installed to use the convention of Hinuma et al. (2015)",
     )
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
+    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
         """
         Args:
             structure (Structure): Structure object
@@ -959,10 +958,9 @@ class KPathSeek(KPathBase):
             angle_tolerance (float): Angle tolerance for symmetry finding.
             atol (float): Absolute tolerance used to determine edge cases
                 for settings of structures.
-            system_is_tri (boolean): Indicates if the system is time-reversal
+            system_is_tri (bool): Indicates if the system is time-reversal
                 invariant.
         """
-
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
         positions = structure.frac_coords
@@ -973,18 +971,18 @@ class KPathSeek(KPathBase):
 
         if not system_is_tri:
             warn("Non-zero 'magmom' data will be used to define unique atoms in the cell.")
-            site_data = zip(species, [tuple(vec) for vec in sp["magmom"]])
+            site_data = zip(species, [tuple(vec) for vec in sp["magmom"]])  # type: ignore
 
-        unique_species = []
+        unique_species: list[SpeciesLike] = []
         numbers = []
 
-        for species, g in itertools.groupby(site_data):
+        for species, group in itertools.groupby(site_data):
             if species in unique_species:
                 ind = unique_species.index(species)
-                numbers.extend([ind + 1] * len(tuple(g)))
+                numbers.extend([ind + 1] * len(tuple(group)))
             else:
                 unique_species.append(species)
-                numbers.extend([len(unique_species)] * len(tuple(g)))
+                numbers.extend([len(unique_species)] * len(tuple(group)))
 
         cell = (self._latt.matrix, positions, numbers)
 
@@ -1018,7 +1016,6 @@ class KPathSeek(KPathBase):
 
     @staticmethod
     def _trans_sc_to_Hin(sub_class):
-
         if sub_class in [
             "cP1",
             "cP2",
@@ -1061,12 +1058,10 @@ class KPathSeek(KPathBase):
 
 class KPathLatimerMunro(KPathBase):
     """
-    This class looks for a path along high symmetry lines in the
+    This class looks for a path along high-symmetry lines in the
     Brillouin zone. It is based on the method outlined in:
-
     npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
-
-    The user should ensure that the lattice of the input structure
+    The user should ensure that the unit cell of the input structure
     is as reduced as possible, i.e. that there is no linear
     combination of lattice vectors which can produce a vector of
     lesser magnitude than the given set (this is required to
@@ -1076,9 +1071,9 @@ class KPathLatimerMunro(KPathBase):
     In the case of magnetic structures, care must also be taken to
     provide the magnetic primitive cell (i.e. that which reproduces
     the entire crystal, including the correct magnetic ordering,
-    upon application of lattice translations). There is no way to
-    programmatically check for this, so if the input structure is
-    incorrect, the class will output the incorrect kpath without
+    upon application of lattice translations). There is no algorithm to
+        check for this, so if the input structure is
+    incorrect, the class will output the incorrect k-path without
     any warning being issued.
     """
 
@@ -1094,7 +1089,7 @@ class KPathLatimerMunro(KPathBase):
         """
         Args:
             structure (Structure): Structure object
-            has_magmoms (boolean): Whether the input structure contains
+            has_magmoms (bool): Whether the input structure contains
                 magnetic moments as site properties with the key 'magmom.'
                 Values may be in the form of 3-component vectors given in
                 the basis of the input lattice vectors, or as scalars, in
@@ -1107,11 +1102,11 @@ class KPathLatimerMunro(KPathBase):
             symprec (float): Tolerance for symmetry finding
             angle_tolerance (float): Angle tolerance for symmetry finding.
             atol (float): Absolute tolerance used to determine symmetric
-                equivalence of points and lines on the BZ.
+                equivalence of points and lines in the BZ.
         """
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
-        # Check to see if input lattice is reducible. Ref: B Gruber in Acta. Cryst. Vol. A29,
+        # Check to see if input cell is reducible. Ref: B Gruber in Acta. Cryst. Vol. A29,
         # pp. 433-440 ('The Relationship between Reduced Cells in a General Bravais lattice').
         # The correct BZ will still be obtained if the lattice vectors are reducible by any
         # linear combination of themselves with coefficients of absolute value less than 2,
@@ -1135,8 +1130,8 @@ class KPathLatimerMunro(KPathBase):
         if np.any(reducible):
             print("reducible")
             warn(
-                "The lattice of the input structure is not fully reduced!"
-                "The path can be incorrect. Use at your own risk."
+                "The unit cell of the input structure is not fully reduced!"
+                "The path may be incorrect. Use at your own risk."
             )
 
         if magmom_axis is None:
@@ -1167,8 +1162,8 @@ class KPathLatimerMunro(KPathBase):
         # 1: Get lattices of real and reciprocal structures, and reciprocal
         # point group, and Brillouin zone (BZ)
 
-        V = self._latt.matrix.T  # fractional real space to cartesian real space
-        # fractional reciprocal space to cartesian reciprocal space
+        V = self._latt.matrix.T  # fractional real space to Cartesian real space
+        # fractional reciprocal space to Cartesian reciprocal space
         W = self._rec_lattice.matrix.T
         # fractional real space to fractional reciprocal space
         A = np.dot(np.linalg.inv(W), V)
@@ -1240,16 +1235,16 @@ class KPathLatimerMunro(KPathBase):
 
         # 3: Find symmetry-equivalent points, which can be mapped to each other by a combination of point group
         # operations and integer translations by lattice vectors. The integers will only be -1, 0, or 1, since
-        # we are restricting to the BZ.
+        # we are restricted to the BZ.
 
         key_points_inds_orbits = self._get_key_point_orbits(key_points=key_points)
 
-        # 4: Get all lines on BZ between adjacent key points and between gamma
+        # 4: Get all lines in BZ between adjacent key points and between gamma
         # and key points ("key lines")
 
         key_lines = self._get_key_lines(key_points=key_points, bz_as_key_point_inds=bz_as_key_point_inds)
 
-        # 5: Find symmetry-equivalent key lines, defined as endpoints of first line being equivalent
+        # 5: Find symmetry-equivalent key lines, defined as end points of first line being equivalent
         # to end points of second line, and a random point in between being equivalent to the mapped
         # random point.
 
@@ -1283,9 +1278,9 @@ class KPathLatimerMunro(KPathBase):
             little_groups_lines=little_groups_lines,
         )
 
-        # 10: Consolidate selected segments into a single irreducible section of the Brilouin zone (as determined
+        # 10: Consolidate selected segments into a single irreducible section of the BZ (as determined
         # by the reciprocal point and lattice symmetries). This is accomplished by identifying the boundary
-        # planes of the IRBZ. Also, get labels for points according to distance away from axes.
+        # planes of the IRBZ. Also, get labels for points according to distance from axes.
 
         IRBZ_points_inds = self._get_IRBZ(recip_point_group, W, key_points, face_center_inds, atol)
         lines_in_path_inds = []
@@ -1300,27 +1295,22 @@ class KPathLatimerMunro(KPathBase):
         points_in_path_inds_unique = list(set(points_in_path_inds))
 
         orbit_cosines = []
-        for i, orbit in enumerate(key_points_inds_orbits[:-1]):
-
+        for orbit in key_points_inds_orbits[:-1]:
             orbit_cosines.append(
                 sorted(
-                    sorted(
+                    (
                         (
-                            (
-                                j,
-                                np.round(
-                                    np.dot(key_points[k], self.LabelPoints(j))
-                                    / (np.linalg.norm(key_points[k]) * np.linalg.norm(self.LabelPoints(j))),
-                                    decimals=3,
-                                ),
-                            )
-                            for k in orbit
-                            for j in range(26)
-                        ),
-                        key=operator.itemgetter(0),
+                            j,
+                            np.round(
+                                np.dot(key_points[k], self.LabelPoints(j))
+                                / (np.linalg.norm(key_points[k]) * np.linalg.norm(self.LabelPoints(j))),
+                                decimals=3,
+                            ),
+                        )
+                        for k in orbit
+                        for j in range(26)
                     ),
-                    key=operator.itemgetter(1),
-                    reverse=True,
+                    key=lambda x: (-x[1], x[0]),
                 )
             )
 
@@ -1334,20 +1324,19 @@ class KPathLatimerMunro(KPathBase):
         reverse_kpoints = {}
         for point_ind in points_in_path_inds_unique:
             point_label = key_points_labels[point_ind]
-            if point_label not in kpoints.keys():
+            if point_label not in kpoints:
                 kpoints[point_label] = key_points[point_ind]
                 reverse_kpoints[point_ind] = point_label
             else:
-                existing_labels = [key for key in kpoints.keys() if point_label in key]
+                existing_labels = [key for key in kpoints if point_label in key]
                 if "'" not in point_label:
                     existing_labels[:] = [label for label in existing_labels if "'" not in label]
                 if len(existing_labels) == 1:
                     max_occurence = 0
+                elif "'" not in point_label:
+                    max_occurence = max(int(label[3:-1]) for label in existing_labels[1:])
                 else:
-                    if "'" not in point_label:
-                        max_occurence = max(int(label[3:-1]) for label in existing_labels[1:])
-                    else:
-                        max_occurence = max(int(label[4:-1]) for label in existing_labels[1:])
+                    max_occurence = max(int(label[4:-1]) for label in existing_labels[1:])
                 kpoints[point_label + "_{" + str(max_occurence + 1) + "}"] = key_points[point_ind]
                 reverse_kpoints[point_ind] = point_label + "_{" + str(max_occurence + 1) + "}"
 
@@ -1391,12 +1380,12 @@ class KPathLatimerMunro(KPathBase):
 
         line_orbits_in_path = []
         point_orbits_in_path = []
-        for (i, little_group) in enumerate(little_groups_lines):
+        for i, little_group in enumerate(little_groups_lines):
             add_rep = False
             nC2 = 0
             nC3 = 0
             nsig = 0
-            for j, opind in enumerate(little_group):
+            for opind in little_group:
                 op = self._rpg[opind]
                 if not (op == ID).all():
                     if (np.dot(op, op) == ID).all():
@@ -1414,12 +1403,12 @@ class KPathLatimerMunro(KPathBase):
 
             if add_rep:
                 line_orbits_in_path.append(i)
-                l = key_lines_inds_orbits[i][0]
-                ind0 = l[0]
-                ind1 = l[1]
+                line = key_lines_inds_orbits[i][0]
+                ind0 = line[0]
+                ind1 = line[1]
                 found0 = False
                 found1 = False
-                for (j, orbit) in enumerate(key_points_inds_orbits):
+                for j, orbit in enumerate(key_points_inds_orbits):
                     if ind0 in orbit:
                         point_orbits_in_path.append(j)
                         found0 = True
@@ -1457,9 +1446,9 @@ class KPathLatimerMunro(KPathBase):
                 else:
                     pass
             if connect:
-                l = (key_points_inds_orbits[ind][0], gamma_ind)
-                for (j, orbit) in enumerate(key_lines_inds_orbits):
-                    if l in orbit:
+                line = (key_points_inds_orbits[ind][0], gamma_ind)
+                for j, orbit in enumerate(key_lines_inds_orbits):
+                    if line in orbit:
                         line_orbits_in_path.append(j)
                         break
                 if gamma_ind not in point_orbits_in_path:
@@ -1476,10 +1465,10 @@ class KPathLatimerMunro(KPathBase):
         face_center_inds = []
         bz_as_key_point_inds = []
 
-        # pymatgen gives BZ in cartesian coordinates; convert to fractional in
+        # pymatgen gives BZ in Cartesian coordinates; convert to fractional in
         # the primitive basis for reciprocal space
-        for (i, facet) in enumerate(bz):
-            for (j, vert) in enumerate(facet):
+        for i, facet in enumerate(bz):
+            for j, vert in enumerate(facet):
                 vert = self._rec_lattice.get_fractional_coords(vert)
                 bz[i][j] = vert
         pop = []
@@ -1493,18 +1482,18 @@ class KPathLatimerMunro(KPathBase):
         bz = [bz[i] for i in range(len(bz)) if i not in pop]
 
         # use vertex points to calculate edge- and face- centers
-        for (i, facet) in enumerate(bz):
+        for i, facet in enumerate(bz):
             bz_as_key_point_inds.append([])
-            for (j, vert) in enumerate(facet):
-                edge_center = (vert + facet[j + 1]) / 2.0 if j != len(facet) - 1 else (vert + facet[0]) / 2.0
+            for j, vert in enumerate(facet):
+                edge_center = (vert + facet[j + 1]) / 2 if j != len(facet) - 1 else (vert + facet[0]) / 2.0
                 duplicatevert = False
                 duplicateedge = False
-                for (k, point) in enumerate(key_points):
+                for k, point in enumerate(key_points):
                     if np.allclose(vert, point, atol=self._atol):
                         bz_as_key_point_inds[i].append(k)
                         duplicatevert = True
                         break
-                for (k, point) in enumerate(key_points):
+                for k, point in enumerate(key_points):
                     if np.allclose(edge_center, point, atol=self._atol):
                         bz_as_key_point_inds[i].append(k)
                         duplicateedge = True
@@ -1532,14 +1521,14 @@ class KPathLatimerMunro(KPathBase):
 
     def _get_key_point_orbits(self, key_points):
         key_points_copy = dict(zip(range(len(key_points) - 1), key_points[0 : len(key_points) - 1]))
-        # gamma not equivalent to any on BZ and is last point added to
+        # gamma not equivalent to any in BZ and is last point added to
         # key_points
         key_points_inds_orbits = []
 
         i = 0
         while len(key_points_copy) > 0:
             key_points_inds_orbits.append([])
-            k0ind = list(key_points_copy.keys())[0]
+            k0ind = list(key_points_copy)[0]
             k0 = key_points_copy[k0ind]
             key_points_inds_orbits[i].append(k0ind)
             key_points_copy.pop(k0ind)
@@ -1566,12 +1555,12 @@ class KPathLatimerMunro(KPathBase):
         key_lines = []
         gamma_ind = len(key_points) - 1
 
-        for (i, facet_as_key_point_inds) in enumerate(bz_as_key_point_inds):
+        for facet_as_key_point_inds in bz_as_key_point_inds:
             facet_as_key_point_inds_bndy = facet_as_key_point_inds[: len(facet_as_key_point_inds) - 1]
             # not the face center point (don't need to check it since it's not
             # shared with other facets)
             face_center_ind = facet_as_key_point_inds[-1]
-            for (j, ind) in enumerate(facet_as_key_point_inds_bndy):
+            for j, ind in enumerate(facet_as_key_point_inds_bndy):
                 if (
                     min(ind, facet_as_key_point_inds_bndy[j - 1]),
                     max(ind, facet_as_key_point_inds_bndy[j - 1]),
@@ -1607,7 +1596,7 @@ class KPathLatimerMunro(KPathBase):
         i = 0
         while len(key_lines_copy) > 0:
             key_lines_inds_orbits.append([])
-            l0ind = list(key_lines_copy.keys())[0]
+            l0ind = list(key_lines_copy)[0]
             l0 = key_lines_copy[l0ind]
             key_lines_inds_orbits[i].append(l0)
             key_lines_copy.pop(l0ind)
@@ -1616,7 +1605,6 @@ class KPathLatimerMunro(KPathBase):
             p01 = key_points[l0[1]]
             pmid0 = p00 + e / pi * (p01 - p00)
             for ind_key in key_lines_copy:
-
                 l1 = key_lines_copy[ind_key]
                 p10 = key_points[l1[0]]
                 p11 = key_points[l1[1]]
@@ -1674,14 +1662,13 @@ class KPathLatimerMunro(KPathBase):
         return key_lines_inds_orbits
 
     def _get_little_groups(self, key_points, key_points_inds_orbits, key_lines_inds_orbits):
-
         little_groups_points = []  # elements are lists of indices of recip_point_group. the
         # list little_groups_points[i] is the little group for the
         # orbit key_points_inds_orbits[i]
-        for (i, orbit) in enumerate(key_points_inds_orbits):
+        for i, orbit in enumerate(key_points_inds_orbits):
             k0 = key_points[orbit[0]]
             little_groups_points.append([])
-            for (j, op) in enumerate(self._rpg):
+            for j, op in enumerate(self._rpg):
                 gamma_to = np.dot(op, -1 * k0) + k0
                 check_gamma = True
                 if not self._all_ints(gamma_to, atol=self._atol):
@@ -1694,12 +1681,12 @@ class KPathLatimerMunro(KPathBase):
         little_groups_lines = []
         # the little group for the orbit key_points_inds_lines[i]
 
-        for (i, orbit) in enumerate(key_lines_inds_orbits):
+        for i, orbit in enumerate(key_lines_inds_orbits):
             l0 = orbit[0]
             v = key_points[l0[1]] - key_points[l0[0]]
             k0 = key_points[l0[0]] + np.e / pi * v
             little_groups_lines.append([])
-            for (j, op) in enumerate(self._rpg):
+            for j, op in enumerate(self._rpg):
                 gamma_to = np.dot(op, -1 * k0) + k0
                 check_gamma = True
                 if not self._all_ints(gamma_to, atol=self._atol):
@@ -1821,8 +1808,8 @@ class KPathLatimerMunro(KPathBase):
 
         if len(pos1) != len(pos2):
             return False
-        for i, v in enumerate(pos1):
-            if abs(pos1[i] - pos2[i]) > tolerance[i] and abs(pos1[i] - pos2[i]) < 1.0 - tolerance[i]:
+        for idx, p1 in enumerate(pos1):
+            if abs(p1 - pos2[idx]) > tolerance[idx] and abs(p1 - pos2[idx]) < 1 - tolerance[idx]:
                 return False
         return True
 
@@ -1831,7 +1818,7 @@ class KPathLatimerMunro(KPathBase):
         # in this implementation, G and H are lists of objects of type
         # SymmOp
         gH = []
-        for i, op1 in enumerate(G):
+        for op1 in G:
             in_H = False
             for op2 in H:
                 if np.allclose(op1.rotation_matrix, op2.rotation_matrix, atol=self._atol) and self._closewrapped(
@@ -1845,7 +1832,7 @@ class KPathLatimerMunro(KPathBase):
                 gH.append(op1)
 
         for op in gH:
-            opH = [op.__mul__(h) for h in H]
+            opH = [op * h for h in H]
             is_coset_factor = True
             for op1 in opH:
                 for op2 in H:
@@ -1854,7 +1841,6 @@ class KPathLatimerMunro(KPathBase):
                         op2.translation_vector,
                         np.ones(3) * self._atol,
                     ):
-
                         is_coset_factor = False
                         break
                 if not is_coset_factor:
@@ -1923,149 +1909,155 @@ class KPathLatimerMunro(KPathBase):
         for rotn in rpgdict["rotations"]["six-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["rotoinv-four-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, np.dot(op, cross)]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, np.dot(op, cross)]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["four-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["rotoinv-three-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [
+                                cross,
+                                -1 * np.dot(sqrtm(-1 * op), cross),
+                            ]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [
-                                    cross,
-                                    -1 * np.dot(sqrtm(-1 * op), cross),
-                                ]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["three-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["two-fold"]:
             ax = rotn["axis"]
             op = rotn["op"]
-            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]):
-                if self._op_maps_IRBZ_to_self(op, IRBZ_points, atol):
-                    face_center_found = False
+            if not np.any([np.allclose(ax, usedax, atol) for usedax in used_axes]) and self._op_maps_IRBZ_to_self(
+                op, IRBZ_points, atol
+            ):
+                face_center_found = False
+                for point in IRBZ_points:
+                    if point[0] in face_center_inds:
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            face_center_found = True
+                            used_axes.append(ax)
+                            break
+                if not face_center_found:
+                    print("face center not found")
                     for point in IRBZ_points:
-                        if point[0] in face_center_inds:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                face_center_found = True
-                                used_axes.append(ax)
-                                break
-                    if not face_center_found:
-                        print("face center not found")
-                        for point in IRBZ_points:
-                            cross = D * np.dot(ginv, np.cross(ax, point[1]))
-                            if not np.allclose(cross, 0, atol=atol):
-                                rot_boundaries = [cross, -1 * np.dot(op, cross)]
-                                used_axes.append(ax)
-                                break
-                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
+                        cross = D * np.dot(ginv, np.cross(ax, point[1]))
+                        if not np.allclose(cross, 0, atol=atol):
+                            rot_boundaries = [cross, -1 * np.dot(op, cross)]
+                            used_axes.append(ax)
+                            break
+                IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         return [point[0] for point in IRBZ_points]
 
@@ -2182,7 +2174,6 @@ class KPathLatimerMunro(KPathBase):
         return [IRBZ_points[i] for i in range(len(IRBZ_points)) if in_reduced_section[i]]
 
     def _get_orbit_labels(self, orbit_cosines_orig, key_points_inds_orbits, atol):
-
         orbit_cosines_copy = orbit_cosines_orig.copy()
         orbit_labels_unsorted = [(len(key_points_inds_orbits) - 1, 26)]
         orbit_inds_remaining = range(len(key_points_inds_orbits) - 1)
@@ -2289,7 +2280,6 @@ class KPathLatimerMunro(KPathBase):
         """
         Axes used in generating labels for Latimer-Munro convention
         """
-
         points = [
             [1, 0, 0],
             [0, 1, 0],
@@ -2324,9 +2314,8 @@ class KPathLatimerMunro(KPathBase):
     @staticmethod
     def LabelSymbol(index):
         """
-        Letters used in generating labels for Latimer-Munro convention
+        Letters used in generating labels for the Latimer-Munro convention
         """
-
         symbols = [
             "a",
             "b",

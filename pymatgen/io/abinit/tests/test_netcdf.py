@@ -1,10 +1,10 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+from __future__ import annotations
 
 import os
 import unittest
 
 import numpy as np
+import pytest
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import ETSF_Reader
@@ -48,7 +48,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
         }
 
         with ETSF_Reader(path) as data:
-            self.assertEqual(data.ngroups, 1)
+            assert data.ngroups == 1
             print(data.read_varnames())
 
             # Test dimensions.
@@ -71,10 +71,10 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
             # Reading non-existent variables or dims should raise
             # a subclass of NetcdReaderError
-            with self.assertRaises(data.Error):
+            with pytest.raises(data.Error):
                 data.read_value("foobar")
 
-            with self.assertRaises(data.Error):
+            with pytest.raises(data.Error):
                 data.read_dimvalue("foobar")
 
             # Unless default is given
@@ -86,9 +86,19 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
             # Initialize pymatgen structure from GSR.
             structure = data.read_structure()
-            self.assertTrue(isinstance(structure, Structure))
+            assert isinstance(structure, Structure)
 
             # Read ixc.
             # TODO: Upgrade GSR file.
             # xc = data.read_abinit_xcfunc()
             # assert xc == "LDA"
+
+
+class TestAbinitHeader(PymatgenTest):
+    def test_api(self):
+        from pymatgen.io.abinit.netcdf import AbinitHeader
+
+        head = AbinitHeader(foo=1, bar=2)
+        assert head.foo == 1
+        assert str(head)
+        assert head.to_string(verbose=2, title="title")

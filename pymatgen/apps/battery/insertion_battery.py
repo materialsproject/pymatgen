@@ -1,18 +1,13 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module is used for analysis of materials with potential application as
 intercalation batteries.
 """
 
-__author__ = "Anubhav Jain, Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-
+from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Tuple, Union
+from typing import Iterable
 
 from scipy.constants import N_A
 
@@ -22,6 +17,9 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+
+__author__ = "Anubhav Jain, Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
 
 
 @dataclass
@@ -38,8 +36,8 @@ class InsertionElectrode(AbstractElectrode):
     @classmethod
     def from_entries(
         cls,
-        entries: Iterable[Union[ComputedEntry, ComputedStructureEntry]],
-        working_ion_entry: Union[ComputedEntry, ComputedStructureEntry, PDEntry],
+        entries: Iterable[ComputedEntry | ComputedStructureEntry],
+        working_ion_entry: ComputedEntry | ComputedStructureEntry | PDEntry,
         strip_structures: bool = False,
     ):
         """
@@ -59,7 +57,6 @@ class InsertionElectrode(AbstractElectrode):
                 ComputedEntry.data['volume']. If entries provided are ComputedEntries,
                 must set strip_structures=False.
         """
-
         if strip_structures:
             ents = []
             for ient in entries:
@@ -81,7 +78,7 @@ class InsertionElectrode(AbstractElectrode):
         # Set an artificial high energy for each element for convex hull generation
         element_energy = max(entry.energy_per_atom for entry in entries) + 10
 
-        pdentries: List[Union[ComputedEntry, ComputedStructureEntry, PDEntry]] = []
+        pdentries: list[ComputedEntry | ComputedStructureEntry | PDEntry] = []
         pdentries.extend(entries)
         pdentries.extend([PDEntry(Composition({el: 1}), element_energy) for el in elements])
 
@@ -101,7 +98,7 @@ class InsertionElectrode(AbstractElectrode):
         _unstable_entries = tuple(sorted((e for e in pd.unstable_entries if e in entries), key=lifrac))
 
         # create voltage pairs
-        _vpairs: Tuple[AbstractVoltagePair, ...] = tuple(
+        _vpairs: tuple[AbstractVoltagePair, ...] = tuple(
             InsertionVoltagePair.from_entries(
                 _stable_entries[i],
                 _stable_entries[i + 1],
@@ -297,10 +294,9 @@ class InsertionElectrode(AbstractElectrode):
             entry_charge = pair.entry_charge if adjacent_only else pair[0].entry_charge
             entry_discharge = pair.entry_discharge if adjacent_only else pair[1].entry_discharge
 
-            chg_frac = entry_charge.composition.get_atomic_fraction(ion)
-            dischg_frac = entry_discharge.composition.get_atomic_fraction(ion)
-
             def in_range(entry):
+                chg_frac = entry_charge.composition.get_atomic_fraction(ion)
+                dischg_frac = entry_discharge.composition.get_atomic_fraction(ion)
                 frac = entry.composition.get_atomic_fraction(ion)
                 return chg_frac <= frac <= dischg_frac
 
@@ -313,10 +309,10 @@ class InsertionElectrode(AbstractElectrode):
                 stable_entries = filter(in_range, self.get_stable_entries())
                 all_entries = list(stable_entries)
                 all_entries.extend(unstable_entries)
-                battery_list.append(self.__class__.from_entries(all_entries, self.working_ion_entry))
+                battery_list.append(type(self).from_entries(all_entries, self.working_ion_entry))
         return battery_list
 
-    def get_summary_dict(self, print_subelectrodes=True) -> Dict:
+    def get_summary_dict(self, print_subelectrodes=True) -> dict:
         """
         Generate a summary dict.
         Populates the summary dict with the basic information from the parent method then populates more information.
@@ -328,9 +324,8 @@ class InsertionElectrode(AbstractElectrode):
                 subelectrodes.
 
         Returns:
-            A summary of this electrode"s properties in dict format.
+            A summary of this electrode's properties in dict format.
         """
-
         d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
 
         chg_comp = self.fully_charged_entry.composition
@@ -365,9 +360,6 @@ class InsertionElectrode(AbstractElectrode):
 
         return d
 
-    def __str__(self):
-        return self.__repr__()
-
     def __repr__(self):
         output = []
         chg_form = self.fully_charged_entry.composition.reduced_formula
@@ -397,11 +389,11 @@ class InsertionElectrode(AbstractElectrode):
 
     def as_dict_legacy(self):
         """
-        Returns: MSONAble dict
+        Returns: MSONable dict
         """
         return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "entries": [entry.as_dict() for entry in self.get_all_entries()],
             "working_ion_entry": self.working_ion_entry.as_dict(),
         }
@@ -456,13 +448,12 @@ class InsertionVoltagePair(AbstractVoltagePair):
         ):
             raise ValueError("VoltagePair: The working ion must be present in one of the entries")
 
-        # check that the entries do not contain the same amount of the workin
-        # element
+        # check that the entries do not contain the same amount of the working element
         if comp_charge.get_atomic_fraction(working_element) == comp_discharge.get_atomic_fraction(working_element):
             raise ValueError("VoltagePair: The working ion atomic percentage cannot be the same in both the entries")
 
         # check that the frameworks of the entries are equivalent
-        if not frame_charge_comp.reduced_formula == frame_discharge_comp.reduced_formula:
+        if frame_charge_comp.reduced_formula != frame_discharge_comp.reduced_formula:
             raise ValueError("VoltagePair: the specified entries must have the same compositional framework")
 
         # Initialize normalization factors, charged and discharged entries
@@ -522,11 +513,11 @@ class InsertionVoltagePair(AbstractVoltagePair):
         )
 
         # Step 4: add (optional) hull and muO2 data
-        vpair.decomp_e_charge = entry_charge.data.get("decomposition_energy", None)
-        vpair.decomp_e_discharge = entry_discharge.data.get("decomposition_energy", None)
+        vpair.decomp_e_charge = entry_charge.data.get("decomposition_energy")
+        vpair.decomp_e_discharge = entry_discharge.data.get("decomposition_energy")
 
-        vpair.muO2_charge = entry_charge.data.get("muO2", None)
-        vpair.muO2_discharge = entry_discharge.data.get("muO2", None)
+        vpair.muO2_charge = entry_charge.data.get("muO2")
+        vpair.muO2_discharge = entry_discharge.data.get("muO2")
 
         return vpair
 
@@ -539,6 +530,3 @@ class InsertionVoltagePair(AbstractVoltagePair):
             f"frac_charge = {self.frac_charge}, frac_discharge = {self.frac_discharge}",
         ]
         return "\n".join(output)
-
-    def __str__(self):
-        return self.__repr__()

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 
 """
 A convenience script engine to read Gaussian output in a directory tree.
 """
 
+
+from __future__ import annotations
 
 import argparse
 import logging
@@ -58,7 +58,7 @@ def get_energies(rootdir, reanalyze, verbose):
     ]
     headers = ("Directory", "Formula", "Charge", "Spin Mult.", "Energy", "E/Atom")
     print(tabulate(all_data, headers=headers))
-    print("")
+    print()
     print(msg)
 
 

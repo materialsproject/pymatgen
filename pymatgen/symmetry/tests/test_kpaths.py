@@ -1,6 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
+from __future__ import annotations
 
 import os
 import unittest
@@ -13,7 +11,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    from seekpath import get_path  # type: ignore
+    from seekpath import get_path
 except ImportError:
     get_path = None
 
@@ -62,10 +60,11 @@ class HighSymmKpathTest(PymatgenTest):
 
     def test_continuous_kpath(self):
         bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"))
-        cont_bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure_continuous.json"))
+        cont_bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure_continuous.json.gz"))
         alt_bs = HighSymmKpath(bs.structure).get_continuous_path(bs)
 
-        self.assertEqual(cont_bs.as_dict(), alt_bs.as_dict())
+        assert cont_bs.as_dict() == alt_bs.as_dict()
+        assert alt_bs.kpoints[0].label == alt_bs.kpoints[-1].label
 
 
 if __name__ == "__main__":

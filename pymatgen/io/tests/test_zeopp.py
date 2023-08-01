@@ -1,29 +1,19 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
-__author__ = "Bharat Medasani"
-__copyright__ = "Copyright 2013, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "bkmedasani@lbl.gov"
-__date__ = "Aug 2, 2013"
+from __future__ import annotations
 
 import os
-import re
 import unittest
+
+from pytest import approx
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.zeopp import (
     ZeoCssr,
     ZeoVoronoiXYZ,
     get_free_sphere_params,
     get_high_accuracy_voronoi_nodes,
-    get_void_volume_surfarea,
     get_voronoi_nodes,
 )
 from pymatgen.util.testing import PymatgenTest
@@ -32,6 +22,13 @@ try:
     import zeo
 except ImportError:
     zeo = None
+
+__author__ = "Bharat Medasani"
+__copyright__ = "Copyright 2013, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "bkmedasani@lbl.gov"
+__date__ = "Aug 2, 2013"
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -70,12 +67,12 @@ class ZeoCssrTest(unittest.TestCase):
 22 O 0.7146 0.8343 0.9539 0 0 0 0 0 0 0 0 0.0000
 23 O 0.2587 0.9034 0.7500 0 0 0 0 0 0 0 0 0.0000
 24 O 0.2929 0.9566 0.2500 0 0 0 0 0 0 0 0 0.0000"""
-        self.assertEqual(str(self.zeocssr), expected_string)
+        assert str(self.zeocssr) == expected_string
 
     def test_from_file(self):
         filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI.cssr")
         zeocssr = ZeoCssr.from_file(filename)
-        self.assertIsInstance(zeocssr.structure, Structure)
+        assert isinstance(zeocssr.structure, Structure)
 
 
 # @unittest.skipIf(not zeo, "zeo not present.")
@@ -115,12 +112,12 @@ class ZeoCssrOxiTest(unittest.TestCase):
 22 O2- 0.7146 0.8343 0.9539 0 0 0 0 0 0 0 0 0.0000
 23 O2- 0.2587 0.9034 0.7500 0 0 0 0 0 0 0 0 0.0000
 24 O2- 0.2929 0.9566 0.2500 0 0 0 0 0 0 0 0 0.0000"""
-        self.assertEqual(str(self.zeocssr), expected_string)
+        assert str(self.zeocssr) == expected_string
 
     def test_from_file(self):
         filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI_oxistate_decorated.cssr")
         zeocssr = ZeoCssr.from_file(filename)
-        self.assertIsInstance(zeocssr.structure, Structure)
+        assert isinstance(zeocssr.structure, Structure)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -145,13 +142,13 @@ H 1.089000 0.000000 0.000000 0.200000
 H -0.363000 1.026719 0.000000 0.200000
 H -0.363000 -0.513360 -0.889165 0.200000
 H -0.363000 -0.513360 0.889165 0.200000"""
-        self.assertEqual(str(self.xyz), ans)
-        self.assertEqual(str(self.xyz), ans)
+        assert str(self.xyz) == ans
+        assert str(self.xyz) == ans
 
     def test_from_file(self):
         filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI_voro.xyz")
         vor = ZeoVoronoiXYZ.from_file(filename)
-        self.assertIsInstance(vor.molecule, Molecule)
+        assert isinstance(vor.molecule, Molecule)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -176,9 +173,9 @@ class GetVoronoiNodesTest(unittest.TestCase):
             vor_edge_center_struct,
             vor_face_center_struct,
         ) = get_voronoi_nodes(self.structure, self.rad_dict)
-        self.assertIsInstance(vor_node_struct, Structure)
-        self.assertIsInstance(vor_edge_center_struct, Structure)
-        self.assertIsInstance(vor_face_center_struct, Structure)
+        assert isinstance(vor_node_struct, Structure)
+        assert isinstance(vor_edge_center_struct, Structure)
+        assert isinstance(vor_face_center_struct, Structure)
         print(len(vor_node_struct.sites))
         print(len(vor_face_center_struct.sites))
 
@@ -200,9 +197,9 @@ class GetFreeSphereParamsTest(unittest.TestCase):
     def test_get_free_sphere_params(self):
         free_sph_params = get_free_sphere_params(self.structure, rad_dict=self.rad_dict)
         # Zeo results can change in future. Hence loose comparison
-        self.assertAlmostEqual(free_sph_params["inc_sph_max_dia"], 2.58251, places=1)
-        self.assertAlmostEqual(free_sph_params["free_sph_max_dia"], 1.29452, places=1)
-        self.assertAlmostEqual(free_sph_params["inc_sph_along_free_sph_path_max_dia"], 2.58251, places=1)
+        assert free_sph_params["inc_sph_max_dia"] == approx(2.58251, abs=1e-1)
+        assert free_sph_params["free_sph_max_dia"] == approx(1.29452, abs=1e-1)
+        assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == approx(2.58251, abs=1e-1)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -225,7 +222,7 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
         # vor_node_struct, vor_ec_struct, vor_fc_struct = \
         #    get_high_accuracy_voronoi_nodes(self.structure, self.rad_dict)
         vor_node_struct = get_high_accuracy_voronoi_nodes(self.structure, self.rad_dict)
-        self.assertIsInstance(vor_node_struct, Structure)
+        assert isinstance(vor_node_struct, Structure)
         # self.assertIsInstance(vor_ec_struct, Structure)
         # self.assertIsInstance(vor_fc_struct, Structure)
         print(len(vor_node_struct.sites))
@@ -242,47 +239,22 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         self.structure = bv.get_oxi_state_decorated_structure(self.structure)
         valences = bv.get_valences(self.structure)
         radii = []
-        for i in range(len(valences)):
-            el = self.structure.sites[i].specie.symbol
-            radius = Species(el, valences[i]).ionic_radius
+        for idx, valence in enumerate(valences):
+            el = self.structure.sites[idx].specie.symbol
+            radius = Species(el, valence).ionic_radius
             radii.append(radius)
         el = [site.species_string for site in self.structure.sites]
         self.rad_dict = dict(zip(el, radii))
-        for el in self.rad_dict.keys():
+        for el in self.rad_dict:
             print((el, self.rad_dict[el].real))
 
     def test_get_voronoi_nodes(self):
-        (
-            vor_node_struct,
-            vor_edge_center_struct,
-            vor_face_center_struct,
-        ) = get_voronoi_nodes(self.structure, self.rad_dict)
-        self.assertIsInstance(vor_node_struct, Structure)
-        self.assertIsInstance(vor_edge_center_struct, Structure)
-        self.assertIsInstance(vor_face_center_struct, Structure)
-
-
-@unittest.skip("The function is deprecated")
-class GetVoidVolumeSurfaceTest(unittest.TestCase):
-    def setUp(self):
-        filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif")
-        p = CifParser(filepath1).get_structures(False)[0]
-        bv = BVAnalyzer()
-        valences = bv.get_valences(p)
-        el = [site.species_string for site in p.sites]
-        val_dict = dict(zip(el, valences))
-        self._radii = {}
-        for k, v in val_dict.items():
-            k1 = re.sub(r"[1-9,+,\-]", "", k)
-            self._radii[k1] = float(Species(k1, v).ionic_radius)
-        p.remove(0)
-        self._vac_struct = p
-
-    def test_void_volume_surface_area(self):
-        vol, sa = get_void_volume_surfarea(self._vac_struct, self._radii)
-        # print "vol:  ", vol, "sa:  ", sa
-        self.assertIsInstance(vol, float)
-        self.assertIsInstance(sa, float)
+        vor_node_struct, vor_edge_center_struct, vor_face_center_struct = get_voronoi_nodes(
+            self.structure, self.rad_dict
+        )
+        assert isinstance(vor_node_struct, Structure)
+        assert isinstance(vor_edge_center_struct, Structure)
+        assert isinstance(vor_face_center_struct, Structure)
 
 
 if __name__ == "__main__":

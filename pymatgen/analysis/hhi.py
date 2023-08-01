@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module is used to estimate the Herfindahl-Hirschman Index, or HHI, of
 chemical compounds. The HHI is a measure of how geographically confined or
@@ -11,6 +8,8 @@ Data/strategy from "Data-Driven Review of Thermoelectric Materials:
 Performance and Resource Considerations" by Gaultois et al., published
 in Chemistry of Materials (2013).
 """
+
+from __future__ import annotations
 
 import os
 
@@ -73,7 +72,6 @@ class HHIModel:
         Returns:
             A tuple representing the (HHI_production, HHI_reserve)
         """
-
         try:
             if not isinstance(comp_or_form, Composition):
                 comp_or_form = Composition(comp_or_form)
@@ -128,7 +126,6 @@ class HHIModel:
         Returns:
             The designation as String
         """
-
         if hhi is None:
             return None
 

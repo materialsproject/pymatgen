@@ -1,19 +1,19 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 This module provides classes to store, generate, and manipulate material interfaces.
 """
 
+from __future__ import annotations
+
 from itertools import chain, combinations, product
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
-from pymatgen.core import Lattice, Site, Structure
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Site, Structure
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -33,10 +33,10 @@ class Interface(Structure):
         validate_proximity=False,
         to_unit_cell=False,
         coords_are_cartesian=False,
-        in_plane_offset: Tuple[float, float] = (0, 0),
+        in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 0,
-        vacuum_over_film: float = 0.0,
-        interface_properties: Optional[Dict] = None,
+        vacuum_over_film: float = 0,
+        interface_properties: dict = None,
     ):
         """
         Makes an interface structure, a structure object with additional information
@@ -62,8 +62,9 @@ class Interface(Structure):
                 each species.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
+            to_unit_cell (bool): Whether to translate sites into the unit cell. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
-                coordinates in cartesian coordinates. Defaults to False.
+                coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
@@ -72,9 +73,9 @@ class Interface(Structure):
                 to the substrate
             gap: gap between substrate and film in Angstroms; zero corresponds to
                 the original distance between substrate and film sites
-            vacuum_over_film: vacuum space above the film in Angstroms
+            vacuum_over_film: vacuum space above the film in Angstroms. Defaults to 0.
+            interface_properties: properties associated with the interface. Defaults to None.
         """
-
         assert (
             "interface_label" in site_properties
         ), "Must provide labeling of substrate and film sites in site properties"
@@ -116,7 +117,7 @@ class Interface(Structure):
     @property
     def gap(self) -> float:
         """
-        The gap in cartesian units between the film and the substrate
+        The gap in Cartesian units between the film and the substrate
         """
         return self._gap
 
@@ -134,7 +135,7 @@ class Interface(Structure):
     @property
     def vacuum_over_film(self) -> float:
         """
-        The vacuum space over the film in cartesian units
+        The vacuum space over the film in Cartesian units
         """
         return self._vacuum_over_film
 
@@ -149,7 +150,7 @@ class Interface(Structure):
         self.__update_c(self.lattice.c + delta)
 
     @property
-    def substrate_indices(self) -> List[int]:
+    def substrate_indices(self) -> list[int]:
         """
         Site indices for the substrate atoms
         """
@@ -157,7 +158,7 @@ class Interface(Structure):
         return sub_indices
 
     @property
-    def substrate_sites(self) -> List[Site]:
+    def substrate_sites(self) -> list[Site]:
         """
         The site objects in the substrate
         """
@@ -172,7 +173,7 @@ class Interface(Structure):
         return Structure.from_sites(self.substrate_sites)
 
     @property
-    def film_indices(self) -> List[int]:
+    def film_indices(self) -> list[int]:
         """
         Site indices of the film sites
         """
@@ -180,7 +181,7 @@ class Interface(Structure):
         return f_indices
 
     @property
-    def film_sites(self) -> List[Site]:
+    def film_sites(self) -> list[Site]:
         """
         Return the film sites of the interface.
         """
@@ -194,15 +195,11 @@ class Interface(Structure):
         """
         return Structure.from_sites(self.film_sites)
 
-    def copy(self) -> "Interface":  # type:ignore
+    def copy(self):
         """
-        Convenience method to get a copy of the structure, with options to add
-        site properties.
-
         Returns:
-            A copy of the Interface.
+            Interface: A copy of the Interface.
         """
-
         return Interface.from_dict(self.as_dict())
 
     def get_sorted_structure(self, key=None, reverse=False) -> Structure:
@@ -222,7 +219,7 @@ class Interface(Structure):
         struct_copy.sort(key=key, reverse=reverse)
         return struct_copy
 
-    def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> List[Tuple[float, float]]:
+    def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> list[tuple[float, float]]:
         """
         Computes possible in-plane shifts based on an adsorbate site  algorithm
 
@@ -289,23 +286,23 @@ class Interface(Structure):
 
     def __update_c(self, new_c: float) -> None:
         """
-        Modifies the c-direction of the lattice without changing the site cartesian coordinates
+        Modifies the c-direction of the lattice without changing the site Cartesian coordinates
         Be careful you can mess up the interface by setting a c-length that can't accommodate all the sites
         """
         if new_c <= 0:
             raise ValueError("New c-length must be greater than 0")
 
-        new_latt_matrix = self.lattice.matrix[:2].tolist() + [[0, 0, new_c]]
+        new_latt_matrix = [*self.lattice.matrix[:2].tolist(), [0, 0, new_c]]
         new_latice = Lattice(new_latt_matrix)
         self._lattice = new_latice
 
         for site, c_coords in zip(self, self.cart_coords):
             site._lattice = new_latice  # Update the lattice
-            site.coords = c_coords  # Put back into original cartesian space
+            site.coords = c_coords  # Put back into original Cartesian space
 
     def as_dict(self):
         """
-        :return: MSONAble dict
+        :return: MSONable dict
         """
         d = super().as_dict()
         d["in_plane_offset"] = self.in_plane_offset.tolist()
@@ -324,12 +321,12 @@ class Interface(Structure):
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         s = Structure.from_sites(sites)
 
-        optional = dict(
-            in_plane_offset=d.get("in_plane_offset"),
-            gap=d.get("gap"),
-            vacuum_over_film=d.get("vacuum_over_film"),
-            interface_properties=d.get("interface_properties"),
-        )
+        optional = {
+            "in_plane_offset": d.get("in_plane_offset"),
+            "gap": d.get("gap"),
+            "vacuum_over_film": d.get("vacuum_over_film"),
+            "interface_properties": d.get("interface_properties"),
+        }
         return Interface(
             lattice=lattice,
             species=s.species_and_occu,
@@ -343,12 +340,12 @@ class Interface(Structure):
         cls,
         substrate_slab: Slab,
         film_slab: Slab,
-        in_plane_offset: Tuple[float, float] = (0, 0),
+        in_plane_offset: tuple[float, float] = (0, 0),
         gap: float = 1.6,
-        vacuum_over_film: float = 0.0,
-        interface_properties: Optional[Dict] = None,
+        vacuum_over_film: float = 0,
+        interface_properties: dict = None,
         center_slab: bool = True,
-    ) -> "Interface":
+    ) -> Interface:
         """
         Makes an interface structure by merging a substrate and film slabs
         The film a- and b-vectors will be forced to be the substrate slab's
@@ -358,14 +355,15 @@ class Interface(Structure):
         appropriate interface structure is already met.
 
         Args:
-            sub_slab: slab for the substrate
-            film_slab: slab for the film
-            in_plane_offset: fractional shift in plane
-                for the film with respect to the substrate
-            gap: gap between substrate and film in Angstroms
-            vacuum_over_film: vacuum space above the film in Angstroms
-            structure_properties: dictionary of misc properties for this structure
-            center_slab: center the slab
+            substrate_slab (Slab): slab for the substrate
+            film_slab (Slab): slab for the film
+            in_plane_offset (tuple): fractional shift in plane for the film with respect to the substrate.
+                For example, (0.5, 0.5) will shift the film by half the substrate's a- and b-vectors.
+                Defaults to (0, 0).
+            gap (float): gap between substrate and film in Angstroms. Defaults to 1.6.
+            vacuum_over_film (float): vacuum space above the film in Angstroms. Defaults to 0.
+            interface_properties (dict): misc properties to assign to the interface. Defaults to None.
+            center_slab (bool): center the slab. Defaults to True.
         """
         interface_properties = interface_properties or {}
 
@@ -425,7 +423,7 @@ class Interface(Structure):
 
         # Only merge site properties in both slabs
         site_properties = {}
-        site_props_in_both = set(substrate_slab.site_properties.keys()) & set(film_slab.site_properties.keys())
+        site_props_in_both = set(substrate_slab.site_properties) & set(film_slab.site_properties)
 
         for key in site_props_in_both:
             site_properties[key] = [
@@ -479,7 +477,7 @@ def label_termination(slab: Structure) -> str:
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites: Dict[int, List[Site]] = {c: [] for c in clusters}
+    clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
         clustered_sites[c].append(slab[i])
 
@@ -495,19 +493,19 @@ def label_termination(slab: Structure) -> str:
     return f"{form}_{sp_symbol}_{len(top_plane)}"
 
 
-def count_layers(struc: Structure, el=None) -> int:
+def count_layers(struct: Structure, el=None) -> int:
     """
     Counts the number of 'layers' along the c-axis
     """
-    el = el if el else struc.composition.elements[0]
-    frac_coords = [site.frac_coords for site in struc if site.species_string == str(el)]
+    el = el or struct.composition.elements[0]
+    frac_coords = [site.frac_coords for site in struct if site.species_string == str(el)]
     n = len(frac_coords)
 
     if n == 1:
         return 1
 
     dist_matrix = np.zeros((n, n))
-    h = struc.lattice.c
+    h = struct.lattice.c
     # Projection of c lattice vector in
     # direction of surface normal.
     for i, j in combinations(list(range(n)), 2):
@@ -521,9 +519,9 @@ def count_layers(struc: Structure, el=None) -> int:
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites: Dict[int, List[Site]] = {c: [] for c in clusters}
+    clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
-        clustered_sites[c].append(struc[i])
+        clustered_sites[c].append(struct[i])
 
     plane_heights = {
         np.average(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()

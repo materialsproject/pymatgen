@@ -1,18 +1,18 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines the FeffInputSet abstract base class and a concrete
-implementation for the Materials Project.  The basic concept behind an input
+implementation for the Materials Project. The basic concept behind an input
 set is to specify a scheme to generate a consistent set of Feff inputs from a
 structure without further user intervention. This ensures comparability across
 runs.
 """
 
+from __future__ import annotations
+
 import abc
 import logging
 import os
 import sys
+import warnings
 from copy import deepcopy
 
 import numpy as np
@@ -20,6 +20,7 @@ from monty.json import MSONable
 from monty.os.path import zpath
 from monty.serialization import loadfn
 
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 
 __author__ = "Kiran Mathew"
@@ -125,20 +126,22 @@ class FEFFDictSet(AbstractFeffInputSet):
 
     def __init__(
         self,
-        absorbing_atom,
-        structure,
-        radius,
-        config_dict,
-        edge="K",
-        spectrum="EXAFS",
+        absorbing_atom: str | int,
+        structure: Structure | Molecule,
+        radius: float,
+        config_dict: dict,
+        edge: str = "K",
+        spectrum: str = "EXAFS",
         nkpts=1000,
-        user_tag_settings=None,
+        user_tag_settings: dict | None = None,
+        spacegroup_analyzer_settings: dict | None = None,
     ):
         """
-
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
-            structure (Structure): input structure
+            structure: Structure or Molecule object. If a Structure, SpaceGroupAnalyzer is used to
+                determine symmetrically-equivalent sites. If a Molecule, there is no symmetry
+                checking.
             radius (float): cluster radius
             config_dict (dict): control tag settings dict
             edge (str): absorption edge
@@ -150,15 +153,59 @@ class FEFFDictSet(AbstractFeffInputSet):
             user_tag_settings (dict): override default tag settings. To delete
                 tags, set the key '_del' in the user_tag_settings.
                 eg: user_tag_settings={"_del": ["COREHOLE", "EXCHANGE"]}
+                To specify a net charge on the structure, pass an "IONS" tag containing a list
+                    of tuples where the first element is the unique potential value (ipot value)
+                    and the second element is the charge to be applied to atoms associated
+                    with that potential, e.g. {"IONS": [(0, 0.1), (1, 0.1), (2, 0.1)]}
+                    will result in
+
+                    ION 0 0.1
+                    ION 1 0.1
+                    ION 2 0.1
+
+                    being written to the input file.
+            spacegroup_analyzer_settings (dict): parameters passed to SpacegroupAnalyzer.
+                E.g., {"symprec": 0.01, "angle_tolerance": 4}
         """
         self.absorbing_atom = absorbing_atom
+        self.user_tag_settings = user_tag_settings or {}
+        # make sure there are no partial occupancies
+        if structure.is_ordered:
+            if isinstance(structure, Structure):
+                # charged structures should never be supported b/c periodic boundaries
+                # cause problems
+                if structure.charge != 0:
+                    raise ValueError("Structure objects with a net charge are not supported!")
+            elif isinstance(structure, Molecule):
+                # charged Molecules should eventually be supported. According to Joshua Kas (FEFF expert),
+                # the correct approach is to divide the total charge on the Molecule equally among
+                # all atoms. Then, add one ION card with that charge for each atom type (i.e., each
+                # unique ipot value)
+                # for example, for a cluster with a +1 charge and 10 atoms and 3 unique potentials, you
+                # would add
+                # ION 0 0.1
+                # ION 1 0.1
+                # ION 2 0.1
+                # This is also most appropriate for self-consistent calculations like XANES.
+                # For non-self-consistent calc types, the manual says its best to check results
+                # with and without a net charge b/c it's often better not to use charge
+                if structure.charge != 0 and not self.user_tag_settings.get("IONS"):
+                    warnings.warn(
+                        "For Molecule objects with a net charge it is recommended to set one or more"
+                        " ION tags in the input file by modifying user_tag_settings."
+                        " Consult the FEFFDictSet docstring and the FEFF10 User Guide for more information.",
+                        UserWarning,
+                    )
+            else:
+                raise ValueError("'structure' argument must be a Structure or Molecule!")
+        else:
+            raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
         self.structure = structure
         self.radius = radius
         self.config_dict = deepcopy(config_dict)
         self.edge = edge
         self.spectrum = spectrum
         self.nkpts = nkpts
-        self.user_tag_settings = user_tag_settings or {}
         self.config_dict["EDGE"] = self.edge
         self.config_dict.update(self.user_tag_settings)
         if "_del" in self.user_tag_settings:
@@ -169,8 +216,9 @@ class FEFFDictSet(AbstractFeffInputSet):
         # k-space feff only for small systems. The hardcoded system size in
         # feff is around 14 atoms.
         self.small_system = len(self.structure) < 14 and "EXAFS" not in self.config_dict
+        self.spacegroup_analyzer_settings = spacegroup_analyzer_settings or {}
 
-    def header(self, source="", comment=""):
+    def header(self, source: str = "", comment: str = ""):
         """
         Creates header string from structure object
 
@@ -183,10 +231,10 @@ class FEFFDictSet(AbstractFeffInputSet):
         Returns:
             Header
         """
-        return Header(self.structure, source, comment)
+        return Header(self.structure, source, comment, spacegroup_analyzer_settings=self.spacegroup_analyzer_settings)
 
     @property
-    def tags(self):
+    def tags(self) -> Tags:
         """
         FEFF job parameters.
 
@@ -199,10 +247,10 @@ class FEFFDictSet(AbstractFeffInputSet):
                 self.config_dict["TARGET"] = self.atoms.center_index + 1
                 self.config_dict["COREHOLE"] = "RPA"
                 logger.warning("Setting COREHOLE = RPA for K-space calculation")
-                if not self.config_dict.get("KMESH", None):
+                if not self.config_dict.get("KMESH"):
                     abc = self.structure.lattice.abc
                     mult = (self.nkpts * abc[0] * abc[1] * abc[2]) ** (1 / 3)
-                    self.config_dict["KMESH"] = [int(round(mult / l)) for l in abc]
+                    self.config_dict["KMESH"] = [int(round(mult / length)) for length in abc]
             else:
                 logger.warning(
                     "Large system(>=14 atoms) or EXAFS calculation, \
@@ -217,7 +265,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         return Tags(self.config_dict)
 
     @property
-    def potential(self):
+    def potential(self) -> Potential:
         """
         FEFF potential
 
@@ -227,7 +275,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         return Potential(self.structure, self.absorbing_atom)
 
     @property
-    def atoms(self):
+    def atoms(self) -> Atoms:
         """
         absorber + the rest
 
@@ -282,7 +330,6 @@ class FEFFDictSet(AbstractFeffInputSet):
             )
 
             for site_index, site in enumerate(sub_d["header"].struct):
-
                 if site.specie == input_atoms[0].specie:
                     site_atoms = Atoms(sub_d["header"].struct, absorbing_atom=site_index, radius=radius)
                     site_distance = np.array(site_atoms.get_lines())[:, 5].astype(np.float64)
@@ -327,12 +374,13 @@ class MPXANESSet(FEFFDictSet):
         self,
         absorbing_atom,
         structure,
-        edge="K",
-        radius=10.0,
-        nkpts=1000,
-        user_tag_settings=None,
+        edge: str = "K",
+        radius: float = 10.0,
+        nkpts: int = 1000,
+        user_tag_settings: dict | None = None,
+        **kwargs,
     ):
-        """
+        r"""
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
             structure (Structure): input
@@ -341,6 +389,7 @@ class MPXANESSet(FEFFDictSet):
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
+            **kwargs: Passthrough to FEFFDictSet
         """
         super().__init__(
             absorbing_atom,
@@ -351,6 +400,7 @@ class MPXANESSet(FEFFDictSet):
             spectrum="XANES",
             nkpts=nkpts,
             user_tag_settings=user_tag_settings,
+            **kwargs,
         )
 
 
@@ -365,12 +415,13 @@ class MPEXAFSSet(FEFFDictSet):
         self,
         absorbing_atom,
         structure,
-        edge="K",
-        radius=10.0,
-        nkpts=1000,
-        user_tag_settings=None,
+        edge: str = "K",
+        radius: float = 10.0,
+        nkpts: int = 1000,
+        user_tag_settings: dict | None = None,
+        **kwargs,
     ):
-        """
+        r"""
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
             structure (Structure): input structure
@@ -379,6 +430,7 @@ class MPEXAFSSet(FEFFDictSet):
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
+            **kwargs: Passthrough to FEFFDictSet
         """
         super().__init__(
             absorbing_atom,
@@ -389,6 +441,7 @@ class MPEXAFSSet(FEFFDictSet):
             spectrum="EXAFS",
             nkpts=nkpts,
             user_tag_settings=user_tag_settings,
+            **kwargs,
         )
 
 
@@ -410,8 +463,9 @@ class MPEELSDictSet(FEFFDictSet):
         convergence_angle,
         config_dict,
         user_eels_settings=None,
-        nkpts=1000,
-        user_tag_settings=None,
+        nkpts: int = 1000,
+        user_tag_settings: dict | None = None,
+        **kwargs,
     ):
         """
         Args:
@@ -430,6 +484,7 @@ class MPEELSDictSet(FEFFDictSet):
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
+            **kwargs: Passthrough to FEFFDictSet
         """
         self.beam_energy = beam_energy
         self.beam_direction = beam_direction
@@ -459,6 +514,7 @@ class MPEELSDictSet(FEFFDictSet):
             spectrum=spectrum,
             nkpts=nkpts,
             user_tag_settings=user_tag_settings,
+            **kwargs,
         )
 
 
@@ -473,17 +529,18 @@ class MPELNESSet(MPEELSDictSet):
         self,
         absorbing_atom,
         structure,
-        edge="K",
-        radius=10.0,
-        beam_energy=100,
+        edge: str = "K",
+        radius: float = 10.0,
+        beam_energy: float = 100,
         beam_direction=None,
-        collection_angle=1,
-        convergence_angle=1,
+        collection_angle: float = 1,
+        convergence_angle: float = 1,
         user_eels_settings=None,
-        nkpts=1000,
-        user_tag_settings=None,
+        nkpts: int = 1000,
+        user_tag_settings: dict | None = None,
+        **kwargs,
     ):
-        """
+        r"""
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
             structure (Structure): input structure
@@ -499,8 +556,8 @@ class MPELNESSet(MPEELSDictSet):
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
+            **kwargs: Passthrough to FEFFDictSet
         """
-
         super().__init__(
             absorbing_atom,
             structure,
@@ -515,6 +572,7 @@ class MPELNESSet(MPEELSDictSet):
             user_eels_settings=user_eels_settings,
             nkpts=nkpts,
             user_tag_settings=user_tag_settings,
+            **kwargs,
         )
 
 
@@ -530,16 +588,17 @@ class MPEXELFSSet(MPEELSDictSet):
         absorbing_atom,
         structure,
         edge="K",
-        radius=10.0,
-        beam_energy=100,
+        radius: float = 10.0,
+        beam_energy: float = 100,
         beam_direction=None,
-        collection_angle=1,
-        convergence_angle=1,
+        collection_angle: float = 1,
+        convergence_angle: float = 1,
         user_eels_settings=None,
-        nkpts=1000,
-        user_tag_settings=None,
+        nkpts: int = 1000,
+        user_tag_settings: dict | None = None,
+        **kwargs,
     ):
-        """
+        r"""
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
             structure (Structure): input structure
@@ -555,8 +614,8 @@ class MPEXELFSSet(MPEELSDictSet):
             nkpts (int): Total number of kpoints in the brillouin zone. Used
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
+            **kwargs: Passthrough to FEFFDictSet
         """
-
         super().__init__(
             absorbing_atom,
             structure,
@@ -571,4 +630,5 @@ class MPEXELFSSet(MPEELSDictSet):
             user_eels_settings=user_eels_settings,
             nkpts=nkpts,
             user_tag_settings=user_tag_settings,
+            **kwargs,
         )

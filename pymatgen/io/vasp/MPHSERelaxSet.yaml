@@ -109,6 +109,9 @@ POTCAR:
   W: W_pv
   Xe: Xe
   Y: Y_sv
+  # 2023-05-02: change Yb_2 to Yb_3 if POTCAR_FUNCTIONAL=PBE_54 else remove
+  # as Yb_2 gives incorrect thermodynamics for most systems with Yb3+
+  # https://github.com/materialsproject/pymatgen/issues/2968
   Yb: Yb_2
   Zn: Zn
   Zr: Zr_sv

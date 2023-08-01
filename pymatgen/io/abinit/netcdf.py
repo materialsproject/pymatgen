@@ -1,8 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 #
 # pylint: disable=no-member
 """Wrapper for netCDF readers."""
+
+from __future__ import annotations
 
 import logging
 import os.path
@@ -26,7 +26,7 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 __status__ = "Development"
-__date__ = "$Feb 21, 2013M$"
+__date__ = "Feb 21, 2013M"
 
 __all__ = [
     "as_ncreader",
@@ -42,15 +42,14 @@ try:
 except ImportError as exc:
     netCDF4 = None
     warnings.warn(
-        """\
+        f"""\
 `import netCDF4` failed with the following error:
 
-%s
+{exc}
 
 Please install netcdf4 with `conda install netcdf4`
 If the conda version does not work, uninstall it with `conda uninstall hdf4 hdf5 netcdf4`
 and use `pip install netcdf4`"""
-        % str(exc)
     )
 
 
@@ -107,7 +106,7 @@ class NetcdfReader:
 
         # Always return non-masked numpy arrays.
         # Slicing a ncvar returns a MaskedArrray and this is really annoying
-        # because it can lead to unexpected behaviour in e.g. calls to np.matmul!
+        # because it can lead to unexpected behavior in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
         self.rootgrp.set_auto_mask(False)
 
@@ -166,9 +165,9 @@ class NetcdfReader:
     def read_varnames(self, path="/"):
         """List of variable names stored in the group specified by path."""
         if path == "/":
-            return self.rootgrp.variables.keys()
+            return list(self.rootgrp.variables)
         group = self.path2group[path]
-        return group.variables.keys()
+        return list(group.variables)
 
     def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
         """

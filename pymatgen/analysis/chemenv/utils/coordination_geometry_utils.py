@@ -1,17 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains some utility functions and classes that are used in the chemenv package.
 """
 
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Geoffroy Hautier"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
+from __future__ import annotations
 
 import math
 
@@ -22,6 +13,14 @@ from scipy.interpolate import UnivariateSpline
 from scipy.spatial import ConvexHull
 
 from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
+
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Geoffroy Hautier"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
 
 
 def get_lower_and_upper_f(surface_calculation_options):
@@ -216,13 +215,12 @@ def diamond_functions(xx, yy, y_x0, x_y0):
         else:
             p1 = npyy
             p2 = npxx
+    elif npxx[0] < npyy[0]:
+        p1 = npxx
+        p2 = npyy
     else:
-        if npxx[0] < npyy[0]:
-            p1 = npxx
-            p2 = npyy
-        else:
-            p1 = npyy
-            p2 = npxx
+        p1 = npyy
+        p2 = npxx
     slope = (p2[1] - p1[1]) / (p2[0] - p1[0])
     if slope > 0.0:
         x_bpoint = p1[0] + x_y0
@@ -327,24 +325,17 @@ def rectangle_surface_intersection(
                     "Function f_lower is not always lower or equal to function f_upper within "
                     "the domain defined by the functions bounds."
                 )
-        else:
-            if "<" not in function_comparison(f1=f_lower, f2=f_upper, x1=x1, x2=x2, numpoints_check=numpoints_check):
-                raise RuntimeError(
-                    "Function f_lower is not always lower or equal to function f_upper within "
-                    "the domain defined by x1 and x2."
-                )
+        elif "<" not in function_comparison(f1=f_lower, f2=f_upper, x1=x1, x2=x2, numpoints_check=numpoints_check):
+            raise RuntimeError(
+                "Function f_lower is not always lower or equal to function f_upper within "
+                "the domain defined by x1 and x2."
+            )
     if bounds_lower is None:
         raise NotImplementedError("Bounds should be given right now ...")
     if x2 < bounds_lower[0] or x1 > bounds_lower[1]:
         return 0.0, 0.0
-    if x1 < bounds_lower[0]:
-        xmin = bounds_lower[0]
-    else:
-        xmin = x1
-    if x2 > bounds_lower[1]:
-        xmax = bounds_lower[1]
-    else:
-        xmax = x2
+    xmin = bounds_lower[0] if x1 < bounds_lower[0] else x1
+    xmax = bounds_lower[1] if x2 > bounds_lower[1] else x2
 
     def diff(x):
         flwx = f_lower(x)
@@ -563,7 +554,7 @@ def separation_in_list(separation_indices, separation_indices_list):
     return False
 
 
-def is_anion_cation_bond(valences, ii, jj):
+def is_anion_cation_bond(valences, ii, jj) -> bool:
     """
     Checks if two given sites are an anion and a cation.
     :param valences: list of site valences
@@ -681,7 +672,7 @@ class Plane:
         outs.append(f"          d = {self._coefficients[3]}")
         return "\n".join(outs)
 
-    def is_in_plane(self, pp, dist_tolerance):
+    def is_in_plane(self, pp, dist_tolerance) -> bool:
         """
         Determines if point pp is in the plane within the tolerance dist_tolerance
         :param pp: point to be tested
@@ -690,7 +681,7 @@ class Plane:
         """
         return np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3]) <= dist_tolerance
 
-    def is_same_plane_as(self, plane):
+    def is_same_plane_as(self, plane) -> bool:
         """
         Checks whether the plane is identical to another Plane "plane"
         :param plane: Plane to be compared to
@@ -698,16 +689,13 @@ class Plane:
         """
         return np.allclose(self._coefficients, plane.coefficients)
 
-    def is_in_list(self, plane_list):
+    def is_in_list(self, plane_list) -> bool:
         """
         Checks whether the plane is identical to one of the Planes in the plane_list list of Planes
         :param plane_list: List of Planes to be compared to
         :return: True if the plane is in the list, False otherwise
         """
-        for plane in plane_list:
-            if self.is_same_plane_as(plane):
-                return True
-        return False
+        return any(self.is_same_plane_as(plane) for plane in plane_list)
 
     def indices_separate(self, points, dist_tolerance):
         """
@@ -726,11 +714,10 @@ class Plane:
         for ip, pp in enumerate(points):
             if self.is_in_plane(pp, dist_tolerance):
                 inplane.append(ip)
+            elif np.dot(pp + self.vector_to_origin, self.normal_vector) < 0.0:
+                side1.append(ip)
             else:
-                if np.dot(pp + self.vector_to_origin, self.normal_vector) < 0.0:
-                    side1.append(ip)
-                else:
-                    side2.append(ip)
+                side2.append(ip)
         return [side1, inplane, side2]
 
     def distance_to_point(self, point):
@@ -1031,7 +1018,7 @@ class Plane:
         convex_hull = ConvexHull(points)
         heights = []
         ipoints_heights = []
-        for isimplex, simplex in enumerate(convex_hull.simplices):
+        for isimplex, _simplex in enumerate(convex_hull.simplices):
             cc = convex_hull.equations[isimplex]
             plane = Plane.from_coefficients(cc[0], cc[1], cc[2], cc[3])
             distances = [plane.distance_to_point(pp) for pp in points]

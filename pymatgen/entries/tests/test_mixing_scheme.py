@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Tests for the Materials Project DFT mixing scheme
 
@@ -99,15 +96,16 @@ Implementation Notes
   in place, so tests could cross-contaminate one another if a fixture were not used.
 """
 
-__author__ = "Ryan Kingsbury"
-__copyright__ = "Copyright 2019-2021, The Materials Project"
-__version__ = "1.0"
-__email__ = "RKingsbury@lbl.gov"
-__date__ = "October 2021"
+from __future__ import annotations
+
+import copy
+import json
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
+from monty.json import MontyDecoder
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -120,6 +118,13 @@ from pymatgen.entries.computed_entries import (
     ComputedStructureEntry,
 )
 from pymatgen.entries.mixing_scheme import MaterialsProjectDFTMixingScheme
+from pymatgen.util.testing import PymatgenTest
+
+__author__ = "Ryan Kingsbury"
+__copyright__ = "Copyright 2019-2021, The Materials Project"
+__version__ = "1.0"
+__email__ = "RKingsbury@lbl.gov"
+__date__ = "October 2021"
 
 """
 Define utility classes to make the tests easier to read
@@ -157,7 +162,7 @@ class MixingState:
         return self.gga_entries + self.scan_entries
 
 
-@pytest.fixture
+@pytest.fixture()
 def mixing_scheme_no_compat():
     """
     Return an instance of MaterialsProjectDFTMixingScheme with no additional
@@ -207,12 +212,11 @@ lattice_br_r2scan = Lattice.from_dict(
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_complete():
     """
     Mixing state where we have R2SCAN for all GGA
     """
-
     gga_entries = [
         ComputedStructureEntry(
             Structure(lattice1, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga-1"
@@ -379,7 +383,7 @@ def ms_complete():
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_scan_only(ms_complete):
     """
     Mixing state with only R2SCAN entries
@@ -404,7 +408,7 @@ def ms_scan_only(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_only(ms_complete):
     """
     Mixing state with only GGA entries
@@ -429,7 +433,7 @@ def ms_gga_only(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_1_scan(ms_complete):
     """
     Mixing state with all GGA entries and one R2SCAN, corresponding to the GGA
@@ -453,7 +457,7 @@ def ms_gga_1_scan(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_1_scan_novel(ms_complete):
     """
     Mixing state with all GGA entries and 1 R2SCAN, corresponding to a composition
@@ -494,7 +498,7 @@ def ms_gga_1_scan_novel(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_2_scan_same(ms_complete):
     """
     Mixing state with all GGA entries and 2 R2SCAN, corresponding to the GGA
@@ -518,7 +522,7 @@ def ms_gga_2_scan_same(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_2_scan_diff_match(ms_complete):
     """
     Mixing state with all GGA entries and 2 R2SCAN entries corresponding to
@@ -544,7 +548,7 @@ def ms_gga_2_scan_diff_match(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_gga_2_scan_diff_no_match(ms_complete):
     """
     Mixing state with all GGA entries and 2 R2SCAN, corresponding to the GGA
@@ -588,7 +592,7 @@ def ms_gga_2_scan_diff_no_match(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_all_gga_scan_gs(ms_complete):
     """
     Mixing state with all GGA entries and R2SCAN entries corresponding to all GGA
@@ -612,7 +616,7 @@ def ms_all_gga_scan_gs(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_all_gga_scan_gs_plus_novel(ms_all_gga_scan_gs):
     """
     Mixing state with all GGA entries and R2SCAN entries corresponding to all GGA
@@ -655,7 +659,7 @@ def ms_all_gga_scan_gs_plus_novel(ms_all_gga_scan_gs):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_all_scan_novel(ms_complete):
     """
     Mixing state with all GGA entries and all R2SCAN, with an additional unstable
@@ -698,7 +702,7 @@ def ms_all_scan_novel(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_incomplete_gga_all_scan(ms_complete):
     """
     Mixing state with an incomplete GGA phase diagram
@@ -722,7 +726,7 @@ def ms_incomplete_gga_all_scan(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_scan_chemsys_superset(ms_complete):
     """
     Mixing state where we have R2SCAN for all GGA, and there is an additional R2SCAN
@@ -753,7 +757,7 @@ def ms_scan_chemsys_superset(ms_complete):
     return MixingState(gga_entries, scan_entries, mixing_state)
 
 
-@pytest.fixture
+@pytest.fixture()
 def ms_complete_duplicate_structs(ms_complete):
     """
     Mixing state where we have R2SCAN for all GGA, plus extra entries that duplicate
@@ -1093,7 +1097,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
         # process_entries should discard all GGA entries and return all R2SCAN
         entries = mixing_scheme_no_compat.process_entries(
-            ms_complete.all_entries + [foreign_entry], mixing_state_data=ms_complete.state_data
+            [*ms_complete.all_entries, foreign_entry], mixing_state_data=ms_complete.state_data
         )
         assert len(entries) == 7
         for e in entries:
@@ -1139,9 +1143,9 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
                     compat.get_adjustments(e, mixing_state)
             elif e.parameters["run_type"] == "GGA":
-                assert compat.get_adjustments(e, mixing_state) == []
+                assert not compat.get_adjustments(e, mixing_state)
             else:
-                assert compat.get_adjustments(e, mixing_state) != []
+                assert compat.get_adjustments(e, mixing_state)
 
         # process_entries should discard all GGA entries and return all R2SCAN
         entries = compat.process_entries(ms_complete.all_entries)
@@ -1192,10 +1196,10 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                     compat.get_adjustments(e, state_data)
             else:
                 with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
-                    assert compat.get_adjustments(e, state_data) == []
+                    assert not compat.get_adjustments(e, state_data)
 
         for e in ms_complete.scan_entries:
-            assert compat.get_adjustments(e, state_data) == []
+            assert not compat.get_adjustments(e, state_data)
 
     def test_no_mixing_data(self, ms_complete):
         """
@@ -1232,7 +1236,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="not found in the mixing state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_complete_duplicate_structs.state_data)
                 continue
-            elif e.entry_id in ["gga-1", "gga-3", "gga-4"]:
+            if e.entry_id in ["gga-1", "gga-3", "gga-4"]:
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     mixing_scheme_no_compat.get_adjustments(e, ms_complete_duplicate_structs.state_data)
             else:
@@ -1266,14 +1270,14 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         assert all(state_data["hull_energy_2"].notna())
 
         for e in ms_complete.scan_entries:
-            assert compat.get_adjustments(e, state_data) == []
+            assert not compat.get_adjustments(e, state_data)
 
         for e in ms_complete.gga_entries:
             if e.entry_id == "gga-6":
                 assert compat.get_adjustments(e, state_data)[0].value == -6
                 continue
 
-            elif e.entry_id in ["gga-1", "gga-3", "gga-4"]:
+            if e.entry_id in ["gga-1", "gga-3", "gga-4"]:
                 with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
                     compat.get_adjustments(e, ms_complete.state_data)
             else:
@@ -1284,6 +1288,16 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         # entries unmodified. gga-6 should be corrected to the R2SCAN hull
         entries = compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 8
+
+    def test_processing_entries_inplace(self):
+        # load two entries in GGA_GGA_U_R2SCAN thermo type
+        entriesJson = Path(PymatgenTest.TEST_FILES_DIR / "entries_thermo_type_GGA_GGA_U_R2SCAN.json")
+        with open(entriesJson) as file:
+            entries = json.load(file, cls=MontyDecoder)
+        # check whether the compatibility scheme can keep input entries unchanged
+        entries_copy = copy.deepcopy(entries)
+        MaterialsProjectDFTMixingScheme().process_entries(entries, inplace=False)
+        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
 
 class TestMaterialsProjectDFTMixingSchemeStates:
@@ -1342,7 +1356,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         In this case, the mixing scheme should not do anything
         """
-        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_only.all_entries, verbose=True)
+        state_data = mixing_scheme_no_compat.get_mixing_state_data(ms_scan_only.all_entries)
         pd.testing.assert_frame_equal(state_data, ms_scan_only.state_data)
 
         for e in ms_scan_only.all_entries:
@@ -1421,12 +1435,10 @@ class TestMaterialsProjectDFTMixingSchemeStates:
         pd.testing.assert_frame_equal(state_data, ms_gga_2_scan_same.state_data)
 
         for e in ms_gga_2_scan_same.scan_entries:
-            if e.entry_id == "r2scan-6":
+            if e.entry_id in ["r2scan-6", "r2scan-4"]:
                 # gga-4 energy is -18 eV or -6 eV/atom. r2scan-6 is 1 eV/atom above r2scan-4 (ground state),
                 # so r2scan-6 should be adjusted to -5 eV/atom or -15 eV, which is 3 eV higher than its
                 # original energy of -18 eV.
-                assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data)[0].value == 3
-            elif e.entry_id == "r2scan-4":
                 # r2scan-4 energy is -7 eV/atom. Needs to be adjusted to -6 eV/atom (3 atoms)
                 assert mixing_scheme_no_compat.get_adjustments(e, ms_gga_2_scan_same.state_data)[0].value == 3
             else:
@@ -1449,9 +1461,9 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 assert e.correction == 3
                 assert e.parameters["run_type"] == "R2SCAN"
             elif e.entry_id == "gga-4":
-                assert False, "Entry gga-4 should have been discarded"
+                raise AssertionError("Entry gga-4 should have been discarded")
             elif e.entry_id == "gga-6":
-                assert False, "Entry gga-6 should have been discarded"
+                raise AssertionError("Entry gga-6 should have been discarded")
             else:
                 assert e.correction == 0, f"{e.entry_id}"
                 assert e.parameters["run_type"] == "GGA"
@@ -1496,7 +1508,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
             elif e.entry_id == "r2scan-7":
                 assert e.correction == 15
             elif e.entry_id in ["gga-4"]:
-                assert False, f"Entry {e.entry_id} should have been discarded"
+                raise AssertionError(f"Entry {e.entry_id} should have been discarded")
             else:
                 assert e.correction == 0, f"{e.entry_id}"
                 assert e.parameters["run_type"] == "GGA"
@@ -1540,7 +1552,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 assert e.correction == 3
                 assert e.parameters["run_type"] == "R2SCAN"
             elif e.entry_id in ["gga-4", "r2scan-8"]:
-                assert False, f"Entry {e.entry_id} should have been discarded"
+                raise AssertionError(f"Entry {e.entry_id} should have been discarded")
             else:
                 assert e.correction == 0, f"{e.entry_id}"
                 assert e.parameters["run_type"] == "GGA"
@@ -1668,9 +1680,6 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         with pytest.raises(CompatibilityError, match="energy has been modified"):
             mixing_scheme_no_compat.get_adjustments(e, state_data)
-
-        # with pytest.warns(UserWarning, match="energy has been modified"):
-        #     mixing_scheme_no_compat.process_entries(ms_complete.all_entries, clean=False, mixing_state_data=state_data)
 
     def test_chemsys_mismatch(self, mixing_scheme_no_compat, ms_scan_chemsys_superset):
         """

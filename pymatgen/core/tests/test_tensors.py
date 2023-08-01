@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import math
 import os
 import unittest
 import warnings
 
 import numpy as np
+import pytest
 from monty.serialization import MontyDecoder, loadfn
+from pytest import approx
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.tensors import (
@@ -115,24 +119,21 @@ class TensorTest(PymatgenTest):
     def test_new(self):
         bad_2 = np.zeros((4, 4))
         bad_3 = np.zeros((4, 4, 4))
-        self.assertRaises(ValueError, Tensor, bad_2)
-        self.assertRaises(ValueError, Tensor, bad_3)
-        self.assertEqual(self.rand_rank2.rank, 2)
-        self.assertEqual(self.rand_rank3.rank, 3)
-        self.assertEqual(self.rand_rank4.rank, 4)
+        with pytest.raises(ValueError):
+            Tensor(bad_2)
+        with pytest.raises(ValueError):
+            Tensor(bad_3)
+        assert self.rand_rank2.rank == 2
+        assert self.rand_rank3.rank == 3
+        assert self.rand_rank4.rank == 4
 
     def test_zeroed(self):
-        self.assertArrayEqual(
-            self.low_val.zeroed(),
-            Tensor([[0, 1 + 1e-5, 0], [1 + 1e-6, 0, 0], [0, 0, 1 + 1e-5]]),
+        assert self.low_val.zeroed() == approx(Tensor([[0, 1 + 1e-5, 0], [1 + 1e-6, 0, 0], [0, 0, 1 + 1e-5]]))
+        assert self.low_val.zeroed(tol=1e-6) == approx(
+            Tensor([[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [0, 0, 1 + 1e-5]])
         )
-        self.assertArrayEqual(
-            self.low_val.zeroed(tol=1e-6),
-            Tensor([[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [0, 0, 1 + 1e-5]]),
-        )
-        self.assertArrayEqual(
-            Tensor([[1e-6, -30, 1], [1e-7, 1, 0], [1e-8, 0, 1]]).zeroed(),
-            Tensor([[0, -30, 1], [0, 1, 0], [0, 0, 1]]),
+        assert Tensor([[1e-6, -30, 1], [1e-7, 1, 0], [1e-8, 0, 1]]).zeroed() == approx(
+            Tensor([[0, -30, 1], [0, 1, 0], [0, 0, 1]])
         )
 
     def test_transform(self):
@@ -170,36 +171,38 @@ class TensorTest(PymatgenTest):
             SquareTensor([[0.531, 0.485, 0.271], [0.700, 0.5, 0.172], [0.171, 0.233, 0.068]]),
             decimal=3,
         )
-        self.assertRaises(ValueError, self.non_symm.rotate, self.symm_rank2)
+        with pytest.raises(ValueError):
+            self.non_symm.rotate(self.symm_rank2)
 
     def test_einsum_sequence(self):
         x = [1, 0, 0]
         test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
         self.assertArrayAlmostEqual([0, 27, 54], test.einsum_sequence([x] * 3))
-        self.assertEqual(360, test.einsum_sequence([np.eye(3)] * 2))
-        self.assertRaises(ValueError, test.einsum_sequence, Tensor(np.zeros(3)))
+        assert test.einsum_sequence([np.eye(3)] * 2) == 360
+        with pytest.raises(ValueError):
+            test.einsum_sequence(Tensor(np.zeros(3)))
 
     def test_symmetrized(self):
-        self.assertTrue(self.rand_rank2.symmetrized.is_symmetric())
-        self.assertTrue(self.rand_rank3.symmetrized.is_symmetric())
-        self.assertTrue(self.rand_rank4.symmetrized.is_symmetric())
+        assert self.rand_rank2.symmetrized.is_symmetric()
+        assert self.rand_rank3.symmetrized.is_symmetric()
+        assert self.rand_rank4.symmetrized.is_symmetric()
 
     def test_is_symmetric(self):
-        self.assertTrue(self.symm_rank2.is_symmetric())
-        self.assertTrue(self.symm_rank3.is_symmetric())
-        self.assertTrue(self.symm_rank4.is_symmetric())
+        assert self.symm_rank2.is_symmetric()
+        assert self.symm_rank3.is_symmetric()
+        assert self.symm_rank4.is_symmetric()
         tol_test = self.symm_rank4
         tol_test[0, 1, 2, 2] += 1e-6
-        self.assertFalse(self.low_val.is_symmetric(tol=1e-8))
+        assert not self.low_val.is_symmetric(tol=1e-8)
 
     def test_fit_to_structure(self):
         new_fit = self.unfit4.fit_to_structure(self.structure)
         self.assertArrayAlmostEqual(new_fit, self.fit_r4, 1)
 
     def test_is_fit_to_structure(self):
-        self.assertFalse(self.unfit4.is_fit_to_structure(self.structure))
-        self.assertTrue(self.fit_r3.is_fit_to_structure(self.structure))
-        self.assertTrue(self.fit_r4.is_fit_to_structure(self.structure))
+        assert not self.unfit4.is_fit_to_structure(self.structure)
+        assert self.fit_r3.is_fit_to_structure(self.structure)
+        assert self.fit_r4.is_fit_to_structure(self.structure)
 
     def test_convert_to_ieee(self):
         for entry in self.ieee_data:
@@ -212,8 +215,8 @@ class TensorTest(PymatgenTest):
             converted = orig.convert_to_ieee(struct, refine_rotation=False)
             self.assertArrayAlmostEqual(ieee, converted, err_msg=err_msg, decimal=3)
             converted_refined = orig.convert_to_ieee(struct, refine_rotation=True)
-            err_msg = "{} IEEE conversion with refinement failed with max diff {}. Numpy version: {}".format(
-                xtal, diff, np.__version__
+            err_msg = (
+                f"{xtal} IEEE conversion with refinement failed with max diff {diff}. Numpy version: {np.__version__}"
             )
             self.assertArrayAlmostEqual(ieee, converted_refined, err_msg=err_msg, decimal=2)
 
@@ -245,7 +248,7 @@ class TensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(rotated, transformed)
 
     def test_from_voigt(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             Tensor.from_voigt(
                 [
                     [59.33, 28.08, 28.08, 0],
@@ -276,13 +279,13 @@ class TensorTest(PymatgenTest):
     def test_symmetry_reduce(self):
         tbs = [Tensor.from_voigt(row) for row in np.eye(6) * 0.01]
         reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
-        self.assertEqual(len(reduced), 2)
-        self.assertArrayEqual([len(i) for i in reduced.values()], [2, 2])
+        assert len(reduced) == 2
+        assert [len(i) for i in reduced.values()] == [2, 2]
         reconstructed = []
         for k, v in reduced.items():
             reconstructed.extend([k.voigt] + [k.transform(op).voigt for op in v])
         reconstructed = sorted(reconstructed, key=lambda x: np.argmax(x))
-        self.assertArrayAlmostEqual([tb for tb in reconstructed], np.eye(6) * 0.01)
+        self.assertArrayAlmostEqual(list(reconstructed), np.eye(6) * 0.01)
 
     def test_tensor_mapping(self):
         # Test get
@@ -291,13 +294,17 @@ class TensorTest(PymatgenTest):
         tkey = Tensor.from_values_indices([0.01], [(0, 0)])
         tval = reduced[tkey]
         for tens_1, tens_2 in zip(tval, reduced[tbs[0]]):
-            self.assertAlmostEqual(tens_1, tens_2)
+            assert approx(tens_1) == tens_2
         # Test set
         reduced[tkey] = "test_val"
-        self.assertEqual(reduced[tkey], "test_val")
+        assert reduced[tkey] == "test_val"
         # Test empty initialization
         empty = TensorMapping()
-        self.assertEqual(empty._tensor_list, [])
+        assert empty._tensor_list == []
+
+        # test adding to empty tensor mapping
+        empty[tkey] = 1
+        assert empty[tkey] == 1
 
     def test_populate(self):
         test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json"))
@@ -309,12 +316,12 @@ class TensorTest(PymatgenTest):
         vtens[3, 3] = 73.48
         et = Tensor.from_voigt(vtens)
         populated = et.populate(sn, prec=1e-3).voigt.round(2)
-        self.assertAlmostEqual(populated[1, 1], 259.31)
-        self.assertAlmostEqual(populated[2, 2], 259.31)
-        self.assertAlmostEqual(populated[0, 2], 160.71)
-        self.assertAlmostEqual(populated[1, 2], 160.71)
-        self.assertAlmostEqual(populated[4, 4], 73.48)
-        self.assertAlmostEqual(populated[5, 5], 73.48)
+        assert populated[1, 1] == approx(259.31)
+        assert populated[2, 2] == approx(259.31)
+        assert populated[0, 2] == approx(160.71)
+        assert populated[1, 2] == approx(160.71)
+        assert populated[4, 4] == approx(73.48)
+        assert populated[5, 5] == approx(73.48)
         # test a rank 6 example
         vtens = np.zeros([6] * 3)
         indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), (0, 3, 3), (0, 5, 5), (3, 4, 5)]
@@ -323,13 +330,13 @@ class TensorTest(PymatgenTest):
             vtens[idx] = v
         toec = Tensor.from_voigt(vtens)
         toec = toec.populate(sn, prec=1e-3, verbose=True)
-        self.assertAlmostEqual(toec.voigt[1, 1, 1], -1271)
-        self.assertAlmostEqual(toec.voigt[0, 1, 1], -814)
-        self.assertAlmostEqual(toec.voigt[0, 2, 2], -814)
-        self.assertAlmostEqual(toec.voigt[1, 4, 4], -3)
-        self.assertAlmostEqual(toec.voigt[2, 5, 5], -3)
-        self.assertAlmostEqual(toec.voigt[1, 2, 0], -50)
-        self.assertAlmostEqual(toec.voigt[4, 5, 3], -95)
+        assert toec.voigt[1, 1, 1] == approx(-1271)
+        assert toec.voigt[0, 1, 1] == approx(-814)
+        assert toec.voigt[0, 2, 2] == approx(-814)
+        assert toec.voigt[1, 4, 4] == approx(-3)
+        assert toec.voigt[2, 5, 5] == approx(-3)
+        assert toec.voigt[1, 2, 0] == approx(-50)
+        assert toec.voigt[4, 5, 3] == approx(-95)
 
         et = Tensor.from_voigt(test_data["C3_raw"]).fit_to_structure(sn)
         new = np.zeros(et.voigt.shape)
@@ -343,12 +350,12 @@ class TensorTest(PymatgenTest):
         indices = [(0, 0), (0, 1), (3, 3)]
         values = [259.31, 160.71, 73.48]
         et = Tensor.from_values_indices(values, indices, structure=sn, populate=True).voigt.round(4)
-        self.assertAlmostEqual(et[1, 1], 259.31)
-        self.assertAlmostEqual(et[2, 2], 259.31)
-        self.assertAlmostEqual(et[0, 2], 160.71)
-        self.assertAlmostEqual(et[1, 2], 160.71)
-        self.assertAlmostEqual(et[4, 4], 73.48)
-        self.assertAlmostEqual(et[5, 5], 73.48)
+        assert round(abs(et[1, 1] - 259.31), 7) == 0
+        assert round(abs(et[2, 2] - 259.31), 7) == 0
+        assert round(abs(et[0, 2] - 160.71), 7) == 0
+        assert round(abs(et[1, 2] - 160.71), 7) == 0
+        assert round(abs(et[4, 4] - 73.48), 7) == 0
+        assert round(abs(et[5, 5] - 73.48), 7) == 0
 
     def test_serialization(self):
         # Test base serialize-deserialize
@@ -361,32 +368,29 @@ class TensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(new, self.symm_rank3)
 
     def test_projection_methods(self):
-        self.assertAlmostEqual(self.rand_rank2.project([1, 0, 0]), self.rand_rank2[0, 0])
-        self.assertAlmostEqual(self.rand_rank2.project([1, 1, 1]), np.sum(self.rand_rank2) / 3)
+        assert round(abs(self.rand_rank2.project([1, 0, 0]) - self.rand_rank2[0, 0]), 7) == 0
+        assert round(abs(self.rand_rank2.project([1, 1, 1]) - np.sum(self.rand_rank2) / 3), 7) == 0
         # Test integration
         self.assertArrayAlmostEqual(self.ones.average_over_unit_sphere(), 1)
 
     def test_summary_methods(self):
-        self.assertEqual(
-            set(self.ones.get_grouped_indices()[0]),
-            set(itertools.product(range(3), range(3))),
-        )
-        self.assertEqual(self.ones.get_grouped_indices(voigt=True)[0], [(i,) for i in range(6)])
-        self.assertEqual(self.ones.get_symbol_dict(), {"T_1": 1})
-        self.assertEqual(self.ones.get_symbol_dict(voigt=False), {"T_11": 1})
+        assert set(self.ones.get_grouped_indices()[0]) == set(itertools.product(range(3), range(3)))
+        assert self.ones.get_grouped_indices(voigt=True)[0] == [(i,) for i in range(6)]
+        assert self.ones.get_symbol_dict() == {"T_1": 1}
+        assert self.ones.get_symbol_dict(voigt=False) == {"T_11": 1}
 
     def test_round(self):
         test = self.non_symm + 0.01
         rounded = test.round(1)
         self.assertArrayAlmostEqual(rounded, self.non_symm)
-        self.assertTrue(isinstance(rounded, Tensor))
+        assert isinstance(rounded, Tensor)
 
 
 class TensorCollectionTest(PymatgenTest):
     def setUp(self):
-        self.seq_tc = [t for t in np.arange(4 * 3**3).reshape((4, 3, 3, 3))]
+        self.seq_tc = list(np.arange(4 * 3**3).reshape((4, 3, 3, 3)))
         self.seq_tc = TensorCollection(self.seq_tc)
-        self.rand_tc = TensorCollection([t for t in np.random.random((4, 3, 3))])
+        self.rand_tc = TensorCollection(list(np.random.random((4, 3, 3))))
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
         ieee_file_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "ieee_conversion_data.json")
@@ -414,9 +418,9 @@ class TensorCollectionTest(PymatgenTest):
         # zeroed
         tc = TensorCollection([1e-4 * Tensor(np.eye(3))] * 4)
         for t in tc.zeroed():
-            self.assertArrayEqual(t, np.zeros((3, 3)))
+            assert t == approx(0)
         for t in tc.zeroed(1e-5):
-            self.assertArrayEqual(t, 1e-4 * np.eye(3))
+            assert t == approx(1e-4 * np.eye(3))
         self.list_based_function_check("zeroed", tc)
         self.list_based_function_check("zeroed", tc, tol=1e-5)
 
@@ -433,8 +437,8 @@ class TensorCollectionTest(PymatgenTest):
         self.list_based_function_check("rotate", self.diff_rank, matrix=rotation)
 
         # is_symmetric
-        self.assertFalse(self.seq_tc.is_symmetric())
-        self.assertTrue(self.diff_rank.is_symmetric())
+        assert not self.seq_tc.is_symmetric()
+        assert self.diff_rank.is_symmetric()
 
         # fit_to_structure
         self.list_based_function_check("fit_to_structure", self.diff_rank, self.struct)
@@ -448,8 +452,8 @@ class TensorCollectionTest(PymatgenTest):
         self.list_based_function_check("voigt", self.diff_rank)
 
         # is_voigt_symmetric
-        self.assertTrue(self.diff_rank.is_voigt_symmetric())
-        self.assertFalse(self.seq_tc.is_voigt_symmetric())
+        assert self.diff_rank.is_voigt_symmetric()
+        assert not self.seq_tc.is_voigt_symmetric()
 
         # Convert to ieee
         for entry in self.ieee_data[:2]:
@@ -459,7 +463,7 @@ class TensorCollectionTest(PymatgenTest):
             self.list_based_function_check("convert_to_ieee", tc, struct)
 
         # from_voigt
-        tc_input = [t for t in np.random.random((3, 6, 6))]
+        tc_input = list(np.random.random((3, 6, 6)))
         tc = TensorCollection.from_voigt(tc_input)
         for t_input, t in zip(tc_input, tc):
             self.assertArrayAlmostEqual(Tensor.from_voigt(t_input), t)
@@ -500,34 +504,31 @@ class SquareTensorTest(PymatgenTest):
         ]
         bad_matrix = [[0.1, 0.2], [0.2, 0.3, 0.4], [0.2, 0.3, 0.5]]
         too_high_rank = np.zeros((3, 3, 3))
-        self.assertRaises(ValueError, SquareTensor, non_sq_matrix)
-        self.assertRaises(ValueError, SquareTensor, bad_matrix)
-        self.assertRaises(ValueError, SquareTensor, too_high_rank)
+        with pytest.raises(ValueError):
+            SquareTensor(non_sq_matrix)
+        with pytest.raises(ValueError):
+            SquareTensor(bad_matrix)
+        with pytest.raises(ValueError):
+            SquareTensor(too_high_rank)
 
     def test_properties(self):
         # transpose
-        self.assertArrayEqual(
-            self.non_symm.trans,
-            SquareTensor([[0.1, 0.4, 0.2], [0.2, 0.5, 0.5], [0.3, 0.6, 0.5]]),
-        )
-        self.assertArrayEqual(self.rand_sqtensor.trans, np.transpose(self.rand_sqtensor))
-        self.assertArrayEqual(self.symm_sqtensor, self.symm_sqtensor.trans)
+        assert self.non_symm.trans == approx(SquareTensor([[0.1, 0.4, 0.2], [0.2, 0.5, 0.5], [0.3, 0.6, 0.5]]))
+        assert self.rand_sqtensor.trans == approx(np.transpose(self.rand_sqtensor))
+        assert self.symm_sqtensor == approx(self.symm_sqtensor.trans)
         # inverse
-        self.assertArrayEqual(self.non_symm.inv, np.linalg.inv(self.non_symm))
-        with self.assertRaises(ValueError):
+        assert self.non_symm.inv == approx(np.linalg.inv(self.non_symm))
+        with pytest.raises(ValueError):
             self.non_invertible.inv
 
         # determinant
-        self.assertEqual(self.rand_sqtensor.det, np.linalg.det(self.rand_sqtensor))
-        self.assertEqual(self.non_invertible.det, 0.0)
-        self.assertEqual(self.non_symm.det, 0.009)
+        assert self.rand_sqtensor.det == np.linalg.det(self.rand_sqtensor)
+        assert self.non_invertible.det == 0.0
+        assert self.non_symm.det == 0.009
 
         # symmetrized
-        self.assertArrayEqual(
-            self.rand_sqtensor.symmetrized,
-            0.5 * (self.rand_sqtensor + self.rand_sqtensor.trans),
-        )
-        self.assertArrayEqual(self.symm_sqtensor, self.symm_sqtensor.symmetrized)
+        assert self.rand_sqtensor.symmetrized == approx(0.5 * (self.rand_sqtensor + self.rand_sqtensor.trans))
+        assert self.symm_sqtensor == approx(self.symm_sqtensor.symmetrized)
         self.assertArrayAlmostEqual(
             self.non_symm.symmetrized,
             SquareTensor([[0.1, 0.3, 0.25], [0.3, 0.5, 0.55], [0.25, 0.55, 0.5]]),
@@ -547,25 +548,22 @@ class SquareTensorTest(PymatgenTest):
         self.assertArrayAlmostEqual([i1, i2, i3], self.rand_sqtensor.principal_invariants)
 
     def test_is_rotation(self):
-        self.assertTrue(self.rotation.is_rotation())
-        self.assertFalse(self.symm_sqtensor.is_rotation())
-        self.assertTrue(self.low_val_2.is_rotation())
-        self.assertFalse(self.low_val_2.is_rotation(tol=1e-8))
+        assert self.rotation.is_rotation()
+        assert not self.symm_sqtensor.is_rotation()
+        assert self.low_val_2.is_rotation()
+        assert not self.low_val_2.is_rotation(tol=1e-8)
 
     def test_refine_rotation(self):
         self.assertArrayAlmostEqual(self.rotation, self.rotation.refine_rotation())
         new = self.rotation.copy()
         new[2, 2] += 0.02
-        self.assertFalse(new.is_rotation())
+        assert not new.is_rotation()
         self.assertArrayAlmostEqual(self.rotation, new.refine_rotation())
         new[1] *= 1.05
         self.assertArrayAlmostEqual(self.rotation, new.refine_rotation())
 
     def test_get_scaled(self):
-        self.assertArrayEqual(
-            self.non_symm.get_scaled(10.0),
-            SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]),
-        )
+        assert self.non_symm.get_scaled(10.0) == approx(SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]))
 
     def test_polar_decomposition(self):
         u, p = self.rand_sqtensor.polar_decomposition()
@@ -577,11 +575,11 @@ class SquareTensorTest(PymatgenTest):
         d = self.rand_sqtensor.as_dict()
         new = SquareTensor.from_dict(d)
         self.assertArrayAlmostEqual(new, self.rand_sqtensor)
-        self.assertIsInstance(new, SquareTensor)
+        assert isinstance(new, SquareTensor)
 
         # Ensure proper object-independent deserialization
         obj = MontyDecoder().process_decoded(d)
-        self.assertIsInstance(obj, SquareTensor)
+        assert isinstance(obj, SquareTensor)
 
         with warnings.catch_warnings(record=True):
             vsym = self.rand_sqtensor.voigt_symmetrized

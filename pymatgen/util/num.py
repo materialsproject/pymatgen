@@ -1,9 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides utilities for basic math operations.
 """
+
+from __future__ import annotations
 
 import numpy as np
 
@@ -11,7 +10,7 @@ import numpy as np
 def abs_cap(val, max_abs_val=1):
     """
     Returns the value with its absolute value capped at max_abs_val.
-    Particularly useful in passing values to trignometric functions where
+    Particularly useful in passing values to trigonometric functions where
     numerical errors may result in an argument > 1 being passed in.
 
     Args:
@@ -47,8 +46,8 @@ def min_max_indexes(seq):
     Uses enumerate, max, and min to return the indices of the values
     in a list with the maximum and minimum value:
     """
-    l = sorted(enumerate(seq), key=lambda s: s[1])
-    return l[0][0], l[-1][0]
+    lst = sorted(enumerate(seq), key=lambda s: s[1])
+    return lst[0][0], lst[-1][0]
 
 
 def strictly_increasing(values):
@@ -72,10 +71,9 @@ def non_decreasing(values):
 
 
 def monotonic(values, mode="<", atol=1.0e-8):
-    """
-    Returns False if values are not monotonic (decreasing|increasing).
+    """True if values are monotonically (decreasing|increasing).
     mode is "<" for a decreasing sequence, ">" for an increasing sequence.
-    Two numbers are considered equal if they differ less that atol.
+    Two numbers are considered equal if they differ less than atol.
 
     .. warning:
         Not very efficient for large data sets.
@@ -101,7 +99,7 @@ def monotonic(values, mode="<", atol=1.0e-8):
             if abs(vp - v) > atol and vp >= v:
                 return False
 
-    raise ValueError(f"Wrong mode {str(mode)}")
+    raise ValueError(f"Wrong mode {mode!s}")
 
 
 def round_to_sigfigs(num, sigfigs):

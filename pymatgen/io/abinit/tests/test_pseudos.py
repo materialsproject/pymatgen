@@ -1,9 +1,10 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
+from __future__ import annotations
 
 import collections
 import os.path
+
+import pytest
+from pytest import approx
 
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.util.testing import PymatgenTest
@@ -46,12 +47,12 @@ class PseudoTestCase(PymatgenTest):
             for pseudo in pseudos:
                 assert repr(pseudo)
                 assert str(pseudo)
-                self.assertTrue(pseudo.isnc)
-                self.assertFalse(pseudo.ispaw)
-                self.assertEqual(pseudo.Z, 14)
-                self.assertEqual(pseudo.symbol, symbol)
-                self.assertEqual(pseudo.Z_val, 4)
-                self.assertGreaterEqual(pseudo.nlcc_radius, 0.0)
+                assert pseudo.isnc
+                assert not pseudo.ispaw
+                assert pseudo.Z == 14
+                assert pseudo.symbol == symbol
+                assert pseudo.Z_val == 4
+                assert pseudo.nlcc_radius >= 0.0
 
                 # Test pickle
                 self.serialize_with_pickle(pseudo, test_eq=False)
@@ -61,35 +62,35 @@ class PseudoTestCase(PymatgenTest):
 
         # HGH pseudos
         pseudo = self.Si_hgh
-        self.assertFalse(pseudo.has_nlcc)
-        self.assertEqual(pseudo.l_max, 1)
-        self.assertEqual(pseudo.l_local, 0)
+        assert not pseudo.has_nlcc
+        assert pseudo.l_max == 1
+        assert pseudo.l_local == 0
         assert not pseudo.supports_soc
         assert self.Si_hgh.md5 is not None
         assert self.Si_hgh == self.Si_hgh
 
         # TM pseudos
         pseudo = self.Si_pspnc
-        self.assertTrue(pseudo.has_nlcc)
-        self.assertEqual(pseudo.l_max, 2)
-        self.assertEqual(pseudo.l_local, 2)
+        assert pseudo.has_nlcc
+        assert pseudo.l_max == 2
+        assert pseudo.l_local == 2
         assert not pseudo.supports_soc
         assert self.Si_hgh != self.Si_pspnc
 
         # FHI pseudos
         pseudo = self.Si_fhi
-        self.assertFalse(pseudo.has_nlcc)
-        self.assertEqual(pseudo.l_max, 3)
-        self.assertEqual(pseudo.l_local, 2)
+        assert not pseudo.has_nlcc
+        assert pseudo.l_max == 3
+        assert pseudo.l_local == 2
         assert not pseudo.supports_soc
 
         # Test PseudoTable.
         table = PseudoTable(self.nc_pseudos["Si"])
         assert repr(table)
         assert str(table)
-        self.assertTrue(table.allnc)
-        self.assertTrue(not table.allpaw)
-        self.assertFalse(not table.is_complete)
+        assert table.allnc
+        assert not table.allpaw
+        assert table.is_complete
         assert len(table) == 3
         assert len(table[14]) == 3
         assert len(table.select_symbols("Si")) == 3
@@ -105,16 +106,15 @@ class PseudoTestCase(PymatgenTest):
         assert str(oxygen)
         assert isinstance(oxygen.as_dict(), dict)
 
-        self.assertTrue(oxygen.ispaw)
-        self.assertTrue(
-            oxygen.symbol == "O" and (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6),
-            oxygen.Z_val == 6,
-        )
+        assert oxygen.ispaw
+        assert oxygen.symbol == "O"
+        assert (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6), oxygen.Z_val == 6
 
-        assert oxygen.xc.type == "GGA" and oxygen.xc.name == "PBE"
+        assert oxygen.xc.type == "GGA"
+        assert oxygen.xc.name == "PBE"
         assert oxygen.supports_soc
         assert oxygen.md5 is not None
-        self.assertAlmostEqual(oxygen.paw_radius, 1.4146523028)
+        assert oxygen.paw_radius == approx(1.4146523028)
 
         # Test pickle
         new_objs = self.serialize_with_pickle(oxygen, test_eq=False)
@@ -122,13 +122,11 @@ class PseudoTestCase(PymatgenTest):
         self.assertMSONable(oxygen)
 
         for o in new_objs:
-            self.assertTrue(o.ispaw)
-            self.assertTrue(
-                o.symbol == "O" and (o.Z, o.core, o.valence) == (8, 2, 6),
-                o.Z_val == 6,
-            )
+            assert o.ispaw
+            assert o.symbol == "O"
+            assert (o.Z, o.core, o.valence) == (8, 2, 6), o.Z_val == 6
 
-            self.assertAlmostEqual(o.paw_radius, 1.4146523028)
+            assert o.paw_radius == approx(1.4146523028)
 
     def test_oncvpsp_pseudo_sr(self):
         """
@@ -140,14 +138,14 @@ class PseudoTestCase(PymatgenTest):
         assert isinstance(ger.as_dict(), dict)
         ger.as_tmpfile()
 
-        self.assertTrue(ger.symbol == "Ge")
-        self.assertEqual(ger.Z, 32.0)
-        self.assertEqual(ger.Z_val, 4.0)
-        self.assertTrue(ger.isnc)
-        self.assertFalse(ger.ispaw)
-        self.assertEqual(ger.l_max, 2)
-        self.assertEqual(ger.l_local, 4)
-        self.assertEqual(ger.rcore, None)
+        assert ger.symbol == "Ge"
+        assert ger.Z == 32.0
+        assert ger.Z_val == 4.0
+        assert ger.isnc
+        assert not ger.ispaw
+        assert ger.l_max == 2
+        assert ger.l_local == 4
+        assert ger.rcore is None
         assert not ger.supports_soc
 
         # Data persistence
@@ -166,14 +164,14 @@ class PseudoTestCase(PymatgenTest):
         self.serialize_with_pickle(pb, test_eq=False)
         self.assertMSONable(pb)
 
-        self.assertTrue(pb.symbol == "Pb")
-        self.assertEqual(pb.Z, 82.0)
-        self.assertEqual(pb.Z_val, 14.0)
-        self.assertTrue(pb.isnc)
-        self.assertFalse(pb.ispaw)
-        self.assertEqual(pb.l_max, 2)
-        self.assertEqual(pb.l_local, 4)
-        self.assertTrue(pb.supports_soc)
+        assert pb.symbol == "Pb"
+        assert pb.Z == 82.0
+        assert pb.Z_val == 14.0
+        assert pb.isnc
+        assert not pb.ispaw
+        assert pb.l_max == 2
+        assert pb.l_local == 4
+        assert pb.supports_soc
 
 
 class PseudoTableTest(PymatgenTest):
@@ -184,7 +182,8 @@ class PseudoTableTest(PymatgenTest):
         assert len(table) == 3
         for pseudo in table:
             assert pseudo.isnc
-        assert table.allnc and not table.allpaw
+        assert table.allnc
+        assert not table.allpaw
         assert table.zlist == [14]
 
         # Data persistence
@@ -195,7 +194,8 @@ class PseudoTableTest(PymatgenTest):
         self.assertMSONable(table)
 
         selected = table.select_symbols("Si")
-        assert len(selected) == len(table) and selected.__class__ is table.__class__
+        assert len(selected) == len(table)
+        assert selected.__class__ is table.__class__
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             table.pseudos_with_symbols("Si")

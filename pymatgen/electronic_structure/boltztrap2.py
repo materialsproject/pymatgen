@@ -21,11 +21,13 @@ References are:
     BoltzTraP. A code for calculating band-structure dependent quantities.
     Computer Physics Communications, 175, 67-71
 
-TODO:
+Todo:
 - DONE: spin polarized bands
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
 - handle magnetic moments (magmom)
 """
+from __future__ import annotations
+
 import warnings
 
 import matplotlib.pyplot as plt
@@ -69,11 +71,11 @@ class VasprunBSLoader:
             obj: Either a pmg Vasprun or a BandStructure object.
             structure: Structure object in case is not included in the BandStructure object.
             nelect: number of electrons in case a BandStructure obj is provided.
+
         Example:
             vrun = Vasprun('vasprun.xml')
             data = VasprunBSLoader(vrun)
         """
-
         if isinstance(obj, Vasprun):
             structure = obj.final_structure
             nelect = obj.parameters["NELECT"]
@@ -123,8 +125,8 @@ class VasprunBSLoader:
         else:
             self.vbm_idx = None
             self.cbm_idx = None
-            self.vbm = self.fermi
-            self.cbm = self.fermi
+            self.vbm = self.fermi / units.eV
+            self.cbm = self.fermi / units.eV
 
         if nelect:
             self.nelect_all = nelect
@@ -196,8 +198,9 @@ class BandstructureLoader:
             bs_obj: BandStructure object.
             structure: Structure object. It is needed if it is not contained in the BandStructure obj.
             nelect: Number of electrons in the calculation.
-            momat: Matrix of derivatives of energy eigenvalues. Not implemented yet.
+            mommat: Matrix of derivatives of energy eigenvalues. TODO Not implemented yet.
             magmom: Matrix of magnetic moments in non collinear calculations. Not implemented yet.
+
         Example:
             vrun = Vasprun('vasprun.xml')
             bs = vrun.get_band_structure()
@@ -205,7 +208,6 @@ class BandstructureLoader:
             ne = vrun.parameters['NELECT']
             data = BandstructureLoader(bs,st,ne)
         """
-
         warnings.warn("Deprecated Loader. Use VasprunBSLoader instead.")
 
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
@@ -326,7 +328,6 @@ class VasprunLoader:
         """
         vrun_obj: Vasprun object.
         """
-
         warnings.warn("Deprecated Loader. Use VasprunBSLoader instead.")
 
         if vrun_obj:
@@ -456,6 +457,7 @@ class BztInterpolator:
             save_bands: Default False. If True interpolated bands are also stored.
                 It can be slower than interpolate them. Not recommended.
             fname: File path where to store/load from the coefficients and equivalences.
+
         Example:
             data = VasprunLoader().from_file('vasprun.xml')
             bztInterp = BztInterpolator(data)
@@ -500,7 +502,8 @@ class BztInterpolator:
 
     def save(self, fname="bztInterp.json.gz", bands=False):
         """Save the coefficient, equivalences to fname.
-        If bands is True, also interpolated bands are stored."""
+        If bands is True, also interpolated bands are stored.
+        """
         if bands:
             dumpfn(
                 [
@@ -530,13 +533,12 @@ class BztInterpolator:
                       'X':np.array(0.5,0.5,0.)}
         density: Number of points in each segment.
         """
-
         if isinstance(kpaths, list) and isinstance(kpoints_lbls_dict, dict):
             kpoints = []
             for kpath in kpaths:
-                for i, k in enumerate(kpath[:-1]):
-                    sta = kpoints_lbls_dict[kpath[i]]
-                    end = kpoints_lbls_dict[kpath[i + 1]]
+                for idx, k_pt in enumerate(kpath[:-1]):
+                    sta = kpoints_lbls_dict[k_pt]
+                    end = kpoints_lbls_dict[kpath[idx + 1]]
                     kpoints.append(np.linspace(sta, end, density))
             kpoints = np.concatenate(kpoints)
         else:
@@ -664,7 +666,7 @@ class BztTransportProperties:
     def __init__(
         self,
         BztInterpolator,
-        temp_r=np.arange(100, 1400, 100),
+        temp_r=None,
         doping=None,
         npts_mu=4000,
         CRTA=1e-14,
@@ -682,6 +684,8 @@ class BztTransportProperties:
                 compute_properties_doping() method for details.
             npts_mu: number of energy points at which to calculate transport properties
             CRTA: constant value of the relaxation time
+            margin: The energy range of the interpolation is extended by this value on both sides.
+                Defaults to 9 * units.BOLTZMANN * temp_r.max().
             save_bztTranspProps: Default False. If True all computed transport properties
                 will be stored in fname file.
             load_bztTranspProps: Default False. If True all computed transport properties
@@ -703,6 +707,8 @@ class BztTransportProperties:
         Example:
             bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(100,1400,100))
         """
+        if temp_r is None:
+            temp_r = np.arange(100, 1400, 100)
 
         self.dosweight = BztInterpolator.data.dosweight
         self.volume = BztInterpolator.data.get_volume()
@@ -710,7 +716,7 @@ class BztTransportProperties:
         self.efermi = BztInterpolator.data.fermi / units.eV
 
         if margin is None:
-            margin = 9.0 * units.BOLTZMANN * temp_r.max()
+            margin = 9 * units.BOLTZMANN * temp_r.max()
 
         if load_bztTranspProps:
             self.load(fname)
@@ -731,7 +737,7 @@ class BztTransportProperties:
                 self.epsilon < self.epsilon.max() - margin,
             )
 
-            self.mu_r = self.epsilon[mur_indices]
+            self.mu_r = self.epsilon[mur_indices]  # mu range
             self.mu_r_eV = self.mu_r / units.eV - self.efermi
 
             N, L0, L1, L2, Lm11 = BL.fermiintegrals(
@@ -799,6 +805,7 @@ class BztTransportProperties:
 
         Args:
             doping: numpy array specifying the doping levels
+            temp_r: numpy array specifying the temperatures
 
         When executed, it add the following variable at the BztTransportProperties
         object:
@@ -808,7 +815,6 @@ class BztTransportProperties:
             Carriers_conc_doping: carriers concentration for each doping level and T.
             mu_doping_eV: the chemical potential corrispondent to each doping level.
         """
-
         if temp_r is None:
             temp_r = self.temp_r
 
@@ -1078,7 +1084,6 @@ class BztPlotter:
         more example are provided in the notebook
         "How to use Boltztra2 interface.ipynb".
         """
-
         props = (
             "Conductivity",
             "Seebeck",
@@ -1251,6 +1256,7 @@ class BztPlotter:
 def merge_up_down_doses(dos_up, dos_dn):
     """
     Merge the up and down DOSs.
+
     Args:
     dos_up: Up DOS.
     dos_dn: Down DOS

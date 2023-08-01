@@ -1,10 +1,9 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes for representing species substitution
 probabilities.
 """
+
+from __future__ import annotations
 
 import functools
 import itertools
@@ -155,14 +154,14 @@ class SubstitutionProbability:
 
     def as_dict(self):
         """
-        Returns: MSONAble dict
+        Returns: MSONable dict
         """
         return {
-            "name": self.__class__.__name__,
+            "name": type(self).__name__,
             "version": __version__,
             "init_args": {"lambda_table": self._l, "alpha": self.alpha},
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -203,6 +202,7 @@ class SubstitutionPredictor:
                 will be found. If false, substitutions with this as a
                 starting composition will be found (these are slightly
                 different)
+
         Returns:
             List of predictions in the form of dictionaries.
             If to_this_composition is true, the values of the dictionary
@@ -237,11 +237,8 @@ class SubstitutionPredictor:
                     return
                 for sp in self.p.species:
                     i = len(output_prob)
-                    if to_this_composition:
-                        prob = self.p.cond_prob(sp, species[i])
-                    else:
-                        prob = self.p.cond_prob(species[i], sp)
-                    _recurse(output_prob + [prob], output_species + [sp])
+                    prob = self.p.cond_prob(sp, species[i]) if to_this_composition else self.p.cond_prob(species[i], sp)
+                    _recurse([*output_prob, prob], [*output_species, sp])
 
         _recurse([], [])
         logging.info(f"{len(output)} substitutions found")
@@ -267,13 +264,10 @@ class SubstitutionPredictor:
             will be from the list species. If false, the keys will be
             from that list.
         """
-        preds = self.list_prediction(list(composition.keys()), to_this_composition)
+        preds = self.list_prediction(list(composition), to_this_composition)
         output = []
         for p in preds:
-            if to_this_composition:
-                subs = {v: k for k, v in p["substitutions"].items()}
-            else:
-                subs = p["substitutions"]
+            subs = {v: k for k, v in p["substitutions"].items()} if to_this_composition else p["substitutions"]
             charge = 0
             for k, v in composition.items():
                 charge += subs[k].oxi_state * v

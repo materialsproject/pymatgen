@@ -1,6 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
+from __future__ import annotations
 
 import os
 
@@ -31,8 +29,8 @@ class TestCRESTInput(PymatgenTest):
         mol = Molecule(species=species, coords=coords)
         cin = CRESTInput(molecule=mol, coords_filename="crest_in.xyz")
 
-        self.assertDictEqual(mol.as_dict(), cin.molecule.as_dict())
-        self.assertEqual("crest_in.xyz", cin.coords_filename)
+        assert mol.as_dict() == cin.molecule.as_dict()
+        assert cin.coords_filename == "crest_in.xyz"
 
     def test_constraints_file(self):
         constraints = {"atoms": [8, 1, 2], "force_constant": 0.5}
@@ -40,7 +38,7 @@ class TestCRESTInput(PymatgenTest):
         cin = CRESTInput(molecule=mol, constraints=constraints)
         with open(os.path.join(expected_output_dir, "expected_constrains.txt")) as f:
             exp_con = f.read()
-            self.assertEqual(
-                exp_con.strip(),
-                cin.constrains_template(molecule=mol, reference_fnm="crest_in.xyz", constraints=constraints).strip(),
+            assert (
+                exp_con.strip()
+                == cin.constrains_template(molecule=mol, reference_fnm="crest_in.xyz", constraints=constraints).strip()
             )

@@ -1,16 +1,15 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module define the various drones used to assimilate data.
 """
 
+from __future__ import annotations
+
 import abc
-import glob
 import json
 import logging
 import os
 import warnings
+from glob import glob
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -37,7 +36,7 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
     def assimilate(self, path):
         """
         Assimilate data in a directory path into a pymatgen object. Because of
-        the quirky nature of Python"s multiprocessing, the object must support
+        the quirky nature of Python's multiprocessing, the object must support
         pymatgen's as_dict() for parallel processing.
 
         Args:
@@ -56,7 +55,7 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
         paths, depending on what kind of data you are assimilating. For
         example, if you are assimilating VASP runs, you are only interested in
         directories containing vasprun.xml files. On the other hand, if you are
-        interested converting all POSCARs in a directory tree to cifs for
+        interested converting all POSCARs in a directory tree to CIFs for
         example, you will want the file paths.
 
         Args:
@@ -71,7 +70,7 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
 
 class VaspToComputedEntryDrone(AbstractDrone):
     """
-    VaspToEntryDrone assimilates directories containing vasp output to
+    VaspToEntryDrone assimilates directories containing VASP output to
     ComputedEntry/ComputedStructureEntry objects. There are some restrictions
     on the valid directory structures:
 
@@ -105,7 +104,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
         if parameters:
             self._parameters.update(parameters)
-        self._data = data if data else []
+        self._data = data or []
 
     def assimilate(self, path):
         """
@@ -119,9 +118,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
         """
         files = os.listdir(path)
         if "relax1" in files and "relax2" in files:
-            filepath = glob.glob(os.path.join(path, "relax2", "vasprun.xml*"))[0]
+            filepath = glob(os.path.join(path, "relax2", "vasprun.xml*"))[0]
         else:
-            vasprun_files = glob.glob(os.path.join(path, "vasprun.xml*"))
+            vasprun_files = glob(os.path.join(path, "vasprun.xml*"))
             filepath = None
             if len(vasprun_files) == 1:
                 filepath = vasprun_files[0]
@@ -160,11 +159,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
             (not parent.endswith("/relax1"))
             and (not parent.endswith("/relax2"))
             and (
-                len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0
-                or (
-                    len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0
-                    and len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0
-                )
+                len(glob(os.path.join(parent, "vasprun.xml*"))) > 0
+                or (len(glob(os.path.join(parent, "POSCAR*"))) > 0 and len(glob(os.path.join(parent, "OSZICAR*"))) > 0)
             )
         ):
             return [parent]
@@ -183,8 +179,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 "parameters": self._parameters,
                 "data": self._data,
             },
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -234,16 +230,14 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             if "relax1" in files and "relax2" in files:
                 for filename in ("INCAR", "POTCAR", "POSCAR"):
                     search_str = os.path.join(path, "relax1", filename + "*")
-                    files_to_parse[filename] = glob.glob(search_str)[0]
+                    files_to_parse[filename] = glob(search_str)[0]
                 for filename in ("CONTCAR", "OSZICAR"):
                     search_str = os.path.join(path, "relax2", filename + "*")
-                    files_to_parse[filename] = glob.glob(search_str)[-1]
+                    files_to_parse[filename] = glob(search_str)[-1]
             else:
                 for filename in filenames:
-                    files = sorted(glob.glob(os.path.join(path, filename + "*")))
-                    if len(files) == 1 or filename in ("INCAR", "POTCAR"):
-                        files_to_parse[filename] = files[0]
-                    elif len(files) == 1 and filename == "DYNMAT":
+                    files = sorted(glob(os.path.join(path, filename + "*")))
+                    if len(files) == 1 or filename in ("INCAR", "POTCAR") or len(files) == 1 and filename == "DYNMAT":
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         # Since multiple files are ambiguous, we will always
@@ -253,11 +247,11 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         files_to_parse[filename] = files[0] if filename == "POSCAR" else files[-1]
                         warnings.warn(f"{len(files)} files found. {files_to_parse[filename]} is being parsed.")
 
-            if not set(files_to_parse.keys()).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
+            if not set(files_to_parse).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
                 raise ValueError(
-                    "Unable to parse %s as not all necessary files are present! "
+                    f"Unable to parse {files_to_parse} as not all necessary files are present! "
                     "SimpleVaspToComputedEntryDrone requires INCAR, POTCAR, CONTCAR, OSZICAR, POSCAR "
-                    "to be present. Only %s detected" % str(files_to_parse.keys())
+                    f"to be present. Only {files} detected"
                 )
 
             poscar = Poscar.from_file(files_to_parse["POSCAR"])
@@ -294,12 +288,12 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
     def as_dict(self):
         """
-        Returns: MSONAble dict
+        Returns: MSONable dict
         """
         return {
             "init_args": {"inc_structure": self._inc_structure},
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -334,12 +328,12 @@ class GaussianToComputedEntryDrone(AbstractDrone):
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the GaussianOutput object. See
                 :class:`pymatgen.io.gaussianio GaussianOutput`. The parameters
-                have to be one of python"s primitive types, i.e., list, dict of
+                have to be one of python's primitive types, i.e., list, dict of
                 strings and integers. If parameters is None, a default set of
                 parameters will be set.
             data (list): Output data to include. Has to be one of the properties
                 supported by the GaussianOutput object. The parameters have to
-                be one of python"s primitive types, i.e. list, dict of strings
+                be one of python's primitive types, i.e. list, dict of strings
                 and integers. If data is None, a default set will be set.
             file_extensions (list):
                 File extensions to be considered as Gaussian output files.
@@ -423,8 +417,8 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 "data": self._data,
                 "file_extensions": self._file_extensions,
             },
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
         }
 
     @classmethod
@@ -443,7 +437,7 @@ def _get_transformation_history(path):
     """
     Checks for a transformations.json* file and returns the history.
     """
-    trans_json = glob.glob(os.path.join(path, "transformations.json*"))
+    trans_json = glob(os.path.join(path, "transformations.json*"))
     if trans_json:
         try:
             with zopen(trans_json[0]) as f:

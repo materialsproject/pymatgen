@@ -1,0 +1,35 @@
+# LGPS
+
+# 1) Initialization
+units metal
+atom_style full
+dimension 3
+pair_style hybrid/overlay morse 15 coul/long 15
+kspace_style ewald 1e-4
+boundary p p p
+
+# 2) System definition
+read_data run_init.data
+set type 1 charge  0.8803
+set type 2 charge  1.2570
+set type 3 charge  1.2580
+set type 4 charge -1.048
+neigh_modify every 1 delay 5 check yes
+
+# 3) Simulation settings
+pair_coeff 1 1 morse 0.0580 3.987 3.404
+pair_coeff 1 4 morse 0.0408 1.399 3.204
+pair_coeff 2 4 morse 0.3147 2.257 2.409
+pair_coeff 3 4 morse 0.4104 2.329 2.200
+pair_coeff 4 4 morse 0.0241 1.359 4.284
+pair_coeff * * coul/long 
+
+# Part A : energy minimization
+thermo 1
+thermo_style custom step lx ly lz press pxx pyy pzz pe
+dump dmp all atom 5 run.dump
+
+min_style cg
+fix 1 all box/relax iso 0.0 vmax 0.001
+minimize 1.0e-16 1.0e-16 5000 10000
+write_data run.data

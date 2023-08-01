@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes to interface with the Crystallography Open
 Database. If you use data from the COD, please cite the following works (as
@@ -22,15 +19,18 @@ stipulated by the COD developers)::
 
     Grazulis, S., Chateigner, D., Downs, R. T., Yokochi, A. T., Quiros, M.,
     Lutterotti, L., Manakova, E., Butkus, J., Moeck, P. & Le Bail, A. (2009)
-    "Crystallography Open Database – an open-access collection of crystal
+    "Crystallography Open Database - an open-access collection of crystal
     structures". J. Appl. Cryst. 42, 726-729.
 
     Downs, R. T. & Hall-Wallace, M. (2003) "The American Mineralogist Crystal
     Structure Database". American Mineralogist 88, 247-250.
 """
 
+from __future__ import annotations
+
 import re
 import subprocess
+import warnings
 from shutil import which
 
 import requests
@@ -80,8 +80,8 @@ class COD:
         sql = f'select file from data where formula="- {Composition(formula).hill_formula} -"'
         text = self.query(sql).split("\n")
         cod_ids = []
-        for l in text:
-            m = re.search(r"(\d+)", l)
+        for line in text:
+            m = re.search(r"(\d+)", line)
             if m:
                 cod_ids.append(int(m.group(1)))
         return cod_ids
@@ -102,34 +102,31 @@ class COD:
         return Structure.from_str(r.text, fmt="cif", **kwargs)
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
-    def get_structure_by_formula(self, formula, **kwargs):
+    def get_structure_by_formula(self, formula: str, **kwargs) -> list[dict[str, str | int | Structure]]:
         """
         Queries the COD for structures by formula. Requires mysql executable to
         be in the path.
 
         Args:
-            cod_id (int): COD id.
+            formula (str): Chemical formula.
             kwargs: All kwargs supported by
                 :func:`pymatgen.core.structure.Structure.from_str`.
 
         Returns:
-            A list of dict of the format
-            [{"structure": Structure, "cod_id": cod_id, "sg": "P n m a"}]
+            A list of dict of the format [{"structure": Structure, "cod_id": int, "sg": "P n m a"}]
         """
-        structures = []
+        structures: list[dict[str, str | int | Structure]] = []
         sql = f'select file, sg from data where formula="- {Composition(formula).hill_formula} -"'
         text = self.query(sql).split("\n")
         text.pop(0)
-        for l in text:
-            if l.strip():
-                cod_id, sg = l.split("\t")
+        for line in text:
+            if line.strip():
+                cod_id, sg = line.split("\t")
                 r = requests.get(f"http://www.crystallography.net/cod/{cod_id.strip()}.cif")
                 try:
                     s = Structure.from_str(r.text, fmt="cif", **kwargs)
                     structures.append({"structure": s, "cod_id": int(cod_id), "sg": sg})
                 except Exception:
-                    import warnings
-
                     warnings.warn(f"\nStructure.from_str failed while parsing CIF file:\n{r.text}")
                     raise
 

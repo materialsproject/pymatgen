@@ -1,17 +1,15 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes for non-standard space-group settings
 """
 
+from __future__ import annotations
+
 import re
 from fractions import Fraction
-from typing import List, Tuple, Union
 
 import numpy as np
 
-from pymatgen.core import Lattice
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.util.string import transformation_to_string
 
@@ -54,7 +52,7 @@ class JonesFaithfulTransformation:
         between magnetic and non-magnetic settings.
 
         See: International Tables for Crystallography (2016). Vol. A,
-        Chapter 1.5, pp. 75–106.
+        Chapter 1.5, pp. 75-106.
         """
         # using capital letters in violation of PEP8 to
         # be consistent with variables in supplied reference,
@@ -86,7 +84,7 @@ class JonesFaithfulTransformation:
     @staticmethod
     def parse_transformation_string(
         transformation_string: str = "a,b,c;0,0,0",
-    ) -> Tuple[Union[List[List[float]], np.ndarray], List[float]]:
+    ) -> tuple[list[list[float]] | np.ndarray, list[float]]:
         """
         Args:
             transformation_string (str, optional): Defaults to "a,b,c;0,0,0".
@@ -95,7 +93,7 @@ class JonesFaithfulTransformation:
             ValueError: When transformation string fails to parse.
 
         Returns:
-            Tuple[Union[List[List[float]], np.ndarray], List[float]]: transformation matrix & vector
+            tuple[list[list[float]] | np.ndarray, list[float]]: transformation matrix & vector
         """
         try:
             a = np.array([1, 0, 0])
@@ -126,24 +124,22 @@ class JonesFaithfulTransformation:
             raise ValueError("Failed to parse transformation string.")
 
     @property
-    def P(self) -> List[List[float]]:
+    def P(self) -> list[list[float]]:
         """
         :return: transformation matrix
         """
         return self._P
 
     @property
-    def p(self) -> List[float]:
+    def p(self) -> list[float]:
         """
-
         :return: translation vector
         """
         return self._p
 
     @property
-    def inverse(self) -> "JonesFaithfulTransformation":
+    def inverse(self) -> JonesFaithfulTransformation:
         """
-
         :return: JonesFaithfulTransformation
         """
         Q = np.linalg.inv(self.P)
@@ -157,24 +153,23 @@ class JonesFaithfulTransformation:
         return self._get_transformation_string_from_Pp(self.P, self.p)
 
     @staticmethod
-    def _get_transformation_string_from_Pp(P: Union[List[List[float]], np.ndarray], p: List[float]) -> str:
+    def _get_transformation_string_from_Pp(P: list[list[float]] | np.ndarray, p: list[float]) -> str:
         P = np.array(P).transpose()
         P_string = transformation_to_string(P, components=("a", "b", "c"))
         p_string = transformation_to_string(np.zeros((3, 3)), p)
         return P_string + ";" + p_string
 
-    def transform_symmop(self, symmop: Union[SymmOp, MagSymmOp]) -> Union[SymmOp, MagSymmOp]:
+    def transform_symmop(self, symmop: SymmOp | MagSymmOp) -> SymmOp | MagSymmOp:
         """
         Takes a symmetry operation and transforms it.
         :param symmop: SymmOp or MagSymmOp
         :return:
         """
-        W = symmop.rotation_matrix
-        w = symmop.translation_vector
+        W_rot = symmop.rotation_matrix
+        w_translation = symmop.translation_vector
         Q = np.linalg.inv(self.P)
-        W_ = np.matmul(np.matmul(Q, W), self.P)
-        I = np.identity(3)
-        w_ = np.matmul(Q, (w + np.matmul(W - I, self.p)))
+        W_ = np.matmul(np.matmul(Q, W_rot), self.P)
+        w_ = np.matmul(Q, (w_translation + np.matmul(W_rot - np.identity(3), self.p)))
         w_ = np.mod(w_, 1.0)
         if isinstance(symmop, MagSymmOp):
             return MagSymmOp.from_rotation_and_translation_and_time_reversal(
@@ -187,7 +182,7 @@ class JonesFaithfulTransformation:
             return SymmOp.from_rotation_and_translation(rotation_matrix=W_, translation_vec=w_, tol=symmop.tol)
         raise RuntimeError
 
-    def transform_coords(self, coords: Union[List[List[float]], np.ndarray]) -> List[List[float]]:
+    def transform_coords(self, coords: list[list[float]] | np.ndarray) -> list[list[float]]:
         """
         Takes a list of coordinates and transforms them.
         :param coords: List of coords
@@ -197,12 +192,11 @@ class JonesFaithfulTransformation:
         for x in coords:
             x = np.array(x)
             Q = np.linalg.inv(self.P)
-            x_ = np.matmul(Q, (x - self.p))  # type: ignore
+            x_ = np.matmul(Q, (x - self.p))
             new_coords.append(x_.tolist())
         return new_coords
 
-    def transform_lattice(self, lattice):
-        # type: (Lattice) -> Lattice
+    def transform_lattice(self, lattice: Lattice) -> Lattice:
         """
         Takes a Lattice object and transforms it.
         :param lattice: Lattice
@@ -210,7 +204,9 @@ class JonesFaithfulTransformation:
         """
         return Lattice(np.matmul(lattice.matrix, self.P))
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
         return np.allclose(self.P, other.P) and np.allclose(self.p, other.p)
 
     def __str__(self):

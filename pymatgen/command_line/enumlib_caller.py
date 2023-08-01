@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements an interface to enumlib, Gus Hart's excellent Fortran
 code for enumerating derivative structures.
@@ -27,13 +24,15 @@ superstructures for systems with high configurational freedom," Comp. Mat.
 Sci. 136 144-149 (May 2017)
 """
 
+from __future__ import annotations
+
 import fractions
-import glob
 import itertools
 import logging
 import math
 import re
 import subprocess
+from glob import glob
 from shutil import which
 from threading import Timer
 
@@ -158,13 +157,9 @@ class EnumlibAdaptor:
         fitter = SpacegroupAnalyzer(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
         logger.debug(
-            "Spacegroup {} ({}) with {} distinct sites".format(
-                fitter.get_space_group_symbol(),
-                fitter.get_space_group_number(),
-                len(symmetrized_structure.equivalent_sites),
-            )
+            f"Spacegroup {fitter.get_space_group_symbol()} ({fitter.get_space_group_number()}) "
+            f"with {len(symmetrized_structure.equivalent_sites)} distinct sites"
         )
-
         """
         Enumlib doesn"t work when the number of species get too large. To
         simplify matters, we generate the input file only with disordered sites
@@ -173,7 +168,6 @@ class EnumlibAdaptor:
         different equivalent sites is dealt with by having determined the
         spacegroup earlier and labelling the species differently.
         """
-
         # index_species and index_amounts store mappings between the indices
         # used in the enum input file, and the actual species and amounts.
         index_species = []
@@ -202,7 +196,7 @@ class EnumlibAdaptor:
                         ind = index_species.index(sp)
                         sp_label.append(ind)
                         index_amounts[ind] += amt * len(sites)
-                sp_label = "/".join([f"{i}" for i in sorted(sp_label)])
+                sp_label = "/".join(f"{i}" for i in sorted(sp_label))
                 for site in sites:
                     coord_str.append(f"{coord_format.format(*site.coords)} {sp_label}")
                 disordered_sites.append(sites)
@@ -226,7 +220,7 @@ class EnumlibAdaptor:
                 temp_sites = list(curr_sites) + sites
                 new_sgnum = get_sg_info(temp_sites)
                 if sgnum != new_sgnum:
-                    logger.debug(f"Adding {sites[0].specie} in enum. New sg # {int(new_sgnum)}")
+                    logger.debug(f"Adding {sites[0].specie} in enum. New sg # {new_sgnum}")
                     index_species.append(sites[0].specie)
                     index_amounts.append(len(sites))
                     sp_label = len(index_species) - 1
@@ -287,15 +281,13 @@ class EnumlibAdaptor:
                 min_conc = int(math.floor(conc * base))
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
         output.append("")
-        logger.debug("Generated input file:\n{}".format("\n".join(output)))
+        logger.debug("Generated input file:\n" + "\n".join(output))
         with open("struct_enum.in", "w") as f:
             f.write("\n".join(output))
 
     def _run_multienum(self):
-
         with subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as p:
             if self.timeout:
-
                 timed_out = False
                 timer = Timer(self.timeout * 60, lambda p: p.kill(), [p])
 
@@ -311,7 +303,6 @@ class EnumlibAdaptor:
                     raise TimeoutError("Enumeration took too long.")
 
             else:
-
                 output = p.communicate()[0].decode("utf-8")
 
         count = 0
@@ -333,7 +324,7 @@ class EnumlibAdaptor:
             options = ["struct_enum.out", str(0), str(num_structs - 1)]
 
         with subprocess.Popen(
-            [makestr_cmd] + options,
+            [makestr_cmd, *options],
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
             close_fds=True,
@@ -346,7 +337,7 @@ class EnumlibAdaptor:
         # to ensure consistency, we keep track of what site properties
         # are missing and set them to None
         # TODO: improve this by mapping ordered structure to original
-        # disorded structure, and retrieving correct site properties
+        # disordered structure, and retrieving correct site properties
         disordered_site_properties = {}
 
         if len(self.ordered_sites) > 0:
@@ -369,8 +360,11 @@ class EnumlibAdaptor:
                 site_properties=site_properties,
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
+        else:
+            ordered_structure = None  # to fix pylint E0601
+            inv_org_latt = None
 
-        for file in glob.glob("vasp.*"):
+        for file in glob("vasp.*"):
             with open(file) as f:
                 data = f.read()
                 data = re.sub(r"scale factor", "1", data)

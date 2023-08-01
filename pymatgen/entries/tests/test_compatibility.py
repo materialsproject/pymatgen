@@ -1,27 +1,15 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+from __future__ import annotations
 
-import warnings
-
-"""
-Created on Mar 19, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong, Stephen Dacek"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 19, 2012"
-
+import copy
+import json
 import os
 import unittest
+import warnings
 from collections import defaultdict
 from math import sqrt
 from pathlib import Path
 
-import pytest  # type: ignore
+import pytest
 from monty.json import MontyDecoder
 
 from pymatgen.core.composition import Composition
@@ -327,8 +315,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
     def test_process_entry(self):
         # Correct parameters
-        self.assertIsNotNone(self.compat.process_entry(self.entry1))
-        self.assertIsNone(self.ggacompat.process_entry(self.entry1))
+        assert self.compat.process_entry(self.entry1) is not None
+        assert self.ggacompat.process_entry(self.entry1) is None
 
         # Correct parameters
         entry = ComputedEntry(
@@ -351,8 +339,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
-        self.assertIsNotNone(self.ggacompat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
+        assert self.ggacompat.process_entry(entry) is not None
 
         entry = ComputedEntry(
             "Fe2O3",
@@ -374,11 +362,11 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNotNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is not None
 
     def test_correction_values(self):
         # test_corrections
-        self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction, -2.733 * 2 - 0.70229 * 3)
+        assert self.compat.process_entry(self.entry1).correction == pytest.approx(-2.733 * 2 - 0.70229 * 3)
 
         entry = ComputedEntry(
             "FeF3",
@@ -400,12 +388,12 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNotNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is not None
 
         # Check actual correction
-        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -2.733)
+        assert self.compat.process_entry(entry).correction == pytest.approx(-2.733)
 
-        self.assertAlmostEqual(self.compat.process_entry(self.entry_sulfide).correction, -0.66346)
+        assert self.compat.process_entry(self.entry_sulfide).correction == pytest.approx(-0.66346)
 
     def test_U_values(self):
         # Wrong U value
@@ -429,7 +417,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
         # GGA run of U
         entry = ComputedEntry(
@@ -452,7 +440,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
         # GGA+U run of non-U
         entry = ComputedEntry(
@@ -475,7 +463,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
         # Materials project should not have a U for sulfides
         entry = ComputedEntry(
@@ -498,7 +486,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
     def test_wrong_psp(self):
         # Wrong psp
@@ -522,7 +510,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
     def test_element_processing(self):
         entry = ComputedEntry(
@@ -543,8 +531,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         )
         entry = self.compat.process_entry(entry)
         #        self.assertEqual(entry.entry_id, -8)
-        self.assertAlmostEqual(entry.energy, -1)
-        self.assertAlmostEqual(self.ggacompat.process_entry(entry).energy, -1)
+        assert entry.energy == pytest.approx(-1)
+        assert self.ggacompat.process_entry(entry).energy == pytest.approx(-1)
 
     def test_get_explanation_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
@@ -569,7 +557,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             },
         )
         d = compat.get_explanation_dict(entry)
-        self.assertEqual("MPRelaxSet Potcar Correction", d["corrections"][0]["name"])
+        assert d["corrections"][0]["name"] == "MPRelaxSet Potcar Correction"
 
     def test_get_corrections_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
@@ -597,23 +585,23 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             },
         )
         c = compat.get_corrections_dict(entry)[0]
-        self.assertAlmostEqual(c["MP Anion Correction"], -2.10687)
-        self.assertAlmostEqual(c["MP Advanced Correction"], -5.466)
+        assert c["MP Anion Correction"] == pytest.approx(-2.10687)
+        assert c["MP Advanced Correction"] == pytest.approx(-5.466)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
         c = ggacompat.get_corrections_dict(entry)[0]
-        self.assertNotIn("MP Advanced Correction", c)
+        assert "MP Advanced Correction" not in c
 
     def test_process_entries(self):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3, self.entry4])
-        self.assertEqual(len(entries), 2)
+        assert len(entries) == 2
 
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
-        self.assertIsInstance(temp_compat, MaterialsProjectCompatibility)
+        assert isinstance(temp_compat, MaterialsProjectCompatibility)
 
 
 class MaterialsProjectCompatibility2020Test(unittest.TestCase):
@@ -709,8 +697,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
 
     def test_process_entry(self):
         # Correct parameters
-        self.assertIsNotNone(self.compat.process_entry(self.entry1))
-        self.assertIsNone(self.ggacompat.process_entry(self.entry1))
+        assert self.compat.process_entry(self.entry1) is not None
+        assert self.ggacompat.process_entry(self.entry1) is None
 
         # Correct parameters
         entry = ComputedEntry(
@@ -733,8 +721,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
-        self.assertIsNotNone(self.ggacompat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
+        assert self.ggacompat.process_entry(entry) is not None
 
         entry = ComputedEntry(
             "Fe2O3",
@@ -756,7 +744,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNotNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is not None
 
     def test_oxi_state_guess(self):
         # An entry where Composition.oxi_state_guesses will return an empty list
@@ -807,17 +795,17 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
 
         with pytest.warns(UserWarning, match="Failed to guess oxidation state"):
             e1 = self.compat.process_entry(entry_blank)
-            self.assertAlmostEqual(e1.correction, -0.422)
+            assert e1.correction == pytest.approx(-0.422)
 
         e2 = self.compat.process_entry(entry_oxi)
-        self.assertAlmostEqual(e2.correction, -0.687 + -3.202 * 2 + -0.614 * 8)
+        assert e2.correction == pytest.approx(-0.687 + -3.202 * 2 + -0.614 * 8)
 
         e3 = self.compat.process_entry(entry_multi_anion)
-        self.assertAlmostEqual(e3.correction, -0.361 * 4 + -0.614 * 4)
+        assert e3.correction == pytest.approx(-0.361 * 4 + -0.614 * 4)
 
     def test_correction_values(self):
         # test_corrections
-        self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction, -2.256 * 2 - 0.687 * 3)
+        assert self.compat.process_entry(self.entry1).correction == pytest.approx(-2.256 * 2 - 0.687 * 3)
 
         entry = ComputedEntry(
             "FeF3",
@@ -839,12 +827,12 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNotNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is not None
 
         # Check actual correction
-        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -0.462 * 3 + -2.256)
+        assert self.compat.process_entry(entry).correction == pytest.approx(-0.462 * 3 + -2.256)
 
-        self.assertAlmostEqual(self.compat.process_entry(self.entry_sulfide).correction, -0.503)
+        assert self.compat.process_entry(self.entry_sulfide).correction == pytest.approx(-0.503)
 
     def test_oxdiation_by_electronegativity(self):
         # make sure anion corrections are only applied when the element has
@@ -902,10 +890,10 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         )
 
         # CaSi; only correction should be Si
-        self.assertAlmostEqual(self.compat.process_entry(entry1).correction, 0.071 * 2)
+        assert self.compat.process_entry(entry1).correction == pytest.approx(0.071 * 2)
 
         # SiO2; only corrections should be oxide
-        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.687 * 4)
+        assert self.compat.process_entry(entry2).correction == pytest.approx(-0.687 * 4)
 
     def test_oxdiation(self):
         # make sure anion corrections are only applied when the element has
@@ -969,10 +957,10 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         )
 
         # CaSi; only correction should be Si
-        self.assertAlmostEqual(self.compat.process_entry(entry1).correction, 0.071 * 2)
+        assert self.compat.process_entry(entry1).correction == pytest.approx(0.071 * 2)
 
         # SiO2; only corrections should be oxide
-        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.687 * 4)
+        assert self.compat.process_entry(entry2).correction == pytest.approx(-0.687 * 4)
 
     def test_U_values(self):
         # Wrong U value
@@ -996,7 +984,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
         # GGA run of U
         entry = ComputedEntry(
@@ -1019,7 +1007,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
         # GGA+U run of non-U
         entry = ComputedEntry(
@@ -1042,7 +1030,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
         # Materials project should not have a U for sulfides
         entry = ComputedEntry(
@@ -1065,7 +1053,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
     def test_wrong_psp(self):
         # Wrong psp
@@ -1089,7 +1077,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
     def test_element_processing(self):
         entry = ComputedEntry(
@@ -1109,8 +1097,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
             },
         )
         entry = self.compat.process_entry(entry)
-        self.assertAlmostEqual(entry.energy, -1)
-        self.assertAlmostEqual(self.ggacompat.process_entry(entry).energy, -1)
+        assert entry.energy == pytest.approx(-1)
+        assert self.ggacompat.process_entry(entry).energy == pytest.approx(-1)
 
     def test_get_explanation_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
@@ -1135,7 +1123,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
             },
         )
         d = compat.get_explanation_dict(entry)
-        self.assertEqual("MPRelaxSet Potcar Correction", d["corrections"][0]["name"])
+        assert d["corrections"][0]["name"] == "MPRelaxSet Potcar Correction"
 
     def test_energy_adjustments(self):
         compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
@@ -1173,26 +1161,23 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
 
         for ea in c.energy_adjustments:
             if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
-                self.assertAlmostEqual(ea.value, -2.256 * 4)
-                self.assertAlmostEqual(ea.uncertainty, 0.0101 * 4)
+                assert ea.value == pytest.approx(-2.256 * 4)
+                assert ea.uncertainty == pytest.approx(0.0101 * 4)
             elif ea.name == "MP2020 GGA/GGA+U mixing correction (Co)":
-                self.assertAlmostEqual(ea.value, -1.638 * 2)
-                self.assertAlmostEqual(ea.uncertainty, 0.006 * 2)
+                assert ea.value == pytest.approx(-1.638 * 2)
+                assert ea.uncertainty == pytest.approx(0.006 * 2)
             elif ea.name == "MP2020 anion correction (oxide)":
-                self.assertAlmostEqual(ea.value, -0.687 * 8)
-                self.assertAlmostEqual(ea.uncertainty, 0.002 * 8)
+                assert ea.value == pytest.approx(-0.687 * 8)
+                assert ea.uncertainty == pytest.approx(0.002 * 8)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
         c = ggacompat.process_entry(entry)
-        self.assertNotIn(
-            "MP2020 GGA/GGA+U mixing correction",
-            [ea.name for ea in c.energy_adjustments],
-        )
+        assert "MP2020 GGA/GGA+U mixing correction" not in [ea.name for ea in c.energy_adjustments]
 
     def test_process_entries(self):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3])
-        self.assertEqual(len(entries), 2)
+        assert len(entries) == 2
 
     def test_config_file(self):
         config_file = Path(PymatgenTest.TEST_FILES_DIR / "MP2020Compatibility_alternate.yaml")
@@ -1200,13 +1185,23 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         entry = compat.process_entry(self.entry1)
         for ea in entry.energy_adjustments:
             if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
-                self.assertAlmostEqual(ea.value, -0.224 * 2)
+                assert ea.value == pytest.approx(-0.224 * 2)
 
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
-        self.assertIsInstance(temp_compat, MaterialsProject2020Compatibility)
+        assert isinstance(temp_compat, MaterialsProject2020Compatibility)
+
+    def test_processing_entries_inplace(self):
+        # load two entries in GGA_GGA_U_R2SCAN thermo type
+        entriesJson = Path(PymatgenTest.TEST_FILES_DIR / "entries_thermo_type_GGA_GGA_U_R2SCAN.json")
+        with open(entriesJson) as file:
+            entries = json.load(file, cls=MontyDecoder)
+        # check whether the compatibility scheme can keep input entries unchanged
+        entries_copy = copy.deepcopy(entries)
+        self.compat.process_entries(entries, inplace=False)
+        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
 
 class MITCompatibilityTest(unittest.TestCase):
@@ -1281,18 +1276,18 @@ class MITCompatibilityTest(unittest.TestCase):
 
     def test_process_entry(self):
         # Correct parameters
-        self.assertIsNotNone(self.compat.process_entry(self.entry_O))
-        self.assertIsNotNone(self.compat.process_entry(self.entry_F))
+        assert self.compat.process_entry(self.entry_O) is not None
+        assert self.compat.process_entry(self.entry_F) is not None
 
     def test_correction_value(self):
         # Check actual correction
-        self.assertAlmostEqual(self.compat.process_entry(self.entry_O).correction, -1.723 * 2 - 0.66975 * 3)
-        self.assertAlmostEqual(self.compat.process_entry(self.entry_F).correction, -1.723)
-        self.assertAlmostEqual(self.compat.process_entry(self.entry_S).correction, -1.113)
+        assert self.compat.process_entry(self.entry_O).correction == pytest.approx(-1.723 * 2 - 0.66975 * 3)
+        assert self.compat.process_entry(self.entry_F).correction == pytest.approx(-1.723)
+        assert self.compat.process_entry(self.entry_S).correction == pytest.approx(-1.113)
 
     def test_U_value(self):
         # MIT should have a U value for Fe containing sulfides
-        self.assertIsNotNone(self.compat.process_entry(self.entry_S))
+        assert self.compat.process_entry(self.entry_S) is not None
 
         # MIT should not have a U value for Ni containing sulfides
         entry = ComputedEntry(
@@ -1316,7 +1311,7 @@ class MITCompatibilityTest(unittest.TestCase):
             },
         )
 
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
         entry = ComputedEntry(
             "NiS2",
@@ -1339,7 +1334,7 @@ class MITCompatibilityTest(unittest.TestCase):
             },
         )
 
-        self.assertIsNotNone(self.ggacompat.process_entry(entry))
+        assert self.ggacompat.process_entry(entry) is not None
 
     def test_wrong_U_value(self):
         # Wrong U value
@@ -1364,7 +1359,7 @@ class MITCompatibilityTest(unittest.TestCase):
             },
         )
 
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
         # GGA run
         entry = ComputedEntry(
@@ -1387,8 +1382,8 @@ class MITCompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
-        self.assertIsNotNone(self.ggacompat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
+        assert self.ggacompat.process_entry(entry) is not None
 
     def test_wrong_psp(self):
         # Wrong psp
@@ -1412,7 +1407,7 @@ class MITCompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
     def test_element_processing(self):
         # Testing processing of elements.
@@ -1433,7 +1428,7 @@ class MITCompatibilityTest(unittest.TestCase):
             },
         )
         entry = self.compat.process_entry(entry)
-        self.assertAlmostEqual(entry.energy, -1)
+        assert entry.energy == pytest.approx(-1)
 
     def test_same_potcar_symbol(self):
         # Same symbol different hash thus a different potcar
@@ -1478,8 +1473,8 @@ class MITCompatibilityTest(unittest.TestCase):
         )
 
         compat = MITCompatibility()
-        self.assertEqual(len(compat.process_entries([entry, entry2])), 2)
-        self.assertEqual(len(self.compat.process_entries([entry, entry2])), 1)
+        assert len(compat.process_entries([entry, entry2])) == 2
+        assert len(self.compat.process_entries([entry, entry2])) == 1
 
     def test_revert_to_symbols(self):
         # Test that you can revert to potcar_symbols if potcar_spec is not present
@@ -1496,9 +1491,10 @@ class MITCompatibilityTest(unittest.TestCase):
             },
         )
 
-        self.assertIsNotNone(compat.process_entry(entry))
+        assert compat.process_entry(entry) is not None
         # raise if check_potcar_hash is set
-        self.assertRaises(ValueError, self.compat.process_entry, entry)
+        with pytest.raises(ValueError):
+            self.compat.process_entry(entry)
 
     def test_potcar_doenst_match_structure(self):
         compat = MITCompatibility()
@@ -1514,7 +1510,7 @@ class MITCompatibilityTest(unittest.TestCase):
             },
         )
 
-        self.assertIsNone(compat.process_entry(entry))
+        assert compat.process_entry(entry) is None
 
     def test_potcar_spec_is_none(self):
         compat = MITCompatibility(check_potcar_hash=True)
@@ -1530,7 +1526,7 @@ class MITCompatibilityTest(unittest.TestCase):
             },
         )
 
-        self.assertIsNone(compat.process_entry(entry))
+        assert compat.process_entry(entry) is None
 
     def test_get_explanation_dict(self):
         compat = MITCompatibility(check_potcar_hash=False)
@@ -1555,13 +1551,13 @@ class MITCompatibilityTest(unittest.TestCase):
             },
         )
         d = compat.get_explanation_dict(entry)
-        self.assertEqual("MITRelaxSet Potcar Correction", d["corrections"][0]["name"])
+        assert d["corrections"][0]["name"] == "MITRelaxSet Potcar Correction"
 
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
-        self.assertIsInstance(temp_compat, MITCompatibility)
+        assert isinstance(temp_compat, MITCompatibility)
 
 
 class OxideTypeCorrectionTest(unittest.TestCase):
@@ -1591,7 +1587,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         )
 
         lio2_entry_corrected = self.compat.process_entry(lio2_entry_nostruct)
-        self.assertAlmostEqual(lio2_entry_corrected.energy, -3 - 0.13893 * 4, 4)
+        assert lio2_entry_corrected.energy == pytest.approx(-3 - 0.13893 * 4)
 
     def test_process_entry_superoxide(self):
         el_li = Element("Li")
@@ -1627,7 +1623,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         )
 
         lio2_entry_corrected = self.compat.process_entry(lio2_entry)
-        self.assertAlmostEqual(lio2_entry_corrected.energy, -3 - 0.13893 * 4, 4)
+        assert lio2_entry_corrected.energy == pytest.approx(-3 - 0.13893 * 4)
 
     def test_process_entry_peroxide(self):
         latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
@@ -1666,7 +1662,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         )
 
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
-        self.assertAlmostEqual(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4)
+        assert li2o2_entry_corrected.energy == pytest.approx(-3 - 0.44317 * 4)
 
     def test_process_entry_ozonide(self):
         el_li = Element("Li")
@@ -1701,7 +1697,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         )
 
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
-        self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0)
+        assert lio3_entry_corrected.energy == pytest.approx(-3.0)
 
     def test_process_entry_oxide(self):
         el_li = Element("Li")
@@ -1731,7 +1727,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         )
 
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
-        self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 - 0.66975, 4)
+        assert li2o_entry_corrected.energy == pytest.approx(-3.0 - 0.66975)
 
 
 class SulfideTypeCorrection2020Test(unittest.TestCase):
@@ -1892,7 +1888,7 @@ class SulfideTypeCorrection2020Test(unittest.TestCase):
         struct_corrected = self.compat.process_entry(na2s2_entry_struct)
         nostruct_corrected = self.compat.process_entry(na2s2_entry_nostruct)
 
-        self.assertAlmostEqual(struct_corrected.correction, nostruct_corrected.correction, 4)
+        assert struct_corrected.correction == pytest.approx(nostruct_corrected.correction)
 
 
 class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
@@ -1927,7 +1923,7 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
         )
 
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
-        self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 - 0.66975, 4)
+        assert li2o_entry_corrected.energy == pytest.approx(-3.0 - 0.66975)
 
     def test_peroxide_energy_corr(self):
         latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
@@ -1945,29 +1941,19 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
             [0.666665, 0.666684, 0.149189],
         ]
         struct = Structure(latt, elts, coords)
-        li2o2_entry = ComputedStructureEntry(
-            struct,
-            -3,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        cse_params = {
+            "is_hubbard": False,
+            "hubbards": None,
+            "run_type": "GGA",
+            "potcar_spec": [
+                {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+            ],
+        }
+        li2o2_entry = ComputedStructureEntry(struct, -3, parameters=cse_params)
 
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
-        self.assertRaises(AssertionError, self.assertAlmostEqual, *(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4))
-        self.assertAlmostEqual(li2o2_entry_corrected.energy, -3 - 0.66975 * 4, 4)
+        assert li2o2_entry_corrected.energy == pytest.approx(-3 - 0.66975 * 4)
 
     def test_ozonide(self):
         el_li = Element("Li")
@@ -2002,7 +1988,7 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
         )
 
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
-        self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0 - 3 * 0.66975)
+        assert lio3_entry_corrected.energy == pytest.approx(-3.0 - 3 * 0.66975)
 
 
 class TestMaterialsProjectAqueousCompatibility:
@@ -2026,7 +2012,6 @@ class TestMaterialsProjectAqueousCompatibility:
     """
 
     def test_h_h2o_energy_with_args_single(self):
-
         compat = MaterialsProjectAqueousCompatibility(
             o2_energy=-4.9276,
             h2o_energy=-5,
@@ -2047,7 +2032,7 @@ class TestMaterialsProjectAqueousCompatibility:
                 compat.process_entries(entry)
 
         # the corrections should set the energy of any H2 polymorph the same, because
-        # we have only processed one entry at at time. Energy differences of H2O
+        # we have only processed one entry at time. Energy differences of H2O
         # polymorphs should be preserved.
         assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4)
         assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom)
@@ -2059,7 +2044,6 @@ class TestMaterialsProjectAqueousCompatibility:
         assert h2o_form_e == pytest.approx(MU_H2O)
 
     def test_h_h2o_energy_with_args_multi(self):
-
         compat = MaterialsProjectAqueousCompatibility(
             o2_energy=-4.9276,
             h2o_energy=-5,
@@ -2085,7 +2069,6 @@ class TestMaterialsProjectAqueousCompatibility:
         assert h2o_form_e == pytest.approx(MU_H2O)
 
     def test_h_h2o_energy_no_args(self):
-
         with pytest.warns(UserWarning, match="You did not provide the required O2 and H2O energies."):
             compat = MaterialsProjectAqueousCompatibility(solid_compat=None)
 
@@ -2139,6 +2122,15 @@ class TestMaterialsProjectAqueousCompatibility:
 
         assert initial_energy - processed_energy == pytest.approx(2 * (compat.h2o_adjustments * 3 + MU_H2O))
 
+    def test_processing_entries_inplace(self):
+        h2o_entry = ComputedEntry(Composition("H2O"), (-5.195 + 0.234) * 3, correction=-0.234 * 3)  # -5.195 eV/atom
+        o2_entry = ComputedEntry(Composition("O2"), -4.9276 * 2)
+        # check that compatibility scheme does not change input entries themselves
+        entries = [h2o_entry, o2_entry]
+        entries_copy = copy.deepcopy(entries)
+        MaterialsProjectAqueousCompatibility().process_entries(entries, inplace=False)
+        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
+
 
 class AqueousCorrectionTest(unittest.TestCase):
     def setUp(self):
@@ -2153,19 +2145,19 @@ class AqueousCorrectionTest(unittest.TestCase):
         H2_entry = self.corr.correct_entry(ComputedEntry(Composition("H2"), 3, parameters={"run_type": "GGA"}))
         H2O_entry = self.corr.correct_entry(ComputedEntry(Composition("H2O"), 3, parameters={"run_type": "GGA"}))
         H2O_formation_energy = H2O_entry.energy - (H2_entry.energy + O2_entry.energy / 2.0)
-        self.assertAlmostEqual(H2O_formation_energy, -2.46, 2)
+        assert H2O_formation_energy == pytest.approx(-2.46)
 
         entry = ComputedEntry(Composition("H2O"), -16, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -14.916, 4)
+        assert entry.energy == pytest.approx(-14.916)
 
         entry = ComputedEntry(Composition("H2O"), -24, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -14.916, 4)
+        assert entry.energy == pytest.approx(-14.916)
 
         entry = ComputedEntry(Composition("Cl"), -24, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -24.344373, 4)
+        assert entry.energy == pytest.approx(-24.344373)
 
 
 class MITAqueousCompatibilityTest(unittest.TestCase):
@@ -2177,7 +2169,6 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
         self.aqcorr = AqueousCorrection(fp)
 
     def test_aqueous_compat(self):
-
         el_li = Element("Li")
         el_o = Element("O")
         el_h = Element("H")
@@ -2218,7 +2209,7 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
         lioh_entry_compat = self.compat.process_entry(lioh_entry)
         lioh_entry_compat_aqcorr = self.aqcorr.correct_entry(lioh_entry_compat)
         lioh_entry_aqcompat = self.aqcompat.process_entry(lioh_entry)
-        self.assertAlmostEqual(lioh_entry_compat_aqcorr.energy, lioh_entry_aqcompat.energy, 4)
+        assert lioh_entry_compat_aqcorr.energy == pytest.approx(lioh_entry_aqcompat.energy)
 
     def test_potcar_doenst_match_structure(self):
         compat = MITCompatibility()
@@ -2248,13 +2239,13 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
             },
         )
 
-        self.assertIsNone(compat.process_entry(lioh_entry))
+        assert compat.process_entry(lioh_entry) is None
 
     def test_msonable(self):
         compat_dict = self.aqcompat.as_dict()
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
-        self.assertIsInstance(temp_compat, MITAqueousCompatibility)
+        assert isinstance(temp_compat, MITAqueousCompatibility)
 
     def test_dont_error_on_weird_elements(self):
         entry = ComputedEntry(
@@ -2274,7 +2265,7 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
                 ]
             },
         )
-        self.assertIsNone(self.compat.process_entry(entry))
+        assert self.compat.process_entry(entry) is None
 
 
 class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
@@ -2390,30 +2381,20 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
 
     def test_errors(self):
         entry1_corrected = self.compat.process_entry(self.entry1)
-        self.assertAlmostEqual(
-            entry1_corrected.correction_uncertainty,
-            sqrt((2 * 0.0101) ** 2 + (3 * 0.002) ** 2),
-        )
+        assert entry1_corrected.correction_uncertainty == pytest.approx(sqrt((2 * 0.0101) ** 2 + (3 * 0.002) ** 2))
 
         entry2_corrected = self.compat.process_entry(self.entry2)
-        self.assertAlmostEqual(
-            entry2_corrected.correction_uncertainty,
-            sqrt((3 * 0.0101) ** 2 + (4 * 0.002) ** 2),
-        )
+        assert entry2_corrected.correction_uncertainty == pytest.approx(sqrt((3 * 0.0101) ** 2 + (4 * 0.002) ** 2))
 
         entry_sulfide_corrected = self.compat.process_entry(self.entry_sulfide)
-        self.assertAlmostEqual(entry_sulfide_corrected.correction_uncertainty, 0.0093)
+        assert entry_sulfide_corrected.correction_uncertainty == pytest.approx(0.0093)
 
         entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
-        self.assertAlmostEqual(
-            entry_fluoride_corrected.correction_uncertainty,
-            sqrt((3 * 0.0026) ** 2 + 0.0101**2),
-        )
+        assert entry_fluoride_corrected.correction_uncertainty == pytest.approx(sqrt((3 * 0.0026) ** 2 + 0.0101**2))
 
         entry_hydride_corrected = self.compat.process_entry(self.entry_hydride)
-        self.assertAlmostEqual(entry_hydride_corrected.correction_uncertainty, 0.0013)
+        assert entry_hydride_corrected.correction_uncertainty == pytest.approx(0.0013)
 
 
 if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

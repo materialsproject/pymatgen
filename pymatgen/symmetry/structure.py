@@ -1,11 +1,10 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements symmetry-related structure forms.
 """
 
-from typing import List, Sequence
+from __future__ import annotations
+
+from typing import Sequence
 
 import numpy as np
 from tabulate import tabulate
@@ -54,12 +53,12 @@ class SymmetrizedStructure(Structure):
         equivalent_indices = [[] for _ in range(len(u))]  # type: ignore
         equivalent_sites = [[] for _ in range(len(u))]  # type: ignore
         wyckoff_symbols = [[] for _ in range(len(u))]  # type: ignore
-        for i, inv in enumerate(inv):
-            equivalent_indices[inv].append(i)
-            equivalent_sites[inv].append(self.sites[i])
-            wyckoff_symbols[inv].append(wyckoff_letters[i])
-        self.equivalent_indices: List[int] = equivalent_indices  # type: ignore
-        self.equivalent_sites: List[PeriodicSite] = equivalent_sites  # type: ignore
+        for i, inv_ in enumerate(inv):
+            equivalent_indices[inv_].append(i)
+            equivalent_sites[inv_].append(self.sites[i])
+            wyckoff_symbols[inv_].append(wyckoff_letters[i])
+        self.equivalent_indices: list[int] = equivalent_indices  # type: ignore
+        self.equivalent_sites: list[PeriodicSite] = equivalent_sites  # type: ignore
         self.wyckoff_letters = wyckoff_letters
         self.wyckoff_symbols = [f"{len(w)}{w[0]}" for w in wyckoff_symbols]
 
@@ -74,7 +73,7 @@ class SymmetrizedStructure(Structure):
             wyckoff_letters=self.wyckoff_letters,
         )
 
-    def find_equivalent_sites(self, site) -> List[PeriodicSite]:
+    def find_equivalent_sites(self, site) -> list[PeriodicSite]:
         """
         Finds all symmetrically equivalent sites for a particular site
 
@@ -91,7 +90,7 @@ class SymmetrizedStructure(Structure):
         raise ValueError("Site not in structure")
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
         outs = [
@@ -104,8 +103,8 @@ class SymmetrizedStructure(Structure):
         def to_s(x):
             return f"{x:0.6f}"
 
-        outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
-        outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
+        outs.append("abc   : " + " ".join(to_s(i).rjust(10) for i in self.lattice.abc))
+        outs.append("angles: " + " ".join(to_s(i).rjust(10) for i in self.lattice.angles))
         if self._charge:
             if self._charge >= 0:
                 outs.append(f"Overall Charge: +{self._charge}")
@@ -114,7 +113,7 @@ class SymmetrizedStructure(Structure):
         outs.append(f"Sites ({len(self)})")
         data = []
         props = self.site_properties
-        keys = sorted(props.keys())
+        keys = sorted(props)
         for i, sites in enumerate(self.equivalent_sites):
             site = sites[0]
             row = [str(i), site.species_string]
@@ -126,17 +125,18 @@ class SymmetrizedStructure(Structure):
         outs.append(
             tabulate(
                 data,
-                headers=["#", "SP", "a", "b", "c", "Wyckoff"] + keys,
+                headers=["#", "SP", "a", "b", "c", "Wyckoff", *keys],
             )
         )
         return "\n".join(outs)
 
     def as_dict(self):
         """
-        :return: MSONAble dict
+        :return: MSONable dict
         """
+        structure = Structure.from_sites(self.sites)
         return {
-            "structure": super().as_dict(),
+            "structure": structure.as_dict(),
             "spacegroup": self.spacegroup,
             "equivalent_positions": self.site_labels,
             "wyckoff_letters": self.wyckoff_letters,
@@ -148,7 +148,7 @@ class SymmetrizedStructure(Structure):
         :param d: Dict representation
         :return: SymmetrizedStructure
         """
-        return SymmetrizedStructure(
+        return cls(
             Structure.from_dict(d["structure"]),
             spacegroup=d["spacegroup"],
             equivalent_positions=d["equivalent_positions"],
