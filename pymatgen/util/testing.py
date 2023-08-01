@@ -24,24 +24,12 @@ from pymatgen.core import SETTINGS, Structure
 
 
 class PymatgenTest(unittest.TestCase):
-    """
-    Extends unittest.TestCase with functions (taken from numpy.testing.utils)
-    that support the comparison of arrays.
-    """
+    """Extends unittest.TestCase with several assert methods for array and str comparison."""
 
     _multiprocess_shared_ = True
     MODULE_DIR = Path(__file__).absolute().parent
     STRUCTURES_DIR = MODULE_DIR / "structures"
-    try:
-        TEST_FILES_DIR = Path(SETTINGS["PMG_TEST_FILES_DIR"])
-    except KeyError:
-        import warnings
-
-        warnings.warn(
-            "It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicitly. "
-            "Now using a fallback location based on relative path from this module."
-        )
-        TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
+    TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", MODULE_DIR / ".." / ".." / "test_files"))
 
     TEST_STRUCTURES: ClassVar[dict[str, Structure]] = {}  # Dict for test structures to aid testing.
     for fn in STRUCTURES_DIR.iterdir():
