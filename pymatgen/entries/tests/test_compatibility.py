@@ -1,6 +1,7 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+from __future__ import annotations
 
+import copy
+import json
 import os
 import unittest
 import warnings
@@ -10,6 +11,7 @@ from pathlib import Path
 
 import pytest
 from monty.json import MontyDecoder
+from pytest import approx
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -26,18 +28,12 @@ from pymatgen.entries.compatibility import (
     MITAqueousCompatibility,
     MITCompatibility,
 )
-from pymatgen.entries.computed_entries import (
-    ComputedEntry,
-    ComputedStructureEntry,
-    ConstantEnergyAdjustment,
-)
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.util.testing import PymatgenTest
 
 
 class CorrectionSpecificityTest(unittest.TestCase):
-    """
-    Make sure corrections are only applied to GGA or GGA+U entries
-    """
+    """Make sure corrections are only applied to GGA or GGA+U entries."""
 
     def setUp(self):
         warnings.simplefilter("ignore")
@@ -50,14 +46,8 @@ class CorrectionSpecificityTest(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -69,14 +59,8 @@ class CorrectionSpecificityTest(unittest.TestCase):
                 "is_hubbard": False,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE S 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE S 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -89,14 +73,8 @@ class CorrectionSpecificityTest(unittest.TestCase):
                 "is_hubbard": False,
                 "run_type": "R2SCAN",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -114,18 +92,14 @@ class CorrectionSpecificityTest(unittest.TestCase):
 
 # abstract Compatibility tests
 class DummyCompatibility(Compatibility):
-    """
-    Dummy class to test abstract Compatibility interface
-    """
+    """Dummy class to test abstract Compatibility interface."""
 
     def get_adjustments(self, entry):
         return [ConstantEnergyAdjustment(-10, name="Dummy adjustment")]
 
 
 def test_process_entries_return_type():
-    """
-    process_entries should accept single entries or a list, and always return a list
-    """
+    """process_entries should accept single entries or a list, and always return a list."""
     entry = ComputedEntry("Fe2O3", -2)
     compat = DummyCompatibility()
 
@@ -134,9 +108,7 @@ def test_process_entries_return_type():
 
 
 def test_no_duplicate_corrections():
-    """
-    Compatibility should never apply the same correction twice
-    """
+    """Compatibility should never apply the same correction twice."""
     entry = ComputedEntry("Fe2O3", -2)
     compat = DummyCompatibility()
 
@@ -152,7 +124,7 @@ def test_no_duplicate_corrections():
 def test_clean_arg():
     """
     clean=False should preserve existing corrections, clean=True should delete
-    them before processing
+    them before processing.
     """
     entry = ComputedEntry("Fe2O3", -2, correction=-4)
     compat = DummyCompatibility()
@@ -167,7 +139,7 @@ def test_clean_arg():
 def test_energy_adjustment_normalize():
     """
     Both manual and automatically generated energy adjustments should be scaled
-    by the normalize method
+    by the normalize method.
     """
     entry = ComputedEntry("Fe4O6", -2, correction=-4)
     entry = entry.normalize()
@@ -215,14 +187,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -235,14 +201,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "is_hubbard": False,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE S 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE S 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -274,14 +234,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -294,20 +248,14 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 4.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
 
         self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
-        self.ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
+        self.gga_compat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
 
     def tearDown(self):
         warnings.simplefilter("default")
@@ -315,7 +263,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
     def test_process_entry(self):
         # Correct parameters
         assert self.compat.process_entry(self.entry1) is not None
-        assert self.ggacompat.process_entry(self.entry1) is None
+        assert self.gga_compat.process_entry(self.entry1) is None
 
         # Correct parameters
         entry = ComputedEntry(
@@ -327,19 +275,13 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {},
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
         assert self.compat.process_entry(entry) is None
-        assert self.ggacompat.process_entry(entry) is not None
+        assert self.gga_compat.process_entry(entry) is not None
 
         entry = ComputedEntry(
             "Fe2O3",
@@ -350,14 +292,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -365,7 +301,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
     def test_correction_values(self):
         # test_corrections
-        assert self.compat.process_entry(self.entry1).correction == pytest.approx(-2.733 * 2 - 0.70229 * 3)
+        assert self.compat.process_entry(self.entry1).correction == approx(-2.733 * 2 - 0.70229 * 3)
 
         entry = ComputedEntry(
             "FeF3",
@@ -376,23 +312,17 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "F": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE F 08Apr2002",
-                        "hash": "180141c33d032bfbfff30b3bea9d23dd",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE F 08Apr2002", "hash": "180141c33d032bfbfff30b3bea9d23dd"},
                 ],
             },
         )
         assert self.compat.process_entry(entry) is not None
 
         # Check actual correction
-        assert self.compat.process_entry(entry).correction == pytest.approx(-2.733)
+        assert self.compat.process_entry(entry).correction == approx(-2.733)
 
-        assert self.compat.process_entry(self.entry_sulfide).correction == pytest.approx(-0.66346)
+        assert self.compat.process_entry(self.entry_sulfide).correction == approx(-0.66346)
 
     def test_U_values(self):
         # Wrong U value
@@ -405,14 +335,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 5.2, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -428,14 +352,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -451,14 +369,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Al": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Al 06Sep2000",
-                        "hash": "805c888bbd2793e462311f6a20d873d9",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Al 06Sep2000", "hash": "805c888bbd2793e462311f6a20d873d9"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -474,14 +386,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "S": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE S 08Apr2002",
-                        "hash": "f7f8e4a74a6cbb8d63e41f4373b54df2",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE S 08Apr2002", "hash": "f7f8e4a74a6cbb8d63e41f4373b54df2"},
                 ],
             },
         )
@@ -498,14 +404,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe 06Sep2000",
-                        "hash": "9530da8244e4dac17580869b4adab115",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -519,19 +419,14 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             parameters={
                 "is_hubbard": False,
                 "hubbards": {},
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    }
-                ],
+                "potcar_spec": [{"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"}],
                 "run_type": "GGA",
             },
         )
         entry = self.compat.process_entry(entry)
-        #        self.assertEqual(entry.entry_id, -8)
-        assert entry.energy == pytest.approx(-1)
-        assert self.ggacompat.process_entry(entry).energy == pytest.approx(-1)
+        # assert entry.entry_id == -8
+        assert entry.energy == approx(-1)
+        assert self.gga_compat.process_entry(entry).energy == approx(-1)
 
     def test_get_explanation_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
@@ -544,23 +439,17 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
         d = compat.get_explanation_dict(entry)
-        assert "MPRelaxSet Potcar Correction" == d["corrections"][0]["name"]
+        assert d["corrections"][0]["name"] == "MPRelaxSet Potcar Correction"
 
     def test_get_corrections_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
-        ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
+        gga_compat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
 
         # Correct parameters
         entry = ComputedEntry(
@@ -572,24 +461,18 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
         c = compat.get_corrections_dict(entry)[0]
-        assert c["MP Anion Correction"] == pytest.approx(-2.10687)
-        assert c["MP Advanced Correction"] == pytest.approx(-5.466)
+        assert c["MP Anion Correction"] == approx(-2.10687)
+        assert c["MP Advanced Correction"] == approx(-5.466)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
-        c = ggacompat.get_corrections_dict(entry)[0]
+        c = gga_compat.get_corrections_dict(entry)[0]
         assert "MP Advanced Correction" not in c
 
     def test_process_entries(self):
@@ -615,14 +498,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -635,14 +512,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "is_hubbard": False,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE S 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE S 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -656,14 +527,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -676,20 +541,14 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "hubbards": {"Fe": 4.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
 
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
-        self.ggacompat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
+        self.gga_compat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
 
     def tearDown(self):
         warnings.simplefilter("default")
@@ -697,7 +556,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
     def test_process_entry(self):
         # Correct parameters
         assert self.compat.process_entry(self.entry1) is not None
-        assert self.ggacompat.process_entry(self.entry1) is None
+        assert self.gga_compat.process_entry(self.entry1) is None
 
         # Correct parameters
         entry = ComputedEntry(
@@ -709,19 +568,13 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "hubbards": {},
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
         assert self.compat.process_entry(entry) is None
-        assert self.ggacompat.process_entry(entry) is not None
+        assert self.gga_compat.process_entry(entry) is not None
 
         entry = ComputedEntry(
             "Fe2O3",
@@ -732,14 +585,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -794,17 +641,17 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
 
         with pytest.warns(UserWarning, match="Failed to guess oxidation state"):
             e1 = self.compat.process_entry(entry_blank)
-            assert e1.correction == pytest.approx(-0.422)
+            assert e1.correction == approx(-0.422)
 
         e2 = self.compat.process_entry(entry_oxi)
-        assert e2.correction == pytest.approx(-0.687 + -3.202 * 2 + -0.614 * 8)
+        assert e2.correction == approx(-0.687 + -3.202 * 2 + -0.614 * 8)
 
         e3 = self.compat.process_entry(entry_multi_anion)
-        assert e3.correction == pytest.approx(-0.361 * 4 + -0.614 * 4)
+        assert e3.correction == approx(-0.361 * 4 + -0.614 * 4)
 
     def test_correction_values(self):
         # test_corrections
-        assert self.compat.process_entry(self.entry1).correction == pytest.approx(-2.256 * 2 - 0.687 * 3)
+        assert self.compat.process_entry(self.entry1).correction == approx(-2.256 * 2 - 0.687 * 3)
 
         entry = ComputedEntry(
             "FeF3",
@@ -815,23 +662,17 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "F": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE F 08Apr2002",
-                        "hash": "180141c33d032bfbfff30b3bea9d23dd",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE F 08Apr2002", "hash": "180141c33d032bfbfff30b3bea9d23dd"},
                 ],
             },
         )
         assert self.compat.process_entry(entry) is not None
 
         # Check actual correction
-        assert self.compat.process_entry(entry).correction == pytest.approx(-0.462 * 3 + -2.256)
+        assert self.compat.process_entry(entry).correction == approx(-0.462 * 3 + -2.256)
 
-        assert self.compat.process_entry(self.entry_sulfide).correction == pytest.approx(-0.503)
+        assert self.compat.process_entry(self.entry_sulfide).correction == approx(-0.503)
 
     def test_oxdiation_by_electronegativity(self):
         # make sure anion corrections are only applied when the element has
@@ -889,10 +730,10 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         )
 
         # CaSi; only correction should be Si
-        assert self.compat.process_entry(entry1).correction == pytest.approx(0.071 * 2)
+        assert self.compat.process_entry(entry1).correction == approx(0.071 * 2)
 
         # SiO2; only corrections should be oxide
-        assert self.compat.process_entry(entry2).correction == pytest.approx(-0.687 * 4)
+        assert self.compat.process_entry(entry2).correction == approx(-0.687 * 4)
 
     def test_oxdiation(self):
         # make sure anion corrections are only applied when the element has
@@ -956,10 +797,10 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         )
 
         # CaSi; only correction should be Si
-        assert self.compat.process_entry(entry1).correction == pytest.approx(0.071 * 2)
+        assert self.compat.process_entry(entry1).correction == approx(0.071 * 2)
 
         # SiO2; only corrections should be oxide
-        assert self.compat.process_entry(entry2).correction == pytest.approx(-0.687 * 4)
+        assert self.compat.process_entry(entry2).correction == approx(-0.687 * 4)
 
     def test_U_values(self):
         # Wrong U value
@@ -972,14 +813,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "hubbards": {"Fe": 5.2, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -995,14 +830,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -1018,14 +847,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "hubbards": {"Al": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Al 06Sep2000",
-                        "hash": "805c888bbd2793e462311f6a20d873d9",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Al 06Sep2000", "hash": "805c888bbd2793e462311f6a20d873d9"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -1041,14 +864,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "S": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE S 08Apr2002",
-                        "hash": "f7f8e4a74a6cbb8d63e41f4373b54df2",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE S 08Apr2002", "hash": "f7f8e4a74a6cbb8d63e41f4373b54df2"},
                 ],
             },
         )
@@ -1056,48 +873,29 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
 
     def test_wrong_psp(self):
         # Wrong psp
-        entry = ComputedEntry(
-            "Fe2O3",
-            -1,
-            correction=0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 5.3, "O": 0},
-                "run_type": "GGA+U",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe 06Sep2000",
-                        "hash": "9530da8244e4dac17580869b4adab115",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        params = {
+            "is_hubbard": True,
+            "hubbards": {"Fe": 5.3, "O": 0},
+            "run_type": "GGA+U",
+            "potcar_spec": [
+                {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+            ],
+        }
+        entry = ComputedEntry("Fe2O3", -1, correction=0.0, parameters=params)
         assert self.compat.process_entry(entry) is None
 
     def test_element_processing(self):
-        entry = ComputedEntry(
-            "O",
-            -1,
-            correction=0.0,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": {},
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    }
-                ],
-                "run_type": "GGA",
-            },
-        )
+        params = {
+            "is_hubbard": False,
+            "hubbards": {},
+            "potcar_spec": [{"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"}],
+            "run_type": "GGA",
+        }
+        entry = ComputedEntry("O", -1, correction=0.0, parameters=params)
         entry = self.compat.process_entry(entry)
-        assert entry.energy == pytest.approx(-1)
-        assert self.ggacompat.process_entry(entry).energy == pytest.approx(-1)
+        assert entry.energy == approx(-1)
+        assert self.gga_compat.process_entry(entry).energy == approx(-1)
 
     def test_get_explanation_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
@@ -1110,23 +908,17 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
-        d = compat.get_explanation_dict(entry)
-        assert "MPRelaxSet Potcar Correction" == d["corrections"][0]["name"]
+        dct = compat.get_explanation_dict(entry)
+        assert dct["corrections"][0]["name"] == "MPRelaxSet Potcar Correction"
 
     def test_energy_adjustments(self):
         compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
-        ggacompat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
+        gga_compat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
 
         # Fe 4 Co 2 O 8 (Fe2CoO4)
         entry = {
@@ -1160,18 +952,18 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
 
         for ea in c.energy_adjustments:
             if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
-                assert ea.value == pytest.approx(-2.256 * 4)
-                assert ea.uncertainty == pytest.approx(0.0101 * 4)
+                assert ea.value == approx(-2.256 * 4)
+                assert ea.uncertainty == approx(0.0101 * 4)
             elif ea.name == "MP2020 GGA/GGA+U mixing correction (Co)":
-                assert ea.value == pytest.approx(-1.638 * 2)
-                assert ea.uncertainty == pytest.approx(0.006 * 2)
+                assert ea.value == approx(-1.638 * 2)
+                assert ea.uncertainty == approx(0.006 * 2)
             elif ea.name == "MP2020 anion correction (oxide)":
-                assert ea.value == pytest.approx(-0.687 * 8)
-                assert ea.uncertainty == pytest.approx(0.002 * 8)
+                assert ea.value == approx(-0.687 * 8)
+                assert ea.uncertainty == approx(0.002 * 8)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
-        c = ggacompat.process_entry(entry)
+        c = gga_compat.process_entry(entry)
         assert "MP2020 GGA/GGA+U mixing correction" not in [ea.name for ea in c.energy_adjustments]
 
     def test_process_entries(self):
@@ -1179,18 +971,56 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         assert len(entries) == 2
 
     def test_config_file(self):
-        config_file = Path(PymatgenTest.TEST_FILES_DIR / "MP2020Compatibility_alternate.yaml")
+        config_file = Path(f"{PymatgenTest.TEST_FILES_DIR}/MP2020Compatibility_alternate.yaml")
         compat = MaterialsProject2020Compatibility(config_file=config_file)
         entry = compat.process_entry(self.entry1)
         for ea in entry.energy_adjustments:
             if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
-                assert ea.value == pytest.approx(-0.224 * 2)
+                assert ea.value == approx(-0.224 * 2)
 
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
         assert isinstance(temp_compat, MaterialsProject2020Compatibility)
+
+    def test_processing_entries_inplace(self):
+        # load two entries in GGA_GGA_U_R2SCAN thermo type
+        json_file = Path(f"{PymatgenTest.TEST_FILES_DIR}/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
+        with open(json_file) as file:
+            entries = json.load(file, cls=MontyDecoder)
+        # check whether the compatibility scheme can keep input entries unchanged
+        entries_copy = copy.deepcopy(entries)
+        self.compat.process_entries(entries, inplace=False)
+        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
+
+    def test_check_potcar(self):
+        MaterialsProject2020Compatibility(check_potcar=False).process_entries(self.entry1)
+        entry = self.entry1.copy()
+        del entry.parameters["potcar_spec"]
+
+        # default behavior of checking POTCAR symbols should fail if entry params are missing
+        with pytest.raises(KeyError, match="potcar_symbols"):
+            MaterialsProject2020Compatibility(check_potcar=True).process_entries(entry)
+
+        # but should work fine if we disable POTCAR checking
+        MaterialsProject2020Compatibility(check_potcar=False).process_entries(entry)
+
+    def test_process_entry_with_oxidation_state(self):
+        from pymatgen.core.periodic_table import Species
+
+        entry = ComputedEntry(
+            {Species("Fe2+"): 2, Species("O2-"): 3},
+            -1,
+            parameters={"is_hubbard": True, "hubbards": {"Fe": 5.3, "O": 0}, "run_type": "GGA+U"},
+        )
+
+        # Test that MaterialsProject2020Compatibility can process entries with oxidation states
+        # https://github.com/materialsproject/pymatgen/issues/3154
+        compat = MaterialsProject2020Compatibility(check_potcar=False)
+        [processed_entry] = compat.process_entries(entry, clean=True, inplace=False)
+
+        assert len(processed_entry.energy_adjustments) == 2
 
 
 class MITCompatibilityTest(unittest.TestCase):
@@ -1200,7 +1030,7 @@ class MITCompatibilityTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.compat = MITCompatibility(check_potcar_hash=True)
-        self.ggacompat = MITCompatibility("GGA", check_potcar_hash=True)
+        self.gga_compat = MITCompatibility("GGA", check_potcar_hash=True)
         self.entry_O = ComputedEntry(
             "Fe2O3",
             -1,
@@ -1210,14 +1040,8 @@ class MITCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 4.0, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe 06Sep2000",
-                        "hash": "9530da8244e4dac17580869b4adab115",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -1231,14 +1055,8 @@ class MITCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 4.0, "F": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe 06Sep2000",
-                        "hash": "9530da8244e4dac17580869b4adab115",
-                    },
-                    {
-                        "titel": "PAW_PBE F 08Apr2002",
-                        "hash": "180141c33d032bfbfff30b3bea9d23dd",
-                    },
+                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+                    {"titel": "PAW_PBE F 08Apr2002", "hash": "180141c33d032bfbfff30b3bea9d23dd"},
                 ],
             },
         )
@@ -1251,14 +1069,8 @@ class MITCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 1.9, "S": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe 06Sep2000",
-                        "hash": "9530da8244e4dac17580869b4adab115",
-                    },
-                    {
-                        "titel": "PAW_PBE S 08Apr2002",
-                        "hash": "d368db6899d8839859bbee4811a42a88",
-                    },
+                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+                    {"titel": "PAW_PBE S 08Apr2002", "hash": "d368db6899d8839859bbee4811a42a88"},
                 ],
             },
         )
@@ -1270,9 +1082,9 @@ class MITCompatibilityTest(unittest.TestCase):
 
     def test_correction_value(self):
         # Check actual correction
-        assert self.compat.process_entry(self.entry_O).correction == pytest.approx(-1.723 * 2 - 0.66975 * 3)
-        assert self.compat.process_entry(self.entry_F).correction == pytest.approx(-1.723)
-        assert self.compat.process_entry(self.entry_S).correction == pytest.approx(-1.113)
+        assert self.compat.process_entry(self.entry_O).correction == approx(-1.723 * 2 - 0.66975 * 3)
+        assert self.compat.process_entry(self.entry_F).correction == approx(-1.723)
+        assert self.compat.process_entry(self.entry_S).correction == approx(-1.113)
 
     def test_U_value(self):
         # MIT should have a U value for Fe containing sulfides
@@ -1288,14 +1100,8 @@ class MITCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Ni": 1.9, "S": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Ni 06Sep2000",
-                        "hash": "653f5772e68b2c7fd87ffd1086c0d710",
-                    },
-                    {
-                        "titel": "PAW_PBE S 08Apr2002",
-                        "hash": "d368db6899d8839859bbee4811a42a88",
-                    },
+                    {"titel": "PAW_PBE Ni 06Sep2000", "hash": "653f5772e68b2c7fd87ffd1086c0d710"},
+                    {"titel": "PAW_PBE S 08Apr2002", "hash": "d368db6899d8839859bbee4811a42a88"},
                 ],
             },
         )
@@ -1311,42 +1117,26 @@ class MITCompatibilityTest(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Ni 06Sep2000",
-                        "hash": "653f5772e68b2c7fd87ffd1086c0d710",
-                    },
-                    {
-                        "titel": "PAW_PBE S 08Apr2002",
-                        "hash": "d368db6899d8839859bbee4811a42a88",
-                    },
+                    {"titel": "PAW_PBE Ni 06Sep2000", "hash": "653f5772e68b2c7fd87ffd1086c0d710"},
+                    {"titel": "PAW_PBE S 08Apr2002", "hash": "d368db6899d8839859bbee4811a42a88"},
                 ],
             },
         )
 
-        assert self.ggacompat.process_entry(entry) is not None
+        assert self.gga_compat.process_entry(entry) is not None
 
     def test_wrong_U_value(self):
         # Wrong U value
-        entry = ComputedEntry(
-            "Fe2O3",
-            -1,
-            correction=0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 5.2, "O": 0},
-                "run_type": "GGA+U",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe 06Sep2000",
-                        "hash": "9530da8244e4dac17580869b4adab115",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        params = {
+            "is_hubbard": True,
+            "hubbards": {"Fe": 5.2, "O": 0},
+            "run_type": "GGA+U",
+            "potcar_spec": [
+                {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+            ],
+        }
+        entry = ComputedEntry("Fe2O3", -1, correction=0.0, parameters=params)
 
         assert self.compat.process_entry(entry) is None
 
@@ -1360,19 +1150,13 @@ class MITCompatibilityTest(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe 06Sep2000",
-                        "hash": "9530da8244e4dac17580869b4adab115",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
         assert self.compat.process_entry(entry) is None
-        assert self.ggacompat.process_entry(entry) is not None
+        assert self.gga_compat.process_entry(entry) is not None
 
     def test_wrong_psp(self):
         # Wrong psp
@@ -1385,14 +1169,8 @@ class MITCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 4.0, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -1407,17 +1185,12 @@ class MITCompatibilityTest(unittest.TestCase):
             parameters={
                 "is_hubbard": False,
                 "hubbards": {},
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    }
-                ],
+                "potcar_spec": [{"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"}],
                 "run_type": "GGA",
             },
         )
         entry = self.compat.process_entry(entry)
-        assert entry.energy == pytest.approx(-1)
+        assert entry.energy == approx(-1)
 
     def test_same_potcar_symbol(self):
         # Same symbol different hash thus a different potcar
@@ -1431,14 +1204,8 @@ class MITCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 4.0, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe 06Sep2000",
-                        "hash": "9530da8244e4dac17580869b4adab115",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -1453,10 +1220,7 @@ class MITCompatibilityTest(unittest.TestCase):
                 "run_type": "GGA+U",
                 "potcar_spec": [
                     {"titel": "PAW_PBE Fe 06Sep2000", "hash": "DifferentHash"},
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
@@ -1482,7 +1246,7 @@ class MITCompatibilityTest(unittest.TestCase):
 
         assert compat.process_entry(entry) is not None
         # raise if check_potcar_hash is set
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Cannot check hash without potcar_spec field"):
             self.compat.process_entry(entry)
 
     def test_potcar_doenst_match_structure(self):
@@ -1528,19 +1292,13 @@ class MITCompatibilityTest(unittest.TestCase):
                 "hubbards": {"Fe": 4.0, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
         d = compat.get_explanation_dict(entry)
-        assert "MITRelaxSet Potcar Correction" == d["corrections"][0]["name"]
+        assert d["corrections"][0]["name"] == "MITRelaxSet Potcar Correction"
 
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
@@ -1563,20 +1321,14 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
 
         lio2_entry_corrected = self.compat.process_entry(lio2_entry_nostruct)
-        assert lio2_entry_corrected.energy == pytest.approx(-3 - 0.13893 * 4)
+        assert lio2_entry_corrected.energy == approx(-3 - 0.13893 * 4)
 
     def test_process_entry_superoxide(self):
         el_li = Element("Li")
@@ -1599,20 +1351,14 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
 
         lio2_entry_corrected = self.compat.process_entry(lio2_entry)
-        assert lio2_entry_corrected.energy == pytest.approx(-3 - 0.13893 * 4)
+        assert lio2_entry_corrected.energy == approx(-3 - 0.13893 * 4)
 
     def test_process_entry_peroxide(self):
         latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
@@ -1638,20 +1384,14 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
 
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
-        assert li2o2_entry_corrected.energy == pytest.approx(-3 - 0.44317 * 4)
+        assert li2o2_entry_corrected.energy == approx(-3 - 0.44317 * 4)
 
     def test_process_entry_ozonide(self):
         el_li = Element("Li")
@@ -1673,20 +1413,14 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
 
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
-        assert lio3_entry_corrected.energy == pytest.approx(-3.0)
+        assert lio3_entry_corrected.energy == approx(-3.0)
 
     def test_process_entry_oxide(self):
         el_li = Element("Li")
@@ -1703,20 +1437,14 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
 
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
-        assert li2o_entry_corrected.energy == pytest.approx(-3.0 - 0.66975)
+        assert li2o_entry_corrected.energy == approx(-3.0 - 0.66975)
 
 
 class SulfideTypeCorrection2020Test(unittest.TestCase):
@@ -1877,7 +1605,7 @@ class SulfideTypeCorrection2020Test(unittest.TestCase):
         struct_corrected = self.compat.process_entry(na2s2_entry_struct)
         nostruct_corrected = self.compat.process_entry(na2s2_entry_nostruct)
 
-        assert struct_corrected.correction == pytest.approx(nostruct_corrected.correction)
+        assert struct_corrected.correction == approx(nostruct_corrected.correction)
 
 
 class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
@@ -1899,20 +1627,14 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
 
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
-        assert li2o_entry_corrected.energy == pytest.approx(-3.0 - 0.66975)
+        assert li2o_entry_corrected.energy == approx(-3.0 - 0.66975)
 
     def test_peroxide_energy_corr(self):
         latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
@@ -1930,30 +1652,19 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
             [0.666665, 0.666684, 0.149189],
         ]
         struct = Structure(latt, elts, coords)
-        li2o2_entry = ComputedStructureEntry(
-            struct,
-            -3,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        cse_params = {
+            "is_hubbard": False,
+            "hubbards": None,
+            "run_type": "GGA",
+            "potcar_spec": [
+                {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+            ],
+        }
+        li2o2_entry = ComputedStructureEntry(struct, -3, parameters=cse_params)
 
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
-        with pytest.raises(AssertionError):
-            self.assertAlmostEqual(*(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4))
-        assert li2o2_entry_corrected.energy == pytest.approx(-3 - 0.66975 * 4)
+        assert li2o2_entry_corrected.energy == approx(-3 - 0.66975 * 4)
 
     def test_ozonide(self):
         el_li = Element("Li")
@@ -1975,25 +1686,19 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
+                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
                 ],
             },
         )
 
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
-        assert lio3_entry_corrected.energy == pytest.approx(-3.0 - 3 * 0.66975)
+        assert lio3_entry_corrected.energy == approx(-3.0 - 3 * 0.66975)
 
 
 class TestMaterialsProjectAqueousCompatibility:
     """
-    Test MaterialsProjectAqueousCompatibility
+    Test MaterialsProjectAqueousCompatibility.
 
     -x- formation energy of H2O should always be -2.458 eV/H2O
     -x- H2 energy should always be the same value
@@ -2012,7 +1717,6 @@ class TestMaterialsProjectAqueousCompatibility:
     """
 
     def test_h_h2o_energy_with_args_single(self):
-
         compat = MaterialsProjectAqueousCompatibility(
             o2_energy=-4.9276,
             h2o_energy=-5,
@@ -2035,17 +1739,16 @@ class TestMaterialsProjectAqueousCompatibility:
         # the corrections should set the energy of any H2 polymorph the same, because
         # we have only processed one entry at time. Energy differences of H2O
         # polymorphs should be preserved.
-        assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4)
-        assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom)
+        assert h2o_entry_2.energy_per_atom == approx(h2o_entry_1.energy_per_atom + 4)
+        assert h2_entry_2.energy_per_atom == approx(h2_entry_1.energy_per_atom)
 
         o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
         o2_entry_1 = compat.process_entries(o2_entry_1)[0]
 
         h2o_form_e = 3 * h2o_entry_1.energy_per_atom - 2 * h2_entry_2.energy_per_atom - o2_entry_1.energy_per_atom
-        assert h2o_form_e == pytest.approx(MU_H2O)
+        assert h2o_form_e == approx(MU_H2O)
 
     def test_h_h2o_energy_with_args_multi(self):
-
         compat = MaterialsProjectAqueousCompatibility(
             o2_energy=-4.9276,
             h2o_energy=-5,
@@ -2061,17 +1764,16 @@ class TestMaterialsProjectAqueousCompatibility:
         compat.process_entries([h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2])
 
         # Energy differences of H2O and H2 polymorphs should be preserved.
-        assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4)
-        assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom + 4.5)
+        assert h2o_entry_2.energy_per_atom == approx(h2o_entry_1.energy_per_atom + 4)
+        assert h2_entry_2.energy_per_atom == approx(h2_entry_1.energy_per_atom + 4.5)
 
         o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
         o2_entry_1 = compat.process_entries(o2_entry_1)[0]
 
         h2o_form_e = 3 * h2o_entry_1.energy_per_atom - 2 * h2_entry_1.energy_per_atom - o2_entry_1.energy_per_atom
-        assert h2o_form_e == pytest.approx(MU_H2O)
+        assert h2o_form_e == approx(MU_H2O)
 
     def test_h_h2o_energy_no_args(self):
-
         with pytest.warns(UserWarning, match="You did not provide the required O2 and H2O energies."):
             compat = MaterialsProjectAqueousCompatibility(solid_compat=None)
 
@@ -2091,13 +1793,13 @@ class TestMaterialsProjectAqueousCompatibility:
         assert compat.h2o_adjustments == -0.234
 
         # the corrections should preserve the difference in energy among H2O and H2 polymorphs
-        assert h2o_entry_2.energy_per_atom == pytest.approx(h2o_entry_1.energy_per_atom + 4.195)
-        assert h2_entry_2.energy_per_atom == pytest.approx(h2_entry_1.energy_per_atom + 4.5)
+        assert h2o_entry_2.energy_per_atom == approx(h2o_entry_1.energy_per_atom + 4.195)
+        assert h2_entry_2.energy_per_atom == approx(h2_entry_1.energy_per_atom + 4.5)
 
         # the water formation energy, calculated from the lowest energy polymorphs,
         # should equal the experimental value
         h2o_form_e = 3 * h2o_entry_1.energy_per_atom - 2 * h2_entry_1.energy_per_atom - o2_entry_1.energy_per_atom
-        assert h2o_form_e == pytest.approx(MU_H2O)
+        assert h2o_form_e == approx(MU_H2O)
 
     def test_compound_entropy(self):
         compat = MaterialsProjectAqueousCompatibility(
@@ -2110,20 +1812,31 @@ class TestMaterialsProjectAqueousCompatibility:
         o2_entry_1 = compat.process_entries(o2_entry_1)[0]
         processed_energy = o2_entry_1.energy_per_atom
 
-        assert initial_energy - processed_energy == pytest.approx(compat.cpd_entropies["O2"])
+        assert initial_energy - processed_energy == approx(compat.cpd_entropies["O2"])
 
     def test_hydrate_adjustment(self):
         compat = MaterialsProjectAqueousCompatibility(
             o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5, solid_compat=None
         )
 
-        hydrate_entry = ComputedEntry(Composition("FeH4O2"), -10)
+        hydrate_entry = ComputedEntry(Composition("FeH4O2"), -10)  # nH2O = 2
+        hydrate_entry2 = ComputedEntry(Composition("Li2O2H2"), -10)  # nH2O = 0
 
-        initial_energy = hydrate_entry.energy
-        hydrate_entry = compat.process_entries(hydrate_entry)[0]
-        processed_energy = hydrate_entry.energy
+        compat.process_entries([hydrate_entry, hydrate_entry2])
 
-        assert initial_energy - processed_energy == pytest.approx(2 * (compat.h2o_adjustments * 3 + MU_H2O))
+        assert hydrate_entry.uncorrected_energy - hydrate_entry.energy == approx(
+            2 * (compat.h2o_adjustments * 3 + MU_H2O)
+        )
+        assert hydrate_entry2.uncorrected_energy - hydrate_entry2.energy == 0
+
+    def test_processing_entries_inplace(self):
+        h2o_entry = ComputedEntry(Composition("H2O"), (-5.195 + 0.234) * 3, correction=-0.234 * 3)  # -5.195 eV/atom
+        o2_entry = ComputedEntry(Composition("O2"), -4.9276 * 2)
+        # check that compatibility scheme does not change input entries themselves
+        entries = [h2o_entry, o2_entry]
+        entries_copy = copy.deepcopy(entries)
+        MaterialsProjectAqueousCompatibility().process_entries(entries, inplace=False)
+        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
 
 class AqueousCorrectionTest(unittest.TestCase):
@@ -2139,19 +1852,19 @@ class AqueousCorrectionTest(unittest.TestCase):
         H2_entry = self.corr.correct_entry(ComputedEntry(Composition("H2"), 3, parameters={"run_type": "GGA"}))
         H2O_entry = self.corr.correct_entry(ComputedEntry(Composition("H2O"), 3, parameters={"run_type": "GGA"}))
         H2O_formation_energy = H2O_entry.energy - (H2_entry.energy + O2_entry.energy / 2.0)
-        assert H2O_formation_energy == pytest.approx(-2.46)
+        assert H2O_formation_energy == approx(-2.46)
 
         entry = ComputedEntry(Composition("H2O"), -16, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
-        assert entry.energy == pytest.approx(-14.916)
+        assert entry.energy == approx(-14.916)
 
         entry = ComputedEntry(Composition("H2O"), -24, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
-        assert entry.energy == pytest.approx(-14.916)
+        assert entry.energy == approx(-14.916)
 
         entry = ComputedEntry(Composition("Cl"), -24, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
-        assert entry.energy == pytest.approx(-24.344373)
+        assert entry.energy == approx(-24.344373)
 
 
 class MITAqueousCompatibilityTest(unittest.TestCase):
@@ -2163,7 +1876,6 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
         self.aqcorr = AqueousCorrection(fp)
 
     def test_aqueous_compat(self):
-
         el_li = Element("Li")
         el_o = Element("O")
         el_h = Element("H")
@@ -2186,25 +1898,16 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                    {
-                        "titel": "PAW_PBE H 15Jun2001",
-                        "hash": "bb43c666e3d36577264afe07669e9582",
-                    },
+                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
+                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {"titel": "PAW_PBE H 15Jun2001", "hash": "bb43c666e3d36577264afe07669e9582"},
                 ],
             },
         )
         lioh_entry_compat = self.compat.process_entry(lioh_entry)
         lioh_entry_compat_aqcorr = self.aqcorr.correct_entry(lioh_entry_compat)
         lioh_entry_aqcompat = self.aqcompat.process_entry(lioh_entry)
-        assert lioh_entry_compat_aqcorr.energy == pytest.approx(lioh_entry_aqcompat.energy)
+        assert lioh_entry_compat_aqcorr.energy == approx(lioh_entry_aqcompat.energy)
 
     def test_potcar_doenst_match_structure(self):
         compat = MITCompatibility()
@@ -2249,14 +1952,8 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
             correction=0.0,
             parameters={
                 "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Am 08May2007",
-                        "hash": "ed5eebd8a143e35a0c19e9f8a2c42a93",
-                    },
-                    {
-                        "titel": "PAW_PBE Si 05Jan2001",
-                        "hash": "b2b0ea6feb62e7cde209616683b8f7f5",
-                    },
+                    {"titel": "PAW_PBE Am 08May2007", "hash": "ed5eebd8a143e35a0c19e9f8a2c42a93"},
+                    {"titel": "PAW_PBE Si 05Jan2001", "hash": "b2b0ea6feb62e7cde209616683b8f7f5"},
                 ]
             },
         )
@@ -2268,128 +1965,69 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
         warnings.simplefilter("ignore")
         self.compat = MaterialsProject2020Compatibility()
 
-        self.entry1 = ComputedEntry(
-            "Fe2O3",
-            -1,
-            correction=0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 5.3, "O": 0},
-                "run_type": "GGA+U",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        params = {
+            "is_hubbard": True,
+            "hubbards": {"Fe": 5.3, "O": 0},
+            "run_type": "GGA+U",
+            "potcar_spec": [
+                {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+            ],
+        }
+        self.entry1 = ComputedEntry("Fe2O3", -1, correction=0.0, parameters=params)
 
-        self.entry_sulfide = ComputedEntry(
-            "FeS",
-            -1,
-            0.0,
-            parameters={
-                "is_hubbard": False,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE S 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        params = {
+            "is_hubbard": False,
+            "run_type": "GGA",
+            "potcar_spec": [
+                {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                {"titel": "PAW_PBE S 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+            ],
+        }
+        self.entry_sulfide = ComputedEntry("FeS", -1, 0.0, parameters=params)
 
-        self.entry2 = ComputedEntry(
-            "Fe3O4",
-            -2,
-            correction=0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 5.3, "O": 0},
-                "run_type": "GGA+U",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        params = {
+            "is_hubbard": True,
+            "hubbards": {"Fe": 5.3, "O": 0},
+            "run_type": "GGA+U",
+            "potcar_spec": [
+                {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+            ],
+        }
+        self.entry2 = ComputedEntry("Fe3O4", -2, correction=0.0, parameters=params)
 
-        self.entry_fluoride = ComputedEntry(
-            "FeF3",
-            -2,
-            correction=0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 5.3, "F": 0},
-                "run_type": "GGA+U",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE F 08Apr2002",
-                        "hash": "180141c33d032bfbfff30b3bea9d23dd",
-                    },
-                ],
-            },
-        )
-
+        params = {
+            "is_hubbard": True,
+            "hubbards": {"Fe": 5.3, "F": 0},
+            "run_type": "GGA+U",
+            "potcar_spec": [
+                {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
+                {"titel": "PAW_PBE F 08Apr2002", "hash": "180141c33d032bfbfff30b3bea9d23dd"},
+            ],
+        }
+        self.entry_fluoride = ComputedEntry("FeF3", -2, correction=0.0, parameters=params)
+        potcar_spec = [
+            {"titel": "PAW_PBE Li_sv 10Sep2004", "hash": "8245d7383d7556214082aa40a887cd96"},
+            {"titel": "PAW_PBE H 15Jun2001", "hash": "bb43c666e3d36577264afe07669e9582"},
+        ]
         self.entry_hydride = ComputedEntry(
             "LiH",
             -2,
             correction=0.0,
-            parameters={
-                "is_hubbard": False,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li_sv 10Sep2004",
-                        "hash": "8245d7383d7556214082aa40a887cd96",
-                    },
-                    {
-                        "titel": "PAW_PBE H 15Jun2001",
-                        "hash": "bb43c666e3d36577264afe07669e9582",
-                    },
-                ],
-            },
+            parameters={"is_hubbard": False, "run_type": "GGA", "potcar_spec": potcar_spec},
         )
 
     def tearDown(self):
         warnings.simplefilter("default")
 
     def test_errors(self):
-        entry1_corrected = self.compat.process_entry(self.entry1)
-        assert entry1_corrected.correction_uncertainty == pytest.approx(sqrt((2 * 0.0101) ** 2 + (3 * 0.002) ** 2))
-
-        entry2_corrected = self.compat.process_entry(self.entry2)
-        assert entry2_corrected.correction_uncertainty == pytest.approx(sqrt((3 * 0.0101) ** 2 + (4 * 0.002) ** 2))
-
-        entry_sulfide_corrected = self.compat.process_entry(self.entry_sulfide)
-        assert entry_sulfide_corrected.correction_uncertainty == pytest.approx(0.0093)
-
-        entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
-        assert entry_fluoride_corrected.correction_uncertainty == pytest.approx(sqrt((3 * 0.0026) ** 2 + 0.0101**2))
-
-        entry_hydride_corrected = self.compat.process_entry(self.entry_hydride)
-        assert entry_hydride_corrected.correction_uncertainty == pytest.approx(0.0013)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        for entry, expected in (
+            (self.entry1, sqrt((2 * 0.0101) ** 2 + (3 * 0.002) ** 2)),
+            (self.entry2, sqrt((3 * 0.0101) ** 2 + (4 * 0.002) ** 2)),
+            (self.entry_sulfide, 0.0093),
+            (self.entry_fluoride, sqrt((3 * 0.0026) ** 2 + 0.0101**2)),
+            (self.entry_hydride, 0.0013),
+        ):
+            corrected_entry = self.compat.process_entry(entry)
+            assert corrected_entry.correction_uncertainty == approx(expected)

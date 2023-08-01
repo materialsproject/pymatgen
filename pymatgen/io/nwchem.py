@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements input and output processing from Nwchem.
 
@@ -21,6 +18,8 @@ This module implements input and output processing from Nwchem.
         1. forces.                      ["forces"]
 """
 
+from __future__ import annotations
+
 import os
 import re
 import warnings
@@ -35,14 +34,12 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Energy, FloatWithUnit
 
 NWCHEM_BASIS_LIBRARY = None
-if os.environ.get("NWCHEM_BASIS_LIBRARY"):
+if os.getenv("NWCHEM_BASIS_LIBRARY"):
     NWCHEM_BASIS_LIBRARY = set(os.listdir(os.environ["NWCHEM_BASIS_LIBRARY"]))
 
 
 class NwTask(MSONable):
-    """
-    Base task for Nwchem.
-    """
+    """Base task for Nwchem."""
 
     theories = {
         "g3gn": "some description",
@@ -122,10 +119,10 @@ class NwTask(MSONable):
         """
         # Basic checks.
         if theory.lower() not in NwTask.theories:
-            raise NwInputError(f"Invalid theory {theory}")
+            raise NwInputError(f"Invalid {theory=}")
 
         if operation.lower() not in NwTask.operations:
-            raise NwInputError(f"Invalid operation {operation}")
+            raise NwInputError(f"Invalid {operation=}")
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
         self.title = title if title is not None else f"{theory} {operation}"
@@ -184,9 +181,7 @@ $theory_spec
         return output
 
     def as_dict(self):
-        """
-        Returns: MSONable dict.
-        """
+        """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -205,7 +200,7 @@ $theory_spec
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             NwTask
@@ -266,27 +261,22 @@ $theory_spec
                 example, to perform cosmo calculations with DFT, you'd supply
                 {'cosmo': "cosmo"}.
         """
-        title = title if title is not None else "{} {} {}".format(re.sub(r"\s", "", mol.formula), theory, operation)
+        formula = re.sub(r"\s", "", mol.formula)
+        title = title if title is not None else f"{formula} {theory} {operation}"
 
         charge = charge if charge is not None else mol.charge
-        nelectrons = -charge + mol.charge + mol.nelectrons  # pylint: disable=E1130
+        n_electrons = -charge + mol.charge + mol.nelectrons  # pylint: disable=E1130
         if spin_multiplicity is not None:
-            spin_multiplicity = spin_multiplicity
-            if (nelectrons + spin_multiplicity) % 2 != 1:
-                raise ValueError(
-                    f"Charge of {charge} and spin multiplicity of {spin_multiplicity} is"
-                    " not possible for this molecule"
-                )
+            if (n_electrons + spin_multiplicity) % 2 != 1:
+                raise ValueError(f"{charge=} and {spin_multiplicity=} is not possible for this molecule")
         elif charge == mol.charge:
             spin_multiplicity = mol.spin_multiplicity
         else:
-            spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+            spin_multiplicity = 1 if n_electrons % 2 == 0 else 2
 
         elements = set(mol.composition.get_el_amt_dict())
         if isinstance(basis_set, str):
             basis_set = {el: basis_set for el in elements}
-
-        basis_set_option = basis_set_option
 
         return NwTask(
             charge,
@@ -359,7 +349,7 @@ class NwInput(MSONable):
             symmetry_options: Addition list of option to be supplied to the
                 symmetry. E.g. ["c1"] to turn off the symmetry
             memory_options: Memory controlling options. str.
-                E.g "total 1000 mb stack 400 mb"
+                E.g "total 1000 mb stack 400 mb".
         """
         self._mol = mol
         self.directives = directives if directives is not None else []
@@ -370,9 +360,7 @@ class NwInput(MSONable):
 
     @property
     def molecule(self):
-        """
-        Returns molecule associated with this GaussianInput.
-        """
+        """Returns molecule associated with this GaussianInput."""
         return self._mol
 
     def __str__(self):
@@ -395,15 +383,13 @@ class NwInput(MSONable):
     def write_file(self, filename):
         """
         Args:
-            filename (str): Filename
+            filename (str): Filename.
         """
         with zopen(filename, "w") as f:
             f.write(str(self))
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "mol": self._mol.as_dict(),
             "tasks": [t.as_dict() for t in self.tasks],
@@ -417,7 +403,7 @@ class NwInput(MSONable):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             NwInput
@@ -432,7 +418,12 @@ class NwInput(MSONable):
         )
 
     @classmethod
-    def from_string(cls, string_input):
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, string_input):
         """
         Read an NwInput from a string. Currently tested to work with
         files generated from this class itself.
@@ -445,64 +436,59 @@ class NwInput(MSONable):
         """
         directives = []
         tasks = []
-        charge = None
-        spin_multiplicity = None
-        title = None
-        basis_set = None
+        charge = spin_multiplicity = title = basis_set = None
         basis_set_option = None
         theory_directives = {}
-        geom_options = None
-        symmetry_options = None
-        memory_options = None
+        geom_options = symmetry_options = memory_options = None
         lines = string_input.strip().split("\n")
         while len(lines) > 0:
-            l = lines.pop(0).strip()
-            if l == "":
+            line = lines.pop(0).strip()
+            if line == "":
                 continue
 
-            toks = l.split()
+            toks = line.split()
             if toks[0].lower() == "geometry":
                 geom_options = toks[1:]
-                l = lines.pop(0).strip()
-                toks = l.split()
+                line = lines.pop(0).strip()
+                toks = line.split()
                 if toks[0].lower() == "symmetry":
                     symmetry_options = toks[1:]
-                    l = lines.pop(0).strip()
+                    line = lines.pop(0).strip()
                 # Parse geometry
                 species = []
                 coords = []
-                while l.lower() != "end":
-                    toks = l.split()
+                while line.lower() != "end":
+                    toks = line.split()
                     species.append(toks[0])
                     coords.append([float(i) for i in toks[1:]])
-                    l = lines.pop(0).strip()
+                    line = lines.pop(0).strip()
                 mol = Molecule(species, coords)
             elif toks[0].lower() == "charge":
                 charge = int(toks[1])
             elif toks[0].lower() == "title":
-                title = l[5:].strip().strip('"')
+                title = line[5:].strip().strip('"')
             elif toks[0].lower() == "basis":
                 # Parse basis sets
-                l = lines.pop(0).strip()
+                line = lines.pop(0).strip()
                 basis_set = {}
-                while l.lower() != "end":
-                    toks = l.split()
+                while line.lower() != "end":
+                    toks = line.split()
                     basis_set[toks[0]] = toks[-1].strip('"')
-                    l = lines.pop(0).strip()
+                    line = lines.pop(0).strip()
             elif toks[0].lower() in NwTask.theories:
                 # read the basis_set_option
                 if len(toks) > 1:
                     basis_set_option = toks[1]
                 # Parse theory directives.
                 theory = toks[0].lower()
-                l = lines.pop(0).strip()
+                line = lines.pop(0).strip()
                 theory_directives[theory] = {}
-                while l.lower() != "end":
-                    toks = l.split()
+                while line.lower() != "end":
+                    toks = line.split()
                     theory_directives[theory][toks[0]] = toks[-1]
                     if toks[0] == "mult":
                         spin_multiplicity = float(toks[1])
-                    l = lines.pop(0).strip()
+                    line = lines.pop(0).strip()
             elif toks[0].lower() == "task":
                 tasks.append(
                     NwTask(
@@ -519,7 +505,7 @@ class NwInput(MSONable):
             elif toks[0].lower() == "memory":
                 memory_options = " ".join(toks[1:])
             else:
-                directives.append(l.strip().split())
+                directives.append(line.strip().split())
 
         return NwInput(
             mol,
@@ -543,13 +529,11 @@ class NwInput(MSONable):
             NwInput object
         """
         with zopen(filename) as f:
-            return cls.from_string(f.read())
+            return cls.from_str(f.read())
 
 
 class NwInputError(Exception):
-    """
-    Error class for NwInput.
-    """
+    """Error class for NwInput."""
 
 
 class NwOutput:
@@ -684,8 +668,8 @@ class NwOutput:
     @staticmethod
     def _parse_preamble(preamble):
         info = {}
-        for l in preamble.split("\n"):
-            toks = l.split("=")
+        for line in preamble.split("\n"):
+            toks = line.split("=")
             if len(toks) > 1:
                 info[toks[0].strip()] = toks[-1].strip()
         return info
@@ -704,11 +688,11 @@ class NwOutput:
         energy_patt = re.compile(r"Total \w+ energy\s+=\s+([.\-\d]+)")
         energy_gas_patt = re.compile(r"gas phase energy\s+=\s+([.\-\d]+)")
         energy_sol_patt = re.compile(r"sol phase energy\s+=\s+([.\-\d]+)")
-        coord_patt = re.compile(r"\d+\s+(\w+)\s+[.\-\d]+\s+([.\-\d]+)\s+" r"([.\-\d]+)\s+([.\-\d]+)")
-        lat_vector_patt = re.compile(r"a[123]=<\s+([.\-\d]+)\s+" r"([.\-\d]+)\s+([.\-\d]+)\s+>")
-        corrections_patt = re.compile(r"([\w\-]+ correction to \w+)\s+=" r"\s+([.\-\d]+)")
+        coord_patt = re.compile(r"\d+\s+(\w+)\s+[.\-\d]+\s+([.\-\d]+)\s+([.\-\d]+)\s+([.\-\d]+)")
+        lat_vector_patt = re.compile(r"a[123]=<\s+([.\-\d]+)\s+([.\-\d]+)\s+([.\-\d]+)\s+>")
+        corrections_patt = re.compile(r"([\w\-]+ correction to \w+)\s+=\s+([.\-\d]+)")
         preamble_patt = re.compile(
-            r"(No. of atoms|No. of electrons" r"|SCF calculation type|Charge|Spin " r"multiplicity)\s*:\s*(\S+)"
+            r"(No. of atoms|No. of electrons|SCF calculation type|Charge|Spin multiplicity)\s*:\s*(\S+)"
         )
         force_patt = re.compile(r"\s+(\d+)\s+(\w+)" + 6 * r"\s+([0-9\.\-]+)")
 
@@ -729,16 +713,14 @@ class NwOutput:
 
         parse_hess = False
         parse_proj_hess = False
-        hessian = None
-        projected_hessian = None
+        hessian = projected_hessian = None
         parse_force = False
         all_forces = []
         forces = []
 
         data = {}
         energies = []
-        frequencies = None
-        normal_frequencies = None
+        frequencies = normal_frequencies = None
         corrections = {}
         molecules = []
         structures = []
@@ -756,18 +738,18 @@ class NwOutput:
         parse_time = False
         time = 0
 
-        for l in output.split("\n"):
+        for line in output.split("\n"):
             # pylint: disable=E1136
             for e, v in error_defs.items():
-                if l.find(e) != -1:
+                if line.find(e) != -1:
                     errors.append(v)
             if parse_time:
-                m = time_patt.search(l)
+                m = time_patt.search(line)
                 if m:
                     time = m.group(1)
                     parse_time = False
             if parse_geom:
-                if l.strip() == "Atomic Mass":
+                if line.strip() == "Atomic Mass":
                     if lattice:
                         structures.append(Structure(lattice, species, coords, coords_are_cartesian=True))
                     else:
@@ -777,16 +759,16 @@ class NwOutput:
                     lattice = []
                     parse_geom = False
                 else:
-                    m = coord_patt.search(l)
+                    m = coord_patt.search(line)
                     if m:
                         species.append(m.group(1).capitalize())
                         coords.append([float(m.group(2)), float(m.group(3)), float(m.group(4))])
-                    m = lat_vector_patt.search(l)
+                    m = lat_vector_patt.search(line)
                     if m:
                         lattice.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
 
             if parse_force:
-                m = force_patt.search(l)
+                m = force_patt.search(line)
                 if m:
                     forces.extend(map(float, m.groups()[5:]))
                 elif len(forces) > 0:
@@ -795,32 +777,32 @@ class NwOutput:
                     parse_force = False
 
             elif parse_freq:
-                if len(l.strip()) == 0:
+                if len(line.strip()) == 0:
                     if len(normal_frequencies[-1][1]) == 0:
                         continue
                     parse_freq = False
                 else:
-                    vibs = [float(vib) for vib in l.strip().split()[1:]]
+                    vibs = [float(vib) for vib in line.strip().split()[1:]]
                     num_vibs = len(vibs)
                     for mode, dis in zip(normal_frequencies[-num_vibs:], vibs):
                         mode[1].append(dis)
 
             elif parse_projected_freq:
-                if len(l.strip()) == 0:
+                if len(line.strip()) == 0:
                     if len(frequencies[-1][1]) == 0:
                         continue
                     parse_projected_freq = False
                 else:
-                    vibs = [float(vib) for vib in l.strip().split()[1:]]
+                    vibs = [float(vib) for vib in line.strip().split()[1:]]
                     num_vibs = len(vibs)
                     for mode, dis in zip(frequencies[-num_vibs:], vibs):
                         mode[1].append(dis)
 
             elif parse_bset:
-                if l.strip() == "":
+                if line.strip() == "":
                     parse_bset = False
                 else:
-                    toks = l.split()
+                    toks = line.split()
                     if toks[0] != "Tag" and not re.match(r"-+", toks[0]):
                         basis_set[toks[0]] = dict(zip(bset_header[1:], toks[1:]))
                     elif toks[0] == "Tag":
@@ -829,12 +811,12 @@ class NwOutput:
                         bset_header = [h.lower() for h in bset_header]
 
             elif parse_hess:
-                if l.strip() == "":
+                if line.strip() == "":
                     continue
-                if len(hessian) > 0 and l.find("----------") != -1:
+                if len(hessian) > 0 and line.find("----------") != -1:
                     parse_hess = False
                     continue
-                toks = l.strip().split()
+                toks = line.strip().split()
                 if len(toks) > 1:
                     try:
                         row = int(toks[0])
@@ -849,10 +831,10 @@ class NwOutput:
                         hessian[row - 1].extend(vals)
 
             elif parse_proj_hess:
-                if l.strip() == "":
+                if line.strip() == "":
                     continue
                 nat3 = len(hessian)
-                toks = l.strip().split()
+                toks = line.strip().split()
                 if len(toks) > 1:
                     try:
                         row = int(toks[0])
@@ -869,24 +851,24 @@ class NwOutput:
                         parse_proj_hess = False
 
             else:
-                m = energy_patt.search(l)
+                m = energy_patt.search(line)
                 if m:
                     energies.append(Energy(m.group(1), "Ha").to("eV"))
                     parse_time = True
                     continue
 
-                m = energy_gas_patt.search(l)
+                m = energy_gas_patt.search(line)
                 if m:
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = {}
                     energies[-1].update({"cosmo scf": cosmo_scf_energy})
                     energies[-1].update({"gas phase": Energy(m.group(1), "Ha").to("eV")})
 
-                m = energy_sol_patt.search(l)
+                m = energy_sol_patt.search(line)
                 if m:
                     energies[-1].update({"sol phase": Energy(m.group(1), "Ha").to("eV")})
 
-                m = preamble_patt.search(l)
+                m = preamble_patt.search(line)
                 if m:
                     try:
                         val = int(m.group(2))
@@ -894,43 +876,43 @@ class NwOutput:
                         val = m.group(2)
                     k = m.group(1).replace("No. of ", "n").replace(" ", "_")
                     data[k.lower()] = val
-                elif l.find('Geometry "geometry"') != -1:
+                elif line.find('Geometry "geometry"') != -1:
                     parse_geom = True
-                elif l.find('Summary of "ao basis"') != -1:
+                elif line.find('Summary of "ao basis"') != -1:
                     parse_bset = True
-                elif l.find("P.Frequency") != -1:
+                elif line.find("P.Frequency") != -1:
                     parse_projected_freq = True
                     if frequencies is None:
                         frequencies = []
-                    toks = l.strip().split()[1:]
+                    toks = line.strip().split()[1:]
                     frequencies.extend([(float(freq), []) for freq in toks])
 
-                elif l.find("Frequency") != -1:
-                    toks = l.strip().split()
+                elif line.find("Frequency") != -1:
+                    toks = line.strip().split()
                     if len(toks) > 1 and toks[0] == "Frequency":
                         parse_freq = True
                         if normal_frequencies is None:
                             normal_frequencies = []
-                        normal_frequencies.extend([(float(freq), []) for freq in l.strip().split()[1:]])
+                        normal_frequencies.extend([(float(freq), []) for freq in line.strip().split()[1:]])
 
-                elif l.find("MASS-WEIGHTED NUCLEAR HESSIAN") != -1:
+                elif line.find("MASS-WEIGHTED NUCLEAR HESSIAN") != -1:
                     parse_hess = True
                     if not hessian:
                         hessian = []
-                elif l.find("MASS-WEIGHTED PROJECTED HESSIAN") != -1:
+                elif line.find("MASS-WEIGHTED PROJECTED HESSIAN") != -1:
                     parse_proj_hess = True
                     if not projected_hessian:
                         projected_hessian = []
 
-                elif l.find("atom               coordinates                        gradient") != -1:
+                elif line.find("atom               coordinates                        gradient") != -1:
                     parse_force = True
 
-                elif job_type == "" and l.strip().startswith("NWChem"):
-                    job_type = l.strip()
+                elif job_type == "" and line.strip().startswith("NWChem"):
+                    job_type = line.strip()
                     if job_type == "NWChem DFT Module" and "COSMO solvation results" in output:
                         job_type += " COSMO"
                 else:
-                    m = corrections_patt.search(l)
+                    m = corrections_patt.search(line)
                     if m:
                         corrections[m.group(1)] = FloatWithUnit(m.group(2), "kJ mol^-1").to("eV atom^-1")
 

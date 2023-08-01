@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides classes and methods used to describe deformations and
 strains, including applying those deformations to structure objects and
@@ -11,13 +8,18 @@ from __future__ import annotations
 
 import collections
 import itertools
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import scipy
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+
+    from pymatgen.core.structure import Structure
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -30,9 +32,7 @@ __date__ = "July 24, 2018"
 
 
 class Deformation(SquareTensor):
-    """
-    Subclass of SquareTensor that describes the deformation gradient tensor
-    """
+    """Subclass of SquareTensor that describes the deformation gradient tensor."""
 
     symbol = "d"
 
@@ -50,27 +50,22 @@ class Deformation(SquareTensor):
         return obj.view(cls)
 
     def is_independent(self, tol: float = 1e-8):
-        """
-        Checks to determine whether the deformation is independent
-        """
+        """Checks to determine whether the deformation is independent."""
         return len(self.get_perturbed_indices(tol)) == 1
 
     def get_perturbed_indices(self, tol: float = 1e-8):
         """
         Gets indices of perturbed elements of the deformation gradient,
-        i. e. those that differ from the identity
+        i. e. those that differ from the identity.
         """
-        indices = list(zip(*np.where(abs(self - np.eye(3)) > tol)))
-        return indices
+        return list(zip(*np.where(abs(self - np.eye(3)) > tol)))
 
     @property
     def green_lagrange_strain(self):
-        """
-        Calculates the Euler-Lagrange strain from the deformation gradient
-        """
+        """Calculates the Euler-Lagrange strain from the deformation gradient."""
         return Strain.from_deformation(self)
 
-    def apply_to_structure(self, structure):
+    def apply_to_structure(self, structure: Structure):
         """
         Apply the deformation gradient to a structure.
 
@@ -88,7 +83,7 @@ class Deformation(SquareTensor):
     def from_index_amount(cls, matrixpos, amt):
         """
         Factory method for constructing a Deformation object
-        from a matrix position and amount
+        from a matrix position and amount.
 
         Args:
             matrixpos (tuple): tuple corresponding the matrix position to
@@ -104,13 +99,13 @@ class Deformation(SquareTensor):
 class DeformedStructureSet(collections.abc.Sequence):
     """
     class that generates a set of independently deformed structures that
-    can be used to calculate linear stress-strain response
+    can be used to calculate linear stress-strain response.
     """
 
     def __init__(self, structure: Structure, norm_strains=None, shear_strains=None, symmetry=False):
         """
-        constructs the deformed geometries of a structure. Generates
-        m + n deformed structures according to the supplied parameters.
+        Construct the deformed geometries of a structure. Generates m + n deformed structures
+        according to the supplied parameters.
 
         Args:
             structure (Structure): structure to undergo deformation
@@ -155,9 +150,7 @@ class DeformedStructureSet(collections.abc.Sequence):
 
 
 class Strain(SquareTensor):
-    """
-    Subclass of SquareTensor that describes the Green-Lagrange strain tensor.
-    """
+    """Subclass of SquareTensor that describes the Green-Lagrange strain tensor."""
 
     symbol = "e"
 
@@ -166,10 +159,10 @@ class Strain(SquareTensor):
         Create a Strain object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
         subclassing numpy ndarrays. Note also that the default constructor
-        does not include the deformation gradient
+        does not include the deformation gradient.
 
         Args:
-            strain_matrix (3x3 array-like): the 3x3 array-like
+            strain_matrix (ArrayLike): 3x3 matrix or length-6 Voigt notation vector
                 representing the Green-Lagrange strain
         """
         vscale = np.ones((6,))
@@ -177,9 +170,7 @@ class Strain(SquareTensor):
         obj = super().__new__(cls, strain_matrix, vscale=vscale)
         if not obj.is_symmetric():
             raise ValueError(
-                "Strain objects must be initialized "
-                "with a symmetric array or a voigt-notation "
-                "vector with six entries."
+                "Strain must be initialized with a symmetric array or a Voigt-notation vector with six entries."
             )
         return obj.view(cls)
 
@@ -190,13 +181,13 @@ class Strain(SquareTensor):
         self._vscale = getattr(obj, "_vscale", None)
 
     @classmethod
-    def from_deformation(cls, deformation):
+    def from_deformation(cls, deformation: ArrayLike) -> Strain:
         """
         Factory method that returns a Strain object from a deformation
-        gradient
+        gradient.
 
         Args:
-            deformation (3x3 array-like):
+            deformation (ArrayLike): 3x3 array defining the deformation
         """
         dfm = Deformation(deformation)
         return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)))
@@ -205,13 +196,12 @@ class Strain(SquareTensor):
     def from_index_amount(cls, idx, amount):
         """
         Like Deformation.from_index_amount, except generates
-        a strain from the zero 3x3 tensor or voigt vector with
+        a strain from the zero 3x3 tensor or Voigt vector with
         the amount specified in the index location. Ensures
         symmetric strain.
 
         Args:
-            idx (tuple or integer): index to be perturbed, can be voigt or
-                full-tensor notation
+            idx (tuple or integer): index to be perturbed, can be Voigt or full-tensor notation
             amount (float): amount to perturb selected index
         """
         if np.array(idx).ndim == 0:
@@ -223,42 +213,46 @@ class Strain(SquareTensor):
             for i in itertools.permutations(idx):
                 v[i] = amount
             return cls(v)
-        raise ValueError("Index must either be 2-tuple or integer corresponding to full-tensor or voigt index")
+        raise ValueError("Index must either be 2-tuple or integer corresponding to full-tensor or Voigt index")
 
-    def get_deformation_matrix(self, shape="upper"):
+    def get_deformation_matrix(self, shape: Literal["upper", "lower", "symmetric"] = "upper"):
         """
-        returns the deformation matrix
+        Returns the deformation matrix.
+
+        Args:
+            shape ('upper' | 'lower' | 'symmetric'): method for determining deformation
+                'upper' produces an upper triangular defo
+                'lower' produces a lower triangular defo
+                'symmetric' produces a symmetric defo
         """
         return convert_strain_to_deformation(self, shape=shape)
 
     @property
     def von_mises_strain(self):
-        """
-        Equivalent strain to Von Mises Stress
-        """
+        """Equivalent strain to Von Mises Stress."""
         eps = self - 1 / 3 * np.trace(self) * np.identity(3)
 
         return np.sqrt(np.sum(eps * eps) * 2 / 3)
 
 
-def convert_strain_to_deformation(strain, shape="upper"):
+def convert_strain_to_deformation(strain, shape: Literal["upper", "lower", "symmetric"]):
     """
     This function converts a strain to a deformation gradient that will
     produce that strain. Supports three methods:
 
     Args:
         strain (3x3 array-like): strain matrix
-        shape: (string): method for determining deformation, supports
-            "upper" produces an upper triangular defo
-            "lower" produces a lower triangular defo
-            "symmetric" produces a symmetric defo
+        shape: ('upper' | 'lower' | 'symmetric'): method for determining deformation
+            'upper' produces an upper triangular defo
+            'lower' produces a lower triangular defo
+            'symmetric' produces a symmetric defo
     """
     strain = SquareTensor(strain)
-    ftdotf = 2 * strain + np.eye(3)
+    ft_dot_f = 2 * strain + np.eye(3)
     if shape == "upper":
-        result = scipy.linalg.cholesky(ftdotf)
+        result = scipy.linalg.cholesky(ft_dot_f)
     elif shape == "symmetric":
-        result = scipy.linalg.sqrtm(ftdotf)
+        result = scipy.linalg.sqrtm(ft_dot_f)
     else:
         raise ValueError('shape must be "upper" or "symmetric"')
     return Deformation(result)

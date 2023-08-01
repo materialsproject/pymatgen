@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.magnetism package &mdash; pymatgen 2022.11.7 documentation</title>
+  <title>pymatgen.analysis.magnetism package &mdash; pymatgen 2023.7.17 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -12,16 +13,18 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.analysis.magnetism.analyzer module" href="pymatgen.analysis.magnetism.analyzer.html" />
-    <link rel="prev" title="pymatgen.analysis.interfaces.zsl module" href="pymatgen.analysis.interfaces.zsl.html" />
+    <link rel="next" title="pymatgen.analysis.solar package" href="pymatgen.analysis.solar.html" />
+    <link rel="prev" title="pymatgen.analysis.interfaces package" href="pymatgen.analysis.interfaces.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -35,14 +38,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
-                2022.11.7
+                2023.7.17
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -79,6 +86,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen.dao">pymatgen.dao module</a></li>
 </ul>
 </li>
 </ul>
@@ -98,7 +106,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
@@ -112,28 +120,801 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="pymatgen-analysis-magnetism-package">
-<h1>pymatgen.analysis.magnetism package<a class="headerlink" href="#pymatgen-analysis-magnetism-package" title="Permalink to this headline"></a></h1>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
+  <section id="pymatgen-analysis-magnetism-package">
+<h1>pymatgen.analysis.magnetism package<a class="headerlink" href="#pymatgen-analysis-magnetism-package" title="Permalink to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</div>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.magnetism.analyzer.html">pymatgen.analysis.magnetism.analyzer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html">pymatgen.analysis.magnetism.heisenberg module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.magnetism.jahnteller.html">pymatgen.analysis.magnetism.jahnteller module</a></li>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-pymatgen.analysis.magnetism.analyzer">
+<span id="pymatgen-analysis-magnetism-analyzer-module"></span><h2>pymatgen.analysis.magnetism.analyzer module<a class="headerlink" href="#module-pymatgen.analysis.magnetism.analyzer" title="Permalink to this heading"></a></h2>
+<p>This module provides some useful functions for dealing with magnetic Structures
+(e.g. Structures with associated magmom tags).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CollinearMagneticStructureAnalyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_magmom_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode" title="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode"><span class="pre">OverwriteMagmomMode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_magmoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detect_valences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_primitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_magmoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_net_positive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_nonmag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L71-L588"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class which provides a few helpful methods to analyze
+collinear magnetic structures.</p>
+<p>If magnetic moments are not defined, moments will be
+taken either from default_magmoms.yaml (similar to the
+default magmoms in MPRelaxSet, with a few extra definitions)
+or from a specie:magmom dict provided by the default_magmoms
+kwarg.</p>
+<p>Input magmoms can be replaced using the ‘overwrite_magmom_mode’
+kwarg. This can be:
+* “none” to do nothing,
+* “respect_sign” which will overwrite existing magmoms with</p>
+<blockquote>
+<div><p>those from default_magmoms but will keep sites with positive magmoms
+positive, negative magmoms negative and zero magmoms zero,</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>“respect_zeros”, which will give a ferromagnetic structure
+(all positive magmoms from default_magmoms) but still keep sites with
+zero magmoms as zero,</p></li>
+<li><p>“replace_all” which will try to guess initial magmoms for
+all sites in the structure irrespective of input structure
+(this is most suitable for an initial DFT calculation),</p></li>
+<li><p>“replace_all_if_undefined” is the same as “replace_all” but only if
+no magmoms are defined in input structure, otherwise it will respect
+existing magmoms.</p></li>
+<li><p>“normalize” will normalize magmoms to unity, but will respect sign
+(used for comparing orderings), magmoms &lt; theshhold will be set to zero</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="module-pymatgen.analysis.magnetism">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.magnetism" title="Permalink to this headline"></a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input Structure object</p></li>
+<li><p><strong>overwrite_magmom_mode</strong> – “respect_sign”, “respect_zeros”, “replace_all”,
+“replace_all_if_undefined”, “normalize” (default “none”)</p></li>
+<li><p><strong>round_magmoms</strong> – will round input magmoms to
+specified number of decimal places if integer is supplied, if set
+to a float will try and group magmoms together using a kernel density
+estimator of provided width, and extracting peaks of the estimator
+detect_valences: if True, will attempt to assign valences
+to input structure</p></li>
+<li><p><strong>make_primitive</strong> – if True, will transform to primitive
+magnetic cell</p></li>
+<li><p><strong>default_magmoms</strong> – (optional) dict specifying default magmoms</p></li>
+<li><p><strong>set_net_positive</strong> – if True, will change sign of magnetic
+moments such that the net magnetization is positive. Argument will be
+ignored if mode “respect_sign” is used.</p></li>
+<li><p><strong>threshold</strong> – number (in Bohr magnetons) below which magmoms
+will be rounded to zero</p></li>
+<li><p><strong>threshold_nonmag</strong> – number (in Bohr magneton)
+below which nonmagnetic ions (with no magmom specified
+in default_magmoms) will be rounded to zero</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_exchange_group_info">
+<span class="sig-name descname"><span class="pre">get_exchange_group_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L517-L537"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_exchange_group_info" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the information on the symmetry of the Hamiltonian
+describing the exchange energy of the system, taking into
+account relative direction of magnetic moments but not their
+absolute direction.</p>
+<p>This is not strictly accurate (e.g. some/many atoms will
+have zero magnetic moments), but defining symmetry this
+way is a useful way of keeping track of distinct magnetic
+orderings within pymatgen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symprec</strong> – same as SpacegroupAnalyzer (Default value = 1e-2)</p></li>
+<li><p><strong>angle_tolerance</strong> – same as SpacegroupAnalyzer (Default value = 5)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>spacegroup_symbol, international_number</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_ferromagnetic_structure">
+<span class="sig-name descname"><span class="pre">get_ferromagnetic_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">make_primitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L381-L399"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_ferromagnetic_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a Structure with all magnetic moments positive
+or zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>make_primitive</strong> – Whether to make structure primitive after
+making all magnetic moments positive (Default value = True)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_nonmagnetic_structure">
+<span class="sig-name descname"><span class="pre">get_nonmagnetic_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">make_primitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L363-L379"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_nonmagnetic_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a Structure without magnetic moments defined.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>make_primitive</strong> – Whether to make structure primitive after
+removing magnetic information (Default value = True)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_structure_with_only_magnetic_atoms">
+<span class="sig-name descname"><span class="pre">get_structure_with_only_magnetic_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">make_primitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L345-L361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_structure_with_only_magnetic_atoms" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a Structure with only magnetic atoms present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>make_primitive</strong> – Whether to make structure primitive after
+removing non-magnetic atoms (Default value = True)</p>
+</dd>
+</dl>
+<p>Returns: Structure</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_structure_with_spin">
+<span class="sig-name descname"><span class="pre">get_structure_with_spin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L335-L343"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.get_structure_with_spin" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a Structure with species decorated with spin values instead
+of using magmom site properties.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.is_magnetic">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_magnetic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.is_magnetic" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience property, returns True if any non-zero magmoms present.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.magmoms">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">magmoms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.magmoms" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience property, returns magmoms as a numpy array.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.magnetic_species_and_magmoms">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">magnetic_species_and_magmoms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.magnetic_species_and_magmoms" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a dict of magnetic species and the magnitude of
+their associated magmoms. Will return a list if there are
+multiple magmoms per species.</p>
+<p>Returns: dict of magnetic species and magmoms</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.matches_ordering">
+<span class="sig-name descname"><span class="pre">matches_ordering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L539-L567"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.matches_ordering" title="Permalink to this definition"></a></dt>
+<dd><p>Compares the magnetic orderings of one structure with another.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>other</strong> – Structure to compare</p>
+</dd>
+</dl>
+<p>Returns: True or False</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_magnetic_sites">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">number_of_magnetic_sites</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_magnetic_sites" title="Permalink to this definition"></a></dt>
+<dd><p>Number of magnetic sites present in structure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_unique_magnetic_sites">
+<span class="sig-name descname"><span class="pre">number_of_unique_magnetic_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L461-L482"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.number_of_unique_magnetic_sites" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symprec</strong> – same as in SpacegroupAnalyzer (Default value = 1e-3)</p></li>
+<li><p><strong>angle_tolerance</strong> – same as in SpacegroupAnalyzer (Default value = 5).</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: Number of symmetrically-distinct magnetic sites present
+in structure.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.ordering">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ordering</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pymatgen.analysis.magnetism.analyzer.Ordering" title="pymatgen.analysis.magnetism.analyzer.Ordering"><span class="pre">Ordering</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.ordering" title="Permalink to this definition"></a></dt>
+<dd><p>Applies heuristics to return a magnetic ordering for a collinear
+magnetic structure. Result is not guaranteed for correctness.</p>
+<p>Returns: Ordering Enum (‘FiM’ is used as the abbreviation for
+ferrimagnetic)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.types_of_magnetic_specie">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">types_of_magnetic_specie</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><span class="pre">pymatgen.core.periodic_table.Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><span class="pre">pymatgen.core.periodic_table.Species</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.periodic_table.DummySpecies" title="pymatgen.core.periodic_table.DummySpecies"><span class="pre">pymatgen.core.periodic_table.DummySpecies</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.types_of_magnetic_specie" title="Permalink to this definition"></a></dt>
+<dd><p>Specie-&gt;Species rename. Used to maintain backwards compatibility.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.types_of_magnetic_species">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">types_of_magnetic_species</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><span class="pre">pymatgen.core.periodic_table.Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><span class="pre">pymatgen.core.periodic_table.Species</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.periodic_table.DummySpecies" title="pymatgen.core.periodic_table.DummySpecies"><span class="pre">pymatgen.core.periodic_table.DummySpecies</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.CollinearMagneticStructureAnalyzer.types_of_magnetic_species" title="Permalink to this definition"></a></dt>
+<dd><p>Equivalent to Structure.types_of_specie but only returns
+magnetic species.</p>
+<p>Returns: types of Species as a list</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.MagneticDeformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MagneticDeformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deformation</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.MagneticDeformation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of MagneticDeformation(type, deformation)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.MagneticDeformation.deformation">
+<span class="sig-name descname"><span class="pre">deformation</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.MagneticDeformation.deformation" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.MagneticDeformation.type">
+<span class="sig-name descname"><span class="pre">type</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.MagneticDeformation.type" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MagneticStructureEnumerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_magmoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('ferromagnetic',</span> <span class="pre">'antiferromagnetic')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truncate_by_symmetry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L591-L1056"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Combines MagneticStructureAnalyzer and MagOrderingTransformation to
+automatically generate a set of transformations for a given structure
+and produce a list of plausible magnetic orderings.</p>
+<p>This class will try generated different collinear
+magnetic orderings for a given input structure.</p>
+<p>If the input structure has magnetic moments defined, it
+is possible to use these as a hint as to which elements are
+magnetic, otherwise magnetic elements will be guessed
+(this can be changed using default_magmoms kwarg).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>default_magmoms</strong> – (optional, defaults provided) dict of
+magnetic elements to their initial magnetic moments in µB, generally
+these are chosen to be high-spin since they can relax to a low-spin
+configuration during a DFT electronic configuration</p></li>
+<li><p><strong>strategies</strong> – different ordering strategies to use, choose from:
+ferromagnetic, antiferromagnetic, antiferromagnetic_by_motif,
+ferrimagnetic_by_motif and ferrimagnetic_by_species (here, “motif”,
+means to use a different ordering parameter for symmetry inequivalent
+sites)</p></li>
+<li><p><strong>automatic</strong> – if True, will automatically choose sensible strategies</p></li>
+<li><p><strong>truncate_by_symmetry</strong> – if True, will remove very unsymmetrical
+orderings that are likely physically implausible</p></li>
+<li><p><strong>transformation_kwargs</strong> – keyword arguments to pass to
+MagOrderingTransformation, to change automatic cell size limits, etc.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator.available_strategies">
+<span class="sig-name descname"><span class="pre">available_strategies</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ferromagnetic',</span> <span class="pre">'antiferromagnetic',</span> <span class="pre">'ferrimagnetic_by_motif',</span> <span class="pre">'ferrimagnetic_by_species',</span> <span class="pre">'antiferromagnetic_by_motif',</span> <span class="pre">'nonmagnetic')</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.MagneticStructureEnumerator.available_strategies" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.Ordering">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ordering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L49-L57"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumeration defining possible magnetic orderings.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.Ordering.AFM">
+<span class="sig-name descname"><span class="pre">AFM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AFM'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.AFM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.Ordering.FM">
+<span class="sig-name descname"><span class="pre">FM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FM'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.FM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.Ordering.FiM">
+<span class="sig-name descname"><span class="pre">FiM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FiM'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.FiM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.Ordering.NM">
+<span class="sig-name descname"><span class="pre">NM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NM'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.NM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.Ordering.Unknown">
+<span class="sig-name descname"><span class="pre">Unknown</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Unknown'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.Ordering.Unknown" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OverwriteMagmomMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L60-L68"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumeration defining different modes for analyzer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.none">
+<span class="sig-name descname"><span class="pre">none</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'none'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.none" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'normalize'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.normalize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.replace_all">
+<span class="sig-name descname"><span class="pre">replace_all</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'replace_all'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.replace_all" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_sign">
+<span class="sig-name descname"><span class="pre">respect_sign</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'respect_sign'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_sign" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_zero">
+<span class="sig-name descname"><span class="pre">respect_zero</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'respect_zeros'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/analyzer.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.OverwriteMagmomMode.respect_zero" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.analyzer.magnetic_deformation">
+<span class="sig-name descname"><span class="pre">magnetic_deformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_A</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure_B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.analysis.magnetism.analyzer.MagneticDeformation" title="pymatgen.analysis.magnetism.analyzer.MagneticDeformation"><span class="pre">MagneticDeformation</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/analyzer.py#L1062-L1097"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.analyzer.magnetic_deformation" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates ‘magnetic deformation proxy’,
+a measure of deformation (norm of finite strain)
+between ‘non-magnetic’ (non-spin-polarized) and
+ferromagnetic structures.</p>
+<p>Adapted from Bocarsly et al. 2017,
+doi: 10.1021/acs.chemmater.6b04729</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_A</strong> – Structure</p></li>
+<li><p><strong>structure_B</strong> – Structure</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: Magnetic deformation</p>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.analysis.magnetism.heisenberg">
+<span id="pymatgen-analysis-magnetism-heisenberg-module"></span><h2>pymatgen.analysis.magnetism.heisenberg module<a class="headerlink" href="#module-pymatgen.analysis.magnetism.heisenberg" title="Permalink to this heading"></a></h2>
+<p>This module implements a simple algorithm for extracting nearest neighbor
+exchange parameters by mapping low energy magnetic orderings to a Heisenberg
+model.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HeisenbergMapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ordered_structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.02</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/heisenberg.py#L32-L670"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to compute exchange parameters from low energy magnetic orderings.</p>
+<p>Exchange parameters are computed by mapping to a classical Heisenberg
+model. Strategy is the scheme for generating neighbors. Currently only
+MinimumDistanceNN is implemented.
+n+1 unique orderings are required to compute n exchange
+parameters.</p>
+<p>First run a MagneticOrderingsWF to obtain low energy collinear magnetic
+orderings and find the magnetic ground state. Then enumerate magnetic
+states with the ground state as the input structure, find the subset
+of supercells that map to the ground state, and do static calculations
+for these orderings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ordered_structures</strong> (<em>list</em>) – Structure objects with magmoms.</p></li>
+<li><p><strong>energies</strong> (<em>list</em>) – Total energies of each relaxed magnetic structure.</p></li>
+<li><p><strong>cutoff</strong> (<em>float</em>) – Cutoff in Angstrom for nearest neighbor search.
+Defaults to 0 (only NN, no NNN, etc.)</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance (in Angstrom) on nearest neighbor distances
+being equal.</p></li>
+<li><p><strong>strategy</strong> (<em>object</em>) – Class from pymatgen.analysis.local_env for constructing graphs.</p></li>
+<li><p><strong>sgraphs</strong> (<em>list</em>) – StructureGraph objects.</p></li>
+<li><p><strong>unique_site_ids</strong> (<em>dict</em>) – Maps each site to its unique numerical identifier.</p></li>
+<li><p><strong>wyckoff_ids</strong> (<em>dict</em>) – Maps unique numerical identifier to wyckoff position.</p></li>
+<li><p><strong>nn_interactions</strong> (<em>dict</em>) – {i: j} pairs of NN interactions between unique sites.</p></li>
+<li><p><strong>dists</strong> (<em>dict</em>) – NN, NNN, and NNNN interaction distances</p></li>
+<li><p><strong>ex_mat</strong> (<em>DataFrame</em>) – Invertible Heisenberg Hamiltonian for each graph.</p></li>
+<li><p><strong>ex_params</strong> (<em>dict</em>) – Exchange parameter values (meV/atom)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.estimate_exchange">
+<span class="sig-name descname"><span class="pre">estimate_exchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fm_struct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">afm_struct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fm_e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">afm_e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/heisenberg.py#L453-L491"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.estimate_exchange" title="Permalink to this definition"></a></dt>
+<dd><p>Estimate &lt;J&gt; for a structure based on low energy FM and AFM orderings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fm_struct</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – fm structure with ‘magmom’ site property</p></li>
+<li><p><strong>afm_struct</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – afm structure with ‘magmom’ site property</p></li>
+<li><p><strong>fm_e</strong> (<em>float</em>) – fm energy/atom</p></li>
+<li><p><strong>afm_e</strong> (<em>float</em>) – afm energy/atom</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Average exchange parameter (meV/atom)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>j_avg (float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_exchange">
+<span class="sig-name descname"><span class="pre">get_exchange</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/heisenberg.py#L350-L384"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_exchange" title="Permalink to this definition"></a></dt>
+<dd><p>Take Heisenberg Hamiltonian and corresponding energy for each row and
+solve for the exchange parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Exchange parameter values (meV/atom).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ex_params (dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_heisenberg_model">
+<span class="sig-name descname"><span class="pre">get_heisenberg_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/heisenberg.py#L630-L670"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_heisenberg_model" title="Permalink to this definition"></a></dt>
+<dd><p>Save results of mapping to a HeisenbergModel object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>MSONable object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel" title="pymatgen.analysis.magnetism.heisenberg.HeisenbergModel">HeisenbergModel</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_interaction_graph">
+<span class="sig-name descname"><span class="pre">get_interaction_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/heisenberg.py#L537-L582"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_interaction_graph" title="Permalink to this definition"></a></dt>
+<dd><p>Get a StructureGraph with edges and weights that correspond to exchange
+interactions and J_ij values, respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – if not None, save interaction graph to filename.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Exchange interaction graph.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>igraph (<a class="reference internal" href="pymatgen.analysis.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph">StructureGraph</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_low_energy_orderings">
+<span class="sig-name descname"><span class="pre">get_low_energy_orderings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/heisenberg.py#L386-L451"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_low_energy_orderings" title="Permalink to this definition"></a></dt>
+<dd><p>Find lowest energy FM and AFM orderings to compute E_AFM - E_FM.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fm structure with ‘magmom’ site property
+afm_struct (Structure): afm structure with ‘magmom’ site property
+fm_e (float): fm energy
+afm_e (float): afm energy</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>fm_struct (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">Structure</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_mft_temperature">
+<span class="sig-name descname"><span class="pre">get_mft_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">j_avg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/heisenberg.py#L493-L535"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_mft_temperature" title="Permalink to this definition"></a></dt>
+<dd><p>Crude mean field estimate of critical temperature based on &lt;J&gt; for
+one sublattice, or solving the coupled equations for a multisublattice
+material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>j_avg</strong> (<em>float</em>) – j_avg (float): Average exchange parameter (meV/atom)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Critical temperature (K)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>mft_t (float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HeisenbergModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sgraphs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_site_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wyckoff_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn_interactions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ex_mat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ex_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">javg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">igraph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/heisenberg.py#L810-L998"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<p>Store a Heisenberg model fit to low-energy magnetic orderings.
+Intended to be generated by HeisenbergMapper.get_heisenberg_model().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>formula</strong> (<em>str</em>) – Reduced formula of compound.</p></li>
+<li><p><strong>structures</strong> (<em>list</em>) – Structure objects with magmoms.</p></li>
+<li><p><strong>energies</strong> (<em>list</em>) – Energies of each relaxed magnetic structure.</p></li>
+<li><p><strong>cutoff</strong> (<em>float</em>) – Cutoff in Angstrom for nearest neighbor search.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance (in Angstrom) on nearest neighbor distances being equal.</p></li>
+<li><p><strong>sgraphs</strong> (<em>list</em>) – StructureGraph objects.</p></li>
+<li><p><strong>unique_site_ids</strong> (<em>dict</em>) – Maps each site to its unique numerical
+identifier.</p></li>
+<li><p><strong>wyckoff_ids</strong> (<em>dict</em>) – Maps unique numerical identifier to wyckoff
+position.</p></li>
+<li><p><strong>nn_interactions</strong> (<em>dict</em>) – {i: j} pairs of NN interactions
+between unique sites.</p></li>
+<li><p><strong>dists</strong> (<em>dict</em>) – NN, NNN, and NNNN interaction distances</p></li>
+<li><p><strong>ex_mat</strong> (<em>DataFrame</em>) – Invertible Heisenberg Hamiltonian for each
+graph.</p></li>
+<li><p><strong>ex_params</strong> (<em>dict</em>) – Exchange parameter values (meV/atom).</p></li>
+<li><p><strong>javg</strong> (<em>float</em>) – &lt;J&gt; exchange param (meV/atom).</p></li>
+<li><p><strong>igraph</strong> (<a class="reference internal" href="pymatgen.analysis.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – Exchange interaction graph.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/heisenberg.py#L869-L892"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.as_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Because some dicts have tuple keys, some sanitization is required for json compatibility.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/heisenberg.py#L894-L953"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.from_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Create a HeisenbergModel from a dict.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HeisenbergScreener</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/heisenberg.py#L673-L807"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to clean and screen magnetic orderings.</p>
+<p>This class pre-processes magnetic orderings and energies for
+HeisenbergMapper. It prioritizes low-energy orderings with large and
+localized magnetic moments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> (<em>list</em>) – Structure objects with magnetic moments.</p></li>
+<li><p><strong>energies</strong> (<em>list</em>) – Energies/atom of magnetic orderings.</p></li>
+<li><p><strong>screen</strong> (<em>bool</em>) – Try to screen out high energy and low-spin configurations.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_structures">
+<span class="sig-name descname"><span class="pre">screened_structures</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/heisenberg.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_structures" title="Permalink to this definition"></a></dt>
+<dd><p>Sorted structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_energies">
+<span class="sig-name descname"><span class="pre">screened_energies</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/analysis/magnetism/heisenberg.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_energies" title="Permalink to this definition"></a></dt>
+<dd><p>Sorted energies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.analysis.magnetism.jahnteller">
+<span id="pymatgen-analysis-magnetism-jahnteller-module"></span><h2>pymatgen.analysis.magnetism.jahnteller module<a class="headerlink" href="#module-pymatgen.analysis.magnetism.jahnteller" title="Permalink to this heading"></a></h2>
+<p>JahnTeller distortion analysis.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">JahnTellerAnalyzer</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/jahnteller.py#L22-L471"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Will attempt to classify if structure <em>may</em> be Jahn-Teller active.
+Class currently uses datafile of hard-coded common Jahn-Teller
+active ions.
+If structure is annotated with magnetic moments, will estimate
+if structure may be high-spin or low-spin.
+Class aims for more false-positives than false-negatives.</p>
+<p>Init for JahnTellerAnalyzer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis">
+<span class="sig-name descname"><span class="pre">get_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_valences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guesstimate_spin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/jahnteller.py#L212-L246"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method, uses get_analysis_and_structure method.</p>
+<p>Obtain an analysis of a given structure and if it may be Jahn-Teller
+active or not. This is a heuristic, and may give false positives and
+false negatives (false positives are preferred).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>calculate_valences</strong> – whether to attempt to calculate valences or not, structure
+should have oxidation states to perform analysis (Default value = True)</p></li>
+<li><p><strong>guesstimate_spin</strong> – whether to guesstimate spin state from magnetic moments
+or not, use with caution (Default value = False)</p></li>
+<li><p><strong>op_threshold</strong> – threshold for order parameter above which to consider site
+to match an octahedral or tetrahedral motif, since Jahn-Teller structures
+can often be
+quite distorted, this threshold is smaller than one might expect</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>analysis of structure, with key ‘strength’ which may be ‘none’, ‘strong’,
+‘weak’, or ‘unknown’ (Default value = 0.1)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis_and_structure">
+<span class="sig-name descname"><span class="pre">get_analysis_and_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_valences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guesstimate_spin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/jahnteller.py#L79-L210"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_analysis_and_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Obtain an analysis of a given structure and if it may be Jahn-Teller
+active or not. This is a heuristic, and may give false positives and
+false negatives (false positives are preferred).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>calculate_valences</strong> – whether to attempt to calculate valences or not, structure
+should have oxidation states to perform analysis (Default value = True)</p></li>
+<li><p><strong>guesstimate_spin</strong> – whether to guesstimate spin state from magnetic moments
+or not, use with caution (Default value = False)</p></li>
+<li><p><strong>op_threshold</strong> – threshold for order parameter above which to consider site
+to match an octahedral or tetrahedral motif, since Jahn-Teller structures
+can often be
+quite distorted, this threshold is smaller than one might expect</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>analysis of structure, with key ‘strength’ which may be ‘none’, ‘strong’,
+‘weak’, or ‘unknown’ (Default value = 0.1) and decorated structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_species">
+<span class="sig-name descname"><span class="pre">get_magnitude_of_effect_from_species</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><span class="pre">Species</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/jahnteller.py#L355-L382"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_species" title="Permalink to this definition"></a></dt>
+<dd><p>Get magnitude of Jahn-Teller effect from provided species, spin state and motif.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – e.g. Fe2+</p></li>
+<li><p><strong>spin_state</strong> – “high” or “low”</p></li>
+<li><p><strong>motif</strong> – “oct” or “tet”</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: “none”, “weak” or “strong</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_magnitude_of_effect_from_spin_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">motif</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/jahnteller.py#L384-L413"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config" title="Permalink to this definition"></a></dt>
+<dd><p>Roughly, the magnitude of Jahn-Teller distortion will be:
+* in octahedral environments, strong if e_g orbitals
+unevenly occupied but weak if t_2g orbitals unevenly
+occupied
+* in tetrahedral environments always weaker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>motif</strong> – “oct” or “tet”</p></li>
+<li><p><strong>spin_config</strong> – dict of ‘e’ (e_g) and ‘t’ (t2_g)
+with number of electrons in each state</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:  “none”, “weak” or “strong”</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.is_jahn_teller_active">
+<span class="sig-name descname"><span class="pre">is_jahn_teller_active</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_valences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guesstimate_spin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/jahnteller.py#L248-L288"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.is_jahn_teller_active" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method, uses get_analysis_and_structure method.
+Check if a given structure and if it may be Jahn-Teller
+active or not. This is a heuristic, and may give false positives and
+false negatives (false positives are preferred).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>calculate_valences</strong> – whether to attempt to calculate valences or not, structure
+should have oxidation states to perform analysis (Default value = True)</p></li>
+<li><p><strong>guesstimate_spin</strong> – whether to guesstimate spin state from magnetic moments
+or not, use with caution (Default value = False)</p></li>
+<li><p><strong>op_threshold</strong> – threshold for order parameter above which to consider site
+to match an octahedral or tetrahedral motif, since Jahn-Teller structures
+can often be
+quite distorted, this threshold is smaller than one might expect</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>boolean, True if might be Jahn-Teller active, False if not</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.mu_so">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mu_so</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><span class="pre">Species</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'oct'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tet'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'high'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'low'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/jahnteller.py#L451-L471"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.mu_so" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the spin-only magnetic moment for a
+given species. Only supports transition metals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – Species</p></li>
+<li><p><strong>motif</strong> (<em>&quot;oct&quot;</em><em> | </em><em>&quot;tet&quot;</em>) – Tetrahedron or octahedron crystal site coordination</p></li>
+<li><p><strong>spin_state</strong> (<em>&quot;low&quot;</em><em> | </em><em>&quot;high&quot;</em>) – Whether the species is in a high or low spin state</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Spin-only magnetic moment in Bohr magnetons or None if</dt><dd><p>species crystal field not defined</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.tag_structure">
+<span class="sig-name descname"><span class="pre">tag_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_valences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guesstimate_spin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/magnetism/jahnteller.py#L290-L331"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.jahnteller.JahnTellerAnalyzer.tag_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method, uses get_analysis_and_structure method.
+Add a “possible_jt_active” site property on Structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – input structure</p></li>
+<li><p><strong>calculate_valences</strong> – whether to attempt to calculate valences or not, structure
+should have oxidation states to perform analysis (Default value = True)</p></li>
+<li><p><strong>guesstimate_spin</strong> – whether to guesstimate spin state from magnetic moments
+or not, use with caution (Default value = False)</p></li>
+<li><p><strong>op_threshold</strong> – threshold for order parameter above which to consider site
+to match an octahedral or tetrahedral motif, since Jahn-Teller structures
+can often be
+quite distorted, this threshold is smaller than one might expect</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decorated Structure, will be in primitive setting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.analysis.magnetism">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.magnetism" title="Permalink to this heading"></a></h2>
 <p>Package for analysis of magnetic structures.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

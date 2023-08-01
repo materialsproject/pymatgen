@@ -1,11 +1,12 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module contains an algorithm to solve the Linear Assignment Problem.
 It has the same functionality as linear_assignment.pyx, but is much slower
-as it is vectorized in numpy rather than cython
+as it is vectorized in numpy rather than cython.
 """
+
+from __future__ import annotations
+
+import numpy as np
 
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -13,8 +14,6 @@ __version__ = "1.0"
 __maintainer__ = "Will Richards"
 __email__ = "wrichards@mit.edu"
 __date__ = "Jan 28, 2013"
-
-import numpy as np
 
 
 class LinearAssignment:
@@ -45,9 +44,9 @@ class LinearAssignment:
             costs: The cost matrix of the problem. cost[i,j] should be the
                 cost of matching x[i] to y[j]. The cost matrix may be
                 rectangular
-            epsilon: Tolerance for determining if solution vector is < 0
+            epsilon: Tolerance for determining if solution vector is < 0.
         """
-        self.orig_c = np.array(costs, dtype=np.float64)
+        self.orig_c = np.array(costs, dtype=np.float_)
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
         self._inds = np.arange(self.n)
@@ -70,7 +69,7 @@ class LinearAssignment:
             self.c[: self.nx] = self.orig_c
 
         # initialize solution vectors
-        self._x = np.zeros(self.n, dtype=int) - 1
+        self._x = np.zeros(self.n, dtype=np.int_) - 1
         self._y = self._x.copy()
 
         # if column reduction doesn't find a solution, augment with shortest
@@ -87,18 +86,14 @@ class LinearAssignment:
 
     @property
     def min_cost(self):
-        """
-        Returns the cost of the best assignment
-        """
+        """Returns the cost of the best assignment."""
         if self._min_cost:
             return self._min_cost
         self._min_cost = np.sum(self.c[np.arange(self.nx), self.solution])
         return self._min_cost
 
     def _column_reduction(self):
-        """
-        Column reduction and reduction transfer steps from LAPJV algorithm
-        """
+        """Column reduction and reduction transfer steps from LAPJV algorithm."""
         # assign each column to its lowest cost row, ensuring that only row
         # or column is assigned once
         i1, j = np.unique(np.argmin(self.c, axis=0), return_index=True)
@@ -120,9 +115,7 @@ class LinearAssignment:
         return True
 
     def _augmenting_row_reduction(self):
-        """
-        Augmenting row reduction step from LAPJV algorithm
-        """
+        """Augmenting row reduction step from LAPJV algorithm."""
         unassigned = np.where(self._x == -1)[0]
         for i in unassigned:
             for _ in range(self.c.size):
@@ -154,15 +147,13 @@ class LinearAssignment:
     def _update_cred(self):
         """
         Updates the reduced costs with the values from the
-        dual solution
+        dual solution.
         """
         ui = self.c[self._inds, self._x] - self._v[self._x]
         self.cred = self.c - ui[:, None] - self._v[None, :]
 
     def _augment(self):
-        """
-        Finds a minimum cost path and adds it to the matching
-        """
+        """Finds a minimum cost path and adds it to the matching."""
         # build a minimum cost tree
         _pred, _ready, istar, j, mu = self._build_tree()
 
@@ -187,14 +178,14 @@ class LinearAssignment:
         Builds the tree finding an augmenting path. Alternates along
         matched and unmatched edges between X and Y. The paths are
         stored in _pred (new predecessor of nodes in Y), and
-        self._x and self._y
+        self._x and self._y.
         """
         # find unassigned i*
         istar = np.argmin(self._x)
 
         # compute distances
         self._d = self.c[istar] - self._v
-        _pred = np.zeros(self.n, dtype=int) + istar
+        _pred = np.zeros(self.n, dtype=np.int_) + istar
 
         # initialize sets
         # READY: set of nodes visited and in the path (whose price gets
@@ -202,9 +193,9 @@ class LinearAssignment:
         # SCAN: set of nodes at the bottom of the tree, which we need to
         # look at
         # T0DO: unvisited nodes
-        _ready = np.zeros(self.n, dtype=bool)
-        _scan = np.zeros(self.n, dtype=bool)
-        _todo = np.zeros(self.n, dtype=bool) + True
+        _ready = np.zeros(self.n, dtype=np.bool_)
+        _scan = np.zeros(self.n, dtype=np.bool_)
+        _todo = np.zeros(self.n, dtype=np.bool_) + True
 
         while True:
             # populate scan with minimum reduced distances

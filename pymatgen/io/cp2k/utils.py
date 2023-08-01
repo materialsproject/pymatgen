@@ -1,16 +1,16 @@
-"""
-Utility functions for assisting with cp2k IO
-"""
+"""Utility functions for assisting with cp2k IO."""
 
 from __future__ import annotations
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
 
-from pymatgen.core import Molecule, Structure
+if TYPE_CHECKING:
+    from pymatgen.core import Molecule, Structure
 
 
 def postprocessor(data: str) -> str | int | float | bool | None:
@@ -39,12 +39,12 @@ def postprocessor(data: str) -> str | int | float | bool | None:
         try:
             return int(data)
         except ValueError as exc:
-            raise ValueError(f"Error parsing '{data}' as int in CP2K file.") from exc
+            raise ValueError(f"Error parsing {data!r} as int in CP2K file.") from exc
     if re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", data):
         try:
             return float(data)
         except ValueError as exc:
-            raise ValueError(f"Error parsing '{data}' as float in CP2K file.") from exc
+            raise ValueError(f"Error parsing {data!r} as float in CP2K file.") from exc
     if re.match(r"\*+", data):
         return np.NaN
     return data
@@ -97,24 +97,21 @@ def preprocessor(data: str, dir: str = ".") -> str:
 
 
 def chunk(string: str):
-    """
-    Chunk the string from a cp2k basis or potential file
-    """
-    lines = iter(line for line in (l.strip() for l in string.split("\n")) if line and not line.startswith("#"))
+    """Chunk the string from a cp2k basis or potential file."""
+    lines = iter(line for line in (line.strip() for line in string.split("\n")) if line and not line.startswith("#"))
     chunks: list = []
     for line in lines:
         if line.split()[0].isalpha():
             chunks.append([])
         chunks[-1].append(line)
-    chunks = ["\n".join(c) for c in chunks]
-    return chunks
+    return ["\n".join(c) for c in chunks]
 
 
 def natural_keys(text: str):
     """
     Sort text by numbers coming after an underscore with natural number
     convention,
-    Ex: [file_1, file_12, file_2] becomes [file_1, file_2, file_12]
+    Ex: [file_1, file_12, file_2] becomes [file_1, file_2, file_12].
     """
 
     def atoi(t):
@@ -183,9 +180,7 @@ def get_unique_site_indices(structure: Structure | Molecule):
 
 
 def get_truncated_coulomb_cutoff(inp_struct: Structure):
-    """
-    Get the truncated Coulomb cutoff for a given structure.
-    """
+    """Get the truncated Coulomb cutoff for a given structure."""
     m = inp_struct.lattice.matrix
     m = (abs(m) > 1e-5) * m
     a, b, c = m[0], m[1], m[2]

@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 import json
 import os
-import unittest
+
+from mpl_toolkits.mplot3d import Axes3D
+from numpy.testing import assert_array_equal
+from pytest import approx
 
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.core.lattice import Lattice
@@ -19,7 +24,6 @@ __date__ = "May 05 2016"
 
 class WulffShapeTest(PymatgenTest):
     def setUp(self):
-
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "surface_samples.json")) as data_file:
             surface_properties = json.load(data_file)
@@ -67,14 +71,13 @@ class WulffShapeTest(PymatgenTest):
 
         self.surface_properties = surface_properties
 
-    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plot(self):
-        # Basic test, not really a unittest.
-        self.wulff_Ti.get_plot()
-        self.wulff_Nb.get_plot()
-        self.wulff_Ir.get_plot()
+        # Basic test to check figure contains a single Axes3D object
+        for wulff in (self.wulff_Nb, self.wulff_Ir, self.wulff_Ti):
+            plt = wulff.get_plot()
+            assert len(plt.gcf().get_axes()) == 1
+            assert isinstance(plt.gcf().get_axes()[0], Axes3D)
 
-    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plotly(self):
         # Basic test, not really a unittest.
         self.wulff_Ti.get_plotly()
@@ -87,7 +90,7 @@ class WulffShapeTest(PymatgenTest):
         # the point group of its conventional unit cell
 
         Args:
-            ucell (string): Unit cell that the Wulff shape is based on.
+            ucell (str): Unit cell that the Wulff shape is based on.
             wulff_vertices (list): List of all vertices on the Wulff
                 shape. Use wulff.wulff_pt_list to obtain the list
                 (see wulff_generator.py).
@@ -101,12 +104,10 @@ class WulffShapeTest(PymatgenTest):
                 symm_point = op.operate(point)
                 if in_coord_list(wulff_vertices, symm_point):
                     continue
-                else:
-                    return False
+                return False
         return True
 
     def consistency_tests(self):
-
         # For a set of given values, these tests will
         # ensure that the general result given by the
         # algorithm does not change as the code is edited
@@ -115,9 +116,9 @@ class WulffShapeTest(PymatgenTest):
         # is the most dominant facet on the Wulff shape
 
         fractional_areas = self.wulff_Ir.area_fraction_dict
-        miller_list = [hkl for hkl in fractional_areas]
+        miller_list = list(fractional_areas)
         area_list = [fractional_areas[hkl] for hkl in fractional_areas]
-        self.assertEqual(miller_list[area_list.index(max(area_list))], (1, 1, 1))
+        assert miller_list[area_list.index(max(area_list))] == (1, 1, 1)
 
         # Overall weighted surface energy of fcc Nb should be
         # equal to the energy of the (310) surface, ie. fcc Nb
@@ -127,17 +128,13 @@ class WulffShapeTest(PymatgenTest):
         Nb_area_fraction_dict = self.wulff_Nb.area_fraction_dict
         for hkl in Nb_area_fraction_dict:
             if hkl == (3, 1, 0):
-                self.assertEqual(Nb_area_fraction_dict[hkl], 1)
+                assert Nb_area_fraction_dict[hkl] == 1
             else:
-                self.assertEqual(Nb_area_fraction_dict[hkl], 0)
+                assert Nb_area_fraction_dict[hkl] == 0
 
-        self.assertEqual(
-            self.wulff_Nb.miller_energy_dict[(3, 1, 0)],
-            self.wulff_Nb.weighted_surface_energy,
-        )
+        assert self.wulff_Nb.miller_energy_dict[(3, 1, 0)] == self.wulff_Nb.weighted_surface_energy
 
     def symmetry_test(self):
-
         # Maintains that all wulff shapes have the same point
         # groups as the conventional unit cell they were
         # derived from. This test should pass for all subsequent
@@ -146,46 +143,32 @@ class WulffShapeTest(PymatgenTest):
         check_symmetry_Nb = self.symm_check(self.ucell_Nb, self.wulff_Nb.wulff_pt_list)
         check_symmetry_Ir = self.symm_check(self.ucell_Ir, self.wulff_Ir.wulff_pt_list)
         check_symmetry_Ti = self.symm_check(self.ucell_Ti, self.wulff_Ti.wulff_pt_list)
-        self.assertTrue(check_symmetry_Nb)
-        self.assertTrue(check_symmetry_Ir)
-        self.assertTrue(check_symmetry_Ti)
+        assert check_symmetry_Nb
+        assert check_symmetry_Ir
+        assert check_symmetry_Ti
 
     def test_get_azimuth_elev(self):
-
         # Test out the viewing of the Wulff shape from Miller indices.
         azim, elev = self.wulff_Ir._get_azimuth_elev((0, 0, 1))
-        self.assertEqual(azim, 0)
-        self.assertEqual(elev, 90)
+        assert azim == 0
+        assert elev == 90
         azim, elev = self.wulff_Ir._get_azimuth_elev((1, 1, 1))
-        self.assertAlmostEqual(azim, 45)
+        assert azim == approx(45)
 
     def test_properties(self):
-
         # Simple test to check if the values of some
         # properties are consistent with what we already have
 
-        wulff_shapes = {
-            "mp-8636": self.wulff_Nb,
-            "mp-72": self.wulff_Ti,
-            "mp-101": self.wulff_Ir,
-        }
+        wulff_shapes = {"mp-8636": self.wulff_Nb, "mp-72": self.wulff_Ti, "mp-101": self.wulff_Ir}
         for mp_id, wulff in wulff_shapes.items():
             properties = self.surface_properties[mp_id]
-            self.assertEqual(
-                round(wulff.weighted_surface_energy, 3),
-                round(properties["weighted_surface_energy"], 3),
-            )
-            self.assertEqual(round(wulff.shape_factor, 3), round(properties["shape_factor"], 3))
-            self.assertEqual(round(wulff.anisotropy, 3), round(properties["surface_anisotropy"], 3))
+            assert round(wulff.weighted_surface_energy, 3) == round(properties["weighted_surface_energy"], 3)
+            assert round(wulff.shape_factor, 3) == round(properties["shape_factor"], 3)
+            assert round(wulff.anisotropy, 3) == round(properties["surface_anisotropy"], 3)
 
     def test_corner_and_edges(self):
-
         # Test if it is returning the correct number of corner and edges
-        self.assertArrayEqual(self.cube.tot_corner_sites, 8)
-        self.assertArrayEqual(self.cube.tot_edges, 12)
-        self.assertArrayEqual(self.hex_prism.tot_corner_sites, 12)
-        self.assertArrayEqual(self.hex_prism.tot_edges, 18)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert_array_equal(self.cube.tot_corner_sites, 8)
+        assert_array_equal(self.cube.tot_edges, 12)
+        assert_array_equal(self.hex_prism.tot_corner_sites, 12)
+        assert_array_equal(self.hex_prism.tot_edges, 18)

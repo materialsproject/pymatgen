@@ -13,9 +13,26 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 7
+pymatgen.ext.cod module
+-----------------------
 
-   pymatgen.ext.cod
-   pymatgen.ext.matproj
-   pymatgen.ext.optimade
+.. automodule:: pymatgen.ext.cod
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.ext.matproj module
+---------------------------
+
+.. automodule:: pymatgen.ext.matproj
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.ext.optimade module
+----------------------------
+
+.. automodule:: pymatgen.ext.optimade
+   :members:
+   :undoc-members:
+   :show-inheritance:

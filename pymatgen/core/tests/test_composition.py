@@ -1,24 +1,24 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
-Created on Nov 10, 2012
+Created on Nov 10, 2012.
 
 @author: Shyue Ping Ong
 """
+from __future__ import annotations
 
 import random
 import unittest
 
 import pytest
+from pytest import approx
 
 from pymatgen.core.composition import ChemicalPotential, Composition
-from pymatgen.core.periodic_table import Element, Species
+from pymatgen.core.periodic_table import DummySpecies, Element, Species
 from pymatgen.util.testing import PymatgenTest
 
 
 class CompositionTest(PymatgenTest):
     def setUp(self):
-        self.comp = [
+        self.comps = [
             Composition("Li3Fe2(PO4)3"),
             Composition("Li3Fe(PO4)O"),
             Composition("LiMn2O4"),
@@ -41,67 +41,117 @@ class CompositionTest(PymatgenTest):
         ]
 
     def test_immutable(self):
-        try:
-            self.comp[0]["Fe"] = 1
-        except Exception as ex:
-            assert isinstance(ex, TypeError)
+        with pytest.raises(TypeError) as exc:
+            self.comps[0]["Fe"] = 1
 
-        try:
-            del self.comp[0]["Fe"]
-        except Exception as ex:
-            assert isinstance(ex, TypeError)
+        assert "'Composition' object does not support item assignment" in str(exc.value)
+
+        with pytest.raises(TypeError) as exc:
+            del self.comps[0]["Fe"]
+
+        assert "'Composition' object does not support item deletion" in str(exc.value)
 
     def test_in(self):
-        assert "Fe" in self.comp[0]
-        assert "Fe" not in self.comp[2]
-        assert Element("Fe") in self.comp[0]
-        assert self.comp[0]["Fe"] == 2
-        assert self.comp[0]["Mn"] == 0
-        with pytest.raises(TypeError):
-            self.comp[0]["Hello"]
-        with pytest.raises(TypeError):
-            self.comp[0]["Vac"]
+        # test the Composition.__contains__ magic method
+        assert "Fe" in self.comps[0]
+        assert "Fe" not in self.comps[2]
+        assert Element("Fe") in self.comps[0]
+        assert self.comps[0]["Fe"] == 2
+        assert self.comps[0]["Mn"] == 0
+        with pytest.raises(KeyError, match="Invalid key='Hello'"):
+            self.comps[0]["Hello"]
+        with pytest.raises(KeyError, match="Invalid key='Vac'"):
+            self.comps[0]["Vac"]
+
+        # Test Species in Composition
+        comp = Composition({Species("Fe2+"): 2})
+        assert Species("Fe2+") in comp
+        assert Species("Fe3+") not in comp
+        assert "Fe" in comp
+        assert Element("Fe") in comp
+
+        # Test Element in Composition with Species
+        comp = Composition({Species("Fe2+"): 2})
+        assert Element("Fe") in comp
+        assert Element("O") not in comp
+        assert "Fe" in comp
+        assert "O" not in comp
+
+        # Test str in Composition with Element
+        comp = Composition({"Fe": 2})
+        assert "Fe" in comp
+        assert "O" not in comp
+        assert Element("Fe") in comp
+        assert Element("O") not in comp
+
+        # Test int (atomic number) in Composition
+        comp = Composition({Element("Fe"): 2})
+        assert 26 in comp  # atomic number for Fe
+        assert 8 not in comp  # atomic number for O
+
+        # Test float in Composition
+        comp = Composition({Element("Fe"): 2})
+        with pytest.raises(TypeError, match="expected string or bytes-like object"):
+            assert 1.5 in comp
+
+        # Test DummySpecies in Composition
+        comp = Composition({DummySpecies("X"): 2})
+        assert DummySpecies("X") in comp
+        assert DummySpecies("A") not in comp
+        assert "X" in comp
+        assert "Y" not in comp
+        assert Element("Fe") not in comp
+        assert Species("Fe2+") not in comp
 
     def test_hill_formula(self):
         c = Composition("CaCO3")
         assert c.hill_formula == "C Ca O3"
         c = Composition("C2H5OH")
         assert c.hill_formula == "C2 H6 O"
+        # A test case with both C and H, but not one after another (mp-1228185)
+        c = Composition("Ga8 As16 H102 C32 S36 O3")
+        assert c.hill_formula == "C32 H102 As16 Ga8 O3 S36"
+        # A test case with H but no C
+        c = Composition("Ga8 As16 H102 S36 O3")
+        assert c.hill_formula == "As16 Ga8 H102 O3 S36"
 
-    def test_init_(self):
-        with pytest.raises(ValueError):
+    def test_init(self):
+        with pytest.raises(ValueError, match="Amounts in Composition cannot be negative"):
             Composition({"H": -0.1})
-        f = {"Fe": 4, "Li": 4, "O": 16, "P": 4}
-        assert "Li4 Fe4 P4 O16" == Composition(f).formula
-        f = {None: 4, "Li": 4, "O": 16, "P": 4}
-        with pytest.raises(TypeError):
-            Composition(f)
-        f = {1: 2, 8: 1}
-        assert "H2 O1" == Composition(f).formula
-        assert "Na2 O1" == Composition(Na=2, O=1).formula
+
+        assert Composition({"Fe": 4, "Li": 4, "O": 16, "P": 4}).formula == "Li4 Fe4 P4 O16"
+
+        with pytest.raises(TypeError, match="expected string or bytes-like object"):
+            Composition({None: 4, "Li": 4, "O": 16, "P": 4})
+
+        assert Composition({1: 2, 8: 1}).formula == "H2 O1"
+        assert Composition(Na=2, O=1).formula == "Na2 O1"
 
         c = Composition({"S": Composition.amount_tolerance / 2})
         assert len(c.elements) == 0
 
-    def test_average_electroneg(self):
-        val = [
-            2.7224999999999997,
-            2.4160000000000004,
-            2.5485714285714285,
-            2.21,
-            2.718,
-            3.08,
-            1.21,
-            2.43,
+    def test_str_and_repr(self):
+        test_cases = [
+            ({"Li+": 2, "Mn3+": 2, "O2-": 4}, {"str": "Li+2 Mn3+2 O2-4", "repr": "Composition('Li+:2 Mn3+:2 O2-:4')"}),
+            ("H2O", {"str": "H2 O1", "repr": "Composition('H2 O1')"}),
+            ({"Fe3+": 2, "O2-": 3}, {"str": "Fe3+2 O2-3", "repr": "Composition('Fe3+:2 O2-:3')"}),
+            ("C6H6", {"str": "C6 H6", "repr": "Composition('C6 H6')"}),
         ]
-        for i, c in enumerate(self.comp):
-            assert round(abs(c.average_electroneg - val[i]), 7) == 0
+
+        for comp, expected in test_cases:
+            assert str(Composition(comp)) == expected["str"]
+            assert repr(Composition(comp)) == expected["repr"]
+
+    def test_average_electroneg(self):
+        electro_negs = (2.7224999999999997, 2.4160000000000004, 2.5485714285714285, 2.21, 2.718, 3.08, 1.21, 2.43)
+        for elem, val in zip(self.comps, electro_negs):
+            assert elem.average_electroneg == approx(val)
 
     def test_total_electrons(self):
         test_cases = {"C": 6, "SrTiO3": 84}
         for key, val in test_cases.items():
-            c = Composition(key)
-            assert round(abs(c.total_electrons - val), 7) == 0
+            comp = Composition(key)
+            assert comp.total_electrons == val
 
     def test_formula(self):
         correct_formulas = [
@@ -114,9 +164,9 @@ class CompositionTest(PymatgenTest):
             "Li1.5 Si0.5",
             "Zn1 H1 O1",
         ]
-        all_formulas = [c.formula for c in self.comp]
+        all_formulas = [c.formula for c in self.comps]
         assert all_formulas == correct_formulas
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="co2 is an invalid formula"):
             Composition("(co2)(po4)2")
 
         assert Composition("K Na 2").reduced_formula == "KNa2"
@@ -126,9 +176,9 @@ class CompositionTest(PymatgenTest):
         assert Composition("Na 3 Zr (PO 4) 3").reduced_formula == "Na3Zr(PO4)3"
 
     def test_to_latex_html_unicode(self):
-        assert self.comp[0].to_latex_string() == "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$"
-        assert self.comp[0].to_html_string() == "Li<sub>3</sub>Fe<sub>2</sub>P<sub>3</sub>O<sub>12</sub>"
-        assert self.comp[0].to_unicode_string() == "Li₃Fe₂P₃O₁₂"
+        assert self.comps[0].to_latex_string() == "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$"
+        assert self.comps[0].to_html_string() == "Li<sub>3</sub>Fe<sub>2</sub>P<sub>3</sub>O<sub>12</sub>"
+        assert self.comps[0].to_unicode_string() == "Li₃Fe₂P₃O₁₂"
 
     def test_iupac_formula(self):
         correct_formulas = [
@@ -141,7 +191,7 @@ class CompositionTest(PymatgenTest):
             "Li1.5 Si0.5",
             "Zn1 H1 O1",
         ]
-        all_formulas = [c.iupac_formula for c in self.comp]
+        all_formulas = [c.iupac_formula for c in self.comps]
         assert all_formulas == correct_formulas
 
     def test_mixed_valence(self):
@@ -180,7 +230,7 @@ class CompositionTest(PymatgenTest):
             "Li1.5 Si0.5",
             "H1 O1 Zn1",
         ]
-        all_formulas = [c.alphabetical_formula for c in self.comp]
+        all_formulas = [c.alphabetical_formula for c in self.comps]
         assert all_formulas == correct_formulas
 
     def test_reduced_composition(self):
@@ -194,8 +244,8 @@ class CompositionTest(PymatgenTest):
             "Li1.5Si0.5",
             "ZnHO",
         ]
-        for idx, comp in enumerate(self.comp):
-            assert comp.get_reduced_composition_and_factor()[0] == Composition(correct_reduced_formulas[idx])
+        for idx, comp in enumerate(self.comps):
+            assert comp.reduced_composition == Composition(correct_reduced_formulas[idx])
 
     def test_reduced_formula(self):
         correct_reduced_formulas = [
@@ -208,17 +258,17 @@ class CompositionTest(PymatgenTest):
             "Li1.5Si0.5",
             "ZnHO",
         ]
-        all_formulas = [c.reduced_formula for c in self.comp]
+        all_formulas = [c.reduced_formula for c in self.comps]
         assert all_formulas == correct_reduced_formulas
 
         # test iupac reduced formula (polyanions should still appear at the end)
-        all_formulas = [c.get_reduced_formula_and_factor(iupac_ordering=True)[0] for c in self.comp]
+        all_formulas = [c.get_reduced_formula_and_factor(iupac_ordering=True)[0] for c in self.comps]
         assert all_formulas == correct_reduced_formulas
         assert Composition("H6CN").get_integer_formula_and_factor(iupac_ordering=True)[0] == "CNH6"
 
         # test rounding
         c = Composition({"Na": 2 - Composition.amount_tolerance / 2, "Cl": 2})
-        assert "NaCl" == c.reduced_formula
+        assert c.reduced_formula == "NaCl"
 
     def test_integer_formula(self):
         correct_reduced_formulas = [
@@ -231,23 +281,23 @@ class CompositionTest(PymatgenTest):
             "Li3Si",
             "ZnHO",
         ]
-        all_formulas = [c.get_integer_formula_and_factor()[0] for c in self.comp]
+        all_formulas = [c.get_integer_formula_and_factor()[0] for c in self.comps]
         assert all_formulas == correct_reduced_formulas
         assert Composition("Li0.5O0.25").get_integer_formula_and_factor() == ("Li2O", 0.25)
         assert Composition("O0.25").get_integer_formula_and_factor() == ("O2", 0.125)
         formula, factor = Composition("Li0.16666667B1.0H1.0").get_integer_formula_and_factor()
         assert formula == "Li(BH)6"
-        assert round(abs(factor - 1 / 6), 7) == 0
+        assert factor == approx(1 / 6)
 
         # test iupac reduced formula (polyanions should still appear at the end)
-        all_formulas = [c.get_integer_formula_and_factor(iupac_ordering=True)[0] for c in self.comp]
+        all_formulas = [c.get_integer_formula_and_factor(iupac_ordering=True)[0] for c in self.comps]
         assert all_formulas == correct_reduced_formulas
         assert Composition("H6CN0.5").get_integer_formula_and_factor(iupac_ordering=True) == ("C2NH12", 0.5)
 
     def test_num_atoms(self):
         correct_num_atoms = [20, 10, 7, 8, 20, 75, 2, 3]
 
-        all_natoms = [c.num_atoms for c in self.comp]
+        all_natoms = [c.num_atoms for c in self.comps]
         assert all_natoms == correct_num_atoms
 
     def test_weight(self):
@@ -261,14 +311,14 @@ class CompositionTest(PymatgenTest):
             24.454250000000002,
             82.41634,
         ]
-        all_weights = [c.weight for c in self.comp]
-        self.assertArrayAlmostEqual(all_weights, correct_weights, 5)
+        all_weights = [c.weight for c in self.comps]
+        self.assert_all_close(all_weights, correct_weights, 5)
 
     def test_get_atomic_fraction(self):
         correct_at_frac = {"Li": 0.15, "Fe": 0.1, "P": 0.15, "O": 0.6}
         for el in ["Li", "Fe", "P", "O"]:
-            assert self.comp[0].get_atomic_fraction(el) == correct_at_frac[el], "Wrong computed atomic fractions"
-        assert self.comp[0].get_atomic_fraction("S") == 0, "Wrong computed atomic fractions"
+            assert self.comps[0].get_atomic_fraction(el) == correct_at_frac[el], "Wrong computed atomic fractions"
+        assert self.comps[0].get_atomic_fraction("S") == 0, "Wrong computed atomic fractions"
 
     def test_anonymized_formula(self):
         expected_formulas = [
@@ -281,21 +331,14 @@ class CompositionTest(PymatgenTest):
             "A0.5B1.5",
             "ABC",
         ]
-        for idx, comp in enumerate(self.comp):
+        for idx, comp in enumerate(self.comps):
             assert comp.anonymized_formula == expected_formulas[idx]
 
     def test_get_wt_fraction(self):
-        correct_wt_frac = {
-            "Li": 0.0498841610868,
-            "Fe": 0.267567687258,
-            "P": 0.222604831158,
-            "O": 0.459943320496,
-        }
-        for el in ["Li", "Fe", "P", "O"]:
-            assert (
-                round(abs(correct_wt_frac[el] - self.comp[0].get_wt_fraction(el)), 5) == 0
-            ), "Wrong computed weight fraction"
-        assert self.comp[0].get_wt_fraction(Element("S")) == 0, "Wrong computed weight fractions"
+        correct_wt_frac = {"Li": 0.0498841610868, "Fe": 0.267567687258, "P": 0.222604831158, "O": 0.459943320496}
+        for el in correct_wt_frac:
+            assert correct_wt_frac[el] == approx(self.comps[0].get_wt_fraction(el)), "Wrong computed weight fraction"
+        assert self.comps[0].get_wt_fraction(Element("S")) == 0, "Wrong computed weight fractions"
 
     def test_from_dict(self):
         sym_dict = {"Fe": 6, "O": 8}
@@ -303,6 +346,22 @@ class CompositionTest(PymatgenTest):
         comp = Composition({"Fe2+": 2, "Fe3+": 4, "O2-": 8})
         comp2 = Composition.from_dict(comp.as_dict())
         assert comp == comp2
+
+    def test_from_weight_dict(self):
+        weight_dict_list = [{"Ti": 90, "V": 6, "Al": 4}, {"Ni": 60, "Ti": 40}, {"H": 0.1119, "O": 0.8881}]
+        formula_list = ["Ti87.6 V5.5 Al6.9", "Ti44.98 Ni55.02", "H2O"]
+
+        for weight_dict, formula in zip(weight_dict_list, formula_list):
+            c1 = Composition(formula).fractional_composition
+            c2 = Composition.from_weight_dict(weight_dict).fractional_composition
+            assert set(c1.elements) == set(c2.elements)
+            for el in c1.elements:
+                assert c1[el] == approx(c2[el], abs=1e-3)
+
+    def test_tofrom_weight_dict(self):
+        for c in self.comps:
+            c2 = Composition().from_weight_dict(c.to_weight_dict)
+            c.almost_equals(c2)
 
     def test_as_dict(self):
         c = Composition.from_dict({"Fe": 4, "O": 6})
@@ -317,27 +376,29 @@ class CompositionTest(PymatgenTest):
         assert d["O"] == correct_dict["O"]
 
     def test_pickle(self):
-        for c in self.comp:
+        for c in self.comps:
             self.serialize_with_pickle(c, test_eq=True)
             self.serialize_with_pickle(c.to_data_dict, test_eq=True)
 
     def test_to_data_dict(self):
         comp = Composition("Fe0.00009Ni0.99991")
-        d = comp.to_data_dict
-        assert round(abs(d["reduced_cell_composition"]["Fe"] - 9e-5), 7) == 0
+        dct = comp.to_data_dict
+        assert dct["reduced_cell_composition"]["Fe"] == approx(9e-5)
 
     def test_add(self):
-        assert (self.comp[0] + self.comp[2]).formula == "Li4 Mn2 Fe2 P3 O16", "Incorrect composition after addition!"
-        assert (self.comp[3] + {"Fe": 4, "O": 4}).formula == "Li4 Fe4 O8", "Incorrect composition after addition!"
+        assert (self.comps[0] + self.comps[2]).formula == "Li4 Mn2 Fe2 P3 O16", "Incorrect composition after addition!"
+        assert (self.comps[3] + {"Fe": 4, "O": 4}).formula == "Li4 Fe4 O8", "Incorrect composition after addition!"
 
         Fe = Element("Fe")
-        assert self.comp[0].__add__(Fe) == NotImplemented  # pylint: disable=C2801
+        assert self.comps[0].__add__(Fe) == NotImplemented  # pylint: disable=C2801
 
     def test_sub(self):
-        assert (self.comp[0] - Composition("Li2O")).formula == "Li1 Fe2 P3 O11", "Incorrect composition after addition!"
-        assert (self.comp[0] - {"Fe": 2, "O": 3}).formula == "Li3 P3 O9"
+        assert (
+            self.comps[0] - Composition("Li2O")
+        ).formula == "Li1 Fe2 P3 O11", "Incorrect composition after addition!"
+        assert (self.comps[0] - {"Fe": 2, "O": 3}).formula == "Li3 P3 O9"
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Amounts in Composition cannot be negative"):
             Composition("O") - Composition("H")
 
         # check that S is completely removed by subtraction
@@ -346,14 +407,14 @@ class CompositionTest(PymatgenTest):
         assert len((c1 - c2).elements) == 1
 
         Fe = Element("Fe")
-        assert self.comp[0].__add__(Fe) == NotImplemented  # pylint: disable=C2801
+        assert self.comps[0].__add__(Fe) == NotImplemented  # pylint: disable=C2801
 
     def test_mul(self):
-        assert (self.comp[0] * 4).formula == "Li12 Fe8 P12 O48"
-        assert (3 * self.comp[1]).formula == "Li9 Fe3 P3 O15"
+        assert (self.comps[0] * 4).formula == "Li12 Fe8 P12 O48"
+        assert (3 * self.comps[1]).formula == "Li9 Fe3 P3 O15"
 
     def test_div(self):
-        assert (self.comp[0] / 4).formula == "Li0.75 Fe0.5 P0.75 O3"
+        assert (self.comps[0] / 4).formula == "Li0.75 Fe0.5 P0.75 O3"
 
     def test_equals(self):
         # generate randomized compositions for robustness (tests might pass for specific elements
@@ -369,11 +430,11 @@ class CompositionTest(PymatgenTest):
             other_z = random.randint(1, 92)
         comp2 = Composition({fixed_el: 1, Element.from_Z(other_z): 0})
         assert comp1 == comp2, f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
-        assert hash(comp1) == hash(comp2), "Hashcode equality test failed!"
+        assert hash(comp1) == hash(comp2), "Hash equality test failed!"
 
-        c1, c2 = self.comp[:2]
+        c1, c2 = self.comps[:2]
         assert c1 == c1
-        assert not c1 == c2
+        assert c1 != c2
 
     def test_hash_robustness(self):
         c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*0.99}")
@@ -382,7 +443,7 @@ class CompositionTest(PymatgenTest):
 
         assert c1 == c3, "__eq__ not robust"
         assert (c1 == c3) == (hash(c1) == hash(c3)), "Hash doesn't match eq when true"
-        assert not hash(c1) == hash(c2), "Hash equal for different chemical systems"
+        assert hash(c1) != hash(c2), "Hash equal for different chemical systems"
 
     def test_comparisons(self):
         c1 = Composition({"S": 1})
@@ -399,9 +460,9 @@ class CompositionTest(PymatgenTest):
         assert sorted([c1, c1_1, c2, c4, c3]) == [c3, c1, c1_1, c4, c2]
 
         Fe = Element("Fe")
-        assert not c1 == Fe, NotImplemented
+        assert c1 != Fe, NotImplemented
         assert c1 != Fe
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="'<' not supported between instances of 'Composition' and 'Element'"):
             c1 < Fe  # noqa: B015
 
     def test_almost_equals(self):
@@ -415,14 +476,14 @@ class CompositionTest(PymatgenTest):
         assert not c1.almost_equals(c4, rtol=0.1)
 
     def test_equality(self):
-        assert self.comp[0] == self.comp[0]
-        assert not self.comp[0] == self.comp[1]
-        assert not self.comp[0] != self.comp[0]
-        assert self.comp[0] != self.comp[1]
+        assert self.comps[0] == self.comps[0]
+        assert self.comps[0] != self.comps[1]
+        assert self.comps[0] == self.comps[0]
+        assert self.comps[0] != self.comps[1]
 
     def test_fractional_composition(self):
-        for c in self.comp:
-            assert round(abs(c.fractional_composition.num_atoms - 1), 7) == 0
+        for comp in self.comps:
+            assert comp.fractional_composition.num_atoms == 1
 
     def test_init_numerical_tolerance(self):
         assert Composition({"B": 1, "C": -1e-12}) == Composition("B")
@@ -441,7 +502,7 @@ class CompositionTest(PymatgenTest):
         c1 = Composition("LiCl", allow_negative=True)
         c2 = Composition("Li")
         assert c1 - 2 * c2 == Composition({"Li": -1, "Cl": 1}, allow_negative=True)
-        assert (c1 + c2).allow_negative is True
+        assert (c1 + c2).allow_negative
         assert c1 / -1 == Composition("Li-1Cl-1", allow_negative=True)
 
         # test num_atoms
@@ -508,51 +569,42 @@ class CompositionTest(PymatgenTest):
             {"V": 5, "O": -2},
         )
 
+        expected_oxi_guesses = dict(Li=1, Fe=2, P=5, O=-2)
         # max_sites for very large composition - should timeout if incorrect
-        assert Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=7)[0] == {
-            "Li": 1,
-            "Fe": 2,
-            "P": 5,
-            "O": -2,
-        }
+        assert Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=7)[0] == expected_oxi_guesses
 
         # max_sites for very large composition - should timeout if incorrect
-        assert Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=-1)[0] == {
-            "Li": 1,
-            "Fe": 2,
-            "P": 5,
-            "O": -2,
-        }
+        assert Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=-1)[0] == expected_oxi_guesses
 
         # negative max_sites less than -1 - should throw error if cannot reduce
         # to under the abs(max_sites) number of sites. Will also timeout if
         # incorrect.
         assert Composition("Sb10000O10000F10000").oxi_state_guesses(max_sites=-3)[0] == {"Sb": 3, "O": -2, "F": -1}
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Composition Li1 O1 F1 cannot accommodate max_sites setting"):
             Composition("LiOF").oxi_state_guesses(max_sites=-2)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Composition V2 O3 cannot accommodate max_sites setting"):
             Composition("V2O3").oxi_state_guesses(max_sites=1)
 
     def test_oxi_state_decoration(self):
         # Basic test: Get compositions where each element is in a single charge state
         decorated = Composition("H2O").add_charges_from_oxi_state_guesses()
         assert Species("H", 1) in decorated
-        assert 2 == decorated.get(Species("H", 1))
+        assert decorated.get(Species("H", 1)) == 2
 
         # Test: More than one charge state per element
         decorated = Composition("Fe3O4").add_charges_from_oxi_state_guesses()
-        assert 1 == decorated.get(Species("Fe", 2))
-        assert 2 == decorated.get(Species("Fe", 3))
-        assert 4 == decorated.get(Species("O", -2))
+        assert decorated.get(Species("Fe", 2)) == 1
+        assert decorated.get(Species("Fe", 3)) == 2
+        assert decorated.get(Species("O", -2)) == 4
 
         # Test: No possible charge states
         #   It should return an uncharged composition
         decorated = Composition("NiAl").add_charges_from_oxi_state_guesses()
-        assert 1 == decorated.get(Species("Ni", 0))
-        assert 1 == decorated.get(Species("Al", 0))
+        assert decorated.get(Species("Ni", 0)) == 1
+        assert decorated.get(Species("Al", 0)) == 1
 
-    def test_Metallofullerene(self):
+    def test_metallofullerene(self):
         # Test: Parse Metallofullerene formula (e.g. Y3N@C80)
         formula = "Y3N@C80"
         sym_dict = {"Y": 3, "N": 1, "C": 80}
@@ -561,7 +613,6 @@ class CompositionTest(PymatgenTest):
         assert cmp == cmp2
 
     def test_contains_element_type(self):
-
         formula = "EuTiO3"
         cmp = Composition(formula)
         assert cmp.contains_element_type("lanthanoid")
@@ -574,7 +625,6 @@ class CompositionTest(PymatgenTest):
         assert Composition({"Na+": 1, "Cl-": 1}).chemical_system == "Cl-Na"
 
     def test_is_valid(self):
-
         formula = "NaCl"
         cmp = Composition(formula)
         assert cmp.valid
@@ -583,7 +633,7 @@ class CompositionTest(PymatgenTest):
         cmp = Composition(formula)
         assert not cmp.valid
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Composition is not valid, contains: Na, Cl, X0+"):
             Composition("NaClX", strict=True)
 
     def test_remove_charges(self):
@@ -649,42 +699,38 @@ class CompositionTest(PymatgenTest):
 
 class ChemicalPotentialTest(unittest.TestCase):
     def test_init(self):
-        d = {"Fe": 1, Element("Fe"): 1}
-        with pytest.raises(ValueError):
-            ChemicalPotential(d)
-        for k in ChemicalPotential(Fe=1):
-            assert isinstance(k, Element)
+        dct = {"Fe": 1, Element("Fe"): 1}
+        with pytest.raises(ValueError, match="Duplicate potential specified"):
+            ChemicalPotential(dct)
+        for key in ChemicalPotential(Fe=1):
+            assert isinstance(key, Element)
 
     def test_math(self):
-        fepot = ChemicalPotential({"Fe": 1})
-        opot = ChemicalPotential({"O": 2.1})
+        fe_pot = ChemicalPotential({"Fe": 1})
+        o_pot = ChemicalPotential({"O": 2.1})
         pots = ChemicalPotential({"Fe": 1, "O": 2.1})
-        potsx2 = ChemicalPotential({"Fe": 2, "O": 4.2})
-        feo2 = Composition("FeO2")
+        pots_x2 = ChemicalPotential({"Fe": 2, "O": 4.2})
+        fe_o2 = Composition("FeO2")
 
         # test get_energy()
-        assert round(abs(pots.get_energy(feo2) - 5.2), 7) == 0
-        assert round(abs(fepot.get_energy(feo2, False) - 1), 7) == 0
-        with pytest.raises(ValueError):
-            fepot.get_energy(feo2)
+        assert pots.get_energy(fe_o2) == approx(5.2)
+        assert fe_pot.get_energy(fe_o2, False) == approx(1)
+        with pytest.raises(ValueError, match="Potentials not specified for {Element O}"):
+            fe_pot.get_energy(fe_o2)
 
         # test multiplication
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError, match="unsupported operand type"):
             pots * pots
-        assert pots * 2 == potsx2
-        assert 2 * pots == potsx2
+        assert pots * 2 == pots_x2
+        assert 2 * pots == pots_x2
 
         # test division
-        assert potsx2 / 2 == pots
+        assert pots_x2 / 2 == pots
         assert pots.__div__(pots) == NotImplemented
-        assert pots.__div__(feo2) == NotImplemented
+        assert pots.__div__(fe_o2) == NotImplemented
 
         # test add/subtract
-        assert pots + pots == potsx2
-        assert potsx2 - pots == pots
-        assert fepot + opot == pots
-        assert fepot - opot == pots - opot - opot
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert pots + pots == pots_x2
+        assert pots_x2 - pots == pots
+        assert fe_pot + o_pot == pots
+        assert fe_pot - o_pot == pots - o_pot - o_pot

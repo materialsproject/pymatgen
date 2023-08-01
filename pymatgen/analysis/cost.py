@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module is used to estimate the cost of various compounds. Costs are taken
 from the a CostDB instance, for example a CSV file via CostDBCSV.
@@ -8,6 +5,8 @@ For compounds with no cost listed, a Phase Diagram style convex hull
 optimization is performed to determine a set of compositions that can be mixed
 to give the desired compound with lowest total cost.
 """
+
+from __future__ import annotations
 
 import abc
 import csv
@@ -35,9 +34,7 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class CostEntry(PDEntry):
-    """
-    Extends PDEntry to include a BibTeX reference and include language about cost
-    """
+    """Extends PDEntry to include a BibTeX reference and include language about cost."""
 
     def __init__(self, composition, cost, name, reference):
         """
@@ -50,7 +47,7 @@ class CostEntry(PDEntry):
                 Optional parameter to name the entry. Defaults to the reduced
                 chemical formula as in PDEntry.
             reference:
-                Reference data as BiBTeX string
+                Reference data as BiBTeX string.
         """
         super().__init__(composition, cost, name)
         if reference and not is_valid_bibtex(reference):
@@ -64,13 +61,13 @@ class CostEntry(PDEntry):
 class CostDB(metaclass=abc.ABCMeta):
     """
     Abstract class for representing a Cost database.
-    Can be extended, e.g. for file-based or REST-based databases
+    Can be extended, e.g. for file-based or REST-based databases.
     """
 
     @abc.abstractmethod
     def get_entries(self, chemsys):
         """
-        For a given chemical system, return an array of CostEntries
+        For a given chemical system, return an array of CostEntries.
 
         Args:
             chemsys:
@@ -85,7 +82,7 @@ class CostDB(metaclass=abc.ABCMeta):
 class CostDBCSV(CostDB):
     """
     Read a CSV file to get costs
-    Format is formula,cost_per_kg,name,BibTeX
+    Format is formula,cost_per_kg,name,BibTeX.
     """
 
     def __init__(self, filename):
@@ -107,7 +104,7 @@ class CostDBCSV(CostDB):
 
     def get_entries(self, chemsys):
         """
-        For a given chemical system, return an array of CostEntries
+        For a given chemical system, return an array of CostEntries.
 
         Args:
             chemsys:
@@ -122,21 +119,15 @@ class CostDBCSV(CostDB):
 
 @singleton
 class CostDBElements(CostDBCSV):
-    """
-    Singleton object that provides the cost data for elements
-    """
+    """Singleton object that provides the cost data for elements."""
 
     def __init__(self):
-        """
-        Init
-        """
+        """Init."""
         CostDBCSV.__init__(self, os.path.join(module_dir, "costdb_elements.csv"))
 
 
 class CostAnalyzer:
-    """
-    Given a CostDB, figures out the minimum cost solutions via convex hull
-    """
+    """Given a CostDB, figures out the minimum cost solutions via convex hull."""
 
     def __init__(self, costdb):
         """
@@ -147,7 +138,7 @@ class CostAnalyzer:
 
     def get_lowest_decomposition(self, composition):
         """
-        Get the decomposition leading to lowest cost
+        Get the decomposition leading to lowest cost.
 
         Args:
             composition:
@@ -157,8 +148,8 @@ class CostAnalyzer:
         """
         entries_list = []
         elements = [e.symbol for e in composition.elements]
-        for i in range(len(elements)):
-            for combi in itertools.combinations(elements, i + 1):
+        for idx in range(len(elements)):
+            for combi in itertools.combinations(elements, idx + 1):
                 chemsys = [Element(e) for e in combi]
                 x = self.costdb.get_entries(chemsys)
                 entries_list.extend(x)
@@ -170,7 +161,7 @@ class CostAnalyzer:
 
     def get_cost_per_mol(self, comp):
         """
-        Get best estimate of minimum cost/mol based on known data
+        Get best estimate of minimum cost/mol based on known data.
 
         Args:
             comp:
@@ -184,7 +175,7 @@ class CostAnalyzer:
 
     def get_cost_per_kg(self, comp):
         """
-        Get best estimate of minimum cost/kg based on known data
+        Get best estimate of minimum cost/kg based on known data.
 
         Args:
             comp:

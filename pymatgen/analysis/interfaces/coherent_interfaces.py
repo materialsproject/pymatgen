@@ -1,22 +1,20 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-"""
-This module provides classes to store, generate, and manipulate material interfaces.
-"""
+"""This module provides classes to store, generate, and manipulate material interfaces."""
 
 from __future__ import annotations
 
 from itertools import product
-from typing import Iterator, Sequence
+from typing import TYPE_CHECKING, Iterator, Sequence
 
 import numpy as np
 from scipy.linalg import polar
 
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.interfaces.zsl import ZSLGenerator, fast_norm
-from pymatgen.core import Structure
 from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 class CoherentInterfaceBuilder:
@@ -39,7 +37,7 @@ class CoherentInterfaceBuilder:
             film_structure: structure of film
             film_miller: miller index of the film layer
             substrate_miller: miller index for the substrate layer
-            zslgen: BiDirectionalZSL if you want custom lattice matching tolerances for coherency
+            zslgen: BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
         """
         # Bulk structures
         self.substrate_structure = substrate_structure
@@ -52,9 +50,7 @@ class CoherentInterfaceBuilder:
         self._find_terminations()
 
     def _find_matches(self) -> None:
-        """
-        Finds and stores the ZSL matches
-        """
+        """Finds and stores the ZSL matches."""
         self.zsl_matches = []
 
         film_sg = SlabGenerator(
@@ -102,9 +98,7 @@ class CoherentInterfaceBuilder:
             ), "Substrate lattice vectors changed during ZSL match, check your ZSL Generator parameters"
 
     def _find_terminations(self):
-        """
-        Finds all terminations
-        """
+        """Finds all terminations."""
         film_sg = SlabGenerator(
             self.film_structure,
             self.film_miller,
@@ -154,7 +148,7 @@ class CoherentInterfaceBuilder:
         in_layers: bool = True,
     ) -> Iterator[Interface]:
         """Generates interface structures given the film and substrate structure
-        as well as the desired terminations
+        as well as the desired terminations.
 
         Args:
             termination (tuple[str, str]): termination from self.termination list
@@ -246,9 +240,7 @@ class CoherentInterfaceBuilder:
 
 
 def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
-    """
-    Finds a transformation matrix that will rotate and strain the film to the substrate while preserving the c-axis
-    """
+    """Find transformation matrix that will rotate and strain the film to the substrate while preserving the c-axis."""
     film_matrix = np.array(film_matrix)
     film_matrix = film_matrix.tolist()[:2]
     film_matrix.append(np.cross(film_matrix[0], film_matrix[1]))
@@ -259,9 +251,10 @@ def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
     # direction
     sub_matrix = np.array(sub_matrix)
     sub_matrix = sub_matrix.tolist()[:2]
-    temp_sub = np.cross(sub_matrix[0], sub_matrix[1])
-    temp_sub = temp_sub / fast_norm(temp_sub)
-    temp_sub = temp_sub * fast_norm(film_matrix[2])
+    temp_sub = np.cross(sub_matrix[0], sub_matrix[1]).astype(float)  # conversion to float necessary if using numba
+    temp_sub = temp_sub * fast_norm(
+        np.array(film_matrix[2], dtype=float)
+    )  # conversion to float necessary if using numba
     sub_matrix.append(temp_sub)
 
     transform_matrix = np.transpose(np.linalg.solve(film_matrix, sub_matrix))
@@ -274,13 +267,13 @@ def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
 def get_2d_transform(start: Sequence, end: Sequence) -> np.ndarray:
     """
     Gets a 2d transformation matrix
-    that converts start to end
+    that converts start to end.
     """
     return np.dot(end, np.linalg.pinv(start))
 
 
 def from_2d_to_3d(mat: np.ndarray) -> np.ndarray:
-    """Converts a 2D matrix to a 3D matrix"""
+    """Converts a 2D matrix to a 3D matrix."""
     new_mat = np.diag([1.0, 1.0, 1.0])
     new_mat[:2, :2] = mat
     return new_mat

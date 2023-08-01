@@ -1,13 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
-__author__ = "Handong Ling"
-__version__ = "0.1"
-__maintainer__ = "Handong Ling"
-__email__ = "handongling@berkeley.edu"
-__status__ = "Development"
-__date__ = "4/23/19"
+from __future__ import annotations
 
 import os
 import pickle
@@ -16,6 +7,13 @@ import numpy as np
 
 from pymatgen.symmetry import site_symmetries as ss
 from pymatgen.util.testing import PymatgenTest
+
+__author__ = "Handong Ling"
+__version__ = "0.1"
+__maintainer__ = "Handong Ling"
+__email__ = "handongling@berkeley.edu"
+__status__ = "Development"
+__date__ = "4/23/19"
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "site_symmetries")
 

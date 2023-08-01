@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.command_line package &mdash; pymatgen 2022.11.7 documentation</title>
+  <title>pymatgen.command_line package &mdash; pymatgen 2023.7.17 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -12,16 +13,18 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.command_line.bader_caller module" href="pymatgen.command_line.bader_caller.html" />
-    <link rel="prev" title="pymatgen.cli.pmg_structure module" href="pymatgen.cli.pmg_structure.html" />
+    <link rel="next" title="pymatgen.core package" href="pymatgen.core.html" />
+    <link rel="prev" title="pymatgen.cli package" href="pymatgen.cli.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -35,14 +38,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
-                2022.11.7
+                2023.7.17
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -79,6 +86,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen.dao">pymatgen.dao module</a></li>
 </ul>
 </li>
 </ul>
@@ -98,7 +106,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
       <li class="breadcrumb-item active">pymatgen.command_line package</li>
@@ -111,33 +119,1299 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="pymatgen-command-line-package">
-<h1>pymatgen.command_line package<a class="headerlink" href="#pymatgen-command-line-package" title="Permalink to this headline"></a></h1>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
+  <section id="pymatgen-command-line-package">
+<h1>pymatgen.command_line package<a class="headerlink" href="#pymatgen-command-line-package" title="Permalink to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</div>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.bader_caller.html">pymatgen.command_line.bader_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.chargemol_caller.html">pymatgen.command_line.chargemol_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.critic2_caller.html">pymatgen.command_line.critic2_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.enumlib_caller.html">pymatgen.command_line.enumlib_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.gulp_caller.html">pymatgen.command_line.gulp_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.mcsqs_caller.html">pymatgen.command_line.mcsqs_caller module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.command_line.vampire_caller.html">pymatgen.command_line.vampire_caller module</a></li>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-pymatgen.command_line.bader_caller">
+<span id="pymatgen-command-line-bader-caller-module"></span><h2>pymatgen.command_line.bader_caller module<a class="headerlink" href="#module-pymatgen.command_line.bader_caller" title="Permalink to this heading"></a></h2>
+<p>This module implements an interface to the Henkelmann et al.’s excellent
+Fortran code for calculating a Bader charge analysis.</p>
+<p>This module depends on a compiled bader executable available in the path.
+Please download the library at <a class="reference external" href="http://theory.cm.utexas.edu/henkelman/code/bader/">http://theory.cm.utexas.edu/henkelman/code/bader/</a>
+and follow the instructions to compile the executable.</p>
+<p>If you use this module, please cite:</p>
+<p>G. Henkelman, A. Arnaldsson, and H. Jonsson, “A fast and robust algorithm for
+Bader decomposition of charge density”, Comput. Mater. Sci. 36, 254-360 (2006).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BaderAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chgcar_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potcar_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chgref_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_atomic_densities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cube_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/bader_caller.py#L43-L453"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Bader analysis for Cube files and VASP outputs.</p>
+<p>Initializes the Bader caller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chgcar_filename</strong> (<em>str</em>) – The filename of the CHGCAR.</p></li>
+<li><p><strong>potcar_filename</strong> (<em>str</em>) – The filename of the POTCAR.</p></li>
+<li><p><strong>chgref_filename</strong> (<em>str</em>) – The filename of the reference charge density.</p></li>
+<li><p><strong>parse_atomic_densities</strong> (<em>bool</em>) – Optional. turns on atomic partition of the charge density
+charge densities are atom centered</p></li>
+<li><p><strong>cube_filename</strong> (<em>str</em>) – Optional. The filename of the cube file.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="module-pymatgen.command_line">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.command_line" title="Permalink to this headline"></a></h2>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.from_path">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/bader_caller.py#L401-L453"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.from_path" title="Permalink to this definition"></a></dt>
+<dd><p>Convenient constructor that takes in the path name of VASP run
+to perform Bader analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Name of directory where VASP output files are
+stored.</p></li>
+<li><p><strong>suffix</strong> (<em>str</em>) – specific suffix to look for (e.g. ‘.relax1’
+for ‘CHGCAR.relax1.gz’).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_charge">
+<span class="sig-name descname"><span class="pre">get_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/bader_caller.py#L258-L272"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method to get the charge on a particular atom. This is the “raw”
+charge generated by the Bader program, not a partial atomic charge. If the cube file
+is a spin-density file, then this will return the spin density per atom with
+positive being spin up and negative being spin down.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>atom_index</strong> – Index of atom.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Charge associated with atom from the Bader analysis.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_decorated_structure">
+<span class="sig-name descname"><span class="pre">get_charge_decorated_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/bader_caller.py#L318-L328"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_decorated_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a charge decorated structure.</p>
+<p>Note, this assumes that the Bader analysis was correctly performed on a file
+with electron densities</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_transfer">
+<span class="sig-name descname"><span class="pre">get_charge_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/bader_caller.py#L274-L296"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_charge_transfer" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the charge transferred for a particular atom. A positive value means
+that the site has gained electron density (i.e. exhibits anionic character)
+whereas a negative value means the site has lost electron density (i.e. exhibits
+cationic character). If the arg nelect is not supplied, then POTCAR must be
+supplied to determine nelect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atom_index</strong> – Index of atom.</p></li>
+<li><p><strong>nelect</strong> – number of electrons associated with an isolated atom at this index.
+For most DFT codes this corresponds to the number of valence electrons
+associated with the pseudopotential (e.g. ZVAL for VASP).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Charge transfer associated with atom from the Bader analysis.
+Given by bader charge on atom - nelect for associated atom.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_decorated_structure">
+<span class="sig-name descname"><span class="pre">get_decorated_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/bader_caller.py#L343-L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_decorated_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Get a property-decorated structure from the Bader analysis.</p>
+<p>This is distinct from getting charge decorated structure, which assumes
+the “standard” Bader analysis of electron densities followed by converting
+electron count to charge. The expected way to use this is to call Bader on
+a non-charge density file such as a spin density file, electrostatic potential
+file, etc., while using the charge density file as the reference (chgref_filename)
+so that the partitioning is determined via the charge, but averaging or integrating
+is done for another property.</p>
+<p>User warning: Bader analysis cannot automatically determine what property is
+inside of the file. So if you want to use this for a non-conventional property
+like spin, you must ensure that you have the file is for the appropriate
+property and you have an appropriate reference file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property_name</strong> – name of the property to assign to the structure, note that
+if name is “spin” this is handled as a special case, and the appropriate
+spin properties are set on the species in the structure</p></li>
+<li><p><strong>average</strong> – whether or not to return the average of this property, rather
+than the total, by dividing by the atomic volume.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>structure with site properties assigned via Bader Analysis</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_oxidation_state_decorated_structure">
+<span class="sig-name descname"><span class="pre">get_oxidation_state_decorated_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nelects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/bader_caller.py#L330-L341"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_oxidation_state_decorated_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Returns an oxidation state decorated structure based on bader analysis results.
+Each site is assigned a charge based on the computed partial atomic charge from bader.</p>
+<p>Note, this assumes that the Bader analysis was correctly performed on a file
+with electron densities</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.get_partial_charge">
+<span class="sig-name descname"><span class="pre">get_partial_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/bader_caller.py#L298-L316"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.get_partial_charge" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method to get the partial charge on a particular atom. This is
+simply the negative value of the charge transferred. A positive value indicates
+that the atom has cationic character, whereas a negative value indicates the
+site has anionic character.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atom_index</strong> – Index of atom.</p></li>
+<li><p><strong>nelect</strong> – number of electrons associated with an isolated atom at this index.
+For most DFT codes this corresponds to the number of valence electrons
+associated with the pseudopotential (e.g. ZVAL for VASP).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Charge associated with atom from the Bader analysis.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.BaderAnalysis.summary">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">summary</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/bader_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis.summary" title="Permalink to this definition"></a></dt>
+<dd><p>Dict summary of key analysis, e.g., atomic volume, charge, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.bader_analysis_from_objects">
+<span class="sig-name descname"><span class="pre">bader_analysis_from_objects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chgcar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potcar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aeccar0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aeccar2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/bader_caller.py#L504-L574"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.bader_analysis_from_objects" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method to run Bader analysis from a set
+of pymatgen Chgcar and Potcar objects.</p>
+<p>This method will:</p>
+<p>1. If aeccar objects are present, constructs a temporary reference
+file as AECCAR0 + AECCAR2
+2. Runs Bader analysis twice: once for charge, and a second time
+for the charge difference (magnetization density).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chgcar</strong> – Chgcar object</p></li>
+<li><p><strong>potcar</strong> – (optional) Potcar object</p></li>
+<li><p><strong>aeccar0</strong> – (optional) Chgcar object from aeccar0 file</p></li>
+<li><p><strong>aeccar2</strong> – (optional) Chgcar object from aeccar2 file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>summary dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.command_line.bader_caller.bader_analysis_from_path">
+<span class="sig-name descname"><span class="pre">bader_analysis_from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/bader_caller.py#L456-L501"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.bader_analysis_from_path" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method to run Bader analysis on a folder containing
+typical VASP output files.</p>
+<p>This method will:</p>
+<p>1. Look for files CHGCAR, AECCAR0, AECCAR2, POTCAR or their gzipped
+counterparts.
+2. If AECCAR* files are present, constructs a temporary reference
+file as AECCAR0 + AECCAR2
+3. Runs Bader analysis twice: once for charge, and a second time
+for the charge difference (magnetization density).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – path to folder to search in</p></li>
+<li><p><strong>suffix</strong> – specific suffix to look for (e.g. ‘.relax1’ for ‘CHGCAR.relax1.gz’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>summary dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.command_line.chargemol_caller">
+<span id="pymatgen-command-line-chargemol-caller-module"></span><h2>pymatgen.command_line.chargemol_caller module<a class="headerlink" href="#module-pymatgen.command_line.chargemol_caller" title="Permalink to this heading"></a></h2>
+<p>This module implements an interface to Thomas Manz’s Chargemol code
+<a class="reference external" href="https://sourceforge.net/projects/ddec">https://sourceforge.net/projects/ddec</a> for calculating DDEC3, DDEC6, and CM5 population analyses.</p>
+<p>This module depends on a compiled chargemol executable being available in the path.
+If you use this module, please cite the following based on which modules you use:</p>
+<p>Chargemol:
+(1) T. A. Manz and N. Gabaldon Limas, Chargemol program for performing DDEC analysis,
+Version 3.5, 2017, ddec.sourceforge.net.</p>
+<p>DDEC6 Charges:
+(1) T. A. Manz and N. Gabaldon Limas, “Introducing DDEC6 atomic population analysis:
+part 1. Charge partitioning theory and methodology,” RSC Adv., 6 (2016) 47771-47801.
+(2) N. Gabaldon Limas and T. A. Manz, “Introducing DDEC6 atomic population analysis:
+part 2. Computed results for a wide range of periodic and nonperiodic materials,”
+(3) N. Gabaldon Limas and T. A. Manz, “Introducing DDEC6 atomic population analysis:
+part 4. Efficient parallel computation of net atomic charges, atomic spin moments,
+bond orders, and more,” RSC Adv., 8 (2018) 2678-2707.</p>
+<p>CM5 Charges:
+(1) A.V. Marenich, S.V. Jerome, C.J. Cramer, D.G. Truhlar, “Charge Model 5: An Extension
+of Hirshfeld Population Analysis for the Accurate Description of Molecular Interactions
+in Gaseous and Condensed Phases”, J. Chem. Theory. Comput., 8 (2012) 527-541.</p>
+<p>Spin Moments:
+(1) T. A. Manz and D. S. Sholl, “Methods for Computing Accurate Atomic Spin Moments for
+Collinear and Noncollinear Magnetism in Periodic and Nonperiodic Materials,”
+J. Chem. Theory Comput. 7 (2011) 4146-4164.</p>
+<p>Bond Orders:
+(1) “Introducing DDEC6 atomic population analysis: part 3. Comprehensive method to compute
+bond orders,” RSC Adv., 7 (2017) 45552-45581.</p>
+<p>DDEC3 Charges:
+(1) T. A. Manz and D. S. Sholl, “Improved Atoms-in-Molecule Charge Partitioning Functional
+for Simultaneously Reproducing the Electrostatic Potential and Chemical States in Periodic
+and Non-Periodic Materials,” J. Chem. Theory Comput. 8 (2012) 2844-2867.
+(2) T. A. Manz and D. S. Sholl, “Chemically Meaningful Atomic Charges that Reproduce the
+Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theory Comput. 6
+(2010) 2455-2468.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ChargemolAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_densities_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_chargemol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/chargemol_caller.py#L71-L601"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Chargemol analysis for DDEC3, DDEC6, and/or CM5 population analyses,
+including the calculation of partial atomic charges, atomic spin moments,
+bond orders, and related properties.</p>
+<p>Initializes the Chargemol Analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Path to the CHGCAR, POTCAR, AECCAR0, and AECCAR files.</p></li>
+<li><p><strong>not.</strong> (<em>Note that it doesn't matter if the files gzip'd or</em>) – Default: None (current working directory).</p></li>
+<li><p><strong>atomic_densities_path</strong> (<em>str</em><em>|</em><em>None</em>) – Path to the atomic densities directory</p></li>
+<li><p><strong>None</strong> (<em>required by Chargemol. If</em>) – </p></li>
+<li><p><strong>is</strong> (<em>Pymatgen assumes that this</em>) – </p></li>
+<li><p><strong>variable.</strong> (<em>defined in a &quot;DDEC6_ATOMIC_DENSITIES_DIR&quot; environment</em>) – </p></li>
+<li><p><strong>True.</strong> (<em>Only used if run_chargemol is</em>) – Default: None.</p></li>
+<li><p><strong>run_chargemol</strong> (<em>bool</em>) – Whether to run the Chargemol analysis. If False,</p></li>
+<li><p><strong>path.</strong> (<em>the existing Chargemol output files will be read from</em>) – Default: True.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_bond_order">
+<span class="sig-name descname"><span class="pre">get_bond_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_from</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_to</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/chargemol_caller.py#L335-L348"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_bond_order" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method to get the bond order between two atoms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index_from</strong> (<em>int</em>) – Index of atom to get bond order from.</p></li>
+<li><p><strong>index_to</strong> (<em>int</em>) – Index of atom to get bond order to.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>bond order between atoms</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge">
+<span class="sig-name descname"><span class="pre">get_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ddec'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/chargemol_caller.py#L285-L316"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method to get the charge on a particular atom using the same
+sign convention as the BaderAnalysis. Note that this is <em>not</em> the partial
+atomic charge. This value is nelect (e.g. ZVAL from the POTCAR) + the
+charge transferred. If you want the partial atomic charge, use
+get_partial_charge().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atom_index</strong> (<em>int</em>) – Index of atom to get charge for.</p></li>
+<li><p><strong>nelect</strong> (<em>int</em>) – number of electrons associated with an isolated atom at this index.</p></li>
+<li><p><strong>electrons</strong> (<em>For most DFT codes this corresponds to the number</em><em> of </em><em>valence</em>) – </p></li>
+<li><p><strong>None</strong> (<em>associated with the pseudopotential. If</em>) – </p></li>
+<li><p><strong>automatically</strong> (<em>this value will be</em>) – </p></li>
+<li><p><strong>POTCAR</strong> (<em>obtained from the</em>) – Default: None.</p></li>
+<li><p><strong>charge_type</strong> (<em>str</em>) – Type of charge to use (“ddec” or “cm5”).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>charge on atom_index</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge_transfer">
+<span class="sig-name descname"><span class="pre">get_charge_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ddec'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/chargemol_caller.py#L262-L283"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_charge_transfer" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the charge transferred for a particular atom. A positive value means
+that the site has gained electron density (i.e. exhibits anionic character)
+whereas a negative value means the site has lost electron density (i.e. exhibits
+cationic character). This is the same thing as the negative of the partial atomic
+charge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atom_index</strong> (<em>int</em>) – Index of atom to get charge transfer for.</p></li>
+<li><p><strong>charge_type</strong> (<em>str</em>) – Type of charge to use (“ddec” or “cm5”).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>charge transferred at atom_index</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_partial_charge">
+<span class="sig-name descname"><span class="pre">get_partial_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ddec'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/chargemol_caller.py#L318-L333"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_partial_charge" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method to get the partial atomic charge on a particular atom.
+This is the value printed in the Chargemol analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atom_index</strong> (<em>int</em>) – Index of atom to get charge for.</p></li>
+<li><p><strong>charge_type</strong> (<em>str</em>) – Type of charge to use (“ddec” or “cm5”).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_property_decorated_structure">
+<span class="sig-name descname"><span class="pre">get_property_decorated_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/chargemol_caller.py#L485-L503"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.get_property_decorated_structure" title="Permalink to this definition"></a></dt>
+<dd><p>Takes CHGCAR’s structure object and updates it with properties
+from the Chargemol analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Pymatgen structure with site properties added</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.command_line.chargemol_caller.ChargemolAnalysis.summary">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">summary</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/chargemol_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.chargemol_caller.ChargemolAnalysis.summary" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a dictionary summary of the Chargemol analysis
+{</p>
+<blockquote>
+<div><dl>
+<dt>“ddec”: {</dt><dd><blockquote>
+<div><p>“partial_charges”: List[float],
+“spin_moments”: List[float],
+“dipoles”: List[float],
+“rsquared_moments”: List[float],
+“rcubed_moments”: List[float],
+“rfourth_moments”: List[float],
+“bond_order_dict”: Dict</p>
+</div></blockquote>
+<p>},</p>
+</dd>
+<dt>“cm5”: {</dt><dd><blockquote>
+<div><p>“partial_charges”: List[float],</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>}.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.command_line.critic2_caller">
+<span id="pymatgen-command-line-critic2-caller-module"></span><h2>pymatgen.command_line.critic2_caller module<a class="headerlink" href="#module-pymatgen.command_line.critic2_caller" title="Permalink to this heading"></a></h2>
+<p>This module implements an interface to the critic2 Bader analysis code.</p>
+<p>For most Bader analysis purposes, users are referred to
+pymatgen.command_line.bader_caller instead, this module is for advanced
+usage requiring identification of critical points in the charge density.</p>
+<p>This module depends on a compiled critic2 executable available in the path.
+Please follow the instructions at <a class="reference external" href="https://github.com/aoterodelaroza/critic2">https://github.com/aoterodelaroza/critic2</a>
+to compile.</p>
+<p>New users are <em>strongly</em> encouraged to read the critic2 manual first.</p>
+<p>In brief,
+* critic2 searches for critical points in charge density
+* a critical point can be one of four types: nucleus, bond, ring
+or cage
+* it does this by seeding locations for likely critical points
+and then searching in these regions
+* there are two lists of critical points in the output, a list
+of non-equivalent points (with in-depth information about the
+field at those points), and a full list of points generated
+by the appropriate symmetry operations
+* connectivity between these points is also provided when
+appropriate (e.g. the two nucleus critical points linked to</p>
+<blockquote>
+<div><p>a bond critical point)</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>critic2 can do many other things besides</p></li>
+</ul>
+<p>If you use this module, please cite:</p>
+<p>A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,
+Comput. Phys. Communications 185, 1007-1018 (2014)
+(<a class="reference external" href="https://doi.org/10.1016/j.cpc.2013.10.026">https://doi.org/10.1016/j.cpc.2013.10.026</a>)</p>
+<p>A. Otero-de-la-Roza, M. A. Blanco, A. Martín Pendás and
+V. Luaña, Comput. Phys. Communications 180, 157-166 (2009)
+(<a class="reference external" href="https://doi.org/10.1016/j.cpc.2008.07.018">https://doi.org/10.1016/j.cpc.2008.07.018</a>)</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.Critic2Analysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Critic2Analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpreport</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zpsp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/critic2_caller.py#L415-L899"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Analysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<p>Class to process the standard output from critic2 into pymatgen-compatible objects.</p>
+<p>This class is used to store results from the Critic2Caller.</p>
+<p>To explore the bond graph, use the “structure_graph”
+method, which returns a user-friendly StructureGraph
+class with bonding information. By default, this returns
+a StructureGraph with edge weights as bond lengths, but
+can optionally return a graph with edge weights as any
+property supported by the <cite>CriticalPoint</cite> class, such as
+bond ellipticity.</p>
+<p>This class also provides an interface to explore just the
+non-symmetrically-equivalent critical points via the
+<cite>critical_points</cite> attribute, and also all critical
+points (via nodes dict) and connections between them
+(via edges dict). The user should be familiar with critic2
+before trying to understand these.</p>
+<p>Indexes of nucleus critical points in the nodes dict are the
+same as the corresponding sites in structure, with indices of
+other critical points arbitrarily assigned.</p>
+<p>Only one of (stdout, cpreport) required, with cpreport preferred
+since this is a new, native JSON output from critic2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – associated Structure</p></li>
+<li><p><strong>stdout</strong> – stdout from running critic2 in automatic
+mode</p></li>
+<li><p><strong>stderr</strong> – stderr from running critic2 in automatic
+mode</p></li>
+<li><p><strong>cpreport</strong> – json output from CPREPORT command</p></li>
+<li><p><strong>yt</strong> – json output from YT command</p></li>
+<li><p><strong>(</strong><strong>dict</strong><strong>)</strong> (<em>zpsp</em>) – Dict of element/symbol name to number of electrons</p></li>
+</ul>
+</dd>
+</dl>
+<p>(ZVAL in VASP pseudopotential), with which to calculate charge transfer.
+Optional.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.Critic2Analysis.get_critical_point_for_site">
+<span class="sig-name descname"><span class="pre">get_critical_point_for_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/critic2_caller.py#L596-L603"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Analysis.get_critical_point_for_site" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Site index.</p>
+</dd>
+</dl>
+<p>Returns: A CriticalPoint instance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.Critic2Analysis.get_volume_and_charge_for_site">
+<span class="sig-name descname"><span class="pre">get_volume_and_charge_for_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/critic2_caller.py#L605-L616"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Analysis.get_volume_and_charge_for_site" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> – Site index n.</p>
+</dd>
+</dl>
+<p>Returns: A dict containing “volume” and “charge” keys,
+or None if YT integration not performed</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.Critic2Analysis.structure_graph">
+<span class="sig-name descname"><span class="pre">structure_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_critical_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('bond',</span> <span class="pre">'ring',</span> <span class="pre">'cage')</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/critic2_caller.py#L478-L594"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Analysis.structure_graph" title="Permalink to this definition"></a></dt>
+<dd><p>A StructureGraph object describing bonding information
+in the crystal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>include_critical_points</strong> – add DummySpecies for</p></li>
+<li><p><strong>themselves</strong> (<em>the critical points</em>) – </p></li>
+<li><p><strong>of</strong> (<em>a list</em>) – </p></li>
+<li><p><strong>&quot;nucleus&quot;</strong> – </p></li>
+<li><p><strong>&quot;bond&quot;</strong> – </p></li>
+<li><p><strong>&quot;ring&quot;</strong> – </p></li>
+<li><p><strong>&quot;cage&quot;</strong> – </p></li>
+<li><p><strong>None</strong> (<em>set to</em>) – </p></li>
+<li><p><strong>disable</strong> (<em>to</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: a StructureGraph</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.Critic2Caller">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Critic2Caller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_script</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/critic2_caller.py#L80-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Caller" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to call critic2 and store standard output for further processing.</p>
+<p>Run Critic2 on a given input script.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_script</strong> – string defining the critic2 input</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.Critic2Caller.from_chgcar">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_chgcar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chgcar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chgcar_ref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_input_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_cml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_json</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zpsp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/critic2_caller.py#L122-L251"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Caller.from_chgcar" title="Permalink to this definition"></a></dt>
+<dd><p>Run Critic2 in automatic mode on a supplied structure, charge
+density (chgcar) and reference charge density (chgcar_ref).</p>
+<p>The reason for a separate reference field is that in
+VASP, the CHGCAR charge density only contains valence
+electrons and may be missing substantial charge at
+nuclei leading to misleading results. Thus, a reference
+field is commonly constructed from the sum of AECCAR0
+and AECCAR2 which is the total charge density, but then
+the valence charge density is used for the final analysis.</p>
+<p>If chgcar_ref is not supplied, chgcar will be used as the
+reference field. If chgcar is not supplied, the promolecular
+charge density will be used as the reference field – this can
+often still give useful results if only topological information
+is wanted.</p>
+<p>User settings is a dictionary that can contain:
+* GRADEPS, float (field units), gradient norm threshold
+* CPEPS, float (Bohr units in crystals), minimum distance between</p>
+<blockquote>
+<div><p>critical points for them to be equivalent</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>NUCEPS, same as CPEPS but specifically for nucleus critical
+points (critic2 default is dependent on grid dimensions)</p></li>
+<li><p>NUCEPSH, same as NUCEPS but specifically for hydrogen nuclei
+since associated charge density can be significantly displaced
+from hydrogen nucleus</p></li>
+<li><p>EPSDEGEN, float (field units), discard critical point if any
+element of the diagonal of the Hessian is below this value,
+useful for discarding points in vacuum regions</p></li>
+<li><p>DISCARD, float (field units), discard critical points with field
+value below this value, useful for discarding points in vacuum
+regions</p></li>
+<li><p>SEED, list of strings, strategies for seeding points, default
+is [‘WS 1’, ‘PAIR 10’] which seeds critical points by
+sub-dividing the Wigner-Seitz cell and between every atom pair
+closer than 10 Bohr, see critic2 manual for more options</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure to analyze</p></li>
+<li><p><strong>chgcar</strong> – Charge density to use for analysis. If None, will
+use promolecular density. Should be a Chgcar object or path (string).</p></li>
+<li><p><strong>chgcar_ref</strong> – Reference charge density. If None, will use
+chgcar as reference. Should be a Chgcar object or path (string).</p></li>
+<li><p><strong>(</strong><strong>dict</strong><strong>)</strong> (<em>user_input_settings</em>) – as explained above</p></li>
+<li><p><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>write_json</em>) – Useful for debug, if True will write all
+critical points to a file ‘table.cml’ in the working directory
+useful for visualization</p></li>
+<li><p><strong>(</strong><strong>bool</strong><strong>)</strong> – Whether to write out critical points</p></li>
+</ul>
+</dd>
+</dl>
+<p>and YT json. YT integration will be performed with this setting.
+:param zpsp (dict): Dict of element/symbol name to number of electrons
+(ZVAL in VASP pseudopotential), with which to properly augment core regions
+and calculate charge transfer. Optional.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.Critic2Caller.from_path">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zpsp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/critic2_caller.py#L253-L311"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Caller.from_path" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience method to run critic2 analysis on a folder with typical VASP output files.</p>
+<p>This method will:</p>
+<p>1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped
+counterparts.</p>
+<p>2. If AECCAR* files are present, constructs a temporary reference
+file as AECCAR0 + AECCAR2.</p>
+<p>3. Runs critic2 analysis twice: once for charge, and a second time
+for the charge difference (magnetization density).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – path to folder to search in</p></li>
+<li><p><strong>suffix</strong> – specific suffix to look for (e.g. ‘.relax1’ for
+‘CHGCAR.relax1.gz’)</p></li>
+<li><p><strong>zpsp</strong> – manually specify ZPSP if POTCAR not present</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.CriticalPoint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CriticalPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_gradient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_hessian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/critic2_caller.py#L346-L412"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPoint" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<p>Access information about a critical point and the field values at that point.</p>
+<p>Class to characterise a critical point from a topological
+analysis of electron charge density.</p>
+<p>Note this class is usually associated with a Structure, so
+has information on multiplicity/point group symmetry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – index of point</p></li>
+<li><p><strong>type</strong> – type of point, given as a string</p></li>
+<li><p><strong>coords</strong> – Cartesian coordinates in Angstroms</p></li>
+<li><p><strong>frac_coords</strong> – fractional coordinates</p></li>
+<li><p><strong>point_group</strong> – point group associated with critical point</p></li>
+<li><p><strong>multiplicity</strong> – number of equivalent critical points</p></li>
+<li><p><strong>field</strong> – value of field at point (f)</p></li>
+<li><p><strong>field_gradient</strong> – gradient of field at point (grad f)</p></li>
+<li><p><strong>field_hessian</strong> – hessian of field at point (del^2 f)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.CriticalPoint.ellipticity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ellipticity</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPoint.ellipticity" title="Permalink to this definition"></a></dt>
+<dd><p>Most meaningful for bond critical points,
+can be physically interpreted as e.g. degree
+of pi-bonding in organic molecules. Consult
+literature for more information.
+Returns: The ellpiticity of the field at the critical point.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.CriticalPoint.laplacian">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">laplacian</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPoint.laplacian" title="Permalink to this definition"></a></dt>
+<dd><p>The Laplacian of the field at the critical point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.CriticalPoint.type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">type</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPoint.type" title="Permalink to this definition"></a></dt>
+<dd><p>Instance of CriticalPointType.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.CriticalPointType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CriticalPointType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/critic2_caller.py#L314-L321"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPointType" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enum type for the different varieties of critical point.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.CriticalPointType.bond">
+<span class="sig-name descname"><span class="pre">bond</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bond'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPointType.bond" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.CriticalPointType.cage">
+<span class="sig-name descname"><span class="pre">cage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cage'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPointType.cage" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.CriticalPointType.nnattr">
+<span class="sig-name descname"><span class="pre">nnattr</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'nnattr'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPointType.nnattr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.CriticalPointType.nucleus">
+<span class="sig-name descname"><span class="pre">nucleus</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'nucleus'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPointType.nucleus" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.CriticalPointType.ring">
+<span class="sig-name descname"><span class="pre">ring</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ring'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPointType.ring" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.command_line.critic2_caller.get_filepath">
+<span class="sig-name descname"><span class="pre">get_filepath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warning</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/critic2_caller.py#L324-L343"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.get_filepath" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – Filename</p></li>
+<li><p><strong>warning</strong> – Warning message</p></li>
+<li><p><strong>path</strong> – Path to search</p></li>
+<li><p><strong>suffix</strong> – Suffixes to search.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.command_line.enumlib_caller">
+<span id="pymatgen-command-line-enumlib-caller-module"></span><h2>pymatgen.command_line.enumlib_caller module<a class="headerlink" href="#module-pymatgen.command_line.enumlib_caller" title="Permalink to this heading"></a></h2>
+<p>This module implements an interface to enumlib, Gus Hart’s excellent Fortran
+code for enumerating derivative structures.</p>
+<p>This module depends on a compiled enumlib with the executables enum.x and
+makestr.x available in the path. Please download the library at
+<a class="reference external" href="https://github.com/msg-byu/enumlib">https://github.com/msg-byu/enumlib</a> and follow the instructions in the README to
+compile these two executables accordingly.</p>
+<p>If you use this module, please cite:</p>
+<p>Gus L. W. Hart and Rodney W. Forcade, “Algorithm for generating derivative
+structures,” Phys. Rev. B 77 224115 (26 June 2008)</p>
+<p>Gus L. W. Hart and Rodney W. Forcade, “Generating derivative structures from
+multilattices: Application to hcp alloys,” Phys. Rev. B 80 014120 (July 2009)</p>
+<p>Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, “Generating
+derivative structures at a fixed concentration,” Comp. Mat. Sci. 59
+101-107 (March 2012)</p>
+<p>Wiley S. Morgan, Gus L. W. Hart, Rodney W. Forcade, “Generating derivative
+superstructures for systems with high configurational freedom,” Comp. Mat.
+Sci. 136 144-149 (May 2017)</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="pymatgen.command_line.enumlib_caller.EnumError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EnumError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/enumlib_caller.py#L408-L409"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.EnumError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseException</span></code></p>
+<p>Error subclass for enumeration errors.</p>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.command_line.gulp_caller">
+<span id="pymatgen-command-line-gulp-caller-module"></span><h2>pymatgen.command_line.gulp_caller module<a class="headerlink" href="#module-pymatgen.command_line.gulp_caller" title="Permalink to this heading"></a></h2>
+<p>Interface with command line GULP.
+<a class="reference external" href="http://projects.ivec.org">http://projects.ivec.org</a>
+WARNING: you need to have GULP installed on your system.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.BuckinghamPotential">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BuckinghamPotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bush_lewis_flag</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L798-L875"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.BuckinghamPotential" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate the Buckingham Potential Table from the bush.lib and lewis.lib.</p>
+<p>Ref:
+T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
+4, 831-837 (1994).
+G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
+1149-1161 (1985)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bush_lewis_flag</strong> (<em>str</em>) – Flag for using Bush or Lewis potential.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpCaller">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GulpCaller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gulp'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L636-L707"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpCaller" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to run gulp from commandline.</p>
+<p>Initialize with the executable if not in the standard path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmd</strong> – Command. Defaults to gulp.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpCaller.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gin</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L664-L707"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpCaller.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run GULP using the gin as input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gin</strong> – GULP input string</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>GULP output string</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>gout</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpConvergenceError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GulpConvergenceError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L780-L795"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpConvergenceError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception class for GULP.
+Raised when proper convergence is not reached in Mott-Littleton
+defect energy optimization procedure in GULP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – Message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GulpError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L763-L777"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception class for GULP.
+Raised when the GULP gives an error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – Message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GulpIO</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L236-L633"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>To generate GULP input and process output.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.buckingham_input">
+<span class="sig-name descname"><span class="pre">buckingham_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">keywords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">library</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valence_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L378-L396"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.buckingham_input" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a GULP input for an oxide structure and buckingham potential
+from library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>keywords</strong> – GULP first line keywords.</p></li>
+<li><p><strong>library</strong> (<em>Default=None</em>) – File containing the species and potential.</p></li>
+<li><p><strong>uc</strong> (<em>Default=True</em>) – Unit Cell Flag.</p></li>
+<li><p><strong>valence_dict</strong> – {El: valence}</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.buckingham_potential">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">buckingham_potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L398-L466"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.buckingham_potential" title="Permalink to this definition"></a></dt>
+<dd><p>Generate species, buckingham, and spring options for an oxide structure
+using the parameters in default libraries.</p>
+<dl class="simple">
+<dt>Ref:</dt><dd><ol class="arabic simple">
+<li><p>G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys.,
+18, 1149-1161 (1985)</p></li>
+<li><p>T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,
+J. Mater Chem., 4, 831-837 (1994)</p></li>
+</ol>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>val_dict</strong> (<em>Needed if structure is not charge neutral</em>) – {El:valence}
+dict, where El is element.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.get_energy">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L527-L542"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_energy" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gout</strong> (<em>str</em>) – GULP output string.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Energy</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_relaxed_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L544-L633"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gout</strong> (<em>str</em>) – GULP output string.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(Structure) relaxed structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.keyword_line">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">keyword_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L239-L252"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.keyword_line" title="Permalink to this definition"></a></dt>
+<dd><p>Checks if the input args are proper gulp keywords and
+generates the 1st line of gulp input. Full keywords are expected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> – 1st line keywords</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.library_line">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">library_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L343-L376"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.library_line" title="Permalink to this definition"></a></dt>
+<dd><p>Specifies GULP library file to read species and potential parameters.
+If using library don’t specify species and potential
+in the input file and vice versa. Make sure the elements of
+structure are in the library file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_name</strong> – Name of GULP library file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>GULP input string specifying library option</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.specie_potential_lines">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">specie_potential_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L317-L341"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.specie_potential_lines" title="Permalink to this definition"></a></dt>
+<dd><p>Generates GULP input specie and potential string for pymatgen
+structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure object</p></li>
+<li><p><strong>potential</strong> – String specifying the type of potential used</p></li>
+<li><p><strong>kwargs</strong> – Additional parameters related to potential. For
+potential == “buckingham”,
+anion_shell_flg (default = False):
+If True, anions are considered polarizable.
+anion_core_chrg=float
+anion_shell_chrg=float
+cation_shell_flg (default = False):
+If True, cations are considered polarizable.
+cation_core_chrg=float
+cation_shell_chrg=float</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>string containing specie and potential specification for gulp
+input.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.structure_lines">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structure_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_flg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_flg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anion_shell_flg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cation_shell_flg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm_flg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L254-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.structure_lines" title="Permalink to this definition"></a></dt>
+<dd><p>Generates GULP input string corresponding to pymatgen structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen Structure object</p></li>
+<li><p><strong>cell_flg</strong> (<em>default = True</em>) – Option to use lattice parameters.</p></li>
+<li><p><strong>frac_flg</strong> (<em>default = True</em>) – If True, fractional coordinates
+are used. Else, Cartesian coordinates in Angstroms are used.
+<strong>**</strong>
+GULP convention is to use fractional coordinates for periodic
+structures and Cartesian coordinates for non-periodic
+structures.
+<strong>**</strong></p></li>
+<li><p><strong>anion_shell_flg</strong> (<em>default = True</em>) – If True, anions are considered
+polarizable.</p></li>
+<li><p><strong>cation_shell_flg</strong> (<em>default = False</em>) – If True, cations are
+considered polarizable.</p></li>
+<li><p><strong>symm_flg</strong> (<em>default = True</em>) – If True, symmetry information is also
+written.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>string containing structure for GULP input</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.tersoff_input">
+<span class="sig-name descname"><span class="pre">tersoff_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">keywords</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L468-L491"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.tersoff_input" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a GULP input with Tersoff potential for an oxide structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>periodic</strong> (<em>Default=False</em>) – Flag denoting whether periodic
+boundary conditions are used</p></li>
+<li><p><strong>library</strong> (<em>Default=None</em>) – File containing the species and potential.</p></li>
+<li><p><strong>uc</strong> (<em>Default=True</em>) – Unit Cell Flag.</p></li>
+<li><p><strong>keywords</strong> – GULP first line keywords.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.GulpIO.tersoff_potential">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tersoff_potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L493-L525"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.tersoff_potential" title="Permalink to this definition"></a></dt>
+<dd><p>Generate the species, Tersoff potential lines for an oxide structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>structure</strong> – pymatgen.core.structure.Structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.TersoffPotential">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TersoffPotential</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L878-L890"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.TersoffPotential" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate Tersoff Potential Table from “OxideTersoffPotentialentials” file.</p>
+<p>Init TersoffPotential.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.get_energy_buckingham">
+<span class="sig-name descname"><span class="pre">get_energy_buckingham</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gulp_cmd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gulp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keywords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('optimise',</span> <span class="pre">'conp',</span> <span class="pre">'qok')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valence_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L725-L740"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_buckingham" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the energy of a structure using Buckingham potential.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>gulp_cmd</strong> – GULP command if not in standard place</p></li>
+<li><p><strong>keywords</strong> – GULP first line keywords</p></li>
+<li><p><strong>valence_dict</strong> – {El: valence}. Needed if the structure is not charge
+neutral.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.get_energy_relax_structure_buckingham">
+<span class="sig-name descname"><span class="pre">get_energy_relax_structure_buckingham</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gulp_cmd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gulp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keywords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('optimise',</span> <span class="pre">'conp')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valence_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L743-L760"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_relax_structure_buckingham" title="Permalink to this definition"></a></dt>
+<dd><p>Relax a structure and compute the energy using Buckingham potential.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>gulp_cmd</strong> – GULP command if not in standard place</p></li>
+<li><p><strong>keywords</strong> – GULP first line keywords</p></li>
+<li><p><strong>valence_dict</strong> – {El: valence}. Needed if the structure is not charge
+neutral.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.command_line.gulp_caller.get_energy_tersoff">
+<span class="sig-name descname"><span class="pre">get_energy_tersoff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gulp_cmd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gulp'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/gulp_caller.py#L710-L722"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_tersoff" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the energy of a structure using Tersoff potential.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>gulp_cmd</strong> – GULP command if not in standard place</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.command_line.mcsqs_caller">
+<span id="pymatgen-command-line-mcsqs-caller-module"></span><h2>pymatgen.command_line.mcsqs_caller module<a class="headerlink" href="#module-pymatgen.command_line.mcsqs_caller" title="Permalink to this heading"></a></h2>
+<p>Module to call mcsqs, distributed with AT-AT
+<a class="reference external" href="https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/">https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/</a>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.mcsqs_caller.Sqs">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Sqs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bestsqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allsqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clusters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Return type for run_mcsqs.
+bestsqs: Structure
+objective_function: float | str
+allsqs: List
+clusters: List
+directory: str</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.command_line.mcsqs_caller.Sqs.allsqs">
+<span class="sig-name descname"><span class="pre">allsqs</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.allsqs" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.command_line.mcsqs_caller.Sqs.bestsqs">
+<span class="sig-name descname"><span class="pre">bestsqs</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.bestsqs" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.command_line.mcsqs_caller.Sqs.clusters">
+<span class="sig-name descname"><span class="pre">clusters</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.clusters" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.command_line.mcsqs_caller.Sqs.directory">
+<span class="sig-name descname"><span class="pre">directory</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.directory" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.command_line.mcsqs_caller.Sqs.objective_function">
+<span class="sig-name descname"><span class="pre">objective_function</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.objective_function" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.command_line.mcsqs_caller.run_mcsqs">
+<span class="sig-name descname"><span class="pre">run_mcsqs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">clusters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.command_line.mcsqs_caller.Sqs" title="pymatgen.command_line.mcsqs_caller.Sqs"><span class="pre">Sqs</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../../../../.venv/py311/lib/python3.11/site-packages/monty/dev.py#L31-L169"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.run_mcsqs" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function for calling mcsqs with different arguments
+:param structure: Disordered pymatgen Structure object
+:type structure: Structure
+:param clusters: Dictionary of cluster interactions with entries in the form</p>
+<blockquote>
+<div><p>number of atoms: cutoff in angstroms</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scaling</strong> (<em>int</em><em> or </em><em>list</em>) – <dl class="simple">
+<dt>Scaling factor to determine supercell. Two options are possible:</dt><dd><ol class="loweralpha simple">
+<li><p>(preferred) Scales number of atoms, e.g., for a structure with 8 atoms,
+scaling=4 would lead to a 32 atom supercell</p></li>
+<li><p>A sequence of three scaling factors, e.g., [2, 1, 1], which
+specifies that the supercell should have dimensions 2a x b x c</p></li>
+</ol>
+</dd>
+</dl>
+<p>Defaults to 1.</p>
+</p></li>
+<li><p><strong>search_time</strong> (<em>float</em>) – Time spent looking for the ideal SQS in minutes (default: 60)</p></li>
+<li><p><strong>directory</strong> (<em>str</em>) – Directory to run mcsqs calculation and store files (default: None
+runs calculations in a temp directory)</p></li>
+<li><p><strong>instances</strong> (<em>int</em>) – Specifies the number of parallel instances of mcsqs to run
+(default: number of cpu cores detected by Python)</p></li>
+<li><p><strong>temperature</strong> (<em>int</em><em> or </em><em>float</em>) – Monte Carlo temperature (default: 1), “T” in atat code</p></li>
+<li><p><strong>wr</strong> (<em>int</em><em> or </em><em>float</em>) – Weight assigned to range of perfect correlation match in objective
+function (default = 1)</p></li>
+<li><p><strong>wn</strong> (<em>int</em><em> or </em><em>float</em>) – Multiplicative decrease in weight per additional point in cluster (default: 1)</p></li>
+<li><p><strong>wd</strong> (<em>int</em><em> or </em><em>float</em>) – Exponent of decay in weight as function of cluster diameter (default: 0.5)</p></li>
+<li><p><strong>tol</strong> (<em>int</em><em> or </em><em>float</em>) – Tolerance for matching correlations (default: 1e-3).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,</dt><dd><p>list of all SQS structures, and the directory where calculations are run</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.command_line.vampire_caller">
+<span id="pymatgen-command-line-vampire-caller-module"></span><h2>pymatgen.command_line.vampire_caller module<a class="headerlink" href="#module-pymatgen.command_line.vampire_caller" title="Permalink to this heading"></a></h2>
+<p>This module implements an interface to the VAMPIRE code for atomistic
+simulations of magnetic materials.</p>
+<p>This module depends on a compiled vampire executable available in the path.
+Please download at <a class="reference external" href="https://vampire.york.ac.uk/download/">https://vampire.york.ac.uk/download/</a> and
+follow the instructions to compile the executable.</p>
+<p>If you use this module, please cite:</p>
+<p>“Atomistic spin model simulations of magnetic nanomaterials.”
+R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
+and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.vampire_caller.VampireCaller">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VampireCaller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ordered_structures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mc_box_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equil_timesteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mc_timesteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_input_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/vampire_caller.py#L38-L395"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireCaller" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
+temperature with classical Monte Carlo.</p>
+<p>user_input_settings is a dictionary that can contain:
+* start_t (int): Start MC sim at this temp, defaults to 0 K.
+* end_t (int): End MC sim at this temp, defaults to 1500 K.
+* temp_increment (int): Temp step size, defaults to 25 K.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ordered_structures</strong> (<em>list</em>) – Structure objects with magmoms.</p></li>
+<li><p><strong>energies</strong> (<em>list</em>) – Energies of each relaxed magnetic structure.</p></li>
+<li><p><strong>mc_box_size</strong> (<em>float</em>) – x=y=z dimensions (nm) of MC simulation box</p></li>
+<li><p><strong>equil_timesteps</strong> (<em>int</em>) – number of MC steps for equilibrating</p></li>
+<li><p><strong>mc_timesteps</strong> (<em>int</em>) – number of MC steps for averaging</p></li>
+<li><p><strong>save_inputs</strong> (<em>bool</em>) – if True, save scratch dir of vampire input files</p></li>
+<li><p><strong>hm</strong> (<a class="reference internal" href="pymatgen.analysis.magnetism.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel" title="pymatgen.analysis.magnetism.heisenberg.HeisenbergModel"><em>HeisenbergModel</em></a>) – object already fit to low energy
+magnetic orderings.</p></li>
+<li><p><strong>avg</strong> (<em>bool</em>) – If True, simply use &lt;J&gt; exchange parameter estimate.
+If False, attempt to use NN, NNN, etc. interactions.</p></li>
+<li><p><strong>user_input_settings</strong> (<em>dict</em>) – optional commands for VAMPIRE Monte Carlo</p></li>
+<li><p><strong>sgraph</strong> (<a class="reference internal" href="pymatgen.analysis.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – Ground state graph.</p></li>
+<li><p><strong>unique_site_ids</strong> (<em>dict</em>) – Maps each site to its unique identifier</p></li>
+<li><p><strong>nn_interactions</strong> (<em>dict</em>) – {i: j} pairs of NN interactions
+between unique sites.</p></li>
+<li><p><strong>ex_params</strong> (<em>dict</em>) – Exchange parameter values (meV/atom)</p></li>
+<li><p><strong>mft_t</strong> (<em>float</em>) – Mean field theory estimate of critical T</p></li>
+<li><p><strong>mat_name</strong> (<em>str</em>) – Formula unit label for input files</p></li>
+<li><p><strong>mat_id_dict</strong> (<em>dict</em>) – Maps sites to material id # for vampire
+indexing.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.command_line.vampire_caller.VampireCaller.parse_stdout">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_stdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vamp_stdout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_mats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/vampire_caller.py#L372-L395"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireCaller.parse_stdout" title="Permalink to this definition"></a></dt>
+<dd><p>Parse stdout from Vampire.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vamp_stdout</strong> (<em>txt file</em>) – Vampire ‘output’ file.</p></li>
+<li><p><strong>n_mats</strong> (<em>int</em>) – Number of materials in Vampire simulation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MSONable vampire output.
+critical_temp (float): Calculated critical temp.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>parsed_out (DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.command_line.vampire_caller.VampireOutput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VampireOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parsed_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_temp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../command_line/vampire_caller.py#L398-L413"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireOutput" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<p>This class processes results from a Vampire Monte Carlo simulation
+and returns the critical temperature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parsed_out</strong> (<em>json</em>) – json rep of parsed stdout DataFrame.</p></li>
+<li><p><strong>nmats</strong> (<em>int</em>) – Number of distinct materials (1 for each specie and up/down spin).</p></li>
+<li><p><strong>critical_temp</strong> (<em>float</em>) – Monte Carlo Tc result.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.command_line">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.command_line" title="Permalink to this heading"></a></h2>
 <p>This package contains various command line wrappers to programs used in
 pymatgen that do not have Python equivalents.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

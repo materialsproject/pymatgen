@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Some reimplementation of Henkelman's Transition State Analysis utilities,
 which are originally in Perl. Additional features beyond those offered by
@@ -9,8 +6,10 @@ Henkelman's utilities will be added.
 This allows the usage and customization in Python.
 """
 
-import glob
+from __future__ import annotations
+
 import os
+from glob import glob
 
 import numpy as np
 from monty.json import MSONable, jsanitize
@@ -22,9 +21,7 @@ from pymatgen.util.plotting import pretty_plot
 
 
 class NEBAnalysis(MSONable):
-    """
-    An NEBAnalysis class.
-    """
+    """An NEBAnalysis class."""
 
     def __init__(self, r, energies, forces, structures, spline_options=None):
         """
@@ -57,7 +54,7 @@ class NEBAnalysis(MSONable):
 
     def setup_spline(self, spline_options=None):
         """
-        Setup of the options for the spline interpolation
+        Setup of the options for the spline interpolation.
 
         Args:
             spline_options (dict): Options for cubic spline. For example,
@@ -255,14 +252,14 @@ class NEBAnalysis(MSONable):
         terminal_dirs.append([os.path.join(root_dir, d) for d in ["initial", "final"]])
 
         for i, d in neb_dirs:
-            outcar = glob.glob(os.path.join(d, "OUTCAR*"))
-            contcar = glob.glob(os.path.join(d, "CONTCAR*"))
-            poscar = glob.glob(os.path.join(d, "POSCAR*"))
+            outcar = glob(os.path.join(d, "OUTCAR*"))
+            contcar = glob(os.path.join(d, "CONTCAR*"))
+            poscar = glob(os.path.join(d, "POSCAR*"))
             terminal = i in [0, neb_dirs[-1][0]]
             if terminal:
                 for ds in terminal_dirs:
                     od = ds[0] if i == 0 else ds[1]
-                    outcar = glob.glob(os.path.join(od, "OUTCAR*"))
+                    outcar = glob(os.path.join(od, "OUTCAR*"))
                     if outcar:
                         outcar = sorted(outcar)
                         outcars.append(Outcar(outcar[-1]))
@@ -294,7 +291,7 @@ class NEBAnalysis(MSONable):
 
 def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=False):
     """
-    neb_analyses: a list of NEBAnalysis objects
+    neb_analyses: a list of NEBAnalysis objects.
 
     arranged_neb_analyses: The code connects two end points with the
     smallest-energy difference. If all end points have very close energies, it's

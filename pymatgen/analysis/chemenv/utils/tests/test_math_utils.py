@@ -1,4 +1,4 @@
-import unittest
+from __future__ import annotations
 
 import numpy as np
 
@@ -126,7 +126,7 @@ class MathUtilsTest(PymatgenTest):
     def test_cosinus_step(self):
         vals = np.linspace(5.0, 12.0, num=8)
         assert cosinus_step(vals, edges=[0.0, 1.0]).tolist() == [1.0] * 8
-        self.assertArrayAlmostEqual(
+        self.assert_all_close(
             cosinus_step(vals, edges=[7.0, 11.0]).tolist(),
             [0.0, 0.0, 0.0, 0.14644660940672616, 0.5, 0.8535533905932737, 1.0, 1.0],
             5,
@@ -158,7 +158,3 @@ class MathUtilsTest(PymatgenTest):
             1.0,
             1.0,
         ]
-
-
-if __name__ == "__main__":
-    unittest.main()

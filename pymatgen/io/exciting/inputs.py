@@ -1,9 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""Classes for reading/manipulating/writing exciting input files."""
 
-"""
-Classes for reading/manipulating/writing exciting input files.
-"""
+from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 
@@ -69,20 +66,21 @@ class ExcitingInput(MSONable):
 
     @property
     def lockxyz(self):
-        """
-        :return: Selective dynamics site properties.
-        """
+        """:return: Selective dynamics site properties."""
         return self.structure.site_properties.get("selective_dynamics")
 
     @lockxyz.setter
     def lockxyz(self, lockxyz):
         self.structure.add_site_property("selective_dynamics", lockxyz)
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(data):
-        """
-        Reads the exciting input from a string
-        """
+    def from_str(data):
+        """Reads the exciting input from a string."""
         root = ET.fromstring(data)
         speciesnode = root.find("structure").iter("species")
         elements = []
@@ -108,8 +106,8 @@ class ExcitingInput(MSONable):
                 # Obtain lockxyz for each atom
                 if atom.get("lockxyz") is not None:
                     lxyz = []
-                    for l in atom.get("lockxyz").split():
-                        if l in ("True", "true"):
+                    for line in atom.get("lockxyz").split():
+                        if line in ("True", "true"):
                             lxyz.append(True)
                         else:
                             lxyz.append(False)
@@ -128,16 +126,10 @@ class ExcitingInput(MSONable):
             cartesian = False
         # get the scale attribute
         scale_in = root.find("structure").find("crystal").get("scale")
-        if scale_in:
-            scale = float(scale_in) * ExcitingInput.bohr2ang
-        else:
-            scale = ExcitingInput.bohr2ang
+        scale = float(scale_in) * ExcitingInput.bohr2ang if scale_in else ExcitingInput.bohr2ang
         # get the stretch attribute
         stretch_in = root.find("structure").find("crystal").get("stretch")
-        if stretch_in:
-            stretch = np.array([float(a) for a in stretch_in])
-        else:
-            stretch = np.array([1.0, 1.0, 1.0])
+        stretch = np.array([float(a) for a in stretch_in]) if stretch_in else np.array([1.0, 1.0, 1.0])
         # get basis vectors and scale them accordingly
         basisnode = root.find("structure").find("crystal").iter("basevect")
         for vect in basisnode:
@@ -163,7 +155,7 @@ class ExcitingInput(MSONable):
         """
         with zopen(filename, "rt") as f:
             data = f.read().replace("\n", "")
-        return ExcitingInput.from_string(data)
+        return ExcitingInput.from_str(data)
 
     def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
         """
@@ -363,9 +355,8 @@ class ExcitingInput(MSONable):
                 ExcitingInput._indent(el, level + 1)
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
-        else:
-            if level and (not elem.tail or not elem.tail.strip()):
-                elem.tail = i
+        elif level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
 
     def _dicttoxml(self, paramdict_, element):
         for key, value in paramdict_.items():

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.phonon package &mdash; pymatgen 2022.11.7 documentation</title>
+  <title>pymatgen.phonon package &mdash; pymatgen 2023.7.17 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -12,16 +13,18 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.phonon.bandstructure module" href="pymatgen.phonon.bandstructure.html" />
-    <link rel="prev" title="pymatgen.optimization.neighbors module" href="pymatgen.optimization.neighbors.html" />
+    <link rel="next" title="pymatgen.symmetry package" href="pymatgen.symmetry.html" />
+    <link rel="prev" title="pymatgen.optimization package" href="pymatgen.optimization.html" />
  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-33990148-1']);
@@ -35,14 +38,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
-                2022.11.7
+                2023.7.17
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -79,6 +86,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen.dao">pymatgen.dao module</a></li>
 </ul>
 </li>
 </ul>
@@ -98,7 +106,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
           <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
       <li class="breadcrumb-item active">pymatgen.phonon package</li>
@@ -111,31 +119,1908 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="pymatgen-phonon-package">
-<h1>pymatgen.phonon package<a class="headerlink" href="#pymatgen-phonon-package" title="Permalink to this headline"></a></h1>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
+  <section id="pymatgen-phonon-package">
+<h1>pymatgen.phonon package<a class="headerlink" href="#pymatgen-phonon-package" title="Permalink to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 </div>
-</div>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.bandstructure.html">pymatgen.phonon.bandstructure module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.dos.html">pymatgen.phonon.dos module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.gruneisen.html">pymatgen.phonon.gruneisen module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.ir_spectra.html">pymatgen.phonon.ir_spectra module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.plotter.html">pymatgen.phonon.plotter module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.phonon.thermal_displacements.html">pymatgen.phonon.thermal_displacements module</a></li>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-pymatgen.phonon.bandstructure">
+<span id="pymatgen-phonon-bandstructure-module"></span><h2>pymatgen.phonon.bandstructure module<a class="headerlink" href="#module-pymatgen.phonon.bandstructure" title="Permalink to this heading"></a></h2>
+<p>This module provides classes to define a phonon band structure.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PhononBandStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.electronic_structure.html#pymatgen.electronic_structure.bandstructure.Kpoint" title="pymatgen.electronic_structure.bandstructure.Kpoint"><span class="pre">pymatgen.electronic_structure.bandstructure.Kpoint</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><span class="pre">Lattice</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">nac_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nac_eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L52-L284"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<p>This is the most generic phonon band structure data possible
+it’s defined by a list of qpoints + frequencies for each of them.
+Additional information may be given for frequencies at Gamma, where
+non-analytical contribution may be taken into account.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qpoints</strong> – list of qpoint as numpy arrays, in frac_coords of the
+given lattice by default</p></li>
+<li><p><strong>frequencies</strong> – list of phonon frequencies in THz as a numpy array with shape
+(3*len(structure), len(qpoints)). The First index of the array
+refers to the band and the second to the index of the qpoint.</p></li>
+<li><p><strong>lattice</strong> – The reciprocal lattice as a pymatgen Lattice object.
+Pymatgen uses the physics convention of reciprocal lattice vectors
+WITH a 2*pi coefficient.</p></li>
+<li><p><strong>nac_frequencies</strong> – Frequencies with non-analytical contributions at Gamma in THz.
+A list of tuples. The first element of each tuple should be a list
+defining the direction (not necessarily a versor, will be normalized
+internally). The second element containing the 3*len(structure)
+phonon frequencies with non-analytical correction for that direction.</p></li>
+<li><p><strong>eigendisplacements</strong> – the phonon eigendisplacements associated to the
+frequencies in Cartesian coordinates. A numpy array of complex
+numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
+he First index of the array refers to the band, the second to the index
+of the qpoint, the third to the atom in the structure and the fourth
+to the Cartesian coordinates.</p></li>
+<li><p><strong>nac_eigendisplacements</strong> – the phonon eigendisplacements associated to the
+non-analytical frequencies in nac_frequencies in Cartesian coordinates.
+A list of tuples. The first element of each tuple should be a list
+defining the direction. The second element containing a numpy array of
+complex numbers with shape (3*len(structure), len(structure), 3).</p></li>
+<li><p><strong>labels_dict</strong> – (dict) of {} this links a qpoint (in frac coords or
+Cartesian coordinates depending on the coords) to a label.</p></li>
+<li><p><strong>coords_are_cartesian</strong> – Whether the qpoint coordinates are Cartesian.</p></li>
+<li><p><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
+associated with the band structure. This is needed if we
+provide projections to the band structure.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="module-pymatgen.phonon">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.phonon" title="Permalink to this headline"></a></h2>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L226-L257"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.as_dict" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.asr_breaking">
+<span class="sig-name descname"><span class="pre">asr_breaking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol_eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L198-L224"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.asr_breaking" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the breaking of the acoustic sum rule for the three acoustic modes,
+if Gamma is present. None otherwise.
+If eigendisplacements are available they are used to determine the acoustic
+modes: selects the bands corresponding  to the eigendisplacements that
+represent to a translation within tol_eigendisplacements. If these are not
+identified or eigendisplacements are missing the first 3 modes will be used
+(indices [0:3]).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L259-L284"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.from_dict" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dct</strong> – Dict representation</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PhononBandStructure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_eigendisplacements_along_dir">
+<span class="sig-name descname"><span class="pre">get_nac_eigendisplacements_along_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L180-L196"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_eigendisplacements_along_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the nac_eigendisplacements for the given direction (not necessarily a versor).
+None if the direction is not present or nac_eigendisplacements has not been calculated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>direction</strong> – the direction as a list of 3 elements</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the eigendisplacements as a numpy array of complex numbers with shape
+(3*len(structure), len(structure), 3). None if not found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_frequencies_along_dir">
+<span class="sig-name descname"><span class="pre">get_nac_frequencies_along_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L162-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_frequencies_along_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the nac_frequencies for the given direction (not necessarily a versor).
+None if the direction is not present or nac_frequencies has not been calculated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>direction</strong> – the direction as a list of 3 elements</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the frequencies as a numpy array o(3*len(structure), len(qpoints)).
+None if not found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.has_eigendisplacements">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_eigendisplacements</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_eigendisplacements" title="Permalink to this definition"></a></dt>
+<dd><p>True if eigendisplacements are present.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.has_imaginary_freq">
+<span class="sig-name descname"><span class="pre">has_imaginary_freq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L148-L150"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_imaginary_freq" title="Permalink to this definition"></a></dt>
+<dd><p>True if imaginary frequencies are present in the BS.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.has_nac">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_nac</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.has_nac" title="Permalink to this definition"></a></dt>
+<dd><p>True if nac_frequencies are present.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructure.min_freq">
+<span class="sig-name descname"><span class="pre">min_freq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.electronic_structure.html#pymatgen.electronic_structure.bandstructure.Kpoint" title="pymatgen.electronic_structure.bandstructure.Kpoint"><span class="pre">pymatgen.electronic_structure.bandstructure.Kpoint</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L142-L146"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructure.min_freq" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the point where the minimum frequency is reached and its value.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PhononBandStructureSymmLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_nac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L287-L607"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.bandstructure.PhononBandStructure" title="pymatgen.phonon.bandstructure.PhononBandStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhononBandStructure</span></code></a></p>
+<p>This object stores phonon band structures along selected (symmetry) lines in the
+Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)
+“branches”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qpoints</strong> – list of qpoints as numpy arrays, in frac_coords of the
+given lattice by default</p></li>
+<li><p><strong>frequencies</strong> – list of phonon frequencies in eV as a numpy array with shape
+(3*len(structure), len(qpoints))</p></li>
+<li><p><strong>lattice</strong> – The reciprocal lattice as a pymatgen Lattice object.
+Pymatgen uses the physics convention of reciprocal lattice vectors
+WITH a 2*pi coefficient</p></li>
+<li><p><strong>has_nac</strong> – specify if the band structure has been produced taking into account
+non-analytical corrections at Gamma. If True frequencies at Gamma from
+different directions will be stored in naf. Default False.</p></li>
+<li><p><strong>eigendisplacements</strong> – the phonon eigendisplacements associated to the
+frequencies in Cartesian coordinates. A numpy array of complex
+numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
+he First index of the array refers to the band, the second to the index
+of the qpoint, the third to the atom in the structure and the fourth
+to the Cartesian coordinates.</p></li>
+<li><p><strong>labels_dict</strong> – (dict) of {} this links a qpoint (in frac coords or
+Cartesian coordinates depending on the coords) to a label.</p></li>
+<li><p><strong>coords_are_cartesian</strong> – Whether the qpoint coordinates are cartesian.</p></li>
+<li><p><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
+associated with the band structure. This is needed if we
+provide projections to the band structure.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L576-L584"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Returns: MSONable dict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite">
+<span class="sig-name descname"><span class="pre">as_phononwebsite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L467-L545"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite" title="Permalink to this definition"></a></dt>
+<dd><p>Return a dictionary with the phononwebsite format:
+<a class="reference external" href="http://henriquemiranda.github.io/phononwebsite">http://henriquemiranda.github.io/phononwebsite</a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder">
+<span class="sig-name descname"><span class="pre">band_reorder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L547-L574"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder" title="Permalink to this definition"></a></dt>
+<dd><p>Re-order the eigenvalues according to the similarity of the eigenvectors.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L586-L607"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dct</strong> – Dict representation.</p>
+</dd>
+</dl>
+<p>Returns: PhononBandStructureSymmLine</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch">
+<span class="sig-name descname"><span class="pre">get_branch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L429-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch" title="Permalink to this definition"></a></dt>
+<dd><p>Returns in what branch(es) is the qpoint. There can be several
+branches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> – the qpoint index</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of dictionaries [{“name”,”start_index”,”end_index”,”index”}]
+indicating all branches in which the qpoint is. It takes into
+account the fact that one qpoint (e.g., \Gamma) can be in several
+branches</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_equivalent_qpoints">
+<span class="sig-name descname"><span class="pre">get_equivalent_qpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L402-L427"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_equivalent_qpoints" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the list of qpoint indices equivalent (meaning they are the
+same frac coords) to the given one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> – the qpoint index</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a list of equivalent indices</p>
+</dd>
+</dl>
+<p>TODO: now it uses the label we might want to use coordinates instead
+(in case there was a mislabel)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite">
+<span class="sig-name descname"><span class="pre">write_phononwebsite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L457-L465"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite" title="Permalink to this definition"></a></dt>
+<dd><p>Write a json file for the phononwebsite:
+<a class="reference external" href="http://henriquemiranda.github.io/phononwebsite">http://henriquemiranda.github.io/phononwebsite</a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.eigenvectors_from_displacements">
+<span class="sig-name descname"><span class="pre">eigenvectors_from_displacements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L28-L31"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.eigenvectors_from_displacements" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the eigenvectors from the atomic displacements.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.estimate_band_connection">
+<span class="sig-name descname"><span class="pre">estimate_band_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev_eigvecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigvecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_band_order</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L34-L49"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.estimate_band_connection" title="Permalink to this definition"></a></dt>
+<dd><p>A function to order the phonon eigenvectors taken from phonopy.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.phonon.bandstructure.get_reasonable_repetitions">
+<span class="sig-name descname"><span class="pre">get_reasonable_repetitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/bandstructure.py#L13-L25"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.get_reasonable_repetitions" title="Permalink to this definition"></a></dt>
+<dd><p>Choose the number of repetitions in a supercell
+according to the number of atoms in the system.</p>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.phonon.dos">
+<span id="pymatgen-phonon-dos-module"></span><h2>pymatgen.phonon.dos module<a class="headerlink" href="#module-pymatgen.phonon.dos" title="Permalink to this heading"></a></h2>
+<p>This module defines classes to represent the phonon density of states, etc.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CompletePhononDos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_dos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdoss</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L300-L375"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.dos.PhononDos" title="pymatgen.phonon.dos.PhononDos"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhononDos</span></code></a></p>
+<p>This wrapper class defines a total dos, and also provides a list of PDos.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos.pdos">
+<span class="sig-name descname"><span class="pre">pdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/dos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.pdos" title="Permalink to this definition"></a></dt>
+<dd><p>Dict of partial densities of the form {Site:Densities}</p>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure associated with this particular DOS.</p></li>
+<li><p><strong>total_dos</strong> – total Dos for structure</p></li>
+<li><p><strong>pdoss</strong> – The pdoss are supplied as an {Site: Densities}.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L359-L372"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.as_dict" title="Permalink to this definition"></a></dt>
+<dd><p>JSON-serializable dict representation of CompletePhononDos.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L348-L357"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.from_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Returns CompleteDos object from dict representation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos.get_element_dos">
+<span class="sig-name descname"><span class="pre">get_element_dos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L332-L346"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.get_element_dos" title="Permalink to this definition"></a></dt>
+<dd><p>Get element projected Dos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dos}</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict of {Element</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.CompletePhononDos.get_site_dos">
+<span class="sig-name descname"><span class="pre">get_site_dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L320-L330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.CompletePhononDos.get_site_dos" title="Permalink to this definition"></a></dt>
+<dd><p>Get the Dos for a site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>site</strong> – Site in Structure associated with CompletePhononDos.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PhononDos containing summed orbital densities for site.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PhononDos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">densities</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L30-L297"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<p>Basic DOS object. All other DOS objects are extended versions of this
+object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frequencies</strong> – A sequences of frequencies in THz</p></li>
+<li><p><strong>densities</strong> – A list representing the density of states.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L112-L119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.as_dict" title="Permalink to this definition"></a></dt>
+<dd><p>JSON-serializable dict representation of PhononDos.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.cv">
+<span class="sig-name descname"><span class="pre">cv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L139-L172"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.cv" title="Permalink to this definition"></a></dt>
+<dd><p>Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
+Only positive frequencies will be used.
+Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
+of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+should be divided by the number of unit formulas in the cell. If the structure is provided
+the division is performed internally and the result is in J/(K*mol).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – a temperature in K</p></li>
+<li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the number of
+formula units</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Constant volume specific heat C_v</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.entropy">
+<span class="sig-name descname"><span class="pre">entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L174-L205"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.entropy" title="Permalink to this definition"></a></dt>
+<dd><p>Vibrational entropy at temperature T obtained from the integration of the DOS.
+Only positive frequencies will be used.
+Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
+of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+should be divided by the number of unit formulas in the cell. If the structure is provided
+the division is performed internally and the result is in J/(K*mol).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – a temperature in K</p></li>
+<li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the number of
+formula units</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Vibrational entropy</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L107-L110"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.from_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Returns PhononDos object from dict representation of PhononDos.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.get_interpolated_value">
+<span class="sig-name descname"><span class="pre">get_interpolated_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L91-L98"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.get_interpolated_value" title="Permalink to this definition"></a></dt>
+<dd><p>Returns interpolated density for a particular frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frequency</strong> – frequency to return the density for.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.get_smeared_densities">
+<span class="sig-name descname"><span class="pre">get_smeared_densities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L45-L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.get_smeared_densities" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the densities, but with a Gaussian smearing of
+std dev sigma applied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sigma</strong> – Std dev of Gaussian smearing function.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Gaussian-smeared densities.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.helmholtz_free_energy">
+<span class="sig-name descname"><span class="pre">helmholtz_free_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L240-L271"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.helmholtz_free_energy" title="Permalink to this definition"></a></dt>
+<dd><p>Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
+Only positive frequencies will be used.
+Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
+of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+should be divided by the number of unit formulas in the cell. If the structure is provided
+the division is performed internally and the result is in J/mol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – a temperature in K</p></li>
+<li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the number of
+formula units</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Phonon contribution to the Helmholtz free energy</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.ind_zero_freq">
+<span class="sig-name descname"><span class="pre">ind_zero_freq</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/dos.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.ind_zero_freq" title="Permalink to this definition"></a></dt>
+<dd><p>Index of the first point for which the frequencies are equal or greater than zero.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.internal_energy">
+<span class="sig-name descname"><span class="pre">internal_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L207-L238"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.internal_energy" title="Permalink to this definition"></a></dt>
+<dd><p>Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
+Only positive frequencies will be used.
+Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
+of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+should be divided by the number of unit formulas in the cell. If the structure is provided
+the division is performed internally and the result is in J/mol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – a temperature in K</p></li>
+<li><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the number of
+formula units</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Phonon contribution to the internal energy</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.PhononDos.zero_point_energy">
+<span class="sig-name descname"><span class="pre">zero_point_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L273-L297"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.zero_point_energy" title="Permalink to this definition"></a></dt>
+<dd><p>Zero point energy of the system. Only positive frequencies will be used.
+Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
+of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+should be divided by the number of unit formulas in the cell. If the structure is provided
+the division is performed internally and the result is in J/mol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>structure</strong> – the structure of the system. If not None it will be used to determine the number of
+formula units</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Phonon contribution to the internal energy</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.phonon.dos.coth">
+<span class="sig-name descname"><span class="pre">coth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/dos.py#L17-L27"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.dos.coth" title="Permalink to this definition"></a></dt>
+<dd><p>Coth function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>x</em>) – value</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>coth(x)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.phonon.gruneisen">
+<span id="pymatgen-phonon-gruneisen-module"></span><h2>pymatgen.phonon.gruneisen module<a class="headerlink" href="#module-pymatgen.phonon.gruneisen" title="Permalink to this heading"></a></h2>
+<p>This module provides classes to define a Grueneisen band structure.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GruneisenParameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gruneisen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/gruneisen.py#L32-L213"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<p>Class for Grueneisen parameters on a regular grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qpoints</strong> – list of qpoints as numpy arrays, in frac_coords of the given lattice by default</p></li>
+<li><p><strong>gruneisen</strong> – list of gruneisen parameters as numpy arrays, shape: (3*len(structure), len(qpoints))</p></li>
+<li><p><strong>frequencies</strong> – list of phonon frequencies in THz as a numpy array with shape (3*len(structure), len(qpoints))</p></li>
+<li><p><strong>multiplicities</strong> – list of multiplicities</p></li>
+<li><p><strong>structure</strong> – The crystal structure (as a pymatgen Structure object) associated with the gruneisen parameters.</p></li>
+<li><p><strong>lattice</strong> – The reciprocal lattice as a pymatgen Lattice object. Pymatgen uses the physics convention of
+reciprocal lattice vectors WITH a 2*pi coefficient.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.acoustic_debye_temp">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">acoustic_debye_temp</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.acoustic_debye_temp" title="Permalink to this definition"></a></dt>
+<dd><p>Acoustic Debye temperature in K, i.e. the Debye temperature divided by nsites**(1/3).
+Adapted from abipy.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.average_gruneisen">
+<span class="sig-name descname"><span class="pre">average_gruneisen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squared</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/gruneisen.py#L61-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.average_gruneisen" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the average of the Gruneisen based on the values on the regular grid.
+If squared is True the average will use the squared value of the Gruneisen and a squared root
+is performed on the final result.
+Values associated to negative frequencies will be ignored.
+See Scripta Materialia 129, 88 for definitions.
+Adapted from classes in abipy that have been written by Guido Petretto (UCLouvain).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – the temperature at which the average Gruneisen will be evaluated. If None the acoustic Debye
+temperature is used (see acoustic_debye_temp).</p></li>
+<li><p><strong>squared</strong> – if True the average is performed on the squared values of the Grueneisen.</p></li>
+<li><p><strong>limit_frequencies</strong> – if None (default) no limit on the frequencies will be applied.
+Possible values are “debye” (only modes with frequencies lower than the acoustic Debye
+temperature) and “acoustic” (only the acoustic modes, i.e. the first three modes).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The average Gruneisen parameter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_limit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">debye_temp_limit</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_limit" title="Permalink to this definition"></a></dt>
+<dd><p>Debye temperature in K. Adapted from apipy.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_phonopy">
+<span class="sig-name descname"><span class="pre">debye_temp_phonopy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq_max_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/gruneisen.py#L189-L205"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.debye_temp_phonopy" title="Permalink to this definition"></a></dt>
+<dd><p>Get Debye temperature in K as implemented in phonopy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>freq_max_fit</strong> – Maximum frequency to include for fitting.
+Defaults to include first quartile of frequencies.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Debye temperature in K.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.phdos">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">phdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.phdos" title="Permalink to this definition"></a></dt>
+<dd><p>PhononDos object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.tdos">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tdos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/gruneisen.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.tdos" title="Permalink to this definition"></a></dt>
+<dd><p>The total DOS (re)constructed from the gruneisen.yaml file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenParameter.thermal_conductivity_slack">
+<span class="sig-name descname"><span class="pre">thermal_conductivity_slack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">squared</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/gruneisen.py#L115-L150"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenParameter.thermal_conductivity_slack" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the thermal conductivity at the acoustic Debye temperature with the Slack formula,
+using the average Gruneisen.
+Adapted from abipy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>squared</strong> (<em>bool</em>) – if True the average is performed on the squared values of the Gruenisen</p></li>
+<li><p><strong>limit_frequencies</strong> – if None (default) no limit on the frequencies will be applied.
+Possible values are “debye” (only modes with frequencies lower than the acoustic Debye
+temperature) and “acoustic” (only the acoustic modes, i.e. the first three modes).</p></li>
+<li><p><strong>theta_d</strong> – the temperature used to estimate the average of the Gruneisen used in the
+Slack formula. If None the acoustic Debye temperature is used (see
+acoustic_debye_temp). Will also be considered as the Debye temperature in the
+Slack formula.</p></li>
+<li><p><strong>t</strong> – temperature at which the thermal conductivity is estimated. If None the value at
+the calculated acoustic Debye temperature is given. The value is obtained as a
+simple rescaling of the value at the Debye temperature.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The value of the thermal conductivity in W/(m*K)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenPhononBandStructure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GruneisenPhononBandStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gruneisenparameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/gruneisen.py#L216-L319"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.bandstructure.PhononBandStructure" title="pymatgen.phonon.bandstructure.PhononBandStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhononBandStructure</span></code></a></p>
+<p>This is the most generic phonon band structure data possible
+it’s defined by a list of qpoints + frequencies for each of them.
+Additional information may be given for frequencies at Gamma, where
+non-analytical contribution may be taken into account.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qpoints</strong> – list of qpoint as numpy arrays, in frac_coords of the
+given lattice by default</p></li>
+<li><p><strong>frequencies</strong> – list of phonon frequencies in THz as a numpy array with shape
+(3*len(structure), len(qpoints)). The First index of the array
+refers to the band and the second to the index of the qpoint.</p></li>
+<li><p><strong>gruneisenparameters</strong> – list of Grueneisen parameters with the same structure
+frequencies.</p></li>
+<li><p><strong>lattice</strong> – The reciprocal lattice as a pymatgen Lattice object.
+Pymatgen uses the physics convention of reciprocal lattice vectors
+WITH a 2*pi coefficient.</p></li>
+<li><p><strong>eigendisplacements</strong> – the phonon eigendisplacements associated to the
+frequencies in Cartesian coordinates. A numpy array of complex
+numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
+The first index of the array refers to the band, the second to the index
+of the qpoint, the third to the atom in the structure and the fourth
+to the Cartesian coordinates.</p></li>
+<li><p><strong>labels_dict</strong> – (dict) of {} this links a qpoint (in frac coords or
+Cartesian coordinates depending on the coords) to a label.</p></li>
+<li><p><strong>coords_are_cartesian</strong> – Whether the qpoint coordinates are Cartesian.</p></li>
+<li><p><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
+associated with the band structure. This is needed if we
+provide projections to the band structure.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/gruneisen.py#L274-L295"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.as_dict" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>MSONable (dict).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/gruneisen.py#L297-L319"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure.from_dict" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dct</strong> (<em>dict</em>) – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Phonon band structure with Grueneisen parameters.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure" title="pymatgen.phonon.gruneisen.GruneisenPhononBandStructure">GruneisenPhononBandStructure</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GruneisenPhononBandStructureSymmLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gruneisenparameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigendisplacements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/gruneisen.py#L322-L400"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructure" title="pymatgen.phonon.gruneisen.GruneisenPhononBandStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">GruneisenPhononBandStructure</span></code></a>, <a class="reference internal" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine" title="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhononBandStructureSymmLine</span></code></a></p>
+<p>This object stores a GruneisenPhononBandStructureSymmLine together with Grueneisen parameters
+for every frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qpoints</strong> – list of qpoints as numpy arrays, in frac_coords of the
+given lattice by default</p></li>
+<li><p><strong>frequencies</strong> – list of phonon frequencies in eV as a numpy array with shape
+(3*len(structure), len(qpoints))</p></li>
+<li><p><strong>gruneisenparameters</strong> – list of Grueneisen parameters as a numpy array with the
+shape (3*len(structure), len(qpoints))</p></li>
+<li><p><strong>lattice</strong> – The reciprocal lattice as a pymatgen Lattice object.
+Pymatgen uses the physics convention of reciprocal lattice vectors
+WITH a 2*pi coefficient</p></li>
+<li><p><strong>eigendisplacements</strong> – the phonon eigendisplacements associated to the
+frequencies in Cartesian coordinates. A numpy array of complex
+numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
+The first index of the array refers to the band, the second to the index
+of the qpoint, the third to the atom in the structure and the fourth
+to the Cartesian coordinates.</p></li>
+<li><p><strong>labels_dict</strong> – (dict) of {} this links a qpoint (in frac coords or
+Cartesian coordinates depending on the coords) to a label.</p></li>
+<li><p><strong>coords_are_cartesian</strong> – Whether the qpoint coordinates are cartesian.</p></li>
+<li><p><strong>structure</strong> – The crystal structure (as a pymatgen Structure object)
+associated with the band structure. This is needed if we
+provide projections to the band structure.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/gruneisen.py#L379-L400"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.gruneisen.GruneisenPhononBandStructureSymmLine.from_dict" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dct</strong> – Dict representation.</p>
+</dd>
+</dl>
+<p>Returns: GruneisenPhononBandStructureSymmLine</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.phonon.ir_spectra">
+<span id="pymatgen-phonon-ir-spectra-module"></span><h2>pymatgen.phonon.ir_spectra module<a class="headerlink" href="#module-pymatgen.phonon.ir_spectra" title="Permalink to this heading"></a></h2>
+<p>This module provides classes to handle the calculation of the IR spectra
+This implementation is adapted from Abipy
+<a class="reference external" href="https://github.com/abinit/abipy">https://github.com/abinit/abipy</a>
+where it was originally done by Guido Petretto and Matteo Giantomassi.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IRDielectricTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oscillator_strength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ph_freqs_gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon_infinity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/ir_spectra.py#L26-L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<p>Class to handle the Ionic Dielectric Tensor
+The implementation is adapted from Abipy
+See the definitions Eq.(53-54) in <a href="#id1"><span class="problematic" id="id2">:cite:`Gonze1997`</span></a> PRB55, 10355 (1997).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oscillator_strength</strong> – IR oscillator strengths as defined in Eq. 54 in
+<a href="#id3"><span class="problematic" id="id4">:cite:`Gonze1997`</span></a> PRB55, 10355 (1997).</p></li>
+<li><p><strong>ph_freqs_gamma</strong> – Phonon frequencies at the Gamma point</p></li>
+<li><p><strong>epsilon_infinity</strong> – electronic susceptibility as defined in Eq. 29.</p></li>
+<li><p><strong>structure</strong> – A Structure object corresponding to the structure used for the calculation.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/ir_spectra.py#L66-L75"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.as_dict" title="Permalink to this definition"></a></dt>
+<dd><p>JSON-serializable dict representation of IRDielectricTensor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/ir_spectra.py#L47-L54"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.from_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Returns IRDielectricTensor from dict representation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.get_ir_spectra">
+<span class="sig-name descname"><span class="pre">get_ir_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">broad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">divs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/ir_spectra.py#L84-L118"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_ir_spectra" title="Permalink to this definition"></a></dt>
+<dd><p>The IR spectra is obtained for the different directions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broad</strong> – a list of broadenings or a single broadening for the phonon peaks</p></li>
+<li><p><strong>emin</strong> (<em>float</em>) – minimum energy in which to obtain the spectra. Defaults to 0.</p></li>
+<li><p><strong>emax</strong> (<em>float</em>) – maximum energy in which to obtain the spectra. Defaults to None.</p></li>
+<li><p><strong>divs</strong> – number of frequency samples between emin and emax</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>divs array with the frequencies at which the</dt><dd><p>dielectric tensor is calculated</p>
+</dd>
+<dt>dielectric_tensor: divsx3x3 numpy array with the dielectric tensor</dt><dd><p>for the range of frequencies</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>frequencies</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.get_plotter">
+<span class="sig-name descname"><span class="pre">get_plotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('xx',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reim'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">broad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">divs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/ir_spectra.py#L163-L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_plotter" title="Permalink to this definition"></a></dt>
+<dd><p>Return an instance of the Spectrum plotter containing the different requested components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>components</strong> – A list with the components of the dielectric tensor to plot.
+Can be either two indexes or a string like ‘xx’ to plot the (0,0) component</p></li>
+<li><p><strong>reim</strong> – If ‘re’ (im) is present in the string plots the real (imaginary) part of the dielectric tensor</p></li>
+<li><p><strong>broad</strong> (<em>float</em>) – a list of broadenings or a single broadening for the phonon peaks. Defaults to 0.00005.</p></li>
+<li><p><strong>emin</strong> (<em>float</em>) – minimum energy in which to obtain the spectra. Defaults to 0.</p></li>
+<li><p><strong>emax</strong> (<em>float</em>) – maximum energy in which to obtain the spectra. Defaults to None.</p></li>
+<li><p><strong>divs</strong> – number of frequency samples between emin and emax</p></li>
+<li><p><strong>**kwargs</strong> – Passed to IRDielectricTensor.get_spectrum()</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.get_spectrum">
+<span class="sig-name descname"><span class="pre">get_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">broad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">divs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/ir_spectra.py#L144-L161"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_spectrum" title="Permalink to this definition"></a></dt>
+<dd><p>component: either two indexes or a string like ‘xx’ to plot the (0,0) component
+reim: only “re” or “im”
+broad: a list of broadenings or a single broadening for the phonon peaks.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.max_phfreq">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_phfreq</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/ir_spectra.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.max_phfreq" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum phonon frequency.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.nph_freqs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nph_freqs</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/ir_spectra.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.nph_freqs" title="Permalink to this definition"></a></dt>
+<dd><p>Number of phonon frequencies.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('xx',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reim'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_phonon_frequencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../util/plotting.py#L120-L142"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function to generate the Spectrum plotter and directly plot the results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>components</strong> – A list with the components of the dielectric tensor to plot.
+Can be either two indexes or a string like ‘xx’ to plot the (0,0) component</p></li>
+<li><p><strong>reim</strong> – If ‘re’ (im) is present in the string plots the real (imaginary) part of the dielectric tensor</p></li>
+<li><p><strong>show_phonon_frequencies</strong> – plot a dot where the phonon frequencies are to help identify IR inactive modes</p></li>
+<li><p><strong>xlim</strong> – x-limits of the plot. Defaults to None for automatic determination.</p></li>
+<li><p><strong>ylim</strong> – y-limits of the plot. Defaults to None for automatic determination.</p></li>
+<li><p><strong>kwargs</strong> – keyword arguments passed to the plotter</p></li>
+</ul>
+</dd>
+</dl>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>kwargs</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>title</p></td>
+<td><p>Title of the plot (Default: None).</p></td>
+</tr>
+<tr class="row-odd"><td><p>show</p></td>
+<td><p>True to show the figure (default: True).</p></td>
+</tr>
+<tr class="row-even"><td><p>savefig</p></td>
+<td><p>“abc.png” or “abc.eps” to save the figure to a file.</p></td>
+</tr>
+<tr class="row-odd"><td><p>size_kwargs</p></td>
+<td><p>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</p></td>
+</tr>
+<tr class="row-even"><td><p>tight_layout</p></td>
+<td><p>True to call fig.tight_layout (default: False)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ax_grid</p></td>
+<td><p>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</p></td>
+</tr>
+<tr class="row-even"><td><p>ax_annotate</p></td>
+<td><p>Add labels to  subplots e.g. (a), (b).
+Default: False</p></td>
+</tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.ir_spectra.IRDielectricTensor.write_json">
+<span class="sig-name descname"><span class="pre">write_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/ir_spectra.py#L77-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.write_json" title="Permalink to this definition"></a></dt>
+<dd><p>Save a json file with this data.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.phonon.plotter">
+<span id="pymatgen-phonon-plotter-module"></span><h2>pymatgen.phonon.plotter module<a class="headerlink" href="#module-pymatgen.phonon.plotter" title="Permalink to this heading"></a></h2>
+<p>This module implements plotter for DOS and band structure.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.FreqUnits">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FreqUnits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/plotter.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of FreqUnits(factor, label)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.FreqUnits.factor">
+<span class="sig-name descname"><span class="pre">factor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/plotter.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.factor" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.FreqUnits.label">
+<span class="sig-name descname"><span class="pre">label</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/plotter.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.label" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.GruneisenPhononBSPlotter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GruneisenPhononBSPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L911-L1062"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.GruneisenPhononBSPlotter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.phonon.plotter.PhononBSPlotter" title="pymatgen.phonon.plotter.PhononBSPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhononBSPlotter</span></code></a></p>
+<p>Class to plot or get data to facilitate the plot of band structure objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bs</strong> – A GruneisenPhononBandStructureSymmLine object.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.GruneisenPhononBSPlotter.bs_plot_data">
+<span class="sig-name descname"><span class="pre">bs_plot_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L927-L960"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.GruneisenPhononBSPlotter.bs_plot_data" title="Permalink to this definition"></a></dt>
+<dd><p>Get the data nicely formatted for a plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ticks: A dict with the ‘distances’ at which there is a qpoint (the
+x axis) and the labels (None if no label)
+frequencies: A list (one element for each branch) of frequencies for
+each qpoint: [branch][qpoint][mode]. The data is
+stored by branch to facilitate the plotting
+gruneisen: GruneisenPhononBandStructureSymmLine
+lattice: The reciprocal lattice.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dict of the following format</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.GruneisenPhononBSPlotter.get_plot_gs">
+<span class="sig-name descname"><span class="pre">get_plot_gs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L962-L1006"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.GruneisenPhononBSPlotter.get_plot_gs" title="Permalink to this definition"></a></dt>
+<dd><p>Get a matplotlib object for the gruneisen bandstructure plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ylim</strong> – Specify the y-axis (gruneisen) limits; by default None let
+the code choose.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.GruneisenPhononBSPlotter.plot_compare_gs">
+<span class="sig-name descname"><span class="pre">plot_compare_gs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other_plotter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pymatgen.phonon.plotter.GruneisenPhononBSPlotter" title="pymatgen.phonon.plotter.GruneisenPhononBSPlotter"><span class="pre">GruneisenPhononBSPlotter</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">&lt;module</span> <span class="pre">'matplotlib.pyplot'</span> <span class="pre">from</span> <span class="pre">'/Users/janosh/.venv/py311/lib/python3.11/site-packages/matplotlib/pyplot.py'&gt;</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L1031-L1062"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.GruneisenPhononBSPlotter.plot_compare_gs" title="Permalink to this definition"></a></dt>
+<dd><p>plot two band structure for comparison. One is in red the other in blue.
+The two band structures need to be defined on the same symmetry lines!
+and the distance between symmetry lines is
+the one of the band structure used to build the PhononBSPlotter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>other_plotter</strong> (<a class="reference internal" href="#pymatgen.phonon.plotter.GruneisenPhononBSPlotter" title="pymatgen.phonon.plotter.GruneisenPhononBSPlotter"><em>GruneisenPhononBSPlotter</em></a>) – another phonon DOS plotter defined along
+the same symmetry lines.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a matplotlib object with both band structures</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.GruneisenPhononBSPlotter.save_plot_gs">
+<span class="sig-name descname"><span class="pre">save_plot_gs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L1018-L1029"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.GruneisenPhononBSPlotter.save_plot_gs" title="Permalink to this definition"></a></dt>
+<dd><p>Save matplotlib plot to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – Filename to write to.</p></li>
+<li><p><strong>img_format</strong> – Image format to use. Defaults to EPS.</p></li>
+<li><p><strong>ylim</strong> – Specifies the y-axis limits.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.GruneisenPhononBSPlotter.show_gs">
+<span class="sig-name descname"><span class="pre">show_gs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L1008-L1016"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.GruneisenPhononBSPlotter.show_gs" title="Permalink to this definition"></a></dt>
+<dd><p>Show the plot using matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ylim</strong> – Specifies the y-axis limits.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.GruneisenPlotter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GruneisenPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gruneisen</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L843-L908"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.GruneisenPlotter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to plot Gruneisenparameter Object.</p>
+<p>Class to plot information from Gruneisenparameter Object
+:param gruneisen: GruneisenParameter Object.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.GruneisenPlotter.get_plot">
+<span class="sig-name descname"><span class="pre">get_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'thz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L854-L885"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.GruneisenPlotter.get_plot" title="Permalink to this definition"></a></dt>
+<dd><p>will produce a plot
+:param marker: marker for the depiction
+:param markersize: size of the marker
+:param units: unit for the plots, accepted units: thz, ev, mev, ha, cm-1, cm^-1.</p>
+<p>Returns: plot</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.GruneisenPlotter.save_plot">
+<span class="sig-name descname"><span class="pre">save_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'thz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L898-L908"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.GruneisenPlotter.save_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Will save the plot to a file
+:param filename: name of the filename
+:param img_format: format of the saved plot
+:param units: accepted units: thz, ev, mev, ha, cm-1, cm^-1.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.GruneisenPlotter.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'thz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L887-L896"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.GruneisenPlotter.show" title="Permalink to this definition"></a></dt>
+<dd><p>will show the plot
+:param units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1.</p>
+<p>Returns: plot</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononBSPlotter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PhononBSPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L229-L641"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to plot or get data to facilitate the plot of band structure objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bs</strong> – A PhononBandStructureSymmLine object.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononBSPlotter.bs_plot_data">
+<span class="sig-name descname"><span class="pre">bs_plot_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L283-L313"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.bs_plot_data" title="Permalink to this definition"></a></dt>
+<dd><p>Get the data nicely formatted for a plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ticks: A dict with the ‘distances’ at which there is a qpoint (the
+x axis) and the labels (None if no label)
+frequencies: A list (one element for each branch) of frequencies for
+each qpoint: [branch][qpoint][mode]. The data is
+stored by branch to facilitate the plotting
+lattice: The reciprocal lattice.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dict of the following format</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononBSPlotter.get_plot">
+<span class="sig-name descname"><span class="pre">get_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'thz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L315-L360"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.get_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Get a matplotlib object for the bandstructure plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ylim</strong> – Specify the y-axis (frequency) limits; by default None let
+the code choose.</p></li>
+<li><p><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononBSPlotter.get_proj_plot">
+<span class="sig-name descname"><span class="pre">get_proj_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_comb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'element'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'thz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rgb_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Axes</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L400-L497"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.get_proj_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Get a matplotlib object for the bandstructure plot projected along atomic
+sites.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site_comb</strong> – a list of list, for example, [[0],[1],[2,3,4]];
+the numbers in each sublist represents the indices of atoms;
+the atoms in a same sublist will be plotted in a same color;
+if not specified, unique elements are automatically grouped.</p></li>
+<li><p><strong>ylim</strong> – Specify the y-axis (frequency) limits; by default None let
+the code choose.</p></li>
+<li><p><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+Defaults to “thz”.</p></li>
+<li><p><strong>rgb_labels</strong> – a list of rgb colors for the labels; if not specified,
+the colors will be automatically generated.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononBSPlotter.get_ticks">
+<span class="sig-name descname"><span class="pre">get_ticks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L550-L586"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.get_ticks" title="Permalink to this definition"></a></dt>
+<dd><p>Get all ticks and labels for a band structure plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a list of distance at which ticks should
+be set and ‘label’: a list of label for each of those ticks.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dict with ‘distance’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononBSPlotter.plot_brillouin">
+<span class="sig-name descname"><span class="pre">plot_brillouin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L624-L641"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.plot_brillouin" title="Permalink to this definition"></a></dt>
+<dd><p>Plot the Brillouin zone.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononBSPlotter.plot_compare">
+<span class="sig-name descname"><span class="pre">plot_compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other_plotter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'thz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L588-L622"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.plot_compare" title="Permalink to this definition"></a></dt>
+<dd><p>plot two band structure for comparison. One is in red the other in blue.
+The two band structures need to be defined on the same symmetry lines!
+and the distance between symmetry lines is the one of the band structure
+used to build the PhononBSPlotter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other_plotter</strong> – another PhononBSPlotter object defined along the same symmetry lines</p></li>
+<li><p><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+Defaults to ‘thz’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a matplotlib object with both band structures</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononBSPlotter.save_plot">
+<span class="sig-name descname"><span class="pre">save_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'thz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L511-L523"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.save_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Save matplotlib plot to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – Filename to write to.</p></li>
+<li><p><strong>img_format</strong> – Image format to use. Defaults to EPS.</p></li>
+<li><p><strong>ylim</strong> – Specifies the y-axis limits.</p></li>
+<li><p><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononBSPlotter.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'thz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L499-L509"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.show" title="Permalink to this definition"></a></dt>
+<dd><p>Show the plot using matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ylim</strong> – Specify the y-axis (frequency) limits; by default None let
+the code choose.</p></li>
+<li><p><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononBSPlotter.show_proj">
+<span class="sig-name descname"><span class="pre">show_proj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_comb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'element'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'thz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rgb_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L525-L548"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.show_proj" title="Permalink to this definition"></a></dt>
+<dd><p>Show the projected plot using matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site_comb</strong> – A list of list of indices of sites to combine. For example,
+[[0, 1], [2, 3]] will combine the projections of sites 0 and 1,
+and sites 2 and 3. Defaults to “element”, which will combine
+sites by element.</p></li>
+<li><p><strong>ylim</strong> – Specify the y-axis (frequency) limits; by default None let
+the code choose.</p></li>
+<li><p><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+Defaults to “thz”.</p></li>
+<li><p><strong>rgb_labels</strong> – A list of labels for the rgb triangle. Defaults to None,
+which will use the element symbols.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononDosPlotter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PhononDosPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L56-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for plotting phonon DOSs. The interface is extremely flexible given there are many
+different ways in which people want to view DOS.
+Typical usage is:</p>
+<blockquote>
+<div><p># Initializes plotter with some optional args. Defaults are usually fine
+plotter = PhononDosPlotter().</p>
+<p># Add DOS with a label
+plotter.add_dos(“Total DOS”, dos)</p>
+<p># Alternatively, you can add a dict of DOSes. This is the typical form
+# returned by CompletePhononDos.get_element_dos().</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stack</strong> – Whether to plot the DOS as a stacked area graph</p></li>
+<li><p><strong>sigma</strong> – A float specifying a standard deviation for Gaussian smearing
+the DOS for nicer looking plots. Defaults to None for no smearing.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononDosPlotter.add_dos">
+<span class="sig-name descname"><span class="pre">add_dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L82-L93"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.add_dos" title="Permalink to this definition"></a></dt>
+<dd><p>Adds a dos for plotting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> – label for the DOS. Must be unique.</p></li>
+<li><p><strong>dos</strong> – PhononDos object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononDosPlotter.add_dos_dict">
+<span class="sig-name descname"><span class="pre">add_dos_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dos_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_sort_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L95-L106"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.add_dos_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Add a dictionary of doses, with an optional sorting function for the
+keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dos_dict</strong> – dict of {label: Dos}</p></li>
+<li><p><strong>key_sort_func</strong> – function used to sort the dos_dict keys.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononDosPlotter.get_dos_dict">
+<span class="sig-name descname"><span class="pre">get_dos_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L108-L118"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.get_dos_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the added doses as a json-serializable dict. Note that if you
+have specified smearing for the DOS plot, the densities returned will
+be the smeared densities, not the original densities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>{‘frequencies’:..,
+‘densities’: …}}</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict of dos data. Generally of the form, {label</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononDosPlotter.get_plot">
+<span class="sig-name descname"><span class="pre">get_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'thz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L120-L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.get_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Get a matplotlib plot showing the DOS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
+determination.</p></li>
+<li><p><strong>ylim</strong> – Specifies the y-axis limits.</p></li>
+<li><p><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononDosPlotter.save_plot">
+<span class="sig-name descname"><span class="pre">save_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eps'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'thz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L199-L213"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.save_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Save matplotlib plot to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – Filename to write to.</p></li>
+<li><p><strong>img_format</strong> – Image format to use. Defaults to EPS.</p></li>
+<li><p><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
+determination.</p></li>
+<li><p><strong>ylim</strong> – Specifies the y-axis limits.</p></li>
+<li><p><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.PhononDosPlotter.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'thz'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L215-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.show" title="Permalink to this definition"></a></dt>
+<dd><p>Show the plot using matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
+determination.</p></li>
+<li><p><strong>ylim</strong> – Specifies the y-axis limits.</p></li>
+<li><p><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.ThermoPlotter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ThermoPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L644-L840"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Plotter for thermodynamic properties obtained from phonon DOS.
+If the structure corresponding to the DOS, it will be used to extract the formula unit and provide
+the plots in units of mol instead of mole-cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dos</strong> – A PhononDos object.</p></li>
+<li><p><strong>structure</strong> – A Structure object corresponding to the structure used for the calculation.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.ThermoPlotter.plot_cv">
+<span class="sig-name descname"><span class="pre">plot_cv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntemp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../util/plotting.py#L701-L720"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_cv" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the constant volume specific heat C_v in a temperature range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tmin</strong> – minimum temperature</p></li>
+<li><p><strong>tmax</strong> – maximum temperature</p></li>
+<li><p><strong>ntemp</strong> – number of steps</p></li>
+<li><p><strong>ylim</strong> – tuple specifying the y-axis limits.</p></li>
+<li><p><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib figure</p>
+</dd>
+</dl>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>kwargs</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>title</p></td>
+<td><p>Title of the plot (Default: None).</p></td>
+</tr>
+<tr class="row-odd"><td><p>show</p></td>
+<td><p>True to show the figure (default: True).</p></td>
+</tr>
+<tr class="row-even"><td><p>savefig</p></td>
+<td><p>“abc.png” or “abc.eps” to save the figure to a file.</p></td>
+</tr>
+<tr class="row-odd"><td><p>size_kwargs</p></td>
+<td><p>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</p></td>
+</tr>
+<tr class="row-even"><td><p>tight_layout</p></td>
+<td><p>True to call fig.tight_layout (default: False)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ax_grid</p></td>
+<td><p>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</p></td>
+</tr>
+<tr class="row-even"><td><p>ax_annotate</p></td>
+<td><p>Add labels to  subplots e.g. (a), (b).
+Default: False</p></td>
+</tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.ThermoPlotter.plot_entropy">
+<span class="sig-name descname"><span class="pre">plot_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntemp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../util/plotting.py#L722-L741"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_entropy" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the vibrational entrpy in a temperature range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tmin</strong> – minimum temperature</p></li>
+<li><p><strong>tmax</strong> – maximum temperature</p></li>
+<li><p><strong>ntemp</strong> – number of steps</p></li>
+<li><p><strong>ylim</strong> – tuple specifying the y-axis limits.</p></li>
+<li><p><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib figure</p>
+</dd>
+</dl>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>kwargs</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>title</p></td>
+<td><p>Title of the plot (Default: None).</p></td>
+</tr>
+<tr class="row-odd"><td><p>show</p></td>
+<td><p>True to show the figure (default: True).</p></td>
+</tr>
+<tr class="row-even"><td><p>savefig</p></td>
+<td><p>“abc.png” or “abc.eps” to save the figure to a file.</p></td>
+</tr>
+<tr class="row-odd"><td><p>size_kwargs</p></td>
+<td><p>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</p></td>
+</tr>
+<tr class="row-even"><td><p>tight_layout</p></td>
+<td><p>True to call fig.tight_layout (default: False)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ax_grid</p></td>
+<td><p>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</p></td>
+</tr>
+<tr class="row-even"><td><p>ax_annotate</p></td>
+<td><p>Add labels to  subplots e.g. (a), (b).
+Default: False</p></td>
+</tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy">
+<span class="sig-name descname"><span class="pre">plot_helmholtz_free_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntemp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../util/plotting.py#L766-L787"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the vibrational contribution to the Helmoltz free energy in a temperature range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tmin</strong> – minimum temperature</p></li>
+<li><p><strong>tmax</strong> – maximum temperature</p></li>
+<li><p><strong>ntemp</strong> – number of steps</p></li>
+<li><p><strong>ylim</strong> – tuple specifying the y-axis limits.</p></li>
+<li><p><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib figure</p>
+</dd>
+</dl>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>kwargs</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>title</p></td>
+<td><p>Title of the plot (Default: None).</p></td>
+</tr>
+<tr class="row-odd"><td><p>show</p></td>
+<td><p>True to show the figure (default: True).</p></td>
+</tr>
+<tr class="row-even"><td><p>savefig</p></td>
+<td><p>“abc.png” or “abc.eps” to save the figure to a file.</p></td>
+</tr>
+<tr class="row-odd"><td><p>size_kwargs</p></td>
+<td><p>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</p></td>
+</tr>
+<tr class="row-even"><td><p>tight_layout</p></td>
+<td><p>True to call fig.tight_layout (default: False)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ax_grid</p></td>
+<td><p>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</p></td>
+</tr>
+<tr class="row-even"><td><p>ax_annotate</p></td>
+<td><p>Add labels to  subplots e.g. (a), (b).
+Default: False</p></td>
+</tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy">
+<span class="sig-name descname"><span class="pre">plot_internal_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntemp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../util/plotting.py#L743-L764"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy" title="Permalink to this definition"></a></dt>
+<dd><p>Plots the vibrational internal energy in a temperature range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tmin</strong> – minimum temperature</p></li>
+<li><p><strong>tmax</strong> – maximum temperature</p></li>
+<li><p><strong>ntemp</strong> – number of steps</p></li>
+<li><p><strong>ylim</strong> – tuple specifying the y-axis limits.</p></li>
+<li><p><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib figure</p>
+</dd>
+</dl>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>kwargs</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>title</p></td>
+<td><p>Title of the plot (Default: None).</p></td>
+</tr>
+<tr class="row-odd"><td><p>show</p></td>
+<td><p>True to show the figure (default: True).</p></td>
+</tr>
+<tr class="row-even"><td><p>savefig</p></td>
+<td><p>“abc.png” or “abc.eps” to save the figure to a file.</p></td>
+</tr>
+<tr class="row-odd"><td><p>size_kwargs</p></td>
+<td><p>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</p></td>
+</tr>
+<tr class="row-even"><td><p>tight_layout</p></td>
+<td><p>True to call fig.tight_layout (default: False)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ax_grid</p></td>
+<td><p>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</p></td>
+</tr>
+<tr class="row-even"><td><p>ax_annotate</p></td>
+<td><p>Add labels to  subplots e.g. (a), (b).
+Default: False</p></td>
+</tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties">
+<span class="sig-name descname"><span class="pre">plot_thermodynamic_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntemp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../util/plotting.py#L789-L840"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties" title="Permalink to this definition"></a></dt>
+<dd><p>Plots all the thermodynamic properties in a temperature range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tmin</strong> – minimum temperature</p></li>
+<li><p><strong>tmax</strong> – maximum temperature</p></li>
+<li><p><strong>ntemp</strong> – number of steps</p></li>
+<li><p><strong>ylim</strong> – tuple specifying the y-axis limits.</p></li>
+<li><p><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib figure</p>
+</dd>
+</dl>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>kwargs</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>title</p></td>
+<td><p>Title of the plot (Default: None).</p></td>
+</tr>
+<tr class="row-odd"><td><p>show</p></td>
+<td><p>True to show the figure (default: True).</p></td>
+</tr>
+<tr class="row-even"><td><p>savefig</p></td>
+<td><p>“abc.png” or “abc.eps” to save the figure to a file.</p></td>
+</tr>
+<tr class="row-odd"><td><p>size_kwargs</p></td>
+<td><p>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</p></td>
+</tr>
+<tr class="row-even"><td><p>tight_layout</p></td>
+<td><p>True to call fig.tight_layout (default: False)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ax_grid</p></td>
+<td><p>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</p></td>
+</tr>
+<tr class="row-even"><td><p>ax_annotate</p></td>
+<td><p>Add labels to  subplots e.g. (a), (b).
+Default: False</p></td>
+</tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.phonon.plotter.freq_units">
+<span class="sig-name descname"><span class="pre">freq_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">units</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/plotter.py#L23-L53"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.plotter.freq_units" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>units</strong> – str, accepted values: thz, ev, mev, ha, cm-1, cm^-1.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns conversion factor from THz to the required units and the label in the form of a namedtuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.phonon.thermal_displacements">
+<span id="pymatgen-phonon-thermal-displacements-module"></span><h2>pymatgen.phonon.thermal_displacements module<a class="headerlink" href="#module-pymatgen.phonon.thermal_displacements" title="Permalink to this heading"></a></h2>
+<p>This module provides classes to handle thermal displacement matrices (anisotropic displacement parameters).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ThermalDisplacementMatrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement_matrix_cart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_displacement_matrix_cif</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/thermal_displacements.py#L35-L554"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
+<p>Class to handle thermal displacement matrices
+This class stores thermal displacement matrices in Ucart format.</p>
+<p>An earlier implementation based on Matlab can be found here:
+<a class="reference external" href="https://github.com/JaGeo/MolecularToolbox">https://github.com/JaGeo/MolecularToolbox</a>
+( J. George, A. Wang, V. L. Deringer, R. Wang, R. Dronskowski, U. Englert, CrystEngComm, 2015, 17, 7414-7422.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thermal_displacement_matrix_cart</strong> – 2D numpy array including the thermal_displacement matrix Ucart
+1st dimension atom types, then compressed thermal displacement matrix will follow
+U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
+convention similar to “thermal_displacement_matrices.yaml” in phonopy</p></li>
+<li><p><strong>structure</strong> – A pymatgen Structure object</p></li>
+<li><p><strong>temperature</strong> – temperature at which thermal displacement matrix was determined</p></li>
+<li><p><strong>thermal_displacement_matrix_cif</strong> – 2D numpy array including the thermal_displacement matrix Ucif format
+1st dimension atom types, then compressed thermal displacement matrix will follow
+U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
+convention similar to “thermal_displacement_matrices.yaml” in phonopy.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.B">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">B</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.B" title="Permalink to this definition"></a></dt>
+<dd><p>Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+Returns: B as a numpy array, first dimension are the atoms in the structure.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.U1U2U3">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">U1U2U3</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.U1U2U3" title="Permalink to this definition"></a></dt>
+<dd><p>Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+Returns: numpy array of eigenvalues of Ucart,  first dimension are the atoms in the structure.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ucif">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ucif</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ucif" title="Permalink to this definition"></a></dt>
+<dd><p>Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+Returns: Ucif as a numpy array, first dimension are the atoms in the structure.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ustar">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ustar</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.Ustar" title="Permalink to this definition"></a></dt>
+<dd><p>Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+Returns: Ustar as a numpy array, first dimension are the atoms in the structure.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.beta">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">beta</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.beta" title="Permalink to this definition"></a></dt>
+<dd><p>Computation as described in R. W. Grosse-Kunstleve, P. D. Adams, J Appl Cryst 2002, 35, 477-480.
+Returns: beta as a numpy array, first dimension are the atoms in the structure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.compute_directionality_quality_criterion">
+<span class="sig-name descname"><span class="pre">compute_directionality_quality_criterion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/thermal_displacements.py#L233-L290"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.compute_directionality_quality_criterion" title="Permalink to this definition"></a></dt>
+<dd><p>Will compute directionality of prolate displacement ellipsoids as described in
+<a class="reference external" href="https://doi.org/10.1039/C9CE00794F">https://doi.org/10.1039/C9CE00794F</a> with the earlier implementation: <a class="reference external" href="https://github.com/damMroz/Angle/">https://github.com/damMroz/Angle/</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – ThermalDisplacementMatrix</p></li>
+<li><p><strong>compared</strong> (<em>please make sure that the order</em><em> of </em><em>the atoms in both objects that are</em>) – </p></li>
+<li><p><strong>Otherwise</strong> (<em>is the same.</em>) – </p></li>
+<li><p><strong>results</strong> (<em>this analysis will deliver wrong</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>will return a list including dicts for each atom that include “vector0”
+(largest principal axes of self object),</p>
+<blockquote>
+<div><dl class="simple">
+<dt>”vector1” (largest principal axes of the other object), “angle” between both axes,</dt><dd><p>These vectors can then, for example, be drawn into the structure with VESTA.
+Vectors are given in Cartesian coordinates</p>
+</dd>
+</dl>
+</div></blockquote>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_Ucif">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_Ucif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement_matrix_cif</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/thermal_displacements.py#L398-L438"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_Ucif" title="Permalink to this definition"></a></dt>
+<dd><p>Starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thermal_displacement_matrix_cif</strong> – np.array,
+first dimension are the atoms,
+then reduced form of thermal displacement matrix will follow
+Order as above: U11, U22, U33, U23, U13, U12</p></li>
+<li><p><strong>structure</strong> – Structure object</p></li>
+<li><p><strong>temperature</strong> – float
+Corresponding temperature</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ThermalDisplacementMatrices</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_cif_P1">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cif_P1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/thermal_displacements.py#L496-L554"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_cif_P1" title="Permalink to this definition"></a></dt>
+<dd><p>Reads a cif with P1 symmetry including positions and ADPs.
+Currently, no check of symmetry is performed as CifParser methods cannot be easily reused
+:param filename: Filename of the cif.</p>
+<p>Returns: ThermalDisplacementMatrices Object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structure_with_site_properties_Ucif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/thermal_displacements.py#L467-L494"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif" title="Permalink to this definition"></a></dt>
+<dd><p>Will create this object with the help of a structure with site properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure object including U11_cif, U22_cif, U33_cif, U23_cif, U13_cif, U12_cif as site</p></li>
+<li><p><strong>properties</strong> – </p></li>
+<li><p><strong>temperature</strong> – temperature for Ucif data</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: ThermalDisplacementMatrices Object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_full_matrix">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_full_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/thermal_displacements.py#L77-L100"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_full_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Transfers the reduced matrix to the full matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>thermal_displacement</strong> – 2d numpy array, first dimension are the atoms</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>3d numpy array including thermal displacements, first dimensions are the atoms</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_reduced_matrix">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_reduced_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_displacement</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/thermal_displacements.py#L102-L122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.get_reduced_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Transfers the full matrix to reduced matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>thermal_displacement</strong> – 2d numpy array, first dimension are the atoms</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>3d numpy array including thermal displacements, first dimensions are the atoms</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.ratio_prolate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ratio_prolate</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/phonon/thermal_displacements.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.ratio_prolate" title="Permalink to this definition"></a></dt>
+<dd><p>This will compute ratio between largest and smallest eigenvalue of Ucart.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif">
+<span class="sig-name descname"><span class="pre">to_structure_with_site_properties_Ucif</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/thermal_displacements.py#L440-L465"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.to_structure_with_site_properties_Ucif" title="Permalink to this definition"></a></dt>
+<dd><p>Transfers this object into a structure with site properties (Ucif).
+This is useful for sorting the atoms in the structure including site properties.
+E.g., with code like this:
+def sort_order(site):</p>
+<blockquote>
+<div><p>return [site.specie.X, site.frac_coords[0], site.frac_coords[1], site.frac_coords[2]]</p>
+</div></blockquote>
+<p>new_structure0 = Structure.from_sites(sorted(structure0, key=sort_order)).</p>
+<p>Returns: Structure object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.visualize_directionality_quality_criterion">
+<span class="sig-name descname"><span class="pre">visualize_directionality_quality_criterion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'visualization.vesta'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/thermal_displacements.py#L292-L387"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.visualize_directionality_quality_criterion" title="Permalink to this definition"></a></dt>
+<dd><p>Will create a VESTA file for visualization of the directionality criterion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – ThermalDisplacementMatrices</p></li>
+<li><p><strong>filename</strong> – Filename of the VESTA file</p></li>
+<li><p><strong>which_structure</strong> – 0 means structure of the self object will be used, 1 means structure of the other
+object will be used</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.write_cif">
+<span class="sig-name descname"><span class="pre">write_cif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../phonon/thermal_displacements.py#L195-L223"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.phonon.thermal_displacements.ThermalDisplacementMatrices.write_cif" title="Permalink to this definition"></a></dt>
+<dd><p>Writes a cif including thermal displacements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> – name of the cif file</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.phonon">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.phonon" title="Permalink to this heading"></a></h2>
 <p>Phonon DOS and bandstructure analysis package.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

@@ -1,13 +1,13 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Write Prismatic (http://prism-em.com) input files.
-"""
+"""Write Prismatic (http://prism-em.com) input files."""
 
 from __future__ import annotations
 
-from pymatgen.core.structure import Structure
+from typing import TYPE_CHECKING
+
+import numpy as np
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 
 class Prismatic:
@@ -20,12 +20,16 @@ class Prismatic:
         """
         Args:
             structure: pymatgen Structure
-            comment (str): comment
+            comment (str): comment.
         """
         self.structure = structure
         self.comment = comment
 
-    def to_string(self) -> str:
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
+
+    def to_str(self) -> str:
         """
         Returns: Prismatic XYZ file. This is similar to XYZ format
         but has specific requirements for extra fields, headers, etc.

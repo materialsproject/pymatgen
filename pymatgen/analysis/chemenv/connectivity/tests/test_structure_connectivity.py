@@ -1,15 +1,11 @@
+from __future__ import annotations
+
 import json
 import os
 
-from pymatgen.analysis.chemenv.connectivity.connectivity_finder import (
-    ConnectivityFinder,
-)
-from pymatgen.analysis.chemenv.connectivity.structure_connectivity import (
-    StructureConnectivity,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    SimplestChemenvStrategy,
-)
+from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
+from pymatgen.analysis.chemenv.connectivity.structure_connectivity import StructureConnectivity
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
     StructureEnvironments,
@@ -17,7 +13,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import bson  # type: ignore  # Ignore bson import for mypy
+    import bson
 except ModuleNotFoundError:
     bson = None  # type: ignore
 
@@ -32,11 +28,11 @@ class StructureConnectivityTest(PymatgenTest):
             "structure_environments_files",
             "se_mp-5020.json",
         )
-        with open(BaTiO3_se_fpath) as f:
-            dd = json.load(f)
-        se = StructureEnvironments.from_dict(dd)
+        with open(BaTiO3_se_fpath) as file:
+            dd = json.load(file)
+        struct_envs = StructureEnvironments.from_dict(dd)
         lse = LightStructureEnvironments.from_structure_environments(
-            strategy=SimplestChemenvStrategy(), structure_environments=se
+            strategy=SimplestChemenvStrategy(), structure_environments=struct_envs
         )
         cf = ConnectivityFinder()
         sc = cf.get_structure_connectivity(light_structure_environments=lse)

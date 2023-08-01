@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements various transmuter classes.
 Transmuters are essentially classes that generate TransformedStructures from
@@ -11,19 +8,22 @@ It also includes the helper function, batch_write_vasp_input to generate an
 entire directory of vasp input files for running.
 """
 
+from __future__ import annotations
+
+import os
+import re
+from multiprocessing import Pool
+from typing import Callable, Sequence
+
+from pymatgen.alchemy.materials import TransformedStructure
+from pymatgen.io.vasp.sets import MPRelaxSet, VaspInputSet
+
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 4, 2012"
-
-import os
-import re
-from multiprocessing import Pool
-
-from pymatgen.alchemy.materials import TransformedStructure
-from pymatgen.io.vasp.sets import MPRelaxSet
 
 
 class StandardTransmuter:
@@ -119,10 +119,7 @@ class StandardTransmuter:
         if self.ncores and transformation.use_multiprocessing:
             with Pool(self.ncores) as p:
                 # need to condense arguments into single tuple to use map
-                z = map(
-                    lambda x: (x, transformation, extend_collection, clear_redo),
-                    self.transformed_structures,
-                )
+                z = ((x, transformation, extend_collection, clear_redo) for x in self.transformed_structures)
                 new_tstructs = p.map(_apply_transformation, z, 1)
                 self.transformed_structures = []
                 for ts in new_tstructs:
@@ -300,9 +297,7 @@ class CifTransmuter(StandardTransmuter):
 
 
 class PoscarTransmuter(StandardTransmuter):
-    """
-    Generates a transmuter from a sequence of POSCARs.
-    """
+    """Generates a transmuter from a sequence of POSCARs."""
 
     def __init__(self, poscar_string, transformations=None, extend_collection=False):
         """
@@ -337,12 +332,12 @@ class PoscarTransmuter(StandardTransmuter):
 
 
 def batch_write_vasp_input(
-    transformed_structures,
-    vasp_input_set=MPRelaxSet,
-    output_dir=".",
-    create_directory=True,
-    subfolder=None,
-    include_cif=False,
+    transformed_structures: Sequence[TransformedStructure],
+    vasp_input_set: type[VaspInputSet] = MPRelaxSet,
+    output_dir: str = ".",
+    create_directory: bool = True,
+    subfolder: Callable[[TransformedStructure], str] | None = None,
+    include_cif: bool = False,
     **kwargs,
 ):
     """
@@ -351,7 +346,7 @@ def batch_write_vasp_input(
 
     Args:
         transformed_structures: Sequence of TransformedStructures.
-        vasp_input_set: pymatgen.io.vaspio_set.VaspInputSet to creates
+        vasp_input_set: pymatgen.io.vasp.sets.VaspInputSet to creates
             vasp input files from structures.
         output_dir: Directory to output files
         create_directory (bool): Create the directory if not present.
@@ -363,19 +358,20 @@ def batch_write_vasp_input(
         include_cif (bool): Boolean indication whether to output a CIF as
             well. CIF files are generally better supported in visualization
             programs.
+        **kwargs: Any kwargs supported by vasp_input_set.
     """
-    for i, s in enumerate(transformed_structures):
-        formula = re.sub(r"\s+", "", s.final_structure.formula)
+    for idx, struct in enumerate(transformed_structures):
+        formula = re.sub(r"\s+", "", struct.final_structure.formula)
         if subfolder is not None:
-            subdir = subfolder(s)
-            dirname = os.path.join(output_dir, subdir, f"{formula}_{i}")
+            subdir = subfolder(struct)
+            dirname = os.path.join(output_dir, subdir, f"{formula}_{idx}")
         else:
-            dirname = os.path.join(output_dir, f"{formula}_{i}")
-        s.write_vasp_input(vasp_input_set, dirname, create_directory=create_directory, **kwargs)
+            dirname = os.path.join(output_dir, f"{formula}_{idx}")
+        struct.write_vasp_input(vasp_input_set, dirname, create_directory=create_directory, **kwargs)
         if include_cif:
             from pymatgen.io.cif import CifWriter
 
-            writer = CifWriter(s.final_structure)
+            writer = CifWriter(struct.final_structure)
             writer.write_file(os.path.join(dirname, f"{formula}.cif"))
 
 

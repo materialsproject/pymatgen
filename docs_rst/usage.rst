@@ -62,16 +62,16 @@ which is a general python supplementary library arising from pymatgen.
 The output from an as_dict method is always json/yaml serializable. So if you
 want to save a structure, you may do the following::
 
-    with open('structure.json','w') as f:
-        json.dump(structure.as_dict(), f)
+    with open('structure.json', 'w') as file:
+        json.dump(structure.as_dict(), file)
 
 Similarly, to get the structure back from a json, you can do the following to
-restore the structure (or any object with a as_dict method) from the json as
+restore the structure (or any object with an as_dict method) from the json as
 follows::
 
-    with open('structure.json', 'r') as f:
-        d = json.load(f)
-        structure = Structure.from_dict(d)
+    with open('structure.json') as file:
+        dct = json.load(file)
+        structure = Structure.from_dict(dct)
 
 You may replace any of the above json commands with yaml in the PyYAML package
 to create a yaml file instead. There are certain tradeoffs between the two
@@ -476,8 +476,8 @@ Usage example - replace Fe with Mn and remove all Li in all structures::
    transmuter = CifTransmuter.from_filenames(["MultiStructure.cif"], trans)
    structures = transmuter.transformed_structures
 
-pymatgen.matproj.rest - Integration with the Materials Project REST API
-=======================================================================
+pymatgen.ext.matproj - Integration with the Materials Project REST API
+======================================================================
 
 In version 2.0.0 of pymatgen, we introduced one of the most powerful and useful
 tools yet - an adaptor to the Materials Project REST API. The Materials Project
@@ -591,3 +591,32 @@ MPRester can also read the API key via the pymatgen config file. Simply run::
 to add this to the `.pmgrc.yaml`, and you can now call MPRester without any
 arguments. This makes it much easier for heavy users of the Materials API to
 use MPRester without having to constantly insert their API key in the scripts.
+
+Global configuration variables
+------------------------------
+
+The following is a list of global configuration variables and their purpose. These can be set in the `.pmgrc.yaml`
+file (recommended) as well as in environmental variables. You can use the `pmg config --add VARIABLE_NAME VALUE` command
+to add your desired values to the `.pmgrc.yaml` file.
+
+.. list-table::
+   :widths: 25 50
+   :header-rows: 1
+
+   * - Variable name
+     - Purpose
+   * - PMG_MAPI_KEY
+     - Specifies the API Key to be used for MPRester.
+   * - PMG_VASP_PSP_DIR
+     - Specifies the path in which to look for VASP pseudopotential files.
+   * - PMG_POTCAR_CHECKS
+     - A system-wide setting that if false, disables all POTCAR checks. This includes the compatibility checks as well as checking
+       for the existence of POTCARS when performing VASP io.
+   * - PMG_DEFAULT_FUNCTIONAL
+     - Sets the default functional to be used for VASP input files. Defaults to PBE.
+   * - PMG_CP2K_DATA_DIR
+     - Data directory for CP2K.
+   * - PMG_DEFAULT_CP2K_FUNCTIONAL
+     - Sets the default functional for CP2K.
+   * - PMG_DEFAULT_CP2K_BASIS_TYPE
+     - Sets the default basis type for CP2K.

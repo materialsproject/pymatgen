@@ -1,9 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""Development script of the ChemEnv utility to get the equivalent indices of the model coordination environments."""
 
-"""
-Development script of the ChemEnv utility to get the equivalent indices of the model coordination environments
-"""
+from __future__ import annotations
+
+import numpy as np
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -12,10 +11,7 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-import numpy as np
-
 if __name__ == "__main__":
-
     cg_symbol = "O:6"
     equiv_list = []
 
@@ -137,5 +133,5 @@ if __name__ == "__main__":
             i7 = 6 if i0 in [1, 4] else 7
             equiv_list.append([i0, i1, i2, i3, i4, i5, i6, i7])
 
-    print(f"Equivalent indices ({len(equiv_list):d}) for {cg_symbol} : ")
+    print(f"Equivalent indices ({len(equiv_list)}) for {cg_symbol} : ")
     print(equiv_list)

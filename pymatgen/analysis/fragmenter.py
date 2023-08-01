@@ -1,9 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""Perform fragmentation of molecules."""
 
-"""
-Perform fragmentation of molecules.
-"""
+from __future__ import annotations
 
 import copy
 import logging
@@ -26,9 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class Fragmenter(MSONable):
-    """
-    Molecule fragmenter class.
-    """
+    """Molecule fragmenter class."""
 
     def __init__(
         self,
@@ -42,7 +37,7 @@ class Fragmenter(MSONable):
         assume_previous_thoroughness=True,
     ):
         """
-        Standard constructor for molecule fragmentation
+        Standard constructor for molecule fragmentation.
 
         Args:
             molecule (Molecule): The molecule to fragment.
@@ -95,7 +90,6 @@ class Fragmenter(MSONable):
         self.unique_frag_dict = {}  # all fragments from both the given molecule and prev_unique_frag_dict
 
         if depth == 0:  # Non-iterative, find all possible fragments:
-
             # Find all unique fragments besides those involving ring opening
             self.all_unique_frag_dict = self.mol_graph.build_unique_fragments()
 
@@ -111,12 +105,9 @@ class Fragmenter(MSONable):
             for level in range(depth):
                 # If on the first level, perform one level of fragmentation on the principle molecule graph:
                 if level == 0:
+                    alph_formula = self.mol_graph.molecule.composition.alphabetical_formula
                     self.fragments_by_level["0"] = self._fragment_one_level(
-                        {
-                            str(self.mol_graph.molecule.composition.alphabetical_formula)
-                            + " E"
-                            + str(len(self.mol_graph.graph.edges())): [self.mol_graph]
-                        }
+                        {f"{alph_formula} E{len(self.mol_graph.graph.edges())}": [self.mol_graph]}
                     )
                 else:
                     num_frags_prev_level = 0
@@ -160,8 +151,7 @@ class Fragmenter(MSONable):
             self.unique_frag_dict = copy.deepcopy(self.prev_unique_frag_dict)
             for frag_key in self.new_unique_frag_dict:
                 if frag_key in self.unique_frag_dict:
-                    for new_frag in self.new_unique_frag_dict[frag_key]:
-                        self.unique_frag_dict[frag_key].append(new_frag)
+                    self.unique_frag_dict[frag_key] += [*self.new_unique_frag_dict[frag_key]]
                 else:
                     self.unique_frag_dict[frag_key] = copy.deepcopy(self.new_unique_frag_dict[frag_key])
 
@@ -190,18 +180,18 @@ class Fragmenter(MSONable):
                         if self.open_rings:
                             fragments = [open_ring(old_frag, bond, self.opt_steps)]
                     for fragment in fragments:
-                        new_frag_key = (
-                            str(fragment.molecule.composition.alphabetical_formula)
-                            + " E"
-                            + str(len(fragment.graph.edges()))
-                        )
+                        alph_formula = fragment.molecule.composition.alphabetical_formula
+                        new_frag_key = f"{alph_formula} E{len(fragment.graph.edges())}"
                         proceed = True
-                        if self.assume_previous_thoroughness and self.prev_unique_frag_dict != {}:
-                            if new_frag_key in self.prev_unique_frag_dict:
-                                for unique_fragment in self.prev_unique_frag_dict[new_frag_key]:
-                                    if unique_fragment.isomorphic_to(fragment):
-                                        proceed = False
-                                        break
+                        if (
+                            self.assume_previous_thoroughness
+                            and self.prev_unique_frag_dict != {}
+                            and new_frag_key in self.prev_unique_frag_dict
+                        ):
+                            for unique_fragment in self.prev_unique_frag_dict[new_frag_key]:
+                                if unique_fragment.isomorphic_to(fragment):
+                                    proceed = False
+                                    break
                         if proceed:
                             if new_frag_key not in self.all_unique_frag_dict:
                                 self.all_unique_frag_dict[new_frag_key] = [fragment]
@@ -228,11 +218,8 @@ class Fragmenter(MSONable):
         we find. We also temporarily add the principle molecule graph to self.unique_fragments
         so that its rings are opened as well.
         """
-        mol_key = (
-            str(self.mol_graph.molecule.composition.alphabetical_formula)
-            + " E"
-            + str(len(self.mol_graph.graph.edges()))
-        )
+        alph_formula = self.mol_graph.molecule.composition.alphabetical_formula
+        mol_key = f"{alph_formula} E{len(self.mol_graph.graph.edges())}"
         self.all_unique_frag_dict[mol_key] = [self.mol_graph]
         new_frag_keys = {"0": []}
         new_frag_key_dict = {}
@@ -242,11 +229,8 @@ class Fragmenter(MSONable):
                 if ring_edges != []:
                     for bond in ring_edges[0]:
                         new_fragment = open_ring(fragment, [bond], self.opt_steps)
-                        frag_key = (
-                            str(new_fragment.molecule.composition.alphabetical_formula)
-                            + " E"
-                            + str(len(new_fragment.graph.edges()))
-                        )
+                        alph_formula = new_fragment.molecule.composition.alphabetical_formula
+                        frag_key = f"{alph_formula} E{len(new_fragment.graph.edges())}"
                         if frag_key not in self.all_unique_frag_dict:
                             if frag_key not in new_frag_keys["0"]:
                                 new_frag_keys["0"].append(copy.deepcopy(frag_key))
@@ -280,11 +264,8 @@ class Fragmenter(MSONable):
                     if ring_edges != []:
                         for bond in ring_edges[0]:
                             new_fragment = open_ring(fragment, [bond], self.opt_steps)
-                            frag_key = (
-                                str(new_fragment.molecule.composition.alphabetical_formula)
-                                + " E"
-                                + str(len(new_fragment.graph.edges()))
-                            )
+                            alph_formula = new_fragment.molecule.composition.alphabetical_formula
+                            frag_key = f"{alph_formula} E{len(new_fragment.graph.edges())}"
                             if frag_key not in self.all_unique_frag_dict:
                                 if frag_key not in new_frag_keys[str(idx)]:
                                     new_frag_keys[str(idx)].append(copy.deepcopy(frag_key))

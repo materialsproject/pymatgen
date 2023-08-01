@@ -1,16 +1,13 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module define the various drones used to assimilate data."""
 
-"""
-This module define the various drones used to assimilate data.
-"""
+from __future__ import annotations
 
 import abc
-import glob
 import json
 import logging
 import os
 import warnings
+from glob import glob
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -56,7 +53,7 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
         paths, depending on what kind of data you are assimilating. For
         example, if you are assimilating VASP runs, you are only interested in
         directories containing vasprun.xml files. On the other hand, if you are
-        interested converting all POSCARs in a directory tree to cifs for
+        interested converting all POSCARs in a directory tree to CIFs for
         example, you will want the file paths.
 
         Args:
@@ -71,9 +68,10 @@ class AbstractDrone(MSONable, metaclass=abc.ABCMeta):
 
 class VaspToComputedEntryDrone(AbstractDrone):
     """
-    VaspToEntryDrone assimilates directories containing vasp output to
-    ComputedEntry/ComputedStructureEntry objects. There are some restrictions
-    on the valid directory structures:
+    VaspToEntryDrone assimilates directories containing VASP output to
+    ComputedEntry/ComputedStructureEntry objects.
+
+    There are some restrictions on the valid directory structures:
 
     1. There can be only one vasp run in each directory.
     2. Directories designated "relax1", "relax2" are considered to be 2 parts
@@ -119,9 +117,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
         """
         files = os.listdir(path)
         if "relax1" in files and "relax2" in files:
-            filepath = glob.glob(os.path.join(path, "relax2", "vasprun.xml*"))[0]
+            filepath = glob(os.path.join(path, "relax2", "vasprun.xml*"))[0]
         else:
-            vasprun_files = glob.glob(os.path.join(path, "vasprun.xml*"))
+            vasprun_files = glob(os.path.join(path, "vasprun.xml*"))
             filepath = None
             if len(vasprun_files) == 1:
                 filepath = vasprun_files[0]
@@ -132,19 +130,18 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {filepath} is being parsed.")
 
         try:
-            vasprun = Vasprun(filepath)
-        except Exception as ex:
-            logger.debug(f"error in {filepath}: {ex}")
+            vasp_run = Vasprun(filepath)
+        except Exception as exc:
+            logger.debug(f"error in {filepath}: {exc}")
             return None
 
-        entry = vasprun.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
+        return vasp_run.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
 
         # entry.parameters["history"] = _get_transformation_history(path)
-        return entry
 
     def get_valid_paths(self, path):
         """
-        Checks if paths contains vasprun.xml or (POSCAR+OSZICAR)
+        Checks if paths contains vasprun.xml or (POSCAR+OSZICAR).
 
         Args:
             path: input path as a tuple generated from os.walk, i.e.,
@@ -160,11 +157,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
             (not parent.endswith("/relax1"))
             and (not parent.endswith("/relax2"))
             and (
-                len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0
-                or (
-                    len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0
-                    and len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0
-                )
+                len(glob(os.path.join(parent, "vasprun.xml*"))) > 0
+                or (len(glob(os.path.join(parent, "POSCAR*"))) > 0 and len(glob(os.path.join(parent, "OSZICAR*"))) > 0)
             )
         ):
             return [parent]
@@ -174,9 +168,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         return " VaspToComputedEntryDrone"
 
     def as_dict(self):
-        """
-        Returns: MSONABle dict
-        """
+        """Returns: MSONABle dict."""
         return {
             "init_args": {
                 "inc_structure": self._inc_structure,
@@ -188,15 +180,15 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             VaspToComputedEntryDrone
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
@@ -234,16 +226,14 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             if "relax1" in files and "relax2" in files:
                 for filename in ("INCAR", "POTCAR", "POSCAR"):
                     search_str = os.path.join(path, "relax1", filename + "*")
-                    files_to_parse[filename] = glob.glob(search_str)[0]
+                    files_to_parse[filename] = glob(search_str)[0]
                 for filename in ("CONTCAR", "OSZICAR"):
                     search_str = os.path.join(path, "relax2", filename + "*")
-                    files_to_parse[filename] = glob.glob(search_str)[-1]
+                    files_to_parse[filename] = glob(search_str)[-1]
             else:
                 for filename in filenames:
-                    files = sorted(glob.glob(os.path.join(path, filename + "*")))
-                    if len(files) == 1 or filename in ("INCAR", "POTCAR"):
-                        files_to_parse[filename] = files[0]
-                    elif len(files) == 1 and filename == "DYNMAT":
+                    files = sorted(glob(os.path.join(path, filename + "*")))
+                    if len(files) == 1 or filename in ("INCAR", "POTCAR") or len(files) == 1 and filename == "DYNMAT":
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         # Since multiple files are ambiguous, we will always
@@ -285,17 +275,15 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 return ComputedStructureEntry(structure, energy, parameters=param, data=data)
             return ComputedEntry(structure.composition, energy, parameters=param, data=data)
 
-        except Exception as ex:
-            logger.debug(f"error in {path}: {ex}")
+        except Exception as exc:
+            logger.debug(f"error in {path}: {exc}")
             return None
 
     def __str__(self):
         return "SimpleVaspToComputedEntryDrone"
 
     def as_dict(self):
-        """
-        Returns: MSONAble dict
-        """
+        """Returns: MSONable dict."""
         return {
             "init_args": {"inc_structure": self._inc_structure},
             "@module": type(self).__module__,
@@ -303,15 +291,15 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             SimpleVaspToComputedEntryDrone
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 class GaussianToComputedEntryDrone(AbstractDrone):
@@ -375,8 +363,8 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         """
         try:
             gaurun = GaussianOutput(path)
-        except Exception as ex:
-            logger.debug(f"error in {path}: {ex}")
+        except Exception as exc:
+            logger.debug(f"error in {path}: {exc}")
             return None
         param = {}
         for p in self._parameters:
@@ -413,9 +401,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         return " GaussianToComputedEntryDrone"
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         return {
             "init_args": {
                 "inc_structure": self._inc_structure,
@@ -428,22 +414,20 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct):
         """
         Args:
-            d (dict): Dict Representation
+            dct (dict): Dict Representation.
 
         Returns:
             GaussianToComputedEntryDrone
         """
-        return cls(**d["init_args"])
+        return cls(**dct["init_args"])
 
 
 def _get_transformation_history(path):
-    """
-    Checks for a transformations.json* file and returns the history.
-    """
-    trans_json = glob.glob(os.path.join(path, "transformations.json*"))
+    """Checks for a transformations.json* file and returns the history."""
+    trans_json = glob(os.path.join(path, "transformations.json*"))
     if trans_json:
         try:
             with zopen(trans_json[0]) as f:

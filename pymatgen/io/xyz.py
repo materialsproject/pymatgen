@@ -1,13 +1,11 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""Module implementing an XYZ file object class."""
 
-"""
-Module implementing an XYZ file object class.
-"""
+from __future__ import annotations
 
 import re
 from io import StringIO
 
+import numpy as np
 import pandas as pd
 from monty.io import zopen
 
@@ -48,21 +46,17 @@ class XYZ:
 
     @property
     def all_molecules(self):
-        """
-        Returns all the frames of molecule associated with this XYZ.
-        """
+        """Returns all the frames of molecule associated with this XYZ."""
         return self._mols
 
     @staticmethod
     def _from_frame_string(contents):
-        """
-        Convert a single frame XYZ string to a molecule
-        """
+        """Convert a single frame XYZ string to a molecule."""
         lines = contents.split("\n")
         num_sites = int(lines[0])
         coords = []
         sp = []
-        coord_patt = re.compile(r"(\w+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)\s+" r"([0-9\-\+\.*^eEdD]+)")
+        coord_patt = re.compile(r"(\w+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)")
         for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:
@@ -75,8 +69,13 @@ class XYZ:
                 coords.append([float(val) for val in xyz])
         return Molecule(sp, coords)
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(contents):
+    def from_str(contents):
         """
         Creates XYZ object from a string.
 
@@ -91,7 +90,7 @@ class XYZ:
         white_space = r"[ \t\r\f\v]"
         natoms_line = white_space + r"*\d+" + white_space + r"*\n"
         comment_line = r"[^\n]*\n"
-        coord_lines = r"(\s*\w+\s+[0-9\-\+\.*^eEdD]+\s+[0-9\-\+\.*^eEdD]+" r"\s+[0-9\-\+\.*^eEdD]+.*\n)+"
+        coord_lines = r"(\s*\w+\s+[0-9\-\+\.*^eEdD]+\s+[0-9\-\+\.*^eEdD]+\s+[0-9\-\+\.*^eEdD]+.*\n)+"
         frame_pattern_text = natoms_line + comment_line + coord_lines
         pat = re.compile(frame_pattern_text, re.MULTILINE)
         mols = []
@@ -112,7 +111,7 @@ class XYZ:
             XYZ object
         """
         with zopen(filename, "rt") as f:
-            return XYZ.from_string(f.read())
+            return XYZ.from_str(f.read())
 
     def as_dataframe(self):
         """
@@ -125,7 +124,7 @@ class XYZ:
         lines = str(self)
 
         sio = StringIO(lines)
-        df = pd.read_csv(
+        df_xyz = pd.read_csv(
             sio,
             header=None,
             skiprows=[0, 1],
@@ -133,14 +132,14 @@ class XYZ:
             delim_whitespace=True,
             names=["atom", "x", "y", "z"],
         )
-        df.index += 1
-        return df
+        df_xyz.index += 1
+        return df_xyz
 
     def _frame_str(self, frame_mol):
         output = [str(len(frame_mol)), frame_mol.composition.formula]
-        fmtstr = f"{{}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}}"
+        fmt = f"{{}} {{:.{self.precision}f}} {{:.{self.precision}f}} {{:.{self.precision}f}}"
         for site in frame_mol:
-            output.append(fmtstr.format(site.specie, site.x, site.y, site.z))
+            output.append(fmt.format(site.specie, site.x, site.y, site.z))
         return "\n".join(output)
 
     def __str__(self):

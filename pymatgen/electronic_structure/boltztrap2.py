@@ -3,7 +3,7 @@ BoltzTraP2 is a python software interpolating band structures and
 computing materials properties from dft band structure using Boltzmann
 semi-classical transport theory.
 This module provides a pymatgen interface to BoltzTraP2.
-Some of the code is written following the examples provided in BoltzTraP2
+Some of the code is written following the examples provided in BoltzTraP2.
 
 BoltzTraP2 has been developed by Georg Madsen, Jesús Carrete, Matthieu J. Verstraete.
 
@@ -26,6 +26,8 @@ Todo:
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
 - handle magnetic moments (magmom)
 """
+from __future__ import annotations
+
 import warnings
 
 import matplotlib.pyplot as plt
@@ -33,11 +35,7 @@ import numpy as np
 from monty.serialization import dumpfn, loadfn
 from tqdm import tqdm
 
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructure,
-    BandStructureSymmLine,
-    Spin,
-)
+from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine, Spin
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, Orbital
 from pymatgen.electronic_structure.plotter import BSPlotter, DosPlotter
@@ -61,7 +59,7 @@ __date__ = "August 2018"
 
 
 class VasprunBSLoader:
-    """Loader for Bandstructure and Vasprun pmg objects"""
+    """Loader for Bandstructure and Vasprun pmg objects."""
 
     def __init__(self, obj, structure=None, nelect=None):
         """
@@ -121,8 +119,7 @@ class VasprunBSLoader:
             self.vbm = bs_obj.get_vbm()["energy"]
             self.cbm = bs_obj.get_cbm()["energy"]
         else:
-            self.vbm_idx = None
-            self.cbm_idx = None
+            self.vbm_idx = self.cbm_idx = None
             self.vbm = self.fermi / units.eV
             self.cbm = self.fermi / units.eV
 
@@ -135,33 +132,29 @@ class VasprunBSLoader:
 
     @classmethod
     def from_file(cls, vasprun_file):
-        """Get a vasprun.xml file and return a VasprunBSLoader"""
+        """Get a vasprun.xml file and return a VasprunBSLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
         return cls(vrun_obj)
 
     def get_lattvec(self):
-        """
-        :return: The lattice vectors.
-        """
+        """:return: The lattice vectors."""
         try:
-            self.lattvec
+            return self.lattvec
         except AttributeError:
             self.lattvec = self.atoms.get_cell().T * units.Angstrom
         return self.lattvec
 
     def get_volume(self):
-        """
-        :return: Volume
-        """
+        """:return: Volume"""
         try:
-            self.UCvol
+            return self.UCvol
         except AttributeError:
             lattvec = self.get_lattvec()
             self.UCvol = np.abs(np.linalg.det(lattvec))
         return self.UCvol
 
     def bandana(self, emin=-np.inf, emax=np.inf):
-        """Cut out bands outside the range (emin,emax)"""
+        """Cut out bands outside the range (emin,emax)."""
         bandmin = np.min(self.ebands_all, axis=1)
         bandmax = np.max(self.ebands_all, axis=1)
         ntoolow = np.count_nonzero(bandmax <= emin)
@@ -188,7 +181,7 @@ class VasprunBSLoader:
 
 
 class BandstructureLoader:
-    """Loader for Bandstructure object"""
+    """Loader for Bandstructure object."""
 
     def __init__(self, bs_obj, structure=None, nelect=None, mommat=None, magmom=None):
         """
@@ -196,8 +189,9 @@ class BandstructureLoader:
             bs_obj: BandStructure object.
             structure: Structure object. It is needed if it is not contained in the BandStructure obj.
             nelect: Number of electrons in the calculation.
-            momat: Matrix of derivatives of energy eigenvalues. Not implemented yet.
+            mommat: Matrix of derivatives of energy eigenvalues. TODO Not implemented yet.
             magmom: Matrix of magnetic moments in non collinear calculations. Not implemented yet.
+
         Example:
             vrun = Vasprun('vasprun.xml')
             bs = vrun.get_band_structure()
@@ -244,24 +238,21 @@ class BandstructureLoader:
             self.cbm = bs_obj.get_cbm()["energy"]
             self.nelect_all = self.vbm_idx * self.dosweight
         else:
-            self.vbm_idx = None
-            self.cbm_idx = None
+            self.vbm_idx = self.cbm_idx = None
             self.vbm = self.fermi
             self.cbm = self.fermi
             self.nelect_all = nelect
 
     def get_lattvec(self):
-        """
-        :return: The lattice vectors.
-        """
+        """:return: The lattice vectors."""
         try:
-            self.lattvec
+            return self.lattvec
         except AttributeError:
             self.lattvec = self.atoms.get_cell().T * units.Angstrom
         return self.lattvec
 
     def bandana(self, emin=-np.inf, emax=np.inf):
-        """Cut out bands outside the range (emin,emax)"""
+        """Cut out bands outside the range (emin,emax)."""
         bandmin = np.min(self.ebands_all, axis=1)
         bandmax = np.max(self.ebands_all, axis=1)
         ntoolow = np.count_nonzero(bandmax <= emin)
@@ -289,7 +280,7 @@ class BandstructureLoader:
     def set_upper_lower_bands(self, e_lower, e_upper):
         """
         Set fake upper/lower bands, useful to set the same energy
-        range in the spin up/down bands when calculating the DOS
+        range in the spin up/down bands when calculating the DOS.
         """
         warnings.warn(
             "This method does not work anymore in case of spin \
@@ -307,11 +298,9 @@ class BandstructureLoader:
                 self.proj[sp] = np.concatenate((proj_lower, proj, proj_upper), axis=1)
 
     def get_volume(self):
-        """
-        :return: Volume
-        """
+        """:return: Volume"""
         try:
-            self.UCvol
+            return self.UCvol
         except AttributeError:
             lattvec = self.get_lattvec()
             self.UCvol = np.abs(np.linalg.det(lattvec))
@@ -319,12 +308,10 @@ class BandstructureLoader:
 
 
 class VasprunLoader:
-    """Loader for Vasprun object"""
+    """Loader for Vasprun object."""
 
     def __init__(self, vrun_obj=None):
-        """
-        vrun_obj: Vasprun object.
-        """
+        """vrun_obj: Vasprun object."""
         warnings.warn("Deprecated Loader. Use VasprunBSLoader instead.")
 
         if vrun_obj:
@@ -333,11 +320,11 @@ class VasprunLoader:
             self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
             self.proj = None
             if len(vrun_obj.eigenvalues) == 1:
-                e = list(vrun_obj.eigenvalues.values())[0]
+                e = next(iter(vrun_obj.eigenvalues.values()))
                 self.ebands = e[:, :, 0].transpose() * units.eV
                 self.dosweight = 2.0
                 if vrun_obj.projected_eigenvalues:
-                    self.proj = list(vrun_obj.projected_eigenvalues.values())[0]
+                    self.proj = next(iter(vrun_obj.projected_eigenvalues.values()))
 
             elif len(vrun_obj.eigenvalues) == 2:
                 raise BoltztrapError("spin bs case not implemented")
@@ -345,9 +332,7 @@ class VasprunLoader:
             self.lattvec = self.atoms.get_cell().T * units.Angstrom
 
             # TODO: read mommat from vasprun
-            self.mommat = None
-            self.magmom = None
-            self.spin = None
+            self.mommat = self.magmom = self.spin = None
             self.fermi = vrun_obj.efermi * units.eV
             self.nelect = vrun_obj.parameters["NELECT"]
             self.UCvol = self.structure.volume * units.Angstrom**3
@@ -359,67 +344,60 @@ class VasprunLoader:
                 self.vbm = bs_obj.get_vbm()["energy"]
                 self.cbm = bs_obj.get_cbm()["energy"]
             else:
-                self.vbm_idx = None
-                self.cbm_idx = None
+                self.vbm_idx = self.cbm_idx = None
                 self.vbm = self.fermi
                 self.cbm = self.fermi
 
     @classmethod
     def from_file(cls, vasprun_file):
-        """Get a vasprun.xml file and return a VasprunLoader"""
+        """Get a vasprun.xml file and return a VasprunLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
         return VasprunLoader(vrun_obj)
 
     def get_lattvec(self):
-        """
-        :return: Lattice vectors
-        """
+        """:return: Lattice vectors"""
         try:
-            self.lattvec
+            return self.lattvec
         except AttributeError:
             self.lattvec = self.atoms.get_cell().T * units.Angstrom
         return self.lattvec
 
     def bandana(self, emin=-np.inf, emax=np.inf):
-        """Cut out bands outside the range (emin,emax)"""
-        bandmin = np.min(self.ebands, axis=1)
-        bandmax = np.max(self.ebands, axis=1)
-        ii = np.nonzero(bandmin < emax)
-        nemax = ii[0][-1]
-        ii = np.nonzero(bandmax > emin)
-        nemin = ii[0][0]
+        """Cut out bands outside the range (emin,emax)."""
+        band_min = np.min(self.ebands, axis=1)
+        band_max = np.max(self.ebands, axis=1)
+        ii = np.nonzero(band_min < emax)
+        n_emax = ii[0][-1]
+        ii = np.nonzero(band_max > emin)
+        n_emin = ii[0][0]
         # BoltzTraP2.misc.info("BANDANA output")
         # for iband in range(len(self.ebands)):
         # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
         # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
-        self.ebands = self.ebands[nemin : nemax + 1]
+        self.ebands = self.ebands[n_emin : n_emax + 1]
 
         if isinstance(self.proj, np.ndarray):
-            self.proj = self.proj[:, nemin : nemax + 1, :, :]
+            self.proj = self.proj[:, n_emin : n_emax + 1, :, :]
 
         if self.mommat is not None:
-            self.mommat = self.mommat[:, nemin : nemax + 1, :]
+            self.mommat = self.mommat[:, n_emin : n_emax + 1, :]
         # Removing bands may change the number of valence electrons
         if self.nelect is not None:
-            self.nelect -= self.dosweight * nemin
-        return nemin, nemax
+            self.nelect -= self.dosweight * n_emin
+        return n_emin, n_emax
 
     def get_volume(self):
-        """
-        :return: Volume of cell
-        """
+        """:return: Volume of cell"""
         try:
-            self.UCvol
+            return self.UCvol
         except AttributeError:
-            lattvec = self.get_lattvec()
-            self.UCvol = np.abs(np.linalg.det(lattvec))
+            latt_vec = self.get_lattvec()
+            self.UCvol = np.abs(np.linalg.det(latt_vec))
         return self.UCvol
 
 
 class BztInterpolator:
-    """
-    Interpolate the dft band structures
-    """
+    """Interpolate the dft band structures."""
 
     def __init__(
         self,
@@ -439,8 +417,8 @@ class BztInterpolator:
                 default 10 gives 10 time more points in the real space than
                 the number of kpoints given in reciprocal space.
             energy_range: usually the interpolation is not needed on the entire energy
-                range but on a specific range around the fermi level.
-                This energy in eV fix the range around the fermi level
+                range but on a specific range around the Fermi level.
+                This energy in eV fix the range around the Fermi level
                 (E_fermi-energy_range,E_fermi+energy_range) of
                 bands that will be interpolated
                 and taken into account to calculate the transport properties.
@@ -454,6 +432,7 @@ class BztInterpolator:
             save_bands: Default False. If True interpolated bands are also stored.
                 It can be slower than interpolate them. Not recommended.
             fname: File path where to store/load from the coefficients and equivalences.
+
         Example:
             data = VasprunLoader().from_file('vasprun.xml')
             bztInterp = BztInterpolator(data)
@@ -483,7 +462,7 @@ class BztInterpolator:
             self.save(fname, save_bands)
 
     def load(self, fname="bztInterp.json.gz"):
-        """Load the coefficient, equivalences, bands from fname"""
+        """Load the coefficient, equivalences, bands from fname."""
         d = loadfn(fname)
         if len(d) > 2:
             self.equivalences, coeffs, self.eband, self.vvband, self.cband = d
@@ -498,7 +477,8 @@ class BztInterpolator:
 
     def save(self, fname="bztInterp.json.gz", bands=False):
         """Save the coefficient, equivalences to fname.
-        If bands is True, also interpolated bands are stored."""
+        If bands is True, also interpolated bands are stored.
+        """
         if bands:
             dumpfn(
                 [
@@ -543,7 +523,6 @@ class BztInterpolator:
 
         lattvec = self.data.get_lattvec()
         egrid, vgrid = fite.getBands(kpoints, self.equivalences, lattvec, self.coeffs)
-        # print(egrid.shape)
         if self.data.is_spin_polarized:
             h = sum(np.array_split(self.accepted, 2)[0])
             egrid = np.array_split(egrid, [h], axis=0)
@@ -554,18 +533,17 @@ class BztInterpolator:
         else:
             bands_dict = {Spin.up: (egrid / units.eV)}
 
-        sbs = BandStructureSymmLine(
+        return BandStructureSymmLine(
             kpoints,
             bands_dict,
             self.data.structure.lattice.reciprocal_lattice,
             self.efermi / units.eV,
             labels_dict=kpoints_lbls_dict,
         )
-        return sbs
 
     def get_dos(self, partial_dos=False, npts_mu=10000, T=None, progress=False):
         """
-        Return a Dos object interpolating bands
+        Return a Dos object interpolating bands.
 
         Args:
             partial_dos: if True, projections will be interpolated as well
@@ -605,7 +583,7 @@ class BztInterpolator:
 
     def get_partial_doses(self, tdos, eband_ud, spins, enr, npts_mu, T, progress):
         """
-        Return a CompleteDos object interpolating the projections
+        Return a CompleteDos object interpolating the projections.
 
         tdos: total dos previously calculated
         npts_mu: number of energy points of the Dos
@@ -622,7 +600,7 @@ class BztInterpolator:
             n_iter = np.prod(np.sum([np.array(i.shape)[2:] for i in self.data.proj.values()]))
             t = tqdm(total=n_iter * 2)
         for spin, eb in zip(spins, eband_ud):
-            for isite, site in enumerate(self.data.structure.sites):
+            for idx, site in enumerate(self.data.structure):
                 if site not in pdoss:
                     pdoss[site] = {}
                 for iorb, orb in enumerate(Orbital):
@@ -634,7 +612,7 @@ class BztInterpolator:
                     if orb not in pdoss[site]:
                         pdoss[site][orb] = {}
 
-                    self.data.ebands = self.data.proj[spin][:, :, isite, iorb].T
+                    self.data.ebands = self.data.proj[spin][:, :, idx, iorb].T
                     coeffs = fite.fitde3D(self.data, self.equivalences)
                     proj, vvproj, cproj = fite.getBTPbands(self.equivalences, coeffs, self.data.lattvec)
 
@@ -679,6 +657,8 @@ class BztTransportProperties:
                 compute_properties_doping() method for details.
             npts_mu: number of energy points at which to calculate transport properties
             CRTA: constant value of the relaxation time
+            margin: The energy range of the interpolation is extended by this value on both sides.
+                Defaults to 9 * units.BOLTZMANN * temp_r.max().
             save_bztTranspProps: Default False. If True all computed transport properties
                 will be stored in fname file.
             load_bztTranspProps: Default False. If True all computed transport properties
@@ -709,7 +689,7 @@ class BztTransportProperties:
         self.efermi = BztInterpolator.data.fermi / units.eV
 
         if margin is None:
-            margin = 9.0 * units.BOLTZMANN * temp_r.max()
+            margin = 9 * units.BOLTZMANN * temp_r.max()
 
         if load_bztTranspProps:
             self.load(fname)
@@ -730,7 +710,7 @@ class BztTransportProperties:
                 self.epsilon < self.epsilon.max() - margin,
             )
 
-            self.mu_r = self.epsilon[mur_indices]
+            self.mu_r = self.epsilon[mur_indices]  # mu range
             self.mu_r_eV = self.mu_r / units.eV - self.efermi
 
             N, L0, L1, L2, Lm11 = BL.fermiintegrals(
@@ -798,6 +778,7 @@ class BztTransportProperties:
 
         Args:
             doping: numpy array specifying the doping levels
+            temp_r: numpy array specifying the temperatures
 
         When executed, it add the following variable at the BztTransportProperties
         object:
@@ -1165,7 +1146,7 @@ class BztPlotter:
                         plt.plot(
                             mu,
                             prop_out[:, i],
-                            label="eig " + str(i) + " " + str(temp) + " K",
+                            label=f"eig {i} {temp} K",
                         )
 
             plt.xlabel(r"$\mu$ (eV)", fontsize=30)
@@ -1183,7 +1164,7 @@ class BztPlotter:
                             doping_all,
                             prop_out[:, i],
                             "s-",
-                            label="eig " + str(i) + " " + str(temp) + " K",
+                            label=f"eig {i} {temp} K",
                         )
             plt.xlabel(r"Carrier conc. $cm^{-3}$", fontsize=30)
             leg_title = dop_type + "-type"
@@ -1205,7 +1186,7 @@ class BztPlotter:
                             temps_all,
                             prop_out[:, i],
                             "s-",
-                            label="eig " + str(i) + " " + str(dop) + " $cm^{-3}$",
+                            label=f"eig {i} {dop} $cm^{{-3}}$",
                         )
 
             plt.xlabel(r"Temperature (K)", fontsize=30)
@@ -1220,9 +1201,7 @@ class BztPlotter:
         return plt
 
     def plot_bands(self):
-        """
-        Plot a band structure on symmetry line using BSPlotter()
-        """
+        """Plot a band structure on symmetry line using BSPlotter()."""
         if self.bzt_interp is None:
             raise BoltztrapError("BztInterpolator not present")
 
@@ -1231,14 +1210,11 @@ class BztPlotter:
         return BSPlotter(sbs).get_plot()
 
     def plot_dos(self, T=None, npoints=10000):
-        """
-        Plot the total Dos using DosPlotter()
-        """
+        """Plot the total Dos using DosPlotter()."""
         if self.bzt_interp is None:
             raise BoltztrapError("BztInterpolator not present")
 
         tdos = self.bzt_interp.get_dos(T=T, npts_mu=npoints)
-        # print(npoints)
         dosPlotter = DosPlotter()
         dosPlotter.add_dos("Total", tdos)
 
@@ -1248,6 +1224,7 @@ class BztPlotter:
 def merge_up_down_doses(dos_up, dos_dn):
     """
     Merge the up and down DOSs.
+
     Args:
     dos_up: Up DOS.
     dos_dn: Down DOS

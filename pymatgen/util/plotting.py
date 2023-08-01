@@ -1,8 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-"""
-Utilities for generating nicer plots.
-"""
+"""Utilities for generating nicer plots."""
+from __future__ import annotations
+
 import math
 from typing import Literal
 
@@ -29,7 +27,7 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitat
     Returns:
         Matplotlib plot object with properly sized fonts.
     """
-    ticksize = int(width * 2.5)
+    tick_size = int(width * 2.5)
 
     golden_ratio = (math.sqrt(5) - 1) / 2
 
@@ -51,16 +49,16 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitat
     else:
         fig = plt.gcf()
         fig.set_size_inches(width, height)
-    plt.xticks(fontsize=ticksize)
-    plt.yticks(fontsize=ticksize)
+    plt.xticks(fontsize=tick_size)
+    plt.yticks(fontsize=tick_size)
 
     ax = plt.gca()
     ax.set_title(ax.get_title(), size=width * 4)
 
-    labelsize = int(width * 3)
+    label_size = int(width * 3)
 
-    ax.set_xlabel(ax.get_xlabel(), size=labelsize)
-    ax.set_ylabel(ax.get_ylabel(), size=labelsize)
+    ax.set_xlabel(ax.get_xlabel(), size=label_size)
+    ax.set_ylabel(ax.get_ylabel(), size=label_size)
 
     return plt
 
@@ -115,8 +113,8 @@ def pretty_plot_two_axis(
     if dpi:
         fig.set_dpi(dpi)
     if isinstance(y1, dict):
-        for i, (k, v) in enumerate(y1.items()):
-            ax1.plot(x, v, c=c1, marker="s", ls=styles[i % len(styles)], label=k, **plot_kwargs)
+        for idx, (key, val) in enumerate(y1.items()):
+            ax1.plot(x, val, c=c1, marker="s", ls=styles[idx % len(styles)], label=key, **plot_kwargs)
         ax1.legend(fontsize=labelsize)
     else:
         ax1.plot(x, y1, c=c1, marker="s", ls="-", **plot_kwargs)
@@ -133,8 +131,8 @@ def pretty_plot_two_axis(
 
     ax2 = ax1.twinx()
     if isinstance(y2, dict):
-        for i, (k, v) in enumerate(y2.items()):
-            ax2.plot(x, v, c=c2, marker="o", ls=styles[i % len(styles)], label=k)
+        for idx, (key, val) in enumerate(y2.items()):
+            ax2.plot(x, val, c=c2, marker="o", ls=styles[idx % len(styles)], label=key)
         ax2.legend(fontsize=labelsize)
     else:
         ax2.plot(x, y2, c=c2, marker="o", ls="-")
@@ -175,14 +173,14 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
 
 def _decide_fontcolor(rgba: tuple) -> Literal["black", "white"]:
     red, green, blue, _ = rgba
-    if (red * 0.299 + green * 0.587 + blue * 0.114) * 255 > 186:
+    if red * 0.299 + green * 0.587 + blue * 0.114 > (186 / 255):
         return "black"
 
     return "white"
 
 
 def periodic_table_heatmap(
-    elemental_data,
+    elemental_data=None,
     cbar_label="",
     cbar_label_size=14,
     show_plot=False,
@@ -195,39 +193,89 @@ def periodic_table_heatmap(
     symbol_fontsize=14,
     max_row=9,
     readable_fontcolor=False,
+    pymatviz: bool = True,
+    **kwargs,
 ):
     """
     A static method that generates a heat map overlaid on a periodic table.
 
     Args:
-         elemental_data (dict): A dictionary with the element as a key and a
+        elemental_data (dict): A dictionary with the element as a key and a
             value assigned to it, e.g. surface energy and frequency, etc.
             Elements missing in the elemental_data will be grey by default
             in the final table elemental_data={"Fe": 4.2, "O": 5.0}.
-         cbar_label (string): Label of the colorbar. Default is "".
-         cbar_label_size (float): Font size for the colorbar label. Default is 14.
-         cmap_range (tuple): Minimum and maximum value of the colormap scale.
-            If None, the colormap will automatically scale to the range of the
+        cbar_label (str): Label of the color bar. Default is "".
+        cbar_label_size (float): Font size for the color bar label. Default is 14.
+        cmap_range (tuple): Minimum and maximum value of the color map scale.
+            If None, the color map will automatically scale to the range of the
             data.
-         show_plot (bool): Whether to show the heatmap. Default is False.
-         value_format (str): Formatting string to show values. If None, no value
+        show_plot (bool): Whether to show the heatmap. Default is False.
+        value_format (str): Formatting string to show values. If None, no value
             is shown. Example: "%.4f" shows float to four decimals.
-         value_fontsize (float): Font size for values. Default is 10.
-         symbol_fontsize (float): Font size for element symbols. Default is 14.
-         cmap (string): Color scheme of the heatmap. Default is 'YlOrRd'.
+        value_fontsize (float): Font size for values. Default is 10.
+        symbol_fontsize (float): Font size for element symbols. Default is 14.
+        cmap (str): Color scheme of the heatmap. Default is 'YlOrRd'.
             Refer to the matplotlib documentation for other options.
-         blank_color (string): Color assigned for the missing elements in
+        blank_color (str): Color assigned for the missing elements in
             elemental_data. Default is "grey".
-         edge_color (string): Color assigned for the edge of elements in the
+        edge_color (str): Color assigned for the edge of elements in the
             periodic table. Default is "white".
-         max_row (integer): Maximum number of rows of the periodic table to be
+        max_row (int): Maximum number of rows of the periodic table to be
             shown. Default is 9, which means the periodic table heat map covers
             the standard 7 rows of the periodic table + 2 rows for the lanthanides
             and actinides. Use a value of max_row = 7 to exclude the lanthanides and
             actinides.
-         readable_fontcolor (bool): Whether to use readable fontcolor depending
+        readable_fontcolor (bool): Whether to use readable font color depending
             on background color. Default is False.
+        pymatviz (bool): Whether to use pymatviz to generate the heatmap. Defaults to True.
+            See https://github.com/janosh/pymatviz.
+        kwargs: Passed to pymatviz.ptable_heatmap_plotly
     """
+    if pymatviz:
+        try:
+            from pymatviz import ptable_heatmap_plotly
+
+            if elemental_data:
+                kwargs.setdefault("elem_values", elemental_data)
+                print('elemental_data is deprecated, use elem_values={"Fe": 4.2, "O": 5.0} instead')
+            if cbar_label:
+                kwargs.setdefault("color_bar", {}).setdefault("title", cbar_label)
+                print('cbar_label is deprecated, use color_bar={"title": cbar_label} instead')
+            if cbar_label_size != 14:
+                kwargs.setdefault("color_bar", {}).setdefault("titlefont", {}).setdefault("size", cbar_label_size)
+                print('cbar_label_size is deprecated, use color_bar={"titlefont": {"size": cbar_label_size}} instead')
+            if cmap:
+                kwargs.setdefault("colorscale", cmap)
+                print("cmap is deprecated, use colorscale=cmap instead")
+            if cmap_range:
+                kwargs.setdefault("cscale_range", cmap_range)
+                print("cmap_range is deprecated, use cscale_range instead")
+            if value_format:
+                kwargs.setdefault("precision", value_format)
+                print("value_format is deprecated, use precision instead")
+            if blank_color != "grey":
+                print("blank_color is deprecated")
+            if edge_color != "white":
+                print("edge_color is deprecated")
+            if symbol_fontsize != 14:
+                print("symbol_fontsize is deprecated, use font_size instead")
+                kwargs.setdefault("font_size", symbol_fontsize)
+            if value_fontsize != 10:
+                print("value_fontsize is deprecated, use font_size instead")
+                kwargs.setdefault("font_size", value_fontsize)
+            if max_row != 9:
+                print("max_row is deprecated, use max_row instead")
+            if readable_fontcolor:
+                print("readable_fontcolor is deprecated, use font_colors instead, e.g. ('black', 'white')")
+
+            return ptable_heatmap_plotly(**kwargs)
+        except ImportError:
+            print(
+                "You're using a deprecated version of periodic_table_heatmap(). Consider `pip install pymatviz` which "
+                "offers an interactive plotly periodic table heatmap. You can keep calling this same function from "
+                "pymatgen. Some of the arguments have changed which you'll be warned about. "
+                "To disable this warning, pass pymatviz=False."
+            )
 
     # Convert primitive_elemental data in the form of numpy array for plotting.
     if cmap_range is not None:
@@ -289,7 +337,7 @@ def periodic_table_heatmap(
     ax.axis("off")
     ax.invert_yaxis()
 
-    # Set the scalermap for fontcolor
+    # Set the scalarmap for fontcolor
     norm = colors.Normalize(vmin=min_val, vmax=max_val)
     scalar_cmap = cm.ScalarMappable(norm=norm, cmap=cmap)
 
@@ -331,20 +379,19 @@ def periodic_table_heatmap(
 def format_formula(formula):
     """
     Converts str of chemical formula into
-    latex format for labelling purposes
+    latex format for labelling purposes.
 
     Args:
         formula (str): Chemical formula
     """
-
     formatted_formula = ""
     number_format = ""
-    for i, s in enumerate(formula):
-        if s.isdigit():
+    for idx, char in enumerate(formula):
+        if char.isdigit():
             if not number_format:
                 number_format = "_{"
-            number_format += s
-            if i == len(formula) - 1:
+            number_format += char
+            if idx == len(formula) - 1:
                 number_format += "}"
                 formatted_formula += number_format
         else:
@@ -352,7 +399,7 @@ def format_formula(formula):
                 number_format += "}"
                 formatted_formula += number_format
                 number_format = ""
-            formatted_formula += s
+            formatted_formula += char
 
     return f"${formatted_formula}$"
 
@@ -367,7 +414,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
                 Interscience, New York (1956)
         and
             J.A.A Ketelaar, Chemical Constitution (2nd edition), An Introduction
-                to the Theory of the Chemical Bond, Elsevier, New York (1958)
+                to the Theory of the Chemical Bond, Elsevier, New York (1958).
 
     Args:
          list_of_materials (list): A list of computed entries of binary
@@ -376,18 +423,12 @@ def van_arkel_triangle(list_of_materials, annotate=True):
             triangle with reduced formula (if list of entries) or pair
             of elements (if list of list of str).
     """
-
     # F-Fr has the largest X difference. We set this
     # as our top corner of the triangle (most ionic)
     pt1 = np.array([(Element("F").X + Element("Fr").X) / 2, abs(Element("F").X - Element("Fr").X)])
     # Cs-Fr has the lowest average X. We set this as our
     # bottom left corner of the triangle (most metallic)
-    pt2 = np.array(
-        [
-            (Element("Cs").X + Element("Fr").X) / 2,
-            abs(Element("Cs").X - Element("Fr").X),
-        ]
-    )
+    pt2 = np.array([(Element("Cs").X + Element("Fr").X) / 2, abs(Element("Cs").X - Element("Fr").X)])
     # O-F has the highest average X. We set this as our
     # bottom right corner of the triangle (most covalent)
     pt3 = np.array([(Element("O").X + Element("F").X) / 2, abs(Element("O").X - Element("F").X)])
@@ -425,7 +466,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     plt.xticks(fontsize=15)
     plt.yticks(fontsize=15)
 
-    # Shade with appropriate colors corresponding to ionic, metallci and covalent
+    # Shade with appropriate colors corresponding to ionic, metallic and covalent
     ax = plt.gca()
     # ionic filling
     ax.fill_between(
@@ -443,32 +484,32 @@ def van_arkel_triangle(list_of_materials, annotate=True):
         edgecolor=[1, 1, 0],
     )
     # metal filling
-    XPt = Element("Pt").X
+    x_pt = Element("Pt").X
     ax.fill_between(
-        [min(chi_list), (XPt + min(chi_list)) / 2],
-        [0, slope1 * (XPt + min(chi_list)) / 2 + b1],
+        [min(chi_list), (x_pt + min(chi_list)) / 2],
+        [0, slope1 * (x_pt + min(chi_list)) / 2 + b1],
         facecolor=[1, 0, 0],
         zorder=-3,
         alpha=0.8,
     )
     ax.fill_between(
-        [(XPt + min(chi_list)) / 2, XPt],
-        [slope1 * ((XPt + min(chi_list)) / 2) + b1, 0],
+        [(x_pt + min(chi_list)) / 2, x_pt],
+        [slope1 * ((x_pt + min(chi_list)) / 2) + b1, 0],
         facecolor=[1, 0, 0],
         zorder=-3,
         alpha=0.8,
     )
     # covalent filling
     ax.fill_between(
-        [(XPt + min(chi_list)) / 2, ((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2],
-        [0, slope2 * (((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2],
+        [(x_pt + min(chi_list)) / 2, ((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2],
+        [0, slope2 * (((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2],
         facecolor=[0, 1, 0],
         zorder=-4,
         alpha=0.8,
     )
     ax.fill_between(
-        [((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2, -b2 / slope2],
-        [slope2 * (((XPt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2, 0],
+        [((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2, -b2 / slope2],
+        [slope2 * (((x_pt + min(chi_list)) / 2 + -b2 / slope2) / 2) + b2, 0],
         facecolor=[0, 1, 0],
         zorder=-4,
         alpha=0.8,
@@ -502,6 +543,7 @@ def get_ax_fig_plt(ax=None, **kwargs):
     we return the current active figure.
 
     Args:
+        ax (Axes, optional): Axes object. Defaults to None.
         kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
@@ -527,6 +569,7 @@ def get_ax3d_fig_plt(ax=None, **kwargs):
     Axes3D else we return the current active figure.
 
     Args:
+        ax (Axes3D, optional): Axes3D object. Defaults to None.
         kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
@@ -654,9 +697,7 @@ def add_fig_kwargs(func):
         return fig
 
     # Add docstring to the decorated method.
-    s = (
-        "\n\n"
-        + """\
+    s = """\n\n
         Keyword arguments controlling the display of the figure:
 
         ================  ====================================================
@@ -676,7 +717,6 @@ def add_fig_kwargs(func):
         ================  ====================================================
 
 """
-    )
 
     if wrapper.__doc__ is not None:
         # Add s at the end of the docstring.

@@ -29,6 +29,12 @@ Optional libraries that are required if you need certain features.
 5. networkx: For graph analysis associated with critic2 topological analysis
    of electron charge densities, pygraphviz is also required for visualization.
 6. pytest - For unittesting. Not optional for developers.
+7. numba: Optionally can be installed for faster evaluation of certain 
+   functionality, such as the SubstrateAnalyzer. It incurrs an initial 
+   slowdown the first time the relevant function is called, as it is 
+   compiled, for dramatically faster subsequent evaluations. Note that 
+   numba places additional constraints on the versions of numpy and 
+   Python that may be used.
 
 Optional non-Python programs
 ----------------------------

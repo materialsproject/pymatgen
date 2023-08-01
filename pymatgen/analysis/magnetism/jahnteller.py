@@ -1,26 +1,20 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-JahnTeller distortion analysis.
-"""
+"""JahnTeller distortion analysis."""
 
 from __future__ import annotations
 
 import os
 import warnings
-from typing import Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import numpy as np
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.local_env import (
-    LocalStructOrderParams,
-    get_neighbors_of_site_with_index,
-)
+from pymatgen.analysis.local_env import LocalStructOrderParams, get_neighbors_of_site_with_index
 from pymatgen.core.periodic_table import Species, get_el_sp
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -36,9 +30,7 @@ class JahnTellerAnalyzer:
     """
 
     def __init__(self):
-        """
-        Init for JahnTellerAnalyzer.
-        """
+        """Init for JahnTellerAnalyzer."""
         self.spin_configs = {
             "oct": {  # key is number of d electrons
                 0: {"high": {"e_g": 0, "t_2g": 0}, "default": "high"},
@@ -128,13 +120,11 @@ class JahnTellerAnalyzer:
         non_jt_sites = []
 
         for indices in symmetrized_structure.equivalent_indices:
-
             idx = indices[0]
             site = symmetrized_structure[idx]
 
             # only interested in sites with oxidation states
             if isinstance(site.specie, Species) and site.specie.element.is_transition_metal:
-
                 # get motif around site
                 order_params = op.get_order_parameters(symmetrized_structure, idx)
 
@@ -149,12 +139,10 @@ class JahnTellerAnalyzer:
                     motif_order_parameter = None
 
                 if motif in ["oct", "tet"]:
-
                     motif = cast(Literal["oct", "tet"], motif)  # mypy needs help
 
                     # guess spin of metal ion
                     if guesstimate_spin and "magmom" in site.properties:
-
                         # estimate if high spin or low spin
                         magmom = site.properties["magmom"]
                         spin_state = self._estimate_spin_state(site.specie, motif, magmom)
@@ -164,16 +152,13 @@ class JahnTellerAnalyzer:
                     magnitude = self.get_magnitude_of_effect_from_species(site.specie, spin_state, motif)
 
                     if magnitude != "none":
-
                         ligands = get_neighbors_of_site_with_index(structure, idx, approach="min_dist", delta=0.15)
                         ligand_bond_lengths = [ligand.distance(structure[idx]) for ligand in ligands]
                         ligands_species = list({str(ligand.specie) for ligand in ligands})
                         ligand_bond_length_spread = max(ligand_bond_lengths) - min(ligand_bond_lengths)
 
                         def trim(f):
-                            """
-                            Avoid storing to unreasonable precision, hurts readability.
-                            """
+                            """Avoid storing to unreasonable precision, hurts readability."""
                             return float(f"{f:.4f}")
 
                         # to be Jahn-Teller active, all ligands have to be the same
@@ -206,7 +191,7 @@ class JahnTellerAnalyzer:
                         {
                             "site_indices": indices,
                             "strength": "none",
-                            "reason": f"motif is {motif}",
+                            "reason": f"{motif=}",
                         }
                     )
 
@@ -384,7 +369,6 @@ class JahnTellerAnalyzer:
 
         # has to be Species; we need to know the oxidation state
         if isinstance(sp, Species) and sp.element.is_transition_metal:
-
             d_electrons = self._get_number_of_d_electrons(sp)
 
             if motif in self.spin_configs:
@@ -404,7 +388,7 @@ class JahnTellerAnalyzer:
         * in octahedral environments, strong if e_g orbitals
         unevenly occupied but weak if t_2g orbitals unevenly
         occupied
-        * in tetrahedral environments always weaker
+        * in tetrahedral environments always weaker.
 
         Args:
           motif: "oct" or "tet"

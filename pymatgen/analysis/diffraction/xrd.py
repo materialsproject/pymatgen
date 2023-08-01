@@ -1,15 +1,11 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-This module implements an XRD pattern calculator.
-"""
+"""This module implements an XRD pattern calculator."""
 
 from __future__ import annotations
 
 import json
 import os
 from math import asin, cos, degrees, pi, radians, sin
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -18,8 +14,10 @@ from pymatgen.analysis.diffraction.core import (
     DiffractionPattern,
     get_unique_families,
 )
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 # XRD wavelengths in angstroms
 WAVELENGTHS = {
@@ -104,7 +102,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
        .. math::
 
-           P( \theta) =  \frac{1 +  \cos^2(2 \theta)}
+           P( \theta) = \frac{1 +  \cos^2(2 \theta)}
            { \sin^2( \theta) \cos( \theta)}
     """
 
@@ -135,7 +133,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             self.radiation = wavelength
             self.wavelength = WAVELENGTHS[wavelength]
         else:
-            raise TypeError("'wavelength' must be either of: float, int or str")
+            raise TypeError(f"{type(wavelength)=} must be either float, int or str")
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
 
@@ -214,7 +212,6 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             # Force miller indices to be integers.
             hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
-
                 # Bragg condition
                 theta = asin(wavelength * g_hkl / 2)
 

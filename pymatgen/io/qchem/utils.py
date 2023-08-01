@@ -1,7 +1,8 @@
-"""
-Utilities for Qchem io.
-"""
+"""Utilities for Qchem io."""
 
+from __future__ import annotations
+
+import copy
 import re
 from collections import defaultdict
 
@@ -12,8 +13,7 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 
 
 def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
-    r"""
-    General pattern reading on an input string
+    r"""General pattern reading on an input string.
 
     Args:
         text_str (str): the input string to search for patterns
@@ -31,7 +31,6 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
         results from regex and postprocess. Note that the returned values
         are lists of lists, because you can grep multiple items on one line.
     """
-
     compiled = {key: re.compile(pattern, re.MULTILINE | re.DOTALL) for key, pattern in patterns.items()}
     matches = defaultdict(list)
     for key, pattern in compiled.items():
@@ -44,7 +43,6 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
 
 def read_matrix_pattern(header_pattern, footer_pattern, elements_pattern, text, postprocess=str):
     """Parse a matrix to get the quantities in a numpy array."""
-
     # Get the piece of text between the header and the footer
     header_regex = re.compile(header_pattern)
     footer_regex = re.compile(footer_pattern)
@@ -56,9 +54,7 @@ def read_matrix_pattern(header_pattern, footer_pattern, elements_pattern, text, 
     elements = re.findall(elements_pattern, text_between_header_and_footer)
 
     # Apply postprocessing to all the elements
-    elements = [postprocess(e) for e in elements]
-
-    return elements
+    return [postprocess(e) for e in elements]
 
 
 def read_table_pattern(
@@ -70,8 +66,7 @@ def read_table_pattern(
     attribute_name=None,
     last_one_only=False,
 ):
-    r"""
-    Parse table-like data. A table composes of three parts: header,
+    r"""Parse table-like data. A table composes of three parts: header,
     main body, footer. All the data matches "row pattern" in the main body
     will be returned.
 
@@ -104,7 +99,6 @@ def read_table_pattern(
         row_pattern, or a dict in case that named capturing groups are defined by
         row_pattern.
     """
-
     table_pattern_text = header_pattern + r"\s*(?P<table_body>(?:" + row_pattern + r")+)\s*" + footer_pattern
     table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
     rp = re.compile(row_pattern)
@@ -121,10 +115,7 @@ def read_table_pattern(
                 processed_line = [postprocess(v) for v in ml.groups()]
             table_contents.append(processed_line)
         tables.append(table_contents)
-    if last_one_only:
-        retained_data = tables[-1]
-    else:
-        retained_data = tables
+    retained_data = tables[-1] if last_one_only else tables
     if attribute_name is not None:
         data[attribute_name] = retained_data
         return data
@@ -156,7 +147,7 @@ def lower_and_check_unique(dict_to_check):
 
         if isinstance(val, str):
             val = val.lower()
-        elif isinstance(val, int) or isinstance(val, float):
+        elif isinstance(val, (int, float)):
             # convert all numeric keys to str
             val = str(val)
         else:
@@ -166,15 +157,14 @@ def lower_and_check_unique(dict_to_check):
             new_key = "job_type"
 
         if new_key in to_return and val != to_return[new_key]:
-            raise Exception("Multiple instances of key " + new_key + " found with different values! Exiting...")
+            raise ValueError(f"Multiple instances of key {new_key} found with different values! Exiting...")
 
         to_return[new_key] = val
     return to_return
 
 
 def process_parsed_coords(coords):
-    """
-    Takes a set of parsed coordinates, which come as an array of strings,
+    """Takes a set of parsed coordinates, which come as an array of strings,
     and returns a numpy array of floats.
     """
     geometry = np.zeros(shape=(len(coords), 3), dtype=float)
@@ -187,7 +177,8 @@ def process_parsed_coords(coords):
 def process_parsed_fock_matrix(fock_matrix):
     """The Fock matrix is parsed as a list, while it should actually be
     a square matrix, this function takes the list of finds the right dimensions
-    in order to reshape the matrix."""
+    in order to reshape the matrix.
+    """
     total_elements = len(fock_matrix)
     n_rows = int(np.sqrt(total_elements))
     n_cols = n_rows
@@ -211,3 +202,40 @@ def process_parsed_fock_matrix(fock_matrix):
         index_cols += n_cols_chunks
 
     return fock_matrix_reshaped
+
+
+def process_parsed_HESS(hess_data):
+    """
+    Takes the information contained in a HESS file and converts it into
+    the format of the machine-readable 132.0 file which can be printed
+    out to be read into subsequent optimizations.
+    """
+    dim = int(hess_data[1].split()[1])
+    hess = []
+    tmp_part = []
+    for _ii in range(dim):
+        tmp_part.append(0.0)
+    for _ii in range(dim):
+        hess.append(copy.deepcopy(tmp_part))
+
+    row = 0
+    column = 0
+    for ii, line in enumerate(hess_data):
+        if ii not in [0, 1, len(hess_data) - 1]:
+            split_line = line.split()
+            for val in split_line:
+                num = float(val)
+                hess[row][column] = num
+                if row == column:
+                    row += 1
+                    column = 0
+                else:
+                    hess[column][row] = num
+                    column += 1
+
+    processed_hess_data = []
+    for ii in range(dim):
+        for jj in range(dim):
+            processed_hess_data.append(hess[ii][jj])
+
+    return processed_hess_data

@@ -1,34 +1,27 @@
 ## Summary
 
-Include a summary of major changes in bullet points:
+Major changes:
 
-- Feature 1
-- Feature 2
-- Fix 1
-- Fix 2
+- feature 1: ...
+- fix 1: ...
 
-## Todo (if any)
+## Todos
 
-If this is a work-in-progress, write something about what else needs to be done
+If this is work in progress, what else needs to be done?
 
-- Feature 1 supports A, but not B.
+- feature 2: ...
+- fix 2:
 
 ## Checklist
 
-Work-in-progress pull requests are encouraged, but please put \[WIP\] in the pull request title.
+- [ ] Google format doc strings added. Check with `ruff`.
+- [ ] Type annotations included. Check with `mypy`.
+- [ ] Tests added for new features/fixes.
+- [ ] If applicable, new classes/functions/modules have [`duecredit`](https://github.com/duecredit/duecredit) `@due.dcite` decorators to reference relevant papers by DOI ([example](https://github.com/materialsproject/pymatgen/blob/91dbe6ee9ed01d781a9388bf147648e20c6d58e0/pymatgen/core/lattice.py#L1168-L1172))
 
-Before a pull request can be merged, the following items must be checked:
-
-- [ ] Doc strings have been added in the [Google docstring format](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html). Run [pydocstyle](http://www.pydocstyle.org/en/2.1.1/index.html) on your code.
-- [ ] Type annotations are *highly* encouraged. Run [`mypy path/to/file.py`](https://github.com/python/mypy) to type check your code.
-- [ ] Tests have been added for any new functionality or bug fixes.
-- [ ] All linting and tests pass.
-
-Note that the CI system will run all the above checks. But it will be much more efficient if you already fix most errors prior to submitting the PR. We highly recommended installing `pre-commit` hooks. Simply Run
+Tip: Install `pre-commit` hooks to auto-check types and linting before every commit:
 
 ```sh
 pip install -U pre-commit
 pre-commit install
 ```
-
-in the repo's root directory. Afterwards linters will run before every commit and abort if any issues pop up.

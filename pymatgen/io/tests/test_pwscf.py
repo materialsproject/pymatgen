@@ -1,10 +1,10 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+from __future__ import annotations
 
 import os
-import unittest
 
 import numpy as np
+import pytest
+from pytest import approx
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import PymatgenTest
@@ -12,21 +12,20 @@ from pymatgen.util.testing import PymatgenTest
 
 class PWInputTest(PymatgenTest):
     def test_init(self):
-        s = self.get_structure("Li2O")
-        self.assertRaises(
-            PWInputError,
-            PWInput,
-            s,
-            control={"calculation": "scf", "pseudo_dir": "./"},
-            pseudo={"Li": "Li.pbe-n-kjpaw_psl.0.1.UPF"},
-        )
+        struct = self.get_structure("Li2O")
+        with pytest.raises(PWInputError, match="Missing O2- in pseudo specification"):
+            PWInput(
+                struct,
+                control={"calculation": "scf", "pseudo_dir": "./"},
+                pseudo={"Li": "Li.pbe-n-kjpaw_psl.0.1.UPF"},
+            )
 
     def test_str_mixed_oxidation(self):
-        s = self.get_structure("Li2O")
-        s.remove_oxidation_states()
-        s[1] = "Li1"
+        struct = self.get_structure("Li2O")
+        struct.remove_oxidation_states()
+        struct[1] = "Li1"
         pw = PWInput(
-            s,
+            struct,
             control={"calculation": "scf", "pseudo_dir": "./"},
             pseudo={
                 "Li": "Li.pbe-n-kjpaw_psl.0.1.UPF",
@@ -35,7 +34,7 @@ class PWInputTest(PymatgenTest):
             },
             system={"ecutwfc": 50},
         )
-        ans = """&CONTROL
+        expected = """&CONTROL
   calculation = 'scf',
   pseudo_dir = './',
 /
@@ -66,13 +65,13 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(str(pw).strip(), ans.strip())
+        assert str(pw).strip() == expected.strip()
 
     def test_str_without_oxidation(self):
-        s = self.get_structure("Li2O")
-        s.remove_oxidation_states()
+        struct = self.get_structure("Li2O")
+        struct.remove_oxidation_states()
         pw = PWInput(
-            s,
+            struct,
             control={"calculation": "scf", "pseudo_dir": "./"},
             pseudo={
                 "Li": "Li.pbe-n-kjpaw_psl.0.1.UPF",
@@ -80,7 +79,7 @@ CELL_PARAMETERS angstrom
             },
             system={"ecutwfc": 50},
         )
-        ans = """&CONTROL
+        expected = """&CONTROL
   calculation = 'scf',
   pseudo_dir = './',
 /
@@ -110,13 +109,13 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(str(pw).strip(), ans.strip())
+        assert str(pw).strip() == expected.strip()
 
     def test_str_with_oxidation(self):
-        s = self.get_structure("Li2O")
+        struct = self.get_structure("Li2O")
 
         pw = PWInput(
-            s,
+            struct,
             control={"calculation": "scf", "pseudo_dir": "./"},
             pseudo={
                 "Li+": "Li.pbe-n-kjpaw_psl.0.1.UPF",
@@ -124,7 +123,7 @@ CELL_PARAMETERS angstrom
             },
             system={"ecutwfc": 50},
         )
-        ans = """&CONTROL
+        expected = """&CONTROL
   calculation = 'scf',
   pseudo_dir = './',
 /
@@ -154,14 +153,14 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(str(pw).strip(), ans.strip())
+        assert str(pw).strip() == expected.strip()
 
     def test_write_str_with_kpoints(self):
-        s = self.get_structure("Li2O")
-        s.remove_oxidation_states()
+        struct = self.get_structure("Li2O")
+        struct.remove_oxidation_states()
         kpoints = [[0.0, 0.0, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.0, 0.5], [0.5, 0.5, 0.5]]
         pw = PWInput(
-            s,
+            struct,
             control={"calculation": "scf", "pseudo_dir": "./"},
             pseudo={
                 "Li": "Li.pbe-n-kjpaw_psl.0.1.UPF",
@@ -171,7 +170,7 @@ CELL_PARAMETERS angstrom
             kpoints_mode="crystal_b",
             kpoints_grid=kpoints,
         )
-        ans = """
+        expected = """
 &CONTROL
   calculation = 'scf',
   pseudo_dir = './',
@@ -207,7 +206,18 @@ CELL_PARAMETERS angstrom
   0.964634 2.755036 1.520005
   0.133206 0.097894 3.286918
 """
-        self.assertEqual(str(pw).strip(), ans.strip())
+        assert str(pw).strip() == expected.strip()
+
+    def test_proc_val(self):
+        inputs = {
+            "degauss": ("7.3498618000d-03", 7.3498618000e-03),
+            "nat": ("2", 2),
+            "nosym": (".TRUE.", True),
+            "smearing": ("'cold'", "cold"),
+        }
+        for key, (input_str, expected) in inputs.items():
+            value = PWInput.proc_val(key, input_str)
+            assert value == expected
 
     def test_read_str(self):
         string = """
@@ -224,6 +234,7 @@ CELL_PARAMETERS angstrom
   ecutwfc = 80
   nspin = 1
   nbnd = 280
+  smearing = 'cold'
 /
 &ELECTRONS
 /
@@ -354,17 +365,18 @@ CELL_PARAMETERS angstrom
             ]
         )
 
-        pwin = PWInput.from_string(string)
+        pwin = PWInput.from_str(string)
 
         # generate list of coords
         pw_sites = []
-        for site in pwin.structure.sites:
+        for site in pwin.structure:
             pw_sites.append(list(site.coords))
         pw_sites = np.array(pw_sites)
 
         np.testing.assert_allclose(sites, pw_sites)
 
         np.testing.assert_allclose(lattice, pwin.structure.lattice.matrix)
+        assert pwin.sections["system"]["smearing"] == "cold"
 
 
 class PWOuputTest(PymatgenTest):
@@ -372,13 +384,9 @@ class PWOuputTest(PymatgenTest):
         self.pwout = PWOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.pwscf.out"))
 
     def test_properties(self):
-        self.assertAlmostEqual(self.pwout.final_energy, -93.45259708)
+        assert self.pwout.final_energy == approx(-93.45259708)
 
     def test_get_celldm(self):
-        self.assertAlmostEqual(self.pwout.get_celldm(1), 10.323)
+        assert self.pwout.get_celldm(1) == approx(10.323)
         for i in range(2, 7):
-            self.assertAlmostEqual(self.pwout.get_celldm(i), 0)
-
-
-if __name__ == "__main__":
-    unittest.main()
+            assert self.pwout.get_celldm(i) == approx(0)

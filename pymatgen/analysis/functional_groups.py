@@ -1,10 +1,7 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""Determine functional groups present in a Molecule."""
 
-"""
-Determine functional groups present in a Molecule.
-"""
 
+from __future__ import annotations
 
 import copy
 
@@ -113,9 +110,8 @@ class FunctionalGroupExtractor:
             if elements is not None:
                 if str(self.species[node]) in elements:
                     heteroatoms.add(node)
-            else:
-                if str(self.species[node]) not in ["C", "H"]:
-                    heteroatoms.add(node)
+            elif str(self.species[node]) not in ["C", "H"]:
+                heteroatoms.add(node)
 
         return heteroatoms
 
@@ -150,9 +146,8 @@ class FunctionalGroupExtractor:
                 if elements is not None:
                     if str(self.species[neighbor]) in elements and int(attributes[0]["weight"]) in [2, 3]:
                         specials.add(node)
-                else:
-                    if str(self.species[neighbor]) not in ["C", "H"] and int(attributes[0]["weight"]) in [2, 3]:
-                        specials.add(node)
+                elif str(self.species[neighbor]) not in ["C", "H"] and int(attributes[0]["weight"]) in [2, 3]:
+                    specials.add(node)
 
         # Condition two: carbon-carbon double & triple bonds
         for node in carbons:
@@ -208,7 +203,7 @@ class FunctionalGroupExtractor:
         # Graph representation of only marked atoms
         subgraph = self.molgraph.graph.subgraph(list(atoms)).to_undirected()
 
-        func_grps = []
+        func_groups = []
         for func_grp in nx.connected_components(subgraph):
             grp_hs = set()
             for node in func_grp:
@@ -217,11 +212,11 @@ class FunctionalGroupExtractor:
                     # Add all associated hydrogens into the functional group
                     if neighbor in hydrogens:
                         grp_hs.add(neighbor)
-            func_grp = func_grp.union(grp_hs)
+            func_grp = func_grp | grp_hs
 
-            func_grps.append(func_grp)
+            func_groups.append(func_grp)
 
-        return func_grps
+        return func_groups
 
     def get_basic_functional_groups(self, func_groups=None):
         """
@@ -303,7 +298,7 @@ class FunctionalGroupExtractor:
         """
         heteroatoms = self.get_heteroatoms(elements=elements)
         special_cs = self.get_special_carbon(elements=elements)
-        groups = self.link_marked_atoms(heteroatoms.union(special_cs))
+        groups = self.link_marked_atoms(heteroatoms | special_cs)
 
         if catch_basic:
             groups += self.get_basic_functional_groups(func_groups=func_groups)

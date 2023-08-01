@@ -1,14 +1,16 @@
-"""
-IO for ADF files.
-"""
+"""IO for ADF files."""
+
+from __future__ import annotations
 
 import os
 import re
 from typing import Generator
 
+import numpy as np
 from monty.io import reverse_readline
 from monty.itertools import chunks
 from monty.json import MSONable
+from monty.serialization import zopen
 
 from pymatgen.core.structure import Molecule
 
@@ -24,7 +26,7 @@ def is_numeric(s) -> bool:
     s : str
         A string.
 
-    Returns
+    Returns:
     -------
     res : bool
         If True, ``s`` is a numeric string and can be converted to an int or a
@@ -59,15 +61,11 @@ def iterlines(s: str) -> Generator[str, None, None]:
 
 
 class AdfInputError(Exception):
-    """
-    The default error class for ADF.
-    """
+    """The default error class for ADF."""
 
 
 class AdfOutputError(Exception):
-    """
-    The default error class for errors raised by ``AdfOutput``.
-    """
+    """The default error class for errors raised by ``AdfOutput``."""
 
 
 class AdfKey(MSONable):
@@ -77,7 +75,7 @@ class AdfKey(MSONable):
     subkeys and a set of options.
     """
 
-    block_keys = {
+    block_keys = (
         "SCF",
         "GEOMETRY",
         "XC",
@@ -97,11 +95,11 @@ class AdfKey(MSONable):
         "EXACTDENSITY",
         "TOTALENERGY",
         "ANALYTICALFREQ",
-    }
-    sub_keys = {"AtomDepQuality"}
+    )
+    sub_keys = ("AtomDepQuality",)
 
     # Full blocks are blocks that must have an 'END'.
-    _full_blocks = {"GEOMETRY", "SCF", "UNITS", "BASIS", "ANALYTICALFREQ"}
+    _full_blocks = ("GEOMETRY", "SCF", "UNITS", "BASIS", "ANALYTICALFREQ")
 
     def __init__(self, name, options=None, subkeys=None):
         """
@@ -118,7 +116,7 @@ class AdfKey(MSONable):
         subkeys : Sized
             The subkeys for this key.
 
-        Raises
+        Raises:
         ------
         ValueError
             If elements in ``subkeys`` are not ``AdfKey`` objects.
@@ -135,9 +133,7 @@ class AdfKey(MSONable):
             self._sized_op = isinstance(self.options[0], (list, tuple))
 
     def _options_string(self):
-        """
-        Return the option string.
-        """
+        """Return the option string."""
         if len(self.options) > 0:
             s = ""
             for op in self.options:
@@ -149,9 +145,7 @@ class AdfKey(MSONable):
         return ""
 
     def is_block_key(self) -> bool:
-        """
-        Return True if this key is a block key.
-        """
+        """Return True if this key is a block key."""
         return bool(self.name.upper() in self.block_keys)
 
     @property
@@ -168,7 +162,7 @@ class AdfKey(MSONable):
         """
         Return the string representation of this ``AdfKey``.
 
-        Notes
+        Notes:
         -----
         If this key is 'Atoms' and the coordinates are in Cartesian form, a
         different string format will be used.
@@ -209,7 +203,7 @@ class AdfKey(MSONable):
         subkey : str or AdfKey
             A key name or an AdfKey object.
 
-        Returns
+        Returns:
         -------
         has : bool
             True if this key contains the given key. Otherwise False.
@@ -220,9 +214,8 @@ class AdfKey(MSONable):
             key = subkey.key
         else:
             raise ValueError("The subkey should be an AdfKey or a string!")
-        if len(self.subkeys) > 0:
-            if key in map(lambda k: k.key, self.subkeys):
-                return True
+        if len(self.subkeys) > 0 and key in (k.key for k in self.subkeys):
+            return True
         return False
 
     def add_subkey(self, subkey):
@@ -234,7 +227,7 @@ class AdfKey(MSONable):
         subkey : AdfKey
             A new subkey.
 
-        Notes
+        Notes:
         -----
         Duplicate check will not be performed if this is an 'Atoms' block.
         """
@@ -267,7 +260,7 @@ class AdfKey(MSONable):
             A new option to add. This must have the same format with existing
             options.
 
-        Raises
+        Raises:
         ------
         TypeError
             If the format of the given ``option`` is different.
@@ -289,7 +282,7 @@ class AdfKey(MSONable):
         option : str or int
             The name (str) or index (int) of the option to remove.
 
-        Raises
+        Raises:
         ------
         TypeError
             If the option has a wrong type.
@@ -316,22 +309,17 @@ class AdfKey(MSONable):
         option : str
             The option.
 
-        Returns
+        Returns:
         -------
         has : bool
             True if the option can be found. Otherwise False will be returned.
         """
         if len(self.options) == 0:
             return False
-        for op in self.options:
-            if (self._sized_op and op[0] == option) or (op == option):
-                return True
-        return False
+        return any(self._sized_op and op[0] == option or op == option for op in self.options)
 
     def as_dict(self):
-        """
-        A JSON-serializable dict representation of self.
-        """
+        """A JSON-serializable dict representation of self."""
         d = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -355,22 +343,24 @@ class AdfKey(MSONable):
         d : dict
             A dict of saved attributes.
 
-        Returns
+        Returns:
         -------
         adfkey : AdfKey
             An AdfKey object recovered from the JSON dict ``d``.
         """
         key = d.get("name")
-        options = d.get("options", None)
+        options = d.get("options")
         subkey_list = d.get("subkeys", [])
-        if len(subkey_list) > 0:
-            subkeys = list(map(lambda k: AdfKey.from_dict(k), subkey_list))
-        else:
-            subkeys = None
+        subkeys = [AdfKey.from_dict(k) for k in subkey_list] or None
         return cls(key, options, subkeys)
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(string):
+    def from_str(string):
         """
         Construct an AdfKey object from the string.
 
@@ -379,18 +369,18 @@ class AdfKey(MSONable):
         string : str
             A string.
 
-        Returns
+        Returns:
         -------
         adfkey : AdfKey
             An AdfKey object recovered from the string.
 
-        Raises
+        Raises:
         ------
         ValueError
             Currently nested subkeys are not supported. If ``subend`` was found
             a ValueError would be raised.
 
-        Notes
+        Notes:
         -----
         Only the first block key will be returned.
         """
@@ -401,10 +391,7 @@ class AdfKey(MSONable):
         if string.find("\n") == -1:
             el = string.split()
             if len(el) > 1:
-                if string.find("=") != -1:
-                    options = list(map(lambda s: s.split("="), el[1:]))
-                else:
-                    options = el[1:]
+                options = [s.split("=") for s in el[1:]] if string.find("=") != -1 else el[1:]
                 for i, op in enumerate(options):
                     if isinstance(op, list) and is_numeric(op[1]):
                         op[1] = float(op[1]) if is_float(op[1]) else int(op[1])
@@ -426,35 +413,34 @@ class AdfKey(MSONable):
                 continue
             if el[0].upper() in AdfKey.block_keys:
                 if key is None:
-                    key = AdfKey.from_string(line)
+                    key = AdfKey.from_str(line)
                 else:
                     return key
             elif el[0].upper() == "END":
                 return key
             elif key is not None:
-                key.add_subkey(AdfKey.from_string(line))
-        else:
-            raise Exception("IncompleteKey: 'END' is missing!")
+                key.add_subkey(AdfKey.from_str(line))
+
+        raise Exception("IncompleteKey: 'END' is missing!")
 
 
 class AdfTask(MSONable):
     """
     Basic task for ADF. All settings in this class are independent of molecules.
 
-    Notes
+    Notes:
     -----
     Unlike other quantum chemistry packages (NWChem, Gaussian, ...), ADF does
     not support calculating force/gradient.
-
     """
 
-    operations = {
-        "energy": "Evaluate the single point energy.",
-        "optimize": "Minimize the energy by varying the molecular structure.",
-        "frequencies": "Compute second derivatives and print out an analysis of molecular vibrations.",
-        "freq": "Same as frequencies.",
-        "numerical_frequencies": "Compute molecular frequencies using numerical method.",
-    }
+    operations = dict(
+        energy="Evaluate the single point energy.",
+        optimize="Minimize the energy by varying the molecular structure.",
+        frequencies="Compute second derivatives and print out an analysis of molecular vibrations.",
+        freq="Same as frequencies.",
+        numerical_frequencies="Compute molecular frequencies using numerical method.",
+    )
 
     def __init__(
         self,
@@ -502,38 +488,28 @@ class AdfTask(MSONable):
 
     @staticmethod
     def get_default_basis_set():
-        """
-        Returns: Default basis set
-        """
-        return AdfKey.from_string("Basis\ntype DZ\ncore small\nEND")
+        """Returns: Default basis set."""
+        return AdfKey.from_str("Basis\ntype DZ\ncore small\nEND")
 
     @staticmethod
     def get_default_scf():
-        """
-        Returns: ADF using default SCF.
-        """
-        return AdfKey.from_string("SCF\niterations 300\nEND")
+        """Returns: ADF using default SCF."""
+        return AdfKey.from_str("SCF\niterations 300\nEND")
 
     @staticmethod
     def get_default_geo():
-        """
-        Returns: ADFKey using default geometry.
-        """
-        return AdfKey.from_string("GEOMETRY SinglePoint\nEND")
+        """Returns: ADFKey using default geometry."""
+        return AdfKey.from_str("GEOMETRY SinglePoint\nEND")
 
     @staticmethod
     def get_default_xc():
-        """
-        Returns: ADFKey using default XC.
-        """
-        return AdfKey.from_string("XC\nGGA PBE\nEND")
+        """Returns: ADFKey using default XC."""
+        return AdfKey.from_str("XC\nGGA PBE\nEND")
 
     @staticmethod
     def get_default_units():
-        """
-        Returns: Default units.
-        """
-        return AdfKey.from_string("Units\nlength angstrom\nangle degree\nEnd")
+        """Returns: Default units."""
+        return AdfKey.from_str("Units\nlength angstrom\nangle degree\nEnd")
 
     def _setup_task(self, geo_subkeys):
         """
@@ -544,7 +520,7 @@ class AdfTask(MSONable):
         geo_subkeys : Sized
             User-defined subkeys for the block 'Geometry'.
 
-        Notes
+        Notes:
         -----
         Most of the run types of ADF are specified in the Geometry block except
         the 'AnalyticFreq'.
@@ -567,11 +543,11 @@ class AdfTask(MSONable):
 
     def __str__(self):
         s = f"""TITLE {self.title}\n
-{str(self.units)}
-{str(self.xc)}
-{str(self.basis_set)}
-{str(self.scf)}
-{str(self.geo)}"""
+{self.units}
+{self.xc}
+{self.basis_set}
+{self.scf}
+{self.geo}"""
         s += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
@@ -580,9 +556,7 @@ class AdfTask(MSONable):
         return s
 
     def as_dict(self):
-        """
-        A JSON-serializable dict representation of self.
-        """
+        """A JSON-serializable dict representation of self."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -606,7 +580,7 @@ class AdfTask(MSONable):
         d : dict
             A dict of saved attributes.
 
-        Returns
+        Returns:
         -------
         task : AdfTask
             An AdfTask object recovered from the JSON dict ``d``.
@@ -628,9 +602,7 @@ class AdfTask(MSONable):
 
 
 class AdfInput:
-    """
-    A basic ADF input file writer.
-    """
+    """A basic ADF input file writer."""
 
     def __init__(self, task):
         """
@@ -680,7 +652,7 @@ class AdfOutput:
     """
     A basic ADF output file parser.
 
-    Attributes
+    Attributes:
     ----------
     is_failed : bool
         True is the ADF job is terminated without success. Otherwise False.
@@ -730,19 +702,19 @@ class AdfOutput:
         """
         workdir = os.path.dirname(self.filename)
         logfile = os.path.join(workdir, "logfile")
-        if not os.path.isfile(logfile):
-            raise OSError("The ADF logfile can not be accessed!")
+        for ext in ("", ".gz", ".bz2"):
+            if os.path.isfile(f"{logfile}{ext}"):
+                logfile = f"{logfile}{ext}"
+                break
+        else:
+            raise FileNotFoundError("The ADF logfile can not be accessed!")
 
         self.is_failed = False
-        self.error = None
-        self.final_energy = None
-        self.final_structure = None
+        self.error = self.final_energy = self.final_structure = None
         self.energies = []
         self.structures = []
         self.frequencies = []
-        self.normal_modes = None
-        self.freq_type = None
-        self.run_type = None
+        self.normal_modes = self.freq_type = self.run_type = None
         self.is_internal_crash = False
 
         self._parse_logfile(logfile)
@@ -759,7 +731,7 @@ class AdfOutput:
         sites : list
             A list of sites.
 
-        Returns
+        Returns:
         -------
         mol : Molecule
             A ``Molecule`` object.
@@ -767,15 +739,13 @@ class AdfOutput:
         return Molecule([site[0] for site in sites], [site[1] for site in sites])
 
     def _parse_logfile(self, logfile):
-        """
-        Parse the formatted logfile.
-        """
+        """Parse the formatted logfile."""
         cycle_patt = re.compile(r"Coordinates\sin\sGeometry\sCycle\s(\d+)")
         coord_patt = re.compile(r"\s+([0-9]+)\.([A-Za-z]+)" + 3 * r"\s+([-\.0-9]+)")
         energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\sHartree")
         final_energy_patt = re.compile(r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)\sa\.u\.")
         error_patt = re.compile(r"<.*>\s<.*>\s+ERROR\sDETECTED:\s(.*)")
-        runtype_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")
+        run_type_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")
         end_patt = re.compile(r"<.*>\s<.*>\s+END")
         parse_cycle = False
         sites = []
@@ -785,8 +755,8 @@ class AdfOutput:
         # Stop parsing the logfile is this job is not terminated successfully.
         # The last non-empty line of the logfile must match the end pattern.
         # Otherwise the job has some internal failure. The TAPE13 part of the
-        # ADF manual has a detailed explanantion.
-        with open(logfile) as f:
+        # ADF manual has a detailed explanation.
+        with zopen(logfile, "rt") as f:
             for line in reverse_readline(f):
                 if line == "":
                     continue
@@ -806,7 +776,7 @@ class AdfOutput:
                     break
 
                 if self.run_type is None:
-                    m = runtype_patt.search(line)
+                    m = run_type_patt.search(line)
                     if m:
                         if m.group(1) == "FREQUENCIES":
                             self.freq_type = "Numerical"
@@ -835,7 +805,7 @@ class AdfOutput:
                     if m:
                         cycle = int(m.group(1))
                         if cycle <= 0:
-                            raise AdfOutputError(f"Wrong cycle {cycle}")
+                            raise AdfOutputError(f"Wrong {cycle=}")
                         if cycle > last_cycle:
                             parse_cycle = True
                             last_cycle = cycle
@@ -874,9 +844,7 @@ class AdfOutput:
                     raise AdfOutputError("The final energy can not be read!")
 
     def _parse_adf_output(self):
-        """
-        Parse the standard ADF output file.
-        """
+        """Parse the standard ADF output file."""
         numerical_freq_patt = re.compile(r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sI\sE\sS\s+\*")
         analytic_freq_patt = re.compile(r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sY\s+A\sN\sA\sL\sY\sS\sI\sS\s+\*")
         freq_on_patt = re.compile(r"Vibrations\sand\sNormal\sModes\s+\*+.*\*+")

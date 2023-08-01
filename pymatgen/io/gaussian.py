@@ -1,9 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module implements input and output processing from Gaussian."""
 
-"""
-This module implements input and output processing from Gaussian.
-"""
+from __future__ import annotations
 
 import re
 import warnings
@@ -34,20 +31,19 @@ float_patt = re.compile(r"\s*([+-]?\d+\.\d+)")
 def read_route_line(route):
     """
     read route line in gaussian input/output and return functional basis_set
-    and a dictionary of other route parameters
+    and a dictionary of other route parameters.
 
     Args:
         route (str) : the route line
 
-    return
+    Return:
         functional (str) : the method (HF, PBE ...)
         basis_set (str) : the basis set
         route (dict) : dictionary of parameters
     """
     scrf_patt = re.compile(r"^([sS][cC][rR][fF])\s*=\s*(.+)")
     multi_params_patt = re.compile(r"^([A-z]+[0-9]*)[\s=]+\((.*)\)$")
-    functional = None
-    basis_set = None
+    functional = basis_set = None
     route_params = {}
     dieze_tag = None
     if route:
@@ -64,10 +60,7 @@ def read_route_line(route):
                 route_params[m.group(1)] = m.group(2)
             elif tok.upper() in ["#", "#N", "#P", "#T"]:
                 # does not store # in route to avoid error in input
-                if tok == "#":
-                    dieze_tag = "#N"
-                else:
-                    dieze_tag = tok
+                dieze_tag = "#N" if tok == "#" else tok
                 continue
             else:
                 m = re.match(multi_params_patt, tok.strip("#"))
@@ -85,13 +78,11 @@ def read_route_line(route):
 
 
 class GaussianInput:
-    """
-    An object representing a Gaussian input file.
-    """
+    """An object representing a Gaussian input file."""
 
     # Commonly used regex patterns
     _zmat_patt = re.compile(r"^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
-    _xyz_patt = re.compile(r"^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+" r"([\d\.eE\-]+)[\-\.\s,\w.]*$")
+    _xyz_patt = re.compile(r"^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\-\.\s,\w.]*$")
 
     def __init__(
         self,
@@ -174,20 +165,16 @@ class GaussianInput:
 
     @property
     def molecule(self):
-        """
-        Returns molecule associated with this GaussianInput.
-        """
+        """Returns molecule associated with this GaussianInput."""
         return self._mol
 
     @staticmethod
     def _parse_coords(coord_lines):
-        """
-        Helper method to parse coordinates.
-        """
+        """Helper method to parse coordinates."""
         paras = {}
         var_pattern = re.compile(r"^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$")
-        for l in coord_lines:
-            m = var_pattern.match(l.strip())
+        for line in coord_lines:
+            m = var_pattern.match(line.strip())
             if m:
                 paras[m.group(1).strip("=")] = float(m.group(2))
 
@@ -196,21 +183,21 @@ class GaussianInput:
         # Stores whether a Zmatrix format is detected. Once a zmatrix format
         # is detected, it is assumed for the remaining of the parsing.
         zmode = False
-        for l in coord_lines:
-            l = l.strip()
-            if not l:
+        for line in coord_lines:
+            line = line.strip()
+            if not line:
                 break
-            if (not zmode) and GaussianInput._xyz_patt.match(l):
-                m = GaussianInput._xyz_patt.match(l)
+            if (not zmode) and GaussianInput._xyz_patt.match(line):
+                m = GaussianInput._xyz_patt.match(line)
                 species.append(m.group(1))
-                toks = re.split(r"[,\s]+", l.strip())
+                toks = re.split(r"[,\s]+", line.strip())
                 if len(toks) > 4:
                     coords.append([float(i) for i in toks[2:5]])
                 else:
                     coords.append([float(i) for i in toks[1:4]])
-            elif GaussianInput._zmat_patt.match(l):
+            elif GaussianInput._zmat_patt.match(line):
                 zmode = True
-                toks = re.split(r"[,\s]+", l.strip())
+                toks = re.split(r"[,\s]+", line.strip())
                 species.append(toks[0])
                 toks.pop(0)
                 if len(toks) == 0:
@@ -287,8 +274,13 @@ class GaussianInput:
 
         return Molecule(species, coords)
 
+    @classmethod
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
     @staticmethod
-    def from_string(contents):
+    def from_str(contents):
         """
         Creates GaussianInput from a string.
 
@@ -298,7 +290,7 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        lines = [l.strip() for l in contents.split("\n")]
+        lines = [line.strip() for line in contents.split("\n")]
 
         link0_patt = re.compile(r"^(%.+)\s*=\s*(.+)")
         link0_dict = {}
@@ -317,6 +309,9 @@ class GaussianInput:
             # This condition allows for route cards spanning multiple lines
             elif (line == "" or line.isspace()) and route_index:
                 break
+            if route_index:
+                route += f" {line}"
+                route_index = idx
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
         ind = 2
         title = []
@@ -332,6 +327,8 @@ class GaussianInput:
         spaces = 0
         input_paras = {}
         ind += 1
+        if GaussianInput._xyz_patt.match(lines[route_index + ind]):
+            spaces += 1
         for i in range(route_index + ind, len(lines)):
             if lines[i].strip() == "":
                 spaces += 1
@@ -369,75 +366,37 @@ class GaussianInput:
             GaussianInput object
         """
         with zopen(filename, "r") as f:
-            return GaussianInput.from_string(f.read())
-
-    def _find_nn_pos_before_site(self, siteindex):
-        """
-        Returns index of nearest neighbor atoms.
-        """
-        alldist = [(self._mol.get_distance(siteindex, i), i) for i in range(siteindex)]
-        alldist = sorted(alldist, key=lambda x: x[0])
-        return [d[1] for d in alldist]
+            return GaussianInput.from_str(f.read())
 
     def get_zmatrix(self):
-        """
-        Returns a z-matrix representation of the molecule.
-        """
-        output = []
-        outputvar = []
-        for i, site in enumerate(self._mol):
-            if i == 0:
-                output.append(f"{site.specie}")
-            elif i == 1:
-                nn = self._find_nn_pos_before_site(i)
-                bondlength = self._mol.get_distance(i, nn[0])
-                output.append(f"{self._mol[i].specie} {nn[0] + 1} B{i}")
-                outputvar.append(f"B{i}={bondlength:.6f}")
-            elif i == 2:
-                nn = self._find_nn_pos_before_site(i)
-                bondlength = self._mol.get_distance(i, nn[0])
-                angle = self._mol.get_angle(i, nn[0], nn[1])
-                output.append(f"{self._mol[i].specie} {nn[0] + 1} B{i} {nn[1] + 1} A{i}")
-                outputvar.append(f"B{i}={bondlength:.6f}")
-                outputvar.append(f"A{i}={angle:.6f}")
-            else:
-                nn = self._find_nn_pos_before_site(i)
-                bondlength = self._mol.get_distance(i, nn[0])
-                angle = self._mol.get_angle(i, nn[0], nn[1])
-                dih = self._mol.get_dihedral(i, nn[0], nn[1], nn[2])
-                output.append(f"{self._mol[i].specie} {nn[0] + 1} B{i} {nn[1] + 1} A{i} {nn[2] + 1} D{i}")
-                outputvar.append(f"B{i}={bondlength:.6f}")
-                outputvar.append(f"A{i}={angle:.6f}")
-                outputvar.append(f"D{i}={dih:.6f}")
-        return "\n".join(output) + "\n\n" + "\n".join(outputvar)
+        """Returns a z-matrix representation of the molecule."""
+        return self._mol.get_zmatrix()
 
-    def get_cart_coords(self):
-        """
-        Return the Cartesian coordinates of the molecule
-        """
-
-        def to_s(x):
-            return f"{x:0.6f}"
-
+    def get_cart_coords(self) -> str:
+        """Return the Cartesian coordinates of the molecule."""
         outs = []
         for site in self._mol:
-            outs.append(" ".join(site.species_string, " ".join([to_s(j) for j in site.coords])))
+            outs.append(f"{site.species_string} {' '.join(f'{x:0.6f}' for x in site.coords)}")
         return "\n".join(outs)
 
     def __str__(self):
-        return self.to_string()
+        return self.to_str()
 
-    def to_string(self, cart_coords=False):
-        """
-        Return GaussianInput string
+    @np.deprecate(message="Use to_str instead")
+    def to_string(cls, *args, **kwargs):
+        return cls.to_str(*args, **kwargs)
 
-        Option: when cart_coords is set to True return the Cartesian coordinates
-                instead of the z-matrix
+    def to_str(self, cart_coords=False):
+        """Return GaussianInput string.
+
+        Args:
+            cart_coords (bool): If True, return Cartesian coordinates instead of z-matrix.
+                Defaults to False.
         """
 
         def para_dict_to_string(para, joiner=" "):
             para_str = []
-            # sorted is only done to make unittests work reliably
+            # sorted is only done to make unit tests work reliably
             for par, val in sorted(para.items()):
                 if val is None or val == "":
                     para_str.append(par)
@@ -487,17 +446,15 @@ class GaussianInput:
 
     def write_file(self, filename, cart_coords=False):
         """
-        Write the input string into a file
+        Write the input string into a file.
 
         Option: see __str__ method
         """
-        with zopen(filename, "w") as f:
-            f.write(self.to_string(cart_coords))
+        with zopen(filename, "w") as file:
+            file.write(self.to_str(cart_coords))
 
     def as_dict(self):
-        """
-        :return: MSONable dict
-        """
+        """:return: MSONable dict"""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -541,7 +498,6 @@ class GaussianOutput:
         Still in early beta.
 
     Attributes:
-
     .. attribute:: structures
 
         All structures from the calculation in the standard orientation. If the
@@ -712,7 +668,6 @@ class GaussianOutput:
         that are printed using `pop=NBOREAD` and `$nbo bndidx $end`.
 
     Methods:
-
     .. method:: to_input()
 
         Return a GaussianInput object using the last geometry and the same
@@ -742,23 +697,19 @@ class GaussianOutput:
 
     @property
     def final_energy(self):
-        """
-        :return: Final energy in Gaussian output.
-        """
+        """:return: Final energy in Gaussian output."""
         return self.energies[-1]
 
     @property
     def final_structure(self):
-        """
-        :return: Final structure in Gaussian output.
-        """
+        """:return: Final structure in Gaussian output."""
         return self.structures[-1]
 
     def _parse(self, filename):
         start_patt = re.compile(r" \(Enter \S+l101\.exe\)")
         route_patt = re.compile(r" #[pPnNtT]*.*")
         link0_patt = re.compile(r"^\s(%.+)\s*=\s*(.+)")
-        charge_mul_patt = re.compile(r"Charge\s+=\s*([-\d]+)\s+" r"Multiplicity\s+=\s*(\d+)")
+        charge_mul_patt = re.compile(r"Charge\s+=\s*([-\d]+)\s+Multiplicity\s+=\s*(\d+)")
         num_basis_func_patt = re.compile(r"([0-9]+)\s+basis functions")
         num_elec_patt = re.compile(r"(\d+)\s+alpha electrons\s+(\d+)\s+beta electrons")
         pcm_patt = re.compile(r"Polarizable Continuum Model")
@@ -774,7 +725,7 @@ class GaussianOutput:
         std_orientation_patt = re.compile(r"Standard orientation")
         input_orientation_patt = re.compile(r"Input orientation|Z-Matrix orientation")
         orbital_patt = re.compile(r"(Alpha|Beta)\s*\S+\s*eigenvalues --(.*)")
-        thermo_patt = re.compile(r"(Zero-point|Thermal) correction(.*)=" r"\s+([\d\.-]+)")
+        thermo_patt = re.compile(r"(Zero-point|Thermal) correction(.*)=\s+([\d\.-]+)")
         forces_on_patt = re.compile(r"Center\s+Atomic\s+Forces\s+\(Hartrees/Bohr\)")
         forces_off_patt = re.compile(r"Cartesian\s+Forces:\s+Max.*RMS.*")
         forces_patt = re.compile(r"\s+(\d+)\s+(\d+)\s+([0-9\.-]+)\s+([0-9\.-]+)\s+([0-9\.-]+)")
@@ -831,7 +782,7 @@ class GaussianOutput:
         geom_orientation = None
         opt_structures = []
 
-        with zopen(filename) as f:
+        with zopen(filename, mode="rt") as f:
             for line in f:
                 if parse_stage == 0:
                     if start_patt.search(line):
@@ -849,7 +800,8 @@ class GaussianOutput:
                             self.dieze_tag = params[3]
                             parse_stage = 1
                         else:
-                            routeline += line.strip()
+                            line = line.replace(" ", "", 1).rstrip("\n")
+                            routeline += line
                 elif parse_stage == 1:
                     if set(line.strip()) == {"-"} and self.title is None:
                         self.title = ""
@@ -861,7 +813,6 @@ class GaussianOutput:
                         self.spin_multiplicity = int(m.group(2))
                         parse_stage = 2
                 elif parse_stage == 2:
-
                     if self.is_pcm:
                         self._check_pcm(line)
 
@@ -1022,7 +973,7 @@ class GaussianOutput:
                                         frequencies[ifreq]["symmetry"] = sym
                                 line = f.readline()
 
-                            #  read normal modes
+                            # read normal modes
                             line = f.readline()
                             while normal_mode_patt.search(line):
                                 values = list(map(float, float_patt.findall(line)))
@@ -1035,8 +986,8 @@ class GaussianOutput:
                         frequencies = []
 
                     elif parse_hessian:
-                        #  read Hessian matrix under "Force constants in Cartesian coordinates"
-                        #  Hessian matrix is in the input  orientation framework
+                        # read Hessian matrix under "Force constants in Cartesian coordinates"
+                        # Hessian matrix is in the input  orientation framework
                         # WARNING : need #P in the route line
                         parse_hessian = False
                         ndf = 3 * len(input_structures[0])
@@ -1140,7 +1091,7 @@ class GaussianOutput:
                         while not resume_end_patt.search(line):
                             resume.append(line)
                             line = f.readline()
-                            #  security if \\@ not in one line !
+                            # security if \\@ not in one line !
                             if line == "\n":
                                 break
                         resume.append(line)
@@ -1178,9 +1129,9 @@ class GaussianOutput:
             warnings.warn("\n" + self.filename + ": Termination error or bad Gaussian output file !")
 
     def _check_pcm(self, line):
-        energy_patt = re.compile(r"(Dispersion|Cavitation|Repulsion) energy" r"\s+\S+\s+=\s+(\S*)")
-        total_patt = re.compile(r"with all non electrostatic terms\s+\S+\s+" r"=\s+(\S*)")
-        parameter_patt = re.compile(r"(Eps|Numeral density|RSolv|Eps" r"\(inf[inity]*\))\s+=\s*(\S*)")
+        energy_patt = re.compile(r"(Dispersion|Cavitation|Repulsion) energy\s+\S+\s+=\s+(\S*)")
+        total_patt = re.compile(r"with all non electrostatic terms\s+\S+\s+=\s+(\S*)")
+        parameter_patt = re.compile(r"(Eps|Numeral density|RSolv|Eps\(inf[inity]*\))\s+=\s*(\S*)")
 
         if energy_patt.search(line):
             m = energy_patt.search(line)
@@ -1193,9 +1144,7 @@ class GaussianOutput:
             self.pcm[m.group(1)] = float(m.group(2))
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation.
-        """
+        """JSON-serializable dict representation."""
         structure = self.final_structure
         d = {
             "has_gaussian_completed": self.properly_terminated,
@@ -1209,7 +1158,7 @@ class GaussianOutput:
         d["errors"] = self.errors
         d["Mulliken_charges"] = self.Mulliken_charges
 
-        unique_symbols = sorted(list(d["unit_cell_formula"]))
+        unique_symbols = sorted(d["unit_cell_formula"])
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
         d["charge"] = self.charge
@@ -1247,7 +1196,6 @@ class GaussianOutput:
         Read a potential energy surface from a gaussian scan calculation.
 
         Returns:
-
             A dict: {"energies": [ values ],
                      "coords": {"d1": [ values ], "A2", [ values ], ... }}
 
@@ -1257,9 +1205,9 @@ class GaussianOutput:
             labelled by their name as defined in the calculation.
         """
 
-        def floatList(l):
-            """return a list of float from a list of string"""
-            return [float(v) for v in l]
+        def floatList(lst):
+            """Return a list of float from a list of string."""
+            return [float(val) for val in lst]
 
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")
         optscan_patt = re.compile(r"^\sSummary of Optimized Potential Surface Scan")
@@ -1353,7 +1301,6 @@ class GaussianOutput:
         Read a excitation energies after a TD-DFT calculation.
 
         Returns:
-
             A list: A list of tuple for each transition such as
                     [(energie (eV), lambda (nm), oscillatory strength), ... ]
         """
@@ -1367,10 +1314,9 @@ class GaussianOutput:
                 if re.search(r"^\sExcitation energies and oscillator strengths:", line):
                     td = True
 
-                if td:
-                    if re.search(r"^\sExcited State\s*\d", line):
-                        val = [float(v) for v in float_patt.findall(line)]
-                        transitions.append(tuple(val[0:3]))
+                if td and re.search(r"^\sExcited State\s*\d", line):
+                    val = [float(v) for v in float_patt.findall(line)]
+                    transitions.append(tuple(val[0:3]))
                 line = f.readline()
         return transitions
 
@@ -1463,7 +1409,7 @@ class GaussianOutput:
         the output file and with the same calculation parameters. Arguments
         are the same as GaussianInput class.
 
-        Returns
+        Returns:
             gaunip (GaussianInput) : the gaussian input object
         """
         if not mol:

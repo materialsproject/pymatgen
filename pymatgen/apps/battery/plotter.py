@@ -1,10 +1,11 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module provides plotting capabilities for battery related applications."""
 
-"""
-This module provides plotting capabilities for battery related applications.
-"""
 
+from __future__ import annotations
+
+import plotly.graph_objects as go
+
+from pymatgen.util.plotting import pretty_plot
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -14,15 +15,8 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jul 12, 2012"
 
 
-import plotly.graph_objects as go
-
-from pymatgen.util.plotting import pretty_plot
-
-
 class VoltageProfilePlotter:
-    """
-    A plotter to make voltage profile plots for batteries.
-    """
+    """A plotter to make voltage profile plots for batteries."""
 
     def __init__(self, xaxis="capacity", hide_negative=False):
         """
@@ -32,7 +26,7 @@ class VoltageProfilePlotter:
             - capacity_vol: the volumetric capacity
             - x_form: the number of working ions per formula unit of the host
             - frac_x: the atomic fraction of the working ion
-            hide_negative: If True only plot the voltage steps above zero
+            hide_negative: If True only plot the voltage steps above zero.
         """
         self._electrodes = {}
         self.xaxis = xaxis
@@ -56,7 +50,7 @@ class VoltageProfilePlotter:
         """
         Args:
             electrode: Electrode object
-            term_zero: If True append zero voltage point at the end
+            term_zero: If True append zero voltage point at the end.
 
         Returns:
             Plot data in x, y.
@@ -128,17 +122,16 @@ class VoltageProfilePlotter:
         **kwargs,
     ):
         """
-        Return plotly Figure object
+        Return plotly Figure object.
+
         Args:
             width: Width of the plot. Defaults to 800 px.
             height: Height of the plot. Defaults to 600 px.
-            font: dictionary that defines the font
+            font_dict: define the font. Defaults to {"family": "Arial", "size": 24, "color": "#000000"}
             term_zero: If True append zero voltage point at the end
-            **kwargs:
-
-        Returns:
+            **kwargs: passed to plotly.graph_objects.Layout
         """
-        font_dict = dict(family="Arial", size=24, color="#000000") if font_dict is None else font_dict
+        font_dict = font_dict or {"family": "Arial", "size": 24, "color": "#000000"}
         hover_temp = "Voltage : %{y:.2f} V"
 
         data = []
@@ -165,8 +158,8 @@ class VoltageProfilePlotter:
                 width=width,
                 height=height,
                 font=font_dict,
-                xaxis=dict(title=self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol)),
-                yaxis=dict(title="Voltage (V)"),
+                xaxis={"title": self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol)},
+                yaxis={"title": "Voltage (V)"},
                 **kwargs,
             ),
         )
@@ -180,15 +173,9 @@ class VoltageProfilePlotter:
         if self.xaxis == "capacity_vol":
             return "Capacity (Ah/l)"
 
-        if len(formula) == 1:
-            formula = formula.pop()
-        else:
-            formula = None
+        formula = formula.pop() if len(formula) == 1 else None
 
-        if len(wion_symbol) == 1:
-            wion_symbol = wion_symbol.pop()
-        else:
-            wion_symbol = None
+        wion_symbol = wion_symbol.pop() if len(wion_symbol) == 1 else None
 
         if self.xaxis == "x_form":
             if formula and wion_symbol:
@@ -218,5 +205,7 @@ class VoltageProfilePlotter:
         Args:
             filename: Filename to save to.
             image_format: Format to save to. Defaults to eps.
+            width: Width of the plot. Defaults to 8 in.
+            height: Height of the plot. Defaults to 6 in.
         """
         self.get_plot(width, height).savefig(filename, format=image_format)

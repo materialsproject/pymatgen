@@ -1,3 +1,1 @@
-"""
-Package for analyzing connectivity.
-"""
+"""Package for analyzing connectivity."""

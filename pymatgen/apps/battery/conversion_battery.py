@@ -1,14 +1,9 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-This module contains the classes to build a ConversionElectrode.
-"""
+"""This module contains the classes to build a ConversionElectrode."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
 from scipy.constants import N_A
 
@@ -18,7 +13,9 @@ from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltage
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
-from pymatgen.entries.computed_entries import ComputedEntry
+
+if TYPE_CHECKING:
+    from pymatgen.entries.computed_entries import ComputedEntry
 
 
 @dataclass
@@ -26,7 +23,7 @@ class ConversionElectrode(AbstractElectrode):
     """
     Class representing a ConversionElectrode, since it is dataclass
     this object can be constructed for the attributes.
-    However, it is usually easier to construct a ConversionElectrode using one of the classmethods
+    However, it is usually easier to construct a ConversionElectrode using one of the classmethod
     constructors provided.
 
     Attribute:
@@ -42,9 +39,7 @@ class ConversionElectrode(AbstractElectrode):
 
     @property
     def initial_comp(self) -> Composition:
-        """
-        The pymatgen Composition representation of the initial composition
-        """
+        """The pymatgen Composition representation of the initial composition."""
         return Composition(self.initial_comp_formula)
 
     @classmethod
@@ -54,19 +49,14 @@ class ConversionElectrode(AbstractElectrode):
         composition and a phase diagram.
 
         Args:
-            comp:
-                Starting composition for ConversionElectrode, e.g.,
+            comp: Starting composition for ConversionElectrode, e.g.,
                 Composition("FeF3")
-            pd:
-                A PhaseDiagram of the relevant system (e.g., Li-Fe-F)
-            working_ion_symbol:
-                Element symbol of working ion. Defaults to Li.
-            allow_unstable:
-                Allow compositions that are unstable
+            pd: A PhaseDiagram of the relevant system (e.g., Li-Fe-F)
+            working_ion_symbol: Element symbol of working ion. Defaults to Li.
+            allow_unstable: Allow compositions that are unstable
         """
         working_ion = Element(working_ion_symbol)
-        entry = None
-        working_ion_entry = None
+        entry = working_ion_entry = None
         for e in pd.stable_entries:
             if e.composition.reduced_formula == comp.reduced_formula:
                 entry = e
@@ -82,7 +72,6 @@ class ConversionElectrode(AbstractElectrode):
         profile.reverse()
         if len(profile) < 2:
             return None
-        working_ion_entry = working_ion_entry
         working_ion = working_ion_entry.composition.elements[0].symbol
         normalization_els = {}
         for el, amt in comp.items():
@@ -93,7 +82,7 @@ class ConversionElectrode(AbstractElectrode):
             framework.pop(working_ion)
         framework = Composition(framework)
 
-        vpairs = [
+        v_pairs = [
             ConversionVoltagePair.from_steps(
                 profile[i],
                 profile[i + 1],
@@ -104,7 +93,7 @@ class ConversionElectrode(AbstractElectrode):
         ]
 
         return ConversionElectrode(  # pylint: disable=E1123
-            voltage_pairs=vpairs,
+            voltage_pairs=v_pairs,
             working_ion_entry=working_ion_entry,
             initial_comp_formula=comp.reduced_formula,
             framework_formula=framework.reduced_formula,
@@ -136,7 +125,7 @@ class ConversionElectrode(AbstractElectrode):
         For example, an LiTiO2 electrode might contain three subelectrodes:
         [LiTiO2 --> TiO2, LiTiO2 --> Li0.5TiO2, Li0.5TiO2 --> TiO2]
         This method can be used to return all the subelectrodes with some
-        options
+        options.
 
         Args:
             adjacent_only: Only return electrodes from compounds that are
@@ -197,9 +186,7 @@ class ConversionElectrode(AbstractElectrode):
         return True
 
     def __eq__(self, conversion_electrode):
-        """
-        Check if two electrodes are exactly the same:
-        """
+        """Check if two electrodes are exactly the same."""
         if len(self) != len(conversion_electrode):
             return False
 
@@ -219,11 +206,8 @@ class ConversionElectrode(AbstractElectrode):
                 return False
         return True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return 7
-
-    def __str__(self):
-        return self.__repr__()
 
     def __repr__(self):
         output = [
@@ -274,6 +258,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
     """
     A VoltagePair representing a Conversion Reaction with a defined voltage.
     Typically not initialized directly but rather used by ConversionElectrode.
+
     Attributes:
         rxn (BalancedReaction): BalancedReaction for the step
         voltage (float): Voltage for the step
@@ -284,8 +269,14 @@ class ConversionVoltagePair(AbstractVoltagePair):
         mass_discharge (float): Mass of discharged state
         frac_charge (float): Fraction of working ion in the charged state
         frac_discharge (float): Fraction of working ion in the discharged state
-        entries_charge ([ComputedEntry]): Entries in the charged state
-        entries_discharge ([ComputedEntry]): Entries in discharged state
+        entries_charge ([ComputedEntry]): Entries representing decompositions products
+            in the charged state. Enumerates the decompositions products at the tieline,
+            so the number of entries will be one fewer than the dimensions of the phase
+            diagram
+        entries_discharge ([ComputedEntry]): Entries representing decompositions products
+            in the discharged state. Enumerates the decompositions products at the tieline,
+            so the number of entries will be one fewer than the dimensions of the phase
+            diagram
         working_ion_entry (ComputedEntry): Entry of the working ion.
     """
 
@@ -294,7 +285,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
     entries_discharge: Iterable[ComputedEntry]
 
     @classmethod
-    def from_steps(cls, step1, step2, normalization_els, framework_formula=None):
+    def from_steps(cls, step1, step2, normalization_els, framework_formula):
         """
         Creates a ConversionVoltagePair from two steps in the element profile
         from a PD analysis.
@@ -304,6 +295,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
             step2: Ending step
             normalization_els: Elements to normalize the reaction by. To
                 ensure correct capacities.
+            framework_formula: Formula of the framework.
         """
         working_ion_entry = step1["element_reference"]
         working_ion = working_ion_entry.composition.elements[0].symbol
@@ -345,26 +337,24 @@ class ConversionVoltagePair(AbstractVoltagePair):
             sum(curr_rxn.all_comp[i].weight * abs(curr_rxn.coeffs[i]) for i in range(len(curr_rxn.all_comp))) / 2
         )
         mass_charge = prev_mass_dischg
-        mass_discharge = mass_discharge
         vol_discharge = sum(
             abs(curr_rxn.get_coeff(e.composition)) * e.structure.volume
             for e in step2["entries"]
             if e.composition.reduced_formula != working_ion
         )
 
-        totalcomp = Composition({})
+        total_comp = Composition({})
         for comp in prev_rxn.products:
             if comp.reduced_formula != working_ion:
-                totalcomp += comp * abs(prev_rxn.get_coeff(comp))
-        frac_charge = totalcomp.get_atomic_fraction(Element(working_ion))
+                total_comp += comp * abs(prev_rxn.get_coeff(comp))
+        frac_charge = total_comp.get_atomic_fraction(Element(working_ion))
 
-        totalcomp = Composition({})
+        total_comp = Composition({})
         for comp in curr_rxn.products:
             if comp.reduced_formula != working_ion:
-                totalcomp += comp * abs(curr_rxn.get_coeff(comp))
-        frac_discharge = totalcomp.get_atomic_fraction(Element(working_ion))
+                total_comp += comp * abs(curr_rxn.get_coeff(comp))
+        frac_discharge = total_comp.get_atomic_fraction(Element(working_ion))
 
-        rxn = rxn
         entries_charge = step1["entries"]
         entries_discharge = step2["entries"]
 
@@ -394,6 +384,3 @@ class ConversionVoltagePair(AbstractVoltagePair):
             f"vol_charge = {self.vol_charge}, vol_discharge = {self.vol_discharge}",
         ]
         return "\n".join(output)
-
-    def __str__(self):
-        return self.__repr__()

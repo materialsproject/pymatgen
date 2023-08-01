@@ -1,8 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-"""
-This module provides
-"""
+"""This module provides."""
+
+from __future__ import annotations
 
 from collections import namedtuple
 
@@ -24,6 +22,7 @@ __date__ = "May 16, 2016"
 class XcFunc(MSONable):
     """
     This object stores information about the XC correlation functional.
+
     Client code usually creates the object by calling the class methods:
 
         - from_name
@@ -75,7 +74,8 @@ class XcFunc(MSONable):
     type_name = namedtuple("type_name", "type, name")
 
     xcf = LibxcFunc
-    defined_aliases = {  # (x, c) --> type_name
+    defined_aliases = {
+        # (x, c) --> type_name
         # LDAs
         (xcf.LDA_X, xcf.LDA_C_PW): type_name("LDA", "PW"),  # ixc 7
         (xcf.LDA_X, xcf.LDA_C_PW_MOD): type_name("LDA", "PW_MOD"),
@@ -101,15 +101,16 @@ class XcFunc(MSONable):
     # and 42_libpaw/m_pawpsp.F90 for the implementation.
     # Fortunately, all the other cases are handled with libxc.
     abinitixc_to_libxc = {
-        1: dict(xc=xcf.LDA_XC_TETER93),
-        2: dict(x=xcf.LDA_X, c=xcf.LDA_C_PZ),  # PZ  001009
-        4: dict(x=xcf.LDA_X, c=xcf.LDA_C_WIGNER),  # W
-        5: dict(x=xcf.LDA_X, c=xcf.LDA_C_HL),  # HL
-        7: dict(x=xcf.LDA_X, c=xcf.LDA_C_PW),  # PW 001012
-        11: dict(x=xcf.GGA_X_PBE, c=xcf.GGA_C_PBE),  # PBE
-        14: dict(x=xcf.GGA_X_PBE_R, c=xcf.GGA_C_PBE),  # revPBE
-        15: dict(x=xcf.GGA_X_RPBE, c=xcf.GGA_C_PBE),  # RPBE
+        1: {"xc": xcf.LDA_XC_TETER93},
+        2: {"x": xcf.LDA_X, "c": xcf.LDA_C_PZ},  # PZ  001009
+        4: {"x": xcf.LDA_X, "c": xcf.LDA_C_WIGNER},  # W
+        5: {"x": xcf.LDA_X, "c": xcf.LDA_C_HL},  # HL
+        7: {"x": xcf.LDA_X, "c": xcf.LDA_C_PW},  # PW 001012
+        11: {"x": xcf.GGA_X_PBE, "c": xcf.GGA_C_PBE},  # PBE
+        14: {"x": xcf.GGA_X_PBE_R, "c": xcf.GGA_C_PBE},  # revPBE
+        15: {"x": xcf.GGA_X_RPBE, "c": xcf.GGA_C_PBE},  # RPBE
     }
+
     del xcf
 
     @classmethod
@@ -128,7 +129,7 @@ class XcFunc(MSONable):
 
     @classmethod
     def from_abinit_ixc(cls, ixc):
-        """Build the object from Abinit ixc (integer)"""
+        """Build the object from Abinit ixc (integer)."""
         ixc = int(ixc)
         if ixc == 0:
             return None
@@ -142,12 +143,13 @@ class XcFunc(MSONable):
         x, c = LibxcFunc(int(first)), LibxcFunc(int(last))
         if not x.is_x_kind:
             x, c = c, x  # Swap
-        assert x.is_x_kind and c.is_c_kind
+        assert x.is_x_kind
+        assert c.is_c_kind
         return cls(x=x, c=c)
 
     @classmethod
     def from_name(cls, name):
-        """Build the object from one of the registered names"""
+        """Build the object from one of the registered names."""
         return cls.from_type_name(None, name)
 
     @classmethod
@@ -175,15 +177,11 @@ class XcFunc(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
-        """
+        """Makes XcFunc obey the general json interface used in pymatgen for easier serialization."""
         return cls(xc=d.get("xc"), x=d.get("x"), c=d.get("c"))
 
     def as_dict(self):
-        """
-        Makes XcFunc obey the general json interface used in pymatgen for easier serialization.
-        """
+        """Makes XcFunc obey the general json interface used in pymatgen for easier serialization."""
         d = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
             d["x"] = self.x.as_dict()
@@ -197,15 +195,15 @@ class XcFunc(MSONable):
         """
         Args:
             xc: LibxcFunc for XC functional.
-            x, c: LibxcFunc for exchange and correlation part. Mutually exclusive with xc.
+            x: LibxcFunc for exchange part. Mutually exclusive with xc.
+            c: LibxcFunc for correlation part. Mutually exclusive with xc.
         """
         # Consistency check
         if xc is None:
             if x is None or c is None:
                 raise ValueError("x or c must be specified when xc is None")
-        else:
-            if x is not None or c is not None:
-                raise ValueError("x and c should be None when xc is specified")
+        elif x is not None or c is not None:
+            raise ValueError("x and c should be None when xc is specified")
 
         self.xc, self.x, self.c = xc, x, c
 
@@ -214,7 +212,7 @@ class XcFunc(MSONable):
         """The type of the functional."""
         if self.xc in self.defined_aliases:
             return self.defined_aliases[self.xc].type
-        xc = (self.x, self.c)
+        xc = self.x, self.c
         if xc in self.defined_aliases:
             return self.defined_aliases[xc].type
 
@@ -227,7 +225,7 @@ class XcFunc(MSONable):
     def name(self) -> str:
         """
         The name of the functional. If the functional is not found in the aliases,
-        the string has the form X_NAME+C_NAME
+        the string has the form X_NAME+C_NAME.
         """
         if self.xc in self.defined_aliases:
             return self.defined_aliases[self.xc].name
@@ -241,7 +239,7 @@ class XcFunc(MSONable):
     def __repr__(self) -> str:
         return str(self.name)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.name)
 
     def __eq__(self, other: object) -> bool:

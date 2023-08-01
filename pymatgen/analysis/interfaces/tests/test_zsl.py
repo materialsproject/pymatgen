@@ -1,5 +1,19 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+from __future__ import annotations
+
+import numpy as np
+from numpy.testing import assert_array_equal
+from pytest import approx
+
+from pymatgen.analysis.interfaces.zsl import (
+    ZSLGenerator,
+    fast_norm,
+    get_factors,
+    is_same_vectors,
+    reduce_vectors,
+    vec_area,
+)
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -7,20 +21,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyam Dwaraknath"
 __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
-
-import unittest
-
-import pytest
-
-from pymatgen.analysis.interfaces.zsl import (
-    ZSLGenerator,
-    fast_norm,
-    get_factors,
-    reduce_vectors,
-    vec_area,
-)
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import PymatgenTest
 
 
 class ZSLGenTest(PymatgenTest):
@@ -34,37 +34,35 @@ class ZSLGenTest(PymatgenTest):
         ).get_conventional_standard_structure()
 
     def test_zsl(self):
+        zsl_gen = ZSLGenerator()
 
-        z = ZSLGenerator()
+        assert fast_norm(np.array([3, 2, 1])) == approx(3.74165738)
+        assert_array_equal(reduce_vectors(np.array([1, 0, 0]), np.array([2, 2, 0])), [[1, 0, 0], [0, 2, 0]])
+        assert vec_area(np.array([1, 0, 0]), np.array([0, 2, 0])) == 2
+        assert_array_equal(list(get_factors(18)), [1, 2, 3, 6, 9, 18])
+        assert is_same_vectors(
+            np.array([[1.01, 0, 0], [0, 2, 0]], dtype=float), np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float)
+        )
+        assert not is_same_vectors(
+            np.array([[1.01, 2, 0], [0, 2, 0]], dtype=float), np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float)
+        )
 
-        assert fast_norm([3, 2, 1]) == pytest.approx(3.74165738)
-        self.assertArrayEqual(reduce_vectors([1, 0, 0], [2, 2, 0]), [[1, 0, 0], [0, 2, 0]])
-        assert vec_area([1, 0, 0], [0, 2, 0]) == 2
-        self.assertArrayEqual(list(get_factors(18)), [1, 2, 3, 6, 9, 18])
-        assert z.is_same_vectors([[1.01, 0, 0], [0, 2, 0]], [[1, 0, 0], [0, 2.01, 0]])
-        assert not z.is_same_vectors([[1.01, 2, 0], [0, 2, 0]], [[1, 0, 0], [0, 2.01, 0]])
-
-        matches = list(z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
+        matches = list(zsl_gen(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
         assert len(matches) == 8
 
     def test_bidirectional(self):
-
         z = ZSLGenerator(max_area_ratio_tol=0.05, max_angle_tol=0.05, max_length_tol=0.05)
 
         matches = list(z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
-        assert len(matches) == 48
+        assert len(matches) == 60
 
         matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
-        assert len(matches) == 40
+        assert len(matches) == 52
 
         z.bidirectional = True
         matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
-        assert len(matches) == 48
+        assert len(matches) == 60
 
         for match in matches:
             assert match is not None
             assert isinstance(match.match_area, float)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,8 +1,16 @@
 Change log
 ==========
 
-v2022.11.7
+v2023.7.17
 ----------
-* PR #2724 from @janosh: raise ValueError in ``SpacegroupAnalyzer.get_symmetrized_structure()`` if spglib returns no symmetries
-* PR #2720 by @utf: Fix tensor mapping
-* PR #2562 from @sudarshanv01: In case the Fock-matrix and eigenvalues are requested by the user (though the flags `scf_final_print` or `scf_print`), outputs.py now allows parsing both these quantities.
+- Cython 3.0 support.
+- PR #3157 from @mattmcdermott magnetic-analyzer-fix. Fixes bug briefly mentioned in #3070, where recent
+  spin property changes resulted in the `MagneticStructureEnumerator` failing. This is apparently due to
+  creating structures where only some `Species.spin` properties are defined, causing
+  CollinearMagneticStructureEnumerator` to fail.
+- PR #3070 from @mattmcdermott magnetic-enumerator-fix. To summarize: changes to default magnetic moments
+  introduced in #2727 now mean that structures with only partially defined magnetic moments (e.g., on
+  half the sites) cannot be successfully analyzed by `SpaceGroupAnalyzer`. This was encountered when
+  performing magnetic ordering enumeration, as the previous default behavior for `
+  MagOrderingTransformation` does not implicitly yield spins of 0 on the nonmagnetic sites. This has now
+  been fixed.

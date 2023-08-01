@@ -1,11 +1,10 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
+from __future__ import annotations
 
 import unittest
 from shutil import which
 
 import numpy as np
+import pytest
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
@@ -47,24 +46,24 @@ class TranslateSitesTransformationTest(PymatgenTest):
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
-        t = TranslateSitesTransformation([0, 1], [0.1, 0.2, 0.3])
-        s = t.apply_transformation(self.struct)
-        self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
-        self.assertTrue(np.allclose(s[1].frac_coords, [0.475, 0.575, 0.675]))
-        inv_t = t.inverse
+        trafo = TranslateSitesTransformation([0, 1], [0.1, 0.2, 0.3])
+        s = trafo.apply_transformation(self.struct)
+        assert np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3])
+        assert np.allclose(s[1].frac_coords, [0.475, 0.575, 0.675])
+        inv_t = trafo.inverse
         s = inv_t.apply_transformation(s)
-        self.assertAlmostEqual(s[0].distance_and_image_from_frac_coords([0, 0, 0])[0], 0)
-        self.assertTrue(np.allclose(s[1].frac_coords, [0.375, 0.375, 0.375]))
+        assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
+        assert np.allclose(s[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_apply_transformation_site_by_site(self):
-        t = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075]])
-        s = t.apply_transformation(self.struct)
-        self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
-        self.assertTrue(np.allclose(s[1].frac_coords, [0.3, 0.3, 0.3]))
-        inv_t = t.inverse
+        trafo = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075]])
+        s = trafo.apply_transformation(self.struct)
+        assert np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3])
+        assert np.allclose(s[1].frac_coords, [0.3, 0.3, 0.3])
+        inv_t = trafo.inverse
         s = inv_t.apply_transformation(s)
-        self.assertAlmostEqual(s[0].distance_and_image_from_frac_coords([0, 0, 0])[0], 0)
-        self.assertArrayAlmostEqual(s[1].frac_coords, [0.375, 0.375, 0.375])
+        assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
+        self.assert_all_close(s[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_to_from_dict(self):
         d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
@@ -73,9 +72,9 @@ class TranslateSitesTransformationTest(PymatgenTest):
         t2 = TranslateSitesTransformation.from_dict(d2)
         s1 = t1.apply_transformation(self.struct)
         s2 = t2.apply_transformation(self.struct)
-        self.assertTrue(np.allclose(s1[0].frac_coords, [0.1, 0.2, 0.3]))
-        self.assertTrue(np.allclose(s2[0].frac_coords, [0.1, 0.2, 0.3]))
-        self.assertTrue(np.allclose(s2[1].frac_coords, [0.3, 0.3, 0.3]))
+        assert np.allclose(s1[0].frac_coords, [0.1, 0.2, 0.3])
+        assert np.allclose(s2[0].frac_coords, [0.1, 0.2, 0.3])
+        assert np.allclose(s2[1].frac_coords, [0.3, 0.3, 0.3])
         str(t1)
         str(t2)
 
@@ -102,15 +101,15 @@ class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
-        t = ReplaceSiteSpeciesTransformation({0: "Na"})
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Na1 Li3 O4")
+        trafo = ReplaceSiteSpeciesTransformation({0: "Na"})
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Na1 Li3 O4"
 
     def test_to_from_dict(self):
         d = ReplaceSiteSpeciesTransformation({0: "Na"}).as_dict()
-        t = ReplaceSiteSpeciesTransformation.from_dict(d)
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Na1 Li3 O4")
+        trafo = ReplaceSiteSpeciesTransformation.from_dict(d)
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Na1 Li3 O4"
 
 
 class RemoveSitesTransformationTest(unittest.TestCase):
@@ -135,15 +134,15 @@ class RemoveSitesTransformationTest(unittest.TestCase):
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
-        t = RemoveSitesTransformation(range(2))
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Li2 O4")
+        trafo = RemoveSitesTransformation(range(2))
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Li2 O4"
 
     def test_to_from_dict(self):
         d = RemoveSitesTransformation(range(2)).as_dict()
-        t = RemoveSitesTransformation.from_dict(d)
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Li2 O4")
+        trafo = RemoveSitesTransformation.from_dict(d)
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Li2 O4"
 
 
 class InsertSitesTransformationTest(unittest.TestCase):
@@ -168,18 +167,20 @@ class InsertSitesTransformationTest(unittest.TestCase):
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
-        t = InsertSitesTransformation(["Fe", "Mn"], [[0.0, 0.5, 0], [0.5, 0.2, 0.2]])
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Li4 Mn1 Fe1 O4")
-        t = InsertSitesTransformation(["Fe", "Mn"], [[0.001, 0, 0], [0.1, 0.2, 0.2]])
+        trafo = InsertSitesTransformation(["Fe", "Mn"], [[0.0, 0.5, 0], [0.5, 0.2, 0.2]])
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Li4 Mn1 Fe1 O4"
+        trafo = InsertSitesTransformation(["Fe", "Mn"], [[0.001, 0, 0], [0.1, 0.2, 0.2]])
+
         # Test validate proximity
-        self.assertRaises(ValueError, t.apply_transformation, self.struct)
+        with pytest.raises(ValueError, match="New site is too close to an existing site!"):
+            trafo.apply_transformation(self.struct)
 
     def test_to_from_dict(self):
         d = InsertSitesTransformation(["Fe", "Mn"], [[0.5, 0, 0], [0.1, 0.5, 0.2]]).as_dict()
-        t = InsertSitesTransformation.from_dict(d)
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Li4 Mn1 Fe1 O4")
+        trafo = InsertSitesTransformation.from_dict(d)
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Li4 Mn1 Fe1 O4"
 
 
 class PartialRemoveSitesTransformationTest(unittest.TestCase):
@@ -204,73 +205,73 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation_complete(self):
-        t = PartialRemoveSitesTransformation(
+        trafo = PartialRemoveSitesTransformation(
             [tuple(range(4)), tuple(range(4, 8))],
             [0.5, 0.5],
             PartialRemoveSitesTransformation.ALGO_COMPLETE,
         )
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Li2 O2")
-        s = t.apply_transformation(self.struct, 12)
-        self.assertEqual(len(s), 12)
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Li2 O2"
+        s = trafo.apply_transformation(self.struct, 12)
+        assert len(s) == 12
 
     @unittest.skipIf(not enumlib_present, "enum_lib not present.")
     def test_apply_transformation_enumerate(self):
-        t = PartialRemoveSitesTransformation(
+        trafo = PartialRemoveSitesTransformation(
             [tuple(range(4)), tuple(range(4, 8))],
             [0.5, 0.5],
             PartialRemoveSitesTransformation.ALGO_ENUMERATE,
         )
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Li2 O2")
-        s = t.apply_transformation(self.struct, 12)
-        self.assertEqual(len(s), 12)
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Li2 O2"
+        s = trafo.apply_transformation(self.struct, 12)
+        assert len(s) == 12
 
     def test_apply_transformation_best_first(self):
-        t = PartialRemoveSitesTransformation(
+        trafo = PartialRemoveSitesTransformation(
             [tuple(range(4)), tuple(range(4, 8))],
             [0.5, 0.5],
             PartialRemoveSitesTransformation.ALGO_BEST_FIRST,
         )
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Li2 O2")
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Li2 O2"
 
     def test_apply_transformation_fast(self):
-        t = PartialRemoveSitesTransformation(
+        trafo = PartialRemoveSitesTransformation(
             [tuple(range(4)), tuple(range(4, 8))],
             [0.5, 0.5],
             PartialRemoveSitesTransformation.ALGO_FAST,
         )
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Li2 O2")
-        t = PartialRemoveSitesTransformation([tuple(range(8))], [0.5], PartialRemoveSitesTransformation.ALGO_FAST)
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Li2 O2")
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Li2 O2"
+        trafo = PartialRemoveSitesTransformation([tuple(range(8))], [0.5], PartialRemoveSitesTransformation.ALGO_FAST)
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Li2 O2"
 
     def test_to_from_dict(self):
         d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
-        t = PartialRemoveSitesTransformation.from_dict(d)
-        s = t.apply_transformation(self.struct)
-        self.assertEqual(s.formula, "Li2 O4")
+        trafo = PartialRemoveSitesTransformation.from_dict(d)
+        s = trafo.apply_transformation(self.struct)
+        assert s.formula == "Li2 O4"
 
     def test_str(self):
         d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
-        self.assertIsNotNone(str(d))
+        assert str(d) is not None
 
 
 class AddSitePropertyTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        s = self.get_structure("Li2O2")
-        sd = [[True, True, True] for site in s.sites]
-        bader = np.random.random(s.num_sites).tolist()
+        struct = self.get_structure("Li2O2")
+        sd = [[True, True, True] for _ in struct]
+        bader = np.random.random(struct.num_sites).tolist()
         site_props = {"selective_dynamics": sd, "bader": bader}
         trans = AddSitePropertyTransformation(site_props)
-        manually_set = s.copy()
+        manually_set = struct.copy()
         for prop, value in site_props.items():
             manually_set.add_site_property(prop, value)
-        trans_set = trans.apply_transformation(s)
+        trans_set = trans.apply_transformation(struct)
         for prop in site_props:
-            self.assertArrayAlmostEqual(trans_set.site_properties[prop], manually_set.site_properties[prop])
+            self.assert_all_close(trans_set.site_properties[prop], manually_set.site_properties[prop])
 
 
 class RadialSiteDistortionTransformationTest(PymatgenTest):
@@ -315,35 +316,31 @@ class RadialSiteDistortionTransformationTest(PymatgenTest):
         )
 
     def test(self):
-        t = RadialSiteDistortionTransformation(0, 1, nn_only=True)
-        s = t.apply_transformation(self.molecule)
-        self.assertTrue(np.array_equal(s[0].coords, [0, 0, 0]))
-        self.assertTrue(np.array_equal(s[1].coords, [2, 0, 0]))
-        self.assertTrue(np.array_equal(s[2].coords, [0, 2, 0]))
-        self.assertTrue(np.array_equal(s[3].coords, [0, 0, 2]))
-        self.assertTrue(np.array_equal(s[4].coords, [-2, 0, 0]))
-        self.assertTrue(np.array_equal(s[5].coords, [0, -2, 0]))
-        self.assertTrue(np.array_equal(s[6].coords, [0, 0, -2]))
+        trafo = RadialSiteDistortionTransformation(0, 1, nn_only=True)
+        struct = trafo.apply_transformation(self.molecule)
+        assert np.array_equal(struct[0].coords, [0, 0, 0])
+        assert np.array_equal(struct[1].coords, [2, 0, 0])
+        assert np.array_equal(struct[2].coords, [0, 2, 0])
+        assert np.array_equal(struct[3].coords, [0, 0, 2])
+        assert np.array_equal(struct[4].coords, [-2, 0, 0])
+        assert np.array_equal(struct[5].coords, [0, -2, 0])
+        assert np.array_equal(struct[6].coords, [0, 0, -2])
 
-        t = RadialSiteDistortionTransformation(0, 1, nn_only=True)
-        s = t.apply_transformation(self.structure)
-        for c1, c2 in zip(self.structure[1:7], s[1:7]):
-            self.assertTrue(c1.distance(c2) == 1.0)
+        trafo = RadialSiteDistortionTransformation(0, 1, nn_only=True)
+        struct = trafo.apply_transformation(self.structure)
+        for c1, c2 in zip(self.structure[1:7], struct[1:7]):
+            assert c1.distance(c2) == 1.0
 
-        self.assertTrue(np.array_equal(s[0].coords, [0, 0, 0]))
-        self.assertTrue(np.array_equal(s[1].coords, [2, 0, 0]))
-        self.assertTrue(np.array_equal(s[2].coords, [0, 2, 0]))
-        self.assertTrue(np.array_equal(s[3].coords, [0, 0, 2]))
-        self.assertTrue(np.array_equal(s[4].coords, [8, 0, 0]))
-        self.assertTrue(np.array_equal(s[5].coords, [0, 8, 0]))
-        self.assertTrue(np.array_equal(s[6].coords, [0, 0, 8]))
+        assert np.array_equal(struct[0].coords, [0, 0, 0])
+        assert np.array_equal(struct[1].coords, [2, 0, 0])
+        assert np.array_equal(struct[2].coords, [0, 2, 0])
+        assert np.array_equal(struct[3].coords, [0, 0, 2])
+        assert np.array_equal(struct[4].coords, [8, 0, 0])
+        assert np.array_equal(struct[5].coords, [0, 8, 0])
+        assert np.array_equal(struct[6].coords, [0, 0, 8])
 
     def test_second_nn(self):
-        t = RadialSiteDistortionTransformation(0, 1, nn_only=False)
-        s = t.apply_transformation(self.molecule)
+        trafo = RadialSiteDistortionTransformation(0, 1, nn_only=False)
+        s = trafo.apply_transformation(self.molecule)
         for c1, c2 in zip(self.molecule[7:], s[7:]):
-            self.assertEqual(abs(round(sum(c2.coords - c1.coords), 2)), 0.33)
-
-
-if __name__ == "__main__":
-    unittest.main()
+            assert abs(round(sum(c2.coords - c1.coords), 2)) == 0.33

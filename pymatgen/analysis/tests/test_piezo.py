@@ -1,9 +1,14 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 Test for the piezo tensor class
 """
+from __future__ import annotations
+
+import numpy as np
+import pytest
+from numpy.testing import assert_array_equal
+
+from pymatgen.analysis.piezo import PiezoTensor
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Shyam Dwaraknath"
 __version__ = "0.1"
@@ -11,13 +16,6 @@ __maintainer__ = "Shyam Dwaraknath"
 __email__ = "shyamd@lbl.gov"
 __status__ = "Development"
 __date__ = "4/1/16"
-
-import unittest
-
-import numpy as np
-
-from pymatgen.analysis.piezo import PiezoTensor
-from pymatgen.util.testing import PymatgenTest
 
 
 class PiezoTest(PymatgenTest):
@@ -45,24 +43,23 @@ class PiezoTest(PymatgenTest):
 
     def test_new(self):
         pt = PiezoTensor(self.full_tensor_array)
-        self.assertArrayAlmostEqual(pt, self.full_tensor_array)
+        self.assert_all_close(pt, self.full_tensor_array)
         bad_dim_array = np.zeros((3, 3))
-        self.assertRaises(ValueError, PiezoTensor, bad_dim_array)
+        with pytest.raises(ValueError, match="PiezoTensor input must be rank 3"):
+            PiezoTensor(bad_dim_array)
 
     def test_from_voigt(self):
         bad_voigt = np.zeros((3, 7))
         pt = PiezoTensor.from_voigt(self.voigt_matrix)
-        self.assertArrayEqual(pt, self.full_tensor_array)
-        self.assertRaises(ValueError, PiezoTensor.from_voigt, bad_voigt)
-        self.assertArrayEqual(self.voigt_matrix, pt.voigt)
+        assert_array_equal(pt, self.full_tensor_array)
+        with pytest.raises(ValueError, match="Invalid shape for Voigt matrix"):
+            PiezoTensor.from_voigt(bad_voigt)
+        assert_array_equal(self.voigt_matrix, pt.voigt)
 
     def test_from_vasp_voigt(self):
         bad_voigt = np.zeros((3, 7))
         pt = PiezoTensor.from_vasp_voigt(self.vasp_matrix)
-        self.assertArrayEqual(pt, self.full_tensor_array)
-        self.assertRaises(ValueError, PiezoTensor.from_voigt, bad_voigt)
-        self.assertArrayEqual(self.voigt_matrix, pt.voigt)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert_array_equal(pt, self.full_tensor_array)
+        with pytest.raises(ValueError, match="Invalid shape for Voigt matrix"):
+            PiezoTensor.from_voigt(bad_voigt)
+        assert_array_equal(self.voigt_matrix, pt.voigt)

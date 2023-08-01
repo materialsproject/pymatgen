@@ -1,6 +1,3 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines site transformations which transforms a structure into
 another structure. Site transformations differ from standard transformations
@@ -14,22 +11,23 @@ import itertools
 import logging
 import math
 import time
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.analysis.local_env import MinimumDistanceNN
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
+if TYPE_CHECKING:
+    from pymatgen.core.sites import PeriodicSite
+    from pymatgen.core.structure import Structure
+
 
 class InsertSitesTransformation(AbstractTransformation):
-    """
-    This transformation substitutes certain sites with certain species.
-    """
+    """This transformation substitutes certain sites with certain species."""
 
     def __init__(self, species, coords, coords_are_cartesian=False, validate_proximity=True):
         """
@@ -49,7 +47,7 @@ class InsertSitesTransformation(AbstractTransformation):
         self.coords_are_cartesian = coords_are_cartesian
         self.validate_proximity = validate_proximity
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -60,16 +58,16 @@ class InsertSitesTransformation(AbstractTransformation):
         Return:
             Returns a copy of structure with sites inserted.
         """
-        s = structure.copy()
+        struct = structure.copy()
         for i, sp in enumerate(self.species):
-            s.insert(
+            struct.insert(
                 i,
                 sp,
                 self.coords[i],
                 coords_are_cartesian=self.coords_are_cartesian,
                 validate_proximity=self.validate_proximity,
             )
-        return s.get_sorted_structure()
+        return struct.get_sorted_structure()
 
     def __str__(self):
         return f"InsertSiteTransformation : species {self.species}, coords {self.coords}"
@@ -79,19 +77,17 @@ class InsertSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None"""
-        return None
+        """Return: None."""
+        return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False"""
+        """Return: False."""
         return False
 
 
 class ReplaceSiteSpeciesTransformation(AbstractTransformation):
-    """
-    This transformation substitutes certain sites with certain species.
-    """
+    """This transformation substitutes certain sites with certain species."""
 
     def __init__(self, indices_species_map):
         """
@@ -105,7 +101,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         """
         self.indices_species_map = indices_species_map
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -116,10 +112,10 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         Return:
             Returns a copy of structure with sites replaced.
         """
-        s = structure.copy()
+        struct = structure.copy()
         for i, sp in self.indices_species_map.items():
-            s[int(i)] = sp
-        return s
+            struct[int(i)] = sp
+        return struct
 
     def __str__(self):
         return "ReplaceSiteSpeciesTransformation :" + ", ".join(
@@ -131,28 +127,26 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None"""
-        return None
+        """Return: None."""
+        return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False"""
+        """Return: False."""
         return False
 
 
 class RemoveSitesTransformation(AbstractTransformation):
-    """
-    Remove certain sites in a structure.
-    """
+    """Remove certain sites in a structure."""
 
     def __init__(self, indices_to_remove):
         """
         Args:
-            indices_to_remove: List of indices to remove. E.g., [0, 1, 2]
+            indices_to_remove: List of indices to remove. E.g., [0, 1, 2].
         """
         self.indices_to_remove = indices_to_remove
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -163,9 +157,9 @@ class RemoveSitesTransformation(AbstractTransformation):
         Return:
             Returns a copy of structure with sites removed.
         """
-        s = structure.copy()
-        s.remove_sites(self.indices_to_remove)
-        return s
+        struct = structure.copy()
+        struct.remove_sites(self.indices_to_remove)
+        return struct
 
     def __str__(self):
         return "RemoveSitesTransformation :" + ", ".join(map(str, self.indices_to_remove))
@@ -175,19 +169,17 @@ class RemoveSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None"""
-        return None
+        """Return: None."""
+        return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False"""
+        """Return: False."""
         return False
 
 
 class TranslateSitesTransformation(AbstractTransformation):
-    """
-    This class translates a set of sites by a certain vector.
-    """
+    """This class translates a set of sites by a certain vector."""
 
     def __init__(self, indices_to_move, translation_vector, vector_in_frac_coords=True):
         """
@@ -205,7 +197,7 @@ class TranslateSitesTransformation(AbstractTransformation):
         self.translation_vector = np.array(translation_vector)
         self.vector_in_frac_coords = vector_in_frac_coords
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -216,13 +208,13 @@ class TranslateSitesTransformation(AbstractTransformation):
         Return:
             Returns a copy of structure with sites translated.
         """
-        s = structure.copy()
+        struct = structure.copy()
         if self.translation_vector.shape == (len(self.indices_to_move), 3):
             for i, idx in enumerate(self.indices_to_move):
-                s.translate_sites(idx, self.translation_vector[i], self.vector_in_frac_coords)
+                struct.translate_sites(idx, self.translation_vector[i], self.vector_in_frac_coords)
         else:
-            s.translate_sites(self.indices_to_move, self.translation_vector, self.vector_in_frac_coords)
-        return s
+            struct.translate_sites(self.indices_to_move, self.translation_vector, self.vector_in_frac_coords)
+        return struct
 
     def __str__(self):
         return (
@@ -244,13 +236,11 @@ class TranslateSitesTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False"""
+        """Return: False."""
         return False
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation.
-        """
+        """JSON-serializable dict representation."""
         d = MSONable.as_dict(self)
         d["translation_vector"] = self.translation_vector.tolist()
         return d
@@ -349,44 +339,42 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             to_delete.append(max_idx)
             ematrix[:, max_idx] = 0
             ematrix[max_idx, :] = 0
-        s = structure.copy()
-        s.remove_sites(to_delete)
+        struct = structure.copy()
+        struct.remove_sites(to_delete)
         self.logger.debug(f"Minimizing Ewald took {time.perf_counter() - start_time} seconds.")
-        return [{"energy": sum(ematrix), "structure": s.get_sorted_structure()}]
+        return [{"energy": sum(ematrix), "structure": struct.get_sorted_structure()}]
 
     def _complete_ordering(self, structure: Structure, num_remove_dict):
         self.logger.debug("Performing complete ordering...")
         all_structures: list[dict[str, float | Structure]] = []
         symprec = 0.2
-        s = SpacegroupAnalyzer(structure, symprec=symprec)
-        self.logger.debug(f"Symmetry of structure is determined to be {s.get_space_group_symbol()}.")
-        sg = s.get_space_group_operations()
+        spga = SpacegroupAnalyzer(structure, symprec=symprec)
+        self.logger.debug(f"Symmetry of structure is determined to be {spga.get_space_group_symbol()}.")
+        sg = spga.get_space_group_operations()
         tested_sites: list[list[PeriodicSite]] = []
         start_time = time.perf_counter()
         self.logger.debug("Performing initial Ewald sum...")
-        ewaldsum = EwaldSummation(structure)
+        ewald_sum = EwaldSummation(structure)
         self.logger.debug(f"Ewald sum took {time.perf_counter() - start_time} seconds.")
         start_time = time.perf_counter()
 
-        allcombis = []
-        for ind, num in num_remove_dict.items():
-            allcombis.append(itertools.combinations(ind, num))
+        all_combis = [list(itertools.combinations(ind, num)) for ind, num in num_remove_dict.items()]
 
         count = 0
-        for allindices in itertools.product(*allcombis):
+        for all_indices in itertools.product(*all_combis):
             sites_to_remove = []
             indices_list = []
-            for indices in allindices:
+            for indices in all_indices:
                 sites_to_remove.extend([structure[i] for i in indices])
                 indices_list.extend(indices)
             s_new = structure.copy()
             s_new.remove_sites(indices_list)
-            energy = ewaldsum.compute_partial_energy(indices_list)
+            energy = ewald_sum.compute_partial_energy(indices_list)
             already_tested = False
-            for i, tsites in enumerate(tested_sites):
-                tenergy = all_structures[i]["energy"]
-                if abs((energy - tenergy) / len(s_new)) < 1e-5 and sg.are_symmetrically_equivalent(
-                    sites_to_remove, tsites, symm_prec=symprec
+            for idx, t_sites in enumerate(tested_sites):
+                t_energy = all_structures[idx]["energy"]
+                if abs((energy - t_energy) / len(s_new)) < 1e-5 and sg.are_symmetrically_equivalent(
+                    sites_to_remove, t_sites, symm_prec=symprec
                 ):
                     already_tested = True
 
@@ -402,8 +390,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 self.logger.debug(f"{len(all_structures)} symmetrically distinct structures found.")
 
         self.logger.debug(f"Total symmetrically distinct structures found = {len(all_structures)}")
-        all_structures = sorted(all_structures, key=lambda s: s["energy"])
-        return all_structures
+        return sorted(all_structures, key=lambda s: s["energy"])
 
     def _fast_ordering(self, structure: Structure, num_remove_dict, num_to_return=1):
         """
@@ -421,9 +408,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         ewaldmatrix = EwaldSummation(structure).total_energy_matrix
         self.logger.debug(f"Ewald sum took {time.perf_counter() - start_time} seconds.")
         start_time = time.perf_counter()
-        m_list = []
-        for indices, num in num_remove_dict.items():
-            m_list.append([0, num, list(indices), None])
+        m_list = [[0, num, list(indices), None] for indices, num in num_remove_dict.items()]
 
         self.logger.debug("Calling EwaldMinimizer...")
         minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
@@ -435,16 +420,16 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         num_atoms = sum(structure.composition.values())
 
         for output in minimizer.output_lists:
-            s = structure.copy()
+            struct = structure.copy()
             del_indices = []
 
             for manipulation in output[1]:
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    s.replace(manipulation[0], manipulation[1])
-            s.remove_sites(del_indices)
-            struct = s.get_sorted_structure()
+                    struct.replace(manipulation[0], manipulation[1])
+            struct.remove_sites(del_indices)
+            struct = struct.get_sorted_structure()
             all_structures.append(
                 {
                     "energy": output[0],
@@ -455,30 +440,27 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         return all_structures
 
-    def _enumerate_ordering(self, structure):
+    def _enumerate_ordering(self, structure: Structure):
         # Generate the disordered structure first.
-        s = structure.copy()
+        struct = structure.copy()
         for indices, fraction in zip(self.indices, self.fractions):
             for ind in indices:
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
-                s[ind] = new_sp
+                struct[ind] = new_sp
         # Perform enumeration
-        from pymatgen.transformations.advanced_transformations import (
-            EnumerateStructureTransformation,
-        )
+        from pymatgen.transformations.advanced_transformations import EnumerateStructureTransformation
 
         trans = EnumerateStructureTransformation()
-        return trans.apply_transformation(s, 10000)
+        return trans.apply_transformation(struct, 10000)
 
-    def apply_transformation(self, structure: Structure, return_ranked_list=False):
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """
         Apply the transformation.
 
         Args:
             structure: input structure
-            return_ranked_list (bool): Whether or not multiple structures are
-                returned. If return_ranked_list is a number, that number of
-                structures is returned.
+            return_ranked_list (bool | int): Whether or not multiple structures are returned.
+                If return_ranked_list is int, that number of structures is returned.
 
         Returns:
             Depending on returned_ranked list, either a transformed structure
@@ -536,28 +518,26 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None"""
-        return None
+        """Return: None."""
+        return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: True"""
+        """Return: True."""
         return True
 
 
 class AddSitePropertyTransformation(AbstractTransformation):
-    """
-    Simple transformation to add site properties to a given structure
-    """
+    """Simple transformation to add site properties to a given structure."""
 
     def __init__(self, site_properties):
         """
         Args:
-            site_properties (dict): site properties to be added to a structure
+            site_properties (dict): site properties to be added to a structure.
         """
         self.site_properties = site_properties
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 
@@ -575,12 +555,12 @@ class AddSitePropertyTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Return: None"""
-        return None
+        """Return: None."""
+        return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Return: False"""
+        """Return: False."""
         return False
 
 
@@ -608,7 +588,7 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
         self.displacement = displacement
         self.nn_only = nn_only
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure):
         """
         Apply the transformation.
 

@@ -1,14 +1,12 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module implements classes and methods for processing LAMMPS output
 files (log and dump).
 """
 
+from __future__ import annotations
 
-import glob
 import re
+from glob import glob
 from io import StringIO
 
 import numpy as np
@@ -27,9 +25,7 @@ __date__ = "Aug 1, 2018"
 
 
 class LammpsDump(MSONable):
-    """
-    Object for representing dump data for a single snapshot.
-    """
+    """Object for representing dump data for a single snapshot."""
 
     def __init__(self, timestep, natoms, box, data):
         """
@@ -47,7 +43,12 @@ class LammpsDump(MSONable):
         self.data = data
 
     @classmethod
-    def from_string(cls, string):
+    @np.deprecate(message="Use from_str instead")
+    def from_string(cls, *args, **kwargs):
+        return cls.from_str(*args, **kwargs)
+
+    @classmethod
+    def from_str(cls, string):
         """
         Constructor from string parsing.
 
@@ -74,7 +75,7 @@ class LammpsDump(MSONable):
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             LammpsDump
@@ -85,17 +86,15 @@ class LammpsDump(MSONable):
         return cls(**items)
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
-        d = {}
-        d["@module"] = type(self).__module__
-        d["@class"] = type(self).__name__
-        d["timestep"] = self.timestep
-        d["natoms"] = self.natoms
-        d["box"] = self.box.as_dict()
-        d["data"] = self.data.to_json(orient="split")
-        return d
+        """Returns: MSONable dict."""
+        dct = {}
+        dct["@module"] = type(self).__module__
+        dct["@class"] = type(self).__name__
+        dct["timestep"] = self.timestep
+        dct["natoms"] = self.natoms
+        dct["box"] = self.box.as_dict()
+        dct["data"] = self.data.to_json(orient="split")
+        return dct
 
 
 def parse_lammps_dumps(file_pattern):
@@ -111,7 +110,7 @@ def parse_lammps_dumps(file_pattern):
         LammpsDump for each available snapshot.
 
     """
-    files = glob.glob(file_pattern)
+    files = glob(file_pattern)
     if len(files) > 1:
         pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
         files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))
@@ -122,11 +121,11 @@ def parse_lammps_dumps(file_pattern):
             for line in f:
                 if line.startswith("ITEM: TIMESTEP"):
                     if len(dump_cache) > 0:
-                        yield LammpsDump.from_string("".join(dump_cache))
+                        yield LammpsDump.from_str("".join(dump_cache))
                     dump_cache = [line]
                 else:
                     dump_cache.append(line)
-            yield LammpsDump.from_string("".join(dump_cache))
+            yield LammpsDump.from_str("".join(dump_cache))
 
 
 def parse_lammps_log(filename="log.lammps"):
@@ -155,17 +154,17 @@ def parse_lammps_log(filename="log.lammps"):
     )
     end_flag = "Loop time of"
     begins, ends = [], []
-    for i, l in enumerate(lines):
-        if l.startswith(begin_flag):
-            begins.append(i)
-        elif l.startswith(end_flag):
-            ends.append(i)
+    for idx, line in enumerate(lines):
+        if line.startswith(begin_flag):
+            begins.append(idx)
+        elif line.startswith(end_flag):
+            ends.append(idx)
 
     def _parse_thermo(lines):
         multi_pattern = r"-+\s+Step\s+([0-9]+)\s+-+"
         # multi line thermo data
         if re.match(multi_pattern, lines[0]):
-            timestep_marks = [i for i, l in enumerate(lines) if re.match(multi_pattern, l)]
+            timestep_marks = [idx for idx, line in enumerate(lines) if re.match(multi_pattern, line)]
             timesteps = np.split(lines, timestep_marks)[1:]
             dicts = []
             kv_pattern = r"([0-9A-Za-z_\[\]]+)\s+=\s+([0-9eE\.+-]+)"

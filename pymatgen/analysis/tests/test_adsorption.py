@@ -1,13 +1,8 @@
-import unittest
+from __future__ import annotations
 
 import numpy as np
 
-from pymatgen.analysis.adsorption import (
-    AdsorbateSiteFinder,
-    generate_all_slabs,
-    get_rot,
-    reorient_z,
-)
+from pymatgen.analysis.adsorption import AdsorbateSiteFinder, generate_all_slabs, get_rot, reorient_z
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -95,7 +90,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
             self.asf_111.slab
         )
         for n, structure in enumerate(structures):
-            self.assertArrayAlmostEqual(structure[-2].coords, sites["all"][n])
+            self.assert_all_close(structure[-2].coords, sites["all"][n])
         find_args = {"positions": ["hollow"]}
         structures_hollow = self.asf_111.generate_adsorption_structures(co, find_args=find_args)
         assert len(structures_hollow) == len(sites["hollow"])
@@ -108,19 +103,18 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         # Check translation
         sites = self.asf_211.find_adsorption_sites()
         ads_site_coords = sites["all"][0]
-        c_site = structures[0].sites[-2]
+        c_site = structures[0][-2]
         assert str(c_site.specie) == "C"
-        self.assertArrayAlmostEqual(c_site.coords, sites["all"][0])
+        self.assert_all_close(c_site.coords, sites["all"][0])
         # Check no translation
         structures = self.asf_111.generate_adsorption_structures(co, translate=False)
         assert co == Molecule("CO", [[1.0, -0.5, 3], [0.8, 0.46, 3.75]])
         sites = self.asf_111.find_adsorption_sites()
         ads_site_coords = sites["all"][0]
-        c_site = structures[0].sites[-2]
-        self.assertArrayAlmostEqual(c_site.coords, ads_site_coords + np.array([1.0, -0.5, 3]))
+        c_site = structures[0][-2]
+        self.assert_all_close(c_site.coords, ads_site_coords + np.array([1.0, -0.5, 3]))
 
     def test_adsorb_both_surfaces(self):
-
         # Test out for monatomic adsorption
         o = Molecule("O", [[0, 0, 0]])
         ad_slabs = self.asf_100.adsorb_both_surfaces(o)
@@ -146,7 +140,6 @@ class AdsorbateSiteFinderTest(PymatgenTest):
             assert sg.is_laue()
 
     def test_generate_substitution_structures(self):
-
         # Test this for a low miller index halite structure
         slabs = generate_all_slabs(self.MgO, 1, 10, 10, center_slab=True, max_normal_search=1)
         for slab in slabs:
@@ -183,7 +176,3 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         slab = self.slab_dict["111"]
         get_rot(slab)
         reorient_z(slab)
-
-
-if __name__ == "__main__":
-    unittest.main()

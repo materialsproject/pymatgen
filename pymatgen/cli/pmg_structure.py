@@ -1,12 +1,8 @@
 #!/usr/bin/env python
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 
-"""
-Implementation for `pmg structure` CLI.
-"""
+"""Implementation for `pmg structure` CLI."""
 
-import sys
+from __future__ import annotations
 
 from tabulate import tabulate
 
@@ -24,15 +20,15 @@ __date__ = "Aug 13 2016"
 
 def convert_fmt(args):
     """
-    Convert files from one format to another
+    Convert files from one format to another.
 
     Args:
         args (dict): Args from argparse.
     """
     if len(args.filenames) != 2:
         print("File format conversion takes in only two filenames.")
-    s = Structure.from_file(args.filenames[0], primitive="prim" in args.filenames[1].lower())
-    s.to(filename=args.filenames[1])
+    struct = Structure.from_file(args.filenames[0], primitive="prim" in args.filenames[1].lower())
+    struct.to(filename=args.filenames[1])
 
 
 def analyze_symmetry(args):
@@ -45,8 +41,8 @@ def analyze_symmetry(args):
     tolerance = args.symmetry
     t = []
     for filename in args.filenames:
-        s = Structure.from_file(filename, primitive=False)
-        finder = SpacegroupAnalyzer(s, tolerance)
+        struct = Structure.from_file(filename, primitive=False)
+        finder = SpacegroupAnalyzer(struct, tolerance)
         dataset = finder.get_symmetry_dataset()
         t.append([filename, dataset["international"], dataset["number"], dataset["hall"]])
     print(tabulate(t, headers=["Filename", "Int Symbol", "Int number", "Hall"]))
@@ -67,12 +63,14 @@ def analyze_localenv(args):
     for filename in args.filenames:
         print(f"Analyzing {filename}...")
         data = []
-        s = Structure.from_file(filename)
-        for i, site in enumerate(s):
+        struct = Structure.from_file(filename)
+        for i, site in enumerate(struct):
             for species, dist in bonds.items():
                 if species[0] in [sp.symbol for sp in site.species]:
                     dists = [
-                        d for nn, d in s.get_neighbors(site, dist) if species[1] in [sp.symbol for sp in nn.species]
+                        d
+                        for nn, d in struct.get_neighbors(site, dist)
+                        if species[1] in [sp.symbol for sp in nn.species]
                     ]
                     dists = ", ".join(f"{d:.3f}" for d in sorted(dists))
                     data.append([i, species[0], species[1], dists])
@@ -88,14 +86,12 @@ def compare_structures(args):
     """
     filenames = args.filenames
     if len(filenames) < 2:
-        print("You need more than one structure to compare!")
-        sys.exit(-1)
+        raise SystemExit("You need more than one structure to compare!")
     try:
         structures = [Structure.from_file(fn) for fn in filenames]
-    except Exception as ex:
+    except Exception as exc:
         print("Error converting file. Are they in the right format?")
-        print(str(ex))
-        sys.exit(-1)
+        raise SystemExit(exc)
 
     m = StructureMatcher() if args.group == "species" else StructureMatcher(comparator=ElementComparator())
     for idx, grp in enumerate(m.group_structures(structures)):

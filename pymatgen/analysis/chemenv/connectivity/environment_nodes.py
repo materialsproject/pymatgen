@@ -1,6 +1,6 @@
-"""
-Environment nodes module.
-"""
+"""Environment nodes module."""
+
+from __future__ import annotations
 
 import abc
 
@@ -8,9 +8,7 @@ from monty.json import MSONable
 
 
 class AbstractEnvironmentNode(MSONable):
-    """
-    Abstract class used to define an environment as a node in a graph.
-    """
+    """Abstract class used to define an environment as a node in a graph."""
 
     COORDINATION_ENVIRONMENT = 0
     NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS = 1
@@ -25,13 +23,13 @@ class AbstractEnvironmentNode(MSONable):
     CE_NNBCES_NBCES_LIGANDS = -1
     DEFAULT_EXTENSIONS = (ATOM, COORDINATION_ENVIRONMENT)
 
-    def __init__(self, central_site, i_central_site):
+    def __init__(self, central_site, i_central_site) -> None:
         """
         Constructor for the AbstractEnvironmentNode object.
 
         Args:
             central_site (Site or subclass of Site): central site as a pymatgen Site or
-                                                     subclass of Site (e.g. PeriodicSite, ...).
+                subclass of Site (e.g. PeriodicSite, ...).
             i_central_site (int): Index of the central site in the structure.
         """
         self.central_site = central_site
@@ -42,7 +40,7 @@ class AbstractEnvironmentNode(MSONable):
         """Index of the central site."""
         return self.i_central_site
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Simple hash function based on the hash function of the central site."""
         return self.central_site.__hash__()
 
@@ -63,7 +61,8 @@ class AbstractEnvironmentNode(MSONable):
 
     def everything_equal(self, other):
         """Checks equality with respect to another AbstractEnvironmentNode using the index of the central site
-        as well as the central site itself."""
+        as well as the central site itself.
+        """
         return self == other and self.central_site == other.central_site
 
     @property
@@ -94,21 +93,19 @@ class AbstractEnvironmentNode(MSONable):
 
     def __str__(self):
         """String representation of the AbstractEnvironmentNode."""
-        return f"Node #{self.isite:d} {self.atom_symbol} ({self.coordination_environment})"
+        return f"Node #{self.isite} {self.atom_symbol} ({self.coordination_environment})"
 
 
 class EnvironmentNode(AbstractEnvironmentNode):
-    """
-    Class used to define an environment as a node in a graph.
-    """
+    """Class used to define an environment as a node in a graph."""
 
-    def __init__(self, central_site, i_central_site, ce_symbol):
+    def __init__(self, central_site, i_central_site, ce_symbol) -> None:
         """
         Constructor for the EnvironmentNode object.
 
         Args:
             central_site (Site or subclass of Site): central site as a pymatgen Site or
-                                                     subclass of Site (e.g. PeriodicSite, ...).
+                subclass of Site (e.g. PeriodicSite, ...).
             i_central_site (int): Index of the central site in the structure.
             ce_symbol (str): Symbol of the identified environment.
         """
@@ -167,6 +164,7 @@ def get_environment_node(central_site, i_central_site, ce_symbol):
         central_site (Site or subclass of Site): Central site of the environment.
         i_central_site (int): Index of the central site in the structure.
         ce_symbol: Symbol of the environment.
+
     Returns:
         An EnvironmentNode object.
     """

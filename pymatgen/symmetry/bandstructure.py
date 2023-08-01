@@ -1,9 +1,9 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 Provides a class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.
 """
+
+from __future__ import annotations
 
 import itertools
 from warnings import warn
@@ -13,12 +13,8 @@ import numpy as np
 
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.symmetry.kpath import (
-    KPathBase,
-    KPathLatimerMunro,
-    KPathSeek,
-    KPathSetyawanCurtarolo,
-)
+from pymatgen.symmetry.analyzer import cite_conventional_cell_algo
+from pymatgen.symmetry.kpath import KPathBase, KPathLatimerMunro, KPathSeek, KPathSetyawanCurtarolo
 
 __author__ = "Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -29,6 +25,7 @@ __status__ = "Development"
 __date__ = "March 2020"
 
 
+@cite_conventional_cell_algo
 class HighSymmKpath(KPathBase):
     """
     This class generates path along high symmetry lines in the
@@ -57,7 +54,7 @@ class HighSymmKpath(KPathBase):
         """
         Args:
             structure (Structure): Structure object
-            has_magmoms (boolean): Whether the input structure contains
+            has_magmoms (bool): Whether the input structure contains
                 magnetic moments as site properties with the key 'magmom.'
                 Values may be in the form of 3-component vectors given in
                 the basis of the input lattice vectors, in
@@ -67,7 +64,7 @@ class HighSymmKpath(KPathBase):
                 direction along which magnetic moments given as scalars
                 should point. If all magnetic moments are provided as
                 vectors then this argument is not used.
-            path_type (string): Chooses which convention to use to generate
+            path_type (str): Chooses which convention to use to generate
                 the high symmetry path. Options are: 'setyawan_curtarolo', 'hinuma',
                 'latimer_munro' for the Setyawan & Curtarolo, Hinuma et al., and
                 Latimer & Munro conventions. Choosing 'all' will generate one path
@@ -85,12 +82,9 @@ class HighSymmKpath(KPathBase):
 
         self._path_type = path_type
 
-        self._equiv_labels = None
-        self._path_lengths = None
-        self._label_index = None
+        self._equiv_labels = self._path_lengths = self._label_index = None
 
         if path_type != "all":
-
             if path_type == "latimer_munro":
                 self._kpath = self._get_lm_kpath(has_magmoms, magmom_axis, symprec, angle_tolerance, atol).kpath
             elif path_type == "setyawan_curtarolo":
@@ -101,7 +95,6 @@ class HighSymmKpath(KPathBase):
                 self._hin_tmat = hin_dat._tmat
 
         else:
-
             if has_magmoms:
                 raise ValueError("Cannot select 'all' with non-zero magmoms.")
 
@@ -151,7 +144,7 @@ class HighSymmKpath(KPathBase):
     def path_type(self):
         """
         Returns:
-        The type of kpath chosen
+        The type of kpath chosen.
         """
         return self._path_type
 
@@ -247,17 +240,14 @@ class HighSymmKpath(KPathBase):
         )
         labels = {"setyawan_curtarolo": {}, "latimer_munro": {}, "hinuma": {}}
 
-        for (a, b) in pairs:
+        for a, b in pairs:
             [(a_type, a_path)] = list(a.items())
             [(b_type, b_path)] = list(b.items())
 
             sc_count = np.zeros(n_op)
 
             for o_num in range(0, n_op):
-                a_tr_coord = []
-
-                for coord_a in a_path["kpoints"].values():
-                    a_tr_coord.append(np.dot(rpg[o_num], coord_a))
+                a_tr_coord = [np.dot(rpg[o_num], coord_a) for coord_a in a_path["kpoints"].values()]
 
                 for coord_a in a_tr_coord:
                     for value in b_path["kpoints"].values():
@@ -268,11 +258,11 @@ class HighSymmKpath(KPathBase):
             a_to_b_labels = {}
             unlabeled = {}
 
-            for (label_a, coord_a) in a_path["kpoints"].items():
+            for label_a, coord_a in a_path["kpoints"].items():
                 coord_a_t = np.dot(rpg[np.argmax(sc_count)], coord_a)
                 assigned = False
 
-                for (label_b, coord_b) in b_path["kpoints"].items():
+                for label_b, coord_b in b_path["kpoints"].items():
                     if np.allclose(coord_b, coord_a_t, atol=self._atol):
                         a_to_b_labels[label_a] = label_b
                         assigned = True
@@ -281,7 +271,7 @@ class HighSymmKpath(KPathBase):
                 if not assigned:
                     unlabeled[label_a] = coord_a
 
-            for (label_a, coord_a) in unlabeled.items():
+            for label_a, coord_a in unlabeled.items():
                 for op in rpg:
                     coord_a_t = np.dot(op, coord_a)
                     key = [
@@ -344,10 +334,7 @@ class HighSymmKpath(KPathBase):
                 elif edge_euler[::-1] == edge_reg:
                     distances_map.append((plot_axis.index(edge_reg), True))
 
-        if bandstructure.is_spin_polarized:
-            spins = [Spin.up, Spin.down]
-        else:
-            spins = [Spin.up]
+        spins = [Spin.up, Spin.down] if bandstructure.is_spin_polarized else [Spin.up]
 
         new_kpoints = []
         new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}
@@ -362,7 +349,6 @@ class HighSymmKpath(KPathBase):
             branch = bandstructure.branches[ind]
 
             if branch["name"] not in processed:
-
                 if tuple(branch["name"].split("-")) in plot_axis:
                     new_branches.append(branch)
                     processed.append(branch["name"])
@@ -380,7 +366,6 @@ class HighSymmKpath(KPathBase):
 
         # Obtain new values
         for entry in distances_map:
-
             branch = new_branches[entry[0]]
 
             if not entry[1]:
@@ -398,13 +383,11 @@ class HighSymmKpath(KPathBase):
             # eigenvals
             for spin in spins:
                 for n, band in enumerate(bandstructure.bands[spin]):
-
                     new_bands[spin][n] = np.concatenate((new_bands[spin][n], band[start:stop:step]))
 
             # projections
             for spin in spins:
                 for n, band in enumerate(bandstructure.projections[spin]):
-
                     new_projections[spin][n] += band[start:stop:step].tolist()
 
         for spin in spins:
@@ -412,7 +395,7 @@ class HighSymmKpath(KPathBase):
 
         new_labels_dict = {label: point.frac_coords for label, point in bandstructure.labels_dict.items()}
 
-        new_bandstructure = BandStructureSymmLine(
+        return BandStructureSymmLine(
             kpoints=new_kpoints,
             eigenvals=new_bands,
             lattice=bandstructure.lattice_rec,
@@ -421,5 +404,3 @@ class HighSymmKpath(KPathBase):
             structure=bandstructure.structure,
             projections=new_projections,
         )
-
-        return new_bandstructure

@@ -1,14 +1,9 @@
+# cython: language_level=3
 """
 This module contains an algorithm to solve the Linear Assignment Problem
 """
 
-
-__author__ = "Will Richards"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Will Richards"
-__email__ = "wrichards@mit.edu"
-__date__ = "Jan 28, 2013"
+# isort: dont-add-imports
 
 import numpy as np
 
@@ -17,6 +12,12 @@ cimport numpy as np
 from libc.math cimport fabs
 from libc.stdlib cimport free, malloc
 
+__author__ = "Will Richards"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Will Richards"
+__email__ = "wrichards@mit.edu"
+__date__ = "Jan 28, 2013"
 
 class LinearAssignment:
     """
@@ -64,8 +65,8 @@ class LinearAssignment:
             self.c[:self.nx] = self.orig_c
 
         # initialize solution vectors
-        self._x = np.empty(self.n, dtype=np.int_)
-        self._y = np.empty(self.n, dtype=np.int_)
+        self._x = np.empty(self.n, dtype=int)
+        self._y = np.empty(self.n, dtype=int)
 
         self.min_cost = compute(self.n, self.c, self._x, self._y, self.epsilon)
         self.solution = self._x[:self.nx]

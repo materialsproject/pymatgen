@@ -1,16 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""Script to visualize the model coordination environments."""
 
-"""
-Script to visualize the model coordination environments
-"""
-
-__author__ = "David Waroquiers"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "David Waroquiers"
-__email__ = "david.waroquiers@gmail.com"
-__date__ = "Feb 20, 2016"
+from __future__ import annotations
 
 import copy
 import json
@@ -28,9 +18,7 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     NormalizedAngleDistanceNbSetWeight,
     SelfCSMNbSetWeight,
 )
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
     LocalGeometryFinder,
@@ -38,13 +26,19 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
+__author__ = "David Waroquiers"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "2.0"
+__maintainer__ = "David Waroquiers"
+__email__ = "david.waroquiers@gmail.com"
+__date__ = "Feb 20, 2016"
+
+
 allcg = AllCoordinationGeometries()
 
 
 class CoordinationEnvironmentMorphing:
-    """
-    Class to morph a coordination environment into another one.
-    """
+    """Class to morph a coordination environment into another one."""
 
     def __init__(self, initial_environment_symbol, expected_final_environment_symbol, morphing_description):
         self.initial_environment_symbol = initial_environment_symbol
@@ -76,7 +70,7 @@ class CoordinationEnvironmentMorphing:
             morphing_description=morphing_description,
         )
 
-    def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] = None) -> None:
+    def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] | None = None) -> None:
         """
         Plot the fractions of the initial and final coordination environments as a function of the morphing factor.
 
@@ -149,24 +143,23 @@ class CoordinationEnvironmentMorphing:
 
     def get_structure(self, morphing_factor):
         lattice = Lattice.cubic(5.0)
-        myspecies = ["O"] * (self.coordination_geometry.coordination_number + 1)
-        myspecies[0] = "Cu"
+        species = ["O"] * (self.coordination_geometry.coordination_number + 1)
+        species[0] = "Cu"
 
         coords = copy.deepcopy(self.abstract_geometry.points_wcs_ctwcc())
         bare_points = self.abstract_geometry.bare_points_with_centre
 
         for morphing in self.morphing_description:
             if morphing["site_type"] == "neighbor":
-                isite = morphing["ineighbor"] + 1
+                i_site = morphing["ineighbor"] + 1
                 if morphing["expansion_origin"] == "central_site":
                     origin = bare_points[0]
-                vector = bare_points[isite] - origin
-                coords[isite] += vector * (morphing_factor - 1.0)
+                vector = bare_points[i_site] - origin
+                coords[i_site] += vector * (morphing_factor - 1.0)
             else:
                 raise ValueError(f"Key \"site_type\" is {morphing['site_type']} while it can only be neighbor")
 
-        structure = Structure(lattice=lattice, species=myspecies, coords=coords, coords_are_cartesian=True)
-        return structure
+        return Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
 
     def estimate_parameters(self, dist_factor_min, dist_factor_max, symmetry_measure_type="csm_wcs_ctwcc"):
         only_symbols = [self.initial_environment_symbol, self.expected_final_environment_symbol]
@@ -255,7 +248,7 @@ class CoordinationEnvironmentMorphing:
 
         nad_weight = NormalizedAngleDistanceNbSetWeight(average_type="geometric", aa=1, bb=1)
 
-        weights = {
+        return {
             "DistAngArea": da_area_weight,
             "SelfCSM": self_csm_weight,
             "DeltaCSM": delta_csm_weight,
@@ -263,8 +256,6 @@ class CoordinationEnvironmentMorphing:
             "Angle": angle_weight,
             "NormalizedAngDist": nad_weight,
         }
-
-        return weights
 
 
 if __name__ == "__main__":
@@ -277,46 +268,46 @@ if __name__ == "__main__":
 
     with open("ce_pairs.json") as f:
         ce_pairs = json.load(f)
-    self_weight_max_csms = {}
-    self_weight_max_csms_per_cn = {}
-    allselfmaxcsms = []
-    delta_csm_mins = {}
-    alldeltacsmmins = []
+    self_weight_max_csms: dict[str, list[float]] = {}
+    self_weight_max_csms_per_cn: dict[str, list[float]] = {}
+    all_self_max_csms = []
+    delta_csm_mins: dict[str, list[float]] = {}
+    all_delta_csm_mins = []
     all_cn_pairs = []
     for ii in range(1, 14):
-        self_weight_max_csms_per_cn[str(ii)] = list()
+        self_weight_max_csms_per_cn[str(ii)] = []
         for jj in range(ii + 1, 14):
-            cn_pair = f"{ii:d}_{jj:d}"
-            self_weight_max_csms[cn_pair] = list()
-            delta_csm_mins[cn_pair] = list()
+            cn_pair = f"{ii}_{jj}"
+            self_weight_max_csms[cn_pair] = []
+            delta_csm_mins[cn_pair] = []
             all_cn_pairs.append(cn_pair)
     for ce_pair_dict in ce_pairs:
         ce1 = ce_pair_dict["initial_environment_symbol"]
         ce2 = ce_pair_dict["expected_final_environment_symbol"]
         cn_pair = f"{ce2.split(':')[1]}_{ce1.split(':')[1]}"
         nb_indices = ce_pair_dict["neighbors_indices"]
-        mindist = ce_pair_dict["dist_factor_min"]
-        maxdist = ce_pair_dict["dist_factor_max"]
+        min_dist = ce_pair_dict["dist_factor_min"]
+        max_dist = ce_pair_dict["dist_factor_max"]
         morph = CoordinationEnvironmentMorphing.simple_expansion(
             initial_environment_symbol=ce1, expected_final_environment_symbol=ce2, neighbors_indices=nb_indices
         )
-        params = morph.estimate_parameters(dist_factor_min=mindist, dist_factor_max=maxdist)
+        params = morph.estimate_parameters(dist_factor_min=min_dist, dist_factor_max=max_dist)
         print(f"For pair {ce1} to {ce2}, parameters are : ")
         print(params)
         self_weight_max_csms[cn_pair].append(params["self_weight_max_csm"])
         delta_csm_mins[cn_pair].append(params["delta_csm_min"])
-        allselfmaxcsms.append(params["self_weight_max_csm"])
-        alldeltacsmmins.append(params["delta_csm_min"])
+        all_self_max_csms.append(params["self_weight_max_csm"])
+        all_delta_csm_mins.append(params["delta_csm_min"])
         self_weight_max_csms_per_cn[ce1.split(":")[1]].append(params["self_weight_max_csm"])
 
     fig = plt.figure(1)
     subplot = fig.add_subplot(111)
 
-    for ipair, cn_pair in enumerate(all_cn_pairs):
+    for idx, cn_pair in enumerate(all_cn_pairs):
         if len(self_weight_max_csms[cn_pair]) == 0:
             continue
-        subplot.plot(ipair * np.ones_like(self_weight_max_csms[cn_pair]), self_weight_max_csms[cn_pair], "rx")
-        subplot.plot(ipair * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
+        subplot.plot(idx * np.ones_like(self_weight_max_csms[cn_pair]), self_weight_max_csms[cn_pair], "rx")
+        subplot.plot(idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
 
     subplot.set_xticks(range(len(all_cn_pairs)))
     subplot.set_xticklabels(all_cn_pairs, rotation="vertical")
@@ -332,16 +323,16 @@ if __name__ == "__main__":
 
     subplot2.set_xticks(range(1, 14))
     fig2.savefig("self_params_per_cn.pdf")
-    print(np.mean(allselfmaxcsms))
-    print(np.mean(alldeltacsmmins))
+    print(np.mean(all_self_max_csms))
+    print(np.mean(all_delta_csm_mins))
 
     fig3 = plt.figure(3, figsize=(24, 12))
     subplot3 = fig3.add_subplot(111)
 
-    for ipair, cn_pair in enumerate(all_cn_pairs):
+    for idx, cn_pair in enumerate(all_cn_pairs):
         if len(delta_csm_mins[cn_pair]) == 0:
             continue
-        subplot3.plot(ipair * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
+        subplot3.plot(idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
 
     subplot3.set_xticks(range(len(all_cn_pairs)))
     subplot3.set_xticklabels(all_cn_pairs, rotation="vertical")

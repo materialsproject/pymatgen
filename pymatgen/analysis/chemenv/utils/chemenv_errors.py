@@ -1,9 +1,6 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module contains the error classes for the chemenv package."""
 
-"""
-This module contains the error classes for the chemenv package.
-"""
+from __future__ import annotations
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -15,9 +12,7 @@ __date__ = "Feb 20, 2016"
 
 
 class AbstractChemenvError(Exception):
-    """
-    Abstract class for Chemenv errors.
-    """
+    """Abstract class for Chemenv errors."""
 
     def __init__(self, cls, method, msg):
         """
@@ -34,14 +29,10 @@ class AbstractChemenvError(Exception):
 
 
 class NeighborsNotComputedChemenvError(AbstractChemenvError):
-    """
-    Neighbors not computed error.
-    """
+    """Neighbors not computed error."""
 
     def __init__(self, site):
-        """
-        :param site:
-        """
+        """:param site:"""
         self.site = site
 
     def __str__(self):
@@ -49,14 +40,10 @@ class NeighborsNotComputedChemenvError(AbstractChemenvError):
 
 
 class EquivalentSiteSearchError(AbstractChemenvError):
-    """
-    Equivalent site search error.
-    """
+    """Equivalent site search error."""
 
     def __init__(self, site):
-        """
-        :param site:
-        """
+        """:param site:"""
         self.site = site
 
     def __str__(self):
@@ -64,14 +51,10 @@ class EquivalentSiteSearchError(AbstractChemenvError):
 
 
 class SolidAngleError(AbstractChemenvError):
-    """
-    Solid angle error.
-    """
+    """Solid angle error."""
 
     def __init__(self, cosinus):
-        """
-        :param cosinus:
-        """
+        """:param cosinus:"""
         self.cosinus = cosinus
 
     def __str__(self):
@@ -79,9 +62,7 @@ class SolidAngleError(AbstractChemenvError):
 
 
 class ChemenvError(Exception):
-    """
-    Chemenv error.
-    """
+    """Chemenv error."""
 
     def __init__(self, cls, method, msg):
         """

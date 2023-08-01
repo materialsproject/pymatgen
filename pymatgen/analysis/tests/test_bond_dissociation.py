@@ -1,6 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
+from __future__ import annotations
 
 import os
 import unittest
@@ -15,7 +13,7 @@ module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 class BondDissociationTest(unittest.TestCase):
     def setUp(self):
-        pytest.importorskip("openbabel", reason="OpenBabel not installed")
+        pytest.importorskip("openbabel")
         self.PC_65_principle = loadfn(os.path.join(module_dir, "PC_65_principle.json"))
         self.PC_65_principle["initial_molecule"] = self.PC_65_principle["initial_molecule"].as_dict()
         self.PC_65_principle["final_molecule"] = self.PC_65_principle["final_molecule"].as_dict()
@@ -546,7 +544,3 @@ class BondDissociationTest(unittest.TestCase):
         BDE = BondDissociationEnergies(self.neg_EC_40_principle, self.neg_EC_40_fragments)
         assert len(BDE.filtered_entries) == 18
         assert BDE.bond_dissociation_energies == self.EC_correct
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,12 +1,11 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module defines classes for parsing the FEFF output files.
 
 Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
 """
 
+
+from __future__ import annotations
 
 import re
 from collections import defaultdict
@@ -31,16 +30,14 @@ __date__ = "April 7, 2013"
 
 
 class LDos(MSONable):
-    """
-    Parser for ldos files ldos01, ldos02, .....
-    """
+    """Parser for ldos files ldos01, ldos02, ....."""
 
     def __init__(self, complete_dos, charge_transfer):
         """
         Args:
             complete_dos (CompleteDos): complete dos object
             charge_transfer (dict): computed charge transfer between atoms
-                dictionary
+                dictionary.
         """
         self.complete_dos = complete_dos
         self.charge_transfer = charge_transfer
@@ -57,7 +54,7 @@ class LDos(MSONable):
             ldos_file (str): output ldos file of run to obtain dos info, etc.
         """
         header_str = Header.header_string_from_file(feff_inp_file)
-        header = Header.from_string(header_str)
+        header = Header.from_str(header_str)
         structure = header.struct
         nsites = structure.num_sites
         parameters = Tags.from_file(feff_inp_file)
@@ -203,30 +200,30 @@ class LDos(MSONable):
             dicts = Potential.pot_dict_from_string(pot_string)
             pot_dict = dicts[1]
 
-        for i in range(0, len(dicts[0]) + 1):
-            if len(str(i)) == 1:
-                with zopen(f"{ldos_file}0{i}.dat", "rt") as fobject:
-                    f = fobject.readlines()
-                    s = float(f[3].split()[2])
-                    p = float(f[4].split()[2])
-                    d = float(f[5].split()[2])
-                    f1 = float(f[6].split()[2])
-                    tot = float(f[1].split()[4])
-                    cht[str(i)] = {pot_dict[i]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
+        for idx in range(len(dicts[0]) + 1):
+            if len(str(idx)) == 1:
+                with zopen(f"{ldos_file}0{idx}.dat", "rt") as file:
+                    lines = file.readlines()
+                    s = float(lines[3].split()[2])
+                    p = float(lines[4].split()[2])
+                    d = float(lines[5].split()[2])
+                    f1 = float(lines[6].split()[2])
+                    tot = float(lines[1].split()[4])
+                    cht[str(idx)] = {pot_dict[idx]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
             else:
-                with zopen(ldos_file + str(i) + ".dat", "rt") as fid:
-                    f = fid.readlines()
-                    s = float(f[3].split()[2])
-                    p = float(f[4].split()[2])
-                    d = float(f[5].split()[2])
-                    f1 = float(f[6].split()[2])
-                    tot = float(f[1].split()[4])
-                    cht[str(i)] = {pot_dict[i]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
+                with zopen(f"{ldos_file}{idx}.dat", "rt") as file:
+                    lines = file.readlines()
+                    s = float(lines[3].split()[2])
+                    p = float(lines[4].split()[2])
+                    d = float(lines[5].split()[2])
+                    f1 = float(lines[6].split()[2])
+                    tot = float(lines[1].split()[4])
+                    cht[str(idx)] = {pot_dict[idx]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
 
         return cht
 
     def charge_transfer_to_string(self):
-        """returns shrage transfer as string"""
+        """Returns charge transfer as string."""
         ch = self.charge_transfer
         chts = ["\nCharge Transfer\n\nabsorbing atom"]
         for i in range(len(ch)):
@@ -260,13 +257,13 @@ class Xmu(MSONable):
     Parser for data in 'xmu.dat' file.
     The file 'xmu.dat' contains XANES, EXAFS or NRIXS data depending on the
     situation; \\mu, \\mu_0, and \\chi = \\chi * \\mu_0/ \\mu_0/(edge+50eV) as
-    functions of absolute energy E, relative energy E − E_f and wave number k.
+    functions of absolute energy E, relative energy E - E_f and wave number k.
 
     Default attributes:
         xmu: Photon absorption cross section of absorbing atom in material
         Energies: Energies of data point
         relative_energies: E - E_fermi
-        wavenumber: k=\\sqrt(E −E_fermi)
+        wavenumber: k=\\sqrt(E -E_fermi)
         mu: The total absorption cross-section.
         mu0: The embedded atomic background absorption.
         chi: fine structure.
@@ -283,7 +280,7 @@ class Xmu(MSONable):
             header: Header object
             parameters: Tags object
             absorbing_atom (str/int): absorbing atom symbol or index
-            data (numpy.ndarray, Nx6): cross_sections
+            data (numpy.ndarray, Nx6): cross_sections.
         """
         self.header = header
         self.parameters = parameters
@@ -306,26 +303,22 @@ class Xmu(MSONable):
         header = Header.from_file(feff_inp_file)
         parameters = Tags.from_file(feff_inp_file)
         pots = Potential.pot_string_from_file(feff_inp_file)
+
         # site index (Note: in feff it starts from 1)
-        if "RECIPROCAL" in parameters:
-            absorbing_atom = parameters["TARGET"]
-        # species symbol
-        else:
-            absorbing_atom = pots.splitlines()[3].split()[2]
+        # else case is species symbol
+        absorbing_atom = parameters["TARGET"] if "RECIPROCAL" in parameters else pots.splitlines()[3].split()[2]
         return Xmu(header, parameters, absorbing_atom, data)
 
     @property
     def energies(self):
-        """
-        Returns the absolute energies in eV.
-        """
+        """Returns the absolute energies in eV."""
         return self.data[:, 0]
 
     @property
     def relative_energies(self):
         """
-        Returns energy with respect to the fermi level.
-        E - E_f
+        Returns energy with respect to the Fermi level.
+        E - E_f.
         """
         return self.data[:, 1]
 
@@ -340,51 +333,37 @@ class Xmu(MSONable):
 
     @property
     def mu(self):
-        """
-        Returns the total absorption cross-section.
-        """
+        """Returns the total absorption cross-section."""
         return self.data[:, 3]
 
     @property
     def mu0(self):
-        """
-        Returns the embedded atomic background absorption.
-        """
+        """Returns the embedded atomic background absorption."""
         return self.data[:, 4]
 
     @property
     def chi(self):
-        """
-        Returns the normalized fine structure.
-        """
+        """Returns the normalized fine structure."""
         return self.data[:, 5]
 
     @property
     def e_fermi(self):
-        """
-        Returns the fermi level in eV.
-        """
+        """Returns the Fermi level in eV."""
         return self.energies[0] - self.relative_energies[0]
 
     @property
     def source(self):
-        """
-        Returns source identification from Header file
-        """
+        """Returns source identification from Header file."""
         return self.header.source
 
     @property
     def calc(self):
-        """
-        Returns type of Feff calculation, XANES or EXAFS
-        """
+        """Returns type of Feff calculation, XANES or EXAFS."""
         return "XANES" if "XANES" in self.parameters else "EXAFS"
 
     @property
     def material_formula(self):
-        """
-        Returns chemical formula of material from feff.inp file
-        """
+        """Returns chemical formula of material from feff.inp file."""
         try:
             form = self.header.formula
         except IndexError:
@@ -393,24 +372,18 @@ class Xmu(MSONable):
 
     @property
     def edge(self):
-        """
-        Returns excitation edge.
-        """
+        """Returns excitation edge."""
         return self.parameters["EDGE"]
 
     def as_dict(self):
-        """
-        Returns dict representations of Xmu object
-        """
+        """Returns dict representations of Xmu object."""
         d = MSONable.as_dict(self)
         d["data"] = self.data.tolist()
         return d
 
 
 class Eels(MSONable):
-    """
-    Parse'eels.dat' file.
-    """
+    """Parse'eels.dat' file."""
 
     def __init__(self, data):
         """
@@ -421,30 +394,22 @@ class Eels(MSONable):
 
     @property
     def energies(self):
-        """
-        Returns the energies in eV.
-        """
+        """Returns the energies in eV."""
         return self.data[:, 0]
 
     @property
     def total_spectrum(self):
-        """
-        Returns the total eels spectrum.
-        """
+        """Returns the total eels spectrum."""
         return self.data[:, 1]
 
     @property
     def atomic_background(self):
-        """
-        Returns: atomic background.
-        """
+        """Returns: atomic background."""
         return self.data[:, 2]
 
     @property
     def fine_structure(self):
-        """
-        Returns: Fine structure of EELS.
-        """
+        """Returns: Fine structure of EELS."""
         return self.data[:, 3]
 
     @staticmethod
@@ -462,9 +427,7 @@ class Eels(MSONable):
         return Eels(data)
 
     def as_dict(self):
-        """
-        Returns dict representations of Xmu object
-        """
+        """Returns dict representations of Xmu object."""
         d = MSONable.as_dict(self)
         d["data"] = self.data.tolist()
         return d

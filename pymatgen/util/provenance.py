@@ -1,9 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-Classes and methods related to the Structure Notation Language (SNL)
-"""
+"""Classes and methods related to the Structure Notation Language (SNL)."""
 
 from __future__ import annotations
 
@@ -22,8 +17,7 @@ try:
     from pybtex import errors
     from pybtex.database.input import bibtex
 except ImportError:
-    pybtex = None
-    bibtex = None
+    pybtex = bibtex = None
 
 from pymatgen.core.structure import Molecule, Structure
 
@@ -39,7 +33,7 @@ MAX_BIBTEX_CHARS = 20000  # maximum number of characters for BibTeX reference
 
 def is_valid_bibtex(reference: str) -> bool:
     """
-    Use pybtex to validate that a reference is in proper BibTeX format
+    Use pybtex to validate that a reference is in proper BibTeX format.
 
     Args:
         reference: A String reference in BibTeX format.
@@ -83,22 +77,22 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
         Structure (dict).
     """
 
+    __slots__ = ()
+
     def as_dict(self) -> dict[str, str]:
-        """
-        Returns: Dict
-        """
+        """Returns: Dict."""
         return {"name": self.name, "url": self.url, "description": self.description}
 
     @staticmethod
-    def from_dict(h_node: dict[str, str]) -> HistoryNode:
+    def from_dict(dct: dict[str, str]) -> HistoryNode:
         """
         Args:
-            d (dict): Dict representation
+            dct (dict): Dict representation.
 
         Returns:
             HistoryNode
         """
-        return HistoryNode(h_node["name"], h_node["url"], h_node["description"])
+        return HistoryNode(dct["name"], dct["url"], dct["description"])
 
     @staticmethod
     def parse_history_node(h_node):
@@ -122,34 +116,25 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
 
 class Author(namedtuple("Author", ["name", "email"])):
     """
-    An Author contains two fields:
-
-    .. attribute:: name
-
-        Name of author (String)
-
-    .. attribute:: email
-
-        Email of author (String)
+    An Author contains two fields: name and email. It is meant to represent
+    the author of a Structure or the author of a code that was applied to a Structure.
     """
 
+    __slots__ = ()
+
     def __str__(self):
-        """
-        String representation of an Author
-        """
+        """String representation of an Author."""
         return f"{self.name} <{self.email}>"
 
     def as_dict(self):
-        """
-        Returns: MSONable dict.
-        """
+        """Returns: MSONable dict."""
         return {"name": self.name, "email": self.email}
 
     @staticmethod
     def from_dict(d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             Author
@@ -159,7 +144,7 @@ class Author(namedtuple("Author", ["name", "email"])):
     @staticmethod
     def parse_author(author):
         """
-        Parses an Author object from either a String, dict, or tuple
+        Parses an Author object from either a String, dict, or tuple.
 
         Args:
             author: A String formatted as "NAME <email@domain.com>",
@@ -184,21 +169,20 @@ class Author(namedtuple("Author", ["name", "email"])):
 
 class StructureNL:
     """
-    The Structure Notation Language (SNL, pronounced 'snail') is a container
-    for a pymatgen Structure/Molecule object with some additional fields for
-    enhanced provenance. It is meant to be imported/exported in a JSON file
-    format with the following structure:
+    The Structure Notation Language (SNL, pronounced 'snail') is a container for a pymatgen
+    Structure/Molecule object with some additional fields for enhanced provenance.
 
-    - about
-        - created_at
-        - authors
-        - projects
-        - references
-        - remarks
-        - data
-        - history
-    - lattice (optional)
-    - sites
+    It is meant to be imported/exported in a JSON file format with the following structure:
+        - sites
+        - lattice (optional)
+        - about
+            - created_at
+            - authors
+            - projects
+            - references
+            - remarks
+            - data
+            - history
     """
 
     def __init__(
@@ -224,7 +208,7 @@ class StructureNL:
             data: A free form dict. Namespaced at the root level with an
                 underscore, e.g. {"_materialsproject": <custom data>}
             history: List of dicts - [{'name':'', 'url':'', 'description':{}}]
-            created_at: A datetime object
+            created_at: A datetime object.
         """
         # initialize root-level structure keys
         self.structure = struct_or_mol
@@ -244,7 +228,7 @@ class StructureNL:
             raise ValueError("Invalid format for SNL reference! Should be BibTeX string.")
         if len(references) > MAX_BIBTEX_CHARS:
             raise ValueError(
-                f"The BibTeX string must be fewer than {MAX_BIBTEX_CHARS} chars " f", you have {len(references)}"
+                f"The BibTeX string must be fewer than {MAX_BIBTEX_CHARS} chars, you have {len(references)}"
             )
 
         self.references = references
@@ -254,9 +238,9 @@ class StructureNL:
         self.remarks = [remarks] if isinstance(remarks, str) else remarks
 
         # check remarks limit
-        for r in self.remarks:
-            if len(r) > 140:
-                raise ValueError(f"The remark exceeds the maximum size of140 characters: {r}")
+        for remark in self.remarks:
+            if len(remark) > 140:
+                raise ValueError(f"The remark exceeds the maximum size of 140 characters: {len(remark)}")
 
         # check data limit
         self.data = data or {}
@@ -266,11 +250,11 @@ class StructureNL:
                 f"bytes (you have {sys.getsizeof(data)})"
             )
 
-        for k in self.data:
-            if not k.startswith("_"):
+        for key in self.data:
+            if not key.startswith("_"):
                 raise ValueError(
                     "data must contain properly namespaced data with keys starting with an underscore. "
-                    f"The key {k} does not start with an underscore."
+                    f"{key=} does not start with an underscore."
                 )
 
         # check for valid history nodes
@@ -284,9 +268,7 @@ class StructureNL:
         self.created_at = created_at or datetime.datetime.utcnow()
 
     def as_dict(self):
-        """
-        Returns: MSONable dict
-        """
+        """Returns: MSONable dict."""
         d = self.structure.as_dict()
         d["@module"] = type(self).__module__
         d["@class"] = type(self).__name__
@@ -305,7 +287,7 @@ class StructureNL:
     def from_dict(cls, d):
         """
         Args:
-            d (dict): Dict representation
+            d (dict): Dict representation.
 
         Returns:
             Class
@@ -321,11 +303,11 @@ class StructureNL:
         return cls(
             structure,
             a["authors"],
-            projects=a.get("projects", None),
+            projects=a.get("projects"),
             references=a.get("references", ""),
-            remarks=a.get("remarks", None),
+            remarks=a.get("remarks"),
             data=data,
-            history=a.get("history", None),
+            history=a.get("history"),
             created_at=created_at,
         )
 
@@ -369,15 +351,15 @@ class StructureNL:
         histories = [[]] * len(structures) if histories is None else histories
 
         snl_list = []
-        for i, struct in enumerate(structures):
+        for idx, struct in enumerate(structures):
             snl = StructureNL(
                 struct,
                 authors,
                 projects=projects,
                 references=references,
                 remarks=remarks,
-                data=data[i],
-                history=histories[i],
+                data=data[idx],
+                history=histories[idx],
                 created_at=created_at,
             )
             snl_list.append(snl)
@@ -387,8 +369,8 @@ class StructureNL:
     def __str__(self):
         return "\n".join(
             [
-                f"{k}\n{getattr(self, k)}"
-                for k in (
+                f"{key}\n{getattr(self, key)}"
+                for key in (
                     "structure",
                     "authors",
                     "projects",

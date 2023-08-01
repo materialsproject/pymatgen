@@ -1,9 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License
-
-"""
-This module implements reading and writing of ShengBTE CONTROL files.
-"""
+"""This module implements reading and writing of ShengBTE CONTROL files."""
 
 from __future__ import annotations
 
@@ -36,7 +31,7 @@ class Control(MSONable, dict):
     detailed description and default values of CONTROL arguments.
     """
 
-    required_params = [
+    required_params = data_keys = (
         "nelements",
         "natoms",
         "ngrid",
@@ -45,9 +40,9 @@ class Control(MSONable, dict):
         "elements",
         "positions",
         "scell",
-    ]
-    allocations_keys = ["nelements", "natoms", "ngrid", "norientations"]
-    crystal_keys = [
+    )
+    allocations_keys = ("nelements", "natoms", "ngrid", "norientations")
+    crystal_keys = (
         "lfactor",
         "lattvec",
         "types",
@@ -59,8 +54,8 @@ class Control(MSONable, dict):
         "born",
         "scell",
         "orientations",
-    ]
-    params_keys = [
+    )
+    params_keys = (
         "t",
         "t_min",
         "t_max",
@@ -73,8 +68,8 @@ class Control(MSONable, dict):
         "maxiter",
         "nticks",
         "eps",
-    ]
-    flags_keys = [
+    )
+    flags_keys = (
         "nonanalytic",
         "convergence",
         "isotopes",
@@ -82,7 +77,7 @@ class Control(MSONable, dict):
         "nanowires",
         "onlyharmonic",
         "espresso",
-    ]
+    )
 
     def __init__(self, ngrid: list[int] | None = None, temperature: float | dict[str, float] = 300, **kwargs):
         """
@@ -134,7 +129,7 @@ class Control(MSONable, dict):
     )
     def from_file(cls, filepath: str):
         """
-        Read a CONTROL namelist file and output a 'Control' object
+        Read a CONTROL namelist file and output a 'Control' object.
 
         Args:
             filepath: Path of the CONTROL file.
@@ -174,14 +169,14 @@ class Control(MSONable, dict):
     )
     def to_file(self, filename: str = "CONTROL"):
         """
-        Writes ShengBTE CONTROL file from 'Control' object
+        Writes ShengBTE CONTROL file from 'Control' object.
 
         Args:
             filename: A file name.
         """
         for param in self.required_params:
             if param not in self.as_dict():
-                warnings.warn(f"Required parameter '{param}' not specified!")
+                warnings.warn(f"Required parameter {param!r} not specified!")
 
         alloc_dict = _get_subdict(self, self.allocations_keys)
         alloc_nml = f90nml.Namelist({"allocations": alloc_dict})
@@ -269,12 +264,10 @@ class Control(MSONable, dict):
         return Structure(cell, species, self["positions"])
 
     def as_dict(self):
-        """
-        Returns: MSONAble dict
-        """
+        """Returns: MSONable dict."""
         return dict(self)
 
 
 def _get_subdict(master_dict, subkeys):
-    """Helper method to get a set of keys from a larger dictionary"""
+    """Helper method to get a set of keys from a larger dictionary."""
     return {k: master_dict[k] for k in subkeys if k in master_dict and master_dict[k] is not None}

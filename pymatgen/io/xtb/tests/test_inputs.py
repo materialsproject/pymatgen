@@ -1,6 +1,4 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
+from __future__ import annotations
 
 import os
 
@@ -12,8 +10,8 @@ __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.1"
 
-expected_output_dir = os.path.join(os.path.dirname(__file__), PymatgenTest.TEST_FILES_DIR, "xtb", "expected_output")
-test_dir = os.path.join(os.path.dirname(__file__), PymatgenTest.TEST_FILES_DIR, "xtb", "sample_CREST_output")
+test_dir = f"{PymatgenTest.TEST_FILES_DIR}/xtb/sample_CREST_output"
+expected_dir = f"{PymatgenTest.TEST_FILES_DIR}/xtb/expected_output"
 
 
 class TestCRESTInput(PymatgenTest):
@@ -31,16 +29,16 @@ class TestCRESTInput(PymatgenTest):
         mol = Molecule(species=species, coords=coords)
         cin = CRESTInput(molecule=mol, coords_filename="crest_in.xyz")
 
-        self.assertDictEqual(mol.as_dict(), cin.molecule.as_dict())
-        self.assertEqual("crest_in.xyz", cin.coords_filename)
+        assert mol.as_dict() == cin.molecule.as_dict()
+        assert cin.coords_filename == "crest_in.xyz"
 
     def test_constraints_file(self):
         constraints = {"atoms": [8, 1, 2], "force_constant": 0.5}
         mol = Molecule.from_file(os.path.join(test_dir, "crest_in.xyz"))
         cin = CRESTInput(molecule=mol, constraints=constraints)
-        with open(os.path.join(expected_output_dir, "expected_constrains.txt")) as f:
+        with open(os.path.join(expected_dir, "expected_constrains.txt")) as f:
             exp_con = f.read()
-            self.assertEqual(
-                exp_con.strip(),
-                cin.constrains_template(molecule=mol, reference_fnm="crest_in.xyz", constraints=constraints).strip(),
+            assert (
+                exp_con.strip()
+                == cin.constrains_template(molecule=mol, reference_fnm="crest_in.xyz", constraints=constraints).strip()
             )
