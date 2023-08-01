@@ -15,8 +15,8 @@ __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Alex Epstein"
 __email__ = "aepstein@lbl.gov"
-__date__ = "January 5, 2021"
-__credits__ = "Steven Wheeler, Trevor Seguin, Evan Spotte-Smith"
+__date__ = "August 1, 2023"
+__credits__ = "Ryan Kingsbury, Steven Wheeler, Trevor Seguin, " "Evan Spotte-Smith"
 
 from math import isclose
 
@@ -24,26 +24,34 @@ import numpy as np
 import scipy.constants as const
 
 from pymatgen.core import Molecule
-from pymatgen.core.units import amu_to_kg
 from pymatgen.core.units import kb as kb_ev
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.qchem.outputs import QCOutput
 
 # Define useful constants
-kb = kb_ev * const.eV  # pymatgen kb from ev/K to J/K
-c = const.speed_of_light * 100  # cm/s
-h = const.h  # Planck's constant J.s
-R = const.R / const.calorie  # Ideal gas constant cal/mol
+kb = kb_ev * const.eV  # Pymatgen kb [J/k]
+c = const.speed_of_light * 100  # [cm/s]
+h = const.h  # Planck's constant [J.s]
+R = const.R / const.calorie  # Ideal gas constant [cal/mol/K]
+R_ha = const.R / const.value("Hartree energy") / const.Avogadro  # Ideal gas
+# constant [Ha/K]
+R_volume = const.R / const.atm * 1000  # Ideal gas constant [L.atm.K^−1.mol^−1]
 
 # Define useful conversion factors
-kcal2hartree = 0.0015936  # kcal/mol to hartree/mol
+amu_to_kg = const.value("atomic mass unit-kilogram relationship")  # AMU to kg
+# kcal2hartree = 0.0015936  # kcal/mol to hartree/mol
+kcal2hartree = 1000 * const.calorie / const.value("Hartree energy") / const.Avogadro
 
 
 def get_avg_mom_inertia(mol):
     """
     Calculate the average moment of inertia of a molecule
-    :param mol: Molecule
-    :return: average moment of inertia, eigenvalues of inertia tensor
+
+    Args:
+        mol (Molecule): Pymatgen Molecule
+
+    Returns:
+        int, list: average moment of inertia, eigenvalues of the inertia tensor
     """
     centered_mol = mol.get_centered_molecule()
     inertia_tensor = np.zeros((3, 3))
@@ -66,27 +74,55 @@ def get_avg_mom_inertia(mol):
 class QuasiRRHO:
     """
     Class to calculate thermochemistry using Grimme's Quasi-RRHO approximation.
-    All outputs are in atomic units.
+    All outputs are in atomic units, e.g. energy outpouts are in Hartrees.
+    Citation: Grimme, S. Chemistry - A European Journal 18, 9955–9964 (2012).
+
+    Attributes:
+        temp (float): Temperature [K]
+        press (float): Pressure [Pa]
+        conc (float): Solvent concentration [M]
+        v0 (float): Cutoff frequency for Quasi-RRHO method [1/cm]
+        entropy_quasiRRHO (float): Quasi-RRHO entropy [Ha/K]
+        entropy_ho (float): Total entropy calculated with a harmonic
+            oscillator approximation for the vibrational entropy [Ha/K]
+        h_corrected (float): Thermal correction to the enthalpy [Ha]
+        free_energy_quasiRRHO (float): Quasi-RRHO free energy [Ha]
+        concentration_corrected_g_quasiRRHO (float): Quasi-RRHO free energy
+            with a standard state correction for the solvent concentration [Ha]
+        free_energy_ho (float): Free energy calculated without the Quasi-RRHO
+            method, i.e. with a harmonic oscillator approximation for the
+            vibrational entropy [Ha]
+
     """
 
-    def __init__(self, output: GaussianOutput | QCOutput | dict, sigma_r=1, temp=298.15, press=101317, conc=1, v0=100):
-        """
+    def __init__(
+        self,
+        mol: Molecule,
+        frequencies: List,
+        energy: float,
+        mult: int,
+        sigma_r=1,
+        temp=298.15,
+        press=101317,
+        conc=1,
+        v0=100,
+    ):
 
-        :param output: Requires input of a Gaussian output file,
-                        QChem output file, or dictionary of necessary inputs:
-                        {"mol": Molecule, "mult": spin multiplicity (int),
-                        "frequencies": list of vibrational frequencies [a.u.],
-                        elec_energy": electronic energy [a.u.]}
-        :param sigma_r (int): Rotational symmetry number
-        :param temp (float): Temperature [K]
-        :param press (float): Pressure [Pa]
-        :param conc (float): Solvent concentration [M]
-        :param v0 (float): Cutoff frequency for Quasi-RRHO method [cm^1]
+        """
+        Args:
+            mol (Molecule): Pymatgen molecule
+            frequencies (list): List of frequencies (float) [cm^-1]
+            energy (float): Electronic energy [Ha]
+            mult (int): Spin muliplicity
+            sigma_r (int): Rotational symmetry number
+            temp (float): Temperature [K]
+            press (float): Pressure [Pa]
+            conc (float): Solvent concentration [M]
+            v0 (float): Cutoff frequency for Quasi-RRHO method [cm^-1]
         """
         # TO-DO: calculate sigma_r with PointGroupAnalyzer
         # and/or edit Gaussian and QChem io to parse for sigma_r
 
-        self.sigma_r = sigma_r
         self.temp = temp
         self.press = press
         self.conc = conc
@@ -95,52 +131,59 @@ class QuasiRRHO:
         self.entropy_quasiRRHO = None  # Ha/K
         self.free_energy_quasiRRHO = None  # Ha
         self.concentration_corrected_g_quasiRRHO = None  # Ha
-        self.h_corrected = None
+        self.h_corrected = None  # Ha
 
         self.entropy_ho = None  # Ha/K
         self.free_energy_ho = None  # Ha
 
-        if isinstance(output, GaussianOutput):
-            mult = output.spin_multiplicity
-            sigma_r = self.sigma_r
-            elec_e = output.final_energy
-            mol = output.final_structure
-            vib_freqs = [f["frequency"] for f in output.frequencies[-1]]
+        self._get_quasirrho_thermo(mol=mol, mult=mult, frequencies=frequencies, elec_energy=energy, sigma_r=sigma_r)
 
-            self._get_quasirrho_thermo(mol=mol, mult=mult, sigma_r=sigma_r, frequencies=vib_freqs, elec_energy=elec_e)
+    @classmethod
+    def from_GaussianOutput(cls, output: GaussianOutput, **kwargs):
+        """
 
-        if isinstance(output, QCOutput):
-            mult = output.data["multiplicity"]
-            elec_e = output.data["SCF_energy_in_the_final_basis_set"]
+        Args:
+            output (GaussianOutput): Pymatgen GaussianOutput object
 
-            if output.data["optimization"]:
-                mol = output.data["molecule_from_last_geometry"]
-            else:
-                mol = output.data["initial_molecule"]
-            frequencies = output.data["frequencies"]
+        Returns:
+            QuasiRRHO: QuasiRRHO class instantiated from a Gaussian Output
+        """
+        mult = output.spin_multiplicity
+        elec_e = output.final_energy
+        mol = output.final_structure
+        vib_freqs = [f["frequency"] for f in output.frequencies[-1]]
+        return cls(mol=mol, frequencies=vib_freqs, energy=elec_e, mult=mult, **kwargs)
 
-            self._get_quasirrho_thermo(
-                mol=mol, mult=mult, sigma_r=self.sigma_r, frequencies=frequencies, elec_energy=elec_e
-            )
+    @classmethod
+    def from_QCOutput(cls, output: QCOutput, **kwargs):
+        """
 
-        if isinstance(output, dict):
-            mol = Molecule.from_dict(output.get("optimized_molecule", output.get("initial_molecule")))
-            self._get_quasirrho_thermo(
-                mol=mol,
-                mult=mol.spin_multiplicity,
-                sigma_r=self.sigma_r,
-                frequencies=output.get("frequencies", []),
-                elec_energy=output["final_energy"],
-            )
+        Args:
+            output (QCOutput): Pymatgen QCOutput object
+
+        Returns:
+            QuasiRRHO: QuasiRRHO class instantiated from a QChem Output
+
+        """
+        mult = output.data["multiplicity"]
+        elec_e = output.data["SCF_energy_in_the_final_basis_set"]
+        if output.data["optimization"]:
+            mol = output.data["molecule_from_last_geometry"]
+        else:
+            mol = output.data["initial_molecule"]
+        frequencies = output.data["frequencies"]
+
+        return cls(mol=mol, frequencies=frequencies, energy=elec_e, mult=mult, **kwargs)
 
     def _get_quasirrho_thermo(self, mol, mult, sigma_r, frequencies, elec_energy):
         """
         Calculate Quasi-RRHO thermochemistry
-        :param mol: Molecule
-        :param mult: Spin multiplicity
-        :param sigma_r: Rotational symmetry number
-        :param frequencies: List of frequencies [a.u.]
-        :param elec_energy: Electronic energy [a.u.]
+        Args:
+            mol (Molecule): Pymatgen molecule
+            mult (int): Spin multiplicity
+            sigma_r (int): Rotational symmetry number
+            frequencies (list): List of frequencies [cm^-1]
+            elec_energy (float): Electronic energy [Ha]
         """
         # Calculate mass in kg
         mass = 0
@@ -207,13 +250,11 @@ class QuasiRRHO:
         ev *= R
         etot = (et + er + ev) * kcal2hartree / 1000
         self.h_corrected = etot + R * self.temp * kcal2hartree / 1000
-
-        molarity_corr = 0.000003166488448771253 * self.temp * np.log(0.082057338 * self.temp * self.conc)
+        molarity_corr = R_ha * self.temp * np.log(R_volume * self.temp * self.conc)
         self.entropy_ho = st + sr + sv + se
         self.free_energy_ho = elec_energy + self.h_corrected - (self.temp * self.entropy_ho * kcal2hartree / 1000)
         self.entropy_quasiRRHO = st + sr + sv_quasiRRHO + se
         self.free_energy_quasiRRHO = (
             elec_energy + self.h_corrected - (self.temp * self.entropy_quasiRRHO * kcal2hartree / 1000)
         )
-
         self.concentration_corrected_g_quasiRRHO = self.free_energy_quasiRRHO + molarity_corr
