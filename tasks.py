@@ -43,14 +43,14 @@ def make_doc(ctx):
             with open(fn) as f:
                 lines = [line.rstrip() for line in f if "Submodules" not in line]
             if fn == "pymatgen.md":
-                preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 5", "---", ""]
+                preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
             else:
                 preamble = ["---", "layout: default", "title: " + fn, "nav_exclude: true", "---", ""]
             with open(fn, "w") as f:
                 f.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
-        ctx.run("cp ../*.md .")
-        ctx.run("mv README.md index.md")
+        ctx.run("cp ../README.md index.md")
+        ctx.run("cp ../CHANGES.md CHANGES.md")
         ctx.run("rm -rf *.orig doctrees", warn=True)
 
         with open("index.md") as f:
@@ -64,7 +64,6 @@ def make_doc(ctx):
             contents = "---\nlayout: default\ntitle: Home\nnav_order: 1\n---\n\n" + contents
 
             f.write(contents)
-
 
 @task
 def make_dash(ctx):
@@ -246,7 +245,7 @@ def update_changelog(ctx, version=None, dry_run=False):
                         break
                     lines.append(f"    {ll}")
         ignored_commits.append(line)
-    with open("CHANGES.rst") as file:
+    with open("CHANGES.md") as file:
         contents = file.read()
     delim = "=========="
     tokens = contents.split(delim)

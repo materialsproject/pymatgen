@@ -1,7 +1,7 @@
 ---
 layout: default
-title: Home
-nav_order: 3
+title: Usage
+nav_order: 5
 ---
 # Usage
 

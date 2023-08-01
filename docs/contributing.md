@@ -1,3 +1,9 @@
+---
+layout: default
+title: Contributing
+nav_order: 6
+---
+
 # Collaborative Github Workflow
 
 For developers interested in expanding pymatgen for their own purposes, we recommend forking pymatgen directly from the [pymatgen GitHub repo](https://github.com/materialsproject/pymatgen). Here's a typical workflow:

@@ -1,11 +1,16 @@
+---
+layout: default
+title: Change Log
+nav_order: 4
+---
+
 # Change log
 
+## v2023.7.20
 - Unreadable string concat ops to f-string by @janosh in https://github.com/materialsproject/pymatgen/pull/3162
 - Revert `mp-api<0.34.0` pin by @janosh in https://github.com/materialsproject/pymatgen/pull/3165
 - Fix CI error `"pdentries_test.csv"` not found by @janosh in https://github.com/materialsproject/pymatgen/pull/3168
 - Fix issues with labels by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3169
-
-**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2023.7.17...v2023.7.20
 
 ## v2023.7.17
 - Cython 3.0 support.

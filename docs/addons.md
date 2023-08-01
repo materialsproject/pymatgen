@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Add-ons
-nav_order: 5
+nav_order: 7
 ---
 
 # Add-ons
