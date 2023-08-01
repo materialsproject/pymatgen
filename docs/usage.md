@@ -1,6 +1,9 @@
-=====
-Usage
-=====
+---
+layout: default
+title: Home
+nav_order: 3
+---
+# Usage
 
 This page provides new users of the pymatgen code base with a quick overview of
 the pymatgen code base. It should also be pointed out that there is an

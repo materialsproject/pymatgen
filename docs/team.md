@@ -1,3 +1,9 @@
+---
+layout: default
+title: Team
+nav_order: 7
+---
+
 # Development Team
 
 Pymatgen now has a large community of active developers.
