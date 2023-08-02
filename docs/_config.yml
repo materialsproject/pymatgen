@@ -22,3 +22,11 @@ aux_links:
   Issues: [https://github.com/materialsproject/pymatgen/issues]
   Discourse: [https://matsci.org/pymatgen]
   Materials Project: [https://materialsproject.org]
+
+# Enable or disable the site search
+# Supports true (default) or false
+search_enabled: true
+
+# Split pages into sections that can be searched individually
+# Supports 1 - 6, default: 2
+search.heading_level: 6
