@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from pymatgen.io.qchem.outputs import QCOutput
 
 # Define useful constants
-kb = kb_ev * const.eV  # Pymatgen kb [J/k]
+kb = kb_ev * const.eV  # Pymatgen kb [J/K]
 c = const.speed_of_light * 100  # [cm/s]
 h = const.h  # Planck's constant [J.s]
 R = const.R / const.calorie  # Ideal gas constant [cal/mol/K]
@@ -177,6 +177,10 @@ class QuasiRRHO:
 
         return cls(mol=mol, frequencies=frequencies, energy=elec_e, mult=mult, **kwargs)
 
+    @due.dcite(
+        Doi("10.1002/chem.201200497"),
+        description="Supramolecular Binding Thermodynamics by Dispersion-Corrected Density Functional Theory",
+    )
     def _get_quasirrho_thermo(self, mol, mult, sigma_r, frequencies, elec_energy):
         """
         Calculate Quasi-RRHO thermochemistry
