@@ -5,8 +5,7 @@ nav_order: 1
 ---
 
 <h1 align="center">
-  <img alt="Logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/assets/pymatgen.svg"
-height="70">
+  <img alt="pymatgen logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/assets/pymatgen.svg" width="300px">
 </h1>
 
 [![CI Status](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml)
