@@ -62,7 +62,7 @@ jobs:
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
       MPLBACKEND: Agg # https://github.com/orgs/community/discussions/26434
-      PMG_TEST_FILES_DIR: ${{ github.workspace }}/test_files
+      PMG_TEST_FILES_DIR: ${{ github.workspace }}/tests/files
       GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
 
     steps:
