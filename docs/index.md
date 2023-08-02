@@ -1,3 +1,9 @@
+---
+layout: default
+title: Home
+nav_order: 1
+---
+
 <h1 align="center">
   <img alt="Logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/assets/pymatgen.svg"
 height="70">
