@@ -17,7 +17,7 @@ A list of `pymatgen` developers can also be found [on GitHub](https://github.com
 
 _A zoomable, interactive map of `pymatgen` contributors based on associated institutions. If you spot an error or omission, let us know or fill out the form above._
 
-<iframe src="assets/team-map.html" width="100%" height="500"></iframe>
+<iframe src="http://pymatgen.org/assets/team-map.html" width="100%" height="500"></iframe>
 
 ## Lead Maintainers
 
