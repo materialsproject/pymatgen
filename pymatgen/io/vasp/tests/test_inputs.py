@@ -1024,8 +1024,8 @@ class PotcarSingleTest(PymatgenTest):
         for psingle in potcars:
             if hasattr(psingle, "hash_sha256_from_file"):
                 assert psingle.hash_sha256_computed == psingle.hash_sha256_from_file
-        else:
-            assert psingle.file_hash in file_hash_db
+            else:
+                assert psingle.file_hash in file_hash_db
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
