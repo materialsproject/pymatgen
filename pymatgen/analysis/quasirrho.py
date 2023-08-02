@@ -83,7 +83,7 @@ class QuasiRRHO:
     Attributes:
         temp (float): Temperature [K]
         press (float): Pressure [Pa]
-        conc (float): Solvent concentration [M]
+        conc (float): Solvent concentration. Assumes 1M unless specified [M]
         v0 (float): Cutoff frequency for Quasi-RRHO method [1/cm]
         entropy_quasiRRHO (float): Quasi-RRHO entropy [Ha/K]
         entropy_ho (float): Total entropy calculated with a harmonic
