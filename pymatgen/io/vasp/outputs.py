@@ -1149,8 +1149,13 @@ class Vasprun(MSONable):
                 potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums))
             charge = potcar_nelect - nelect
 
-            for s in self.structures:
-                s._charge = charge
+            # If we do a chemical shift calculation, there is only one ionic step really,
+            # but parsing the vasprun.xml file will result in len(self.ionic_steps) > 1
+            # only the first one contains a structure however, where we can update
+            # the charge.
+            if not self.incar.get("LCHIMAG"):
+                for s in self.structures:
+                    s._charge = charge
             if hasattr(self, "initial_structure"):
                 self.initial_structure._charge = charge
             if hasattr(self, "final_structure"):
