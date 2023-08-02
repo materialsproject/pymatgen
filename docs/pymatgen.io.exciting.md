@@ -96,7 +96,7 @@ booleans.
 Reads the exciting input from a string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 

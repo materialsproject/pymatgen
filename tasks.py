@@ -39,6 +39,7 @@ def make_doc(ctx):
         ctx.run("sphinx-build -M markdown . .")
         ctx.run("rm *.rst", warn=True)
         ctx.run("cp markdown/pymatgen*.md .")
+        ctx.run("rm pymatgen*tests*.md")
         for fn in glob.glob("pymatgen*.md"):
             with open(fn) as f:
                 lines = [line.rstrip() for line in f if "Submodules" not in line]

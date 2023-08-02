@@ -13672,7 +13672,97 @@ nav_order: 6
         * [`seebeck_spb()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap.seebeck_spb)
 
 
-    * [pymatgen.electronic_structure.boltztrap2 module](pymatgen.electronic_structure.md#pymatgen-electronic-structure-boltztrap2-module)
+    * [pymatgen.electronic_structure.boltztrap2 module](pymatgen.electronic_structure.md#module-pymatgen.electronic_structure.boltztrap2)
+
+
+        * [`BandstructureLoader`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BandstructureLoader)
+
+
+            * [`BandstructureLoader.bandana()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.bandana)
+
+
+            * [`BandstructureLoader.get_lattvec()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.get_lattvec)
+
+
+            * [`BandstructureLoader.get_volume()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.get_volume)
+
+
+            * [`BandstructureLoader.set_upper_lower_bands()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.set_upper_lower_bands)
+
+
+        * [`BztInterpolator`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztInterpolator)
+
+
+            * [`BztInterpolator.get_band_structure()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_band_structure)
+
+
+            * [`BztInterpolator.get_dos()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_dos)
+
+
+            * [`BztInterpolator.get_partial_doses()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_partial_doses)
+
+
+            * [`BztInterpolator.load()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztInterpolator.load)
+
+
+            * [`BztInterpolator.save()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztInterpolator.save)
+
+
+        * [`BztPlotter`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztPlotter)
+
+
+            * [`BztPlotter.plot_bands()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_bands)
+
+
+            * [`BztPlotter.plot_dos()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_dos)
+
+
+            * [`BztPlotter.plot_props()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_props)
+
+
+        * [`BztTransportProperties`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztTransportProperties)
+
+
+            * [`BztTransportProperties.compute_properties_doping()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.compute_properties_doping)
+
+
+            * [`BztTransportProperties.load()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.load)
+
+
+            * [`BztTransportProperties.save()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.save)
+
+
+        * [`VasprunBSLoader`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.VasprunBSLoader)
+
+
+            * [`VasprunBSLoader.bandana()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.VasprunBSLoader.bandana)
+
+
+            * [`VasprunBSLoader.from_file()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.VasprunBSLoader.from_file)
+
+
+            * [`VasprunBSLoader.get_lattvec()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.VasprunBSLoader.get_lattvec)
+
+
+            * [`VasprunBSLoader.get_volume()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.VasprunBSLoader.get_volume)
+
+
+        * [`VasprunLoader`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.VasprunLoader)
+
+
+            * [`VasprunLoader.bandana()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.VasprunLoader.bandana)
+
+
+            * [`VasprunLoader.from_file()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.VasprunLoader.from_file)
+
+
+            * [`VasprunLoader.get_lattvec()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.VasprunLoader.get_lattvec)
+
+
+            * [`VasprunLoader.get_volume()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.VasprunLoader.get_volume)
+
+
+        * [`merge_up_down_doses()`](pymatgen.electronic_structure.md#pymatgen.electronic_structure.boltztrap2.merge_up_down_doses)
 
 
     * [pymatgen.electronic_structure.cohp module](pymatgen.electronic_structure.md#module-pymatgen.electronic_structure.cohp)

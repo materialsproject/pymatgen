@@ -1937,7 +1937,7 @@ String representation.
 
 
 
-#### to_string(\*args, \*\*kwargs)
+#### to_string(\*\*kwds)
 to_string is deprecated!
 Use to_str instead
 
@@ -2094,7 +2094,7 @@ String representation i.e. the input file read by Abinit.
 
 
 
-#### to_string(\*args, \*\*kwargs)
+#### to_string(\*\*kwds)
 to_string is deprecated!
 Use to_str instead
 
@@ -3316,7 +3316,7 @@ Element symbol.
 String representation.
 
 
-#### to_string(\*args, \*\*kwargs)
+#### to_string(\*\*kwds)
 to_string is deprecated!
 Use to_str instead
 

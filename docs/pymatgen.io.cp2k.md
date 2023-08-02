@@ -452,7 +452,7 @@ Exchange correlation functional used for creating this potential
 Get summary info from a string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -578,7 +578,7 @@ Helper method to read lines of file.
 Initialize from a string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -640,7 +640,7 @@ Load from a file.
 Initialize from a string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -943,7 +943,7 @@ Contraction coefficients for each set. Dict[exp->l->shell]
 Read from standard cp2k GTO formatted string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -1102,7 +1102,7 @@ Extract GTH-formatted string from a section and convert it to model.
 Initialize model from a GTH formatted string.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -1195,7 +1195,7 @@ the file reader).
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -1627,7 +1627,7 @@ Exchange correlation functional used for creating this potential
 Get a cp2k formatted string representation.
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 

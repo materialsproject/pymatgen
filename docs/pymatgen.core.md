@@ -6320,7 +6320,7 @@ Returns a Species from a string representation.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -12303,7 +12303,7 @@ Parse string to FloatWithUnit.
 Example: Memory.from_str(“1. Mb”)
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 

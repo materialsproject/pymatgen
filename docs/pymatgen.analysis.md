@@ -17450,7 +17450,7 @@ already be balanced.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 

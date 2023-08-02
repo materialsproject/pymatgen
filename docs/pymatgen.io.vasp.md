@@ -1246,7 +1246,7 @@ Reads an Incar object from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -1581,7 +1581,7 @@ Reads a Kpoints object from a KPOINTS string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -1687,7 +1687,7 @@ Enum type of all supported modes for Kpoint generation.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -1942,7 +1942,7 @@ require specific elemental properties should work fine.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 

@@ -7922,7 +7922,7 @@ Construct an AdfKey object from the string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -8397,7 +8397,7 @@ Structure format.
 
 
 
-#### structure_from_string(\*args, \*\*kwargs)
+#### structure_from_string(\*\*kwds)
 structure_from_string is deprecated!
 Use from_str instead
 
@@ -8416,7 +8416,7 @@ Use from_str instead
 
 
 
-#### to_string(\*args, \*\*kwargs)
+#### to_string(\*\*kwds)
 to_string is deprecated!
 Use to_str instead
 
@@ -8554,7 +8554,7 @@ formats.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -8744,7 +8744,7 @@ Reads CifBlock from string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -8802,7 +8802,7 @@ Reads CifFile from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -8863,7 +8863,7 @@ Creates a CifParser from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -9717,7 +9717,7 @@ files generated from this class itself.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -9990,7 +9990,7 @@ Creates GaussianInput from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -10018,7 +10018,7 @@ Return GaussianInput string.
 
 
 
-#### to_string(\*args, \*\*kwargs)
+#### to_string(\*\*kwds)
 to_string is deprecated!
 Use to_str instead
 
@@ -10599,7 +10599,7 @@ are ignored.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -10729,7 +10729,7 @@ files generated from this class itself.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -11481,7 +11481,7 @@ Convert a pymatgen Structure object to a PhonopyAtoms object.
 
 
 
-### pymatgen.io.phonopy.get_pmg_structure(phonopy_structure: None)
+### pymatgen.io.phonopy.get_pmg_structure(phonopy_structure: PhonopyAtoms)
 Convert a PhonopyAtoms object to pymatgen Structure object.
 
 
@@ -11533,7 +11533,7 @@ Returns: Prismatic XYZ file. This is similar to XYZ format
 but has specific requirements for extra fields, headers, etc.
 
 
-#### to_string(\*args, \*\*kwargs)
+#### to_string(\*\*kwds)
 to_string is deprecated!
 Use to_str instead
 
@@ -11652,7 +11652,7 @@ Reads an PWInput object from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -12351,7 +12351,7 @@ Initialize a Structure object from a string with data in XSF format.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -12367,7 +12367,7 @@ See [http://www.xcrysden.org/doc/XSF.html](http://www.xcrysden.org/doc/XSF.html)
 
 
 
-#### to_string(\*args, \*\*kwargs)
+#### to_string(\*\*kwds)
 to_string is deprecated!
 Use to_str instead
 
@@ -12466,7 +12466,7 @@ Creates an Xr object from a string representation.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -12554,7 +12554,7 @@ Creates XYZ object from a string.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
@@ -12648,7 +12648,7 @@ Reads a string representation to a ZeoCssr object.
 
 
 
-#### _classmethod_ from_string(\*args, \*\*kwargs)
+#### _classmethod_ from_string(\*args, \*\*kwds)
 from_string is deprecated!
 Use from_str instead
 
