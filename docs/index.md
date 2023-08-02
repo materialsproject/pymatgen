@@ -36,31 +36,42 @@ reports. The following are resources for pymatgen:
 - [Official documentation](https://pymatgen.org)
 - Bug reports or feature requests: Please submit a Github Issue.
 - Code contributions via pull requests are welcome.
-- For questions that are not bugs or feature requests, please use the `pymatgen` [MatSci forum](https://matsci.org/pymatgen) or open a [GitHub discussion].
-- [matgenb] provides some example Jupyter notebooks that demonstrate how to use `pymatgen` functionality.
+- For questions that are not bugs or feature requests, please use the pymatgen [MatSci forum](https://matsci.org/pymatgen) or open a [GitHub discussion].
+- [matgenb] provides some example Jupyter notebooks that demonstrate how to use pymatgen functionality.
 - Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
 
 [pull request]: https://github.com/materialsproject/pymatgen/pulls
 [github issue]: https://github.com/materialsproject/pymatgen/issues
 [github discussion]: https://github.com/materialsproject/pymatgen/discussions
 
-## Why use `pymatgen`?
+## Why use pymatgen?
 
-1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers and is the analysis code powering the [Materials Project]. The analysis it produces survives rigorous scrutiny every single day. Bugs tend to be found and corrected quickly. Pymatgen also uses Github Actions for continuous integration, which ensures that every new code passes a comprehensive suite of unit tests.
-2. **It is well documented.** A fairly comprehensive documentation has been written to help you get to grips with it quickly.
-3. **It is open.** You are free to use and contribute to `pymatgen`. It also means that `pymatgen` is continuously being improved. We will attribute any code you contribute to any publication you specify. Contributing to `pymatgen` means your research becomes more visible, which translates to greater impact.
-4. **It is fast.** Many of the core numerical methods in `pymatgen` have been optimized by vectorizing in `numpy`/`scipy`. This means that coordinate manipulations are fast. Pymatgen also comes with a complete system for handling periodic boundary conditions.
-5. **It will be around.** Pymatgen is not a pet research project. It is used in the well-established Materials Project. It is also actively being developed and maintained by the [Materials Virtual Lab], the ABINIT group and many other research groups.
-6. **A growing ecosystem of developers and add-ons**. Pymatgen has contributions from materials scientists all over the world. We also now have an architecture to support add-ons that expand `pymatgen`'s functionality even further. Check out the [contributing page](https://pymatgen.org/contributing) and [add-ons page](https://pymatgen.org/addons) for details and examples.
+1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers and is the analysis code powering the 
+   [Materials Project]. The analysis it produces survives rigorous scrutiny every single day. Bugs tend to be found 
+   and corrected quickly. Pymatgen also uses Github Actions for continuous integration, which ensures that every new 
+   code passes a comprehensive suite of unit tests.
+2. **It is well documented.** A fairly comprehensive documentation has been written to help you get to grips with it 
+   quickly.
+3. **It is open.** You are free to use and contribute to pymatgen. It also means that pymatgen is continuously 
+   being improved. We will attribute any code you contribute to any publication you specify. Contributing to 
+   pymatgen means your research becomes more visible, which translates to greater impact.
+4. **It is fast.** Many of the core numerical methods in pymatgen have been optimized by vectorizing in 
+   `numpy`/`scipy`. This means that coordinate manipulations are fast. Pymatgen also comes with a complete system 
+   for handling periodic boundary conditions.
+5. **It will be around.** Pymatgen is not a pet research project. It is used in the well-established Materials 
+   Project. It is also actively being developed and maintained by the [Materials Virtual Lab], the ABINIT group and 
+   many other research groups.
+6. **A growing ecosystem of developers and add-ons**. Pymatgen has contributions from materials scientists all over 
+   the world. We also now have an architecture to support add-ons that expand pymatgen's functionality even 
+   further. Check out the [contributing page](/contributing) and [add-ons page](/addons) for details and examples.
 
     *The code is mightier than the pen.*
 
 ## Matgenie & Examples
 
 The [Materials Virtual Lab] has developed a [matgenie web app](http://matgenie.materialsvirtuallab.org) which
-demonstrates some of the basic functionality of pymatgen, as well as a
-[matgenb repository](http://matgenb.materialsvirtuallab.org) of Jupyter notebooks for common and advanced use cases.
-One of the ways you can contribute is to fork the matgenb repo and add your own examples.
+demonstrates some of the basic functionality of pymatgen, as well as a [matgenb] repository of Jupyter notebooks for 
+common and advanced use cases. One of the ways you can contribute is to fork the matgenb repo and add your own examples.
 
 Below are a quick look at some of the graphical output possible.
 
@@ -70,114 +81,98 @@ Bottom left: Calculated bandstructure plot using pymatgen's parsing and
 plotting utilities. Bottom right: Arrhenius plot using pymatgen's
 DiffusionAnalyzer.*
 
-## Why use pymatgen?
-
-There are many materials analysis codes out there, both commercial and free.
-So you might ask - why should I use pymatgen over others? Pymatgen offer
-several advantages over other codes out there:
-
-1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers, and is the analysis code powering the
-   `Materials Project`_. The analysis it produces survives rigorous scrutiny every single day. Bugs tend to be
-   found and corrected quickly. Pymatgen also uses Github Actions for continuous integration, which ensures that every
-   new code passes a comprehensive suite of unittests.
-2. **It is well documented.** A fairly comprehensive documentation has been written to help you get to grips with it
-   quickly.
-3. **It is open.** You are free to use and contribute to pymatgen. It also means that pymatgen is continuously being
-   improved. We will attribute any code you contribute to any publication you specify. Contributing to pymatgen means
-   your research becomes more visible, which translates to greater impact.
-4. **It is fast.** Many of the core numerical methods in pymatgen have been optimized by vectorizing in numpy/scipy.
-   This means that coordinate manipulations are extremely fast and are in fact comparable to codes written in other
-   languages. Pymatgen also comes with a complete system for handling periodic boundary conditions.
-5. **It will be around.** Pymatgen is not a pet research project. It is used in the well-established Materials Project.
-   It is also actively being developed and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
-   other research groups.
-6. **A growing ecosystem of developers and add-ons**. Pymatgen has contributions from materials scientists all over the
-   world. We also now have an architecture to support add-ons that expand pymatgen's functionality even further. Check
-   out the `contributing page <http://pymatgen.org/contributing>`*and `add-ons page <http://pymatgen.org/addons>`* for
-   details and examples.
-
-Please review the `coding guidelines </contributing>`_.
-
-:doc:`Older versions </changes>`
-
 ## Getting pymatgen
 
 ### Conda (recommended)
 
 If you are absolutely new to Python and/or are using Windows, the easiest
-installation process is using `conda <http://conda.pydata.org>`*. If you
-already have conda installed, pymatgen can be installed from the `conda-forge
-channel <https://anaconda.org/conda-forge>`* using the following command::
+installation process is using [conda](http://conda.pydata.org). If you
+already have conda installed, pymatgen can be installed from the [conda-forge
+channel](https://anaconda.org/conda-forge) using the following command:
 
-    conda install --channel conda-forge pymatgen
+```shell
+conda install --channel conda-forge pymatgen
+```
 
 Note that you might need to ensure a relatively recent version of gcc is
 available to compile pymatgen. You can use conda to get that::
 
-    conda install gcc
+```shell
+conda install gcc
+```
 
 Pymatgen is under active development, and new features are added regularly. To
-upgrade pymatgen to the latest version, use the following command::
+upgrade pymatgen to the latest version, use the following command:
 
-    conda upgrade pymatgen
+```shell
+conda upgrade pymatgen
+```
 
 Step-by-step instructions for all platforms are available at the
-:doc:`installation page </installation>`.
+[installation page](/installation).
 
 ### pip
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that is relatively bug-free. The easiest way to install pymatgen on
-any system is to use pip::
+any system is to use pip:
 
-    pip install pymatgen
+```shell
+pip install pymatgen
+```    
 
 Wheels for Mac and Windows have been built for convenience. Similarly, you might
 need to ensure you have a relatively recent version of gcc.
 
-To upgrade pymatgen via pip::
+To upgrade pymatgen via pip:
 
-    pip install --upgrade pymatgen
+```shell
+pip install --upgrade pymatgen
+```
 
 The bleeding edge developmental version is at the pymatgen [Github repo]. The developmental
-version is likely to be more buggy, but may contain new features. The
-Github version include complete test files. After
-cloning the source, you can type in the root of the repo::
+version is likely to be more buggy, but may contain new features. The Github version include complete test files. 
+After cloning the source, you can type in the root of the repo:
 
-    pip install .
+```shell
+pip install .
+```
 
-or to install the package in developmental mode::
+or to install the package in developmental mode:
 
-    pip install -e .
+```shell
+pip install -e .
+```
 
-Detailed installation instructions, including installation of
-option dependencies, set up for POTCAR generation, Materials Project REST
-interface usage, setup for developers, etc.are given on this
-:doc:`page </installation>`.
+Detailed installation instructions, including installation of optional dependencies, set up for POTCAR generation, 
+Materials Project REST interface usage, setup for developers, etc. are given on this [page](/installation).
 
-For some extras, you can also install the optional dependencies using::
+For some extras, you can also install the optional dependencies using:
 
-   pip install pymatgen[extra]
+```shell
+pip install pymatgen[extra]
+```
 
-For an always up-to-date list of extras, consult the `setup.py's extras_require
-<https://github.com/materialsproject/pymatgen/blob/master/setup.py>`_.
+For an always up-to-date list of extras, consult the [setup.py's extras_require](https://github.com/materialsproject/pymatgen/blob/master/setup.py).
 
 ### Shared cluster installation
 
 If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
 or NERSC resources in the US, the best way is to use conda to perform a local
-install. This guarantees the right version of python and all dependencies::
+install. This guarantees the right version of python and all dependencies:
 
-    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-    bash Miniconda3-latest-Linux-x86_64.sh -b
+```shell
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh -b
 
-    # Reload bash profile.
-    source $HOME/.bashrc
-    source $HOME/.bash_profile
+# Reload bash profile.
+source $HOME/.bashrc
+source $HOME/.bash_profile
 
-    # Install numpy and other pydata stack packages via conda.
-    conda install --yes numpy scipy pandas
-    conda install --yes --channel conda-forge pymatgen
+# Install numpy and other pydata stack packages via conda.
+conda install --yes numpy scipy pandas
+conda install --yes --channel conda-forge pymatgen
+```
 
 ## Usage
 
@@ -339,21 +334,14 @@ installed to your path by default when you install pymatgen through the
 typical installation routes.
 
 Here, we will discuss the most versatile of these scripts, known as
-pmg. The typical usage of pmg is::
+pmg. The typical usage of pmg is:
 
-    pmg {setup, config, analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
+```shell
+pmg {setup, config, analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
+```
 
-At any time, you can use ``"pmg --help"`` or ``"pmg subcommand
---help"`` to bring up a useful help message on how to use these subcommands.
-With effect from v4.6.0, ``pmg`` also supports bash completion using
-argcomplete, which is useful given the many options available in the cli tool.
-To enable argcomplete, ``pip install argcomplete`` and either follow
-argcomplete's instructions for enabling global completion, or add the following
-line to your ``.bash_profile`` (this method usually works more reliably)::
-
-   eval "$(register-python-argcomplete pmg)"
-
-Here are a few examples of typical usages::
+At any time, you can use `pmg --help` or `pmg subcommand --help` to bring up a useful help message on how to use 
+these subcommands. Here are a few examples of typical usages:
 
 ```bash
 # Parses all vasp runs in a directory and display the basic energy
@@ -424,27 +412,29 @@ to the developing team. Please report any bugs and issues at pymatgen's
 `Github Issues page <https://github.com/materialsproject/pymatgen/issues>`*.
 For help with any pymatgen issue, consult `Stack Overflow
 <https://stackoverflow.com/questions/tagged/pymatgen>`* and if
-you cannot find an answer, please post a question with the tag `pymatgen`.
+you cannot find an answer, please post a question with the tag pymatgen.
 
 ### Developing new functionality
 
 Another way to contribute is to submit new code/bugfixes to pymatgen. The
 best way for anyone to develop pymatgen is by adopting the collaborative
-Github workflow (see `contributing page </contributing>`_).
+Github workflow (see [contributing page](/contributing).
 
 ## Citing pymatgen
 
 If you use pymatgen in your research, please consider citing the following work:
 
-    Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier,
-    Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
-    Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
-    Open-Source Python Library for Materials Analysis.* Computational
-    Materials Science, 2013, 68, 314–319. `doi:10.1016/j.commatsci.2012.10.028
-    <https://doi.org/10.1016/j.commatsci.2012.10.028>`_
+```txt
+Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier,
+Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
+Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
+Open-Source Python Library for Materials Analysis.* Computational
+Materials Science, 2013, 68, 314–319. `doi:10.1016/j.commatsci.2012.10.028
+<https://doi.org/10.1016/j.commatsci.2012.10.028>`_
+```
 
 In addition, some of pymatgen's functionality is based on scientific advances / principles developed by various
-scientists. Please refer to the :doc:`references page </references>` for citation info.
+scientists. Please refer to the [references page](/references) for citation info.
 
 ## License
 
@@ -476,6 +466,6 @@ they commit the change to one of the pymatgen repositories.
 [FireWorks]: https://materialsproject.github.io/fireworks
 [Materials Project]: https://www.materialsproject.org
 [Materials Virtual Lab]: http://www.materialsvirtuallab.org
-[`pymatgen` docs]: https://pymatgen.org
-[`pymatgen` development team]: https://pymatgen.org/team
+[pymatgen docs]: https://pymatgen.org
+[pymatgen development team]: https://pymatgen.org/team
 [matgenb]: https://matgenb.materialsvirtuallab.org/
