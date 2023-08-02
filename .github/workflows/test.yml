@@ -5,8 +5,10 @@ name: Tests
 on:
   push:
     branches: [master]
+    paths-ignore: ["**/*.md", docs/**]
   pull_request:
     branches: [master]
+    paths-ignore: ["**/*.md", docs/**]
   release:
     types: [published]
   workflow_dispatch:
