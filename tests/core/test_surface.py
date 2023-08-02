@@ -8,6 +8,7 @@ import unittest
 import numpy as np
 from pytest import approx
 
+import pymatgen
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -651,8 +652,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
 
         with open(
             os.path.join(
-                os.path.abspath(os.path.dirname(__file__)),
-                "..",
+                os.path.abspath(os.path.dirname(pymatgen.core.__file__)),
                 "reconstructions_archive.json",
             )
         ) as data_file:
