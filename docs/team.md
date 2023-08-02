@@ -21,6 +21,7 @@ _A zoomable, interactive map of `pymatgen` contributors based on associated inst
 <!-- <iframe src="/team-map.html" width="100%" height="500"></iframe> -->
 
 ## Lead Maintainers
+
 | Name             | Position                                                                 | 💻 GitHub                                                                           | 🔬 ORCID                                                      | 🌐 Web                                                        |
 | ---------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Shyue Ping Ong   | Lead developer, Associate Professor, Department of NanoEngineering, UCSD | [shyuep](https://github.com/shyuep)                                                | [0000-0001-7777-8871](https://orcid.org/0000-0001-5726-2587) | [materialsvirtuallab.org](https://materialsvirtuallab.org)   |
@@ -30,6 +31,7 @@ _A zoomable, interactive map of `pymatgen` contributors based on associated inst
 ## List of Developers (A–Z)
 
 ### 4+ years active
+
 |Name|Position|Github|Orcid|
 |----|--------|------|-----|
 | **Alex Ganose** | Lawrence Berkeley National Laboratory |utf <a href="https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:utf"><img src="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg" alt="github" width="16" height="16"/></a> |0000-0002-4486-3321 <a href="https://orcid.org/0000-0002-4486-3321"><img src="assets/orcid.svg" alt="github" width="16" height="16"/> </a>|
@@ -57,8 +59,8 @@ _A zoomable, interactive map of `pymatgen` contributors based on associated inst
 | **Tess Smidt** | Lawrence Berkeley National Laboratory |blondegeek <a href="https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:blondegeek"><img src="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg" alt="github" width="16" height="16"/></a> |0000-0001-5581-5344 <a href="https://orcid.org/0000-0001-5581-5344"><img src="assets/orcid.svg" alt="github" width="16" height="16"/> </a>|
 
 
-1–4 years active
-----------------
+### 1–4 years active
+
 |Name|Position|Github|Orcid|
 |----|--------|------|-----|
 | **Alex Dunn** | Lawrence Berkeley National Laboratory; University of California, Berkeley |ardunn <a href="https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:ardunn"><img src="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg" alt="github" width="16" height="16"/></a> |0000-0002-8567-1879 <a href="https://orcid.org/0000-0002-8567-1879"><img src="assets/orcid.svg" alt="github" width="16" height="16"/> </a>|
@@ -105,8 +107,9 @@ _A zoomable, interactive map of `pymatgen` contributors based on associated inst
 | **Zachary M Gibbs** | California Institute of Technology |zacharygibbs <a href="https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:zacharygibbs"><img src="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg" alt="github" width="16" height="16"/> </a>|
 
 
-< 1 year active
----------------
+### < 1 year active
+
+
 |Name|Position|Github|Orcid|
 |----|--------|------|-----|
 | **Adam Fekete** | Université catholique de Louvain |fekad <a href="https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:fekad"><img src="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg" alt="github" width="16" height="16"/> </a>|
@@ -172,8 +175,7 @@ _A zoomable, interactive map of `pymatgen` contributors based on associated inst
 | **Yuta Suzuki** | High Energy Accelerator Research Organization, SOKENDAI |resnant <a href="https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:resnant"><img src="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg" alt="github" width="16" height="16"/></a> |0000-0002-0019-4832 <a href="https://orcid.org/0000-0002-0019-4832"><img src="assets/orcid.svg" alt="github" width="16" height="16"/> </a>|
 | **Zhenbin Wang** | University of California, San Diego |zbwang <a href="https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:zbwang"><img src="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg" alt="github" width="16" height="16"/> </a>|
 
-Thanks
-------
+## Thanks
 
 Thanks also to:
 
