@@ -9,11 +9,9 @@ nav_order: 8
 Pymatgen has a large community of active developers. It would not be the package it is today without the diligent work
 of everyone on this page! This goes from the smallest bug fix to years of contributions.
 
-If you've made a contribution but your name is missing from this list, please let us know
-by filling out [this form](https://forms.gle/JnisFb38QDR8QTFTA) so you can be credited appropriately.
-An always-up-to-date list of `pymatgen` developers can also be found [on GitHub](https://github.com/materialsproject/pymatgen/graphs/contributors).
+If you've contributed but your name is missing from this list, please let us know by filling out [this form](https://forms.gle/JnisFb38QDR8QTFTA) so you can be credited appropriately. An always-up-to-date list of `pymatgen` developers can also be found [on GitHub](https://github.com/materialsproject/pymatgen/graphs/contributors).
 
-<iframe src="http://pymatgen.org/assets/team-map.html" width="100%" height="500"></iframe>
+<iframe src="/assets/team-map.html" width="100%" height="500"></iframe>
 
 ## Lead Maintainers
 
