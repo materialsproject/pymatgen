@@ -20,11 +20,12 @@ __credits__ = "Ryan Kingsbury, Steven Wheeler, Trevor Seguin, Evan Spotte-Smith"
 
 from math import isclose
 from typing import TYPE_CHECKING
+from pymatgen.util.due import Doi, due
+from pymatgen.core.units import kb as kb_ev
 
 import numpy as np
 import scipy.constants as const
 
-from pymatgen.core.units import kb as kb_ev
 
 if TYPE_CHECKING:
     from pymatgen.core import Molecule
